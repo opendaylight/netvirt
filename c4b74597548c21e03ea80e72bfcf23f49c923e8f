@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_7ccb9372",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-20T06:00:44Z",
+      "side": 1,
+      "message": "should not we have one single VpnInterface per port ?\nIn that case, this should be called at the end of for (FixedIps port ) loop, after having forged sn List.\n\nI think that dual stack VMs have never been tested.\nAnd this may explain why natively, this may not work.",
+      "range": {
+        "startLine": 281,
+        "startChar": 24,
+        "endLine": 281,
+        "endChar": 99
+      },
+      "revId": "c4b74597548c21e03ea80e72bfcf23f49c923e8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
