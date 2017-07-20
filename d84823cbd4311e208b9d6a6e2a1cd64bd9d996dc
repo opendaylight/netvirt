@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_3e9f2ab6",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-20T14:45:02Z",
+      "side": 1,
+      "message": "Hi Sam\nI agree with you. I do a few change for IPv4 which are linking to an existing method in [1].\nUnfortunately this method do not exist for IPv6 so I don\u0027t change it here, but I opened a new ticket (https://bugs.opendaylight.org/show_bug.cgi?id\u003d8872) as I am thinking that you are wish someone to fix this forgot method for IPv6 in genuis.\nthks for your help",
+      "parentUuid": "da2a55be_2b1b6a1c",
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a8cbe0a3",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 2
