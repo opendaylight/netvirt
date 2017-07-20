@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_3e99ea1f",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-20T16:50:21Z",
+      "side": 1,
+      "message": "Thanks for filing the bug. That will help us going forward.",
+      "parentUuid": "da2a55be_3e9f2ab6",
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a8cbe0a3",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 2
