@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_2b1b6a1c",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-20T12:37:06Z",
+      "side": 1,
+      "message": "Sridhar found some existing utils in [1] and [2]. We should eventually have them all in [1] so we pull utils from genius. For this review we can go forward with the impl, but let\u0027s keep a task open to migrate these to genius so that other modules can benefit from them.\n\n[1] https://github.com/opendaylight/genius/blob/stable/carbon/mdsalutil/mdsalutil-api/src/main/java/org/opendaylight/genius/mdsalutil/NWUtil.java#L180\n\n[2] https://github.com/opendaylight/netvirt/blob/stable/carbon/vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java#L609",
+      "parentUuid": "da2a55be_b9f979ca",
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a8cbe0a3",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 2
