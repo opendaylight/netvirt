@@ -16,6 +16,24 @@
       "revId": "44fcc416872b82297037d71057b5d44e0b72ac5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b4d180fd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-07-20T04:54:12Z",
+      "side": 1,
+      "message": "Hi Sam/Sridhar,\n\n We observed this NullpointerException is coming from below CSIT tempest ran. Also this issue is Sporadic. I have observed this issue on upstream CSIT build #131 only.\n\nCausing TC:\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\ntempest.scenario.test_network_v6.TestGettingAddress.test_slaac_from_os\n\nUnfortunately we could\u0027t get the proper dump-flows/groups and DS values from CSIT log. Since once tempest TC ran it will clear all the configuration from Openstack Side. Hence we are not getting actual logs to debug this issue.\n\nWe will try to reproduce the issue with local development setup without clean-up the configuration to further investigation on this issue.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "da2a55be_6eff3568",
+      "revId": "44fcc416872b82297037d71057b5d44e0b72ac5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
