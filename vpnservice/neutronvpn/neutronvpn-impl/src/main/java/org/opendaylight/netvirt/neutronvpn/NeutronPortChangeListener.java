@@ -425,26 +425,24 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                       + "during subnet deletion event.", portupdate.getUuid().getValue());
             return;
         }
-
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         portDataStoreCoordinator.enqueueJob("PORT- " + portupdate.getUuid().getValue(), () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             Uuid vpnIdNew = null;
-            final Uuid subnetIdOr = portupdate.getFixedIps().get(0).getSubnetId();
-            final Uuid subnetIdUp = portupdate.getFixedIps().get(0).getSubnetId();
+            final Uuid oldSubnetId = portoriginal.getFixedIps().get(0).getSubnetId();
+            final Uuid newSubnetId = portupdate.getFixedIps().get(0).getSubnetId();
             // check if subnet UUID has changed upon change in fixedIP
-            final Boolean subnetUpdated = subnetIdUp.equals(subnetIdOr) ? false : true;
-
+            final Boolean subnetUpdated = oldSubnetId.equals(newSubnetId) ? false : true;
             if (subnetUpdated) {
-                Subnetmap subnetMapOld = nvpnManager.removePortsFromSubnetmapNode(subnetIdOr, portoriginal
+                Subnetmap subnetMapOld = nvpnManager.removePortsFromSubnetmapNode(oldSubnetId, portoriginal
                         .getUuid(), null);
                 Uuid vpnIdOld = (subnetMapOld != null) ? subnetMapOld.getVpnId() : null;
-                Subnetmap subnetMapNew = nvpnManager.updateSubnetmapNodeWithPorts(subnetIdUp, portupdate
+                Subnetmap subnetMapNew = nvpnManager.updateSubnetmapNodeWithPorts(newSubnetId, portupdate
                                 .getUuid(), null);
                 vpnIdNew = (subnetMapNew != null) ? subnetMapNew.getVpnId() : null;
             }
             if (!subnetUpdated) {
-                Subnetmap subnetmap = NeutronvpnUtils.getSubnetmap(dataBroker, subnetIdUp);
+                Subnetmap subnetmap = NeutronvpnUtils.getSubnetmap(dataBroker, newSubnetId);
                 vpnIdNew = subnetmap != null ? subnetmap.getVpnId() : null;
             }
             if (vpnIdNew != null) {
