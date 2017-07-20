@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_14e16cd0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-20T05:23:55Z",
+      "side": 1,
+      "message": "This is to avoid circular dependency and moreover netvirt is still using blueprint xml for DI. Do you have any other proposal ?",
+      "parentUuid": "da2a55be_2203960e",
+      "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bf0cc143",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
@@ -47,6 +65,24 @@
       "writtenOn": "2017-07-18T12:32:28Z",
       "side": 1,
       "message": "Why? You might find https://shipilev.net/jvm-anatomy-park/10-string-intern/ interesting.",
+      "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_347ab0f1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2332,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-07-20T05:23:55Z",
+      "side": 1,
+      "message": "yes, intern() is not required here.\nI understand we should avoid using intern in hotpaths. But I don\u0027t think we can avoid it if we have a scenario to use String as a synchronizer.",
+      "parentUuid": "da2a55be_9f073d1d",
       "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
