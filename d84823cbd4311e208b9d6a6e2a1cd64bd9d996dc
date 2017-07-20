@@ -78,6 +78,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_286d3099",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-20T09:28:46Z",
+      "side": 1,
+      "message": "Hi Sridhar\nI agree, I will do it.\nthks",
+      "parentUuid": "da2a55be_a8cbe0a3",
+      "range": {
+        "startLine": 171,
+        "startChar": 36,
+        "endLine": 171,
+        "endChar": 52
+      },
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_e8c4b893",
         "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
         "patchSetId": 2
@@ -89,6 +113,30 @@
       "writtenOn": "2017-07-20T08:12:31Z",
       "side": 1,
       "message": "Can you explain what is your idea behind this check (i.e., \u003c4). For IPv4, I see that you are checking for \u003c 7.",
+      "range": {
+        "startLine": 176,
+        "startChar": 30,
+        "endLine": 176,
+        "endChar": 49
+      },
+      "revId": "d84823cbd4311e208b9d6a6e2a1cd64bd9d996dc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_4830649e",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-20T09:28:46Z",
+      "side": 1,
+      "message": "Hi,\nI am thinking that the minimum prefix IPv6 String length have to be like ::/maskNumber (because I am expecting to get a mask) for example ::/8 (for 0:...:0/8) then if the String length is \u003c\u003d to 4 I cant expect a good prefix String. And because this first check (String length) is light for java computing I prefer to do it first before check if this argument is really an IPv6.\nAre you agree?\nthks for your help. I am open of all your remarks.\nI will push a updated code with \u003c\u003d 4",
+      "parentUuid": "da2a55be_e8c4b893",
       "range": {
         "startLine": 176,
         "startChar": 30,
