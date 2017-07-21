@@ -5,6 +5,8 @@ NetVirt User Guide
    :maxdepth: 2
 
    ../specs/index
+   features.rst
+   compatibility.rst
    l3vpn-service_-user-guide
    support
    bridge-configuration
