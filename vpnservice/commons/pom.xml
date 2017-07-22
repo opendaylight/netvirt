@@ -24,7 +24,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <modelVersion>4.0.0</modelVersion>
   <modules>
     <module>binding-parent</module>
-    <module>config-parent</module>
     <module>it-parent</module>
   </modules>
 
