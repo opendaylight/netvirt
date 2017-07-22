@@ -12,9 +12,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <parent>
     <groupId>org.opendaylight.netvirt</groupId>
-    <artifactId>config-parent</artifactId>
+    <artifactId>binding-parent</artifactId>
     <version>0.4.2-SNAPSHOT</version>
-    <relativePath>../../commons/config-parent</relativePath>
+    <relativePath>../../commons/binding-parent</relativePath>
   </parent>
 
   <artifactId>statemanager-impl</artifactId>
@@ -25,10 +25,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.opendaylight.controller</groupId>
-      <artifactId>config-util</artifactId>
     </dependency>
     <dependency>
       <groupId>org.opendaylight.controller</groupId>
