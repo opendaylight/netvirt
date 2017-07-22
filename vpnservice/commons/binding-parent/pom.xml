@@ -30,7 +30,45 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <model.bgp.version>2013.07.15.11-SNAPSHOT</model.bgp.version>
     <neutron.version>0.9.0-SNAPSHOT</neutron.version>
     <yangtools.version>1.2.0-SNAPSHOT</yangtools.version>
+    <federation.version>0.3.0-SNAPSHOT</federation.version>
+    <infrautils.version>1.2.0-SNAPSHOT</infrautils.version>
+    <openflowplugin.version>0.5.0-SNAPSHOT</openflowplugin.version>
+    <ovsdb.version>1.5.0-SNAPSHOT</ovsdb.version>
   </properties>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.opendaylight.controller</groupId>
+        <artifactId>mdsal-artifacts</artifactId>
+        <version>${controller.mdsal.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.yangtools</groupId>
+        <artifactId>yangtools-artifacts</artifactId>
+        <version>${yangtools.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.opendaylight.mdsal</groupId>
+        <artifactId>mdsal-artifacts</artifactId>
+        <version>2.3.0-SNAPSHOT</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
 
   <build>
     <pluginManagement>
