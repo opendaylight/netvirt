@@ -26,7 +26,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   <repository>mvn:org.opendaylight.sfc/features-sfc/{{VERSION}}/xml/features</repository>
 
   <feature name='odl-netvirt-api' version='${project.version}' description='OpenDaylight :: NetVirt :: api'>
-    <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+    <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
     <feature version='${mdsal.model.version}'>odl-mdsal-models</feature>
     <feature version='${openflowplugin.version}'>odl-openflowplugin-nsf-model</feature>
     <feature version="${openflowplugin.version}">odl-openflowplugin-nxm-extensions</feature>
@@ -52,7 +52,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
   </feature>
 
   <feature name='odl-netvirt-impl' version='${project.version}' description='OpenDaylight :: NetVirt :: impl'>
-    <feature version='${mdsal.version}'>odl-mdsal-broker</feature>
+    <feature version='${controller.mdsal.version}'>odl-mdsal-broker</feature>
     <feature version="${ovsdb.version}">odl-ovsdb-southbound-impl</feature>
     <feature version='${ovsdb.version}'>odl-ovsdb-hwvtepsouthbound</feature>
     <feature version='${project.version}'>odl-netvirt-api</feature>
