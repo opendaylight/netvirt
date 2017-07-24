@@ -71,7 +71,6 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResou
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
-import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -229,8 +228,9 @@ public class ElanUtils {
     @Inject
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
-                     ElanInterfaceManager elanInterfaceManager, ElanConfig elanConfig,
-                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager) {
+                     ElanConfig elanConfig,
+                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager,
+                     ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -239,12 +239,11 @@ public class ElanUtils {
         this.interfaceManager = interfaceManager;
         this.elanConfig = elanConfig;
 
-        elanL2GatewayMulticastUtils =
-                new ElanL2GatewayMulticastUtils(broker, elanInstanceManager, elanInterfaceManager, this);
-        elanL2GatewayUtils = new ElanL2GatewayUtils(broker, itmRpcService, this,
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.elanL2GatewayUtils = new ElanL2GatewayUtils(broker, itmRpcService, this,
                 entityOwnershipService, elanL2GatewayMulticastUtils);
         elanL2GatewayMulticastUtils.setEElanL2GatewayUtils(elanL2GatewayUtils);
-        l2GatewayConnectionUtils = new L2GatewayConnectionUtils(broker,
+        this.l2GatewayConnectionUtils = new L2GatewayConnectionUtils(broker,
                 elanInstanceManager, entityOwnershipService, this);
     }
 
@@ -928,13 +927,8 @@ public class ElanUtils {
         // TODO: Make sure that the same is performed against the ElanDevices.
     }
 
-    @SuppressWarnings("unchecked")
     public List<DpnInterfaces> getInvolvedDpnsInElan(String elanName) {
-        List<DpnInterfaces> dpns = elanInstanceManager.getElanDPNByName(elanName);
-        if (dpns == null) {
-            return Collections.emptyList();
-        }
-        return dpns;
+        return elanInstanceManager.getElanDPNByName(elanName);
     }
 
     private void setupLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,
