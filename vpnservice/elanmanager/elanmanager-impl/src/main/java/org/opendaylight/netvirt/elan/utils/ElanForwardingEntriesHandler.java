@@ -115,7 +115,7 @@ public class ElanForwardingEntriesHandler {
     private void createElanForwardingTablesList(String elanName, MacEntry macEntry, WriteTransaction tx) {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName,
                 macEntry.getMacAddress());
-        Optional<MacEntry> existingMacEntry = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
+        Optional<MacEntry> existingMacEntry = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL, macEntryId);
         if (!existingMacEntry.isPresent() && elanUtils.getElanMacTable(elanName) != null) {
             tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry, WriteTransaction.CREATE_MISSING_PARENTS);
         }

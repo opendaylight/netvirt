@@ -337,10 +337,9 @@ public class ElanUtils {
      */
     @Deprecated
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path) {
-        try (ReadOnlyTransaction tx = broker != null ? broker.newReadOnlyTransaction()
-                : this.broker.newReadOnlyTransaction()) {
+    public static <T extends DataObject> Optional<T> read(@Nonnull DataBroker broker,
+            LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).get();
         } catch (Exception e) {
             throw new RuntimeException(e);
