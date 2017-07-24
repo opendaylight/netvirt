@@ -241,7 +241,7 @@ public class ElanUtils {
 
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanL2GatewayUtils = new ElanL2GatewayUtils(broker, itmRpcService, this,
-                entityOwnershipService, elanL2GatewayMulticastUtils);
+                entityOwnershipService);
         elanL2GatewayMulticastUtils.setEElanL2GatewayUtils(elanL2GatewayUtils);
         this.l2GatewayConnectionUtils = new L2GatewayConnectionUtils(broker,
                 elanInstanceManager, entityOwnershipService, this);
