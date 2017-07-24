@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_cd4a9dc4",
+        "filename": "docs/user-guide/features.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-24T06:39:06Z",
+      "side": 1,
+      "message": "nothing in links? could add links to relevent specs",
+      "revId": "843d66b4991ac659d6c4efd5ad513a4a08cb51fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_ad45a9b4",
+        "filename": "docs/user-guide/features.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-24T06:39:06Z",
+      "side": 1,
+      "message": "Have each major feature as separate sub-section might make it easier to read and link.",
+      "revId": "843d66b4991ac659d6c4efd5ad513a4a08cb51fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_6d3bb138",
+        "filename": "docs/user-guide/features.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-24T06:39:06Z",
+      "side": 1,
+      "message": "This should be a ref, with references section linking to it.",
+      "revId": "843d66b4991ac659d6c4efd5ad513a4a08cb51fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
