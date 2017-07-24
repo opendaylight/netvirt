@@ -286,7 +286,7 @@ public class ElanL2GatewayUtils {
     }
 
     public ElanInstance getElanInstanceForUcastLocalMac(LocalUcastMacs localUcastMac) {
-        Optional<LogicalSwitches> lsOpc = elanUtils.read(broker, LogicalDatastoreType.OPERATIONAL,
+        Optional<LogicalSwitches> lsOpc = ElanUtils.read(broker, LogicalDatastoreType.OPERATIONAL,
                 (InstanceIdentifier<LogicalSwitches>) localUcastMac.getLogicalSwitchRef().getValue());
         if (lsOpc.isPresent()) {
             LogicalSwitches ls = lsOpc.get();
