@@ -60,6 +60,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
@@ -69,6 +70,7 @@ import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -111,6 +113,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -134,6 +137,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final ElanForwardingEntriesHandler elanForwardingEntriesHandler;
     private final INeutronVpnManager neutronVpnManager;
     private ElanL2GatewayUtils elanL2GatewayUtils;
+    private ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private ElanUtils elanUtils;
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
@@ -169,6 +173,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
         this.elanForwardingEntriesHandler.setElanUtils(elanUtils);
     }
 
@@ -1749,10 +1754,59 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             // install L2gwDevices local macs in dpn.
             elanL2GatewayUtils.installL2gwDeviceMacsInDpn(dpId, externalNodeId, elanInfo, intrf.getName());
             // Install dpn macs on external device
-            elanL2GatewayUtils.installDpnMacsInL2gwDevice(elanName, new HashSet<>(dpnInterfaces.getInterfaces()), dpId,
+            installDpnMacsInL2gwDevice(elanName, new HashSet<>(dpnInterfaces.getInterfaces()), dpId,
                     externalNodeId);
         }
         LOG.info("Handled ExternalTunnelStateEvent for {}", externalTunnel);
+    }
+
+    /**
+     * Installs dpn macs in external device. first it checks if the physical
+     * locator towards this dpn tep is present or not if the physical locator is
+     * present go ahead and add the ucast macs otherwise update the mcast mac
+     * entry to include this dpn tep ip and schedule the job to put ucast macs
+     * once the physical locator is programmed in device
+     *
+     * @param elanName
+     *            the elan name
+     * @param lstElanInterfaceNames
+     *            the lst Elan interface names
+     * @param dpnId
+     *            the dpn id
+     * @param externalNodeId
+     *            the external node id
+     */
+    private void installDpnMacsInL2gwDevice(String elanName, Set<String> lstElanInterfaceNames, BigInteger dpnId,
+            NodeId externalNodeId) {
+        L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName,
+                externalNodeId.getValue());
+        if (elanL2GwDevice == null) {
+            LOG.debug("L2 gw device not found in elan cache for device name {}", externalNodeId);
+            return;
+        }
+        IpAddress dpnTepIp = elanL2GatewayUtils.getSourceDpnTepIp(dpnId, externalNodeId);
+        if (dpnTepIp == null) {
+            LOG.warn("Could not install dpn macs in l2gw device , dpnTepIp not found dpn : {} , nodeid : {}", dpnId,
+                    externalNodeId);
+            return;
+        }
+
+        String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName);
+        RemoteMcastMacs remoteMcastMac = elanL2GatewayUtils.readRemoteMcastMac(externalNodeId, logicalSwitchName,
+                LogicalDatastoreType.OPERATIONAL);
+        boolean phyLocAlreadyExists =
+                ElanL2GatewayUtils.checkIfPhyLocatorAlreadyExistsInRemoteMcastEntry(externalNodeId, remoteMcastMac,
+                dpnTepIp);
+        LOG.debug("phyLocAlreadyExists = {} for locator [{}] in remote mcast entry for elan [{}], nodeId [{}]",
+                phyLocAlreadyExists, String.valueOf(dpnTepIp.getValue()), elanName, externalNodeId.getValue());
+        List<PhysAddress> staticMacs = elanL2GatewayUtils.getElanDpnMacsFromInterfaces(lstElanInterfaceNames);
+
+        if (phyLocAlreadyExists) {
+            elanL2GatewayUtils.scheduleAddDpnMacsInExtDevice(elanName, dpnId, staticMacs, elanL2GwDevice);
+            return;
+        }
+        elanL2GatewayMulticastUtils.scheduleMcastMacUpdateJob(elanName, elanL2GwDevice);
+        elanL2GatewayUtils.scheduleAddDpnMacsInExtDevice(elanName, dpnId, staticMacs, elanL2GwDevice);
     }
 
     /**
