@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_13285885",
+        "filename": "docs/user-guide/features.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-24T13:11:37Z",
+      "side": 1,
+      "message": "oops, mean to drop that column. It was in the original spreadsheet. But yes, I guess it would be helpful to add that here. I will need to play with the table since the long url might make it very unreadable. ACtually, looking at the other url that I need to convert to a ref, it looks like it wraps within the column so we might be OK. Maybe just add the links to the Notes column?",
+      "parentUuid": "da2a55be_cd4a9dc4",
+      "revId": "843d66b4991ac659d6c4efd5ad513a4a08cb51fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_ad45a9b4",
         "filename": "docs/user-guide/features.rst",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_7336f4e8",
+        "filename": "docs/user-guide/features.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-24T13:11:37Z",
+      "side": 1,
+      "message": "There are a lot of features. This was supposed to be a quick look list, but I guess we could break it down to different tables also. Maybe keep this list and add the broken down list?",
+      "parentUuid": "da2a55be_ad45a9b4",
+      "revId": "843d66b4991ac659d6c4efd5ad513a4a08cb51fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_6d3bb138",
         "filename": "docs/user-guide/features.rst",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-07-24T06:39:06Z",
       "side": 1,
       "message": "This should be a ref, with references section linking to it.",
+      "revId": "843d66b4991ac659d6c4efd5ad513a4a08cb51fb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b3306ce9",
+        "filename": "docs/user-guide/features.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-24T13:11:37Z",
+      "side": 1,
+      "message": "cool, let me look at that.",
+      "parentUuid": "da2a55be_6d3bb138",
       "revId": "843d66b4991ac659d6c4efd5ad513a4a08cb51fb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
