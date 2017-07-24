@@ -105,7 +105,6 @@ public class ElanL2GatewayUtils {
     private final ItmRpcService itmRpcService;
     private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
-    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
@@ -113,67 +112,16 @@ public class ElanL2GatewayUtils {
     private final ConcurrentMap<Pair<NodeId, String>, DeleteLogicalSwitchJob> deleteJobs = new ConcurrentHashMap<>();
 
     public ElanL2GatewayUtils(DataBroker broker, ItmRpcService itmRpcService, ElanUtils elanUtils,
-                              EntityOwnershipService entityOwnershipService,
-                              ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+                              EntityOwnershipService entityOwnershipService) {
         this.broker = broker;
         this.itmRpcService = itmRpcService;
         this.elanUtils = elanUtils;
         this.entityOwnershipService = entityOwnershipService;
-        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
     }
 
     public void close() {
         logicalSwitchDeleteJobTimer.cancel();
         logicalSwitchDeleteJobTimer.purge();
-    }
-
-    /**
-     * Installs dpn macs in external device. first it checks if the physical
-     * locator towards this dpn tep is present or not if the physical locator is
-     * present go ahead and add the ucast macs otherwise update the mcast mac
-     * entry to include this dpn tep ip and schedule the job to put ucast macs
-     * once the physical locator is programmed in device
-     *
-     * @param elanName
-     *            the elan name
-     * @param lstElanInterfaceNames
-     *            the lst Elan interface names
-     * @param dpnId
-     *            the dpn id
-     * @param externalNodeId
-     *            the external node id
-     */
-    public void installDpnMacsInL2gwDevice(String elanName, Set<String> lstElanInterfaceNames, BigInteger dpnId,
-            NodeId externalNodeId) {
-        L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName,
-                externalNodeId.getValue());
-        if (elanL2GwDevice == null) {
-            LOG.debug("L2 gw device not found in elan cache for device name {}", externalNodeId);
-            return;
-        }
-        IpAddress dpnTepIp = getSourceDpnTepIp(dpnId, externalNodeId);
-        if (dpnTepIp == null) {
-            LOG.warn("Could not install dpn macs in l2gw device , dpnTepIp not found dpn : {} , nodeid : {}", dpnId,
-                    externalNodeId);
-            return;
-        }
-
-        String logicalSwitchName = getLogicalSwitchFromElan(elanName);
-        RemoteMcastMacs remoteMcastMac = readRemoteMcastMac(externalNodeId, logicalSwitchName,
-                LogicalDatastoreType.OPERATIONAL);
-        boolean phyLocAlreadyExists = checkIfPhyLocatorAlreadyExistsInRemoteMcastEntry(externalNodeId, remoteMcastMac,
-                dpnTepIp);
-        LOG.debug("phyLocAlreadyExists = {} for locator [{}] in remote mcast entry for elan [{}], nodeId [{}]",
-                phyLocAlreadyExists, String.valueOf(dpnTepIp.getValue()), elanName, externalNodeId.getValue());
-        List<PhysAddress> staticMacs = null;
-        staticMacs = getElanDpnMacsFromInterfaces(lstElanInterfaceNames);
-
-        if (phyLocAlreadyExists) {
-            scheduleAddDpnMacsInExtDevice(elanName, dpnId, staticMacs, elanL2GwDevice);
-            return;
-        }
-        elanL2GatewayMulticastUtils.scheduleMcastMacUpdateJob(elanName, elanL2GwDevice);
-        scheduleAddDpnMacsInExtDevice(elanName, dpnId, staticMacs, elanL2GwDevice);
     }
 
     /**
@@ -183,7 +131,7 @@ public class ElanL2GatewayUtils {
      *            the lst elan interface names
      * @return the list
      */
-    private List<PhysAddress> getElanDpnMacsFromInterfaces(Set<String> lstElanInterfaceNames) {
+    public List<PhysAddress> getElanDpnMacsFromInterfaces(Set<String> lstElanInterfaceNames) {
         List<PhysAddress> result = new ArrayList<>();
         for (String interfaceName : lstElanInterfaceNames) {
             ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
