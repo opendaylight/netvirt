@@ -28,7 +28,6 @@ import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -70,17 +69,13 @@ public class ElanL2GatewayMulticastUtils {
     /** The elan interface manager. */
     private final ElanInterfaceManager elanInterfaceManager;
 
-    private final ElanUtils elanUtils;
-
     private ElanL2GatewayUtils elanL2GatewayUtils;
 
     public ElanL2GatewayMulticastUtils(DataBroker broker, ElanInstanceManager elanInstanceManager,
-                                       ElanInterfaceManager elanInterfaceManager,
-                                       ElanUtils elanUtils) {
+                                       ElanInterfaceManager elanInterfaceManager) {
         this.broker = broker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanInterfaceManager = elanInterfaceManager;
-        this.elanUtils = elanUtils;
     }
 
     public void setEElanL2GatewayUtils(ElanL2GatewayUtils elanL2GatewayUtils) {
@@ -147,7 +142,7 @@ public class ElanL2GatewayMulticastUtils {
                                                            L2GatewayDevice device) {
         ConcurrentMap<String, L2GatewayDevice> elanL2gwDevices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanName);
-        List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanName);
+        List<DpnInterfaces> dpns = elanInstanceManager.getElanDPNByName(elanName);
         List<IpAddress> dpnsTepIps = getAllTepIpsOfDpns(device, dpns);
         List<IpAddress> l2GwDevicesTepIps = getAllTepIpsOfL2GwDevices(elanL2gwDevices);
         preapareRemoteMcastMacEntry(transaction, elanName, device, dpnsTepIps, l2GwDevicesTepIps);
@@ -175,7 +170,7 @@ public class ElanL2GatewayMulticastUtils {
         ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(elanName);
         elanInterfaceManager.updateRemoteBroadcastGroupForAllElanDpns(elanInstance);
 
-        List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanName);
+        List<DpnInterfaces> dpns = elanInstanceManager.getElanDPNByName(elanName);
 
         ConcurrentMap<String, L2GatewayDevice> devices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanName);
