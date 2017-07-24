@@ -412,7 +412,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     public List<ElanInstance> getElanInstances() {
         InstanceIdentifier<ElanInstances> elanInstancesIdentifier = InstanceIdentifier.builder(ElanInstances.class)
                 .build();
-        return elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).toJavaUtil().map(
+        return ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION, elanInstancesIdentifier).toJavaUtil().map(
                 ElanInstances::getElanInstance).orElse(Collections.emptyList());
     }
 
@@ -421,7 +421,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         List<String> elanInterfaces = new ArrayList<>();
         InstanceIdentifier<ElanInterfaces> elanInterfacesIdentifier = InstanceIdentifier.builder(ElanInterfaces.class)
                 .build();
-        Optional<ElanInterfaces> elanInterfacesOptional = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<ElanInterfaces> elanInterfacesOptional = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 elanInterfacesIdentifier);
         if (!elanInterfacesOptional.isPresent()) {
             return elanInterfaces;

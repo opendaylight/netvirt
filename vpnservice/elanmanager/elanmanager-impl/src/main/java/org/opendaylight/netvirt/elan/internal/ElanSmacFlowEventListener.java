@@ -97,7 +97,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
             InstanceIdentifier<MacEntry> macEntryIdForElanInterface = ElanUtils
                     .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
             WriteTransaction tx = broker.newWriteOnlyTransaction();
-            Optional<MacEntry> existingInterfaceMacEntry = elanUtils.read(broker,
+            Optional<MacEntry> existingInterfaceMacEntry = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
             if (existingInterfaceMacEntry.isPresent()) {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
