@@ -366,7 +366,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         WriteTransaction deleteFlowGroupTx = broker.newWriteOnlyTransaction();
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = ElanUtils
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
-        Optional<ElanInterfaceMac> existingElanInterfaceMac = elanUtils.read(broker,
+        Optional<ElanInterfaceMac> existingElanInterfaceMac = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
         LOG.debug("Removing the Interface:{} from elan:{}", interfaceName, elanName);
         if (interfaceInfo != null) {
@@ -511,7 +511,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         for (StaticMacEntries staticMacEntry : updatedEntries) {
             InstanceIdentifier<MacEntry> macEntryIdentifier = getMacEntryOperationalDataPath(elanName,
                     staticMacEntry.getMacAddress());
-            Optional<MacEntry> existingMacEntry = elanUtils.read(broker,
+            Optional<MacEntry> existingMacEntry = ElanUtils.read(broker,
                     LogicalDatastoreType.OPERATIONAL, macEntryIdentifier);
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             if (existingMacEntry.isPresent()) {
@@ -650,7 +650,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (dpId != null && !dpId.equals(ElanConstants.INVALID_DPN)) {
             InstanceIdentifier<DpnInterfaces> elanDpnInterfaces = ElanUtils
                     .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
-            Optional<DpnInterfaces> existingElanDpnInterfaces = elanUtils.read(broker,
+            Optional<DpnInterfaces> existingElanDpnInterfaces = ElanUtils.read(broker,
                     LogicalDatastoreType.OPERATIONAL, elanDpnInterfaces);
             if (!existingElanDpnInterfaces.isPresent()) {
                 isFirstInterfaceInDpn = true;
@@ -725,7 +725,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             for (StaticMacEntries staticMacEntry : staticMacEntriesList) {
                 InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName,
                         staticMacEntry.getMacAddress());
-                Optional<MacEntry> existingMacEntry = elanUtils.read(broker,
+                Optional<MacEntry> existingMacEntry = ElanUtils.read(broker,
                         LogicalDatastoreType.OPERATIONAL, macId);
                 if (existingMacEntry.isPresent()) {
                     elanForwardingEntriesHandler.updateElanInterfaceForwardingTablesList(
@@ -776,7 +776,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             PhysAddress physAddress) {
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         InstanceIdentifier<MacEntry> macId = getMacEntryOperationalDataPath(elanInstanceName, physAddress);
-        Optional<MacEntry> existingMacEntry = elanUtils.read(broker,
+        Optional<MacEntry> existingMacEntry = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, macId);
 
         if (!existingMacEntry.isPresent()) {
@@ -1487,7 +1487,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 String.format("%s.%s.%s", "elan", elanInstanceName, interfaceName), elanServiceIndex,
                 NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
         InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
-        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<BoundServices> existingElanService = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 bindServiceId);
         if (!existingElanService.isPresent()) {
             tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo,
@@ -1523,7 +1523,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     protected void unbindService(String interfaceName, WriteTransaction tx) {
         short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
         InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
-        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
+        Optional<BoundServices> existingElanService = ElanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
                 bindServiceId);
         if (existingElanService.isPresent()) {
             tx.delete(LogicalDatastoreType.CONFIGURATION, bindServiceId);
@@ -1569,7 +1569,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private void deleteElanDpnInterface(String elanInstanceName, BigInteger dpId, WriteTransaction tx) {
         InstanceIdentifier<DpnInterfaces> dpnInterfacesId = ElanUtils
                 .getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId);
-        Optional<DpnInterfaces> dpnInterfaces = elanUtils.read(broker,
+        Optional<DpnInterfaces> dpnInterfaces = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, dpnInterfacesId);
         if (dpnInterfaces.isPresent()) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, dpnInterfacesId);
@@ -1591,7 +1591,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private void createElanInterfaceTablesList(String interfaceName, WriteTransaction tx) {
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceMacTables = ElanUtils
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
-        Optional<ElanInterfaceMac> interfaceMacTables = elanUtils.read(broker,
+        Optional<ElanInterfaceMac> interfaceMacTables = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanInterfaceMacTables);
         // Adding new Elan Interface Port to the operational DataStore without
         // Static-Mac Entries..
@@ -1606,7 +1606,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private void createElanStateList(String elanInstanceName, String interfaceName, WriteTransaction tx) {
         InstanceIdentifier<Elan> elanInstance = ElanUtils.getElanInstanceOperationalDataPath(elanInstanceName);
-        Optional<Elan> elanInterfaceLists = elanUtils.read(broker,
+        Optional<Elan> elanInterfaceLists = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanInstance);
         // Adding new Elan Interface Port to the operational DataStore without
         // Static-Mac Entries..
