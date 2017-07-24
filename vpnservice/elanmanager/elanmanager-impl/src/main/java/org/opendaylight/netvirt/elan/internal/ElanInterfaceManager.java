@@ -131,7 +131,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final IInterfaceManager interfaceManager;
     private final IdManagerService idManager;
     private final ElanForwardingEntriesHandler elanForwardingEntriesHandler;
-    private INeutronVpnManager neutronVpnManager;
+    private final INeutronVpnManager neutronVpnManager;
     private ElanL2GatewayUtils elanL2GatewayUtils;
     private ElanUtils elanUtils;
 
