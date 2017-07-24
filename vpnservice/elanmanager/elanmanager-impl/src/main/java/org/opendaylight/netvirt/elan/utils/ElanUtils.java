@@ -70,7 +70,6 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
-import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
@@ -241,7 +240,7 @@ public class ElanUtils {
 
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanL2GatewayUtils = new ElanL2GatewayUtils(broker, itmRpcService, this,
-                entityOwnershipService, elanL2GatewayMulticastUtils);
+                entityOwnershipService);
         elanL2GatewayMulticastUtils.setEElanL2GatewayUtils(elanL2GatewayUtils);
         this.l2GatewayConnectionUtils = new L2GatewayConnectionUtils(broker,
                 elanInstanceManager, entityOwnershipService, this);
