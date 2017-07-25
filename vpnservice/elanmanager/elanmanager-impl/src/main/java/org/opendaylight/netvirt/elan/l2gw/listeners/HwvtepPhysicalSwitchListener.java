@@ -34,7 +34,6 @@ import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -87,16 +86,16 @@ public class HwvtepPhysicalSwitchListener
      *            the data broker
      * @param itmRpcService itm rpc
      * @param entityOwnershipService entity ownership service
-     * @param elanUtils elan utils
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipService entityOwnershipService,
-                                        ElanUtils elanUtils, L2gwServiceProvider l2gwServiceProvider) {
+                                        L2gwServiceProvider l2gwServiceProvider,
+                                        L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
-        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
     }
 
