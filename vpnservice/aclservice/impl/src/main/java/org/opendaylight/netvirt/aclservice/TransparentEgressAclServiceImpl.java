@@ -37,20 +37,21 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
     }
 
     @Override
+    String egressDoNothing = "transparent egress acl service - do nothing";
     public void bindService(AclInterface aclInterface) {
-        LOG.debug("transparent egress acl service - do nothing");
+        LOG.debug(egressDoNothing);
     }
 
     @Override
     protected void unbindService(AclInterface aclInterface) {
-        LOG.debug("transparent egress acl service - do nothing");
+        LOG.debug(egressDoNothing);
     }
 
     @Override
     protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action,
             int addOrRemove) {
-        LOG.debug("transparent egress acl service - do nothing");
+        LOG.debug(egressDoNothing);
     }
 
     @Override
@@ -61,7 +62,7 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
     @Override
     protected void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
             List<AllowedAddressPairs> syncAllowedAddresses) {
-        LOG.debug("transparent egress acl service - do nothing");
+        LOG.debug(egressDoNothing);
     }
 
     @Override
