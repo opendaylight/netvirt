@@ -52,6 +52,24 @@
       "revId": "44fcc416872b82297037d71057b5d44e0b72ac5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e7821a93",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-25T18:46:27Z",
+      "side": 1,
+      "message": "This is not an IPv6 specific issue. \nWe have seen a similar exception in our downstream testing when using IPv4 only networks and what Karthikeyan pointed to, is some tempest IPv6 run (which also uses IPv4 subnets) where it was observed.\n\nIn our downstream testing, when we noticed this issue, the side-effect was that FloatingIP use-case was not working.\n\nYang model - curl -s -u admin:admin -X GET http://172.17.1.19:8181/restconf/config/odl-nat:floating-ip-port-info had the following info.\n{\"floating-ip-port-info\":{\"floating-ip-id-to-port-mapping\":[{\"floating-ip-id\":\"e4fd28ad-6594-4206-82ef-974181f63e56\",\"floating-ip-deleted\":true},{\"floating-ip-id\":\"0ef3fe6a-7caf-4e65-aef8-fdb1faf9c63c\",\"floating-ip-deleted\":true}]}\n\nAs you can see, some important piece of information is missing in the model (like MAC Address, subnet-id etc) because of which there were NPEs.\nJFYI, the floatingip issue we noticed in our downstream testing got resolved after applying the following patch - https://git.opendaylight.org/gerrit/#/c/58176/3",
+      "parentUuid": "da2a55be_0763eeb1",
+      "revId": "44fcc416872b82297037d71057b5d44e0b72ac5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
