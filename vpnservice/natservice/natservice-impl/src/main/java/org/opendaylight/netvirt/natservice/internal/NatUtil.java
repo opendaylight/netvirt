@@ -1851,4 +1851,31 @@ public class NatUtil {
     public static String validateAndAddNetworkMask(String ipAddress) {
         return ipAddress.contains("/32") ? ipAddress : (ipAddress + "/32");
     }
+
+    public static boolean checkForRoutersWithSameExtNetAndNaptSwitch(DataBroker broker, Uuid networkId,
+                                                                     String routerName, BigInteger dpnId) {
+        InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
+        Optional<Networks> networkData = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+
+        if (networkData != null && networkData.isPresent()) {
+            List<Uuid> routerUuidList = networkData.get().getRouterIds();
+            if (routerUuidList != null && !routerUuidList.isEmpty()) {
+                for (Uuid routerUuid : routerUuidList) {
+                    String sharedRouterName = routerUuid.getValue();
+                    if (!routerName.equals(sharedRouterName)) {
+                        BigInteger swtichDpnId = NatUtil.getPrimaryNaptfromRouterName(broker, sharedRouterName);
+                        if (swtichDpnId == null) {
+                            continue;
+                        } else if (swtichDpnId.equals(dpnId)) {
+                            LOG.debug("checkForRoutersWithSameExtNetAndNaptSwitch: external-network {} is "
+                                    + "associated with other active router {} on NAPT switch {}", networkId,
+                                    sharedRouterName, swtichDpnId);
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        return false;
+    }
 }
