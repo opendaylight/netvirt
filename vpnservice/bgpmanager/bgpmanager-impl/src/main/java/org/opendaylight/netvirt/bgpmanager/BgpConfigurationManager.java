@@ -159,8 +159,10 @@ public class BgpConfigurationManager {
     private long cfgReplayStartTime = 0;
     private long cfgReplayEndTime = 0;
     private long staleCleanupTime = 0;
-    private static final int DS_RETRY_COOUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
-    private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
+    //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
+    private static final int DS_RETRY_COOUNT = 100;
+    //one second sleep after every retry
+    private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L;
     private static final String AddRcvdExempt = "{} Add received exception; {}";
 
     public String getBgpSdncMipIp() {
