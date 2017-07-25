@@ -16,6 +16,24 @@
       "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9cc57590",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-25T10:49:34Z",
+      "side": 1,
+      "message": "I agree with you @Abhinav. The original implementation only focused on a single IP per port and that too IPv4.\n\nThis patch addresses the issue mentioned in the commit message, but there is an underlying issue that I wanted to bring to attention.\nNow that we are adding full support for IPv6 via L3VPN, it is important to handle them properly.\n\nWhen a port has multiple fixedIps, there could be a possible race since get(0).getSubnetId() could differ between original and update.\n@Vivek, what are your thoughts on this?",
+      "parentUuid": "da2a55be_1c286585",
+      "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
