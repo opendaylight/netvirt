@@ -129,10 +129,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 handleFloatingIpPortUpdated(null, input);
                 portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             }
-
-            if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
-                handleNeutronPortCreated(input);
-            }
+        }
+        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+            handleNeutronPortCreated(input);
         }
 
         NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
