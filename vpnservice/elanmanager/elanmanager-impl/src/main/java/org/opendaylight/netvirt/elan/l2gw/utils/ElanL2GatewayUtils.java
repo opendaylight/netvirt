@@ -43,6 +43,8 @@ import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanDmacUtils;
+import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -52,12 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
@@ -102,8 +99,9 @@ public class ElanL2GatewayUtils {
     private static final int LOGICAL_SWITCH_DELETE_DELAY = 20000;
 
     private final DataBroker broker;
-    private final ItmRpcService itmRpcService;
     private final ElanUtils elanUtils;
+    private final ElanDmacUtils elanDmacUtils;
+    private final ElanItmUtils elanItmUtils;
     private final EntityOwnershipService entityOwnershipService;
 
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
@@ -111,11 +109,13 @@ public class ElanL2GatewayUtils {
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<NodeId, String>, DeleteLogicalSwitchJob> deleteJobs = new ConcurrentHashMap<>();
 
-    public ElanL2GatewayUtils(DataBroker broker, ItmRpcService itmRpcService, ElanUtils elanUtils,
+    public ElanL2GatewayUtils(DataBroker broker, ElanUtils elanUtils,
+                              ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
                               EntityOwnershipService entityOwnershipService) {
         this.broker = broker;
-        this.itmRpcService = itmRpcService;
         this.elanUtils = elanUtils;
+        this.elanDmacUtils = elanDmacUtils;
+        this.elanItmUtils = elanItmUtils;
         this.entityOwnershipService = entityOwnershipService;
     }
 
@@ -295,8 +295,8 @@ public class ElanL2GatewayUtils {
         List<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
         if (l2gwDeviceLocalMacs != null && !l2gwDeviceLocalMacs.isEmpty()) {
             for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
-                elanUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
-                        elan.getElanTag(), elanUtils.getVxlanSegmentationId(elan),
+                elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
+                        elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
                         localUcastMac.getMacEntryKey().getValue(), elanName, interfaceName);
             }
             LOG.debug("Installing L2gw device [{}] local macs [size: {}] in dpn [{}] for elan [{}]",
@@ -345,7 +345,7 @@ public class ElanL2GatewayUtils {
                     List<ListenableFuture<Void>> fts = new ArrayList<>();
                     if (doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                         for (DpnInterfaces elanDpn : elanDpns) {
-                            elanUtils.installDmacFlowsToExternalRemoteMacInBatch(elanDpn.getDpId(),
+                            elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(elanDpn.getDpId(),
                                     extDeviceNodeId, elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
                                     macToBeAdded, elanInstanceName, interfaceName);
                         }
@@ -448,7 +448,7 @@ public class ElanL2GatewayUtils {
                         for (DpnInterfaces elanDpn : elanDpns) {
                             BigInteger dpnId = elanDpn.getDpId();
                             // This delete operation has been batched using resource batch manager.
-                            fts.addAll(elanUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
+                            fts.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
                                     l2GwDevice.getHwvtepNodeId(), mac.getValue().toLowerCase()));
                         }
                         return fts;
@@ -494,7 +494,7 @@ public class ElanL2GatewayUtils {
                             "delete l2gw macs from dmac table", () -> {
                             List<ListenableFuture<Void>> futures = new ArrayList<>();
 
-                            futures.addAll(elanUtils.deleteDmacFlowsToExternalMac(elanTag, dpnId,
+                            futures.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elanTag, dpnId,
                                     l2GwDevice.getHwvtepNodeId(), mac.getValue()));
                             return futures;
                         });
@@ -720,7 +720,7 @@ public class ElanL2GatewayUtils {
                 continue;
             }
 
-            IpAddress dpnTepIp = getSourceDpnTepIp(dpnId, hwVtepNodeId);
+            IpAddress dpnTepIp = elanItmUtils.getSourceDpnTepIp(dpnId, hwVtepNodeId);
             LOG.trace("Dpn Tep IP: {} for dpnId: {} and nodeId: {}", dpnTepIp, dpnId, hwVtepNodeId.getValue());
             if (dpnTepIp == null) {
                 LOG.error("TEP IP not found for dpnId {} and nodeId {}", dpnId, hwVtepNodeId.getValue());
@@ -736,65 +736,6 @@ public class ElanL2GatewayUtils {
             lstRemoteUcastMacs.add(remoteUcastMac);
         }
         return lstRemoteUcastMacs;
-    }
-
-    /**
-     * Gets the external tunnel interface name.
-     *
-     * @param sourceNode
-     *            the source node
-     * @param dstNode
-     *            the dst node
-     * @return the external tunnel interface name
-     */
-    public String getExternalTunnelInterfaceName(String sourceNode, String dstNode) {
-        Class<? extends TunnelTypeBase> tunType = TunnelTypeVxlan.class;
-        String tunnelInterfaceName = null;
-        try {
-            Future<RpcResult<GetExternalTunnelInterfaceNameOutput>> output = itmRpcService
-                    .getExternalTunnelInterfaceName(new GetExternalTunnelInterfaceNameInputBuilder()
-                            .setSourceNode(sourceNode).setDestinationNode(dstNode).setTunnelType(tunType).build());
-
-            RpcResult<GetExternalTunnelInterfaceNameOutput> rpcResult = output.get();
-            if (rpcResult.isSuccessful()) {
-                tunnelInterfaceName = rpcResult.getResult().getInterfaceName();
-                LOG.debug("Tunnel interface name: {} for sourceNode: {} and dstNode: {}", tunnelInterfaceName,
-                        sourceNode, dstNode);
-            } else {
-                LOG.warn("RPC call to ITM.GetExternalTunnelInterfaceName failed with error: {}", rpcResult.getErrors());
-            }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Failed to get external tunnel interface name for sourceNode: {} and dstNode: {}: {} ",
-                    sourceNode, dstNode, e);
-        }
-        return tunnelInterfaceName;
-    }
-
-    /**
-     * Gets the source dpn tep ip.
-     *
-     * @param srcDpnId
-     *            the src dpn id
-     * @param dstHwVtepNodeId
-     *            the dst hw vtep node id
-     * @return the dpn tep ip
-     */
-    public IpAddress getSourceDpnTepIp(BigInteger srcDpnId, NodeId dstHwVtepNodeId) {
-        IpAddress dpnTepIp = null;
-        String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(srcDpnId),
-                dstHwVtepNodeId.getValue());
-        if (tunnelInterfaceName != null) {
-            Interface tunnelInterface = getInterfaceFromConfigDS(new InterfaceKey(tunnelInterfaceName), broker);
-            if (tunnelInterface != null) {
-                dpnTepIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
-            } else {
-                LOG.warn("Tunnel interface not found for tunnelInterfaceName {}", tunnelInterfaceName);
-            }
-        } else {
-            LOG.warn("Tunnel interface name not found for srcDpnId {} and dstHwVtepNodeId {}", srcDpnId,
-                    dstHwVtepNodeId);
-        }
-        return dpnTepIp;
     }
 
     /**
@@ -1029,7 +970,7 @@ public class ElanL2GatewayUtils {
     public void scheduleAddDpnMacsInExtDevice(final String elanName, BigInteger dpId,
             final List<PhysAddress> staticMacAddresses, final L2GatewayDevice externalDevice) {
         NodeId nodeId = new NodeId(externalDevice.getHwvtepNodeId());
-        final IpAddress dpnTepIp = getSourceDpnTepIp(dpId, nodeId);
+        final IpAddress dpnTepIp = elanItmUtils.getSourceDpnTepIp(dpId, nodeId);
         LOG.trace("Dpn Tep IP: {} for dpnId: {} and nodeId: {}", dpnTepIp, dpId, nodeId);
         if (dpnTepIp == null) {
             LOG.error("could not install dpn mac in l2gw TEP IP not found for dpnId {} and nodeId {}", dpId, nodeId);
