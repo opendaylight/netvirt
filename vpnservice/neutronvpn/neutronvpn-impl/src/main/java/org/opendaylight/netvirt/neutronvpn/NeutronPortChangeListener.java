@@ -1,5 +1,5 @@
 /*
- * Copyright © 2015 - 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2015, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -129,10 +129,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 handleFloatingIpPortUpdated(null, input);
                 portStatus = NeutronUtils.PORT_STATUS_ACTIVE;
             }
-
-            if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
-                handleNeutronPortCreated(input);
-            }
+        }
+        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+            handleNeutronPortCreated(input);
         }
 
         NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
@@ -195,8 +194,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             } else if (NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(update.getDeviceOwner())) {
                 handleFloatingIpPortUpdated(original, update);
             }
-
-            handleNeutronPortCreated(update);
         } else {
             Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
             Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
