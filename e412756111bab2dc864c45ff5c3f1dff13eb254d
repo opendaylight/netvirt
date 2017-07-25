@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_9c5f3541",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "Really should have @param lines. same below.",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7c5a4151",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "Spelling: s/onv/one/",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7cac0136",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "As far as the code flow is concerned oldlistAdFamilies can be null if oldval is null. Same is true for newlistAdFamilies.",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_3c7289e5",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "This check is unnecessary.",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7c7361e7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "and this too",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_bc7dd9b3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "If this really is a possibility, shouldn\u0027t a log msg be emitted? Same below in the del method.",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1c4ce59d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2448,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "Perhaps chain these into a single statement? It would probably be more readable without the intermediate objects and would certainly be more similar to the rest of the ODL code.",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_3c49e98b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2464,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "Consider putting this in old fashion for loop and then breaking here? There can be only one, right?",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_bc54b921",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 26
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "out of curiosity, what is the \"-vrf\" suffix there for?",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_01a0fef2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/#VpnInstanceListener.java#",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "So, what\u0027s the deal with this #file#?",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_615a9af4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T14:05:19Z",
+      "side": 1,
+      "message": "Why not just \"boolean doIpv4 \u003d vpnInstance.getIpv4Family() !\u003d null;\"?\n\n;-)",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
