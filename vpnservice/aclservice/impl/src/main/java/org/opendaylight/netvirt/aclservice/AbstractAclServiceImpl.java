@@ -148,6 +148,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private void processInterfaceUpdate(AclInterface portBefore, AclInterface portAfter) {
         BigInteger dpId = portAfter.getDpId();
+        Integer lportTag = portAfter.getLPortTag();
+        if (null == lportTag || null == dpId) {
+            LOG.error("AbstractAclServiceImpl : Lport tag or Dpid should not to be null.");
+            return;
+        }
         List<AllowedAddressPairs> addedAllowedAddressPairs =
                 AclServiceUtils.getUpdatedAllowedAddressPairs(portAfter.getAllowedAddressPairs(),
                         portBefore.getAllowedAddressPairs());
@@ -160,7 +165,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
             programAclWithAllowedAddress(portAfter, addedAllowedAddressPairs, Action.UPDATE, NwConstants.ADD_FLOW);
         }
-        updateArpForAllowedAddressPairs(dpId, portAfter.getLPortTag(), deletedAllowedAddressPairs,
+        updateArpForAllowedAddressPairs(dpId, lportTag, deletedAllowedAddressPairs,
                 portAfter.getAllowedAddressPairs());
 
         updateAclInterfaceInCache(portBefore);
