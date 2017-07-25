@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_62a7380d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-25T20:14:51Z",
+      "side": 1,
+      "message": "not not... maybe just say lport tag or dpid should not be null.",
+      "range": {
+        "startLine": 153,
+        "startChar": 69,
+        "endLine": 153,
+        "endChar": 84
+      },
+      "revId": "28c0267b47ac039427cd4eeffec829d50263c7b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
