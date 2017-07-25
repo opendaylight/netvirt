@@ -100,6 +100,22 @@
     <argument ref="elanInterfaceManager" />
   </bean>
 
+  <bean id="elanItmUtils" class="org.opendaylight.netvirt.elan.utils.ElanItmUtils">
+    <argument ref="dataBroker" />
+    <argument ref="itmRpcService" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
+  <bean id="elanDmacUtils" class="org.opendaylight.netvirt.elan.utils.ElanDmacUtils">
+    <argument ref="dataBroker" />
+    <argument ref="elanItmUtils" />
+    <argument ref="elanEtreeUtils" />
+  </bean>
+
+  <bean id="elanEtreeUtils" class="org.opendaylight.netvirt.elan.utils.ElanEtreeUtils">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="elanL2GatewayMulticastUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils">
     <argument ref="dataBroker" />
     <argument ref="elanInstanceManager" />
@@ -117,6 +133,8 @@
     <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
     <argument ref="elanL2GatewayMulticastUtils" />
+    <argument ref="elanEtreeUtils" />
+    <argument ref="elanItmUtils" />
   </bean>
 
   <bean id="elanStatisticsImpl"
