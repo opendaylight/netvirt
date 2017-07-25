@@ -57,6 +57,8 @@
     <argument ref="interfaceManager" />
     <argument ref="elanForwardingEntriesHandler" />
     <argument ref="neutronvpnManagerImpl"/>
+    <argument ref="elanItmUtils" />
+    <argument ref="elanEtreeUtils" />
   </bean>
 
   <bean id="elanInstanceManager"
@@ -101,10 +103,27 @@
     <argument ref="elanInterfaceManager" />
   </bean>
 
+  <bean id="elanItmUtils" class="org.opendaylight.netvirt.elan.utils.ElanItmUtils">
+    <argument ref="dataBroker" />
+    <argument ref="itmRpcService" />
+    <argument ref="odlInterfaceRpcService" />
+  </bean>
+
+  <bean id="elanDmacUtils" class="org.opendaylight.netvirt.elan.utils.ElanDmacUtils">
+    <argument ref="dataBroker" />
+    <argument ref="elanItmUtils" />
+    <argument ref="elanEtreeUtils" />
+  </bean>
+
+  <bean id="elanEtreeUtils" class="org.opendaylight.netvirt.elan.utils.ElanEtreeUtils">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="elanL2GatewayMulticastUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils">
     <argument ref="dataBroker" />
     <argument ref="elanInstanceManager" />
     <argument ref="elanInterfaceManager" />
+    <argument ref="elanItmUtils" />
   </bean>
 
   <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils"
@@ -118,6 +137,9 @@
     <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
     <argument ref="elanL2GatewayMulticastUtils" />
+    <argument ref="elanEtreeUtils" />
+    <argument ref="elanItmUtils" />
+    <argument ref="elanDmacUtils" />
   </bean>
 
   <bean id="elanStatisticsImpl"
@@ -356,7 +378,8 @@
   <bean id="elanEvpnFlowUtils"
         class="org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnFlowUtils">
     <argument ref="mdsalUtils" />
-    <argument ref="elanUtils" />
+    <argument ref="elanItmUtils" />
+    <argument ref="elanEtreeUtils" />
   </bean>
 
   <bean id="macVrfEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener"

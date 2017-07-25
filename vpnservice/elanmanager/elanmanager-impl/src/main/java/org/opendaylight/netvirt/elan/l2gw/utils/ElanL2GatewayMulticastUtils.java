@@ -30,6 +30,7 @@ import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -74,18 +75,15 @@ public class ElanL2GatewayMulticastUtils {
     /** The elan interface manager. */
     private final ElanInterfaceManager elanInterfaceManager;
 
-    private ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanItmUtils elanItmUtils;
 
     @Inject
     public ElanL2GatewayMulticastUtils(DataBroker broker, ElanInstanceManager elanInstanceManager,
-                                       ElanInterfaceManager elanInterfaceManager) {
+                                       ElanInterfaceManager elanInterfaceManager, ElanItmUtils elanItmUtils) {
         this.broker = broker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanInterfaceManager = elanInterfaceManager;
-    }
-
-    public void setEElanL2GatewayUtils(ElanL2GatewayUtils elanL2GatewayUtils) {
-        this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.elanItmUtils = elanItmUtils;
     }
 
     /**
@@ -254,7 +252,7 @@ public class ElanL2GatewayMulticastUtils {
         if (dhcpDesignatedSwitchTepIp != null && !remoteTepIps.contains(dhcpDesignatedSwitchTepIp)) {
             remoteTepIps.add(dhcpDesignatedSwitchTepIp);
         }
-        String logicalSwitchName = elanL2GatewayUtils.getLogicalSwitchFromElan(elanName);
+        String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName);
         putRemoteMcastMac(transaction, nodeId, logicalSwitchName, remoteTepIps);
         LOG.info("Adding RemoteMcastMac for node: {} with physical locators: {}", device.getHwvtepNodeId(),
                 remoteTepIps);
@@ -307,7 +305,7 @@ public class ElanL2GatewayMulticastUtils {
     private List<IpAddress> getAllTepIpsOfDpns(L2GatewayDevice l2GwDevice, List<DpnInterfaces> dpns) {
         List<IpAddress> tepIps = new ArrayList<>();
         for (DpnInterfaces dpn : dpns) {
-            IpAddress internalTunnelIp = elanL2GatewayUtils.getSourceDpnTepIp(dpn.getDpId(),
+            IpAddress internalTunnelIp = elanItmUtils.getSourceDpnTepIp(dpn.getDpId(),
                     new NodeId(l2GwDevice.getHwvtepNodeId()));
             if (internalTunnelIp != null) {
                 tepIps.add(internalTunnelIp);
@@ -391,7 +389,7 @@ public class ElanL2GatewayMulticastUtils {
         DesignatedSwitchForTunnel desgSwitch = getDesignatedSwitchForExternalTunnel(l2GwDevice.getTunnelIp(),
                 elanInstanceName);
         if (desgSwitch != null) {
-            tepIp = elanL2GatewayUtils.getSourceDpnTepIp(BigInteger.valueOf(desgSwitch.getDpId()),
+            tepIp = elanItmUtils.getSourceDpnTepIp(BigInteger.valueOf(desgSwitch.getDpId()),
                     new NodeId(l2GwDevice.getHwvtepNodeId()));
         }
         return tepIp;
