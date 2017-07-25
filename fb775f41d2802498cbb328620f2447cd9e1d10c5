@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_1c65051e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2017-07-25T13:50:20Z",
+      "side": 1,
+      "message": "Good idea. I will make this change, and push another patch.",
+      "parentUuid": "da2a55be_e5186877",
+      "range": {
+        "startLine": 93,
+        "startChar": 18,
+        "endLine": 93,
+        "endChar": 25
+      },
+      "revId": "fb775f41d2802498cbb328620f2447cd9e1d10c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_a535d0dc",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/AssociateHwvtepToElanJob.java",
         "patchSetId": 4
@@ -36,6 +60,24 @@
       "writtenOn": "2017-07-25T10:09:43Z",
       "side": 1,
       "message": "check comment in pom file. I\u0027d prefer something like:\n\nOVSDBUtils.checkVersion(HwvtepUtils.getDbVersion(), \"1.6.0\")",
+      "revId": "fb775f41d2802498cbb328620f2447cd9e1d10c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fc675123",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/AssociateHwvtepToElanJob.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2017-07-25T13:50:20Z",
+      "side": 1,
+      "message": "Sure, I will take care of this.",
+      "parentUuid": "da2a55be_a535d0dc",
       "revId": "fb775f41d2802498cbb328620f2447cd9e1d10c5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
