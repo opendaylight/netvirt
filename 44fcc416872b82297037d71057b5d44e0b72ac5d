@@ -34,6 +34,24 @@
       "revId": "44fcc416872b82297037d71057b5d44e0b72ac5d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_0763eeb1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-25T15:24:40Z",
+      "side": 1,
+      "message": "Sridhar/Karthikeyan,\n\nFloatingIP is not a valid use-case for IPv6 driven external network accesses.  So can you please educate me why floating-ips are configured for a v6 tempest testcase?",
+      "parentUuid": "da2a55be_b4d180fd",
+      "revId": "44fcc416872b82297037d71057b5d44e0b72ac5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
