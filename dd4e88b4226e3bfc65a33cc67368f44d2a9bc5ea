@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_415cb625",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-07-25T05:13:02Z",
+      "side": 1,
+      "message": "Wouldn\u0027t you need the equivalent change in the update method? The \"handle\" method is inside the same check there as well.",
+      "revId": "dd4e88b4226e3bfc65a33cc67368f44d2a9bc5ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
