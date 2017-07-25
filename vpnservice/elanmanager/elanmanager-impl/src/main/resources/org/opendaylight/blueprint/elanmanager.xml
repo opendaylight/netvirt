@@ -46,6 +46,7 @@
   <bean id="elanForwardingEntriesHandler"
     class="org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler">
     <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
   </bean>
 
   <bean id="elanInterfaceManager"
@@ -62,7 +63,7 @@
   </bean>
 
   <bean id="elanInstanceManager"
-    class="org.opendaylight.netvirt.elan.internal.ElanInstanceManager"
+    class="org.opendaylight.netvirt.elan.internal.ElanInstanceManagerImpl"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="idManagerService" />
@@ -125,17 +126,31 @@
     <argument ref="elanItmUtils" />
   </bean>
 
-  <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils"
-    destroy-method="close">
+  <bean id="elanL2GatewayConnectionUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils">
+    <argument ref="dataBroker" />
+    <argument ref="elanInstanceManager" />
+    <argument ref="entityOwnershipService" />
+    <argument ref="elanUtils" />
+    <argument ref="elanL2GatewayMulticastUtils" />
+  </bean>
+
+  <bean id="elanL2GatewayUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils"
+        destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="elanDmacUtils" />
+    <argument ref="elanItmUtils" />
+    <argument ref="entityOwnershipService" />
+  </bean>
+
+  <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="elanInstanceManager" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="itmRpcService" />
-    <argument ref="entityOwnershipService" />
     <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
-    <argument ref="elanL2GatewayMulticastUtils" />
     <argument ref="elanEtreeUtils" />
     <argument ref="elanItmUtils" />
     <argument ref="elanDmacUtils" />
@@ -196,7 +211,6 @@
     <argument ref="elanInstanceManager" />
     <argument ref="elanBridgeManager" />
     <argument ref="dataBroker" />
-    <argument ref="elanInterfaceManager" />
     <argument ref="elanStatusMonitor" />
     <argument ref="elanUtils" />
     <argument ref="entityOwnershipService" />
