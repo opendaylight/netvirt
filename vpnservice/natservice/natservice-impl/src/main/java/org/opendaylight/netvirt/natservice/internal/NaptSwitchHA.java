@@ -289,7 +289,7 @@ public class NaptSwitchHA {
             for (String externalIp : externalIpsLabel.keySet()) {
                 Long label = externalIpsLabel.get(externalIp);
                 externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label,
-                        gwMacAddress);
+                        gwMacAddress, true);
                 LOG.debug("Successfully removed fib entries in old naptswitch {} for router {} and "
                         + "externalIps {} label {}", naptSwitch, routerId, externalIp, label);
             }
@@ -985,7 +985,7 @@ public class NaptSwitchHA {
                 for (String externalIp : removedExternalIps) {
                     externalRouterListener.clearBgpRoutes(externalIp, vpnName);
                     externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,
-                            NatConstants.DEFAULT_LABEL_VALUE, gwMacAddress);
+                            NatConstants.DEFAULT_LABEL_VALUE, gwMacAddress, true);
                     LOG.debug("NAT Service: Successfully removed fib entry for externalIp {} for routerId {} "
                                     + "on NAPT switch {} ", externalIp, routerId, naptSwitch);
                 }
@@ -1005,7 +1005,7 @@ public class NaptSwitchHA {
                     }
                     externalRouterListener.clearBgpRoutes(externalIp, vpnName);
                     externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName, label,
-                            gwMacAddress);
+                            gwMacAddress, true);
                     LOG.debug("Successfully removed fib entries in switch {} for router {} and externalIps {}",
                             naptSwitch, routerId, externalIp);
                 }
