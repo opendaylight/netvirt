@@ -24,6 +24,8 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -93,6 +95,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author eperefr
  */
+@Singleton
 public class ElanL2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ElanL2GatewayUtils.class);
 
@@ -108,6 +111,7 @@ public class ElanL2GatewayUtils {
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
 
+    @Inject
     public ElanL2GatewayUtils(DataBroker broker, ElanUtils elanUtils,
                               ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
                               EntityOwnershipService entityOwnershipService) {

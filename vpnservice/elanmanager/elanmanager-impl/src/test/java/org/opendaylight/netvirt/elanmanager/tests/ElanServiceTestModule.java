@@ -20,6 +20,10 @@ import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.lockmanager.LockManager;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
+import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
+import org.opendaylight.netvirt.elan.internal.ElanInstanceManagerImpl;
+import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
+import org.opendaylight.netvirt.elan.internal.ElanInterfaceManagerImpl;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -43,6 +47,8 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
     @Override
     protected void configureBindings() {
         // Bindings for services from this project
+        bind(ElanInstanceManager.class).to(ElanInstanceManagerImpl.class);
+        bind(ElanInterfaceManager.class).to(ElanInterfaceManagerImpl.class);
         bind(IElanService.class).to(ElanServiceProvider.class);
 
         // Bindings for external services to "real" implementations

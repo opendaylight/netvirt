@@ -30,14 +30,11 @@ public class ElanForwardingEntriesHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
 
     private final DataBroker broker;
-    private ElanUtils elanUtils;
+    private final ElanUtils elanUtils;
 
     @Inject
-    public ElanForwardingEntriesHandler(DataBroker dataBroker) {
+    public ElanForwardingEntriesHandler(DataBroker dataBroker, ElanUtils elanUtils) {
         this.broker = dataBroker;
-    }
-
-    public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
     }
 
