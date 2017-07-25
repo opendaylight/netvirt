@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_5c113d04",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-25T11:22:54Z",
+      "side": 1,
+      "message": "@Philippe, IMO this file is best placed in FIBManager code. IPv6service may not be the right place for this api.\n\nWhat do you say?",
+      "revId": "9ae66e295577ce419434680286e578e0a3d88cee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9cfa95bb",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-25T11:22:54Z",
+      "side": 1,
+      "message": "The cookie value should normally be the FIBManager cookie value. Please see [1]\n\n[1] https://github.com/opendaylight/genius/blob/master/mdsalutil/mdsalutil-api/src/main/java/org/opendaylight/genius/mdsalutil/NwConstants.java#L93",
+      "range": {
+        "startLine": 62,
+        "startChar": 12,
+        "endLine": 62,
+        "endChar": 56
+      },
+      "revId": "9ae66e295577ce419434680286e578e0a3d88cee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_1cd5051c",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-25T11:22:54Z",
+      "side": 1,
+      "message": "I dont think flowEntity would ever be null. Please check.",
+      "range": {
+        "startLine": 75,
+        "startChar": 19,
+        "endLine": 75,
+        "endChar": 29
+      },
+      "revId": "9ae66e295577ce419434680286e578e0a3d88cee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
