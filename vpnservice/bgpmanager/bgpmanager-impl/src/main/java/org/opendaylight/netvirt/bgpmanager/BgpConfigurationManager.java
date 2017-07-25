@@ -161,6 +161,7 @@ public class BgpConfigurationManager {
     private long staleCleanupTime = 0;
     private static final int DS_RETRY_COOUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
+    private static final String AddRcvdExempt = "{} Add received exception; {}";
 
     public String getBgpSdncMipIp() {
         return getProperty(BGP_SDNC_MIP, DEF_BGP_SDNC_MIP);
@@ -584,7 +585,7 @@ public class BgpConfigurationManager {
                 try {
                     br.addGracefulRestart(stalePathTime);
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -669,7 +670,7 @@ public class BgpConfigurationManager {
                 try {
                     br.setLogging(val.getFile(), val.getLevel());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -758,7 +759,7 @@ public class BgpConfigurationManager {
                     br.addNeighbor(peerIp, as, md5Secret);
 
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -835,7 +836,7 @@ public class BgpConfigurationManager {
                 try {
                     br.addEbgpMultihop(peerIp, val.getNhops().intValue());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -909,7 +910,7 @@ public class BgpConfigurationManager {
                 try {
                     br.addUpdateSource(peerIp, val.getSourceIp().getValue());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -985,7 +986,7 @@ public class BgpConfigurationManager {
                 try {
                     br.addAddressFamily(peerIp, afi, safi);
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1084,7 +1085,7 @@ public class BgpConfigurationManager {
                     br.addPrefix(rd, pfxlen, nh, lbl, l3vni, l2vni, BgpUtil.convertToThriftProtocolType(protocolType),
                             ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1194,7 +1195,7 @@ public class BgpConfigurationManager {
                     br.addVrf(val.getLayerType(), rd, val.getImportRts(),
                             val.getExportRts());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(AddRcvdExempt, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
