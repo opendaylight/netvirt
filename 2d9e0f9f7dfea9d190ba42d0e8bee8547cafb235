@@ -34,6 +34,24 @@
       "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fc30f19f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 433,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-07-25T11:21:01Z",
+      "side": 1,
+      "message": "I agree, this is a valid point because there is no ordering guarantees with yang lists.\n\nAt the same time, however, this has to be fixed in a different review for supporting dualstack VMs rather than in this review.\n\nWe need to make sure single stack VMs that may be only IPv4 (or) only IPv6 are working correctly and this fix falls in line with that.\n\nSo I think we should take this fix.",
+      "parentUuid": "da2a55be_9cc57590",
+      "revId": "2d9e0f9f7dfea9d190ba42d0e8bee8547cafb235",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
