@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_3cbba973",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-25T14:00:14Z",
+      "side": 1,
+      "message": "Hello Sridhar\n\nBecause this class have a few method wrinting in open v switch I think it have to stay here, but Philippe get you in a call in a few minutes and talk you about this.\n\nof course you could back me your remark.\nThks\nNoel",
+      "parentUuid": "da2a55be_5c113d04",
+      "revId": "9ae66e295577ce419434680286e578e0a3d88cee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_9cfa95bb",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
         "patchSetId": 10
@@ -42,6 +60,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_9cb1f591",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-25T14:00:14Z",
+      "side": 1,
+      "message": "Hi,\n\nyes I agree, I will do it.\n\nThks, Noel.",
+      "parentUuid": "da2a55be_9cfa95bb",
+      "range": {
+        "startLine": 62,
+        "startChar": 12,
+        "endLine": 62,
+        "endChar": 56
+      },
+      "revId": "9ae66e295577ce419434680286e578e0a3d88cee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_1cd5051c",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
         "patchSetId": 10
@@ -53,6 +95,30 @@
       "writtenOn": "2017-07-25T11:22:54Z",
       "side": 1,
       "message": "I dont think flowEntity would ever be null. Please check.",
+      "range": {
+        "startLine": 75,
+        "startChar": 19,
+        "endLine": 75,
+        "endChar": 29
+      },
+      "revId": "9ae66e295577ce419434680286e578e0a3d88cee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fc4e3195",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-25T14:00:14Z",
+      "side": 1,
+      "message": "Hi,\n\nthis is true, I will change the check \u003d\u003d null\n\nThks\nNoel",
+      "parentUuid": "da2a55be_1cd5051c",
       "range": {
         "startLine": 75,
         "startChar": 19,
