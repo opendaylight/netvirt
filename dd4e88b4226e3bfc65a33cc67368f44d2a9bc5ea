@@ -51,6 +51,24 @@
       "revId": "dd4e88b4226e3bfc65a33cc67368f44d2a9bc5ea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c1e1c69b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 198,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-25T08:35:27Z",
+      "side": 1,
+      "message": "not sure why it was required in first place either (:",
+      "parentUuid": "da2a55be_418836e7",
+      "revId": "dd4e88b4226e3bfc65a33cc67368f44d2a9bc5ea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
