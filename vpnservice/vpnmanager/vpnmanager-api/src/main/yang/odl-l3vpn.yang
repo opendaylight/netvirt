@@ -8,7 +8,7 @@ module odl-l3vpn {
     import odl-interface { prefix odlif; revision-date "2016-04-06"; }
     import neutronvpn {
         prefix nvpn;
-        revision-date "2015-06-02";
+        revision-date "2017-07-25";
     }
 
     revision "2013-09-11" {
