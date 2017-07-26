@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_168841e6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi\n\nright, I will do it.\n\nThks\nNoel",
+      "parentUuid": "da2a55be_9c5f3541",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_7c5a4151",
         "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
         "patchSetId": 26
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-25T14:05:19Z",
       "side": 1,
       "message": "Spelling: s/onv/one/",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b62175fd",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi\n\nOk in fact \"in\" is better, I\u0027ll change it.\n\nThks\nNoel",
+      "parentUuid": "da2a55be_7c5a4151",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_760d3d3e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi Joshua\n\nI agree, I will fix it.\n\nThks,\nNoel.",
+      "parentUuid": "da2a55be_7cac0136",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3c7289e5",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 26
@@ -64,6 +118,24 @@
       "writtenOn": "2017-07-25T14:05:19Z",
       "side": 1,
       "message": "This check is unnecessary.",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_b607b51b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi Joshua\n\nI agree, I will fix it.\n\nThks,\nNoel.",
+      "parentUuid": "da2a55be_3c7289e5",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_390bb626",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "I agree I will do it",
+      "parentUuid": "da2a55be_7c7361e7",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bc7dd9b3",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 26
@@ -98,6 +188,24 @@
       "writtenOn": "2017-07-25T14:05:19Z",
       "side": 1,
       "message": "If this really is a possibility, shouldn\u0027t a log msg be emitted? Same below in the del method.",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_590f8a2e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi,\n\nRigth now return is not reachable, I will delete it. \nThks,\nNoel",
+      "parentUuid": "da2a55be_bc7dd9b3",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_f9759e98",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2448,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi,\n\nI agree, I will do it.\n\nthks,\nNoel.",
+      "parentUuid": "da2a55be_1c4ce59d",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3c49e98b",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 26
@@ -132,6 +258,24 @@
       "writtenOn": "2017-07-25T14:05:19Z",
       "side": 1,
       "message": "Consider putting this in old fashion for loop and then breaking here? There can be only one, right?",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_f99c7ec2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2464,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi,\n\nRight to break.\nThks,\nNoel",
+      "parentUuid": "da2a55be_3c49e98b",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_b991669b",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 26
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi,\n\nbecause address-families is existing in another space-name(package) yang model then if we have to use the 2 one, one of it should be fully qualified \u003d\u003e then get a large java code line.\nWe are expecting to avoid that.\n\nthks,\nNoel",
+      "parentUuid": "da2a55be_bc54b921",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_01a0fef2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/#VpnInstanceListener.java#",
         "patchSetId": 26
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_79dece6e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/#VpnInstanceListener.java#",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi Joshua\n\nThks, I suppose that this file is a mistake of handle.\n\nNoel",
+      "parentUuid": "da2a55be_01a0fef2",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_615a9af4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 26
@@ -183,6 +363,24 @@
       "writtenOn": "2017-07-25T14:05:19Z",
       "side": 1,
       "message": "Why not just \"boolean doIpv4 \u003d vpnInstance.getIpv4Family() !\u003d null;\"?\n\n;-)",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_d9d41a49",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-07-26T12:24:41Z",
+      "side": 1,
+      "message": "Hi Joshua\n\nRight, this is true;I will do it.\n\nThks,\nNoel",
+      "parentUuid": "da2a55be_615a9af4",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
