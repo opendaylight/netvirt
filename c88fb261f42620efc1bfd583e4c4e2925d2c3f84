@@ -34,6 +34,24 @@
       "revId": "c88fb261f42620efc1bfd583e4c4e2925d2c3f84",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9919027c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-shell/src/main/java/org/opendaylight/netvirt/vpnmanager/shell/ShowVpnInstanceOpData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-26T09:53:25Z",
+      "side": 1,
+      "message": "Yeah, I\u0027m fine with addressing the issue in the actual api (i.e., getVpnInterfaceCount()) via a separate patch. I\u0027ve added @Vivek as reviewer to know his views.",
+      "parentUuid": "da2a55be_7626ddcf",
+      "revId": "c88fb261f42620efc1bfd583e4c4e2925d2c3f84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
