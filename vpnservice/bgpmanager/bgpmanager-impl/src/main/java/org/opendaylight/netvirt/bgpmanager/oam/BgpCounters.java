@@ -58,13 +58,16 @@ public class BgpCounters extends TimerTask {
         bgpSdncMip = mipAddress;
     }
 
+    String cmdBGPsummary = "cmd_ip_bgp_summary.txt";
+    String bgpIPv4UnicastStatistics = "cmd_bgp_ipv4_unicast_statistics.txt";
+
     @Override
     public void run() {
         try {
             LOG.debug("Fetching counters from BGP");
             resetCounters();
-            fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
-            fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
+            fetchCmdOutputs(cmdBGPsummary, "show ip bgp summary");
+            fetchCmdOutputs(bgpIPv4UnicastStatistics, "show bgp ipv4 unicast statistics");
             fetchCmdOutputs(BGP_VPNV4_FILE, "show ip bgp vpnv4 all");
             fetchCmdOutputs(BGP_VPNV6_FILE, "show ip bgp vpnv6 all");
             fetchCmdOutputs(BGP_EVPN_FILE, "show bgp l2vpn evpn all");
@@ -220,7 +223,7 @@ public class BgpCounters extends TimerTask {
     static String fileProcessingError = "Could not process the file {}";
 
     private void parseIpBgpSummary() {
-        File file = new File("cmd_ip_bgp_summary.txt");
+        File file = new File(cmdBGPsummary);
 
         try (Scanner scanner = new Scanner(file)) {
             boolean startEntries = false;
@@ -266,7 +269,7 @@ public class BgpCounters extends TimerTask {
      */
 
     private void parseBgpIpv4UnicastStatistics() {
-        File file = new File("cmd_bgp_ipv4_unicast_statistics.txt");
+        File file = new File(bgpIPv4UnicastStatistics);
         String totPfx = "";
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
@@ -433,8 +436,8 @@ public class BgpCounters extends TimerTask {
 
     private void resetCounters() {
         countersMap.clear();
-        resetFile("cmd_ip_bgp_summary.txt");
-        resetFile("cmd_bgp_ipv4_unicast_statistics.txt");
+        resetFile(cmdBGPsummary);
+        resetFile(bgpIPv4UnicastStatistics);
         resetFile(BGP_VPNV4_FILE);
         resetFile(BGP_VPNV6_FILE);
         resetFile(BGP_EVPN_FILE);
