@@ -110,7 +110,13 @@ public final class AclConstants {
     public static final int INVALID_ACL_ID = -1;
 
     public static final String ACL_ID_POOL_NAME = "ACL-ID-POOL";
+    public static final String DROP = "_Drop_";
+    public static final String PERMIT = "_Permit_";	
+    public static final String 	INGRESS_ICMP_V6 = "Ingress_ICMPv6";	
 
+
+
+	
     enum PacketHandlingType {
         PERMIT,
         DENY
