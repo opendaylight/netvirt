@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_8fc41060",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-26T22:19:29Z",
+      "side": 1,
+      "message": "you can remove this extra line that was added",
+      "revId": "3b2e9e8d7f670a870d2ddbe10f47588a344593ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_efa2ecac",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-26T22:19:29Z",
+      "side": 1,
+      "message": "Probably should define a constant for these strings as well? (i.e. Ingress_DHCP_Server_[v4|v6]) -",
+      "revId": "3b2e9e8d7f670a870d2ddbe10f47588a344593ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_2fad249d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-26T22:19:29Z",
+      "side": 1,
+      "message": "can remove the extra newlines that were added.",
+      "revId": "3b2e9e8d7f670a870d2ddbe10f47588a344593ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
