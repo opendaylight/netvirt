@@ -16,6 +16,24 @@
       "revId": "c88fb261f42620efc1bfd583e4c4e2925d2c3f84",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7626ddcf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-shell/src/main/java/org/opendaylight/netvirt/vpnmanager/shell/ShowVpnInstanceOpData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-26T09:39:39Z",
+      "side": 1,
+      "message": "Hi Sridhar,\nI would tend to push this fix, and create a new issue about the usage of VpnInterfaceCount.\nThe main problem is that the VpnToDpn list is modified in more than one single place. \nSo it requires some more modifications.\n\n\nAlso, I don\u0027t know the whole picture of why suddenly, this value has been not used.\n\nAny comments?",
+      "parentUuid": "da2a55be_b6821592",
+      "revId": "c88fb261f42620efc1bfd583e4c4e2925d2c3f84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
