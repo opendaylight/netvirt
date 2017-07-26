@@ -217,6 +217,8 @@ public class BgpCounters extends TimerTask {
         </output>
      */
 
+    static String fileProcessingError = "Could not process the file {}";
+
     private void parseIpBgpSummary() {
         File file = new File("cmd_ip_bgp_summary.txt");
 
@@ -249,7 +251,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(fileProcessingError, file.getAbsolutePath());
         }
     }
     /*
@@ -280,7 +282,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(fileProcessingError, file.getAbsolutePath());
             return;
         }
         countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX, totPfx);
@@ -316,7 +318,7 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(fileProcessingError, file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
@@ -361,7 +363,7 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(fileProcessingError, file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
@@ -383,7 +385,7 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(fileProcessingError, file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
@@ -476,7 +478,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOG.trace("Could not process the file {}", file.getAbsolutePath());
+            LOG.trace(fileProcessingError, file.getAbsolutePath());
             return null;
         }
 
