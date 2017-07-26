@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_b935e6db",
+        "filename": "vpnservice/vpnmanager/vpnmanager-shell/src/main/java/org/opendaylight/netvirt/vpnmanager/shell/ShowVpn.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 100,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-26T10:03:19Z",
+      "side": 1,
+      "message": "This looks okay, given that Rd/iRT/eRT will be the same for ipv4 and ipV6 subnets when both these subnets are associated to the same BGPVPN.",
+      "range": {
+        "startLine": 99,
+        "startChar": 16,
+        "endLine": 100,
+        "endChar": 48
+      },
+      "revId": "c753ab834df04bf5c16469354226ea086fea29ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
