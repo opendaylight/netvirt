@@ -59,8 +59,8 @@ public class SNATDefaultRouteProgrammer {
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
         } catch (UnknownHostException e) {
-            LOG.error("UnknowHostException in buildDefNATFlowEntity. Failed  to build FIB Table Flow for "
-                + "Default Route to NAT table ");
+            LOG.error("buildDefNATFlowEntity : Failed  to build FIB Table Flow for "
+                + "Default Route to NAT table", e);
             return null;
         }
 
@@ -91,8 +91,8 @@ public class SNATDefaultRouteProgrammer {
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
         } catch (UnknownHostException e) {
-            LOG.error("UnknowHostException in buildDefNATFlowEntity. Failed  to build FIB Table Flow for "
-                + "Default Route to NAT table ");
+            LOG.error("buildDefNATFlowEntity : Failed  to build FIB Table Flow for "
+                + "Default Route to NAT table", e);
             return null;
         }
 
@@ -123,7 +123,8 @@ public class SNATDefaultRouteProgrammer {
     void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
-            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
+                    + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         NatServiceCounters.install_default_nat_flow.inc();
@@ -133,7 +134,8 @@ public class SNATDefaultRouteProgrammer {
     void installDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
-            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
+                    + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         NatServiceCounters.install_default_nat_flow.inc();
@@ -144,7 +146,8 @@ public class SNATDefaultRouteProgrammer {
             IdManagerService idManager) {
         FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpnId, vpnId, subnetId, idManager);
         if (flowEntity == null) {
-            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."
+                    + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         NatServiceCounters.install_default_nat_flow.inc();
@@ -154,7 +157,8 @@ public class SNATDefaultRouteProgrammer {
     void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
-            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            LOG.error("removeDefNATRouteInDPN : Flow entity received is NULL."
+                    + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         NatServiceCounters.remove_default_nat_flow.inc();
@@ -164,7 +168,8 @@ public class SNATDefaultRouteProgrammer {
     void removeDefNATRouteInDPN(BigInteger dpnId, long bgpVpnId, long routerId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, bgpVpnId, routerId);
         if (flowEntity == null) {
-            LOG.error("Flow entity received is NULL. Cannot proceed with installation of Default NAT flow");
+            LOG.error("removeDefNATRouteInDPN : Flow entity received is NULL."
+                    + "Cannot proceed with installation of Default NAT flow");
             return;
         }
         NatServiceCounters.remove_default_nat_flow.inc();
@@ -185,22 +190,22 @@ public class SNATDefaultRouteProgrammer {
                     FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn.getDpnId(),
                             vpnId, subnetId, idManager);
                     if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
-                        LOG.info("NAT Service : Installing flow {} for subnetId {}, vpnId {} on dpn {}",
-                                flowEntity, subnetId, vpnId, dpn.getDpnId());
+                        LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Installing flow {} for subnetId {},"
+                                + "vpnId {} on dpn {}", flowEntity, subnetId, vpnId, dpn.getDpnId());
                         mdsalManager.installFlow(flowEntity);
                     } else {
-                        LOG.info("NAT Service : Removing flow for subnetId {}, vpnId {} with dpn {}",
-                                subnetId, vpnId, dpn);
+                        LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Removing flow for subnetId {},"
+                                + "vpnId {} with dpn {}", subnetId, vpnId, dpn);
                         mdsalManager.removeFlow(flowEntity);
                     }
                 }
             } else {
-                LOG.debug("Will not add/remove default NAT flow for subnet {} no dpn set for vpn instance {}",
-                    subnetId, networkVpnInstanceOp.get());
+                LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Will not add/remove default NAT flow for subnet {} "
+                        + "no dpn set for vpn instance {}", subnetId, networkVpnInstanceOp.get());
             }
         } else {
-            LOG.debug("Cannot create/remove default FIB route to SNAT flow for subnet  {} "
-                + "vpn-instance-op-data entry for network {} does not exist",
+            LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Cannot create/remove default FIB route to SNAT flow "
+                    + "for subnet {} vpn-instance-op-data entry for network {} does not exist",
                 subnetId, networkId);
         }
     }

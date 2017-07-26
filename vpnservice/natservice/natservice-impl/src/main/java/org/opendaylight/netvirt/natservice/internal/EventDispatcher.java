@@ -34,8 +34,8 @@ public class EventDispatcher {
     }
 
     public void addFlowRemovedNaptEvent(NAPTEntryEvent naptEntryEvent) {
-        LOG.trace("NAT Service : Adding Flow Removed event to eventQueue which is of size {} and remaining capacity {}",
-                removeFlowQueue.size(), removeFlowQueue.remainingCapacity());
+        LOG.trace("addFlowRemovedNaptEvent : Adding Flow Removed event to eventQueue which is of size {} "
+                + "and remaining capacity {}", removeFlowQueue.size(), removeFlowQueue.remainingCapacity());
         this.removeFlowQueue.add(naptEntryEvent);
     }
 
@@ -43,11 +43,11 @@ public class EventDispatcher {
         public void run() {
             while (true) {
                 try {
-                    LOG.trace("NAT Service : Inside FlowRemoveThread");
+                    LOG.trace("run : Inside FlowRemoveThread");
                     NAPTEntryEvent event = removeFlowQueue.take();
                     naptEventHandler.handleEvent(event);
                 } catch (InterruptedException e) {
-                    LOG.error("NAT Service : EventDispatcher : Error in handling the flow removed event queue: ", e);
+                    LOG.error("run : EventDispatcher : Error in handling the flow removed event queue: ", e);
                 }
             }
         }
