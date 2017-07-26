@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_367e256c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-07-26T05:35:20Z",
+      "side": 1,
+      "message": "Is this really an error? this can happen, is a race condition. Are we not handling out of order? Either ways, should be debug.",
+      "range": {
+        "startLine": 130,
+        "startChar": 16,
+        "endLine": 130,
+        "endChar": 22
+      },
+      "revId": "8a2427462b9530189dfdcbd93fc6e7a8634f6647",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
