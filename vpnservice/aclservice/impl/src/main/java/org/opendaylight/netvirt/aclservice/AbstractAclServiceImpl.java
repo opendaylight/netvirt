@@ -125,6 +125,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean updateAcl(AclInterface portBefore, AclInterface portAfter) {
+        // this check is to avoid situations of port update coming before interface state is up
+        if (portAfter.getDpId() == null || portAfter.getLPortTag() == null) {
+            LOG.debug("Unable to find DpId from ACL interface with id {}", portAfter.getInterfaceId());
+            return false;
+        }
         boolean result = true;
         boolean isPortSecurityEnable = portAfter.getPortSecurityEnabled();
         boolean isPortSecurityEnableBefore = portBefore.getPortSecurityEnabled();
@@ -248,7 +253,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean applyAce(AclInterface port, String aclName, Ace ace) {
-        if (!port.isPortSecurityEnabled()) {
+        if (!port.isPortSecurityEnabled() || port.getDpId() == null) {
             return false;
         }
         programAceRule(port, NwConstants.ADD_FLOW, aclName, ace, null);
@@ -258,7 +263,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean removeAce(AclInterface port, String aclName, Ace ace) {
-        if (!port.isPortSecurityEnabled()) {
+        if (!port.isPortSecurityEnabled() || port.getDpId() == null) {
             return false;
         }
         programAceRule(port, NwConstants.DEL_FLOW, aclName, ace, null);
@@ -519,11 +524,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     private void updateRemoteAclTableForMultipleAcls(AclInterface port, int addOrRemove, String ignorePort) {
-        BigInteger dpId = port.getDpId();
-        if (dpId == null) {
-            LOG.warn("trying to write to null dpnId");
-            return;
-        }
         for (Uuid aclUuid : port.getSecurityGroups()) {
             if (aclDataUtil.getRemoteAcl(aclUuid) == null) {
                 continue;
