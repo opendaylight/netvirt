@@ -95,7 +95,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     @Override
     public boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
-        LOG.debug("AbstractSnatService : Handle Snat in all switches");
+        LOG.debug("handleSnatAllSwitch : Handle Snat in all switches");
         String routerName = routers.getRouterName();
         installRouterGwFlows(routers, primarySwitchId, addOrRemove);
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
@@ -119,11 +119,11 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
         // Handle non NAPT switches and NAPT switches separately
         if (!dpnId.equals(primarySwitchId)) {
-            LOG.debug("AbstractSnatService : Handle non NAPT switch {}", dpnId);
+            LOG.debug("handleSnat : Handle non NAPT switch {}", dpnId);
             installSnatCommonEntriesForNonNaptSwitch(routers, primarySwitchId, dpnId, addOrRemove);
             installSnatSpecificEntriesForNonNaptSwitch(routers, dpnId, addOrRemove);
         } else {
-            LOG.debug("AbstractSnatService : Handle NAPT switch {}", dpnId);
+            LOG.debug("handleSnat : Handle NAPT switch {}", dpnId);
             installSnatCommonEntriesForNaptSwitch(routers, dpnId, addOrRemove);
             installSnatSpecificEntriesForNaptSwitch(routers, dpnId, addOrRemove);
 
@@ -204,26 +204,26 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected void installSnatMissEntry(BigInteger dpnId, Long routerId, String routerName, BigInteger primarySwitchId,
             int addOrRemove) {
-        LOG.debug("AbstractSnatService : Installing SNAT miss entry in switch {}", dpnId);
+        LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
-            LOG.debug("AbstractSnatService : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
+            LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
             listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);
-        LOG.debug("AbstractSnatService : installSnatMissEntry called for dpnId {} with primaryBucket {} ", dpnId,
+        LOG.debug("installSnatMissEntry : installSnatMissEntry called for dpnId {} with primaryBucket {} ", dpnId,
                 listBucketInfo.get(0));
         // Install the select group
         long groupId = createGroupId(getGroupIdKey(routerName));
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName, GroupTypes.GroupAll,
                 listBucketInfo);
-        LOG.debug("AbstractSnatService : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
+        LOG.debug("installSnatMissEntry : installing the SNAT to NAPT GroupEntity:{}", groupEntity);
         mdsalManager.installGroup(groupEntity);
         // Install miss entry pointing to group
-        LOG.debug("AbstractSnatService : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
+        LOG.debug("installSnatMissEntry : buildSnatFlowEntity is called for dpId {}, routerName {} and groupId {}",
                 dpnId, routerName, groupId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchEthernetType(0x0800L));
@@ -232,7 +232,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
         List<ActionInfo> actionsInfo = new ArrayList<>();
         actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(routerId)));
-        LOG.debug("AbstractSnatService : Setting the tunnel to the list of action infos {}", actionsInfo);
+        LOG.debug("installSnatMissEntry : Setting the tunnel to the list of action infos {}", actionsInfo);
         actionsInfo.add(new ActionGroup(groupId));
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfo));
@@ -260,15 +260,15 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         // Allocate Primary Napt Switch for this router
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
         if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.debug("AbstractSnatService : Primary NAPT switch with DPN ID {} is already elected for router",
+            LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch with DPN ID {} is already elected for router",
                     primarySwitchId, routerName);
             return primarySwitchId;
         }
 
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
-        LOG.debug("AbstractSnatService : Primary NAPT switch DPN ID {}", primarySwitchId);
+        LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch DPN ID {}", primarySwitchId);
         if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.error("AbstractSnatService : Unable to to select the primary NAPT switch");
+            LOG.error("getPrimaryNaptSwitch : Unable to to select the primary NAPT switch");
         }
 
         return primarySwitchId;
@@ -285,13 +285,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (addOrRemove == NwConstants.DEL_FLOW) {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                     NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches, null);
-            LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
+            LOG.trace("syncFlow : Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.removeFlow(flowEntity);
         } else {
             FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                     NatConstants.DEFAULT_IDLE_TIMEOUT, NatConstants.DEFAULT_IDLE_TIMEOUT, cookie, matches,
                     instructions);
-            LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
+            LOG.trace("syncFlow : Installing DpnId {}, flowId {}", dpId, flowId);
             mdsalManager.installFlow(flowEntity);
         }
     }
@@ -305,7 +305,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             return rpcResult.getResult().getIdValue();
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.trace("",e);
+            LOG.error("createGroupId: Exception while creating group with key : {}",groupIdKey, e);
         }
         return 0;
     }
@@ -332,17 +332,19 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                         .build());
                 rpcResult = result.get();
                 if (!rpcResult.isSuccessful()) {
-                    LOG.warn("RPC Call to getTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());
+                    LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
+                            rpcResult.getErrors());
                 } else {
                     return rpcResult.getResult().getInterfaceName();
                 }
-                LOG.warn("RPC Call to getTunnelInterfaceId returned with Errors {}", rpcResult.getErrors());
+                LOG.warn("getTunnelInterfaceName : RPC Call to getTunnelInterfaceId returned with Errors {}",
+                        rpcResult.getErrors());
             } else {
                 return rpcResult.getResult().getInterfaceName();
             }
         } catch (InterruptedException | ExecutionException | NullPointerException e) {
-            LOG.warn("AbstractSnatService : Exception when getting tunnel interface Id for tunnel between {} and  {}",
-                    srcDpId, dstDpId);
+            LOG.error("getTunnelInterfaceName : Exception when getting tunnel interface Id for tunnel "
+                    + "between {} and {}", srcDpId, dstDpId);
         }
         return null;
     }

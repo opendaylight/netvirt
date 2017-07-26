@@ -70,10 +70,11 @@ public class SnatServiceManagerImpl implements SnatServiceManager {
             }
 
             if (result) {
-                LOG.debug("Nat action {} invoking listener {} succeeded", action,
+                LOG.debug("notify : Nat action {} invoking listener {} succeeded", action,
                     snatServiceListener.getClass().getName());
             } else {
-                LOG.warn("Nat action {} invoking listener {} failed", action, snatServiceListener.getClass().getName());
+                LOG.warn("notify : Nat action {} invoking listener {} failed",
+                        action, snatServiceListener.getClass().getName());
             }
         }
     }

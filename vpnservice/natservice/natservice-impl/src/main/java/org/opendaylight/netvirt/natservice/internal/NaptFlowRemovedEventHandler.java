@@ -158,7 +158,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
                 String vpnName = NatUtil.getRouterName(dataBroker, bgpVpnId);
                 String routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                 if (routerName == null) {
-                    LOG.error("NAT Service: Unable to find router for VpnName {}", vpnName);
+                    LOG.error("onFlowRemoved : Unable to find router for VpnName {}", vpnName);
                     return;
                 }
                 routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -193,7 +193,7 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             long startTime = System.currentTimeMillis();
             mdsalManager.removeFlow(snatFlowEntity);
             String internalIpPortKey = internalIpv4HostAddress + ":" + internalPortNumber;
-            LOG.debug("onSwitchFlowRemoved : Elapsed time fo deleting table-{} flow for snat ({}) session:{}ms",
+            LOG.debug("onFlowRemoved : Elapsed time fo deleting table-{} flow for snat ({}) session:{}ms",
                     tableId, internalIpPortKey, (System.currentTimeMillis() - startTime));
             //Remove the SourceIP:Port key from the Napt packet handler map.
             naptPacketInHandler.removeIncomingPacketMap(internalIpPortKey);
