@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsRpcServiceImpl.class);
-
+    private final AclserviceConfig config;
     private final DataBroker dataBroker;
     private final OpendaylightDirectStatisticsService odlDirectStatsService;
     private final SecurityGroupMode securityGroupMode;

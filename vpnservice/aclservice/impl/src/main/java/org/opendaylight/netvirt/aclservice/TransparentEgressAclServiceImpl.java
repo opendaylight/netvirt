@@ -36,8 +36,9 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
         super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
-    @Override
     String egressDoNothing = "transparent egress acl service - do nothing";
+
+    @Override
     public void bindService(AclInterface aclInterface) {
         LOG.debug(egressDoNothing);
     }

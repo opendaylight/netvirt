@@ -354,12 +354,12 @@ public class BgpRouter {
         // TODO: set label2 or label3 based on encapsulation type and protocol type once L2label is applicable
         bop.ints[0] = label;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN) && encapType.equals(encap_type.VXLAN)) {
-        	//L3VPN Over VxLan
-            bop.l3label = l3vni; 
+            //L3VPN Over VxLan
+            bop.l3label = l3vni;
             bop.l2label = l2vni;
         } else {
-        	// L3VPN Over MPLSGRE
-            bop.l3label = label; 
+            // L3VPN Over MPLSGRE
+            bop.l3label = label;
         }
         bop.thriftProtocolType = protocolType;
         bop.ethernetTag = ethtag;
