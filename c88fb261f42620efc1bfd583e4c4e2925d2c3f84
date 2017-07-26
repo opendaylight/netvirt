@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_b6821592",
+        "filename": "vpnservice/vpnmanager/vpnmanager-shell/src/main/java/org/opendaylight/netvirt/vpnmanager/shell/ShowVpnInstanceOpData.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-26T09:32:56Z",
+      "side": 1,
+      "message": "This patch addresses the issue you mentioned in the bug report, but I was wondering if we should actually fix the API (i.e, check.getVpnInterfaceCount()) instead of looping it here. What do you say?",
+      "revId": "c88fb261f42620efc1bfd583e4c4e2925d2c3f84",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
