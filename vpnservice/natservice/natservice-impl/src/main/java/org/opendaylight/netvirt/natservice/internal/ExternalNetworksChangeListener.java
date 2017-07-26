@@ -107,8 +107,7 @@ public class ExternalNetworksChangeListener
     @Override
     protected void remove(InstanceIdentifier<Networks> identifier, Networks networks) {
         if (identifier == null || networks == null || networks.getRouterIds().isEmpty()) {
-            LOG.info("ExternalNetworksChangeListener:remove:: returning without processing since "
-                + "networks/identifier is null");
+            LOG.error("remove : returning without processing since networks/identifier is null");
             return;
         }
 
@@ -120,8 +119,7 @@ public class ExternalNetworksChangeListener
 
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, routerToNaptSwitchInstanceIdentifier);
 
-            LOG.debug("ExternalNetworksChangeListener:delete:: successful deletion of data in "
-                + "napt-switches container");
+            LOG.debug("remove : successful deletion of data in napt-switches container");
         }
     }
 
@@ -151,7 +149,7 @@ public class ExternalNetworksChangeListener
         for (Uuid routerUuid : routerUuids) {
             Long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
             if (routerId == NatConstants.INVALID_ID) {
-                LOG.error("NAT Service : Invalid routerId returned for routerName {}", routerUuid.getValue());
+                LOG.error("removeSnatEntries : Invalid routerId returned for routerName {}", routerUuid.getValue());
                 return;
             }
             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
@@ -171,8 +169,8 @@ public class ExternalNetworksChangeListener
             Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 routerPortsId);
             if (!optRouterPorts.isPresent()) {
-                LOG.debug("Could not read Router Ports data object with id: {} to handle associate ext nw {}",
-                    routerId, network.getId());
+                LOG.debug("associateExternalNetworkWithVPN : Could not read Router Ports data object with id: {} "
+                        + "to handle associate ext nw {}", routerId, network.getId());
                 continue;
             }
             RouterPorts routerPorts = optRouterPorts.get();
@@ -181,8 +179,8 @@ public class ExternalNetworksChangeListener
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                 if (dpnId.equals(BigInteger.ZERO)) {
-                    LOG.debug("DPN not found for {}, skip handling of ext nw {} association",
-                        portName, network.getId());
+                    LOG.debug("associateExternalNetworkWithVPN : DPN not found for {}, "
+                            + "skip handling of ext nw {} association", portName, network.getId());
                     continue;
                 }
                 List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
@@ -196,15 +194,16 @@ public class ExternalNetworksChangeListener
 
         // SNAT
         for (Uuid routerId : routerIds) {
-            LOG.debug("NAT Service : associateExternalNetworkWithVPN() for routerId {}",  routerId);
+            LOG.debug("associateExternalNetworkWithVPN() : for routerId {}",  routerId);
             Uuid networkId = network.getId();
             if (networkId == null) {
-                LOG.error("NAT Service : networkId is null for the router ID {}", routerId);
+                LOG.error("associateExternalNetworkWithVPN : networkId is null for the router ID {}", routerId);
                 return;
             }
             final String vpnName = network.getVpnid().getValue();
             if (vpnName == null) {
-                LOG.error("NAT Service : No VPN associated with ext nw {} for router {}", networkId, routerId);
+                LOG.error("associateExternalNetworkWithVPN : No VPN associated with ext nw {} for router {}",
+                        networkId, routerId);
                 return;
             }
 
@@ -216,10 +215,9 @@ public class ExternalNetworksChangeListener
             if (rtrToNapt.isPresent()) {
                 dpnId = rtrToNapt.get().getPrimarySwitchId();
             }
-            LOG.debug("NAT Service : got primarySwitch as dpnId{} ", dpnId);
+            LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                LOG.debug("NAT Service : primary napt Switch not found for router {} in "
-                    + "associateExternalNetworkWithVPN", routerId);
+                LOG.error("associateExternalNetworkWithVPN : primary napt Switch not found for router {}", routerId);
                 return;
             }
 
@@ -239,8 +237,7 @@ public class ExternalNetworksChangeListener
                 List<IpMap> ipMaps = ipMapping.get().getIpMap();
                 for (IpMap ipMap : ipMaps) {
                     String externalIp = ipMap.getExternalIp();
-                    LOG.debug("NAT Service : got externalIp as {}", externalIp);
-                    LOG.debug("NAT Service : About to call advToBgpAndInstallFibAndTsFlows for dpnId {}, "
+                    LOG.debug("associateExternalNetworkWithVPN : Calling advToBgpAndInstallFibAndTsFlows for dpnId {},"
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
                     if (natMode == NatMode.Controller) {
                         externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
@@ -250,7 +247,7 @@ public class ExternalNetworksChangeListener
                     }
                 }
             } else {
-                LOG.warn("NAT Service : No ipMapping present fot the routerId {}", routerId);
+                LOG.warn("associateExternalNetworkWithVPN : No ipMapping present fot the routerId {}", routerId);
             }
 
             long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
@@ -258,8 +255,8 @@ public class ExternalNetworksChangeListener
             if (natMode == NatMode.Controller) {
                 externalRouterListener.installNaptPfibEntriesForExternalSubnets(routerId.getValue(), dpnId);
                 if (vpnId != -1) {
-                    LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
-                            + "and vpnId {}", dpnId, vpnId);
+                    LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener installNaptPfibEntry "
+                            + "for dpnId {} and vpnId {}", dpnId, vpnId);
                     externalRouterListener.installNaptPfibEntry(dpnId, vpnId);
                 }
             }
@@ -275,8 +272,8 @@ public class ExternalNetworksChangeListener
             Optional<RouterPorts> optRouterPorts = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 routerPortsId);
             if (!optRouterPorts.isPresent()) {
-                LOG.debug("Could not read Router Ports data object with id: {} to handle disassociate ext nw {}",
-                    routerId, network.getId());
+                LOG.debug("disassociateExternalNetworkFromVPN : Could not read Router Ports data object with id: {} "
+                        + "to handle disassociate ext nw {}", routerId, network.getId());
                 continue;
             }
             RouterPorts routerPorts = optRouterPorts.get();
@@ -285,8 +282,8 @@ public class ExternalNetworksChangeListener
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
                 if (dpnId.equals(BigInteger.ZERO)) {
-                    LOG.debug("DPN not found for {}, skip handling of ext nw {} disassociation",
-                        portName, network.getId());
+                    LOG.debug("disassociateExternalNetworkFromVPN : DPN not found for {},"
+                            + "skip handling of ext nw {} disassociation", portName, network.getId());
                     continue;
                 }
                 List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
@@ -297,5 +294,4 @@ public class ExternalNetworksChangeListener
             }
         }
     }
-
 }

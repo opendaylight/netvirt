@@ -92,7 +92,7 @@ public class NaptManager {
     }
 
     protected void createNaptPortPool(String poolName) {
-        LOG.debug("NAPT Service : createPortPool requested for : {}", poolName);
+        LOG.debug("createNaptPortPool : createPortPool requested for : {}", poolName);
         CreateIdPoolInput createPool = new CreateIdPoolInputBuilder()
             .setPoolName(poolName)
             .setLow(LOW_PORT)
@@ -101,27 +101,27 @@ public class NaptManager {
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
             if ((result != null) && (result.get().isSuccessful())) {
-                LOG.debug("NAPT Service : Created PortPool");
+                LOG.debug("createNaptPortPool : Created PortPool");
             } else {
-                LOG.error("NAPT Service : Unable to create PortPool");
+                LOG.error("createNaptPortPool : Unable to create PortPool");
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to create PortPool for NAPT Service", e);
+            LOG.error("createNaptPortPool : Failed to create PortPool for NAPT Service", e);
         }
     }
 
     void removeNaptPortPool(String poolName) {
         DeleteIdPoolInput deleteIdPoolInput = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
-        LOG.debug("NAPT Service : Remove Napt port pool requested for : {}", poolName);
+        LOG.debug("removeNaptPortPool : Remove Napt port pool requested for : {}", poolName);
         try {
             Future<RpcResult<Void>> result = idManager.deleteIdPool(deleteIdPoolInput);
             if ((result != null) && (result.get().isSuccessful())) {
-                LOG.debug("NAPT Service : Deleted PortPool {}", poolName);
+                LOG.debug("removeNaptPortPool : Deleted PortPool {}", poolName);
             } else {
-                LOG.error("NAPT Service : Unable to delete PortPool {}", poolName);
+                LOG.error("removeNaptPortPool : Unable to delete PortPool {}", poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to delete PortPool {} for NAPT Service", poolName, e);
+            LOG.error("removeNaptPortPool : Failed to delete PortPool {} for NAPT Service", poolName, e);
         }
     }
 
@@ -137,7 +137,7 @@ public class NaptManager {
      */
 
     public void registerMapping(long segmentId, IPAddress internal, IPAddress external) {
-        LOG.debug("NAPT Service : registerMapping called with segmentid {}, internalIp {}, prefix {}, externalIp {} "
+        LOG.debug("registerMapping : called with segmentid {}, internalIp {}, prefix {}, externalIp {} "
             + "and prefix {} ", segmentId, internal.getIpAddress(),
             internal.getPrefixLength(), external.getIpAddress(), external.getPrefixLength());
         // Create Pool per ExternalIp and not for all IPs in the subnet.
@@ -146,7 +146,7 @@ public class NaptManager {
         // subnet case
         if (external.getPrefixLength() != 0 && external.getPrefixLength() != NatConstants.DEFAULT_PREFIX) {
             String externalSubnet = external.getIpAddress() + "/" + external.getPrefixLength();
-            LOG.debug("NAPT Service : externalSubnet is : {}", externalSubnet);
+            LOG.debug("registerMapping : externalSubnet is : {}", externalSubnet);
             SubnetUtils subnetUtils = new SubnetUtils(externalSubnet);
             SubnetInfo subnetInfo = subnetUtils.getInfo();
             externalIpPool = subnetInfo.getLowAddress();
@@ -170,7 +170,7 @@ public class NaptManager {
             .setExternalIp(externalIp).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
             getIpMapIdentifier(segmentId, internalIp), ipm);
-        LOG.debug("NAPT Service : registerMapping exit after updating DS with internalIP {}, externalIP {}",
+        LOG.debug("registerMapping : registerMapping exit after updating DS with internalIP {}, externalIP {}",
             internalIp, externalIp);
     }
 
@@ -185,12 +185,12 @@ public class NaptManager {
             counter = externalIpCounter.get().getCounter();
             if (isAdd) {
                 counter++;
-                LOG.debug("NAT Service : externalIp and counter after increment are {} and {}", externalIp, counter);
+                LOG.debug("updateCounter : externalIp and counter after increment are {} and {}", externalIp, counter);
             } else {
                 if (counter > 0) {
                     counter--;
                 }
-                LOG.debug("NAT Service : externalIp and counter after decrement are {} and {}", externalIp, counter);
+                LOG.debug("updateCounter : externalIp and counter after decrement are {} and {}", externalIp, counter);
             }
 
         } else if (isAdd) {
@@ -218,7 +218,7 @@ public class NaptManager {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public SessionAddress getExternalAddressMapping(long segmentId, SessionAddress sourceAddress,
                                                     NAPTEntryEvent.Protocol protocol) {
-        LOG.debug("NAPT Service : getExternalAddressMapping called with segmentId {}, internalIp {} and port {}",
+        LOG.debug("getExternalAddressMapping : called with segmentId {}, internalIp {} and port {}",
             segmentId, sourceAddress.getIpAddress(), sourceAddress.getPortNumber());
         /*
          1. Get Internal IP, Port in IP:Port format
@@ -234,14 +234,14 @@ public class NaptManager {
         SessionAddress existingIpPort = checkIpPortMap(segmentId, internalIpPort, protocol);
         if (existingIpPort != null) {
             // populate externalIpPort from IpPortMap and return
-            LOG.debug("NAPT Service : getExternalAddressMapping successfully returning existingIpPort as {} and {}",
+            LOG.debug("getExternalAddressMapping : successfully returning existingIpPort as {} and {}",
                 existingIpPort.getIpAddress(), existingIpPort.getPortNumber());
             return existingIpPort;
         } else {
             // Now check in ip-map
             String externalIp = checkIpMap(segmentId, sourceAddress.getIpAddress());
             if (externalIp == null) {
-                LOG.error("NAPT Service : getExternalAddressMapping, Unexpected error, internal to external "
+                LOG.error("getExternalAddressMapping : Unexpected error, internal to external "
                     + "ip map does not exist");
                 return null;
             } else {
@@ -265,10 +265,10 @@ public class NaptManager {
                     EXTSUBNET_FLAG = true;
                     externalIpSubnet = new SubnetUtils(externalIp);
                     allIps = Arrays.asList(externalIpSubnet.getInfo().getAllAddresses());
-                    LOG.debug("NAPT Service : total count of externalIps available {}",
+                    LOG.debug("getExternalAddressMapping : total count of externalIps available {}",
                         externalIpSubnet.getInfo().getAddressCount());
                 } else {
-                    LOG.debug("NAPT Service : getExternalAddress single ip case");
+                    LOG.debug("getExternalAddressMapping : getExternalAddress single ip case");
                     if (externalIp.contains(subnetPrefix)) {
                         //remove /32 what we got from checkIpMap
                         externalIp = externalIp.substring(0, externalIp.indexOf(subnetPrefix));
@@ -277,10 +277,10 @@ public class NaptManager {
                 }
 
                 for (String extIp : allIps) {
-                    LOG.info("NAPT Service : Looping externalIPs with externalIP now as {}", extIp);
+                    LOG.info("getExternalAddressMapping : Looping externalIPs with externalIP now as {}", extIp);
                     if (NEXT_EXTIP_FLAG) {
                         createNaptPortPool(extIp);
-                        LOG.debug("NAPT Service : Created Pool for next Ext IP {}", extIp);
+                        LOG.debug("getExternalAddressMapping : Created Pool for next Ext IP {}", extIp);
                     }
                     AllocateIdInput getIdInput = new AllocateIdInputBuilder()
                         .setPoolName(extIp).setIdKey(internalIpPort)
@@ -289,18 +289,18 @@ public class NaptManager {
                         Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
                         RpcResult<AllocateIdOutput> rpcResult;
                         if ((result != null) && (result.get().isSuccessful())) {
-                            LOG.debug("NAPT Service : Got id from idManager");
+                            LOG.debug("getExternalAddressMapping : Got id from idManager");
                             rpcResult = result.get();
                         } else {
-                            LOG.error("NAPT Service : getExternalAddressMapping, idManager could not "
+                            LOG.error("getExternalAddressMapping : getExternalAddressMapping, idManager could not "
                                 + "allocate id retry if subnet");
                             if (!EXTSUBNET_FLAG) {
-                                LOG.error("NAPT Service : getExternalAddressMapping returning null for single IP case,"
-                                    + " may be ports exhausted");
+                                LOG.error("getExternalAddressMapping : getExternalAddressMapping returning null "
+                                        + "for single IP case, may be ports exhausted");
                                 return null;
                             }
-                            LOG.debug("NAPT Service : Could be ports exhausted case, try with another externalIP"
-                                + " if possible");
+                            LOG.debug("getExternalAddressMapping : Could be ports exhausted case, "
+                                    + "try with another externalIP if possible");
                             NEXT_EXTIP_FLAG = true;
                             continue;
                         }
@@ -310,15 +310,15 @@ public class NaptManager {
                         IpPortExternal ipPortExt = ipExt.setIpAddress(extIp).setPortNum(extPort).build();
                         IpPortMap ipm = new IpPortMapBuilder().setKey(new IpPortMapKey(internalIpPort))
                             .setIpPortInternal(internalIpPort).setIpPortExternal(ipPortExt).build();
-                        LOG.debug("NAPT Service : getExternalAddressMapping writing into ip-port-map with "
+                        LOG.debug("getExternalAddressMapping : writing into ip-port-map with "
                             + "externalIP {} and port {}",
                             ipPortExt.getIpAddress(), ipPortExt.getPortNum());
                         try {
                             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                 getIpPortMapIdentifier(segmentId, internalIpPort, protocol), ipm);
                         } catch (UncheckedExecutionException uee) {
-                            LOG.error("NAPT Service : Failed to write into ip-port-map with exception {}",
-                                uee.getMessage());
+                            LOG.error("getExternalAddressMapping : Failed to write into ip-port-map with exception",
+                                uee);
                         }
 
                         // Write to snat-internal-ip-port-info
@@ -338,23 +338,24 @@ public class NaptManager {
                                 NatUtil.buildSnatIntIpPortIdentifier(segmentId, internalIpAddress, protocolType),
                                 intIpProtocolType);
                         } catch (Exception ex) {
-                            LOG.error("NAPT Service : Failed to write into snat-internal-ip-port-info with "
-                                + "exception {}", ex.getMessage());
+                            LOG.error("getExternalAddressMapping : Failed to write into snat-internal-ip-port-info "
+                                    + "with exception", ex);
                         }
 
                         SessionAddress externalIpPort = new SessionAddress(extIp, extPort);
-                        LOG.debug("NAPT Service : getExternalAddressMapping successfully returning externalIP {} "
-                            + "and port {}",
-                            externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
+                        LOG.debug("getExternalAddressMapping : successfully returning externalIP {} "
+                            + "and port {}", externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
                         return externalIpPort;
                     } catch (InterruptedException | ExecutionException e) {
-                        LOG.error("NAPT Service : getExternalAddressMapping, Exception caught  {}", e);
+                        LOG.error("getExternalAddressMapping : Exception caught", e);
                         return null;
                     }
                 } // end of for loop
             } // end of else ipmap present
         } // end of else check ipmap
-        LOG.error("NAPT Service: getExternalAddressMapping returning null, nothing worked or externalIPs exhausted");
+        LOG.error("getExternalAddressMapping : Unable to handle external IP address and port mapping with segmentId {}, "
+                + "internalIp {} and internalPort {}", segmentId, sourceAddress.getIpAddress(),
+                sourceAddress.getPortNumber());
         return null;
     }
 
@@ -370,7 +371,7 @@ public class NaptManager {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public boolean releaseAddressMapping(long segmentId, SessionAddress address, NAPTEntryEvent.Protocol protocol) {
-        LOG.debug("NAPT Service : releaseAddressMapping called with segmentId {}, internalIP {}, port {}",
+        LOG.debug("releaseAddressMapping : called with segmentId {}, internalIP {}, port {}",
             segmentId, address.getIpAddress(), address.getPortNumber());
         // delete entry from IpPort Map and IP Map if exists
         String internalIpPort = address.getIpAddress() + ":" + address.getPortNumber();
@@ -380,12 +381,12 @@ public class NaptManager {
             try {
                 removeFromIpPortMapDS(segmentId, internalIpPort, protocol);
             } catch (Exception e) {
-                LOG.error("NAPT Service : releaseAddressMapping failed, Removal of ipportmap {} for "
-                    + "router {} failed {}", internalIpPort, segmentId, e);
+                LOG.error("releaseAddressMapping : failed, Removal of ipportmap {} for "
+                    + "router {} failed", internalIpPort, segmentId, e);
                 return false;
             }
         } else {
-            LOG.error("NAPT Service : releaseAddressMapping failed, segmentId {} and internalIpPort {} "
+            LOG.error("releaseAddressMapping : failed, segmentId {} and internalIpPort {} "
                 + "not found in IpPortMap DS", segmentId, internalIpPort);
             return false;
         }
@@ -395,7 +396,7 @@ public class NaptManager {
             try {
                 removeFromIpMapDS(segmentId, address.getIpAddress());
             } catch (Exception e) {
-                LOG.error("NAPT Service : Removal of  ipmap {} for router {} failed {}",
+                LOG.error("releaseAddressMapping : Removal of  ipmap {} for router {} failed {}",
                     address.getIpAddress(), segmentId, e);
                 return false;
             }
@@ -403,20 +404,20 @@ public class NaptManager {
             try {
                 removeFromSnatIpPortDS(segmentId, address.getIpAddress());
             } catch (Exception e) {
-                LOG.error("NAPT Service : releaseAddressMapping failed, Removal of snatipportmap {} for "
-                    + "router {} failed {}", address.getIpAddress(), segmentId, e);
+                LOG.error("releaseAddressMapping : failed, Removal of snatipportmap {} for "
+                    + "router {} failed", address.getIpAddress(), segmentId, e);
                 return false;
             }
         } else {
-            LOG.error("NAPT Service : releaseAddressMapping failed, segmentId {} and internalIpPort {} "
+            LOG.error("releaseAddressMapping : failed, segmentId {} and internalIpPort {} "
                 + "not found in IpMap DS", segmentId, internalIpPort);
             return false;
         }
         // Finally release port from idmanager
         removePortFromPool(internalIpPort, existingIpPort.getIpAddress());
 
-        LOG.debug("NAPT Service : Exit of releaseAddressMapping successfully for segmentId {} and "
-            + "internalIpPort {}", segmentId, internalIpPort);
+        LOG.debug("releaseAddressMapping : Exited successfully for segmentId {} and internalIpPort {}",
+                segmentId, internalIpPort);
         return true;
     }
 
@@ -432,12 +433,11 @@ public class NaptManager {
                 // Finally release port from idmanager
                 removePortFromPool(internalIpPort, existingIpPort.getIpAddress());
             } catch (Exception e) {
-                LOG.error("NAPT Service : releaseAddressMapping failed, Removal of ipportmap {} for "
-                    + "router {} failed {}",
-                    internalIpPort, segmentId, e);
+                LOG.error("releaseIpExtPortMapping : failed, Removal of ipportmap {} for "
+                    + "router {} failed", internalIpPort, segmentId, e);
             }
         } else {
-            LOG.error("NAPT Service : releaseIpExtPortMapping failed, segmentId {} and "
+            LOG.error("releaseIpExtPortMapping : failed, segmentId {} and "
                 + "internalIpPort {} not found in IpPortMap DS", segmentId, internalIpPort);
         }
 
@@ -445,9 +445,8 @@ public class NaptManager {
         try {
             removeSnatIntIpPortDS(segmentId, address, protocol);
         } catch (Exception e) {
-            LOG.error("NAPT Service : releaseSnatIpPortMapping failed, Removal of snatipportmap {} for "
-                + "router {} failed {}",
-                address.getIpAddress(), segmentId, e);
+            LOG.error("releaseSnatIpPortMapping : failed, Removal of snatipportmap {} for "
+                + "router {} failed",address.getIpAddress(), segmentId, e);
         }
     }
 
@@ -465,7 +464,7 @@ public class NaptManager {
             removeIpPortMappingForRouterID(segmentId);
             removeIntIpPortMappingForRouterID(segmentId);
         } catch (Exception e) {
-            LOG.error("NAPT Service : Removal of  IPMapping for router {} failed {}", segmentId, e);
+            LOG.error("removeMapping : Removal of  IPMapping for router {} failed", segmentId, e);
             return false;
         }
 
@@ -507,7 +506,7 @@ public class NaptManager {
 
     private SessionAddress checkIpPortMap(long segmentId, String internalIpPort,
             NAPTEntryEvent.Protocol protocol) {
-        LOG.debug("NAPT Service : checkIpPortMap called with segmentId {} and internalIpPort {}",
+        LOG.debug("checkIpPortMap : called with segmentId {} and internalIpPort {}",
                 segmentId, internalIpPort);
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         // check if ip-port-map node is there
@@ -520,21 +519,21 @@ public class NaptManager {
         Optional<IpPortMap> ipPortMapType =
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (ipPortMapType.isPresent()) {
-            LOG.debug("NAPT Service : checkIpPortMap : {}", ipPortMapType.get());
+            LOG.debug("checkIpPortMap : {}", ipPortMapType.get());
             SessionAddress externalIpPort = new SessionAddress(ipPortMapType.get().getIpPortExternal().getIpAddress(),
                     ipPortMapType.get().getIpPortExternal().getPortNum());
-            LOG.debug("NAPT Service : checkIpPortMap returning successfully externalIP {} and port {}",
+            LOG.debug("checkIpPortMap : returning successfully externalIP {} and port {}",
                     externalIpPort.getIpAddress(), externalIpPort.getPortNumber());
             return externalIpPort;
         }
         // return null if not found
-        LOG.error("NAPT Service : no-entry in checkIpPortMap, returning NULL [should be OK] for "
+        LOG.warn("checkIpPortMap : no-entry in checkIpPortMap, returning NULL [should be OK] for "
                 + "segmentId {} and internalIPPort {}", segmentId, internalIpPort);
         return null;
     }
 
     protected String checkIpMap(long segmentId, String internalIp) {
-        LOG.debug("NAPT Service : checkIpMap called with segmentId {} and internalIp {}", segmentId, internalIp);
+        LOG.debug("checkIpMap : called with segmentId {} and internalIp {}", segmentId, internalIp);
         String externalIp;
         // check if ip-map node is there
         InstanceIdentifierBuilder<IpMapping> idBuilder =
@@ -545,25 +544,25 @@ public class NaptManager {
             List<IpMap> ipMaps = ipMapping.get().getIpMap();
             for (IpMap ipMap : ipMaps) {
                 if (ipMap.getInternalIp().equals(internalIp)) {
-                    LOG.debug("NAPT Service : IpMap : {}", ipMap);
+                    LOG.debug("checkIpMap : IpMap : {}", ipMap);
                     externalIp = ipMap.getExternalIp();
-                    LOG.debug("NAPT Service : checkIpMap successfully returning externalIp {}", externalIp);
+                    LOG.debug("checkIpMap : successfully returning externalIp {}", externalIp);
                     return externalIp;
                 } else if (ipMap.getInternalIp().contains("/")) { // subnet case
                     SubnetUtils subnetUtils = new SubnetUtils(ipMap.getInternalIp());
                     SubnetInfo subnetInfo = subnetUtils.getInfo();
                     if (subnetInfo.isInRange(internalIp)) {
-                        LOG.debug("NAPT Service : internalIp {} found to be IpMap of internalIpSubnet {}",
+                        LOG.debug("checkIpMap : internalIp {} found to be IpMap of internalIpSubnet {}",
                             internalIp, ipMap.getInternalIp());
                         externalIp = ipMap.getExternalIp();
-                        LOG.debug("NAPT Service : checkIpMap successfully returning externalIp {}", externalIp);
+                        LOG.debug("checkIpMap : checkIpMap successfully returning externalIp {}", externalIp);
                         return externalIp;
                     }
                 }
             }
         }
         // return null if not found
-        LOG.error("NAPT Service : checkIpMap failed, returning NULL for segmentId {} and internalIp {}",
+        LOG.error("checkIpMap : failed, returning NULL for segmentId {} and internalIp {}",
             segmentId, internalIp);
         return null;
     }
@@ -571,17 +570,17 @@ public class NaptManager {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void removeSnatIntIpPortDS(long segmentId, SessionAddress address, NAPTEntryEvent.Protocol protocol) {
-        LOG.trace("NAPT Service : removeSnatIntIpPortDS method called for IntIpport {} of router {} ",
+        LOG.trace("removeSnatIntIpPortDS : method called for IntIpport {} of router {} ",
             address, segmentId);
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         List<Integer> portList =
             NatUtil.getInternalIpPortListInfo(dataBroker, segmentId, address.getIpAddress(), protocolType);
         if (portList.isEmpty() || !portList.contains(address.getPortNumber())) {
-            LOG.debug("Internal IP {} for port {} entry not found in SnatIntIpPort DS",
+            LOG.debug("removeSnatIntIpPortDS : Internal IP {} for port {} entry not found in SnatIntIpPort DS",
                 address.getIpAddress(), address.getPortNumber());
             return;
         }
-        LOG.trace("NAPT Service : PortList {} retrieved for InternalIp {} of router {}",
+        LOG.trace("removeSnatIntIpPortDS : PortList {} retrieved for InternalIp {} of router {}",
             portList, address.getIpAddress(), segmentId);
         Integer port = address.getPortNumber();
         portList.remove(port);
@@ -594,10 +593,9 @@ public class NaptManager {
                 NatUtil.buildSnatIntIpPortIdentifier(segmentId, address.getIpAddress(), protocolType),
                 intIpProtocolType);
         } catch (Exception ex) {
-            LOG.error("NAPT Service : Failed to write into snat-internal-ip-port-info with exception {}",
-                ex.getMessage());
+            LOG.error("removeSnatIntIpPortDS : Failed to write into snat-internal-ip-port-info with exception",ex);
         }
-        LOG.debug("NAPT Service : Removing SnatIp {} Port {} of router {} from SNATIntIpport datastore : {}",
+        LOG.debug("removeSnatIntIpPortDS : Removing SnatIp {} Port {} of router {} from SNATIntIpport datastore : {}",
             address.getIpAddress(), address.getPortNumber(), segmentId);
     }
 
@@ -606,7 +604,7 @@ public class NaptManager {
             .child(IntipPortMap.class, new IntipPortMapKey(segmentId))
             .child(IpPort.class, new IpPortKey(internalIp)).build();
         // remove from SnatIpPortDS
-        LOG.debug("NAPT Service : Removing SnatIpPort from datastore : {}", intIp);
+        LOG.debug("removeFromSnatIpPortDS : Removing SnatIpPort from datastore : {}", intIp);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
     }
 
@@ -622,7 +620,7 @@ public class NaptManager {
             .child(IpPortMap.class, new IpPortMapKey(internalIpPort));
         InstanceIdentifier<IpPortMap> id = idBuilder.build();
         // remove from ipportmap DS
-        LOG.debug("NAPT Service : Removing ipportmap from datastore : {}", id);
+        LOG.debug("removeFromIpPortMapDS : Removing ipportmap from datastore : {}", id);
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
     }
 
@@ -636,18 +634,18 @@ public class NaptManager {
         Optional<IpMap> ipMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (ipMap.isPresent()) {
             externalIp = ipMap.get().getExternalIp();
-            LOG.debug("NAT Service : externalIP is {}", externalIp);
+            LOG.debug("removeFromIpMapDS : externalIP is {}", externalIp);
         } else {
-            LOG.warn("NAT Service : ipMap not present for the internal IP {}", internalIp);
+            LOG.warn("removeFromIpMapDS : ipMap not present for the internal IP {}", internalIp);
         }
 
         if (externalIp != null) {
             updateCounter(segmentId, externalIp, false);
             // remove from ipmap DS
-            LOG.debug("NAPT Service : Removing ipmap from datastore");
+            LOG.debug("removeFromIpMapDS : Removing ipmap from datastore");
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         } else {
-            LOG.warn("NAT Service : externalIp not present for the internal IP {}", internalIp);
+            LOG.warn("removeFromIpMapDS : externalIp not present for the internal IP {}", internalIp);
         }
     }
 
@@ -657,7 +655,7 @@ public class NaptManager {
             .child(IpMap.class, new IpMapKey(internalIp));
         InstanceIdentifier<IpMap> id = idBuilder.build();
 
-        LOG.debug("NAPT Service : Removing ipmap from datastore");
+        LOG.debug("removeIntExtIpMapDS : Removing ipmap from datastore");
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
@@ -685,13 +683,13 @@ public class NaptManager {
             List<IpMap> ipMaps = ipMapping.get().getIpMap();
             for (IpMap ipMap : ipMaps) {
                 externalIp = ipMap.getExternalIp();
-                LOG.debug("NAT Service : externalIP is {}", externalIp);
+                LOG.debug("removeIpMappingForRouterID : externalIP is {}", externalIp);
                 if (externalIp != null) {
                     updateCounter(segmentId, externalIp, false);
                 }
             }
             // remove from ipmap DS
-            LOG.debug("NAPT Service : Removing Ipmap for router {} from datastore", segmentId);
+            LOG.debug("removeIpMappingForRouterID : Removing Ipmap for router {} from datastore", segmentId);
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         }
     }
@@ -703,7 +701,8 @@ public class NaptManager {
                 idBuilder);
         if (ipPortMapping.isPresent()) {
             // remove from IntExtIpPortmap DS
-            LOG.debug("NAPT Service : Removing IntExtIpPort map for router {} from datastore", segmentId);
+            LOG.debug("removeIpPortMappingForRouterID : Removing IntExtIpPort map for router {} from datastore",
+                    segmentId);
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, idBuilder);
         }
     }
@@ -714,13 +713,13 @@ public class NaptManager {
         Optional<IntipPortMap> intIpPortMap = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
         if (intIpPortMap.isPresent()) {
             // remove from SnatIntIpPortmap DS
-            LOG.debug("NAPT Service : Removing SnatIntIpPort from datastore : {}", intIp);
+            LOG.debug("removeIntIpPortMappingForRouterID : Removing SnatIntIpPort from datastore : {}", intIp);
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intIp);
         }
     }
 
     void removePortFromPool(String internalIpPort, String externalIp) {
-        LOG.debug("NAPT Service : removePortFromPool method called");
+        LOG.debug("removePortFromPool : method called");
         ReleaseIdInput idInput = new ReleaseIdInputBuilder()
             .setPoolName(externalIp)
             .setIdKey(internalIpPort).build();
@@ -728,18 +727,18 @@ public class NaptManager {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.error("NAPT Service : idmanager failed to remove port from pool {}", rpcResult.getErrors());
+                LOG.error("removePortFromPool : idmanager failed to remove port from pool {}", rpcResult.getErrors());
             }
-            LOG.debug("NAPT Service : Removed port from pool for InternalIpPort {} with externalIp {}",
+            LOG.debug("removePortFromPool : Removed port from pool for InternalIpPort {} with externalIp {}",
                 internalIpPort, externalIp);
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("NAPT Service : idmanager failed with Exception {} when removing entry in pool with key {}, ",
-                e, internalIpPort);
+            LOG.error("removePortFromPool : idmanager failed when removing entry in pool with key {} with Exception",
+                    internalIpPort, e);
         }
     }
 
     protected void initialiseExternalCounter(Routers routers, long routerId) {
-        LOG.debug("NAPT Service : Initialise External IPs counter");
+        LOG.debug("initialiseExternalCounter : Initialise External IPs counter");
         List<ExternalIps> externalIps = routers.getExternalIps();
 
         //update the new counter value for this externalIp
@@ -766,7 +765,7 @@ public class NaptManager {
         // Remove from external-counters model
         InstanceIdentifier<ExternalCounters> id = InstanceIdentifier.builder(ExternalIpsCounter.class)
             .child(ExternalCounters.class, new ExternalCountersKey(routerId)).build();
-        LOG.debug("NAPT Service : Removing ExternalCounterd from datastore");
+        LOG.debug("removeExternalCounter : Removing ExternalCounterd from datastore");
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
@@ -775,7 +774,7 @@ public class NaptManager {
         InstanceIdentifier<ExternalIpCounter> id = InstanceIdentifier.builder(ExternalIpsCounter.class)
             .child(ExternalCounters.class, new ExternalCountersKey(routerId))
             .child(ExternalIpCounter.class, new ExternalIpCounterKey(externalIp)).build();
-        LOG.debug("NAPT Service : Removing ExternalIpsCounter from datastore");
+        LOG.debug("removeExternalIpCounter : Removing ExternalIpsCounter from datastore");
         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
     }
 }

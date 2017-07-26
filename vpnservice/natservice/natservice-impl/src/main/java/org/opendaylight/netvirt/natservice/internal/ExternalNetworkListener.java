@@ -81,7 +81,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
     @Override
     protected void add(final InstanceIdentifier<Networks> identifier,
                        final Networks nw) {
-        LOG.trace("NAT Service : External Network add mapping method - key: " + identifier + ", value=" + nw);
+        LOG.trace("add : External Network add mapping method - key: {} value : {}", nw.getKey() ,nw);
         if (natMode == NatMode.Controller) {
             processExternalNwAdd(identifier, nw);
         }
@@ -89,7 +89,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
 
     @Override
     protected void remove(InstanceIdentifier<Networks> identifier, Networks nw) {
-        LOG.trace("NAT Service : External Network remove mapping method - key: " + identifier + ", value=" + nw);
+        LOG.trace("remove : External Network remove mapping method - key: {} value : {}", nw.getKey() ,nw);
         if (natMode == NatMode.Controller) {
             processExternalNwDel(identifier, nw);
         }
@@ -97,8 +97,8 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
 
     @Override
     protected void update(InstanceIdentifier<Networks> identifier, Networks original, Networks update) {
-        LOG.trace("NAT Service : External Network update mapping method - key: {}, original: {}, update: {}",
-            identifier, original, update);
+        LOG.trace("update : External Network update mapping method - key: {}, original: {}, update: {}",
+                update.getKey(), original, update);
         //check if a new router has been added or an already existing router has been deleted from the external
         // nw to router association
         List<Uuid> oldRtrs = original.getRouterIds();
@@ -132,11 +132,11 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
 
     private void processExternalNwAdd(final InstanceIdentifier<Networks> identifier,
                                       final Networks network) {
-        LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, network);
+        LOG.trace("processExternalNwAdd : Add event - key: {}, value: {}", network.getKey(), network);
         List<Uuid> routerList = network.getRouterIds();
 
         if (routerList == null) {
-            LOG.debug("No routers associated with external network {}", identifier);
+            LOG.error("network : No routers associated with external network {}", identifier);
             return;
         }
 
@@ -148,7 +148,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
 
     private void processExternalNwDel(final InstanceIdentifier<Networks> identifier,
                                       final Networks network) {
-        LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, network);
+        LOG.trace("processExternalNwDel : Add event - key: {}, value: {}", network.getKey(), network);
         List<Uuid> routerList = network.getRouterIds();
 
         for (Uuid router: routerList) {
@@ -186,7 +186,7 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
             defaultIP = InetAddress.getByName("0.0.0.0");
 
         } catch (UnknownHostException e) {
-            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntity. "
+            LOG.error("buildDefNATFlowEntity : UnknowHostException in buildDefNATFlowEntity. "
                 + "Failed to build FIB Table Flow for Default Route to NAT table ");
             return null;
         }
@@ -218,22 +218,22 @@ public class ExternalNetworkListener extends AsyncDataTreeChangeListenerBase<Net
     private void installDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
-            LOG.error("NAT Service : Flow entity received is NULL. "
+            LOG.error("installDefNATRouteInDPN : Flow entity received is NULL. "
                 + "Cannot proceed with installation of Default NAT flow");
             return;
         }
-        LOG.debug("NAT Service : Installing flow {}", flowEntity);
+        LOG.debug("installDefNATRouteInDPN : Installing flow {}", flowEntity);
         NatUtil.djcFlow(flowEntity, NwConstants.ADD_FLOW, mdsalManager);
     }
 
     private void removeDefNATRouteInDPN(BigInteger dpnId, long vpnId) {
         FlowEntity flowEntity = buildDefNATFlowEntity(dpnId, vpnId);
         if (flowEntity == null) {
-            LOG.error("NAT Service : Flow entity received is NULL. "
+            LOG.error("removeDefNATRouteInDPN : Flow entity received is NULL. "
                 + "Cannot proceed with installation of Default NAT flow");
             return;
         }
-        LOG.debug("NAT Service : Removing flow {}", flowEntity);
+        LOG.debug("removeDefNATRouteInDPN : Removing flow {}", flowEntity);
         NatUtil.djcFlow(flowEntity, NwConstants.DEL_FLOW, mdsalManager);
     }
 }

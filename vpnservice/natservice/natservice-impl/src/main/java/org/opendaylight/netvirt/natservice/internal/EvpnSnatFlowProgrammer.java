@@ -70,19 +70,21 @@ public class EvpnSnatFlowProgrammer {
       *    (If there is no FIP Match on table 25 (PDNAT_TABLE) then default flow to INBOUND_NAPT_TABLE (table=44))
       *
       */
-        LOG.info("NAT Service : Handling SNAT Reverse Traffic for External Network {} ", externalIp);
+        LOG.info("evpnAdvToBgpAndInstallFibAndTsFlows : Handling SNAT Reverse Traffic for External Network {} ",
+                externalIp);
         // Get the External Gateway MAC Address which is Router gateway MAC address for SNAT
         String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
         if (gwMacAddress == null) {
-            LOG.error("NAT Service : Unable to Retrieve External Gateway MAC address from Router ID {}", routerId);
+            LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Unable to Retrieve External Gateway MAC address "
+                    + "from Router ID {}", routerId);
             return;
         }
         //get l3Vni value for external VPN
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
-                    + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
-                    + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
+            LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : L3VNI value is not configured in Internet VPN {}"
+                    + " and RD {} Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with "
+                    + "installing SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
         }
         /* As of now neither SNAT nor DNAT will use macaddress while advertising to FIB and BGP instead
@@ -103,7 +105,7 @@ public class EvpnSnatFlowProgrammer {
          */
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
-            LOG.warn("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            LOG.warn("evpnAdvToBgpAndInstallFibAndTsFlows : Invalid Vpn Id is found for Vpn Name {}", vpnName);
         }
         NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager);
 
@@ -130,17 +132,17 @@ public class EvpnSnatFlowProgrammer {
       */
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         if (rd == null) {
-            LOG.error("NAT Service : Could not retrieve RD value from VPN Name {}  ", vpnName);
+            LOG.error("evpnDelFibTsAndReverseTraffic : Could not retrieve RD value from VPN Name {}  ", vpnName);
             return;
         }
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
-            LOG.error("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            LOG.error("evpnDelFibTsAndReverseTraffic : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
         }
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+            LOG.debug("evpnDelFibTsAndReverseTraffic : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
@@ -151,7 +153,8 @@ public class EvpnSnatFlowProgrammer {
         NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
         //remove PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44) flow
         if (extGwMacAddress == null) {
-            LOG.error("NAT Service : Unable to Get External Gateway MAC address for External Router ID {} ", routerId);
+            LOG.error("evpnDelFibTsAndReverseTraffic : Unable to Get External Gateway MAC address for "
+                    + "External Router ID {} ", routerId);
             return;
         }
         NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager);
@@ -159,9 +162,8 @@ public class EvpnSnatFlowProgrammer {
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
                                      short tableId) {
-        LOG.debug("NAT Service : Create terminating service table {} --> table {} flow on NAPT DpnId {} with l3Vni {} "
-                + "as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, tableId, dpnId,
-                l3Vni);
+        LOG.debug("makeTunnelTableEntry : Create terminating service table {} --> table {} flow on NAPT DpnId {} "
+                + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, tableId, dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
 
@@ -170,14 +172,14 @@ public class EvpnSnatFlowProgrammer {
                 String.format("%s:%d", "TST Flow Entry ", l3Vni),
                 0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, customInstructions);
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
-        LOG.debug("NAT Service : Successfully installed terminating service table flow {} on DpnId {}",
+        LOG.debug("makeTunnelTableEntry : Successfully installed terminating service table flow {} on DpnId {}",
                 terminatingServiceTableFlowEntity, dpnId);
     }
 
     public void removeTunnelTableEntry(BigInteger dpnId, long l3Vni) {
-        LOG.debug("NAT Service : Remove terminating service table {} --> table {} flow on NAPT DpnId {} with l3Vni {} "
-                        + "as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.INBOUND_NAPT_TABLE,
-                dpnId, l3Vni);
+        LOG.debug("removeTunnelTableEntry : Remove terminating service table {} --> table {} flow on NAPT DpnId {} "
+                + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE,
+                NwConstants.INBOUND_NAPT_TABLE, dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
@@ -186,7 +188,7 @@ public class EvpnSnatFlowProgrammer {
                 5, String.format("%s:%d", "TST Flow Entry ", l3Vni), 0, 0,
                 COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, null);
         mdsalManager.removeFlow(dpnId, flowEntity);
-        LOG.debug("NAT Service : Successfully removed terminating service table flow {} on DpnId {}", flowEntity,
-                dpnId);
+        LOG.debug("removeTunnelTableEntry : Successfully removed terminating service table flow {} on DpnId {}",
+                flowEntity, dpnId);
     }
 }

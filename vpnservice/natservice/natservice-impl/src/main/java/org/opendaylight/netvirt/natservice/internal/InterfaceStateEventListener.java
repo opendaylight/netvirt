@@ -80,7 +80,7 @@ public class InterfaceStateEventListener
     @Override
     @PostConstruct
     public void init() {
-        LOG.info("NAT Service : {} init", getClass().getSimpleName());
+        LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
@@ -98,7 +98,7 @@ public class InterfaceStateEventListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delintrf) {
-        LOG.trace("NAT Service : Interface {} removed event received", delintrf);
+        LOG.trace("remove : Interface {} removed event received", delintrf);
         if (!L2vlan.class.equals(delintrf.getType())) {
             LOG.debug("NAT Service : Interface {} is a not type Vlan.Ignoring", delintrf.getName());
             return;
@@ -113,9 +113,9 @@ public class InterfaceStateEventListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
-        LOG.trace("NAT Service : Operation Interface update event - Old: {}, New: {}", original, update);
+        LOG.trace("update : Operation Interface update event - Old: {}, New: {}", original, update);
         if (!L2vlan.class.equals(update.getType())) {
-            LOG.debug("NAT Service : Interface {} is not type Vlan.Ignoring", update.getName());
+            LOG.debug("update : Interface {} is not type Vlan.Ignoring", update.getName());
             return;
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
@@ -129,9 +129,9 @@ public class InterfaceStateEventListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        LOG.trace("NAT Service : Interface {} up event received", intrf);
+        LOG.trace("add : Interface {} up event received", intrf);
         if (!L2vlan.class.equals(intrf.getType())) {
-            LOG.debug("NAT Service : Interface {} is not type vlan.Ignoring", intrf.getName());
+            LOG.debug("add : Interface {} is not type vlan.Ignoring", intrf.getName());
             return;
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
@@ -145,24 +145,25 @@ public class InterfaceStateEventListener
     private void removeSnatEntriesForPort(String interfaceName, String routerName) {
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("NAT Service : routerId not found for routername {}", routerName);
+            LOG.error("removeSnatEntriesForPort : routerId not found for routername {}", routerName);
             return;
         }
         BigInteger naptSwitch = getNaptSwitchforRouter(dataBroker, routerName);
         if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
-            LOG.error("NAT Service : NaptSwitch is not elected for router {} with Id {}", routerName, routerId);
+            LOG.error("removeSnatEntriesForPort : NaptSwitch is not elected for router {} with Id {}",
+                    routerName, routerId);
             return;
         }
         //getInternalIp for port
         List<String> fixedIps = getFixedIpsForPort(interfaceName);
         if (fixedIps == null) {
-            LOG.debug("NAT Service : Internal Ips not found for InterfaceName {} in router {} with id {}",
+            LOG.warn("removeSnatEntriesForPort : Internal Ips not found for InterfaceName {} in router {} with id {}",
                 interfaceName, routerName, routerId);
             return;
         }
         List<ProtocolTypes> protocolTypesList = getPortocolList();
         for (String internalIp : fixedIps) {
-            LOG.debug("NAT Service : Internal Ip retrieved for interface {} is {} in router with Id {}",
+            LOG.debug("removeSnatEntriesForPort : Internal Ip retrieved for interface {} is {} in router with Id {}",
                 interfaceName, internalIp, routerId);
             for (ProtocolTypes protocol : protocolTypesList) {
                 List<Integer> portList = NatUtil.getInternalIpPortListInfo(dataBroker, routerId, internalIp, protocol);
@@ -171,7 +172,7 @@ public class InterfaceStateEventListener
                     try {
                         removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
                     } catch (Exception ex) {
-                        LOG.error("NAT Service : Failed to remove snat flow for internalIP {} with "
+                        LOG.error("removeSnatEntriesForPort : Failed to remove snat flow for internalIP {} with "
                                 + "Port {} protocol {} for routerId {} in OUTBOUNDTABLE of NaptSwitch {}: {}",
                             internalIp, portnum, protocol, routerId, naptSwitch, ex);
                     }
@@ -181,7 +182,7 @@ public class InterfaceStateEventListener
                     IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
                         internalIp, String.valueOf(portnum), proto);
                     if (ipPortExternal == null) {
-                        LOG.error("NAT Service : Mapping for internalIp {} with port {} is not found in "
+                        LOG.error("removeSnatEntriesForPort : Mapping for internalIp {} with port {} is not found in "
                             + "router with Id {}", internalIp, portnum, routerId);
                         return;
                     }
@@ -193,8 +194,8 @@ public class InterfaceStateEventListener
                         removeNatFlow(naptSwitch, NwConstants.INBOUND_NAPT_TABLE, routerId,
                             externalIpAddress, portNumber);
                     } catch (Exception ex) {
-                        LOG.error("NAT Service : Failed to remove snat flow internalIP {} with "
-                                + "Port {} protocol {} for routerId {} in INBOUNDTABLE of naptSwitch {} : {}",
+                        LOG.error("removeSnatEntriesForPort : Failed to remove snat flow internalIP {} with "
+                                + "Port {} protocol {} for routerId {} in INBOUNDTABLE of naptSwitch {}",
                             externalIpAddress, portNumber, protocol, routerId, naptSwitch, ex);
                     }
 
@@ -204,13 +205,13 @@ public class InterfaceStateEventListener
                         naptManager.removeFromIpPortMapDS(routerId, internalIpPort, proto);
                         naptManager.removePortFromPool(internalIpPort, externalIpAddress);
                     } catch (Exception ex) {
-                        LOG.error("NAPT Service: releaseIpExtPortMapping failed, Removal of "
+                        LOG.error("removeSnatEntriesForPort : releaseIpExtPortMapping failed, Removal of "
                             + "ipportmap {} for router {} failed {}", internalIpPort, routerId, ex);
                     }
                 }
                 // delete the entry from SnatIntIpPortMap DS
-                LOG.debug("NAT Service : Removing InternalIp :{} portlist :{} for protocol :{} of router {}",
-                    internalIp, portList, protocol, routerId);
+                LOG.debug("removeSnatEntriesForPort : Removing InternalIp :{} portlist :{} "
+                        + "for protocol :{} of router {}", internalIp, portList, protocol, routerId);
                 naptManager.removeFromSnatIpPortDS(routerId, internalIp);
             }
         }
@@ -227,43 +228,44 @@ public class InterfaceStateEventListener
             try {
                 vpnInterface = NatUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
             } catch (Exception ex) {
-                LOG.error("NAT Service : Unable to process for interface {} as it is not configured", interfaceName);
+                LOG.error("getRouterIdForPort : Unable to process for interface {} as it is not configured",
+                        interfaceName, ex);
             }
             if (vpnInterface != null) {
                 //getVpnName
                 try {
                     vpnName = vpnInterface.getVpnInstanceName();
-                    LOG.debug("NAT Service : Retrieved VpnName {}", vpnName);
+                    LOG.debug("getRouterIdForPort: Retrieved VpnName {}", vpnName);
                 } catch (Exception e) {
-                    LOG.error("NAT Service : Unable to get vpnname for vpninterface {} - {}", vpnInterface, e);
+                    LOG.error("getRouterIdForPort : Unable to get vpnname for vpninterface {}", vpnInterface, e);
                 }
                 if (vpnName != null) {
                     try {
                         routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                     } catch (Exception e) {
-                        LOG.error("NAT Service : Unable to get routerId for vpnName {} - {}", vpnName, e);
+                        LOG.error("getRouterIdForPort : Unable to get routerId for vpnName {}", vpnName, e);
                     }
                     if (routerName != null) {
                         //check router is associated to external network
                         if (NatUtil.isSnatEnabledForRouterId(dataBroker, routerName)) {
-                            LOG.debug("NAT Service : Retreived Router Id {} for vpnname {} associated to interface {}",
-                                routerName, vpnName, interfaceName);
+                            LOG.debug("getRouterIdForPort : Retreived Router Id {} for vpnname {} "
+                                    + "associated to interface {}", routerName, vpnName, interfaceName);
                             return routerName;
                         } else {
-                            LOG.info("NAT Service : Interface {} associated to routerId {} is not "
+                            LOG.warn("getRouterIdForPort : Interface {} associated to routerId {} is not "
                                 + "associated to external network", interfaceName, routerName);
                         }
                     } else {
-                        LOG.debug("NAT Service : Router is not associated to vpnname {} for interface {}",
+                        LOG.debug("getRouterIdForPort : Router is not associated to vpnname {} for interface {}",
                             vpnName, interfaceName);
                     }
                 } else {
-                    LOG.debug("NAT Service : vpnName not found for vpnInterface {} of port {}",
+                    LOG.debug("getRouterIdForPort : vpnName not found for vpnInterface {} of port {}",
                         vpnInterface, interfaceName);
                 }
             }
         } else {
-            LOG.debug("NAT Service : Interface {} is not a vpninterface", interfaceName);
+            LOG.debug("getRouterIdForPort : Interface {} is not a vpninterface", interfaceName);
         }
         return null;
     }
@@ -294,15 +296,15 @@ public class InterfaceStateEventListener
         FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
 
         mdsalManager.removeFlow(snatFlowEntity);
-        LOG.debug("NAT Service : Removed the flow in table {} for the switch with the DPN ID {} for "
+        LOG.debug("removeNatFlow : Removed the flow in table {} for the switch with the DPN ID {} for "
             + "router {} ip {} port {}", tableId, dpnId, routerId, ipAddress, ipPort);
     }
 
     private void processInterfaceAdded(String portName, String routerId) {
-        LOG.trace("NAT Service : Processing Interface Add Event for interface {}", portName);
+        LOG.trace("processInterfaceAdded : Processing Interface Add Event for interface {}", portName);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
         if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
-            LOG.trace("NAT Service : Ip Mapping list is empty/null for portname {}", portName);
+            LOG.debug("processInterfaceAdded : Ip Mapping list is empty/null for portname {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
@@ -312,15 +314,16 @@ public class InterfaceStateEventListener
     }
 
     private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId) {
-        LOG.trace("NAT Service: Processing Interface Removed Event for interface {} on DPN ID {}", portName, dpnId);
+        LOG.trace("processInterfaceRemoved : Processing Interface Removed Event for interface {} on DPN ID {}",
+                portName, dpnId);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
         if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
-            LOG.trace("NAT Service : Ip Mapping list is empty/null for portName {}", portName);
+            LOG.debug("processInterfaceRemoved : Ip Mapping list is empty/null for portName {}", portName);
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
-            LOG.trace("NAT Service : Removing DNAT Flow entries for dpnId {} ", dpnId);
+            LOG.trace("processInterfaceRemoved : Removing DNAT Flow entries for dpnId {} ", dpnId);
             floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId);
         }
     }
@@ -331,15 +334,15 @@ public class InterfaceStateEventListener
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, portToIpMapIdentifier);
         if (!port.isPresent()) {
-            LOG.error("NAT Service : Unable to read router port entry for router ID {} and port name {}",
-                routerId, portName);
+            LOG.error("getIntExtPortMapListForPortName : Unable to read router port entry for router ID {} "
+                    + "and port name {}", routerId, portName);
             return null;
         }
         return port.get().getInternalToExternalPortMap();
     }
 
     private List<String> getFixedIpsForPort(String interfname) {
-        LOG.debug("NAT Service : getFixedIpsForPort method is called for interface {}", interfname);
+        LOG.debug("getFixedIpsForPort : getFixedIpsForPort method is called for interface {}", interfname);
         try {
             Future<RpcResult<GetFixedIPsForNeutronPortOutput>> result =
                 neutronVpnService.getFixedIPsForNeutronPort(new GetFixedIPsForNeutronPortInputBuilder()
@@ -347,13 +350,13 @@ public class InterfaceStateEventListener
 
             RpcResult<GetFixedIPsForNeutronPortOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("NAT Service : RPC Call to GetFixedIPsForNeutronPortOutput returned with Errors {}",
+                LOG.error("getFixedIpsForPort : RPC Call to GetFixedIPsForNeutronPortOutput returned with Errors {}",
                     rpcResult.getErrors());
             } else {
                 return rpcResult.getResult().getFixedIPs();
             }
         } catch (InterruptedException | ExecutionException | NullPointerException ex) {
-            LOG.error("NAT Service : Exception while receiving fixedIps for port {}", interfname);
+            LOG.error("getFixedIpsForPort : Exception while receiving fixedIps for port {}", interfname, ex);
         }
         return null;
     }
@@ -369,16 +372,16 @@ public class InterfaceStateEventListener
         @SuppressWarnings("checkstyle:IllegalCatch")
         public List<ListenableFuture<Void>> call() {
             final List<ListenableFuture<Void>> futures = new ArrayList<>();
-            LOG.trace("NAT Service : Interface {} up event received", iface);
+            LOG.trace("call : Interface {} up event received", iface);
             String interfaceName = iface.getName();
             try {
-                LOG.trace("NAT Service : Port added event received for interface {} ", interfaceName);
+                LOG.trace("call : Port added event received for interface {} ", interfaceName);
                 String routerId = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerId != null) {
                     processInterfaceAdded(interfaceName, routerId);
                 }
             } catch (Exception ex) {
-                LOG.error("NAT Service : Exception caught in Interface {} Operational State Up event: {}",
+                LOG.error("call : Exception caught in Interface {} Operational State Up event",
                         interfaceName, ex);
             }
             return futures;
@@ -397,18 +400,18 @@ public class InterfaceStateEventListener
         public List<ListenableFuture<Void>> call() {
             final List<ListenableFuture<Void>> futures = new ArrayList<>();
             final String interfaceName = delintrf.getName();
-            LOG.trace("NAT Service : Interface {} removed event received", delintrf);
+            LOG.trace("call : Interface {} removed event received", delintrf);
             try {
                 String routerName = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerName != null) {
-                    LOG.trace("NAT Service : Port removed event received for interface {} ", interfaceName);
+                    LOG.trace("call : Port removed event received for interface {} ", interfaceName);
 
                     BigInteger dpId;
                     try {
                         dpId = NatUtil.getDpIdFromInterface(delintrf);
                     } catch (Exception e) {
                         LOG.warn(
-                                "NAT Service : Unable to retrieve DPNID from Interface operational data store for"
+                                "call: Unable to retrieve DPNID from Interface operational data store for"
                                         + " Interface {}. Fetching from VPN Interface op data store. ",
                                 interfaceName, e);
                         InstanceIdentifier<VpnInterface> id = NatUtil.getVpnInterfaceIdentifier(interfaceName);
@@ -416,25 +419,24 @@ public class InterfaceStateEventListener
                                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
                                         dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                         if (!optVpnInterface.isPresent()) {
-                            LOG.debug("NAT Service : Interface {} is not a VPN Interface, ignoring.", interfaceName);
+                            LOG.debug("call : Interface {} is not a VPN Interface, ignoring.", interfaceName);
                             return futures;
                         }
                         final VpnInterface vpnInterface = optVpnInterface.get();
                         dpId = vpnInterface.getDpnId();
                     }
                     if (dpId == null || dpId.equals(BigInteger.ZERO)) {
-                        LOG.error("NAT Service : Unable to get DPN ID for the Interface {}", interfaceName);
+                        LOG.error("call : Unable to get DPN ID for the Interface {}", interfaceName);
                         return futures;
                     }
                     processInterfaceRemoved(interfaceName, dpId, routerName);
                     removeSnatEntriesForPort(interfaceName, routerName);
                 } else {
-                    LOG.debug("NAT Service : PORT_REMOVE: Router Id is null either Interface {} is not associated "
+                    LOG.debug("call : PORT_REMOVE: Router Id is null either Interface {} is not associated "
                             + "to router or failed to retrieve routerId due to exception", interfaceName);
                 }
             } catch (Exception e) {
-                LOG.error("NAT Service : Exception caught in Interface {} OperationalStateRemove : {}", interfaceName,
-                        e);
+                LOG.error("call : Exception caught in Interface {} OperationalStateRemove", interfaceName, e);
             }
             return futures;
         }
@@ -455,22 +457,21 @@ public class InterfaceStateEventListener
             final List<ListenableFuture<Void>> futures = new ArrayList<>();
             String interfaceName = update.getName();
             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                LOG.debug("NAT Service : Port UP event received for interface {} ", interfaceName);
+                LOG.debug("call : Port UP event received for interface {} ", interfaceName);
             } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
-                LOG.debug("NAT Service : Port DOWN event received for interface {} ", interfaceName);
+                LOG.debug("call : Port DOWN event received for interface {} ", interfaceName);
                 try {
                     String routerName = getRouterIdForPort(dataBroker, interfaceName);
                     if (routerName != null) {
                         removeSnatEntriesForPort(interfaceName, routerName);
                     } else {
                         LOG.debug(
-                                "NAT Service : PORT_DOWN: Router Id is null, either Interface {} is not associated "
+                                "call : PORT_DOWN: Router Id is null, either Interface {} is not associated "
                                         + "to router {} or failed to retrieve routerId due to exception",
                                 interfaceName, routerName);
                     }
                 } catch (Exception ex) {
-                    LOG.error("NAT Service : Exception caught in Interface {} OperationalStateDown : {}", interfaceName,
-                            ex);
+                    LOG.error("call : Exception caught in Interface {} OperationalStateDown", interfaceName, ex);
                 }
             }
             return futures;

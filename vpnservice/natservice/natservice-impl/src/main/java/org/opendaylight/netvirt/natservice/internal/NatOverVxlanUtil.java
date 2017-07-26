@@ -42,7 +42,7 @@ public class NatOverVxlanUtil {
     public static BigInteger getInternetVpnVni(IdManagerService idManager, String vpnUuid, long vpnid) {
         BigInteger internetVpnVni = getVNI(vpnUuid, idManager);
         if (internetVpnVni.longValue() == -1) {
-            LOG.warn("NAT Service : Unable to obtain Internet Vpn VNI from VNI POOL for Vpn {}."
+            LOG.warn("getInternetVpnVni : Unable to obtain Internet Vpn VNI from VNI POOL for Vpn {}."
                     + "Will use tunnel_id {} as Internet VNI", vpnUuid, vpnid);
             return BigInteger.valueOf(vpnid);
         }
@@ -52,7 +52,7 @@ public class NatOverVxlanUtil {
     public static BigInteger getRouterVni(IdManagerService idManager, String routerName, long routerId) {
         BigInteger routerVni = getVNI(routerName, idManager);
         if (routerVni.longValue() == -1) {
-            LOG.warn("NAT Service : Unable to obtain Router VNI from VNI POOL for router {}."
+            LOG.warn("getInternetVpnVni : Unable to obtain Router VNI from VNI POOL for router {}."
                     + "Router ID will be used as tun_id", routerName);
             return BigInteger.valueOf(routerId);
         }
@@ -69,7 +69,7 @@ public class NatOverVxlanUtil {
                 return BigInteger.valueOf(rpcResult.getResult().getIdValue());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("NAT Service : Exception in get VNI for key {}", vniKey, e);
+            LOG.error("getVNI : Exception in get VNI for key {}", vniKey, e);
         }
         return BigInteger.valueOf(-1);
     }
@@ -81,11 +81,11 @@ public class NatOverVxlanUtil {
             Future<RpcResult<Void>> result = idManager.releaseId(releaseIdInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("NAT Service : Unable to release ID {} from OpenDaylight VXLAN VNI range pool. Error {}",
+                LOG.warn("releaseVNI : Unable to release ID {} from OpenDaylight VXLAN VNI range pool. Error {}",
                         vniKey, rpcResult.getErrors());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("NAT Service : Exception in release VNI for Key {}", vniKey, e);
+            LOG.error("releaseVNI : Exception in release VNI for Key {}", vniKey, e);
         }
     }
 
@@ -116,14 +116,15 @@ public class NatOverVxlanUtil {
             long currentEndLimit = odlVniIdPool.getAvailableIdsHolder().getEnd();
 
             if (lowLimit == currentStartLimit && highLimit == currentEndLimit) {
-                LOG.debug("NAT Service : OpenDaylight VXLAN VNI range pool already exists with configured Range");
+                LOG.debug("validateAndCreateVxlanVniPool : OpenDaylight VXLAN VNI range pool already exists "
+                        + "with configured Range");
             } else {
                 if (odlVniIdPool.getIdEntries() != null && odlVniIdPool.getIdEntries().size() != 0) {
-                    LOG.warn("NAT Service : Some Allocation already exists with old Range. "
+                    LOG.warn("validateAndCreateVxlanVniPool : Some Allocation already exists with old Range. "
                             + "Cannot modify existing limit of OpenDaylight VXLAN VNI range pool");
                 } else {
-                    LOG.debug("NAT Service : No VNI's allocated from OpenDaylight VXLAN VNI range pool."
-                            + "Delete and re-create pool with new configured Range {}-{}",lowLimit, highLimit);
+                    LOG.debug("validateAndCreateVxlanVniPool : No VNI's allocated from OpenDaylight VXLAN VNI range "
+                            + "pool. Delete and re-create pool with new configured Range {}-{}",lowLimit, highLimit);
                     deleteOpenDaylightVniRangesPool(idManager, poolName);
                     createOpenDaylightVniRangesPool(idManager, poolName, lowLimit, highLimit);
                 }
@@ -141,11 +142,11 @@ public class NatOverVxlanUtil {
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
             if (result != null && result.get().isSuccessful()) {
-                LOG.debug("NAT Service : Created OpenDaylight VXLAN VNI range pool {} with range {}-{}", poolName,
-                        lowLimit, highLimit);
+                LOG.debug("createOpenDaylightVniRangesPool : Created OpenDaylight VXLAN VNI range pool {} "
+                        + "with range {}-{}", poolName, lowLimit, highLimit);
             } else {
-                LOG.error("NAT Service : Failed to create OpenDaylight VXLAN VNI range pool {} with range {}-{}",
-                        poolName, lowLimit, highLimit);
+                LOG.error("createOpenDaylightVniRangesPool : Failed to create OpenDaylight VXLAN VNI range pool {} "
+                        + "with range {}-{}", poolName, lowLimit, highLimit);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("NAT Service : Failed to create OpenDaylight VXLAN VNI range pool {} with range {}-{}", poolName,
@@ -159,12 +160,15 @@ public class NatOverVxlanUtil {
         Future<RpcResult<Void>> result = idManager.deleteIdPool(deletePool);
         try {
             if (result != null && result.get().isSuccessful()) {
-                LOG.debug("NAT Service : Deleted OpenDaylight VXLAN VNI range pool {} successfully", poolName);
+                LOG.debug("deleteOpenDaylightVniRangesPool : Deleted OpenDaylight VXLAN VNI range pool {} successfully",
+                        poolName);
             } else {
-                LOG.error("NAT Service : Failed to delete OpenDaylight VXLAN VNI range pool {} ", poolName);
+                LOG.error("deleteOpenDaylightVniRangesPool : Failed to delete OpenDaylight VXLAN VNI range pool {} ",
+                        poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("NAT Service : Failed to delete OpenDaylight VXLAN VNI range pool {} ", poolName);
+            LOG.error("deleteOpenDaylightVniRangesPool : Failed to delete OpenDaylight VXLAN VNI range pool {} ",
+                    poolName, e);
         }
     }
 

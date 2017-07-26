@@ -52,15 +52,15 @@ public class NatNodeEventListener extends AsyncDataTreeChangeListenerBase<Node, 
 
     @Override
     protected void remove(InstanceIdentifier<Node> identifier, Node del) {
-        LOG.debug("NAT Service : NatNodeEventListener: Node removed received");
+        LOG.debug("remove : Node removed received");
         NodeId nodeId = del.getId();
         String[] node = nodeId.getValue().split(":");
         if (node.length < 2) {
-            LOG.warn("NAT Service : Unexpected nodeId {}", nodeId.getValue());
+            LOG.error("remove : Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpnId = new BigInteger(node[1]);
-        LOG.debug("NAT Service : NodeId removed is {}", dpnId);
+        LOG.debug("error : NodeId removed is {}", dpnId);
     }
 
     @Override
@@ -69,14 +69,14 @@ public class NatNodeEventListener extends AsyncDataTreeChangeListenerBase<Node, 
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node add) {
-        LOG.debug("NAT Service : NatNodeEventListener: Node added received");
+        LOG.debug("add : Node added received");
         NodeId nodeId = add.getId();
         String[] node = nodeId.getValue().split(":");
         if (node.length < 2) {
-            LOG.warn("NAT Service : Unexpected nodeId {}", nodeId.getValue());
+            LOG.warn("add : Unexpected nodeId {}", nodeId.getValue());
             return;
         }
         BigInteger dpnId = new BigInteger(node[1]);
-        LOG.debug("NAT Service : NodeId added is {}", dpnId);
+        LOG.debug("add : NodeId added is {}", dpnId);
     }
 }
