@@ -82,7 +82,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         for (Uuid routerUuid : routerUuidList) {
             long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
             if (routerId == NatConstants.INVALID_ID) {
-                LOG.warn("NAT Service: Invalid RouterID found {}", routerId);
+                LOG.warn("getNatTranslationsOnVpn : Invalid RouterID found {}", routerId);
                 continue;
             }
             natRouterList.addAll(constructNatInformation(routerUuid, routerId));
@@ -140,8 +140,8 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                 if (NatUtil.isIpInSubnet(ipAddress,
                         String.valueOf(allocationPool.getStart().getValue()),
                         String.valueOf(allocationPool.getEnd().getValue()))) {
-                    LOG.debug("NAT Service: IP Adderess {} falls within the Subnet {}", ipAddress,
-                            subNet.getUuid().getValue());
+                    LOG.debug("getNatTranslationsForNetworkAndIpaddress : IP Adderess {} falls within the Subnet {}",
+                            ipAddress, subNet.getUuid().getValue());
                     isIpInSubnet = Boolean.TRUE;
                     break outerloop;
                 }
@@ -161,7 +161,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
 
         List<Ports> fipPorts = NatUtil.getFloatingIpPortsForRouter(dataBroker, subnetMap.getRouterId());
         if (fipPorts.isEmpty()) {
-            LOG.warn("NAT Service: No DNAT IP Mapping found for IP {}", ipAddress);
+            LOG.warn("getNatTranslationsForNetworkAndIpaddress : No DNAT IP Mapping found for IP {}", ipAddress);
         } else {
             for (Ports fipPort : fipPorts) {
                 List<InternalToExternalPortMap> ipMapping = fipPort.getInternalToExternalPortMap();
@@ -180,7 +180,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
 
         IpPortMapping ipPortMapping = NatUtil.getIportMapping(dataBroker, routerId);
         if (ipPortMapping == null) {
-            LOG.warn("NAT Service: No SNAT IP Mapping found for IP {}", ipAddress);
+            LOG.warn("getNatTranslationsForNetworkAndIpaddress : No SNAT IP Mapping found for IP {}", ipAddress);
         } else {
             for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType()) {
                 for (IpPortMap ipPortMap : protocolType.getIpPortMap()) {
@@ -218,7 +218,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
 
         IpPortMapping ipPortMapping = NatUtil.getIportMapping(dataBroker, routerId);
         if (ipPortMapping == null) {
-            LOG.warn("NAT Service: No SNAT IP Mapping found for router-uuid {}", routerUuid.getValue());
+            LOG.warn("constructNatInformation : No SNAT IP Mapping found for router-uuid {}", routerUuid.getValue());
         } else {
 
             // Capturing SNAT information
@@ -242,7 +242,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         List<DnatIpMapping> dnatIpMapping = new ArrayList<DnatIpMapping>();
         List<Ports> fipPorts = NatUtil.getFloatingIpPortsForRouter(dataBroker, routerUuid);
         if (fipPorts.isEmpty()) {
-            LOG.warn("NAT Service: No DNAT IP Mapping found for router-uuid {}", routerUuid.getValue());
+            LOG.warn("constructNatInformation : No DNAT IP Mapping found for router-uuid {}", routerUuid.getValue());
         } else {
             for (Ports fipPort : fipPorts) {
                 List<InternalToExternalPortMap> ipMapping = fipPort.getInternalToExternalPortMap();

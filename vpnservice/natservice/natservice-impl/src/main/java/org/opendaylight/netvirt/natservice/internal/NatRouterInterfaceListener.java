@@ -63,7 +63,7 @@ public class NatRouterInterfaceListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
-        LOG.trace("NAT Service : Add event - key: {}, value: {}", identifier, interfaceInfo);
+        LOG.trace("add : Add event - key: {}, value: {}", interfaceInfo.getKey(), interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
 
@@ -71,7 +71,7 @@ public class NatRouterInterfaceListener
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 NatUtil.getRouterInterfaceId(interfaceName), getRouterInterface(interfaceName, routerId));
         } catch (Exception e) {
-            LOG.error("NAT Service : Unable to write data in RouterInterface model", e.getMessage());
+            LOG.error("add: Unable to write data in RouterInterface model", e.getMessage());
         }
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
@@ -81,9 +81,8 @@ public class NatRouterInterfaceListener
             NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
             NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
         } else {
-            LOG.warn("NAT Service : Interface {} not yet operational to handle router interface add event "
-                + "in router {}",
-                interfaceName, routerId);
+            LOG.warn("add : Interface {} not yet operational to handle router interface add event in router {}",
+                    interfaceName, routerId);
         }
 
         writeOperTxn.submit();
@@ -91,7 +90,7 @@ public class NatRouterInterfaceListener
 
     @Override
     protected void remove(InstanceIdentifier<Interfaces> identifier, Interfaces interfaceInfo) {
-        LOG.trace("NAT Service : Remove event - key: {}, value: {}", identifier, interfaceInfo);
+        LOG.trace("remove : Remove event - key: {}, value: {}", interfaceInfo.getKey(), interfaceInfo);
         final String routerId = identifier.firstKeyOf(RouterInterfaces.class).getRouterId().getValue();
         final String interfaceName = interfaceInfo.getInterfaceId();
 
@@ -109,12 +108,11 @@ public class NatRouterInterfaceListener
 
     @Override
     protected void update(InstanceIdentifier<Interfaces> identifier, Interfaces original, Interfaces update) {
-        LOG.trace("Update event - key: {}, original: {}, update: {}", identifier, original, update);
+        LOG.trace("update key: {}, original: {}, update: {}", update.getKey(), original, update);
     }
 
     static RouterInterface getRouterInterface(String interfaceName, String routerName) {
         return new RouterInterfaceBuilder().setKey(new RouterInterfaceKey(interfaceName))
             .setInterfaceName(interfaceName).setRouterName(routerName).build();
     }
-
 }

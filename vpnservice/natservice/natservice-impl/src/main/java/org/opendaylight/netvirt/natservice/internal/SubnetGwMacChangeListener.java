@@ -78,14 +78,14 @@ public class SubnetGwMacChangeListener
     private void handleSubnetGwIpChange(LearntVpnVipToPort learntVpnVipToPort) {
         String macAddress = learntVpnVipToPort.getMacAddress();
         if (macAddress == null) {
-            LOG.error("Mac address is null for LearntVpnVipToPort for vpn {} prefix {}",
+            LOG.error("handleSubnetGwIpChange : Mac address is null for LearntVpnVipToPort for vpn {} prefix {}",
                 learntVpnVipToPort.getVpnName(), learntVpnVipToPort.getPortFixedip());
             return;
         }
 
         String fixedIp = learntVpnVipToPort.getPortFixedip();
         if (fixedIp == null) {
-            LOG.error("Fixed ip is null for LearntVpnVipToPort for vpn {}",
+            LOG.error("handleSubnetGwIpChange : Fixed ip is null for LearntVpnVipToPort for vpn {}",
                 learntVpnVipToPort.getVpnName());
             return;
         }
@@ -94,19 +94,18 @@ public class SubnetGwMacChangeListener
             InetAddress address = InetAddress.getByName(fixedIp);
             if (address instanceof Inet6Address) {
                 // TODO: Revisit when IPv6 North-South communication support is added.
-                LOG.debug("Skipping ipv6 address {}.", address);
+                LOG.debug("handleSubnetGwIpChange : Skipping ipv6 address {}.", address);
                 return;
             }
         } catch (UnknownHostException e) {
-            LOG.warn("Invalid ip address {}", fixedIp, e);
+            LOG.warn("handleSubnetGwIpChange : Invalid ip address {}", fixedIp, e);
             return;
         }
 
         for (Uuid subnetId : nvpnManager.getSubnetIdsForGatewayIp(new IpAddress(new Ipv4Address(fixedIp)))) {
-            LOG.trace("Updating MAC resolution on vpn {} for GW ip {} to {}", learntVpnVipToPort.getVpnName(),
-                fixedIp, macAddress);
+            LOG.trace("handleSubnetGwIpChange : Updating MAC resolution on vpn {} for GW ip {} to {}",
+                    learntVpnVipToPort.getVpnName(), fixedIp, macAddress);
             extNetworkInstaller.installExtNetGroupEntries(subnetId, macAddress);
         }
     }
-
 }
