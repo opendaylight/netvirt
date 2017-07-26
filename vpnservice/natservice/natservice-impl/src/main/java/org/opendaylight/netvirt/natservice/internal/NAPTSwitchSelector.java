@@ -40,11 +40,12 @@ public class NAPTSwitchSelector {
     }
 
     BigInteger selectNewNAPTSwitch(String routerName) {
-        LOG.info("NAT Service : Select a new NAPT switch for router {}", routerName);
+        LOG.info("selectNewNAPTSwitch : Select a new NAPT switch for router {}", routerName);
         Map<BigInteger, Integer> naptSwitchWeights = constructNAPTSwitches();
         List<BigInteger> routerSwitches = getDpnsForVpn(routerName);
         if (routerSwitches == null || routerSwitches.isEmpty()) {
-            LOG.info("NAT Service : Delaying NAPT switch selection due to no dpns scenario for router {}", routerName);
+            LOG.warn("selectNewNAPTSwitch : Delaying NAPT switch selection due to no dpns scenario for router {}",
+                    routerName);
             return BigInteger.ZERO;
         }
 
@@ -61,7 +62,7 @@ public class NAPTSwitchSelector {
 
         if (!switchWeights.isEmpty()) {
 
-            LOG.debug("NAT Service : Current switch weights for router {} - {}", routerName, switchWeights);
+            LOG.debug("selectNewNAPTSwitch : Current switch weights for router {} - {}", routerName, switchWeights);
 
             Iterator<SwitchWeight> it = switchWeights.iterator();
             RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
@@ -77,7 +78,7 @@ public class NAPTSwitchSelector {
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName), id);
 
-                LOG.debug("NAT Service : successful addition of RouterToNaptSwitch to napt-switches container "
+                LOG.debug("selectNewNAPTSwitch : successful addition of RouterToNaptSwitch to napt-switches container "
                     + "for single switch");
                 return primarySwitch;
             } else {
@@ -91,13 +92,13 @@ public class NAPTSwitchSelector {
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName), id);
 
-                LOG.debug("NAT Service : successful addition of RouterToNaptSwitch to napt-switches container");
+                LOG.debug("selectNewNAPTSwitch : successful addition of RouterToNaptSwitch to napt-switches container");
                 return primarySwitch;
             }
         } else {
             primarySwitch = BigInteger.ZERO;
 
-            LOG.debug("NAT Service : switchWeights empty, primarySwitch: {} ", primarySwitch);
+            LOG.debug("selectNewNAPTSwitch : switchWeights empty, primarySwitch: {} ", primarySwitch);
             return primarySwitch;
         }
     }
@@ -135,7 +136,7 @@ public class NAPTSwitchSelector {
     }
 
     public List<BigInteger> getDpnsForVpn(String routerName) {
-        LOG.debug("NAT Service : getVpnToDpnList called for RouterName {}", routerName);
+        LOG.debug("getDpnsForVpn: called for RouterName {}", routerName);
         long bgpVpnId = NatUtil.getBgpVpnId(dataBroker, routerName);
         // TODO Why?
         if (bgpVpnId != NatConstants.INVALID_ID) {
