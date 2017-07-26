@@ -304,6 +304,9 @@ public class BgpCounters extends TimerTask {
         *>i17.18.17.17/32   10.183.181.25            0    100      0 ?
         </output>
      */
+
+    String routeDistinguisher = "Route Distinguisher";
+
     private void parseIpBgpVpnv4All() {
         File file = new File(BGP_VPNV4_FILE);
         List<String> inputStrs = new ArrayList<>();
@@ -318,7 +321,7 @@ public class BgpCounters extends TimerTask {
         }
         for (int i = 0; i < inputStrs.size(); i++) {
             String instr = inputStrs.get(i);
-            if (instr.contains("Route Distinguisher")) {
+            if (instr.contains(routeDistinguisher)) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
                 i = processRouteCount(rd, i + 1, inputStrs);
@@ -363,7 +366,7 @@ public class BgpCounters extends TimerTask {
         }
         for (int i = 0; i < inputStrs.size(); i++) {
             String instr = inputStrs.get(i);
-            if (instr.contains("Route Distinguisher")) {
+            if (instr.contains(routeDistinguisher)) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
                 i = processRouteCount(rd, i + 1, inputStrs);
@@ -385,7 +388,7 @@ public class BgpCounters extends TimerTask {
         }
         for (int i = 0; i < inputStrs.size(); i++) {
             String instr = inputStrs.get(i);
-            if (instr.contains("Route Distinguisher")) {
+            if (instr.contains(routeDistinguisher)) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
                 i = processRouteCount(rd, i + 1, inputStrs);
@@ -400,7 +403,7 @@ public class BgpCounters extends TimerTask {
 
         for (String str = inputStrs.get(num); str != null && !str.trim().equals("") && num < inputStrs.size();
                 str = inputStrs.get(num)) {
-            if (str.contains("Route Distinguisher")) {
+            if (str.contains(routeDistinguisher)) {
                 countersMap.put(key, Integer.toString(routeCount));
                 return num - 1;
             }
