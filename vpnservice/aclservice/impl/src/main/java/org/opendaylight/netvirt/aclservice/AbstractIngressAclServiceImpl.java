@@ -292,7 +292,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
-        String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
+        String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress
+                + AclConstants.PERMIT;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
@@ -316,7 +317,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
 
         String flowName =
-                "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + "_" + dhcpMacAddress + "_Permit_";
+                "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + "_" + dhcpMacAddress
+                + AclConstants.PERMIT;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
@@ -337,7 +339,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 0, lportTag, ServiceModeIngress.class);
 
         String flowName =
-                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_MLD_QUERY + "_Permit_";
+            AclConstants.INGRESS_ICMP_V6 + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_MLD_QUERY
+                + AclConstants.PERMIT;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
 
@@ -346,7 +349,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 ServiceModeIngress.class);
 
         flowName =
-                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NS + "_Permit_";
+                AclConstants.INGRESS_ICMP_V6 + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NS
+                + AclConstants.PERMIT;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
 
@@ -355,7 +359,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 ServiceModeIngress.class);
 
         flowName =
-                "Ingress_ICMPv6" + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NA + "_Permit_";
+                AclConstants.INGRESS_ICMP_V6 + "_" + dpId + "_" + lportTag + "_" + AclConstants.ICMPV6_TYPE_NA
+                + AclConstants.PERMIT;
         syncFlow(dpId, NwConstants.EGRESS_ACL_TABLE, flowName, AclConstants.PROTO_IPV6_ALLOWED_PRIORITY, "ACL", 0,
                 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
