@@ -146,7 +146,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                             long flowInstalledTime = state.getFlowInstalledTime();
                             if (flowInstalledTime == -1
                                     && (System.currentTimeMillis() - firstPacketInTime) > 4000) {
-                                LOG.error("NAT Service : Flow not installed even after 4sec."
+                                LOG.error("onPacketReceived : Flow not installed even after 4sec."
                                         + "Dropping SNAT ({}) Packet", sourceIPPortKey);
                                 removeIncomingPacketMap(sourceIPPortKey);
                                 return;

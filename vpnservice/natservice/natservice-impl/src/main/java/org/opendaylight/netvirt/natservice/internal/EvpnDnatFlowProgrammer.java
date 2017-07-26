@@ -108,17 +108,17 @@ public class EvpnDnatFlowProgrammer {
      */
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
-            LOG.error("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            LOG.error("onAddFloatingIp : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
         }
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("Unable to get RouterId from RouterName {}", routerName);
+            LOG.error("onAddFloatingIp : Unable to get RouterId from RouterName {}", routerName);
             return;
         }
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+            LOG.debug("onAddFloatingIp : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
@@ -147,7 +147,7 @@ public class EvpnDnatFlowProgrammer {
 
         Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
         ListenableFuture<RpcResult<Void>> futureVxlan = JdkFutureAdapters.listenInPoolThread(future1);
-        LOG.debug("NAT Service : Add Floating Ip {} , found associated to fixed port {}",
+        LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                 externalIp, interfaceName);
         if (floatingIpPortMacAddress != null) {
             vpnManager.setupSubnetMacIntoVpnInstance(vpnName, null /* subnet-vpn-name */, floatingIpPortMacAddress,
@@ -161,14 +161,14 @@ public class EvpnDnatFlowProgrammer {
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
-                LOG.error("NAT Service : Error {} in custom fib routes install process for Floating "
+                LOG.error("onAddFloatingIp : Error {} in custom fib routes install process for Floating "
                         + "IP Prefix {} on DPN {}", error, externalIp, dpnId);
             }
 
             @Override
             public void onSuccess(RpcResult<Void> result) {
                 if (result.isSuccessful()) {
-                    LOG.info("NAT Service : Successfully installed custom FIB routes for Floating "
+                    LOG.info("onAddFloatingIp : Successfully installed custom FIB routes for Floating "
                             + "IP Prefix {} on DPN {}", externalIp, dpnId);
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -189,7 +189,7 @@ public class EvpnDnatFlowProgrammer {
                     NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, customInstructions,
                             mdsalManager);
                 } else {
-                    LOG.error("NAT Service : Error {} in rpc call to create custom Fib entries for Floating "
+                    LOG.error("onAddFloatingIp : Error {} in rpc call to create custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
@@ -208,12 +208,12 @@ public class EvpnDnatFlowProgrammer {
             vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
 
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            LOG.debug("NAT Service : Add vpnInterface {} to Operational l3vpn:vpn-interfaces ", floatingIpInterface);
+            LOG.debug("onAddFloatingIp : Add vpnInterface {} to Operational l3vpn:vpn-interfaces ", floatingIpInterface);
             writeOperTxn.put(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier, vpnIfBuilder.build(),
                     WriteTransaction.CREATE_MISSING_PARENTS);
             writeOperTxn.submit();
         } else {
-            LOG.debug("NAT Service : No vpnInterface {} found in Configuration l3vpn:vpn-interfaces ",
+            LOG.debug("onAddFloatingIp : No vpnInterface {} found in Configuration l3vpn:vpn-interfaces ",
                     floatingIpInterface);
         }
     }
@@ -234,22 +234,22 @@ public class EvpnDnatFlowProgrammer {
      */
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         if (rd == null) {
-            LOG.error("NAT Service : Could not retrieve RD value from VPN Name {}  ", vpnName);
+            LOG.error("onRemoveFloatingIp : Could not retrieve RD value from VPN Name {}  ", vpnName);
             return;
         }
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
-            LOG.error("NAT Service : Invalid Vpn Id is found for Vpn Name {}", vpnName);
+            LOG.error("onRemoveFloatingIp : Invalid Vpn Id is found for Vpn Name {}", vpnName);
             return;
         }
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("Unable to get RouterId from RouterName {}", routerName);
+            LOG.error("onRemoveFloatingIp : Unable to get RouterId from RouterName {}", routerName);
             return;
         }
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.debug("NAT Service : L3VNI value is not configured in Internet VPN {} and RD {} "
+            LOG.debug("onRemoveFloatingIp : L3VNI value is not configured in Internet VPN {} and RD {} "
                     + "Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
                     + "DNAT flows for FloatingIp {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
@@ -270,14 +270,14 @@ public class EvpnDnatFlowProgrammer {
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
-                LOG.error("NAT Service : Error {} in custom fib routes remove process for Floating "
+                LOG.error("onRemoveFloatingIp : Error {} in custom fib routes remove process for Floating "
                         + "IP Prefix {} on DPN {}", error, externalIp, dpnId);
             }
 
             @Override
             public void onSuccess(RpcResult<Void> result) {
                 if (result.isSuccessful()) {
-                    LOG.info("NAT Service : Successfully removed custom FIB routes for Floating "
+                    LOG.info("onRemoveFloatingIp : Successfully removed custom FIB routes for Floating "
                             + "IP Prefix {} on DPN {}", externalIp, dpnId);
                      /*  check if any floating IP information is available in vpn-to-dpn-list for given dpn id.
                       *  If exist any floating IP then do not remove
@@ -291,7 +291,7 @@ public class EvpnDnatFlowProgrammer {
                     NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, mdsalManager);
 
                 } else {
-                    LOG.error("NAT Service : Error {} in rpc call to remove custom Fib entries for Floating "
+                    LOG.error("onRemoveFloatingIp : Error {} in rpc call to remove custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
@@ -303,19 +303,19 @@ public class EvpnDnatFlowProgrammer {
                         LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier);
         if (optionalVpnInterface.isPresent()) {
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            LOG.debug("NAT Service : Remove vpnInterface {} to Operational l3vpn:vpn-interfaces ", floatingIpInterface);
+            LOG.debug("onRemoveFloatingIp : Remove vpnInterface {} to Operational l3vpn:vpn-interfaces ", floatingIpInterface);
             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, vpnIfIdentifier);
             writeOperTxn.submit();
         } else {
-            LOG.debug("NAT Service : No vpnInterface {} found in Operational l3vpn:vpn-interfaces ",
+            LOG.debug("onRemoveFloatingIp : No vpnInterface {} found in Operational l3vpn:vpn-interfaces ",
                     floatingIpInterface);
         }
     }
 
     private void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions) {
-        LOG.debug("NAT Service : Create terminating service table {} --> table {} flow on DpnId {} with l3Vni {} "
-                        + "as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.PDNAT_TABLE, dpnId,
-                l3Vni);
+        LOG.debug("makeTunnelTableEntry : Create terminating service table {} --> table {} flow on DpnId {} "
+                + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.PDNAT_TABLE,
+                dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
         Flow terminatingServiceTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.INTERNAL_TUNNEL_TABLE,
@@ -323,13 +323,13 @@ public class EvpnDnatFlowProgrammer {
                 String.format("%s:%d", "TST Flow Entry ", l3Vni),
                 0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, customInstructions);
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
-        LOG.debug("NAT Service : Successfully installed terminating service table flow {} on DpnId {}",
+        LOG.debug("makeTunnelTableEntry : Successfully installed terminating service table flow {} on DpnId {}",
                 terminatingServiceTableFlowEntity, dpnId);
     }
 
     private void removeTunnelTableEntry(BigInteger dpnId, long l3Vni) {
-        LOG.debug("NAT Service : Remove terminating service table {} --> table {} flow on DpnId {} with l3Vni {} "
-                        + "as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.PDNAT_TABLE,
+        LOG.debug("removeTunnelTableEntry : Remove terminating service table {} --> table {} flow on DpnId {} "
+                + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.PDNAT_TABLE,
                 dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
@@ -338,7 +338,7 @@ public class EvpnDnatFlowProgrammer {
                 6, String.format("%s:%d", "TST Flow Entry ", l3Vni), 0, 0,
                 COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, null);
         mdsalManager.removeFlow(dpnId, flowEntity);
-        LOG.debug("NAT Service : Successfully removed terminating service table flow {} on DpnId {}", flowEntity,
-                dpnId);
+        LOG.debug("removeTunnelTableEntry : Successfully removed terminating service table flow {} on DpnId {}",
+                flowEntity, dpnId);
     }
 }

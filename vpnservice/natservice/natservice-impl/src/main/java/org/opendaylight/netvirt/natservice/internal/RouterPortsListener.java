@@ -61,7 +61,7 @@ public class RouterPortsListener
 
     @Override
     protected void add(final InstanceIdentifier<RouterPorts> identifier, final RouterPorts routerPorts) {
-        LOG.trace("Add router ports method - key: " + identifier + ", value=" + routerPorts);
+        LOG.trace("add router ports method : key:{}  value:{}",routerPorts.getKey(), routerPorts);
         Optional<RouterPorts> optRouterPorts =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, identifier);
@@ -97,7 +97,7 @@ public class RouterPortsListener
 
     @Override
     protected void remove(InstanceIdentifier<RouterPorts> identifier, RouterPorts routerPorts) {
-        LOG.trace("Remove router ports method - key: " + identifier + ", value=" + routerPorts);
+        LOG.trace("Remove router ports method - key:{}  value:{}",routerPorts.getKey(), routerPorts);
         //MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
         //Remove the router to vpn association mapping entry if at all present
         String routerName = routerPorts.getRouterId();
@@ -110,6 +110,6 @@ public class RouterPortsListener
 
     @Override
     protected void update(InstanceIdentifier<RouterPorts> identifier, RouterPorts original, RouterPorts update) {
-        LOG.trace("Update router ports method - key: " + identifier + ", original=" + original + ", update=" + update);
+        LOG.trace("Update router ports method - key: {}, original:{}, update:{}",update.getKey(), original, update);
     }
 }
