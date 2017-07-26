@@ -137,13 +137,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         final String subnetVpnName = externalSubnet.isPresent() ? subnetId.getValue() : null;
         if (vpnName == null) {
-            LOG.info("No VPN associated with ext nw {} to handle add floating ip configuration {} in router {}",
-                networkId, externalIp, routerId);
+            LOG.error("onAddFloatingIp : No VPN associated with ext nw {} to handle add floating ip configuration {} "
+                    + "in router {}", networkId, externalIp, routerId);
             return;
         }
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-        LOG.debug("Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
+        LOG.debug("onAddFloatingIp : Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerId);
         if (provType == null) {
@@ -170,7 +170,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 if (result.isSuccessful()) {
                     GenerateVpnLabelOutput output = result.getResult();
                     long label = output.getLabel();
-                    LOG.debug("Generated label {} for prefix {}", label, externalIp);
+                    LOG.debug("onAddFloatingIp : Generated label {} for prefix {}", label, externalIp);
                     FloatingIPListener.updateOperationalDS(dataBroker, routerId, interfaceName, label,
                         internalIp, externalIp);
                     //Inform BGP
@@ -204,7 +204,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                         .setInstruction(customInstructions).build();
                     //Future<RpcResult<java.lang.Void>> createFibEntry(CreateFibEntryInput input);
                     Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
-                    LOG.debug("Add Floating Ip {} , found associated to fixed port {}", externalIp, interfaceName);
+                    LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
+                            externalIp, interfaceName);
                     if (floatingIpPortMacAddress != null) {
                         String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
                         vpnManager.setupSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
@@ -216,8 +217,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     }
                     return JdkFutureAdapters.listenInPoolThread(future1);
                 } else {
-                    String errMsg = String.format("Could not retrieve the label for prefix %s in VPN %s, %s",
-                        externalIp, vpnName, result.getErrors());
+                    String errMsg = String.format("onAddFloatingIp : Could not retrieve the label for prefix %s "
+                            + "in VPN %s, %s", externalIp, vpnName, result.getErrors());
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
@@ -227,16 +228,16 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
-                LOG.error("Error in generate label or fib install process", error);
+                LOG.error("onAddFloatingIp : Error in generate label or fib install process", error);
             }
 
             @Override
             public void onSuccess(RpcResult<Void> result) {
                 if (result.isSuccessful()) {
-                    LOG.info("Successfully installed custom FIB routes for prefix {}", externalIp);
+                    LOG.info("onAddFloatingIp : Successfully installed custom FIB routes for prefix {}", externalIp);
                 } else {
-                    LOG.error("Error in rpc call to create custom Fib entries for prefix {} in DPN {}, {}",
-                        externalIp, dpnId, result.getErrors());
+                    LOG.error("onAddFloatingIp : Error in rpc call to create custom Fib entries for prefix {} "
+                            + "in DPN {}, {}", externalIp, dpnId, result.getErrors());
                 }
             }
         });
@@ -257,13 +258,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         final String vpnName = externalSubnet.isPresent() ? subnetId.getValue() :
             NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
         if (vpnName == null) {
-            LOG.info("No VPN associated with ext nw {} to handle remove floating ip configuration {} in router {}",
-                networkId, externalIp, routerId);
+            LOG.warn("onRemoveFloatingIp : No VPN associated with ext nw {} to handle remove floating ip "
+                    + "configuration {} in router {}", networkId, externalIp, routerId);
             return;
         }
 
         //Remove floating mac from mymac table
-        LOG.debug("Removing FloatingIp {}", externalIp);
+        LOG.debug("onRemoveFloatingIp : Removing FloatingIp {}", externalIp);
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (floatingIpPortMacAddress != null) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
@@ -327,8 +328,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     Future<RpcResult<Void>> labelFuture1 = vpnService.removeVpnLabel(labelInput);
                     return JdkFutureAdapters.listenInPoolThread(labelFuture1);
                 } else {
-                    String errMsg = String.format("RPC call to remove custom FIB entries on dpn %s for "
-                        + "prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
+                    String errMsg = String.format("onRemoveFloatingIp :RPC call to remove custom FIB entries "
+                            + "on dpn %s for prefix %s Failed - %s", dpnId, externalIp, result.getErrors());
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
@@ -338,15 +339,16 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
             @Override
             public void onFailure(@Nonnull Throwable error) {
-                LOG.error("Error in removing the label or custom fib entries", error);
+                LOG.error("onRemoveFloatingIp : Error in removing the label or custom fib entries", error);
             }
 
             @Override
             public void onSuccess(RpcResult<Void> result) {
                 if (result.isSuccessful()) {
-                    LOG.debug("Successfully removed the label for the prefix {} from VPN {}", externalIp, vpnName);
+                    LOG.debug("onRemoveFloatingIp : Successfully removed the label for the prefix {} from VPN {}",
+                            externalIp, vpnName);
                 } else {
-                    LOG.error("Error in removing the label for prefix {} from VPN {}, {}",
+                    LOG.error("onRemoveFloatingIp : Error in removing the label for prefix {} from VPN {}, {}",
                         externalIp, vpnName, result.getErrors());
                 }
             }
@@ -359,7 +361,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     private void removeTunnelTableEntry(BigInteger dpnId, long serviceId) {
-        LOG.info("remove terminatingServiceActions called with DpnId = {} and label = {}", dpnId, serviceId);
+        LOG.debug("removeTunnelTableEntry : called with DpnId = {} and label = {}", dpnId, serviceId);
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(serviceId)));
@@ -368,14 +370,15 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             5, String.format("%s:%d", "TST Flow Entry ", serviceId), 0, 0,
             COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, null);
         mdsalManager.removeFlow(dpnId, flowEntity);
-        LOG.debug("Terminating service Entry for dpID {} : label : {} removed successfully {}", dpnId, serviceId);
+        LOG.debug("removeTunnelTableEntry : Terminating service Entry for dpID {} : label : {} removed successfully {}",
+                dpnId, serviceId);
     }
 
     private void makeTunnelTableEntry(String vpnName, BigInteger dpnId, long serviceId,
             List<Instruction> customInstructions) {
         List<MatchInfo> mkMatches = new ArrayList<>();
 
-        LOG.info("create terminatingServiceAction on DpnId = {} and serviceId = {} and actions = {}", dpnId, serviceId);
+        LOG.info("makeTunnelTableEntry on DpnId = {} and serviceId = {}", dpnId, serviceId);
         int flowPriority = 5;
         // Increased the 36->25 flow priority. If SNAT is also configured on the same
         // DPN, then the traffic will be hijacked to DNAT and if there are no DNAT match,
@@ -417,7 +420,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         mdsalManager.installFlow(dpId, flowEntity);
 
-        LOG.debug("LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
+        LOG.debug("makeLFibTableEntry : LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
     }
 
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId) {
@@ -427,7 +430,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         String flowRef = getFlowRef(dpnId, NwConstants.L3_LFIB_TABLE, serviceId, "");
 
-        LOG.debug("removing LFib entry with flow ref {}", flowRef);
+        LOG.debug("removeLFibTableEntry : removing LFib entry with flow ref {}", flowRef);
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_LFIB_TABLE, flowRef,
             10, flowRef, 0, 0,
@@ -435,7 +438,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 
-        LOG.debug("LFIB Entry for dpID : {} label : {} removed successfully {}", dpnId, serviceId);
+        LOG.debug("removeLFibTableEntry : LFIB Entry for dpID : {} label : {} removed successfully",
+                dpnId, serviceId);
     }
 
     // TODO Clean up the exception handling
@@ -443,15 +447,15 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private void sendGarpOnInterface(final BigInteger dpnId, Uuid networkId, final IpAddress floatingIpAddress,
                                      String floatingIpPortMacAddress) {
         if (floatingIpAddress.getIpv4Address() == null) {
-            LOG.info("Failed to send GARP for IP. recieved IPv6.");
+            LOG.error("sendGarpOnInterface : Failed to send GARP for IP. recieved IPv6.");
             NatServiceCounters.garp_failed_ipv6.inc();
             return;
         }
 
         String interfaceName = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
         if (interfaceName == null) {
-            LOG.warn("Failed to send GARP for IP. Failed to retrieve interface name from network {} and dpn id {}.",
-                networkId.getValue(), dpnId);
+            LOG.warn("sendGarpOnInterface : Failed to send GARP for IP. Failed to retrieve interface name "
+                    + "from network {} and dpn id {}.", networkId.getValue(), dpnId);
             NatServiceCounters.garp_failed_missing_interface.inc();
         }
 
@@ -468,7 +472,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             arpUtilService.sendArpRequest(sendArpRequestInput);
             NatServiceCounters.garp_sent.inc();
         } catch (Exception e) {
-            LOG.error("Failed to send GARP request for floating ip {} from interface {}",
+            LOG.error("sendGarpOnInterface : Failed to send GARP request for floating ip {} from interface {}",
                 floatingIpAddress.getIpv4Address().getValue(), interfaceName, e);
             NatServiceCounters.garp_failed_send.inc();
         }
@@ -488,8 +492,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
             }
         } catch (Exception e) {
-            LOG.error("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating "
-                + "IP Port Info Config DS failed with exception {}", floatingIpId.getValue(), e);
+            LOG.error("removeFromFloatingIpPortInfo : Deleting floating IP UUID {} to Floating IP neutron port "
+                    + "mapping from Floating IP Port Info Config DS failed", floatingIpId.getValue(), e);
         }
     }
 

@@ -63,7 +63,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
     @Override
     protected void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId, int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService: installSnatSpecificEntriesForNaptSwitch for router {}",
+        LOG.info("installSnatSpecificEntriesForNaptSwitch: called for router {}",
                 routers.getRouterName());
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -93,8 +93,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installSnatMissEntryForPrimrySwch(BigInteger dpnId, Long routerId, int elanId, int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService : installSnatMissEntryForPrimrySwch for for the primary"
-                + " NAPT switch dpnId {} ", dpnId);
+        LOG.info("installSnatSpecificEntriesForNaptSwitch : called for the primary NAPT switch dpnId {}", dpnId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
@@ -115,8 +114,8 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, int elanId, int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService : creating entry for Terminating Service Table for switch {}, routerId {}",
-                dpnId, routerId);
+        LOG.info("installTerminatingServiceTblEntry : creating entry for Terminating Service Table "
+                + "for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new MatchTunnelId(BigInteger.valueOf(routerId)));
@@ -142,14 +141,13 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
     protected void createOutboundTblTrackEntry(BigInteger dpnId, Long routerId,
             List<ExternalIps> externalIps, String extGwMacAddress, int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService : createOutboundTblTrackEntry for switch {}, routerId {}",
-                dpnId, routerId);
+        LOG.info("createOutboundTblTrackEntry : called for switch {}, routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(snatCtState, snatCtStateMask));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         if (externalIps.isEmpty()) {
-            LOG.error("ConntrackBasedSnatService : createOutboundTblTrackEntry no externalIP present for routerId {}",
+            LOG.error("createOutboundTblTrackEntry : no externalIP present for routerId {}",
                     routerId);
             return;
         }
@@ -160,7 +158,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         if (addOrRemove == NwConstants.ADD_FLOW) {
             long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
             if (extSubnetId == NatConstants.INVALID_ID) {
-                LOG.error("ConntrackBasedSnatService : createOutboundTblTrackEntry : external subnet id is invalid.");
+                LOG.error("createOutboundTblTrackEntry : external subnet id is invalid.");
                 return;
             }
             ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
@@ -181,15 +179,13 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
     protected void createOutboundTblEntry(BigInteger dpnId, long routerId, List<ExternalIps> externalIps,
             int elanId, String extGwMacAddress,  int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService : createOutboundTblEntry dpId {} and routerId {}",
-                dpnId, routerId);
+        LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(trackedNewCtState, trackedNewCtMask));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         if (externalIps.isEmpty()) {
-            LOG.error("ConntrackBasedSnatService : createOutboundTblEntry no externalIP present for routerId {}",
-                    routerId);
+            LOG.error("createOutboundTblEntry : no externalIP present for routerId {}", routerId);
             return;
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
@@ -199,7 +195,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         if (addOrRemove == NwConstants.ADD_FLOW) {
             long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
             if (extSubnetId == NatConstants.INVALID_ID) {
-                LOG.error("ConntrackBasedSnatService : createOutboundTblEntry : external subnet id is invalid.");
+                LOG.error("createOutboundTblEntry : external subnet id is invalid.");
                 return;
             }
             ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
@@ -228,8 +224,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     protected void installNaptPfibFlow(Routers routers, BigInteger dpnId, List<ExternalIps> externalIps,
             String routerName, int addOrRemove) {
         Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
-        LOG.info("ConntrackBasedSnatService : buildPostSnatFlowEntity  dpId {}, extNetId {}, srcIp {}",
-                dpnId, extNetId, externalIps);
+        LOG.info("installNaptPfibFlow : dpId {}, extNetId {}, srcIp {}", dpnId, extNetId, externalIps);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         if (addOrRemove == NwConstants.ADD_FLOW) {
@@ -237,18 +232,15 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
             String externalIp = externalIps.get(0).getIpAddress();
             long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
             if (extSubnetId == NatConstants.INVALID_ID) {
-                LOG.error("ConntrackBasedSnatService : installNaptPfibFlow : external subnet id is invalid.");
+                LOG.error("installNaptPfibFlow : external subnet id is invalid.");
                 return;
             }
-            LOG.debug("NAT Service : Calling externalRouterListener installNaptPfibEntry for dpnId {} "
-                    + "and vpnId {}", dpnId, extSubnetId);
 
             BigInteger subnetMetadata = MetaDataUtil.getVpnIdMetadata(extSubnetId);
             matches.add(new MatchMetadata(subnetMetadata, MetaDataUtil.METADATA_MASK_VRFID));
         }
         if (externalIps.isEmpty()) {
-            LOG.error("ConntrackBasedSnatService : installNaptPfibExternalOutputFlow no externalIP present for "
-                    + "routerId {}", routers.getRouterName());
+            LOG.error("installNaptPfibFlow : no externalIP present for routerId {}", routers.getRouterName());
             return;
         }
         //The logic now handle only one external IP per router, others if present will be ignored.
@@ -264,13 +256,11 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
     protected void installInboundEntry(BigInteger dpnId, long routerId, Long extNetId, List<ExternalIps> externalIps,
             int elanId, int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService : installInboundEntry  dpId {} and routerId {}",
-                dpnId, routerId);
+        LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         if (externalIps.isEmpty()) {
-            LOG.error("ConntrackBasedSnatService : createOutboundTblEntry no externalIP present for routerId {}",
-                    routerId);
+            LOG.error("installInboundEntry : no externalIP present for routerId {}", routerId);
             return;
         }
         String externalIp = externalIps.get(0).getIpAddress();
@@ -279,7 +269,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         if (addOrRemove == NwConstants.ADD_FLOW) {
             long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
             if (extSubnetId == NatConstants.INVALID_ID) {
-                LOG.error("ConntrackBasedSnatService : installInboundEntry : external subnet id is invalid.");
+                LOG.error("installInboundEntry : external subnet id is invalid.");
                 return;
             }
             matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
@@ -304,8 +294,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installNaptPfibEntry(BigInteger dpnId, long routerId, int addOrRemove) {
-        LOG.info("ConntrackBasedSnatService : installNaptPfibEntry called for dpnId {} and routerId {} ",
-                dpnId, routerId);
+        LOG.info("installNaptPfibEntry : called for dpnId {} and routerId {} ", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(dnatCtState, dnatCtStateMask));
