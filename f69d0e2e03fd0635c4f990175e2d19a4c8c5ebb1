@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_0f0e6034",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-26T16:53:24Z",
+      "side": 1,
+      "message": "just to be sure, Kiran,\nare we talking about the subnetmap or the subnetmaplist.\n\nafai understand, i build a list of subnets, and if the list contains at least one subnet, i create the vpn interface.\nthe subnetmaplist is set to new ArrayList \u003c\u003e. The check to see that the list is empty is isEmpty(). Right ?\n\nPlease confirm.",
+      "parentUuid": "da2a55be_d92ffaf4",
+      "range": {
+        "startLine": 293,
+        "startChar": 20,
+        "endLine": 298,
+        "endChar": 17
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_f990fe44",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 18
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_af1e3461",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-26T16:53:24Z",
+      "side": 1,
+      "message": "this double loop is done , so that the calls are successively kept in the same order as before.\nthat is to say:\n- updateSubnetNodeWithFixedIp x times\n- create VPN Interface x 1\n- addSubnetToVpn x times\n- HandleSubnetsForExternalRoute x 1\n- createElanInterface x 1\n\nas the version is still unstable, do you really want to change the order of calls ?\n\nI would prefer to do the change, after the version is stable.\nunless you tell me that your change will bring stability.\nthanks",
+      "parentUuid": "da2a55be_f990fe44",
+      "range": {
+        "startLine": 286,
+        "startChar": 16,
+        "endLine": 311,
+        "endChar": 89
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_b94a06c3",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 18
@@ -59,6 +107,30 @@
       "writtenOn": "2017-07-26T16:22:00Z",
       "side": 1,
       "message": "Retain single loop over fixedIps as before.",
+      "range": {
+        "startLine": 332,
+        "startChar": 12,
+        "endLine": 358,
+        "endChar": 13
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_8f19b07b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-07-26T16:53:24Z",
+      "side": 1,
+      "message": "same remark as before.\ndoes it bring added value on stability ?\nwhile version is unstable, I would rather not to do it.",
+      "parentUuid": "da2a55be_b94a06c3",
       "range": {
         "startLine": 332,
         "startChar": 12,
