@@ -110,6 +110,20 @@ public final class AclConstants {
     public static final int INVALID_ACL_ID = -1;
 
     public static final String ACL_ID_POOL_NAME = "ACL-ID-POOL";
+    public static final String DROP = "_Drop_";
+    public static final String PERMIT = "_Permit_";
+    public static final String INGRESS_ICMP_V6 = "Ingress_ICMPv6";
+    public static final String EGRESS_ICMP_V6 = "Egress_ICMPv6";
+    public static final String ACL_FILTER_EGRESS = "Acl_Filter_Egress_";
+    public static final String ACL_FILTER_INGRESS = "Acl_Filter_Ingress_";
+    public static final String EGRESS_DHCP_SERVER_V4 = "Egress_DHCP_Server_v4";
+    public static final String EGRESS_DHCP_SERVER_V6 = "Egress_DHCP_Server_v6";
+    public static final String EGRESS_DHCP_CLIENT_V4 = "Egress_DHCP_Client_v4";
+    public static final String EGRESS_DHCP_CLIENT_V6 = "Egress_DHCP_Client_v6";
+    public static final String EGRESS_ARP = "Egress_ARP_";
+    public static final String INGRESS_DHCP_SERVER_V4 = "Ingress_DHCP_Server_v4";
+    public static final String INGRESS_DHCP_SERVER_V6 = "Ingress_DHCP_Server_v6";
+    public static final String INGRESS_ARP = "Ingress_ARP_";
 
     enum PacketHandlingType {
         PERMIT,
