@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_36d3c5d7",
+        "filename": "vpnservice/natservice/natservice-impl/pom.xml",
+        "patchSetId": 16
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-26T08:59:38Z",
+      "side": 1,
+      "message": "Just for notes: We discussed about this during IPv6 call and Ashvin sent out an email asking @Vivek\u0027s opinion on this dependency.",
+      "revId": "244ac18589f47f3844478dca627074c98ef077c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_d6cb491c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-07-26T08:59:38Z",
+      "side": 1,
+      "message": "You can re-use the existing API from this file - getDpnsForRouter, instead of this new API.",
+      "revId": "244ac18589f47f3844478dca627074c98ef077c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
