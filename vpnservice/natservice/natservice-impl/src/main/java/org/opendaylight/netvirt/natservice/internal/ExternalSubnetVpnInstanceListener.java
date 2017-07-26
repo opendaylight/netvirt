@@ -61,8 +61,8 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
 
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
-        LOG.trace("NAT Service : External Subnet VPN Instance remove mapping method - key:{}. value={}",
-                key, vpnInstance);
+        LOG.trace("remove : External Subnet VPN Instance remove mapping method - key:{}. value={}",
+                vpnInstance.getKey(), vpnInstance);
         String possibleExtSubnetUuid = vpnInstance.getVpnInstanceName();
         Optional<Subnets> optionalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker,
                 new Uuid(possibleExtSubnetUuid));
@@ -75,19 +75,19 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     @Override
     protected void update(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstanceOrig,
             VpnInstance vpnInstanceNew) {
-        LOG.trace("NAT Service : External Subnet VPN Instance update mapping method - key:{}. original={}, new={}",
-                key, vpnInstanceOrig, vpnInstanceNew);
+        LOG.trace("update : External Subnet VPN Instance update mapping method - key:{} original:{} new:{}",
+                vpnInstanceNew.getKey(), vpnInstanceOrig, vpnInstanceNew);
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnInstance> key, VpnInstance vpnInstance) {
-        LOG.trace("NAT Service : External Subnet VPN Instance OP Data Entry add mapping method - key:{}. value={}",
-                key, vpnInstance);
+        LOG.trace("add : External Subnet VPN Instance OP Data Entry add mapping method - key:{}. value={}",
+                vpnInstance.getKey(), vpnInstance);
         String possibleExtSubnetUuid = vpnInstance.getVpnInstanceName();
         Optional<Subnets> optionalSubnets = NatUtil.getOptionalExternalSubnets(dataBroker,
                 new Uuid(possibleExtSubnetUuid));
         if (optionalSubnets.isPresent()) {
-            LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
+            LOG.debug("add : VpnInstance {} for external subnet {}.", possibleExtSubnetUuid,
                     optionalSubnets.get());
             addOrDelDefaultFibRouteToSNATFlow(vpnInstance, optionalSubnets.get(), NwConstants.ADD_FLOW);
             invokeSubnetAddedToVpn(possibleExtSubnetUuid);
@@ -98,7 +98,7 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
         Uuid externalSubnetUuid = new Uuid(externalSubnetId);
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
         if (subnetMap == null) {
-            LOG.error("Cannot invoke onSubnetAddedToVpn for subnet-id {} in vpn-id {}"
+            LOG.error("invokeSubnetAddedToVpn : Cannot invoke onSubnetAddedToVpn for subnet-id {} in vpn-id {}"
                     + " due to this subnet missing in Subnetmap model", externalSubnetUuid, externalSubnetId);
             return;
         }
@@ -115,7 +115,8 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
 
     private void addOrDelDefaultFibRouteToSNATFlow(VpnInstance vpnInstance, Subnets subnet, int flowAction) {
         String vpnInstanceName = vpnInstance.getVpnInstanceName();
-        LOG.debug("NAT Service : VpnInstance {} for external subnet {}.", vpnInstanceName, subnet);
+        LOG.debug("addOrDelDefaultFibRouteToSNATFlow : VpnInstance {} for external subnet {}.",
+                vpnInstanceName, subnet);
         Long vpnId = vpnInstance.getVpnId();
         snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnet(subnet,
                 subnet.getExternalNetworkId().getValue(), flowAction, vpnId);

@@ -100,9 +100,9 @@ public class EvpnSnatFlowProgrammer {
         //get l3Vni value for external VPN
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
         if (l3Vni == NatConstants.DEFAULT_L3VNI_VALUE) {
-            LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : L3VNI value is not configured in Internet VPN {} and "
-                    + "RD {} Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with installing "
-                    + "SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
+            LOG.debug("evpnAdvToBgpAndInstallFibAndTsFlows : L3VNI value is not configured in Internet VPN {}"
+                    + " and RD {} Carve-out L3VNI value from OpenDaylight VXLAN VNI Pool and continue with "
+                    + "installing SNAT flows for External Fixed IP {}", vpnName, rd, externalIp);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
         }
 
@@ -249,9 +249,8 @@ public class EvpnSnatFlowProgrammer {
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
                                      short tableId) {
-        LOG.debug("NAT Service : Create terminating service table {} --> table {} flow on NAPT DpnId {} with l3Vni {} "
-                + "as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, tableId, dpnId,
-                l3Vni);
+        LOG.debug("makeTunnelTableEntry : Create terminating service table {} --> table {} flow on NAPT DpnId {} "
+                + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, tableId, dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
 
@@ -260,14 +259,14 @@ public class EvpnSnatFlowProgrammer {
                 String.format("%s:%d", "TST Flow Entry ", l3Vni),
                 0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, customInstructions);
         mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
-        LOG.debug("NAT Service : Successfully installed terminating service table flow {} on DpnId {}",
+        LOG.debug("makeTunnelTableEntry : Successfully installed terminating service table flow {} on DpnId {}",
                 terminatingServiceTableFlowEntity, dpnId);
     }
 
     public void removeTunnelTableEntry(BigInteger dpnId, long l3Vni) {
-        LOG.debug("NAT Service : Remove terminating service table {} --> table {} flow on NAPT DpnId {} with l3Vni {} "
-                        + "as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.INBOUND_NAPT_TABLE,
-                dpnId, l3Vni);
+        LOG.debug("removeTunnelTableEntry : Remove terminating service table {} --> table {} flow on NAPT DpnId {} "
+                + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE,
+                NwConstants.INBOUND_NAPT_TABLE, dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
         // Matching metadata
         mkMatches.add(new MatchTunnelId(BigInteger.valueOf(l3Vni)));
@@ -276,7 +275,7 @@ public class EvpnSnatFlowProgrammer {
                 5, String.format("%s:%d", "TST Flow Entry ", l3Vni), 0, 0,
                 COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, null);
         mdsalManager.removeFlow(dpnId, flowEntity);
-        LOG.debug("NAT Service : Successfully removed terminating service table flow {} on DpnId {}", flowEntity,
-                dpnId);
+        LOG.debug("removeTunnelTableEntry : Successfully removed terminating service table flow {} on DpnId {}",
+                flowEntity, dpnId);
     }
 }

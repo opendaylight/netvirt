@@ -259,14 +259,14 @@ public class NatUtil {
         //Get the external network ID from the ExternalRouter model
         Uuid networkId = NatUtil.getNetworkIdFromRouterId(broker, routerId);
         if (networkId == null) {
-            LOG.error("NAT Service : networkId is null");
+            LOG.error("getNetworkVpnIdFromRouterId : networkId is null");
             return NatConstants.INVALID_ID;
         }
 
         //Get the VPN ID from the ExternalNetworks model
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(broker, networkId);
         if (vpnUuid == null) {
-            LOG.error("NAT Service : vpnUuid is null");
+            LOG.error("getNetworkVpnIdFromRouterId : vpnUuid is null");
             return NatConstants.INVALID_ID;
         }
         Long vpnId = NatUtil.getVpnId(broker, vpnUuid.getValue());
@@ -404,6 +404,7 @@ public class NatUtil {
                 return networkId.getValue();
             }
         }
+        LOG.error("getAssociatedExternalNetwork : External Network missing for routerid : {}", routerId);
         return null;
     }
 
@@ -549,6 +550,7 @@ public class NatUtil {
          */
         String[] split = portId.getValue().split(OF_URI_SEPARATOR);
         if (split.length != 3) {
+            LOG.error("getDpnFromNodeConnectorId : invalid portid : {}", portId.getValue());
             return null;
         }
         return split[1];
@@ -574,6 +576,7 @@ public class NatUtil {
                 return routerId.getValue();
             }
         }
+        LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
         return null;
     }
 
@@ -594,6 +597,7 @@ public class NatUtil {
                 }
             }
         }
+        LOG.error("getVpnForRouter : VPN not found for routerID:{}", routerId);
         return null;
     }
 
@@ -607,7 +611,7 @@ public class NatUtil {
     public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId, Logger log) {
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
         if (vpnUuid == null) {
-            log.error("No VPN instance associated with ext network {}", networkId);
+            log.error("getAssociatedVPN : No VPN instance associated with ext network {}", networkId);
             return null;
         }
         return vpnUuid.getValue();
@@ -629,10 +633,11 @@ public class NatUtil {
                                       long l3vni,
                                       Logger log, RouteOrigin origin, BigInteger dpId) {
         try {
-            LOG.info("NAT Service : ADD: Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
+            LOG.info("addPrefixToBGP : Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
             if (nextHopIp == null) {
-                LOG.error("NAT Service : addPrefix prefix {} rd {} failed since nextHopIp cannot be null.", prefix, rd);
+                LOG.error("addPrefixToBGP : prefix {} rd {} failed since nextHopIp cannot be null.",
+                        prefix, rd);
                 return;
             }
 
@@ -647,10 +652,10 @@ public class NatUtil {
                         VrfEntry.EncapType.Mplsgre, (int) label, 0 /*l3vni*/, 0 /*l2vni*/,
                         null /*gatewayMac*/);
             }
-            LOG.info("NAT Service : ADD: Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
+            LOG.info("addPrefixToBGP : Added Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
         } catch (Exception e) {
-            LOG.error("NAT Service : Add prefix rd {} prefix {} nextHop {} label {} failed", rd,
+            LOG.error("addPrefixToBGP : Add prefix rd {} prefix {} nextHop {} label {} failed", rd,
                     prefix, nextHopIp, label, e);
         }
     }
@@ -667,7 +672,8 @@ public class NatUtil {
         try {
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId, prefix);
         } catch (TransactionCommitFailedException e) {
-            LOG.error("Failed to write prefxi-to-interface for {} vpn-id {} DPN {}", ipPrefix, vpnId, dpId);
+            LOG.error("addPrefixToInterface : Failed to write prefxi-to-interface for {} vpn-id {} DPN {}",
+                    ipPrefix, vpnId, dpId, e);
         }
     }
 
@@ -731,7 +737,7 @@ public class NatUtil {
             RpcResult<AllocateIdOutput> rpcResult = result.get();
             return rpcResult.getResult().getIdValue();
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.trace("", e);
+            LOG.error("createGroupId : Creating Group with Key: {} failed", groupIdKey, e);
         }
         return 0;
     }
@@ -741,14 +747,15 @@ public class NatUtil {
     public static void removePrefixFromBGP(DataBroker broker, IBgpManager bgpManager, IFibManager fibManager,
                                            String rd, String prefix, String vpnName, Logger log) {
         try {
-            LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, prefix);
+            LOG.debug("removePrefixFromBGP: Removing Fib entry rd {} prefix {}", rd, prefix);
             fibManager.removeFibEntry(broker, rd, prefix, null);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.withdrawPrefix(rd, prefix);
             }
-            LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, prefix);
+            LOG.info("removePrefixFromBGP: Removed Fib entry rd {} prefix {}", rd, prefix);
         } catch (Exception e) {
-            log.error("Delete prefix for rd {} prefix {} vpnName {} failed", rd, prefix, vpnName, e);
+            log.error("removePrefixFromBGP : Delete prefix for rd {} prefix {} vpnName {} failed",
+                    rd, prefix, vpnName, e);
         }
     }
 
@@ -843,6 +850,7 @@ public class NatUtil {
         if (subnetIP != null) {
             return getSubnetIpAndPrefix(subnetIP);
         }
+        LOG.error("getSubnetIpAndPrefix : SubnetIP and Prefix missing for subnet : {}", subnetId);
         return null;
     }
 
@@ -928,14 +936,13 @@ public class NatUtil {
             BigInteger dpId , WriteTransaction writeOperTxn) {
 
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("NAT Service : Could not retrieve dp id for interface {} to handle router {} association model",
-                    interfaceName, routerName);
+            LOG.warn("addToNeutronRouterDpnsMap : Could not retrieve dp id for interface {} "
+                    + "to handle router {} association model", interfaceName, routerName);
             return;
         }
 
-        LOG.debug("NAT Service : Adding the Router {} and DPN {} for the Interface {} in the "
-                + "ODL-L3VPN : NeutronRouterDpn map",
-                routerName, dpId, interfaceName);
+        LOG.debug("addToNeutronRouterDpnsMap : Adding the Router {} and DPN {} for the Interface {} in the "
+                + "ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
         InstanceIdentifier<DpnVpninterfacesList> dpnVpnInterfacesListIdentifier = getRouterDpnId(routerName, dpId);
 
         Optional<DpnVpninterfacesList> optionalDpnVpninterfacesList =
@@ -946,14 +953,14 @@ public class NatUtil {
             new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(interfaceName))
             .setInterface(interfaceName).build();
         if (optionalDpnVpninterfacesList.isPresent()) {
-            LOG.debug("NAT Service : RouterDpnList already present for the Router {} and DPN {} for the "
+            LOG.debug("addToNeutronRouterDpnsMap : RouterDpnList already present for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, dpnVpnInterfacesListIdentifier
                     .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
                             .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
                             new RouterInterfacesKey(interfaceName)), routerInterface, true);
         } else {
-            LOG.debug("NAT Service : Building new RouterDpnList for the Router {} and DPN {} for the "
+            LOG.debug("addToNeutronRouterDpnsMap : Building new RouterDpnList for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
             RouterDpnListBuilder routerDpnListBuilder = new RouterDpnListBuilder();
             routerDpnListBuilder.setRouterId(routerName);
@@ -979,14 +986,13 @@ public class NatUtil {
     public static void addToDpnRoutersMap(DataBroker broker, String routerName, String interfaceName,
             BigInteger dpId, WriteTransaction writeOperTxn) {
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("NAT Service : Could not retrieve dp id for interface {} to handle router {} association model",
-                    interfaceName, routerName);
+            LOG.error("addToDpnRoutersMap : Could not retrieve dp id for interface {} to handle router {} "
+                    + "association model", interfaceName, routerName);
             return;
         }
 
-        LOG.debug("NAT Service : Adding the DPN {} and router {} for the Interface {} in the ODL-L3VPN : "
-                + "DPNRouters map",
-                dpId, routerName, interfaceName);
+        LOG.debug("addToDpnRoutersMap : Adding the DPN {} and router {} for the Interface {} in the ODL-L3VPN : "
+                + "DPNRouters map", dpId, routerName, interfaceName);
         InstanceIdentifier<DpnRoutersList> dpnRoutersListIdentifier = getDpnRoutersId(dpId);
 
         Optional<DpnRoutersList> optionalDpnRoutersList =
@@ -998,17 +1004,17 @@ public class NatUtil {
                     .setRouter(routerName).build();
             List<RoutersList> routersListFromDs = optionalDpnRoutersList.get().getRoutersList();
             if (!routersListFromDs.contains(routersList)) {
-                LOG.debug("NAT Service : Router {} not present for the DPN {}"
+                LOG.debug("addToDpnRoutersMap : Router {} not present for the DPN {}"
                         + " in the ODL-L3VPN : DPNRouters map", routerName, dpId);
                 writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
                         dpnRoutersListIdentifier
                         .child(RoutersList.class, new RoutersListKey(routerName)), routersList, true);
             } else {
-                LOG.debug("NAT Service : Router {} already mapped to the DPN {} in the ODL-L3VPN : DPNRouters map",
-                        routerName, dpId);
+                LOG.debug("addToDpnRoutersMap : Router {} already mapped to the DPN {} in the ODL-L3VPN : "
+                        + "DPNRouters map", routerName, dpId);
             }
         } else {
-            LOG.debug("NAT Service : Building new DPNRoutersList for the Router {} present in the DPN {} "
+            LOG.debug("addToDpnRoutersMap : Building new DPNRoutersList for the Router {} present in the DPN {} "
                     + "ODL-L3VPN : DPNRouters map", routerName, dpId);
             DpnRoutersListBuilder dpnRoutersListBuilder = new DpnRoutersListBuilder();
             dpnRoutersListBuilder.setDpnId(dpId);
@@ -1025,8 +1031,8 @@ public class NatUtil {
     public static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName, String interfaceName,
                                                BigInteger dpId, WriteTransaction writeOperTxn) {
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("NAT Service : Could not retrieve dp id for interface {} to handle router {} dissociation model",
-                interfaceName, routerName);
+            LOG.error("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {} "
+                    + "dissociation model", interfaceName, routerName);
             return;
         }
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
@@ -1057,7 +1063,7 @@ public class NatUtil {
     public static void removeFromNeutronRouterDpnsMap(DataBroker broker, String routerName,
                                                BigInteger dpId, WriteTransaction writeOperTxn) {
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("NAT Service : DPN ID is invalid for the router {} ", routerName);
+            LOG.warn("removeFromNeutronRouterDpnsMap : DPN ID is invalid for the router {} ", routerName);
             return;
         }
 
@@ -1066,12 +1072,12 @@ public class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
         if (optionalRouterDpnList.isPresent()) {
-            LOG.debug("NAT Service : Removing the dpn-vpninterfaces-list from the odl-l3vpn:neutron-router-dpns model "
-                + "for the router {}", routerName);
+            LOG.debug("removeFromNeutronRouterDpnsMap : Removing the dpn-vpninterfaces-list from the "
+                    + "odl-l3vpn:neutron-router-dpns model for the router {}", routerName);
             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routerDpnListIdentifier);
         } else {
-            LOG.debug("NAT Service : dpn-vpninterfaces-list does not exist in the odl-l3vpn:neutron-router-dpns model "
-                + "for the router {}", routerName);
+            LOG.debug("removeFromNeutronRouterDpnsMap : dpn-vpninterfaces-list does not exist in the "
+                    + "odl-l3vpn:neutron-router-dpns model for the router {}", routerName);
         }
     }
 
@@ -1080,8 +1086,8 @@ public class NatUtil {
                                                WriteTransaction writeOperTxn) {
         BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("NAT Service : Could not retrieve dp id for interface {} to handle router {} dissociation model",
-                vpnInterfaceName, routerName);
+            LOG.warn("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {}"
+                    + " dissociation model", vpnInterfaceName, routerName);
             return;
         }
         InstanceIdentifier<DpnVpninterfacesList> routerDpnListIdentifier = getRouterDpnId(routerName, dpId);
@@ -1125,9 +1131,8 @@ public class NatUtil {
                                         OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
         BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("NAT Service : removeFromDpnRoutersMap() : Could not retrieve DPN ID for interface {} "
-                    + "to handle router {} dissociation model",
-                vpnInterfaceName, routerName);
+            LOG.warn("removeFromDpnRoutersMap : removeFromDpnRoutersMap() : Could not retrieve DPN ID for interface {} "
+                    + "to handle router {} dissociation model", vpnInterfaceName, routerName);
             return;
         }
         removeFromDpnRoutersMap(broker, routerName, vpnInterfaceName, dpId, ifaceMgrRpcService, writeOperTxn);
@@ -1144,7 +1149,7 @@ public class NatUtil {
              then remove RouterList.
          */
 
-        LOG.debug("NAT Service : removeFromDpnRoutersMap() : Removing the DPN {} and router {} for the Interface {}"
+        LOG.debug("removeFromDpnRoutersMap() : Removing the DPN {} and router {} for the Interface {}"
             + " in the ODL-L3VPN : DPNRouters map", curDpnId, routerName, vpnInterfaceName);
 
         //Get the dpn-routers-list instance for the current DPN.
@@ -1154,8 +1159,8 @@ public class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, dpnRoutersListIdentifier);
 
         if (dpnRoutersListData == null || !dpnRoutersListData.isPresent()) {
-            LOG.debug("NAT Service : dpn-routers-list is not present for DPN {} in the ODL-L3VPN:dpn-routers model",
-                curDpnId);
+            LOG.error("removeFromDpnRoutersMap : dpn-routers-list is not present for DPN {} "
+                    + "in the ODL-L3VPN:dpn-routers model", curDpnId);
             return;
         }
 
@@ -1166,13 +1171,14 @@ public class NatUtil {
                         LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
 
         if (routersListData == null || !routersListData.isPresent()) {
-            LOG.debug("NAT Service : routers-list is not present for the DPN {} in the ODL-L3VPN:dpn-routers model",
+            LOG.error("removeFromDpnRoutersMap : routers-list is not present for the DPN {} "
+                    + "in the ODL-L3VPN:dpn-routers model",
                 curDpnId);
             return;
         }
 
-        LOG.debug("NAT Service : Get the interfaces for the router {} from the NeutronVPN - router-interfaces-map",
-            routerName);
+        LOG.debug("removeFromDpnRoutersMap : Get the interfaces for the router {} "
+                + "from the NeutronVPN - router-interfaces-map", routerName);
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router
             .interfaces.map.RouterInterfaces> routerInterfacesId = getRoutersInterfacesIdentifier(routerName);
         Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces.map
@@ -1181,8 +1187,8 @@ public class NatUtil {
                         LogicalDatastoreType.CONFIGURATION, routerInterfacesId);
 
         if (routerInterfacesData == null || !routerInterfacesData.isPresent()) {
-            LOG.debug("NAT Service : Unable to get the routers list for the DPN {}. Possibly all subnets removed"
-                    + " from router {} OR Router {} has been deleted. Hence DPN router model WILL be cleared ",
+            LOG.debug("removeFromDpnRoutersMap : Unable to get the routers list for the DPN {}. Possibly all subnets "
+                    + "removed from router {} OR Router {} has been deleted. Hence DPN router model WILL be cleared ",
                 curDpnId, routerName, routerName);
             writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
             return;
@@ -1192,7 +1198,7 @@ public class NatUtil {
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.router.interfaces
             .map.router.interfaces.Interfaces> vmInterfaces = routerInterfacesData.get().getInterfaces();
         if (vmInterfaces == null) {
-            LOG.debug("NAT Service : VM interfaces are not present for the router {} in the "
+            LOG.debug("removeFromDpnRoutersMap : VM interfaces are not present for the router {} in the "
                 + "NeutronVPN - router-interfaces-map", routerName);
             return;
         }
@@ -1204,18 +1210,18 @@ public class NatUtil {
             String vmInterfaceName = vmInterface.getInterfaceId();
             BigInteger vmDpnId = getDpnForInterface(ifaceMgrRpcService, vmInterfaceName);
             if (vmDpnId.equals(BigInteger.ZERO) || !vmDpnId.equals(curDpnId)) {
-                LOG.debug("NAT Service : DPN ID {} for the removed interface {} is not the same as that of "
+                LOG.debug("removeFromDpnRoutersMap : DPN ID {} for the removed interface {} is not the same as that of "
                         + "the DPN ID for the checked interface {} ",
                     curDpnId, vpnInterfaceName, vmDpnId, vmInterfaceName);
                 continue;
             }
             if (!vmInterfaceName.equalsIgnoreCase(vpnInterfaceName)) {
-                LOG.debug("NAT Service : Router {} is present in the DPN {} through the other interface {} "
+                LOG.error("removeFromDpnRoutersMap : Router {} is present in the DPN {} through the other interface {} "
                     + "Hence DPN router model WOULD NOT be cleared", routerName, curDpnId, vmInterfaceName);
                 return;
             }
         }
-        LOG.debug("NAT Service : Router {} is present in the DPN {} only through the interface {} "
+        LOG.debug("removeFromDpnRoutersMap : Router {} is present in the DPN {} only through the interface {} "
             + "Hence DPN router model WILL be cleared. Possibly last VM for the router "
             + "deleted in the DPN", routerName, curDpnId, vpnInterfaceName);
         writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, routersListIdentifier);
@@ -1250,10 +1256,10 @@ public class NatUtil {
             if (dpIdResult.isSuccessful()) {
                 nodeId = dpIdResult.getResult().getDpid();
             } else {
-                LOG.error("NAT Service : Could not retrieve DPN Id for interface {}", ifName);
+                LOG.error("removeFromDpnRoutersMap : Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("NAT Service : Exception when getting dpn for interface {}", ifName, e);
+            LOG.error("removeFromDpnRoutersMap : Exception when getting dpn for interface {}", ifName, e);
         }
         return nodeId;
     }
@@ -1267,7 +1273,7 @@ public class NatUtil {
     @Nonnull
     public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService interfaceManager, String ifName,
                                                                 Long tunnelKey, int pos) {
-        LOG.debug("NAT Service : getEgressActionsForInterface called for interface {}", ifName);
+        LOG.debug("getEgressActionsForInterface : called for interface {}", ifName);
         GetEgressActionsForInterfaceInputBuilder egressActionsBuilder = new GetEgressActionsForInterfaceInputBuilder()
             .setIntfName(ifName);
         if (tunnelKey != null) {
@@ -1280,8 +1286,8 @@ public class NatUtil {
                 .getEgressActionsForInterface(egressActionsBuilder.build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
-                    rpcResult.getErrors());
+                LOG.error("getEgressActionsForInterface : RPC Call to Get egress actions for interface {} "
+                        + "returned with Errors {}", ifName, rpcResult.getErrors());
             } else {
                 List<Action> actions = rpcResult.getResult().getAction();
                 for (Action action : actions) {
@@ -1310,7 +1316,7 @@ public class NatUtil {
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when egress actions for interface {}", ifName, e);
+            LOG.error("Exception when egress actions for interface {}", ifName, e);
         }
         return listActionInfo;
     }
@@ -1330,7 +1336,7 @@ public class NatUtil {
                         LogicalDatastoreType.CONFIGURATION, portsIdentifier);
 
         if (!portsOptional.isPresent() || portsOptional.get().getPort() == null) {
-            LOG.trace("No neutron ports found");
+            LOG.error("getNeutronPorts : No neutron ports found");
             return Collections.emptyList();
         }
 
@@ -1351,12 +1357,13 @@ public class NatUtil {
                 }
             }
         }
-
+        LOG.error("getNeutronPortForIp : Neutron Port missing for IP:{} DeviceType:{}", targetIP, deviceType);
         return null;
     }
 
     public static Uuid getSubnetIdForFloatingIp(Port port, IpAddress targetIP) {
         if (port == null) {
+            LOG.error("getSubnetIdForFloatingIp : port is null");
             return null;
         }
         for (FixedIps ip : port.getFixedIps()) {
@@ -1364,7 +1371,7 @@ public class NatUtil {
                 return ip.getSubnetId();
             }
         }
-
+        LOG.error("getSubnetIdForFloatingIp : No Fixed IP configured for targetIP:{}", targetIP);
         return null;
     }
 
@@ -1386,6 +1393,7 @@ public class NatUtil {
 
     public static String getSubnetGwMac(DataBroker broker, Uuid subnetId, String vpnName) {
         if (subnetId == null) {
+            LOG.error("getSubnetGwMac : subnetID is null");
             return null;
         }
 
@@ -1395,12 +1403,13 @@ public class NatUtil {
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, subnetInst);
         if (!subnetOpt.isPresent()) {
+            LOG.error("getSubnetGwMac : unable to obtain Subnet for id : {}", subnetId);
             return null;
         }
 
         IpAddress gatewayIp = subnetOpt.get().getGatewayIp();
         if (gatewayIp == null) {
-            LOG.trace("No GW ip found for subnet {}", subnetId.getValue());
+            LOG.error("getSubnetGwMac : No GW ip found for subnet {}", subnetId.getValue());
             return null;
         }
 
@@ -1424,7 +1433,7 @@ public class NatUtil {
             return learntIpToPortOpt.get().getMacAddress();
         }
 
-        LOG.error("No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
+        LOG.error("getSubnetGwMac : No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
         return null;
     }
 
@@ -1494,7 +1503,7 @@ public class NatUtil {
     static void createRouterIdsConfigDS(DataBroker dataBroker, String routerName) {
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("NAT Service : createRouterIdsConfigDS - invalid routerId for routerName {}", routerName);
+            LOG.error("createRouterIdsConfigDS : invalid routerId for routerName {}", routerName);
             return;
         }
         RouterIds rtrs = new RouterIdsBuilder().setKey(new RouterIdsKey(routerId))
@@ -1508,8 +1517,8 @@ public class NatUtil {
         try {
             defaultIP = InetAddress.getByName("0.0.0.0");
         } catch (UnknownHostException e) {
-            LOG.error("NAT Service : UnknowHostException in buildDefNATFlowEntityForExternalSubnet. "
-                + "Failed to build FIB Table Flow for Default Route to NAT.");
+            LOG.error("buildDefaultNATFlowEntityForExternalSubnet : Failed to build FIB Table Flow for "
+                    + "Default Route to NAT.", e);
             return null;
         }
 
@@ -1533,7 +1542,7 @@ public class NatUtil {
     static String getExtGwMacAddFromRouterId(DataBroker broker, long routerId) {
         String routerName = getRouterName(broker, routerId);
         if (routerName == null) {
-            LOG.error("getExtGwMacAddFromRouterId - empty routerName received");
+            LOG.error("getExtGwMacAddFromRouterId : empty routerName received");
             return null;
         }
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
@@ -1586,7 +1595,7 @@ public class NatUtil {
             long ipToTest = ipToLong(InetAddress.getByName(ipAddress));
             return ipToTest >= ipLo && ipToTest <= ipHi;
         } catch (UnknownHostException e) {
-            LOG.error("NAT Service : isIpInSubnet failed for IP {}. Exception {}", ipAddress, e.getMessage());
+            LOG.error("isIpInSubnet : failed for IP {}", ipAddress, e);
             return false;
         }
     }
@@ -1603,7 +1612,7 @@ public class NatUtil {
     @Nonnull
     public static Collection<Uuid> getExternalSubnetIdsForRouter(DataBroker dataBroker, String routerName) {
         if (routerName == null) {
-            LOG.error("getExternalSubnetIdsForRouter - empty routerName received");
+            LOG.error("getExternalSubnetIdsForRouter : empty routerName received");
             return Collections.emptySet();
         }
 
@@ -1614,7 +1623,7 @@ public class NatUtil {
         if (routerData.isPresent()) {
             return NatUtil.getExternalSubnetIdsFromExternalIps(routerData.get().getExternalIps());
         } else {
-            LOG.warn("No external router data for router {}", routerName);
+            LOG.warn("getExternalSubnetIdsForRouter : No external router data for router {}", routerName);
             return Collections.emptySet();
         }
     }
@@ -1623,7 +1632,7 @@ public class NatUtil {
     protected static Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
         .subnets.Subnets> getOptionalExternalSubnets(DataBroker dataBroker, Uuid subnetId) {
         if (subnetId == null) {
-            LOG.warn("getOptionalExternalSubnets - null subnetId");
+            LOG.warn("getOptionalExternalSubnets : subnetId is null");
             return Optional.absent();
         }
 
@@ -1667,7 +1676,7 @@ public class NatUtil {
                 return extIp.getSubnetId();
             }
         }
-
+        LOG.error("getExternalSubnetForRouterExternalIp : Missing External Subnet for Ip:{}", externalIpAddress);
         return null;
     }
 
@@ -1714,7 +1723,7 @@ public class NatUtil {
 
     public static void makePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId,
             short tableId) {
-        LOG.debug("NAT Service : Create Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
+        LOG.debug("makePreDnatToSnatTableEntry : Create Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
                 NwConstants.PDNAT_TABLE, tableId, naptDpnId);
 
         List<Instruction> preDnatToSnatInstructions = new ArrayList<>();
@@ -1727,18 +1736,18 @@ public class NatUtil {
                 matches, preDnatToSnatInstructions);
 
         mdsalManager.installFlow(naptDpnId, preDnatToSnatTableFlowEntity);
-        LOG.debug("NAT Service : Successfully installed Pre-DNAT flow {} on NAPT DpnId {} ",
+        LOG.debug("makePreDnatToSnatTableEntry : Successfully installed Pre-DNAT flow {} on NAPT DpnId {} ",
                 preDnatToSnatTableFlowEntity,  naptDpnId);
     }
 
     public static void removePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId) {
-        LOG.debug("NAT Service : Remove Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
+        LOG.debug("removePreDnatToSnatTableEntry : Remove Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
                 NwConstants.PDNAT_TABLE, NwConstants.INBOUND_NAPT_TABLE, naptDpnId);
         String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
         Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
                 5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE, null, null);
         mdsalManager.removeFlow(naptDpnId, preDnatToSnatTableFlowEntity);
-        LOG.debug("NAT Service : Successfully removed Pre-DNAT flow {} on NAPT DpnId = {}",
+        LOG.debug("removePreDnatToSnatTableEntry: Successfully removed Pre-DNAT flow {} on NAPT DpnId = {}",
                 preDnatToSnatTableFlowEntity, naptDpnId);
     }
 
@@ -1753,8 +1762,8 @@ public class NatUtil {
         InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
         Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (dpnInVpn.isPresent()) {
-            LOG.debug("vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, rd {} and floatingIp {}",
-                    vpnName, dpnId, rd, externalIp);
+            LOG.debug("isFloatingIpPresentForDpn : vpn-to-dpn-list is not empty for vpnName {}, dpn id {}, "
+                    + "rd {} and floatingIp {}", vpnName, dpnId, rd, externalIp);
             try {
                 List<IpAddresses> ipAddressList = dpnInVpn.get().getIpAddresses();
                 if ((ipAddressList != null) && (ipAddressList.size() > 0)) {
@@ -1774,7 +1783,8 @@ public class NatUtil {
                         }
                     }
                 } else {
-                    LOG.debug("vpn-to-dpn-list does not contain any floating IP for DPN {}", dpnId);
+                    LOG.debug("isFloatingIpPresentForDpn : vpn-to-dpn-list does not contain any floating IP for DPN {}",
+                           dpnId);
                     return Boolean.FALSE;
                 }
             } catch (NullPointerException e) {

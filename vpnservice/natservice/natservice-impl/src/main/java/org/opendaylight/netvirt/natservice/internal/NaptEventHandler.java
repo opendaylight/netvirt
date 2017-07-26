@@ -312,7 +312,7 @@ public class NaptEventHandler {
             try {
                 ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
             } catch (PacketException e) {
-                LOG.warn("prepareAndSendPacketOut : Failed to decode Packet", e);
+                LOG.error("prepareAndSendPacketOut : Failed to decode Packet", e);
                 return;
             }
         }
@@ -336,7 +336,7 @@ public class NaptEventHandler {
         }
         InterfaceInfo infInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
         if (infInfo == null) {
-            LOG.error("prepareAndSendPacketOut : error in getting interfaceInfo");
+            LOG.error("prepareAndSendPacketOut : error in getting interfaceInfo from Operation DS");
             return;
         }
 
@@ -482,7 +482,7 @@ public class NaptEventHandler {
 
         } catch (UnknownHostException e) {
             LOG.error("buildAndGetMatchInfo : UnknowHostException in buildAndGetMatchInfo."
-                    + "Failed  to build NAPT Flow for ip {}", ipAddress);
+                    + "Failed  to build NAPT Flow for ip {}", ipAddress, e);
             return null;
         }
 
@@ -577,6 +577,7 @@ public class NaptEventHandler {
     void removeNatFlows(BigInteger dpnId, short tableId ,long segmentId, String ip, int port) {
         if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
             LOG.error("removeNatFlows : DPN ID {} is invalid" , dpnId);
+            return;
         }
         LOG.debug("removeNatFlows : Remove NAPT flows for dpnId {}, segmentId {}, ip {} and port {} ",
             dpnId, segmentId, ip, port);
