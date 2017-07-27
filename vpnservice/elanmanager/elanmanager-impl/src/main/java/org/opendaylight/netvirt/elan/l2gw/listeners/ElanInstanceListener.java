@@ -15,7 +15,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
@@ -32,10 +31,10 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
     private static final Map<String, List<Runnable>> WAITING_JOB_LIST = new ConcurrentHashMap<>();
 
-    public ElanInstanceListener(final DataBroker db, final ElanUtils elanUtils) {
+    public ElanInstanceListener(final DataBroker db, final L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
-        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         registerListener(LogicalDatastoreType.CONFIGURATION, db);
     }
 
