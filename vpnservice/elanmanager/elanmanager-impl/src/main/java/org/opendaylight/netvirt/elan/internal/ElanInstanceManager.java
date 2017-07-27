@@ -182,12 +182,17 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Nonnull
     public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
+        return getElanDPNByName(broker, elanInstanceName);
+    }
+
+    @Nonnull
+    public static List<DpnInterfaces> getElanDPNByName(DataBroker dataBroker, String elanInstanceName) {
         InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).transform(
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).transform(
                 ElanDpnInterfacesList::getDpnInterfaces).or(Collections.emptyList());
     }
 
-    private InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
+    private static InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
     }
