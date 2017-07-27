@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "da2a55be_db908945",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-07-27T23:59:05Z",
+      "side": 1,
+      "message": "do we also want to have a CYA about what \"support\" means?\n\nI don\u0027t think it means, it\u0027s the combination of testing we\nwill have, but more along the lines of the combinations\nthat we actively track and will respond to if there are \nissues.\n\nright?",
+      "range": {
+        "startLine": 9,
+        "startChar": 201,
+        "endLine": 9,
+        "endChar": 210
+      },
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_fbaf4d92",
         "filename": "docs/user-guide/support.rst",
         "patchSetId": 1
@@ -13,6 +36,86 @@
       "writtenOn": "2017-07-27T23:20:35Z",
       "side": 1,
       "message": "this needs to be indented correctly, is messing up the formatting.",
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_dbb7e9d6",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-07-27T23:59:05Z",
+      "side": 1,
+      "message": "should be Flourine",
+      "range": {
+        "startLine": 21,
+        "startChar": 52,
+        "endLine": 21,
+        "endChar": 58
+      },
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_bbbaf5bd",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-07-27T23:59:05Z",
+      "side": 1,
+      "message": "you could write \u0027Openstack \u0027R\u0027 release\u0027 here for when it\ndrops",
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_7ba99d7a",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-07-27T23:59:05Z",
+      "side": 1,
+      "message": "\"combination drops\" \u003d\u003d \"not supported\"\n\nI\u0027m thinking of it in terms of CSIT test combos and what\nwe have running. But, maybe this doesn\u0027t care about that\nand just putting a line in the sand of what\u0027s supported,\nand when.",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 24,
+        "endChar": 34
+      },
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_fb9d8d5a",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-07-27T23:59:05Z",
+      "side": 1,
+      "message": "only",
       "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
