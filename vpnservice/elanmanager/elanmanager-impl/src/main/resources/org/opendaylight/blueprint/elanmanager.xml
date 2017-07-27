@@ -241,6 +241,13 @@
     class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
+    <argument ref="l2GatewayConnectionUtils" />
+  </bean>
+
+  <bean id="l2GatewayConnectionUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils">
+    <argument ref="dataBroker" />
+    <argument ref="elanInstanceManager" />
+    <argument ref="entityOwnershipService" />
     <argument ref="elanUtils" />
   </bean>
 
@@ -250,7 +257,7 @@
     <argument ref="dataBroker" />
     <argument ref="itmRpcService" />
     <argument ref="entityOwnershipService" />
-    <argument ref="elanUtils" />
+    <argument ref="l2GatewayConnectionUtils" />
     <argument ref="l2gwService" />
     <argument ref="l2gatewayUtils" />
     <argument ref="haOpClusteredListener" />
@@ -341,7 +348,7 @@
     <argument ref="dataBroker" />
     <argument ref="entityOwnershipService" />
     <argument ref="itmRpcService" />
-    <argument ref="elanUtils" />
+    <argument ref="l2GatewayConnectionUtils" />
   </bean>
   <service ref="l2gwService" odl:type="default"
            interface="org.opendaylight.netvirt.elanmanager.api.IL2gwService" />
@@ -349,10 +356,8 @@
   <bean id="elanInstanceListener"
         class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener"
         init-method="init" destroy-method="close">
-  <argument ref="dataBroker" />
-  <argument ref="entityOwnershipService" />
-  <argument ref="elanUtils" />
-
+    <argument ref="dataBroker" />
+    <argument ref="entityOwnershipService" />
   </bean>
 
   <bean id="evpnUtils" class="org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils"

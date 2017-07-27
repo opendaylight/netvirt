@@ -33,7 +33,6 @@ import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
@@ -133,20 +132,21 @@ public class HwvtepPhysicalSwitchListener
      *            the data broker
      * @param itmRpcService itm rpc
      * @param entityOwnershipService entity ownership service
-     * @param elanUtils elan utils
+     * @param l2GatewayConnectionUtils l2gw connection utils
      * @param l2gwServiceProvider l2gw service Provider
      * @param l2GatewayUtils utils
      * @param haListener HA Op node listners
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipService entityOwnershipService,
-                                        ElanUtils elanUtils, L2gwServiceProvider l2gwServiceProvider,
+                                        L2GatewayConnectionUtils l2GatewayConnectionUtils,
+                                        L2gwServiceProvider l2gwServiceProvider,
                                         L2GatewayUtils l2GatewayUtils, HAOpClusteredListener haListener) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
-        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
         this.l2GatewayUtils = l2GatewayUtils;
         this.haOpClusteredListener = haListener;

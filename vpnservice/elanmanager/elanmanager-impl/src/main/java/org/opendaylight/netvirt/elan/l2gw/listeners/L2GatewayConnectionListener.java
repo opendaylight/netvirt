@@ -11,7 +11,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
@@ -26,10 +25,10 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
-    public L2GatewayConnectionListener(final DataBroker db, ElanUtils elanUtils) {
+    public L2GatewayConnectionListener(final DataBroker db, L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
         this.broker = db;
-        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
     }
 
     public void init() {

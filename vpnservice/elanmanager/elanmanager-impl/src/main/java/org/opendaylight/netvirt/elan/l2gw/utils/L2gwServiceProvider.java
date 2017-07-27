@@ -16,7 +16,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -40,11 +39,11 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
     private final EntityOwnershipService entityOwnershipService;
 
     public L2gwServiceProvider(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
-                               ItmRpcService itmRpcService, ElanUtils elanUtils) {
+                               ItmRpcService itmRpcService, L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         this.dataBroker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
         this.itmRpcService = itmRpcService;
-        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
     }
 
     @Override
