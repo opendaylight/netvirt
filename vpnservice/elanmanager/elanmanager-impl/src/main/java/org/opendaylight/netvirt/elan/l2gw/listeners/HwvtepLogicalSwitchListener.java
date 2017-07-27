@@ -16,7 +16,6 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -60,7 +59,6 @@ public class HwvtepLogicalSwitchListener extends
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EntityOwnershipService entityOwnershipService;
-    private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     /**
@@ -69,7 +67,6 @@ public class HwvtepLogicalSwitchListener extends
      * @param dataBroker DataBroker
      * @param elanL2GatewayUtils l2 gateway utils
      * @param entityOwnershipService the entity ownership service
-     * @param elanUtils the ELAN utilities
      * @param elanL2GatewayMulticastUtils l2 gateway multicast utils
      * @param l2GatewayDevice the l2 gateway device
      * @param logicalSwitchName the logical switch name
@@ -78,7 +75,7 @@ public class HwvtepLogicalSwitchListener extends
      * @param l2GwConnId l2 gateway connection id
      */
     public HwvtepLogicalSwitchListener(DataBroker dataBroker, ElanL2GatewayUtils elanL2GatewayUtils,
-                                       EntityOwnershipService entityOwnershipService, ElanUtils elanUtils,
+                                       EntityOwnershipService entityOwnershipService,
                                        ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                        L2GatewayDevice l2GatewayDevice,
                                        String logicalSwitchName,
@@ -87,7 +84,6 @@ public class HwvtepLogicalSwitchListener extends
         this.broker = dataBroker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.entityOwnershipService = entityOwnershipService;
-        this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.logicalSwitchName = logicalSwitchName;
@@ -155,8 +151,8 @@ public class HwvtepLogicalSwitchListener extends
                     logicalSwitchNew.getHwvtepNodeName().getValue(), elanUtils,
                     l2GatewayDevice, l2GwConnId,physicalDevice);
 
-            LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(broker, elanL2GatewayUtils,
-                    elanUtils, elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
+            LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(elanL2GatewayUtils,
+                    elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
                     defaultVlanId);
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, logicalSwitchAddedWorker.getJobKey() ,
                     "create vlan mappings and mcast configurations",

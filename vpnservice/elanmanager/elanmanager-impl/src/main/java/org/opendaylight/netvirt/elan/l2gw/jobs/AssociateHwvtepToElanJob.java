@@ -36,7 +36,6 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final L2GatewayDevice l2GatewayDevice;
     private final ElanInstance elanInstance;
@@ -44,13 +43,12 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
     private final Integer defaultVlan;
     private final boolean createLogicalSwitch;
 
-    public AssociateHwvtepToElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils, ElanUtils elanUtils,
+    public AssociateHwvtepToElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
                                     ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                     L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance, Devices l2Device,
                                     Integer defaultVlan, boolean createLogicalSwitch) {
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
-        this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.l2GatewayDevice = l2GatewayDevice;
         this.elanInstance = elanInstance;
@@ -87,7 +85,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
             LOG.info("{} is already created in {}; adding remaining configurations", logicalSwitchName, hwvtepNodeId);
 
             LogicalSwitchAddedJob logicalSwitchAddedJob =
-                    new LogicalSwitchAddedJob(broker, elanL2GatewayUtils, elanUtils, elanL2GatewayMulticastUtils,
+                    new LogicalSwitchAddedJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
                             logicalSwitchName, l2Device,
                             l2GatewayDevice, defaultVlan);
             return logicalSwitchAddedJob.call();

@@ -100,13 +100,11 @@
             <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeInterfaceGet">
                 <property name="elanProvider" ref="elanProviderRef" />
                 <property name="interfaceManager" ref="interfaceManagerRef" />
-                <!--<property name="elanUtils" ref="elanUtilsRef" />-->
             </action>
         </command>
         <command>
             <action class="org.opendaylight.netvirt.elan.cli.etree.EtreeInterfaceDelete">
                 <property name="elanProvider" ref="elanProviderRef" />
-                <!--<property name="elanUtils" ref="elanUtilsRef" />-->
             </action>
         </command>
         <command>
