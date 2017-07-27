@@ -67,10 +67,11 @@ public class L2GatewayConnectionUtils {
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
-                                    EntityOwnershipService entityOwnershipService, ElanUtils elanUtils) {
+                                    EntityOwnershipService entityOwnershipService, ElanUtils elanUtils,
+                                    ElanL2GatewayUtils elanL2GatewayUtils) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
-        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.entityOwnershipService = entityOwnershipService;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
@@ -286,7 +287,8 @@ public class L2GatewayConnectionUtils {
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     createLogicalSwitch = true;
                 } else {
-                    addL2DeviceToElanL2GwCache(broker ,elanName, elanUtils, l2GatewayDevice, l2GwConnId, l2Device);
+                    addL2DeviceToElanL2GwCache(broker, elanName, elanL2GatewayUtils, l2GatewayDevice, l2GwConnId,
+                            l2Device);
                     createLogicalSwitch = false;
                 }
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
@@ -304,7 +306,7 @@ public class L2GatewayConnectionUtils {
     }
 
     public static L2GatewayDevice addL2DeviceToElanL2GwCache(final DataBroker broker, String elanName,
-                                                             ElanUtils elanUtils,
+                                                             ElanL2GatewayUtils elanL2GatewayUtils,
                                                              L2GatewayDevice l2GatewayDevice,
             Uuid l2GwConnId, Devices l2Device) {
         String l2gwDeviceNodeId = l2GatewayDevice.getHwvtepNodeId();
@@ -325,7 +327,7 @@ public class L2GatewayConnectionUtils {
                 .computeIfAbsent(l2GwConnId, key -> Sets.newConcurrentHashSet()).add(l2Device);
         //incase of cluster reboot scenario southbound device would have added more macs
         //while odl is down, pull them now
-        readAndCopyLocalUcastMacsToCache(broker, elanUtils, elanName, l2GatewayDevice);
+        readAndCopyLocalUcastMacsToCache(broker, elanL2GatewayUtils, elanName, l2GatewayDevice);
 
         LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;
@@ -340,7 +342,7 @@ public class L2GatewayConnectionUtils {
     }
 
     private static void readAndCopyLocalUcastMacsToCache(final DataBroker broker,
-                                                         final ElanUtils elanUtils,
+                                                         final ElanL2GatewayUtils elanL2GatewayUtils,
                                                          final String elanName,
                                                          final L2GatewayDevice l2GatewayDevice) {
 
@@ -354,7 +356,7 @@ public class L2GatewayConnectionUtils {
                         @Override
                         public void onSuccess(Optional<Node> resultNode) {
                             HwvtepLocalUcastMacListener localUcastMacListener =
-                                    new HwvtepLocalUcastMacListener(broker, elanUtils);
+                                    new HwvtepLocalUcastMacListener(broker, elanL2GatewayUtils);
                             settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = (Optional<Node>) resultNode;
                             if (nodeOptional.isPresent()) {
