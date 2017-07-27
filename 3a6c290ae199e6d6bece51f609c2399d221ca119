@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_4537994e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 402,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T13:26:14Z",
+      "side": 1,
+      "message": "Please ignore my previous comments on this if condition. This is very much required:)",
+      "range": {
+        "startLine": 402,
+        "startChar": 41,
+        "endLine": 402,
+        "endChar": 69
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_653bbd38",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T13:26:14Z",
+      "side": 1,
+      "message": "Is this parameter required?",
+      "range": {
+        "startLine": 465,
+        "startChar": 58,
+        "endLine": 465,
+        "endChar": 66
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_c521c9fc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 468,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T13:26:14Z",
+      "side": 1,
+      "message": "please ensure that sn.getVpnId() !\u003d null",
+      "range": {
+        "startLine": 468,
+        "startChar": 19,
+        "endLine": 468,
+        "endChar": 49
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_854071a6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 472,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T13:26:14Z",
+      "side": 1,
+      "message": "Move this method to NeutronVpnUtils",
+      "range": {
+        "startLine": 465,
+        "startChar": 4,
+        "endLine": 472,
+        "endChar": 5
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_4022e7a4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T13:26:14Z",
+      "side": 1,
+      "message": "should we not handle the case where oldvpnId\u003d\u003dnewVpnId?\nthis will occur if the fixedIp was updated to be a different IP in the same subnet.",
+      "range": {
+        "startLine": 494,
+        "startChar": 11,
+        "endLine": 510,
+        "endChar": 13
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
