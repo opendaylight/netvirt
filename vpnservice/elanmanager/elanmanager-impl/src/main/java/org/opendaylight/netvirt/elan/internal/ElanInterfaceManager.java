@@ -140,7 +140,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final INeutronVpnManager neutronVpnManager;
     private final ElanItmUtils elanItmUtils;
     private final ElanEtreeUtils elanEtreeUtils;
-    private ElanL2GatewayUtils elanL2GatewayUtils;
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
     private ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private ElanUtils elanUtils;
 
@@ -158,7 +158,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final IMdsalApiManager mdsalApiManager, IInterfaceManager interfaceManager,
                                 final ElanForwardingEntriesHandler elanForwardingEntriesHandler,
                                 final INeutronVpnManager neutronVpnManager, final ElanItmUtils elanItmUtils,
-                                final ElanEtreeUtils elanEtreeUtils) {
+                                final ElanEtreeUtils elanEtreeUtils, final ElanL2GatewayUtils elanL2GatewayUtils) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
@@ -168,6 +168,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.neutronVpnManager = neutronVpnManager;
         this.elanItmUtils = elanItmUtils;
         this.elanEtreeUtils = elanEtreeUtils;
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
     }
 
     /**
@@ -179,7 +180,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
      */
     public void setElanUtils(ElanUtils elanUtils) {
         this.elanUtils = elanUtils;
-        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
         this.elanForwardingEntriesHandler.setElanUtils(elanUtils);
     }

@@ -36,10 +36,10 @@ public class ElanDpnInterfaceClusteredListener
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipService entityOwnershipService,
-                                             ElanUtils elanUtils) {
+                                             ElanUtils elanUtils, ElanL2GatewayUtils elanL2GatewayUtils) {
         this.broker = broker;
         this.entityOwnershipService = entityOwnershipService;
-        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
     }
 
