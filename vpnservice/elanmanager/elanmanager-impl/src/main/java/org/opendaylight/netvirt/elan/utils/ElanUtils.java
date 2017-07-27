@@ -69,7 +69,6 @@ import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -195,7 +194,6 @@ public class ElanUtils {
     private final ItmRpcService itmRpcService;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
-    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
     private final IInterfaceManager interfaceManager;
     private final ElanConfig elanConfig;
     private final ElanItmUtils elanItmUtils;
@@ -233,8 +231,6 @@ public class ElanUtils {
         this.elanItmUtils = elanItmUtils;
         this.elanL2GatewayUtils =
                 new ElanL2GatewayUtils(broker, this, elanDmacUtils, elanItmUtils, entityOwnershipService);
-        this.l2GatewayConnectionUtils = new L2GatewayConnectionUtils(broker,
-                elanInstanceManager, entityOwnershipService, this);
     }
 
     public void close() {
@@ -247,10 +243,6 @@ public class ElanUtils {
 
     public ElanL2GatewayMulticastUtils getElanL2GatewayMulticastUtils() {
         return elanL2GatewayMulticastUtils;
-    }
-
-    public L2GatewayConnectionUtils getL2GatewayConnectionUtils() {
-        return l2GatewayConnectionUtils;
     }
 
     public final Boolean isOpenStackVniSemanticsEnforced() {
