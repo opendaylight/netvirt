@@ -46,6 +46,30 @@
       "revId": "8a2427462b9530189dfdcbd93fc6e7a8634f6647",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_5b96594d",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-27T23:18:21Z",
+      "side": 1,
+      "message": "Is there a concern with Vishal\u0027s question? What happens if this code hits so the update isn\u0027t processed, then the interface goes up - is there an update after that to update the acl?",
+      "parentUuid": "da2a55be_1687a110",
+      "range": {
+        "startLine": 130,
+        "startChar": 16,
+        "endLine": 130,
+        "endChar": 22
+      },
+      "revId": "8a2427462b9530189dfdcbd93fc6e7a8634f6647",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
