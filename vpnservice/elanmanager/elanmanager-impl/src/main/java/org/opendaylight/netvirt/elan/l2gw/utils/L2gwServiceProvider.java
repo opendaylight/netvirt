@@ -36,7 +36,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
 
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
-    private final ElanUtils elanUtils;
+    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
     private final EntityOwnershipService entityOwnershipService;
 
     public L2gwServiceProvider(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
@@ -44,7 +44,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
         this.dataBroker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
         this.itmRpcService = itmRpcService;
-        this.elanUtils = elanUtils;
+        this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
     }
 
     @Override
@@ -62,26 +62,25 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
         for (L2gatewayConnection l2GwConn : l2GwConns) {
             LOG.trace("L2GatewayConnection {} changes executed on physical switch {}",
                     l2GwConn.getL2gatewayId(), psName);
-            elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(l2GwConn, psName);
+            l2GatewayConnectionUtils.addL2GatewayConnection(l2GwConn, psName);
         }
     }
 
     @Override
     public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(Uuid l2GatewayId) {
-        return this.elanUtils.getL2GatewayConnectionUtils().getL2GwConnectionsByL2GatewayId(
-                this.dataBroker, l2GatewayId);
+        return l2GatewayConnectionUtils.getL2GwConnectionsByL2GatewayId(dataBroker, l2GatewayId);
     }
 
     @Override
     public void addL2GatewayConnection(L2gatewayConnection input) {
-        this.elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(input);
+        l2GatewayConnectionUtils.addL2GatewayConnection(input);
     }
 
     @Override
     public void addL2GatewayConnection(L2gatewayConnection input,
                                        String l2GwDeviceName,
                                        L2gateway l2Gateway) {
-        this.elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(input, l2GwDeviceName, l2Gateway);
+        l2GatewayConnectionUtils.addL2GatewayConnection(input, l2GwDeviceName, l2Gateway);
     }
 
     @Override

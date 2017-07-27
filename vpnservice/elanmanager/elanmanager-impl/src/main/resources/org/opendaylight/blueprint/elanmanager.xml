@@ -305,8 +305,8 @@
     class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanGroupListener">
     <argument ref="elanInterfaceManager" />
     <argument ref="dataBroker" />
-    <argument ref="elanUtils" />
     <argument ref="entityOwnershipService" />
+    <argument ref="elanInstanceManager" />
   </bean>
 
   <bean id="transportZoneNotificationUtil"
@@ -368,7 +368,7 @@
   <bean id="evpnMacVrfUtils"
         class="org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils">
     <argument ref="dataBroker" />
-    <argument ref="elanUtils" />
+    <argument ref="elanInstanceManager" />
     <argument ref="idManagerService" />
     <argument ref="elanEvpnFlowUtils" />
     <argument ref="mdsalUtils" />
@@ -385,16 +385,12 @@
   <bean id="macVrfEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener"
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="elanUtils" />
-    <argument ref="mdsalUtils" />
     <argument ref="evpnMacVrfUtils" />
-    <argument ref="elanEvpnFlowUtils" />
   </bean>
 
   <bean id="elanMacEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.ElanMacEntryListener"
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="elanUtils" />
     <argument ref="evpnUtils" />
   </bean>
 
