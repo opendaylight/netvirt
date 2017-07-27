@@ -14,10 +14,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnFlowUtils;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
@@ -41,19 +38,12 @@ import org.slf4j.LoggerFactory;
 public class MacVrfEntryListener extends AsyncDataTreeChangeListenerBase<MacVrfEntry, MacVrfEntryListener> {
     private static final Logger LOG = LoggerFactory.getLogger(MacVrfEntryListener.class);
     private final DataBroker broker;
-    private final ElanUtils elanUtils;
-    private final IMdsalApiManager mdsalManager;
     private final EvpnMacVrfUtils evpnMacVrfUtils;
-    private final ElanEvpnFlowUtils elanEvpnFlowUtils;
 
     @Inject
-    public MacVrfEntryListener(final DataBroker broker, final ElanUtils elanUtils, final IMdsalApiManager mdsalManager,
-                               final EvpnMacVrfUtils evpnMacVrfUtils, final ElanEvpnFlowUtils elanEvpnFlowUtils) {
+    public MacVrfEntryListener(final DataBroker broker, final EvpnMacVrfUtils evpnMacVrfUtils) {
         this.broker = broker;
-        this.elanUtils = elanUtils;
-        this.mdsalManager = mdsalManager;
         this.evpnMacVrfUtils = evpnMacVrfUtils;
-        this.elanEvpnFlowUtils = elanEvpnFlowUtils;
 
     }
 
