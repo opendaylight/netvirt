@@ -2,6 +2,66 @@
   "comments": [
     {
       "key": {
+        "uuid": "da2a55be_00bc6fdb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-07-27T14:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_1cdfc50e",
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e0be7bd3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-07-27T14:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_fce111d1",
+      "range": {
+        "startLine": 117,
+        "startChar": 7,
+        "endLine": 118,
+        "endChar": 71
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_40b667fb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-07-27T14:38:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_5ce93db7",
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_7c8521ac",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 18
@@ -13,6 +73,30 @@
       "writtenOn": "2017-07-27T13:11:32Z",
       "side": 1,
       "message": "This LOG.info statements were added temporary, this helps to trace VPN interfaces creation, update and deletion.\n\nAll these redundant LOG.info statements will be deleted since we\u0027ll find a bug, which has caused following issues:\n\nhttps://bugs.opendaylight.org/show_bug.cgi?id\u003d8865\nhttps://bugs.opendaylight.org/show_bug.cgi?id\u003d8869",
+      "parentUuid": "da2a55be_3cec49c7",
+      "range": {
+        "startLine": 123,
+        "startChar": 16,
+        "endLine": 123,
+        "endChar": 60
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_20b9b3e9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-07-27T14:38:03Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "da2a55be_3cec49c7",
       "range": {
         "startLine": 123,
