@@ -42,14 +42,12 @@ public class HwvtepLocalUcastMacListener extends
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final ElanUtils elanUtils;
 
     public HwvtepLocalUcastMacListener(DataBroker broker, ElanUtils elanUtils) {
         super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
 
         this.broker = broker;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
-        this.elanUtils = elanUtils;
         ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.broker);
     }
 
@@ -81,7 +79,7 @@ public class HwvtepLocalUcastMacListener extends
     }
 
     protected String getElanName(LocalUcastMacs mac) {
-        return ((InstanceIdentifier<LogicalSwitches>) mac.getLogicalSwitchRef().getValue())
+        return mac.getLogicalSwitchRef().getValue()
                 .firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
     }
 

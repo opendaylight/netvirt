@@ -512,8 +512,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         List<StaticMacEntries> originalStaticMacEntries = original.getStaticMacEntries();
         List<StaticMacEntries> updatedStaticMacEntries = update.getStaticMacEntries();
-        List<StaticMacEntries> deletedEntries = elanUtils.diffOf(originalStaticMacEntries, updatedStaticMacEntries);
-        List<StaticMacEntries> updatedEntries = elanUtils.diffOf(updatedStaticMacEntries, originalStaticMacEntries);
+        List<StaticMacEntries> deletedEntries = ElanUtils.diffOf(originalStaticMacEntries, updatedStaticMacEntries);
+        List<StaticMacEntries> updatedEntries = ElanUtils.diffOf(updatedStaticMacEntries, originalStaticMacEntries);
 
         deletedEntries.forEach((deletedEntry) -> removeInterfaceStaticMacEntries(elanName, interfaceName,
                 deletedEntry.getMacAddress()));
@@ -874,7 +874,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
                 getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
-                elanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
+                ElanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         mdsalManager.addFlowToTx(interfaceInfo.getDpId(), flow, writeFlowGroupTx);
@@ -893,7 +893,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
                 getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
-                elanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
+                ElanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), flow, deleteFlowGroupTx);

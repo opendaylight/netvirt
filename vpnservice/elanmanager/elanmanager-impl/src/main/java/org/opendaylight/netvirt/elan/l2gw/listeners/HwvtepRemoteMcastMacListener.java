@@ -47,7 +47,6 @@ public class HwvtepRemoteMcastMacListener
 
     private List<IpAddress> expectedPhyLocatorIps;
 
-    private final DataBroker broker;
     private final ElanUtils elanUtils;
 
     String logicalSwitchName;
@@ -76,7 +75,6 @@ public class HwvtepRemoteMcastMacListener
         super(RemoteMcastMacs.class, HwvtepRemoteMcastMacListener.class);
         this.elanUtils = elanUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
-        this.broker = broker;
         this.taskToRun = task;
         this.logicalSwitchName = logicalSwitchName;
         this.expectedPhyLocatorIps = expectedPhyLocatorIps;
