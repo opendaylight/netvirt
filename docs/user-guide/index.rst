@@ -6,3 +6,4 @@ NetVirt User Guide
 
    ../specs/index
    l3vpn-service_-user-guide
+   support
