@@ -49,6 +49,53 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_2f3d24df",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T11:00:00Z",
+      "side": 1,
+      "message": "If sn here is null, then subnetMapList will be a non-empty list with a null element. So, the subnetMapList.isEmpty() will be false. So, the .isEmpty() check will not be of any use here. Hence, the null check for subnetMap is recommended here, instead of an isEmpty() check for subnetMapList().",
+      "parentUuid": "da2a55be_0f0e6034",
+      "range": {
+        "startLine": 293,
+        "startChar": 20,
+        "endLine": 298,
+        "endChar": 17
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_653d7dbb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T11:00:00Z",
+      "side": 1,
+      "message": "In order to further better this piece of code, could you please make the return value of updateSubnetMapWithFIxedIp() as SubnetMap instead of void, similar to what is present in updateSubnetNodeWithPort() ? This will avoid an extra subnetMap read in line 293, as updateSubnetMapWithFixedPort() will itself return us the subnetMap instance.",
+      "range": {
+        "startLine": 291,
+        "startChar": 20,
+        "endLine": 298,
+        "endChar": 17
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_f990fe44",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 18
@@ -84,6 +131,30 @@
       "side": 1,
       "message": "this double loop is done , so that the calls are successively kept in the same order as before.\nthat is to say:\n- updateSubnetNodeWithFixedIp x times\n- create VPN Interface x 1\n- addSubnetToVpn x times\n- HandleSubnetsForExternalRoute x 1\n- createElanInterface x 1\n\nas the version is still unstable, do you really want to change the order of calls ?\n\nI would prefer to do the change, after the version is stable.\nunless you tell me that your change will bring stability.\nthanks",
       "parentUuid": "da2a55be_f990fe44",
+      "range": {
+        "startLine": 286,
+        "startChar": 16,
+        "endLine": 311,
+        "endChar": 89
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_0a012e05",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T11:00:00Z",
+      "side": 1,
+      "message": "Yeah, if we look at all the scenarios where the fixedIps can be added, updated, this is a fine change. Thanks",
+      "parentUuid": "da2a55be_af1e3461",
       "range": {
         "startLine": 286,
         "startChar": 16,
@@ -143,6 +214,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_25ec25c7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 358,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T11:00:00Z",
+      "side": 1,
+      "message": "Lets keep this change for now. Ideally, I would like this to be in line with the handleRouterInterfaceAdded() method, where deleteOfPortInterface and deleteElanInterface() will be called outside the loop, but its not that easy here.",
+      "parentUuid": "da2a55be_8f19b07b",
+      "range": {
+        "startLine": 332,
+        "startChar": 12,
+        "endLine": 358,
+        "endChar": 13
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_ec831a54",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 18
@@ -159,6 +254,29 @@
         "startChar": 37,
         "endLine": 405,
         "endChar": 70
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_05064186",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-27T11:00:00Z",
+      "side": 1,
+      "message": "If a port has two fixedIps from the same subnet, then the subnetMapList will have the same subnetMap twice. Please avoid this for routerInterfaceAdded(), routerInterfaceRemoved(), portCreated(), portRemoved() cases.\nPlease ensure that the list contains unique instances of subnetMap",
+      "range": {
+        "startLine": 407,
+        "startChar": 20,
+        "endLine": 407,
+        "endChar": 49
       },
       "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
