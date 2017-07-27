@@ -511,6 +511,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_20ec13c7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-07-27T14:55:44Z",
+      "side": 1,
+      "message": "\"Hence these two will always be equal\" - not exactly, in dualstack VM case subnetMapList can be: [IPv4 subnetMap, IPv6 subnetMap].\n\nSo, when I create en Adjacency for IPv4 ipPrefix, which I\u0027ve received as current ips value during this cycle \"for (FixedIps ip : ips)\", I have to be sure, that I\u0027ve also took a right IPv4 subnetMap, from which I can extract right IPv4 routerId with right IPv4 routes, and the same for IPv6 prefix, respectively. \n\nSee \"Two router solution description\" in dualstack specification [0]\n\n[0] https://git.opendaylight.org/gerrit/#/c/54089/",
+      "parentUuid": "da2a55be_b9a046a0",
+      "range": {
+        "startLine": 696,
+        "startChar": 16,
+        "endLine": 698,
+        "endChar": 17
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3984560b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 18
@@ -522,6 +546,30 @@
       "writtenOn": "2017-07-26T16:22:00Z",
       "side": 1,
       "message": "not needed.",
+      "range": {
+        "startLine": 708,
+        "startChar": 17,
+        "endLine": 708,
+        "endChar": 34
+      },
+      "revId": "f69d0e2e03fd0635c4f990175e2d19a4c8c5ebb1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e0083b93",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 708,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-07-27T14:55:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_3984560b",
       "range": {
         "startLine": 708,
         "startChar": 17,
