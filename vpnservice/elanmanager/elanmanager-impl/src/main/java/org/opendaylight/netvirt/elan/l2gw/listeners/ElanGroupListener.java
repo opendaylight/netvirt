@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -37,16 +38,16 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
     private final ElanInterfaceManager elanInterfaceManager;
     private final DataBroker broker;
-    private final ElanUtils elanUtils;
+    private final ElanInstanceManager elanInstanceManager;
     private final EntityOwnershipService entityOwnershipService;
 
-    public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db, ElanUtils elanUtils,
-                             EntityOwnershipService entityOwnershipService) {
+    public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db,
+                             EntityOwnershipService entityOwnershipService, ElanInstanceManager elanInstanceManager) {
         super(Group.class, ElanGroupListener.class);
         this.elanInterfaceManager = elanInterfaceManager;
         broker = db;
-        this.elanUtils = elanUtils;
         this.entityOwnershipService = entityOwnershipService;
+        this.elanInstanceManager = elanInstanceManager;
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
         LOG.trace("ElanGroupListener registered");
     }
@@ -115,7 +116,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             return;
         }
         boolean updateGroup = false;
-        List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanInstance.getElanInstanceName());
+        List<DpnInterfaces> dpns = elanInstanceManager.getElanDPNByName(elanInstance.getElanInstanceName());
         if (dpns != null && dpns.size() > 0) {
             expectedElanFootprint += dpns.size();
         } else {

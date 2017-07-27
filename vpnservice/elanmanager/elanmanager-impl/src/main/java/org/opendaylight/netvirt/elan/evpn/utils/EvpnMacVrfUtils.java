@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -45,18 +46,18 @@ public class EvpnMacVrfUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(EvpnMacVrfUtils.class);
     private final DataBroker dataBroker;
-    private final ElanUtils elanUtils;
+    private final ElanInstanceManager elanInstanceManager;
     private final IdManagerService idManager;
     private final ElanEvpnFlowUtils elanEvpnFlowUtils;
     private final IMdsalApiManager mdsalManager;
     private final EvpnUtils evpnUtils;
 
     @Inject
-    public EvpnMacVrfUtils(final DataBroker dataBroker, final ElanUtils elanUtils,
+    public EvpnMacVrfUtils(final DataBroker dataBroker, final ElanInstanceManager elanInstanceManager,
                            final IdManagerService idManager, final ElanEvpnFlowUtils elanEvpnFlowUtils,
                            final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils) {
         this.dataBroker = dataBroker;
-        this.elanUtils = elanUtils;
+        this.elanInstanceManager = elanInstanceManager;
         this.idManager = idManager;
         this.elanEvpnFlowUtils = elanEvpnFlowUtils;
         this.mdsalManager = mdsalManager;
@@ -71,7 +72,7 @@ public class EvpnMacVrfUtils {
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanName);
         Long elanTag = elanInstance.getElanTag();
         if (elanTag == null || elanTag == 0L) {
-            elanTag = elanUtils.retrieveNewElanTag(idManager, elanName);
+            elanTag = ElanUtils.retrieveNewElanTag(idManager, elanName);
         }
         return elanTag;
     }
@@ -130,7 +131,7 @@ public class EvpnMacVrfUtils {
     }
 
     public boolean checkEvpnAttachedToNet(String elanName) {
-        ElanInstance elanInfo = elanUtils.getElanInstanceByName(dataBroker, elanName);
+        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(dataBroker, elanName);
         String evpnName = EvpnUtils.getEvpnNameFromElan(elanInfo);
         if (evpnName == null) {
             LOG.error("Error : evpnName is null for elanName {}", elanName);
@@ -146,7 +147,7 @@ public class EvpnMacVrfUtils {
             return;
         }
 
-        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
+        List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
         if (dpnInterfaceLists == null) {
             LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
             return;
@@ -184,7 +185,7 @@ public class EvpnMacVrfUtils {
             LOG.error("Error : elanName is null for iid {}", instanceIdentifier);
             return;
         }
-        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
+        List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
         if (dpnInterfaceLists == null) {
             LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
             return;
@@ -220,7 +221,7 @@ public class EvpnMacVrfUtils {
         }
 
         String elanName = elanInstance.getElanInstanceName();
-        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
+        List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
         if (dpnInterfaceLists == null) {
             LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
             return;
@@ -269,11 +270,8 @@ public class EvpnMacVrfUtils {
             LOG.error("Error : elanInstance is null for iid {}", instanceIdentifier);
             return;
         }
-        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanInstance.getElanInstanceName());
-        if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanInstance);
-            return;
-        }
+        List<DpnInterfaces> dpnInterfaceLists =
+                elanInstanceManager.getElanDPNByName(elanInstance.getElanInstanceName());
 
         //if (checkEvpnAttachedToNet(elanName)) {
         String nexthopIP = getRoutePathNexthopIp(macVrfEntry);

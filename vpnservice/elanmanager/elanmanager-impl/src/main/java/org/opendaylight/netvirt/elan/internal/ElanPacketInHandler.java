@@ -122,7 +122,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 if (srcIpAddress.isPresent()) {
                     String prefix = srcIpAddress.get().getIpv4Address().getValue();
                     InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-                    ElanInstance elanInstance = elanUtils.getElanInstanceByName(broker, elanName);
+                    ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
                     evpnUtils.advertisePrefix(elanInstance, macAddress, prefix, interfaceName, interfaceInfo.getDpId());
                 }
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
