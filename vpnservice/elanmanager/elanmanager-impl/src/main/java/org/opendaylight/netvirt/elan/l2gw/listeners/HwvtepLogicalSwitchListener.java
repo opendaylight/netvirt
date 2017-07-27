@@ -152,8 +152,8 @@ public class HwvtepLogicalSwitchListener extends
                 logicalSwitchNew);
         try {
             L2GatewayDevice elanDevice = L2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(broker,
-                    logicalSwitchNew.getHwvtepNodeName().getValue(), elanUtils,
-                    l2GatewayDevice, l2GwConnId,physicalDevice);
+                    logicalSwitchNew.getHwvtepNodeName().getValue(), elanL2GatewayUtils,
+                    l2GatewayDevice, l2GwConnId, physicalDevice);
 
             LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(elanL2GatewayUtils,
                     elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
