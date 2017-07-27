@@ -24,6 +24,9 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -39,6 +42,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -54,6 +58,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
@@ -93,32 +100,35 @@ import org.slf4j.LoggerFactory;
  *
  * @author eperefr
  */
+@Singleton
 public class ElanL2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ElanL2GatewayUtils.class);
 
     private static final int LOGICAL_SWITCH_DELETE_DELAY = 20000;
 
     private final DataBroker broker;
-    private final ElanUtils elanUtils;
     private final ElanDmacUtils elanDmacUtils;
     private final ElanItmUtils elanItmUtils;
     private final EntityOwnershipService entityOwnershipService;
+    private final OdlInterfaceRpcService interfaceManagerRpcService;
 
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<NodeId, String>, DeleteLogicalSwitchJob> deleteJobs = new ConcurrentHashMap<>();
 
-    public ElanL2GatewayUtils(DataBroker broker, ElanUtils elanUtils,
-                              ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
-                              EntityOwnershipService entityOwnershipService) {
+    @Inject
+    public ElanL2GatewayUtils(DataBroker broker, ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
+                              EntityOwnershipService entityOwnershipService,
+                              OdlInterfaceRpcService interfaceManagerRpcService) {
         this.broker = broker;
-        this.elanUtils = elanUtils;
         this.elanDmacUtils = elanDmacUtils;
         this.elanItmUtils = elanItmUtils;
         this.entityOwnershipService = entityOwnershipService;
+        this.interfaceManagerRpcService = interfaceManagerRpcService;
     }
 
+    @PreDestroy
     public void close() {
         logicalSwitchDeleteJobTimer.cancel();
         logicalSwitchDeleteJobTimer.purge();
@@ -134,7 +144,7 @@ public class ElanL2GatewayUtils {
     public List<PhysAddress> getElanDpnMacsFromInterfaces(Set<String> lstElanInterfaceNames) {
         List<PhysAddress> result = new ArrayList<>();
         for (String interfaceName : lstElanInterfaceNames) {
-            ElanInterfaceMac elanInterfaceMac = elanUtils.getElanInterfaceMacByInterfaceName(interfaceName);
+            ElanInterfaceMac elanInterfaceMac = ElanUtils.getElanInterfaceMacByInterfaceName(broker, interfaceName);
             if (elanInterfaceMac != null && elanInterfaceMac.getMacEntry() != null) {
                 for (MacEntry macEntry : elanInterfaceMac.getMacEntry()) {
                     result.add(macEntry.getMacAddress());
@@ -707,14 +717,14 @@ public class ElanL2GatewayUtils {
             L2GatewayDevice l2GatewayDeviceToBeConfigured, NodeId hwVtepNodeId, String logicalSwitchName) {
         List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>();
 
-        MacTable macTable = elanUtils.getElanMacTable(elanName);
+        MacTable macTable = ElanUtils.getElanMacTable(broker, elanName);
         if (macTable == null || macTable.getMacEntry() == null || macTable.getMacEntry().isEmpty()) {
             LOG.trace("MacTable is empty for elan: {}", elanName);
             return lstRemoteUcastMacs;
         }
 
         for (MacEntry macEntry : macTable.getMacEntry()) {
-            BigInteger dpnId = elanUtils.getDpidFromInterface(macEntry.getInterface());
+            BigInteger dpnId = getDpidFromInterface(macEntry.getInterface());
             if (dpnId == null) {
                 LOG.error("DPN ID not found for interface {}", macEntry.getInterface());
                 continue;
@@ -736,6 +746,28 @@ public class ElanL2GatewayUtils {
             lstRemoteUcastMacs.add(remoteUcastMac);
         }
         return lstRemoteUcastMacs;
+    }
+
+    /**
+     * Gets the dpid from interface.
+     *
+     * @param interfaceName
+     *            the interface name
+     * @return the dpid from interface
+     */
+    public BigInteger getDpidFromInterface(String interfaceName) {
+        BigInteger dpId = null;
+        Future<RpcResult<GetDpidFromInterfaceOutput>> output = interfaceManagerRpcService
+                .getDpidFromInterface(new GetDpidFromInterfaceInputBuilder().setIntfName(interfaceName).build());
+        try {
+            RpcResult<GetDpidFromInterfaceOutput> rpcResult = output.get();
+            if (rpcResult.isSuccessful()) {
+                dpId = rpcResult.getResult().getDpid();
+            }
+        } catch (NullPointerException | InterruptedException | ExecutionException e) {
+            LOG.error("Failed to get the DPN ID: {} for interface {}: {} ", dpId, interfaceName, e);
+        }
+        return dpId;
     }
 
     /**
@@ -1022,8 +1054,8 @@ public class ElanL2GatewayUtils {
     public List<DpnInterfaces> getElanDpns(String elanName) {
         Set<DpnInterfaces> dpnInterfaces = ElanUtils.getElanInvolvedDPNsFromCache(elanName);
         if (dpnInterfaces == null) {
-            return elanUtils.getInvolvedDpnsInElan(elanName);
+            return ElanInstanceManager.getElanDPNByName(broker, elanName);
         }
-        return new ArrayList(dpnInterfaces);
+        return new ArrayList<>(dpnInterfaces);
     }
 }

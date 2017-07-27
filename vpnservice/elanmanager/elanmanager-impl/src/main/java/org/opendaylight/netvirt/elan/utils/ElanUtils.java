@@ -30,13 +30,13 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -69,7 +69,6 @@ import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -100,8 +99,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
@@ -193,7 +190,6 @@ public class ElanUtils {
     private final ElanInstanceManager elanInstanceManager;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private final ItmRpcService itmRpcService;
-    private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final IInterfaceManager interfaceManager;
     private final ElanConfig elanConfig;
@@ -216,9 +212,9 @@ public class ElanUtils {
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
                      OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
                      ElanConfig elanConfig,
-                     EntityOwnershipService entityOwnershipService, IInterfaceManager interfaceManager,
+                     IInterfaceManager interfaceManager,
                      ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanEtreeUtils elanEtreeUtils,
-                     ElanItmUtils elanItmUtils, ElanDmacUtils elanDmacUtils) {
+                     ElanItmUtils elanItmUtils) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -230,16 +226,6 @@ public class ElanUtils {
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanEtreeUtils = elanEtreeUtils;
         this.elanItmUtils = elanItmUtils;
-        this.elanL2GatewayUtils =
-                new ElanL2GatewayUtils(broker, this, elanDmacUtils, elanItmUtils, entityOwnershipService);
-    }
-
-    public void close() {
-        elanL2GatewayUtils.close();
-    }
-
-    public ElanL2GatewayUtils getElanL2GatewayUtils() {
-        return elanL2GatewayUtils;
     }
 
     public ElanL2GatewayMulticastUtils getElanL2GatewayMulticastUtils() {
@@ -445,9 +431,14 @@ public class ElanUtils {
 
     // elan-interface-forwarding-entries Operational container
     public ElanInterfaceMac getElanInterfaceMacByInterfaceName(String interfaceName) {
+        return getElanInterfaceMacByInterfaceName(broker, interfaceName);
+    }
+
+    @Nullable
+    public static ElanInterfaceMac getElanInterfaceMacByInterfaceName(DataBroker dataBroker, String interfaceName) {
         InstanceIdentifier<ElanInterfaceMac> elanInterfaceId = getElanInterfaceMacEntriesOperationalDataPath(
                 interfaceName);
-        return read(broker, LogicalDatastoreType.OPERATIONAL, elanInterfaceId).orNull();
+        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanInterfaceId).orNull();
     }
 
     /**
@@ -618,8 +609,13 @@ public class ElanUtils {
      * @return the elan mac table
      */
     public MacTable getElanMacTable(String elanName) {
+        return getElanMacTable(broker, elanName);
+    }
+
+    @Nullable
+    public static MacTable getElanMacTable(DataBroker dataBroker, String elanName) {
         InstanceIdentifier<MacTable> elanMacTableId = getElanMacTableOperationalDataPath(elanName);
-        return read(broker, LogicalDatastoreType.OPERATIONAL, elanMacTableId).orNull();
+        return read(dataBroker, LogicalDatastoreType.OPERATIONAL, elanMacTableId).orNull();
     }
 
     public static long getElanLocalBCGId(long elanTag) {
@@ -1379,28 +1375,6 @@ public class ElanUtils {
                 new MatchMetadata(getElanMetadataLabel(elanTag, shFlag), MetaDataUtil.METADATA_MASK_SERVICE_SH_FLAG));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddr)));
         return mkMatches;
-    }
-
-    /**
-     * Gets the dpid from interface.
-     *
-     * @param interfaceName
-     *            the interface name
-     * @return the dpid from interface
-     */
-    public BigInteger getDpidFromInterface(String interfaceName) {
-        BigInteger dpId = null;
-        Future<RpcResult<GetDpidFromInterfaceOutput>> output = interfaceManagerRpcService
-                .getDpidFromInterface(new GetDpidFromInterfaceInputBuilder().setIntfName(interfaceName).build());
-        try {
-            RpcResult<GetDpidFromInterfaceOutput> rpcResult = output.get();
-            if (rpcResult.isSuccessful()) {
-                dpId = rpcResult.getResult().getDpid();
-            }
-        } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Failed to get the DPN ID: {} for interface {}: {} ", dpId, interfaceName, e);
-        }
-        return dpId;
     }
 
     /**

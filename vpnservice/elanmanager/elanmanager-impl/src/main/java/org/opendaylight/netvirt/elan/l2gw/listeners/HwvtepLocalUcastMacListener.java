@@ -43,11 +43,11 @@ public class HwvtepLocalUcastMacListener extends
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
 
-    public HwvtepLocalUcastMacListener(DataBroker broker, ElanUtils elanUtils) {
+    public HwvtepLocalUcastMacListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils) {
         super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
 
         this.broker = broker;
-        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
         ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.broker);
     }
 

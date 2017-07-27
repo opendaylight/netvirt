@@ -30,7 +30,6 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -66,12 +65,12 @@ public class HwvtepTerminationPointListener
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EntityOwnershipService entityOwnershipService;
 
-    public HwvtepTerminationPointListener(DataBroker broker, ElanUtils elanUtils,
+    public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
                                           EntityOwnershipService entityOwnershipService) {
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);
 
         this.broker = broker;
-        this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
+        this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.entityOwnershipService = entityOwnershipService;
         //No longer needed as port reconciliation is added in plugin
         //registerListener(LogicalDatastoreType.OPERATIONAL, broker);
