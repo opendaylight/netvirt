@@ -31,7 +31,6 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     private IInterfaceManager interfaceManager;
     public static int MAX_LENGTH = 31;
     private IElanService elanProvider;
-    //private ElanUtils elanUtils;
     public static boolean isDisplay = true;
 
     public void setElanProvider(IElanService elanServiceProvider) {
@@ -41,10 +40,6 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     public void setInterfaceManager(IInterfaceManager interfaceManager) {
         this.interfaceManager = interfaceManager;
     }
-
-    /*public void setElanUtils(ElanUtils elanUtils) {
-        this.elanUtils = elanUtils;
-    }*/
 
     @Override
     protected Object doExecute() throws Exception {
