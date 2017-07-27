@@ -29,14 +29,11 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanMacEntryListener.class);
     private final DataBroker broker;
-    private final ElanUtils elanUtils;
     private final EvpnUtils evpnUtils;
 
     @Inject
-    public ElanMacEntryListener(final DataBroker broker, final ElanUtils elanUtils,
-                                final EvpnUtils evpnUtils) {
+    public ElanMacEntryListener(final DataBroker broker, final EvpnUtils evpnUtils) {
         this.broker = broker;
-        this.elanUtils = elanUtils;
         this.evpnUtils = evpnUtils;
     }
 
@@ -61,8 +58,8 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     protected void add(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
         LOG.info("ElanMacEntryListener : ADD macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
-        ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
-        if (evpnUtils.getEvpnNameFromElan(elanInfo) == null) {
+        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        if (EvpnUtils.getEvpnNameFromElan(elanInfo) == null) {
             LOG.trace("ElanMacEntryListener : Add evpnName is null for elan {} ", elanInfo);
             return;
         }
@@ -73,8 +70,8 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     protected void remove(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
         LOG.info("ElanMacEntryListener : remove macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
-        ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
-        if (evpnUtils.getEvpnNameFromElan(elanInfo) == null) {
+        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        if (EvpnUtils.getEvpnNameFromElan(elanInfo) == null) {
             LOG.trace("ElanMacEntryListener : Remove evpnName is null for elan {} ", elanInfo);
             return;
         }

@@ -94,7 +94,7 @@ public class EvpnUtils {
             return;
         }
         String rd = vpnManager.getVpnRd(broker, evpnName);
-        ElanInstance elanInfo = elanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
         macEntries.stream().filter(isIpv4PrefixAvailable).forEach(macEntry -> {
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
             if (interfaceInfo == null) {
