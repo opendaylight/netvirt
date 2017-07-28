@@ -39,6 +39,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.evpn.manager.NeutronEvpnManager;
 import org.opendaylight.netvirt.neutronvpn.evpn.utils.NeutronEvpnUtils;
+import org.opendaylight.netvirt.neutronvpn.oam.NeutronvpnAlarms;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -158,6 +159,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final IVpnManager vpnManager;
     private final NeutronEvpnManager neutronEvpnManager;
     private final NeutronEvpnUtils neutronEvpnUtils;
+    private final NeutronvpnAlarms neutronvpnAlarm = new NeutronvpnAlarms();
 
     @Inject
     public NeutronvpnManager(
@@ -175,7 +177,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         this.vpnManager = vpnManager;
         neutronEvpnManager = new NeutronEvpnManager(dataBroker, this);
         neutronEvpnUtils = new NeutronEvpnUtils(dataBroker, vpnManager);
-
         configureFeatures();
     }
 
@@ -1444,6 +1445,52 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void updateVpnInterfaceWithExtraRouteAdjacency(Uuid vpnId, List<Routes> routeList) {
+
+        VpnInstance vpnInstance = NeutronvpnUtils.getVpnInstance(dataBroker, vpnId);
+        if (vpnInstance != null && routeList != null && !routeList.isEmpty()) {
+            for (Routes route : routeList) {
+                // count the number of nexthops for each same route.getDestingation().getValue()
+                String destination = String.valueOf(route.getDestination().getValue());
+                String nextHop = String.valueOf(route.getNexthop().getValue());
+                int nbNextHops = 0;
+                for (Routes routeTmp : routeList) {
+                    if (!destination.equals(routeTmp.getDestination().getValue())) {
+                        continue;
+                    }
+                    if (nextHop.equals(routeTmp.getNexthop().getValue())) {
+                        continue;
+                    }
+                    nbNextHops++;
+                }
+                final List<String> rdList = new ArrayList();
+                if (vpnInstance.getIpv4Family() != null
+                        && vpnInstance.getIpv4Family().getRouteDistinguisher() != null) {
+                    vpnInstance.getIpv4Family().getRouteDistinguisher().stream().forEach(rdObj -> {
+                        if (rdObj != null) {
+                            rdList.add(rdObj);
+                        }
+                    });
+                }
+                if (vpnInstance.getIpv6Family() != null
+                        && vpnInstance.getIpv6Family().getRouteDistinguisher() != null) {
+                    vpnInstance.getIpv6Family().getRouteDistinguisher().stream().forEach(rd -> {
+                        if (!rdList.contains(rd)) {
+                            rdList.add(rd);
+                        }
+                    });
+                }
+                String typeAlarm = "for vpnId: " + vpnId + "have exceeded next hops for prefixe";
+                if (rdList.size() < nbNextHops) {
+                    neutronvpnAlarm.raiseNvpnNbrDownAlarm(typeAlarm);
+                    LOG.error("there are too many next hops for prefixe in vpn {}", vpnId);
+                    return;
+                } else {
+                    neutronvpnAlarm.clearNvpnNbrDownAlarm(typeAlarm);
+                }
+            }
+        }
+
+
         for (Routes route : routeList) {
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
                 LOG.error("Incorrect input received for extra route. {}", route);
