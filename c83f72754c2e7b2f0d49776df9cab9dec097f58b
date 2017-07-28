@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "da2a55be_8f07e71b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-28T21:33:46Z",
+      "side": 1,
+      "message": "indentation looks wrong here.",
+      "revId": "c83f72754c2e7b2f0d49776df9cab9dec097f58b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
