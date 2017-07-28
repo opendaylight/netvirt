@@ -73,7 +73,8 @@ public class BgpUtil {
     * @return afi 1 for AFI_IP 2 for AFI_IPV6
     */
     public static int getAFItranslatedfromPrefix(String argPrefix) {
-        int retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
+        //default afiValue is 1 (= ipv4)
+        int retValue = af_afi.AFI_IP.getValue();
         String prefixOnly;
         if (argPrefix.indexOf("/") == -1) {
             prefixOnly = argPrefix;
@@ -88,9 +89,10 @@ public class BgpUtil {
                 retValue = af_afi.AFI_IP.getValue();
             }
         } catch (java.net.UnknownHostException e) {
-            /*if exception is catched then the prefix is not an IPv6 and IPv4*/
+            //if exception is catched then the prefix is not an IPv6 and IPv4
             LOG.error("Unrecognized ip address ipAddress: {}", argPrefix);
-            retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
+          //default afiValue is 1 (= ipv4)
+            retValue = af_afi.AFI_IP.getValue();
         }
         return retValue;
     }
