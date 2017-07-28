@@ -44,6 +44,8 @@ import org.slf4j.LoggerFactory;
 public class EvpnMacVrfUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(EvpnMacVrfUtils.class);
+    private static final String ELAN_NAME_NULL_IID = "Error : elanName is null for iid {}";
+    private static final String DPN_INTERFACE_LISTS_NULL_ELAN = "Error : dpnInterfaceLists is null for elan {}";
     private final DataBroker dataBroker;
     private final ElanUtils elanUtils;
     private final IdManagerService idManager;
@@ -142,13 +144,13 @@ public class EvpnMacVrfUtils {
     public void addEvpnDmacFlow(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
         String elanName = getElanNameByMacvrfiid(instanceIdentifier);
         if (elanName == null) {
-            LOG.error("Error : elanName is null for iid {}", instanceIdentifier);
+            LOG.error(ELAN_NAME_NULL_IID, instanceIdentifier);
             return;
         }
 
         List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
         if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
+            LOG.error(DPN_INTERFACE_LISTS_NULL_ELAN, elanName);
             return;
         }
 
@@ -181,12 +183,12 @@ public class EvpnMacVrfUtils {
     public void removeEvpnDmacFlow(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry) {
         String elanName = getElanNameByMacvrfiid(instanceIdentifier);
         if (elanName == null) {
-            LOG.error("Error : elanName is null for iid {}", instanceIdentifier);
+            LOG.error(ELAN_NAME_NULL_IID, instanceIdentifier);
             return;
         }
         List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
         if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
+            LOG.error(DPN_INTERFACE_LISTS_NULL_ELAN, elanName);
             return;
         }
 
@@ -215,14 +217,14 @@ public class EvpnMacVrfUtils {
                                         ElanInstance elanInstance) {
         //String elanName = getElanNameByMacvrfiid(instanceIdentifier);
         if (elanInstance == null) {
-            LOG.error("Error : elanName is null for iid {}", instanceIdentifier);
+            LOG.error(ELAN_NAME_NULL_IID, instanceIdentifier);
             return;
         }
 
         String elanName = elanInstance.getElanInstanceName();
         List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanName);
         if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
+            LOG.error(DPN_INTERFACE_LISTS_NULL_ELAN, elanName);
             return;
         }
 
@@ -271,7 +273,7 @@ public class EvpnMacVrfUtils {
         }
         List<DpnInterfaces> dpnInterfaceLists = elanUtils.getInvolvedDpnsInElan(elanInstance.getElanInstanceName());
         if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanInstance);
+            LOG.error(DPN_INTERFACE_LISTS_NULL_ELAN, elanInstance);
             return;
         }
 

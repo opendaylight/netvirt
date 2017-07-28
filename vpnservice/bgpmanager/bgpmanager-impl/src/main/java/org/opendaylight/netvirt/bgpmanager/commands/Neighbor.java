@@ -26,6 +26,7 @@ public class Neighbor extends OsgiCommandSupport {
     private static final String US = "--update-source";
     private static final String AF = "--address-family";
     private static final String MP = "--tcp-md5-password";
+    private static final String ER = "error: ";
 
     private static final String USAGE = new StringBuilder("usage: bgp-nbr")
             .append(" [").append(IP).append(" nbr-ip-address]")
@@ -84,7 +85,7 @@ public class Neighbor extends OsgiCommandSupport {
         switch (action) {
             case "add":
                 if (nbrIp == null) {
-                    session.getConsole().println("error: " + IP + " needed");
+                    session.getConsole().println(ER + IP + " needed");
                     return null;
                 }
                 if (bm.getConfig() == null) {
@@ -132,7 +133,7 @@ public class Neighbor extends OsgiCommandSupport {
                 if (addrFamily != null) {
                     if (!addrFamily.equals("lu") && !addrFamily.equals("vpnv6")
                         && !addrFamily.equals("evpn")) {
-                        session.getConsole().println("error: " + AF + " must be lu/evpn/vpnv6 ");
+                        session.getConsole().println(ER + AF + " must be lu/evpn/vpnv6 ");
                         return null;
                     }
                     af_afi afi;
@@ -155,7 +156,7 @@ public class Neighbor extends OsgiCommandSupport {
                 break;
             case "del":
                 if (nbrIp == null) {
-                    session.getConsole().println("error: " + IP + " needed");
+                    session.getConsole().println(ER + IP + " needed");
                     return null;
                 }
                 if (!Commands.isValid(session.getConsole(), nbrIp, Commands.Validators.IPADDR, IP)) {
