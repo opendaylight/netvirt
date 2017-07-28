@@ -1439,6 +1439,28 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void updateVpnInterfaceWithExtraRouteAdjacency(Uuid vpnId, List<Routes> routeList) {
+        VpnInstance vpnInstance = getVpnInstance (vpnId)
+        if (vpnInstance.isPresent()) 
+     	   for (Routes route : routeList) {
+              // count the number of nexthops for each same route.getDestingation().getValue()
+              String destination = String.valueOf(route.getDestination().getValue());
+              String nextHop = String.valueOf(route.getNexthop().getValue());
+              int nbNextHops = 0;
+              for (Routes routeTmp : routeList) {
+                  if (!destination.equals(routeTmp.getDestination().getValue()) {
+                      continue;
+                  }
+                  if (nexthop.equals(routeTmp.getNexthop().getValue())) {
+                      continue;
+                  }
+                  nbNextHops++;
+              }
+              if vpnInstance.getRouteDistinguisher.count() < nbNextHop) {
+		  // alarm
+		  // log.Error
+                  return;
+	      }
+	    }
         for (Routes route : routeList) {
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
                 LOG.error("Incorrect input received for extra route. {}", route);
