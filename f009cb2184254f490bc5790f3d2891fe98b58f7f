@@ -42,6 +42,24 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_615f2c42",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-28T14:02:54Z",
+      "side": 1,
+      "message": "I keep forgetting this... I use an online rst editor and then copy the text over to my repo. It always removes the indent on the lines right after directives.",
+      "parentUuid": "da2a55be_fbaf4d92",
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_dbb7e9d6",
         "filename": "docs/user-guide/support.rst",
         "patchSetId": 1
@@ -53,6 +71,30 @@
       "writtenOn": "2017-07-27T23:59:05Z",
       "side": 1,
       "message": "should be Flourine",
+      "range": {
+        "startLine": 21,
+        "startChar": 52,
+        "endLine": 21,
+        "endChar": 58
+      },
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_6473ba80",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-07-28T14:02:54Z",
+      "side": 1,
+      "message": "Mixing ODL and OpenStack drop considerations. In this case here, Niteogen+Pike first drops because Queens comes out. Sometime later Flourine comes out and then we only care about Oxygen and Flourine. So maybe we should just list drops due to OpenStack releases here and rely on the bullet later that says only the latest ODL and previous are supported?",
+      "parentUuid": "da2a55be_dbb7e9d6",
       "range": {
         "startLine": 21,
         "startChar": 52,
