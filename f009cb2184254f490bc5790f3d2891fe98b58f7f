@@ -107,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "da2a55be_2fcd1b5e",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-07-28T17:01:01Z",
+      "side": 1,
+      "message": "yeah, update the patch so it only lists openstack releases\nto indicate when we drop support. it will probably look\ncleaner and be easier to understand.",
+      "parentUuid": "da2a55be_6473ba80",
+      "range": {
+        "startLine": 21,
+        "startChar": 52,
+        "endLine": 21,
+        "endChar": 58
+      },
+      "revId": "f009cb2184254f490bc5790f3d2891fe98b58f7f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bbbaf5bd",
         "filename": "docs/user-guide/support.rst",
         "patchSetId": 1
