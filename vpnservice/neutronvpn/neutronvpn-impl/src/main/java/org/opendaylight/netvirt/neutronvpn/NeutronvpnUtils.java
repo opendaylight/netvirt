@@ -36,6 +36,7 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -1299,5 +1300,20 @@ public class NeutronvpnUtils {
             }
         }
         return subnetIdList;
+    }
+
+    /**Get the vpnInstance from its Uuid.
+     * @param broker to get informations from ds
+     * @param vpnId the Uuid of the VPN
+     * @return the VpnInstance or null if unfindable
+     */
+    public static VpnInstance getVpnInstance(DataBroker broker, Uuid vpnId) {
+        if (broker == null || vpnId == null) {
+            return null;
+        }
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
+                new VpnInstanceKey(vpnId.getValue())).build();
+        Optional<VpnInstance> vpnInstance = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
     }
 }
