@@ -234,6 +234,30 @@
       "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_9ee8bf11",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-28T06:39:18Z",
+      "side": 1,
+      "message": "It wont be two IP from the same subnet:). Neutron allows you to update a fixedIp belonging to a subnet to a different fixedIp on the same subnet. After the update, the port will have a fixed IP from the same subnet, the the IP will be different. THis will come as an update to NeutronPortChangeListener. Is there any reason why we should not be handling this scenario?",
+      "parentUuid": "da2a55be_2081b34a",
+      "range": {
+        "startLine": 494,
+        "startChar": 11,
+        "endLine": 510,
+        "endChar": 13
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
