@@ -37,6 +37,7 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.alarm.NeutronvpnAlarms;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
@@ -167,6 +168,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final NeutronEvpnUtils neutronEvpnUtils;
     private final JobCoordinator jobCoordinator;
     private static ConcurrentHashMap<Uuid, Uuid> unprocessedPortsMap = new ConcurrentHashMap<>();
+    private final NeutronvpnAlarms neutronvpnAlarm = new NeutronvpnAlarms();
 
     @Inject
     public NeutronvpnManager(
@@ -1511,6 +1513,80 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void updateVpnInterfaceWithExtraRouteAdjacency(Uuid vpnId, List<Routes> routeList) {
+
+        VpnInstance vpnInstance = NeutronvpnUtils.getVpnInstance(dataBroker, vpnId);
+        if (vpnInstance == null || routeList == null || routeList.isEmpty()) {
+            LOG.debug("updateVpnInterfaceWithExtraRouteAdjacency have args null as following : vpnId {} routeList {}",
+                    vpnId, routeList);
+            return;
+        }
+        List<Routes> routesError = new ArrayList();
+        for (Routes route : routeList) {
+            // count  the number of nexthops for each same route.getDestingation().getValue()
+            String destination = String.valueOf(route.getDestination().getValue());
+            String nextHop = String.valueOf(route.getNexthop().getValue());
+            List<String> nextHopList = new ArrayList();
+            nextHopList.add(nextHop);
+            int nbNextHops = 0;
+            for (Routes routeTmp : routeList) {
+                if (!destination.equals(routeTmp.getDestination().getValue())) {
+                    continue;
+                }
+                if (nextHop.equals(routeTmp.getNexthop().getValue())) {
+                    continue;
+                }
+                nbNextHops++;
+                nextHopList.add(new String(routeTmp.getNexthop().getValue()));
+            }
+            final List<String> rdList = new ArrayList();
+            if (vpnInstance.getIpv4Family() != null
+                    && vpnInstance.getIpv4Family().getRouteDistinguisher() != null) {
+                vpnInstance.getIpv4Family().getRouteDistinguisher().stream().forEach(rd -> {
+                    if (rd != null) {
+                        rdList.add(rd);
+                    }
+                });
+            }
+            if (vpnInstance.getIpv6Family() != null && vpnInstance.getIpv6Family().getRouteDistinguisher() != null) {
+                vpnInstance.getIpv6Family().getRouteDistinguisher().stream().forEach(rd -> {
+                    if (rd != null && !rdList.contains(rd)) {
+                        rdList.add(rd);
+                    }
+                });
+            }
+            // 1. VPN Instance Name
+            String typeAlarm = "for vpnId: " + vpnId + " have exceeded next hops for prefixe";
+
+            // 2. Router ID
+            Uuid routerUuid = NeutronvpnUtils.getRouterforVpn(dataBroker, vpnId);
+            String detailsAlarm = "routerUuid: " + routerUuid == null ? vpnId.toString() : routerUuid.getValue();
+
+            // 3. List of RDs associated with the VPN
+            detailsAlarm += " List of RDs associated with the VPN: ";
+            for (String s : rdList) {
+                detailsAlarm += s + ", ";
+            }
+
+            // 4. Prefix in question
+            detailsAlarm += " for prefix: " + route.getDestination();
+
+            // 5. List of NHs for the prefix
+            detailsAlarm += " for nextHops: ";
+            for (String s : nextHopList) {
+                detailsAlarm += nextHopList + ", ";
+            }
+
+            if (rdList.size() < nbNextHops) {
+                neutronvpnAlarm.raiseNvpnNbrDownAlarm(typeAlarm, detailsAlarm);
+                LOG.error("there are too many next hops for prefixe in vpn {}", vpnId);
+                routesError.add(route);
+            } else {
+                neutronvpnAlarm.clearNvpnNbrDownAlarm(typeAlarm, detailsAlarm);
+            }
+        }
+        //in routesError there are a few route raised in alarm, so they have not to be used
+        routeList.removeAll(routesError);
+
         for (Routes route : routeList) {
             if (route == null || route.getNexthop() == null || route.getDestination() == null) {
                 LOG.error("Incorrect input received for extra route. {}", route);
