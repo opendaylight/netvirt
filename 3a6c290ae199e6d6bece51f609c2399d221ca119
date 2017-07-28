@@ -258,6 +258,30 @@
       "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "da2a55be_e1383ca2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-07-28T10:25:43Z",
+      "side": 1,
+      "message": "Yes, thanks, you are right. We should handle this scenario. And we handle it in the patch set [0]: \n\nfor ANY port update event we will do following steps in handleNeutronPortUpdated method: \n\n1. we call nvpnManager.removePortsFromSubnetmapNode for each subnetId of obsoleted port (portoriginal)\n\n2. we delete VPNinterface, if VPNid is present for obsoleted port network\n\n3. nvpnManager.updateSubnetmapNodeWithPorts for each subnetId of updated port (portupdate)\n\n4. we create VPNinterface for updated port, if VPNid exists for its network\n\nso, yes, we don\u0027t care explicitly if newVpnID \u003d odlVpnID, in all update cases we will make only these 4 steps. \n\nMaybe, in some cases like yours this solution will be redundant, than an algorithm with  ports FixedIplists comparison + VPNIds comparison, but it seems to be more simply and universal in my opinion.\n\n\n[0] https://git.opendaylight.org/gerrit/#/c/60246/28/vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java@462",
+      "parentUuid": "da2a55be_9ee8bf11",
+      "range": {
+        "startLine": 494,
+        "startChar": 11,
+        "endLine": 510,
+        "endChar": 13
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
