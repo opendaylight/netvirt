@@ -53,6 +53,10 @@ public class BgpCounters extends TimerTask {
     public static final String BGP_VPNV6_SUMMARY_FILE = "cmd_ip_bgp_vpnv6_all_summary.txt";
     public static final String BGP_VPNV4_SUMMARY_FILE = "cmd_ip_bgp_vpnv4_all_summary.txt";
     public static final String BGP_EVPN_SUMMARY_FILE = "cmd_bgp_evpn_all_summary.txt";
+    private static final String BGP_IP_SUMMARY = "cmd_ip_bgp_summary.txt";
+    private static final String BGP_IPV4_UNICAST_STATS = "cmd_bgp_ipv4_unicast_statistics.txt";
+    private static final String ERROR_PROCESSING_FILE = "Could not process the file {}";
+    private static final String ROUTE_DISTINGUISHER = "Route Distinguisher";
 
     public BgpCounters(String mipAddress) {
         bgpSdncMip = mipAddress;
@@ -63,8 +67,8 @@ public class BgpCounters extends TimerTask {
         try {
             LOG.debug("Fetching counters from BGP");
             resetCounters();
-            fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
-            fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
+            fetchCmdOutputs(BGP_IP_SUMMARY, "show ip bgp summary");
+            fetchCmdOutputs(BGP_IPV4_UNICAST_STATS, "show bgp ipv4 unicast statistics");
             fetchCmdOutputs(BGP_VPNV4_FILE, "show ip bgp vpnv4 all");
             fetchCmdOutputs(BGP_VPNV6_FILE, "show ip bgp vpnv6 all");
             fetchCmdOutputs(BGP_EVPN_FILE, "show bgp l2vpn evpn all");
@@ -218,7 +222,7 @@ public class BgpCounters extends TimerTask {
      */
 
     private void parseIpBgpSummary() {
-        File file = new File("cmd_ip_bgp_summary.txt");
+        File file = new File(BGP_IP_SUMMARY);
 
         try (Scanner scanner = new Scanner(file)) {
             boolean startEntries = false;
@@ -249,7 +253,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(ERROR_PROCESSING_FILE, file.getAbsolutePath());
         }
     }
     /*
@@ -264,7 +268,7 @@ public class BgpCounters extends TimerTask {
      */
 
     private void parseBgpIpv4UnicastStatistics() {
-        File file = new File("cmd_bgp_ipv4_unicast_statistics.txt");
+        File file = new File(BGP_IPV4_UNICAST_STATS);
         String totPfx = "";
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
@@ -280,7 +284,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(ERROR_PROCESSING_FILE, file.getAbsolutePath());
             return;
         }
         countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX, totPfx);
@@ -313,12 +317,12 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(ERROR_PROCESSING_FILE, file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
             String instr = inputStrs.get(i);
-            if (instr.contains("Route Distinguisher")) {
+            if (instr.contains(ROUTE_DISTINGUISHER)) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
                 i = processRouteCount(rd, i + 1, inputStrs);
@@ -358,12 +362,12 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(ERROR_PROCESSING_FILE, file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
             String instr = inputStrs.get(i);
-            if (instr.contains("Route Distinguisher")) {
+            if (instr.contains(ROUTE_DISTINGUISHER)) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
                 i = processRouteCount(rd, i + 1, inputStrs);
@@ -380,12 +384,12 @@ public class BgpCounters extends TimerTask {
                 inputStrs.add(scanner.nextLine());
             }
         } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
+            LOG.error(ERROR_PROCESSING_FILE, file.getAbsolutePath());
             return;
         }
         for (int i = 0; i < inputStrs.size(); i++) {
             String instr = inputStrs.get(i);
-            if (instr.contains("Route Distinguisher")) {
+            if (instr.contains(ROUTE_DISTINGUISHER)) {
                 String[] result = instr.split(":");
                 String rd = result[1].trim() + "_" + result[2].trim();
                 i = processRouteCount(rd, i + 1, inputStrs);
@@ -400,7 +404,7 @@ public class BgpCounters extends TimerTask {
 
         for (String str = inputStrs.get(num); str != null && !str.trim().equals("") && num < inputStrs.size();
                 str = inputStrs.get(num)) {
-            if (str.contains("Route Distinguisher")) {
+            if (str.contains(ROUTE_DISTINGUISHER)) {
                 countersMap.put(key, Integer.toString(routeCount));
                 return num - 1;
             }
@@ -428,8 +432,8 @@ public class BgpCounters extends TimerTask {
 
     private void resetCounters() {
         countersMap.clear();
-        resetFile("cmd_ip_bgp_summary.txt");
-        resetFile("cmd_bgp_ipv4_unicast_statistics.txt");
+        resetFile(BGP_IP_SUMMARY);
+        resetFile(BGP_IPV4_UNICAST_STATS);
         resetFile(BGP_VPNV4_FILE);
         resetFile(BGP_VPNV6_FILE);
         resetFile(BGP_EVPN_FILE);
@@ -473,7 +477,7 @@ public class BgpCounters extends TimerTask {
                 }
             }
         } catch (IOException e) {
-            LOG.trace("Could not process the file {}", file.getAbsolutePath());
+            LOG.trace(ERROR_PROCESSING_FILE, file.getAbsolutePath());
             return null;
         }
 
