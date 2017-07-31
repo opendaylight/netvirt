@@ -190,7 +190,6 @@ public class EvpnMacVrfUtils {
             return;
         }
 
-        //if (checkEvpnAttachedToNet(elanName)) {
         //TODO(Riyaz) : Check if accessing first nexthop address is right
         String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
         IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
@@ -213,7 +212,6 @@ public class EvpnMacVrfUtils {
 
     public void addEvpnDmacFlowOnAttach(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry,
                                         ElanInstance elanInstance) {
-        //String elanName = getElanNameByMacvrfiid(instanceIdentifier);
         if (elanInstance == null) {
             LOG.error("Error : elanName is null for iid {}", instanceIdentifier);
             return;
@@ -264,7 +262,6 @@ public class EvpnMacVrfUtils {
 
     public void removeEvpnDmacFlowOnDetach(InstanceIdentifier<MacVrfEntry> instanceIdentifier, MacVrfEntry macVrfEntry,
                                            ElanInstance elanInstance) {
-        //String elanName = getElanNameByMacvrfiid(instanceIdentifier);
         if (elanInstance == null) {
             LOG.error("Error : elanInstance is null for iid {}", instanceIdentifier);
             return;
@@ -275,7 +272,6 @@ public class EvpnMacVrfUtils {
             return;
         }
 
-        //if (checkEvpnAttachedToNet(elanName)) {
         String nexthopIP = getRoutePathNexthopIp(macVrfEntry);
         if (nexthopIP == null) {
             LOG.debug("nexthopIP is null for iid {}", instanceIdentifier);

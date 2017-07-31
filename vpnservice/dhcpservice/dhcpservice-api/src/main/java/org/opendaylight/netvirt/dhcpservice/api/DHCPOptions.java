@@ -196,7 +196,6 @@ public class DHCPOptions {
         sb.append("{");
         int count = 1;
         for (DhcpOption dhcpOption: this.options.values()) {
-            //options = ArrayUtils.addAll(options, dOpt.serialize());
             sb.append("Option").append(count++).append(dhcpOption.toString());
         }
         sb.append("}");

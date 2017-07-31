@@ -467,23 +467,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                         mac.getMacAddress().getValue(), elanTag)));
     }
 
-    /*
-    * Possible Scenarios for update
-    *   a. if orig={1,2,3,4}   and updated=null or updated={}
-        then all {1,2,3,4} should be removed
-
-        b. if orig=null or orig={}  and  updated ={1,2,3,4}
-        then all {1,2,3,4} should be added
-
-        c. if orig = {1,2,3,4} updated={2,3,4}
-        then 1 should be removed
-
-        d. basically if orig = { 1,2,3,4} and updated is {1,2,3,4,5}
-        then we should just add 5
-
-        e. if orig = {1,2,3,4} updated={2,3,4,5}
-        then 1 should be removed , 5 should be added
-    * */
     @Override
     protected void update(InstanceIdentifier<ElanInterface> identifier, ElanInterface original, ElanInterface update) {
         // updating the static-Mac Entries for the existing elanInterface
@@ -1271,8 +1254,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<Bucket> listBuckets = new ArrayList<>();
         int bucketId = 0;
         listBuckets.add(getLocalBCGroupBucketInfo(interfaceInfo, bucketId));
-        // listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, 1,
-        // interfaceInfo));
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBuckets));
         LOG.trace("deleted the localBroadCast Group:{}", group);

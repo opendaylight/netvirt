@@ -238,7 +238,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
                 boolean result = centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
             }
-            //snatServiceManger.notify(routers, null, Action.ADD);
         } else {
             LOG.info("NAT Service : Installing NAT default route on all dpns part of router {}", routerName);
             try {
@@ -861,14 +860,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         */
 
         LOG.debug("NAT Service : Installing SNAT miss entry in Primary NAPT switch {} ", dpnId);
-
-/*
-        List<BucketInfo> listBucketInfo = new ArrayList<>();
-        List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
-        listActionInfoPrimary.add(new ActionNxResubmit(NatConstants.TERMINATING_SERVICE_TABLE));
-        BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
-        listBucketInfo.add(0, bucketPrimary);
-*/
 
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
 

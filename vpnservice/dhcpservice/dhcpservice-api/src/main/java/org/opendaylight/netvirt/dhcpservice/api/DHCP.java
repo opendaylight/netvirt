@@ -183,7 +183,6 @@ public class DHCP extends Packet {
     }
 
 //    TODO:
-//    public byte[] getPadding() {
 //        return this.pad;
 //    }
 
@@ -357,7 +356,6 @@ public class DHCP extends Packet {
         return this;
     }
 
-//    public void setPadding(byte[] pad) {
 //        this.pad = pad;
 //    }
 
@@ -451,7 +449,6 @@ public class DHCP extends Packet {
             LOG.error("DHCP Packet too big");
         } else if (data[data.length - 1] != (byte)255) {
             // DHCP Options not ended properly
-            //throw new PacketException("Missing DHCP Option END");
             LOG.error("Missing DHCP Option END");
         } else if (data.length < DHCP_MIN_SIZE) {
             byte[] padding = new byte[DHCP_MIN_SIZE - data.length];

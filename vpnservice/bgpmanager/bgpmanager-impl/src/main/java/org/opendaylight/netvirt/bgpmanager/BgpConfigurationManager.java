@@ -216,7 +216,6 @@ public class BgpConfigurationManager {
     private static String cHostStartup;
     private static String cPortStartup;
     private static CountDownLatch initer = new CountDownLatch(1);
-    //static IITMProvider itmProvider;
     //map<rd, map<prefix/len:nexthop, label>>
     private static Map<String, Map<String, Long>> staledFibEntriesMap = new ConcurrentHashMap<>();
     //map<rd, map<mac, l2vni>>
@@ -754,7 +753,6 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    //itmProvider.buildTunnelsToDCGW(new IpAddress(peerIp.toCharArray()));
                     br.addNeighbor(peerIp, as, md5Secret);
 
                 } catch (TException | BgpRouterException e) {
@@ -788,7 +786,6 @@ public class BgpConfigurationManager {
                     return;
                 }
                 try {
-                    //itmProvider.deleteTunnelsToDCGW(new IpAddress(val.getAddress().getValue().toCharArray()));
                     br.delNeighbor(peerIp);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
@@ -1838,7 +1835,6 @@ public class BgpConfigurationManager {
                 final String md5password = extractMd5Secret(nbr);
                 br.addNeighbor(nbr.getAddress().getValue(),
                         nbr.getRemoteAs(), md5password);
-                //itmProvider.buildTunnelsToDCGW(new IpAddress(nbr.getAddress().getValue().toCharArray()));
             } catch (TException | BgpRouterException e) {
                 LOG.error("Replay:addNbr() received exception", e);
                 continue;

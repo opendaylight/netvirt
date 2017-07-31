@@ -82,8 +82,6 @@ public class ElanEvpnFlowUtils {
                                                 String dstMacAddress, long elanTag, boolean shFlag) {
         return new StringBuffer().append(elanDmacTable).append(elanTag).append(dpId).append(nexthopIp)
                 .append(dstMacAddress).append(shFlag).toString();
-/*        return new java.lang.StringBuilder().append('[').append(elanDmacTable).append(elanTag).append(dpId)
-                .append(nexthopIp).append(dstMacAddress).append(shFlag).append(']').toString();*/
     }
 
     private void evpnRemoveTheDropFlow(long elanTag, BigInteger dpId, String nexthopIp, String macToRemove,

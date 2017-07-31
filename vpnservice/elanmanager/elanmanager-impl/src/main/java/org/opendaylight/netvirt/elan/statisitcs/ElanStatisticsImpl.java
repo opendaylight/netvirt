@@ -70,14 +70,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, elanTag, interfaceName);
         //FIXME [ELANBE] Get this API Later
         short tableId = 0;
-//        try {
-//
-//            //tableId = interfaceManager.getTableIdForService(interfaceName, serviceInfo);
-//        } catch (InterfaceNotFoundException | InterfaceServiceNotFoundException e) {
-//            rpcResultBuilder = RpcResultBuilder.failed();
-//            return getFutureWithAppErrorMessage(rpcResultBuilder,
-//                String.format("Interface %s or Service %s doesn't exist", interfaceName, serviceInfo));
-//        }
+
         if (!interfaceInfo.isOperational()) {
             LOG.debug("interface {} is down and returning with no statistics", interfaceName);
             rpcResultBuilder = RpcResultBuilder.success();
@@ -110,22 +103,8 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
         long groupId = interfaceInfo.getGroupId();
         Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches,
                 String.format("%s.%s", elanInstanceName, interfaceName), groupId);
-        // StatisticsInfo statsInfo = new StatisticsInfo(statRequestKeys);
 //        org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatResult statResult
-//            = mdsalMgr.queryForStatistics(interfaceName, statsInfo);
-//        ResultCode resultCode = ResultCode.Success;
-//        if (!statResult.isComplete()) {
-//            resultCode = ResultCode.Incomplete;
-//        }
 
-        //StatValue ingressFlowStats = statResult.getStatResult(InterfaceServiceUtil
-//            .getFlowStatisticsKey(dpId, tableId, matches, elanInstanceName));
-        //StatValue groupStats = statResult.getStatResult(InterfaceServiceUtil.getGroupStatisticsKey(dpId, groupId));
-//      return new GetElanInterfaceStatisticsOutputBuilder().setStatResult(new
-//          StatResultBuilder().setStatResultCode(resultCode)
-//                .setByteRxCount(ingressFlowStats.getByteCount()).setPacketRxCount(ingressFlowStats.getPacketCount())
-//                .setByteTxCount(groupStats.getByteCount()).setPacketTxCount(groupStats.getPacketCount()).build())
-//                .build();
         return null;
     }
 

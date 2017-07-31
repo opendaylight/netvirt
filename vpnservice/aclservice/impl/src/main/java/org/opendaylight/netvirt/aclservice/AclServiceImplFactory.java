@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 public class AclServiceImplFactory extends AbstractLifecycle {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceImplFactory.class);
-    //private static final String SECURITY_GROUP_MODE = "security-group-mode";
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
