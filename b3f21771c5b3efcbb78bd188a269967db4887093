@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_b153a26b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-31T20:08:00Z",
+      "side": 1,
+      "message": "Per the preceding constants, the convention here is to end the name of a filename string constant with \"_FILE\".  So, you should end this consant with \"_FILE\".",
+      "revId": "b3f21771c5b3efcbb78bd188a269967db4887093",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f14d1ac6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-31T20:08:00Z",
+      "side": 1,
+      "message": "same as above.",
+      "revId": "b3f21771c5b3efcbb78bd188a269967db4887093",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_11cc2e35",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-31T20:08:00Z",
+      "side": 1,
+      "message": "Different than above - since this string is not a file name, perhaps you could call it ERROR_FILE_PROCESSING (or something not ending in \"_FILE\")",
+      "revId": "b3f21771c5b3efcbb78bd188a269967db4887093",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
