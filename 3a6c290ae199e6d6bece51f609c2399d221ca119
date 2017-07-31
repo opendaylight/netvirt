@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_88c63748",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 465,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T09:12:08Z",
+      "side": 1,
+      "message": "I meant the \"final Port port\" argument. I dont see it being used in this method. If not required, please remove it.",
+      "parentUuid": "da2a55be_40a7870c",
+      "range": {
+        "startLine": 465,
+        "startChar": 58,
+        "endLine": 465,
+        "endChar": 66
+      },
+      "revId": "3a6c290ae199e6d6bece51f609c2399d221ca119",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_c521c9fc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 21
