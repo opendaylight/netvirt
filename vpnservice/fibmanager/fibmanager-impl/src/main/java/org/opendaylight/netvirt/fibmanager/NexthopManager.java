@@ -182,19 +182,8 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    private BigInteger getDpnId(String ofPortId) {
-        String[] fields = ofPortId.split(":");
-        BigInteger dpn = new BigInteger(fields[1]);
-        LOG.debug("DpnId: {}", dpn);
-        return dpn;
-    }
-
     private String getNextHopKey(long vpnId, String ipAddress) {
         return "nexthop." + vpnId + ipAddress;
-    }
-
-    private String getNextHopKey(String ifName, String ipAddress) {
-        return "nexthop." + ifName + ipAddress;
     }
 
     public OdlInterfaceRpcService getInterfaceManager() {

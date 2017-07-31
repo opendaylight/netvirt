@@ -183,12 +183,6 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
         return ovsdbNode;
     }
 
-    private InstanceIdentifier<Hostconfig> createInstanceIdentifier() {
-        return InstanceIdentifier.create(Neutron.class)
-                .child(Hostconfigs.class)
-                .child(Hostconfig.class);
-    }
-
     private InstanceIdentifier<Hostconfig> createInstanceIdentifier(Hostconfig hostconfig) {
         return InstanceIdentifier.create(Neutron.class)
                 .child(Hostconfigs.class)
