@@ -161,6 +161,9 @@ public class BgpConfigurationManager {
     private long staleCleanupTime = 0;
     private static final int DS_RETRY_COOUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
+    private static final String ADD_RCVD_EXEMPT = "{} Add received exception; {}";
+    private static final String UNABLE_TO_REMOVE = "{} Unable to process remove for peer {}; {}";
+    private static final String UNABLE_TO_ADD = "{} Unable to process add for peer {}; {}";
 
     public String getBgpSdncMipIp() {
         return getProperty(BGP_SDNC_MIP, DEF_BGP_SDNC_MIP);
@@ -584,7 +587,7 @@ public class BgpConfigurationManager {
                 try {
                     br.addGracefulRestart(stalePathTime);
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -669,7 +672,7 @@ public class BgpConfigurationManager {
                 try {
                     br.setLogging(val.getFile(), val.getLevel());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -758,7 +761,7 @@ public class BgpConfigurationManager {
                     br.addNeighbor(peerIp, as, md5Secret);
 
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -783,7 +786,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getAddress().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.error(UNABLE_TO_REMOVE, YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -828,14 +831,14 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to process add for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.error(UNABLE_TO_ADD, YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
                 try {
                     br.addEbgpMultihop(peerIp, val.getNhops().intValue());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -860,7 +863,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.error(UNABLE_TO_REMOVE, YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -902,14 +905,14 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to process add for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.error(UNABLE_TO_ADD, YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
                 try {
                     br.addUpdateSource(peerIp, val.getSourceIp().getValue());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -934,7 +937,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.error(UNABLE_TO_REMOVE, YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -976,7 +979,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to process add for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.error(UNABLE_TO_ADD, YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -985,7 +988,7 @@ public class BgpConfigurationManager {
                 try {
                     br.addAddressFamily(peerIp, afi, safi);
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1010,7 +1013,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.error(UNABLE_TO_REMOVE, YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -1084,7 +1087,7 @@ public class BgpConfigurationManager {
                     br.addPrefix(rd, pfxlen, nh, lbl, l3vni, l2vni, BgpUtil.convertToThriftProtocolType(protocolType),
                             ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1194,7 +1197,7 @@ public class BgpConfigurationManager {
                     br.addVrf(val.getLayerType(), rd, val.getImportRts(),
                             val.getExportRts());
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error(ADD_RCVD_EXEMPT, YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
