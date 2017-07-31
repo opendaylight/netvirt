@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_31ee928c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1006,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-07-31T20:12:02Z",
+      "side": 1,
+      "message": "looks like you removed the wrong @SuppressWarnings annotation",
+      "revId": "05c526b1535398667d739213eb3dcbb262c952f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
