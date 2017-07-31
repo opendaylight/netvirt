@@ -1,0 +1,257 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_a86cdb37",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 502,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "Thanks Valentina. This looks like a much better way of handling a fixed-ips update.\nHowever, DS writes are pretty costly. For scenarios where, a port was created on a network with only one subnet, and then a new subnet was added, we will receive a port update, with the portUpdate object containing a new fixed IP, along with the original fixeIp. In such cases, the above logic will unnecessarily delete the old existing fixedIp and recreate it. This can be a significant performance overhead, in a scaled up scenario, if thousands of ports are updated this way.\nInstead, could you please:\n1) compare oldFixedIps and newFixedIps,\n2) Delete fixedIp in present in oldFixedIps that is not present in newFixedIps.\n3) Create fixedIp present in newFixedIps that is not present in oldFixedIps.?",
+      "range": {
+        "startLine": 476,
+        "startChar": 12,
+        "endLine": 502,
+        "endChar": 13
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_28c74b14",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 695,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "I think it would be better to keep the subnetMap objects in a HashMap\u003cIP, SubnetMap\u003e instead of a list\u003cSubnetMap\u003e. By doing this , you can avoid the inner for loop and the if condition in line 695 and line 696 respectively.\nA simple \nfor(FixedIps ip : ips) {\nsubnetMap \u003d map.get(ip);\n.....\n.....\n}\n\nwill suffice with this approach.\nA null check for the map() wont even be required as (sn !\u003d null) check is already being done in the caller method.",
+      "range": {
+        "startLine": 695,
+        "startChar": 17,
+        "endLine": 695,
+        "endChar": 52
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2863cb1b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "Please move this block outside the for loop.\nInstead, maintain a HashSet of routerIds.\nIf routerIds !\u003d null, add it to the set.\nThen after the FixedIps for loop, iterate over the routerIds set and add this block of code.\nThis will ensure that if the two subnets are part of the same router, this block wont get exeuted twice.\nPlease take care that this block should be outside the FixedIps for loop, but before creating Adjacencies and calling writeVpnInterfaceToDS() method.",
+      "range": {
+        "startLine": 710,
+        "startChar": 20,
+        "endLine": 718,
+        "endChar": 21
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_086887f4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "Same comment as given in createVpnInterface",
+      "range": {
+        "startLine": 749,
+        "startChar": 16,
+        "endLine": 752,
+        "endChar": 21
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_686dc304",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 755,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "Same comment as in createVpnInterface about maintaining a routerIds HashSet.\nPlease move this outside FixedIps for loop, but before writeCfgTxn.submit()",
+      "range": {
+        "startLine": 755,
+        "startChar": 24,
+        "endLine": 755,
+        "endChar": 88
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_48727fe6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1123,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "please retain the original code",
+      "range": {
+        "startLine": 1123,
+        "startChar": 22,
+        "endLine": 1123,
+        "endChar": 60
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a8769bd6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "If sn.getPortList() is called only once in this method, please avoud this statement.\nPlease retain the original code.",
+      "range": {
+        "startLine": 1231,
+        "startChar": 19,
+        "endLine": 1231,
+        "endChar": 47
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8873d7e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1239,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "Please use Collections.singletonList()",
+      "range": {
+        "startLine": 1239,
+        "startChar": 46,
+        "endLine": 1239,
+        "endChar": 63
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e880938d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1606,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "Same comment as in addSubnetToVpn()",
+      "range": {
+        "startLine": 1606,
+        "startChar": 18,
+        "endLine": 1606,
+        "endChar": 51
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c87dcfb3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1617,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "Same comment as in addSubnetToVpn()",
+      "range": {
+        "startLine": 1617,
+        "startChar": 53,
+        "endLine": 1617,
+        "endChar": 71
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e876d305",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T10:52:51Z",
+      "side": 1,
+      "message": "As commented earlier, Port is not used anywhere in this method. Please remove it.",
+      "range": {
+        "startLine": 294,
+        "startChar": 86,
+        "endLine": 294,
+        "endChar": 95
+      },
+      "revId": "1928a891f46ba96833e84e70ffcd871496dbdf7e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
