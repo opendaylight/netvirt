@@ -1004,29 +1004,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void addPrefixToBGP(String rd, String primaryRd, String prefix, List<String> nextHopList,
-                                VrfEntry.EncapType encapType, long label, long l3vni, String macAddress,
-                                String gwMacAddress, RouteOrigin origin, WriteTransaction writeConfigTxn) {
-        try {
-            LOG.info("ADD: Adding Fib entry rd {} primaryRd {} prefix {} nextHop {} label {} gwMac {} l3vni {}",
-                    rd, primaryRd, prefix, nextHopList, label, gwMacAddress, l3vni);
-            fibManager.addOrUpdateFibEntry(dataBroker, primaryRd, macAddress, prefix, nextHopList,
-                    encapType, (int)label, l3vni, gwMacAddress,  null /*parentVpnRd*/, origin, writeConfigTxn);
-            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {} l3vni {}",
-                    rd, prefix, nextHopList, label, gwMacAddress, l3vni);
-            // Advertize the prefix to BGP only if nexthop ip is available
-            if (nextHopList != null && !nextHopList.isEmpty()) {
-                bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
-                        l3vni, 0 /*l2vni*/, gwMacAddress);
-            } else {
-                LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
-            }
-        } catch (Exception e) {
-            LOG.error("Add prefix failed.", e);
-        }
-    }
-
-    @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void remove(InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);

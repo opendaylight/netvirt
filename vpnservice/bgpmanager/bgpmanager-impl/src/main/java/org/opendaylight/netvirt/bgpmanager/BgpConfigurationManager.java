@@ -327,14 +327,6 @@ public class BgpConfigurationManager {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    private boolean configExists() throws ReadFailedException {
-        InstanceIdentifier.InstanceIdentifierBuilder<Bgp> iib =
-                InstanceIdentifier.builder(Bgp.class);
-        InstanceIdentifier<Bgp> iid = iib.build();
-        return SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                iid).isPresent();
-    }
-
     private String getProperty(String var, String def) {
         String property = bundleContext.getProperty(var);
         return property == null ? def : property;
