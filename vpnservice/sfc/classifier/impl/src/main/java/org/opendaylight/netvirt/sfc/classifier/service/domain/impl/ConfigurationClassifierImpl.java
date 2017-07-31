@@ -34,12 +34,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Actions;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.RedirectToSfc;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -96,12 +96,17 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        Actions actions = ace.getActions();
-        RenderedServicePath rsp = null;
-        if (actions != null) {
-            rsp = sfcProvider.getRenderedServicePath(actions.getAugmentation(RedirectToSfc.class).getRspName())
-                    .orElse(null);
+        String rspName = Optional.ofNullable(ace.getActions())
+                .map(actions -> actions.getAugmentation(RedirectToSfc.class))
+                .map(NetvirtsfcAclActions::getRspName)
+                .orElse(null);
+
+        if (rspName == null) {
+            LOG.trace("Ignore ACL as it has no redirect to sfc action");
+            return Collections.emptySet();
         }
+
+        RenderedServicePath rsp = sfcProvider.getRenderedServicePath(rspName).orElse(null);
 
         if (rsp == null) {
             LOG.trace("Ace has no valid SFC redirect action");
