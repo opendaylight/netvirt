@@ -139,8 +139,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Match Destination Floating IP MAC Address on table = 25 (PDNAT_TABLE)
         matches.add(new MatchEthernetDestination(new MacAddress(floatingIpPortMacAddress)));
 
-//        matches.add(new MatchMetadata(
-//                BigInteger.valueOf(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> actionsInfos = new ArrayList<>();
         String internalIp = mapping.getInternalIp();
         actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
@@ -176,14 +174,10 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         matches.add(new MatchIpv4Destination(internalIp, "32"));
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-//        actionsInfos.add(new ActionSetDestinationIp(internalIp, "32"));
 
         List<InstructionInfo> instructions = new ArrayList<>();
-//        instructions.add(new InstructionWriteMetadata(BigInteger.valueOf
-//                (routerId), MetaDataUtil.METADATA_MASK_VRFID));
         actionsInfos.add(new ActionNxResubmit(NwConstants.L3_FIB_TABLE));
         instructions.add(new InstructionApplyActions(actionsInfos));
-        //instructions.add(new InstructionGotoTable(NatConstants.L3_FIB_TABLE));
 
         String flowRef = NatUtil.getFlowRef(dpId, NwConstants.DNAT_TABLE, routerId, internalIp);
 
@@ -411,7 +405,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         //Check if the router to vpn association is present
-        //long associatedVpnId = NatUtil.getAssociatedVpn(dataBroker, routerName);
         Uuid associatedVpn = NatUtil.getVpnForRouter(dataBroker, routerName);
         long associatedVpnId = NatConstants.INVALID_ID;
         if (associatedVpn == null) {
@@ -420,7 +413,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             LOG.debug("NAT Service : Router {} is associated with VPN Instance with Id {}", routerName, associatedVpn);
             associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVpn.getValue());
             LOG.debug("NAT Service : vpninstance Id is {} for VPN {}", associatedVpnId, associatedVpn);
-            //routerId = associatedVpnId;
         }
 
         Uuid extNwId = getExtNetworkId(portIid, LogicalDatastoreType.CONFIGURATION);
@@ -461,7 +453,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         } else {
             LOG.debug("NAT Service : Router {} is associated with VPN Instance with Id {}",
                 routerName, associatedVpnId);
-            //routerId = associatedVpnId;
         }
 
         long vpnId = getVpnId(externalNetworkId, mapping.getExternalId());
@@ -480,7 +471,6 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     void createNATOnlyFlowEntries(BigInteger dpnId, String routerName, String associatedVPN,
                                   Uuid externalNetworkId, InternalToExternalPortMap mapping) {
         String internalIp = mapping.getInternalIp();
-        //String segmentId = associatedVPN == null ? routerName : associatedVPN;
         LOG.debug("NAT Service : Retrieving vpn id for VPN {} to proceed with create NAT Flows", routerName);
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         if (routerId == NatConstants.INVALID_ID) {
