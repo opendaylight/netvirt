@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_9c3675e6",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-07-31T21:05:19Z",
+      "side": 1,
+      "message": "This is probably okay the way you have it defined, but I was wondering if \"support\" is too strong of a word for an open souce project.  These are the combinations that are actively tested and maintained, so they are more likely to work, and you\u0027re more likely to get a bug fixed if you find one using the combination.  But, I don\u0027t think we\u0027re making any guarantees.",
+      "range": {
+        "startLine": 6,
+        "startChar": 0,
+        "endLine": 6,
+        "endChar": 9
+      },
+      "revId": "4f0bc49deb56679b3fdd30674522c997091f798b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9c0f952e",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 3972
+      },
+      "writtenOn": "2017-07-31T21:05:19Z",
+      "side": 1,
+      "message": "The \"*\" shows up as a bullet on the html doc.",
+      "range": {
+        "startLine": 35,
+        "startChar": 3,
+        "endLine": 35,
+        "endChar": 4
+      },
+      "revId": "4f0bc49deb56679b3fdd30674522c997091f798b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
