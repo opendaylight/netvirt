@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_8eabdfd5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T13:59:38Z",
+      "side": 1,
+      "message": "why is this change required? Since both configV4 and configV6 will the same values (As per review 57977), wont one be enough?\n Wont it be ok to retain the original code as is, as rd and vpnTargets of both configV4 and configV6 are same?",
+      "range": {
+        "startLine": 504,
+        "startChar": 12,
+        "endLine": 514,
+        "endChar": 13
+      },
+      "revId": "007463edfed73389e868c100c02fbc681a34fd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_0e87ef62",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 566,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-07-31T13:59:38Z",
+      "side": 1,
+      "message": "Same comment as above",
+      "range": {
+        "startLine": 557,
+        "startChar": 12,
+        "endLine": 566,
+        "endChar": 13
+      },
+      "revId": "007463edfed73389e868c100c02fbc681a34fd38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
