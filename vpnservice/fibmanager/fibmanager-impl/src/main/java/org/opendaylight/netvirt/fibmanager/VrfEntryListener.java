@@ -105,6 +105,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     private static final int LFIB_INTERVPN_PRIORITY = 15;
     public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+    private static final int DJC_MAX_RETRIES = 3;
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
@@ -366,7 +367,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(tx.submit());
                     return futures;
-                });
+                }, DJC_MAX_RETRIES);
             }
         }
 
@@ -1345,7 +1346,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(tx.submit());
                     return futures;
-                });
+                }, DJC_MAX_RETRIES);
         }
 
         //The flow/group entry has been deleted from config DS; need to clean up associated operational
