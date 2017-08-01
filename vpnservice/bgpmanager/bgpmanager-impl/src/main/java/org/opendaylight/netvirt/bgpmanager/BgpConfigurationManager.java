@@ -159,8 +159,10 @@ public class BgpConfigurationManager {
     private long cfgReplayStartTime = 0;
     private long cfgReplayEndTime = 0;
     private long staleCleanupTime = 0;
-    private static final int DS_RETRY_COOUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
-    private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
+    //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
+    private static final int DS_RETRY_COOUNT = 100;
+    //one second sleep after every retry
+    private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L;
     private static final String ADD_RCVD_EXEMPT = "{} Add received exception; {}";
     private static final String UNABLE_TO_REMOVE = "{} Unable to process remove for peer {}; {}";
     private static final String UNABLE_TO_ADD = "{} Unable to process add for peer {}; {}";
@@ -2129,6 +2131,7 @@ public class BgpConfigurationManager {
         update(iid, dto);
     }
 
+    // public addNeighbor(nbrIp, remoteAs, md5Secret)
     public void addNeighbor(
             String nbrIp, long remoteAs, @Nullable final TcpMd5SignaturePasswordType md5Secret) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
@@ -2137,13 +2140,14 @@ public class BgpConfigurationManager {
                         .child(Neighbors.class, new NeighborsKey(nbrAddr));
         InstanceIdentifier<Neighbors> iid = iib.build();
         TcpSecurityOption tcpSecOption = null;
+        // else let tcpSecOption be null
         if (md5Secret != null) {
             tcpSecOption = new TcpMd5SignatureOptionBuilder().setTcpMd5SignaturePassword(md5Secret).build();
-        } // else let tcpSecOption be null
+        }
         Neighbors dto = new NeighborsBuilder().setAddress(nbrAddr)
                 .setRemoteAs(remoteAs).setTcpSecurityOption(tcpSecOption).build();
         update(iid, dto);
-    } // public addNeighbor(nbrIp, remoteAs, md5Secret)
+    }
 
     public void addUpdateSource(String nbrIp, String srcIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
@@ -2662,16 +2666,18 @@ public class BgpConfigurationManager {
         return prefixNextHop.split(":")[1];
     }
 
+    // private method extractMd5Secret
     private static String extractMd5Secret(final Neighbors val) {
         String md5Secret = null;
         TcpSecurityOption tcpSecOpt = val.getTcpSecurityOption();
         if (tcpSecOpt != null) {
+            // unknown TcpSecurityOption
             if (tcpSecOpt instanceof TcpMd5SignatureOption) {
                 md5Secret = ((TcpMd5SignatureOption) tcpSecOpt).getTcpMd5SignaturePassword().getValue();
-            } else { // unknown TcpSecurityOption
+            } else {
                 LOG.debug("neighbors  Ignored unknown tcp-security-option of peer {}", val.getAddress().getValue());
             }
         }
         return md5Secret;
-    } // private method extractMd5Secret
+    }
 }
