@@ -22,6 +22,30 @@
       "revId": "9e5a737d131547ec9f147ae20b591f13552be113",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_0ffc063e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-01T17:02:08Z",
+      "side": 1,
+      "message": "The OptimisticLockException is because of parallel execution of two blocks of code. The retry is being added to one of these blocks, so it will not fail on a retry and this bug will not show up again.\nHowever, an ideal fix would be to avoid this parallel execution. Unfortunately, no straight-forward fix exists to realize this:(. We are still evaluating possible solutions.",
+      "parentUuid": "ba1f61a0_2fcc6a35",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 20
+      },
+      "revId": "9e5a737d131547ec9f147ae20b591f13552be113",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
