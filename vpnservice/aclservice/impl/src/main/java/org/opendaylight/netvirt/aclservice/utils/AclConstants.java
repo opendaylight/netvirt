@@ -108,6 +108,10 @@ public final class AclConstants {
     public static final int DEST_REMOTE_IP_PREFIX_SPECIFIED = 1;
     public static final int DEST_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
     public static final int INVALID_ACL_ID = -1;
+    public static final short INGRESS_ACL_DUMMY_TABLE = 209;
+    public static final short EGRESS_ACL_DUMMY_TABLE = 239;
+    public static final int TRACKED_CT_STATE = 0x20;
+    public static final int TRACKED_CT_STATE_MASK = 0x20;
 
     public static final String ACL_ID_POOL_NAME = "ACL-ID-POOL";
 

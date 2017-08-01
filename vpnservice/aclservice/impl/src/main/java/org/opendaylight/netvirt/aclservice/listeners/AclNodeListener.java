@@ -30,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
@@ -50,7 +51,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.DefaultBehavior;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg5;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -71,6 +71,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private final DataBroker dataBroker;
     private final AclServiceUtils aclServiceUtils;
     private final AclDataUtil aclDataUtil;
+    private final int dummyTag = 0;
 
     private SecurityGroupMode securityGroupMode = null;
 
@@ -164,6 +165,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                     NwConstants.ADD_FLOW);
             addConntrackRules(dpnId, NwConstants.EGRESS_LPORT_DISPATCHER_TABLE, NwConstants.EGRESS_ACL_FILTER_TABLE,
                     NwConstants.ADD_FLOW);
+            addConntrackDummyLookup(dpnId, NwConstants.ADD_FLOW);
         } else if (securityGroupMode == SecurityGroupMode.Transparent) {
             addTransparentIngressAclTableMissFlow(dpnId);
             addTransparentEgressAclTableMissFlow(dpnId);
@@ -595,6 +597,83 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             dispatcherTableId, tableId, write);
         programConntrackForwardRule(dpnId, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,"Tracked_Related", AclConstants
             .TRACKED_REL_CT_STATE, AclConstants.TRACKED_REL_CT_STATE_MASK, dispatcherTableId, tableId, write);
+    }
+
+    private void addConntrackDummyLookup(BigInteger dpnId, int write) {
+        addConntrackEgressDummyLookup(dpnId, write);
+        addConntrackIngressDummyLookup(dpnId, write);
+    }
+
+    private void addConntrackEgressDummyLookup(BigInteger dpnId, int write) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
+        int elanTag = dummyTag;
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag, NwConstants.INGRESS_ACL_TABLE));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        String flowName = "Ingress_Fixed_Dummy_Table_Ipv4_" + dpnId;
+        syncFlow(dpnId, AclConstants.INGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+        matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
+        flowName = "Ingress_Fixed_Dummy_Table_Ipv6_" + dpnId;
+        syncFlow(dpnId, AclConstants.INGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+
+        //Adding dummy lookup miss entry
+
+        matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        instructions = new ArrayList<>();
+        instructions.add(new InstructionGotoTable(NwConstants.INGRESS_ACL_TABLE));
+        flowName = "Ingress_Fixed_Dummy_Table_Ipv4_Miss_" + dpnId;
+        syncFlow(dpnId, AclConstants.INGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+        matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV6);
+        flowName = "Ingress_Fixed_Dummy_Table_Ipv6_Miss_" + dpnId;
+        syncFlow(dpnId, AclConstants.INGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+    }
+
+    private void addConntrackIngressDummyLookup(BigInteger dpnId, int write) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
+        int elanTag = dummyTag;
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag, NwConstants.EGRESS_ACL_TABLE));
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        String flowName = "Egress_Fixed_Dummy_Table_Ipv4_" + dpnId;
+        syncFlow(dpnId, AclConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+        matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV6);
+        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
+        flowName = "Egress_Fixed_Dummy_Table_Ipv6_" + dpnId;
+        syncFlow(dpnId, AclConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.CT_STATE_TRACKED_EXIST_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+
+        //Adding dummy lookup miss entry
+        matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        instructions = new ArrayList<>();
+        instructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_TABLE));
+        flowName = "Egress_Fixed_Dummy_Table_Ipv4_Miss_" + dpnId;
+        syncFlow(dpnId, AclConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+        matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV6);
+        flowName = "Egress_Fixed_Dummy_Table_Ipv6_Miss_" + dpnId;
+        syncFlow(dpnId, AclConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, write);
+
+
+
     }
 
     /**
