@@ -49,6 +49,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
@@ -366,7 +367,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(tx.submit());
                     return futures;
-                });
+                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
             }
         }
 
@@ -1345,7 +1346,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(tx.submit());
                     return futures;
-                });
+                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
 
         //The flow/group entry has been deleted from config DS; need to clean up associated operational
