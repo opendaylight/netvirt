@@ -1798,7 +1798,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = 241 as short
+                tableId = 239 as short
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
