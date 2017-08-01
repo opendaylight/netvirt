@@ -9,13 +9,19 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -23,8 +29,10 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
+import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
+import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -33,9 +41,14 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.PacketHandling;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.actions.packet.handling.Permit;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -204,5 +217,50 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
                 AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",
                 AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, addOrRemove);
+    }
+
+    /**
+     * Bind service.
+     *
+     * @param aclInterface the acl interface
+     */
+    @Override
+    public void bindService(AclInterface aclInterface) {
+        String interfaceName = aclInterface.getInterfaceId();
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
+            () -> {
+                int instructionKey = 0;
+                List<Instruction> instructions = new ArrayList<>();
+                Long vpnId = aclInterface.getVpnId();
+                if (vpnId != null) {
+                    instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
+                        MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
+                    LOG.debug("Binding ACL service for interface {} with vpnId {}", interfaceName, vpnId);
+                } else {
+                    Long elanTag = aclInterface.getElanId();
+                    instructions.add(
+                            MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
+                            MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
+                    LOG.debug("Binding ACL service for interface {} with ElanTag {}", interfaceName, elanTag);
+                }
+                instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(AclConstants
+                        .EGRESS_ACL_DUMMY_TABLE, ++instructionKey));
+                int flowPriority = AclConstants.INGRESS_ACL_DEFAULT_FLOW_PRIORITY;
+                short serviceIndex = ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
+                        NwConstants.EGRESS_ACL_SERVICE_INDEX);
+                BoundServices serviceInfo = AclServiceUtils.getBoundServices(
+                        String.format("%s.%s.%s", "acl", "ingressacl", interfaceName), serviceIndex, flowPriority,
+                        AclConstants.COOKIE_ACL_BASE, instructions);
+                InstanceIdentifier<BoundServices> path = AclServiceUtils.buildServiceId(interfaceName,
+                        ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
+                        NwConstants.EGRESS_ACL_SERVICE_INDEX), ServiceModeEgress.class);
+
+                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
+                        WriteTransaction.CREATE_MISSING_PARENTS);
+
+                return Collections.singletonList(writeTxn.submit());
+            });
     }
 }
