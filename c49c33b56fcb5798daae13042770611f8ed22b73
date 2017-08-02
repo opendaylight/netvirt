@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_68cf78b1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-02T09:39:05Z",
+      "side": 1,
+      "message": "Hello\n\nOk I will create a new file as org.opendaylight.netvirt.neutronvpn.api.utils.NeutronEnums.java.\n\nBut how do you think if I put this emun in this existing file : org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants\n\nI will do It but I am waiting for your replied.\n\nThks, Noel.",
+      "parentUuid": "ba1f61a0_0ea08ff3",
+      "range": {
+        "startLine": 161,
+        "startChar": 4,
+        "endLine": 177,
+        "endChar": 5
+      },
+      "revId": "c49c33b56fcb5798daae13042770611f8ed22b73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ce5e7712",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 31
