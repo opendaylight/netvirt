@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_c5948d46",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpHwvtepListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-08-02T07:21:17Z",
+      "side": 1,
+      "message": "Done. Removed the class.",
+      "parentUuid": "da2a55be_c2e7363f",
+      "revId": "5fbc424c51bb344814198cd8b40d915d0e1faba1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_e2635aaf",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-07-11T12:18:05Z",
       "side": 1,
       "message": "The old code was adding dhcp designated switch tep ip as a physical locator, but I don\u0027t see that in your patch. How is that handled with the new code? I\u0027m not super familiar with that part of the code, maybe it is handled in some other logic?",
+      "revId": "5fbc424c51bb344814198cd8b40d915d0e1faba1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_858295fe",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-08-02T07:21:17Z",
+      "side": 1,
+      "message": "The changes are done according to some code changes introduce in plugin . Plugin use to check physical locator in config DS before updating Mcast related to physcical locator . The same check was removed. To improve the perf this has been done. But now we introduced Resourcebatchmanager and it would be faster . So now i retained the old code.",
+      "parentUuid": "da2a55be_e2635aaf",
       "revId": "5fbc424c51bb344814198cd8b40d915d0e1faba1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
