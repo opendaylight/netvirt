@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -21,6 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
+import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
@@ -138,17 +140,30 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
         String secondEndpointVpnUuid = vpnLink.getSecondEndpointVpnUuid().get();
         // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
 
-        InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, firstDpnList,
-                                                         secondEndpointVpnUuid, opt2ndEndpointLportTag.get());
-        InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, secondDpnList,
-                                                         firstEndpointVpnUuid, opt1stEndpointLportTag.get());
-        // Update the VPN -> DPNs Map.
-        // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
-        // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
-        // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
-        // Vpn2 is not physically present there.
-        InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, secondEndpointVpnUuid, firstDpnList);
-        InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, firstEndpointVpnUuid, secondDpnList);
+        try {
+            String vpn1PrimaryRd = VpnUtil.getPrimaryRd(broker, firstEndpointVpnUuid);
+            Preconditions.checkState(!VpnUtil.isVpnPendingDelete(broker, vpn1PrimaryRd),
+                    "Vpn with RD " + vpn1PrimaryRd + "is pending delete");
+            String vpn2PrimaryRd = VpnUtil.getPrimaryRd(broker, secondEndpointVpnUuid);
+            Preconditions.checkState(!VpnUtil.isVpnPendingDelete(broker, vpn2PrimaryRd),
+                    "Vpn with RD " + vpn2PrimaryRd + "is pending delete");
+            InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, firstDpnList,
+                    secondEndpointVpnUuid, opt2ndEndpointLportTag.get());
+            InterVpnLinkUtil.installLPortDispatcherTableFlow(broker, mdsalManager, ivpnLinkName, secondDpnList,
+                    firstEndpointVpnUuid, opt1stEndpointLportTag.get());
+            // Update the VPN -> DPNs Map.
+            // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
+            // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
+            // to Vpn2 targets. If new Vpn2 targets are added later, the Fib will be maintained in these DPNs even if
+            // Vpn2 is not physically present there.
+            InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, secondEndpointVpnUuid, vpn1PrimaryRd,
+                    firstDpnList);
+            InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, firstEndpointVpnUuid, vpn2PrimaryRd,
+                    secondDpnList);
+        } catch (IllegalStateException e) {
+            LOG.error("installLPortDispatcherTable: Unable to process intervpn-link for vpns {} and {} due to {}",
+                    firstEndpointVpnUuid, secondEndpointVpnUuid, e.getMessage());
+        }
     }
 
 }

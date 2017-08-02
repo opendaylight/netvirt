@@ -326,6 +326,36 @@ module odl-l3vpn {
                  }
               }
            }
+           leaf vpn-state {
+              description
+                 "Represents a stage in this VpnInstance's lifecycle.";
+              type enumeration {
+                 enum created {
+                    value "0";
+                    description
+                    "VPNInstance is successfully created";
+                 }
+                 enum footprint_created {
+                    value "1";
+                    description
+                    "VPN has atleast one host configured.";
+                 }
+                 enum footprint_cleared {
+                    value "2";
+                    description
+                    "VPN has no hosts in participation";
+                 }
+                 enum pending_delete {
+                    value "3";
+                    description
+                    "VpnInstance marked for deletion.";
+                 }
+              }
+              default "created";
+           }
+           leaf-list rd {
+              type string;
+           }
         }
     }
 
