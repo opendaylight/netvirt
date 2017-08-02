@@ -990,7 +990,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     void handleVpnsExportingRoutes(String vpnName, String vpnRd) {
         List<VpnInstanceOpDataEntry> vpnsToExportRoute = getVpnsExportingMyRoute(vpnName);
         for (VpnInstanceOpDataEntry vpn : vpnsToExportRoute) {
-            String rd = vpn.getVrfId();
             List<VrfEntry> vrfEntries = VpnUtil.getAllVrfEntries(dataBroker, vpn.getVrfId());
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
             if (vrfEntries != null) {
@@ -1767,7 +1766,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
 
         String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
-        List<String> nextHopIpList = Collections.singletonList(nextHop);
 
         // TODO: This is a limitation to be stated in docs. When configuring static route to go to
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
