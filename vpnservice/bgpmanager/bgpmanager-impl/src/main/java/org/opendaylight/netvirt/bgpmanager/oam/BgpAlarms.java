@@ -22,7 +22,7 @@ public class BgpAlarms extends TimerTask {
     private static final Logger LOG = LoggerFactory.getLogger(BgpAlarms.class);
     private static final BgpJMXAlarmAgent ALARM_AGENT = new BgpJMXAlarmAgent();
     private static Map<String, String> neighborStatusMap = new HashMap<>();
-    private BgpConfigurationManager bgpMgr;
+    private final BgpConfigurationManager bgpMgr;
 
     public static Map<String, BgpAlarmStatus> neighborsRaisedAlarmStatusMap = new HashMap<>();
     private static final String ALARM_TEXT = "Bgp Neighbor TCP connection is down";
@@ -85,13 +85,13 @@ public class BgpAlarms extends TimerTask {
             nbrsRaisedAlarmStatusMap) {
         boolean alarmToRaise;
         String nbrshipStatus;
-        if ((nbrs == null) || (nbrs.size() == 0)) {
+        if (nbrs == null || nbrs.isEmpty()) {
             LOG.trace("No BGP neighbors configured.");
             return;
         }
         for (Neighbors nbr : nbrs) {
             alarmToRaise = true;
-            if ((nbrStatusMap != null) && nbrStatusMap.containsKey(nbr.getAddress().getValue())) {
+            if (nbrStatusMap != null && nbrStatusMap.containsKey(nbr.getAddress().getValue())) {
                 nbrshipStatus = nbrStatusMap.get(nbr.getAddress().getValue());
                 LOG.trace("nbr {} status {}",
                         nbr.getAddress().getValue(),
@@ -103,9 +103,9 @@ public class BgpAlarms extends TimerTask {
                     LOG.trace("Exception thrown in parsing the integers. {}", e);
                 }
                 if (alarmToRaise) {
-                    if ((!nbrsRaisedAlarmStatusMap.containsKey(
-                            nbr.getAddress().getValue())) || (nbrsRaisedAlarmStatusMap.get(
-                            nbr.getAddress().getValue()) != BgpAlarmStatus.RAISED)) {
+                    if (!nbrsRaisedAlarmStatusMap.containsKey(
+                            nbr.getAddress().getValue()) || nbrsRaisedAlarmStatusMap.get(
+                            nbr.getAddress().getValue()) != BgpAlarmStatus.RAISED) {
                         LOG.trace("alarm raised for {}.", nbr.getAddress().getValue());
                         raiseBgpNbrDownAlarm(nbr.getAddress().getValue());
                         nbrsRaisedAlarmStatusMap.put(nbr.getAddress().getValue(), BgpAlarmStatus.RAISED);
@@ -113,9 +113,9 @@ public class BgpAlarms extends TimerTask {
                         LOG.trace("alarm raised already for {}", nbr.getAddress().getValue());
                     }
                 } else {
-                    if ((!nbrsRaisedAlarmStatusMap.containsKey(
-                            nbr.getAddress().getValue())) || (nbrsRaisedAlarmStatusMap.get(
-                            nbr.getAddress().getValue()) != BgpAlarmStatus.CLEARED)) {
+                    if (!nbrsRaisedAlarmStatusMap.containsKey(
+                            nbr.getAddress().getValue()) || nbrsRaisedAlarmStatusMap.get(
+                            nbr.getAddress().getValue()) != BgpAlarmStatus.CLEARED) {
                         clearBgpNbrDownAlarm(nbr.getAddress().getValue());
                         LOG.trace("alarm cleared for {}", nbr.getAddress().getValue());
                         nbrsRaisedAlarmStatusMap.put(nbr.getAddress().getValue(), BgpAlarmStatus.CLEARED);
@@ -131,7 +131,7 @@ public class BgpAlarms extends TimerTask {
 
         StringBuilder source = new StringBuilder();
         source.append("BGP_Neighbor=").append(nbrIp);
-        if ((nbrIp == null) || (nbrIp.isEmpty())) {
+        if (nbrIp == null || nbrIp.isEmpty()) {
             return;
         }
         LOG.trace("Raising BgpControlPathFailure alarm. {} alarmtext {} ", source, ALARM_TEXT);
@@ -142,7 +142,7 @@ public class BgpAlarms extends TimerTask {
     public void clearBgpNbrDownAlarm(String nbrIp) {
         StringBuilder source = new StringBuilder();
         source.append("BGP_Neighbor=").append(nbrIp);
-        if ((nbrIp == null) || (nbrIp.isEmpty())) {
+        if (nbrIp == null || nbrIp.isEmpty()) {
             return;
         }
         LOG.trace("Clearing BgpControlPathFailure alarm of source {} alarmtext {} ", source, ALARM_TEXT);
