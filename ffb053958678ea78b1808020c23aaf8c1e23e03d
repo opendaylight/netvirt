@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_853bb5ea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-02T09:07:05Z",
+      "side": 0,
+      "message": "I think we can retain this and in addition set the state to footprint-cleared.",
+      "revId": "ffb053958678ea78b1808020c23aaf8c1e23e03d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
