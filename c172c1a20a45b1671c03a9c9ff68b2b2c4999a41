@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_1920ccf6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-02T18:20:02Z",
+      "side": 1,
+      "message": "If there is no DPN for the VPN (unused VPN), then who will remove this VPNOpInstance?",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b950a05f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-02T18:20:02Z",
+      "side": 1,
+      "message": "Does this represent the primary rd?",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_59c7e412",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-02T18:20:02Z",
+      "side": 1,
+      "message": "if vpnToDpnList() is not empty when this event was fired, where do you fire the below DJC for deletion?",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f94a18ab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-02T18:20:02Z",
+      "side": 1,
+      "message": "better to have retries for this if there is no State involved, because we marked the vpnInstanceOp for pending delete, we have to make sure to delete it :)",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_99d15cd0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1743,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-02T18:20:02Z",
+      "side": 1,
+      "message": "if there is no vpnInstanceOpData what should be the deemed behaviour ?",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
