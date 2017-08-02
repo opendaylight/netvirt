@@ -68,7 +68,6 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
         LOG.debug("running logical switch added job for {} {}", logicalSwitchName,
                 elanL2GwDevice.getHwvtepNodeId());
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        String elan = ElanL2GatewayUtils.getElanFromLogicalSwitch(logicalSwitchName);
 
         LOG.info("creating vlan bindings for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
         futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(
