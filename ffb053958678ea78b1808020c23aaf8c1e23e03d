@@ -34,6 +34,24 @@
       "revId": "ffb053958678ea78b1808020c23aaf8c1e23e03d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9e41420e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/DpnInVpnChangeListener.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-02T14:35:29Z",
+      "side": 0,
+      "message": "I will retain the original code here.:) VpnToDpnList empty + pending delete check will then lead t vpn op deletion, as per your suggestion. THanks for that:)",
+      "parentUuid": "ba1f61a0_5e4d0a72",
+      "revId": "ffb053958678ea78b1808020c23aaf8c1e23e03d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
