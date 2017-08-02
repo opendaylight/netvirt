@@ -43,8 +43,6 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
 
     public void onAddDpnEvent(AddDpnEvent notification) {
         AddEventData addEventData = notification.getAddEventData();
-        String vpnName = addEventData.getVpnName();
-        BigInteger dpId = addEventData.getDpnId();
     }
 
     public void onRemoveDpnEvent(RemoveDpnEvent notification) {

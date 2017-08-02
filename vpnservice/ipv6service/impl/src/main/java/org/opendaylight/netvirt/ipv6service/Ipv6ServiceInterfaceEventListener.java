@@ -73,7 +73,6 @@ public class Ipv6ServiceInterfaceEventListener
 
     private boolean isNeutronPort(String name) {
         try {
-            Uuid portId = new Uuid(name);
             return true;
         } catch (IllegalArgumentException e) {
             LOG.debug("Port {} is not a Neutron Port, skipping.", name);

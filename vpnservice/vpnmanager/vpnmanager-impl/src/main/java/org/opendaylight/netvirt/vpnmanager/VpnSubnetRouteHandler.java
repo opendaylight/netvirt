@@ -83,7 +83,6 @@ public class VpnSubnetRouteHandler {
     public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
         Uuid subnetId = subnetmap.getId();
         String subnetIp = subnetmap.getSubnetIp();
-        boolean isRouteAdvertised = false;
 
         Preconditions.checkNotNull(subnetId, "SubnetId cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp, "SubnetPrefix cannot be null or empty!");
@@ -322,7 +321,6 @@ public class VpnSubnetRouteHandler {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPortAddedToSubnet(Subnetmap subnetmap, Uuid portId) {
         Uuid subnetId = subnetmap.getId();
-        boolean isRouteAdvertised = false;
         LOG.info("onPortAddedToSubnet: Port " + portId.getValue() + " being added to subnet " + subnetId.getValue());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
@@ -402,7 +400,6 @@ public class VpnSubnetRouteHandler {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPortRemovedFromSubnet(Subnetmap subnetmap, Uuid portId) {
         Uuid subnetId = subnetmap.getId();
-        boolean isRouteAdvertised = false;
 
         LOG.info(
             "onPortRemovedFromSubnet: Port " + portId.getValue() + " being removed from subnet " + subnetId.getValue());
@@ -576,7 +573,6 @@ public class VpnSubnetRouteHandler {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void updateSubnetRouteOnTunnelUpEvent(Uuid subnetId, BigInteger dpnId) {
-        boolean isRouteAdvertised = false;
         LOG.info("updateSubnetRouteOnTunnelUpEvent: Subnet {} Dpn {}", subnetId.getValue(), dpnId.toString());
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());

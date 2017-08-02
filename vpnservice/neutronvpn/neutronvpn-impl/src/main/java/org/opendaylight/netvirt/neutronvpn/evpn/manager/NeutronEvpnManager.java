@@ -59,7 +59,6 @@ public class NeutronEvpnManager {
         SettableFuture<RpcResult<CreateEVPNOutput>> result = SettableFuture.create();
         List<RpcError> errorList = new ArrayList<>();
         int failurecount = 0;
-        int warningcount = 0;
         List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
 
         List<Evpn> vpns = input.getEvpn();
@@ -73,7 +72,6 @@ public class NeutronEvpnManager {
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
                 errorList.add(error);
-                warningcount++;
                 continue;
             }
             VpnInstance.Type vpnInstanceType = VpnInstance.Type.L2;
@@ -83,7 +81,6 @@ public class NeutronEvpnManager {
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
                 errorList.add(error);
-                warningcount++;
                 continue;
             }
             if (existingRDs.contains(vpn.getRouteDistinguisher().get(0))) {
@@ -93,7 +90,6 @@ public class NeutronEvpnManager {
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
                 errorList.add(error);
-                warningcount++;
                 continue;
             }
             try {
@@ -202,7 +198,6 @@ public class NeutronEvpnManager {
         List<RpcError> errorList = new ArrayList<>();
 
         int failurecount = 0;
-        int warningcount = 0;
         List<Uuid> vpns = input.getId();
         for (Uuid vpn : vpns) {
             RpcError error;
@@ -215,7 +210,6 @@ public class NeutronEvpnManager {
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-value", msg);
                 errorList.add(error);
-                warningcount++;
             }
         }
         if (failurecount != 0) {
