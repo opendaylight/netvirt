@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_88abcc88",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-02T09:51:32Z",
+      "side": 1,
+      "message": "If it were a simple enum where only constants are defined, we could have added it to NeutronConstants.\nBut since this enum has its own methods defined, I was suggesting to handle it as a proper java class:)\nThat is, create a java file called org.opendaylight.netvirt.neutron.api.enums.IpVersionChoice and move this code there.",
+      "parentUuid": "ba1f61a0_68cf78b1",
+      "range": {
+        "startLine": 161,
+        "startChar": 4,
+        "endLine": 177,
+        "endChar": 5
+      },
+      "revId": "c49c33b56fcb5798daae13042770611f8ed22b73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ce5e7712",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 31
