@@ -17,6 +17,7 @@ public class Commands {
     private static BgpManager bm;
     private static final long AS_MIN = 0;
     private static final long AS_MAX = 4294967295L;//2^32-1
+    private static final String ERR_VAL = "error: value of ";
 
     enum Validators {
         IPADDR, INT, ASNUM, AFI
@@ -36,7 +37,7 @@ public class Commands {
                 try {
                     Integer.parseInt(val);
                 } catch (NumberFormatException nme) {
-                    ps.println("error: value of " + name + " is not an integer");
+                    ps.println(ERR_VAL + name + " is not an integer");
                     return false;
                 }
                 break;
@@ -44,7 +45,7 @@ public class Commands {
                 try {
                     new Ipv4Address(val);
                 } catch (IllegalArgumentException | NullPointerException e) {
-                    ps.println("error: value of " + name + " is not an IP address");
+                    ps.println(ERR_VAL + name + " is not an IP address");
                     return false;
                 }
                 break;
@@ -57,12 +58,12 @@ public class Commands {
                 try {
                     int afiValue = Integer.parseInt(val);
                     if (afiValue < 1 || afiValue > af_afi.values().length) {
-                        ps.println("error: value of " + name
+                        ps.println(ERR_VAL + name
                                 + " is not an integer between 1(ipv4) and 2(ipv6), its value is " + val);
                         return false;
                     }
                 } catch (NumberFormatException nme) {
-                    ps.println("error: value of " + name + " is not an integer");
+                    ps.println(ERR_VAL + name + " is not an integer");
                     return false;
                 }
                 break;
