@@ -65,6 +65,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
             String vpnName = router.getRouterName();
             String primaryRd = NatUtil.getPrimaryRd(dataBroker, vpnName);
+
             for (Uuid subnetUuid :router.getSubnetIds()) {
                 Optional<Subnetmap> subnetMapEntry =
                         SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
@@ -100,7 +101,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             Routers router = natDataUtil.getRouter(routerName);
             String vpnName = router.getRouterName();
-            String primaryRd = NatUtil.getPrimaryRd(dataBroker, vpnName);
+
             for (Uuid subnetUuid :router.getSubnetIds()) {
                 Optional<Subnetmap> subnetMapEntry =
                         SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(

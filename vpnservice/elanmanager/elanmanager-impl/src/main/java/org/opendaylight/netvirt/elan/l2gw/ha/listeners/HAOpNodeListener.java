@@ -225,7 +225,6 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
             @Override
             public void onSuccess(final Optional<Node> haGlobalCfg) {
                 if (haGlobalCfg.isPresent()) {
-                    Node haConfigNode = haGlobalCfg.get();
                     if (childNode.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
                         List<Switches> switches =
                                 childNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches();

@@ -97,7 +97,6 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
                             ReadWriteTransaction tx)
             throws ReadFailedException, ExecutionException, InterruptedException {
         //delete child nodes
-        String deletedNodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
         Set<InstanceIdentifier<Node>> children = hwvtepHACache.getChildrenForHANode(key);
         for (InstanceIdentifier<Node> childId : children) {
             HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, childId);

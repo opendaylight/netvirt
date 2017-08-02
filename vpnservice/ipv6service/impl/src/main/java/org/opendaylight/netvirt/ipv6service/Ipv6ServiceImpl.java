@@ -60,7 +60,6 @@ public class Ipv6ServiceImpl {
     public void close() {
         Ipv6PeriodicTrQueue queue = Ipv6PeriodicTrQueue.getInstance();
         queue.clearTimerQueue();
-        Ipv6PeriodicRAThread ipv6Thread = Ipv6PeriodicRAThread.getInstance();
         Ipv6PeriodicRAThread.stopIpv6PeriodicRAThread();
         LOG.info("{} close", getClass().getSimpleName());
     }
