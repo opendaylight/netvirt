@@ -44,6 +44,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.rem
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove._interface.from.dpn.on.vpn.event.RemoveInterfaceEventDataBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventDataBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
@@ -77,7 +78,7 @@ public class VpnFootprintService implements IVpnFootprintService {
     }
 
     @Override
-    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String interfaceName,
+    public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair,
                                       boolean add) {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
@@ -94,25 +95,24 @@ public class VpnFootprintService implements IVpnFootprintService {
                     vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
                 }
                 if (interfaceName != null) {
-                    createOrUpdateVpnToDpnListForInterfaceName(vpnId, dpId, interfaceName, vpnName);
+                    createOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
                     publishInterfaceAddedToVpnNotification(interfaceName, dpId, vpnName, vpnId);
                 } else {
-                    createOrUpdateVpnToDpnListForIPAddress(vpnId, dpId, ipAddressSourceValuePair, vpnName);
+                    createOrUpdateVpnToDpnListForIPAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
                 }
             } else {
                 if (interfaceName != null) {
-                    removeOrUpdateVpnToDpnListForInterfaceName(vpnId, dpId, interfaceName, vpnName);
+                    removeOrUpdateVpnToDpnListForInterfaceName(vpnId, primaryRd, dpId, interfaceName, vpnName);
                     publishInterfaceRemovedFromVpnNotification(interfaceName, dpId, vpnName, vpnId);
                 } else {
-                    removeOrUpdateVpnToDpnListForIpAddress(vpnId, dpId, ipAddressSourceValuePair, vpnName);
+                    removeOrUpdateVpnToDpnListForIpAddress(vpnId, primaryRd, dpId, ipAddressSourceValuePair, vpnName);
                 }
             }
         }
     }
 
-    private void createOrUpdateVpnToDpnListForInterfaceName(long vpnId, BigInteger dpnId, String intfName,
-                                                            String vpnName) {
-        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+    private void createOrUpdateVpnToDpnListForInterfaceName(long vpnId, String primaryRd, BigInteger dpnId,
+                                                            String intfName, String vpnName) {
         Boolean newDpnOnVpn = Boolean.FALSE;
 
         synchronized (vpnName.intern()) {
@@ -167,9 +167,8 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void createOrUpdateVpnToDpnListForIPAddress(long vpnId, BigInteger dpnId,
+    private void createOrUpdateVpnToDpnListForIPAddress(long vpnId, String primaryRd, BigInteger dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
-        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
         Boolean newDpnOnVpn = Boolean.FALSE;
 
         synchronized (vpnName.intern()) {
@@ -226,10 +225,9 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void removeOrUpdateVpnToDpnListForInterfaceName(long vpnId, BigInteger dpnId, String intfName,
+    private void removeOrUpdateVpnToDpnListForInterfaceName(long vpnId, String rd, BigInteger dpnId, String intfName,
                                                             String vpnName) {
         Boolean lastDpnOnVpn = Boolean.FALSE;
-        String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
             VpnToDpnList dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();
@@ -283,10 +281,9 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
-    private void removeOrUpdateVpnToDpnListForIpAddress(long vpnId, BigInteger dpnId,
+    private void removeOrUpdateVpnToDpnListForIpAddress(long vpnId, String rd, BigInteger dpnId,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, String vpnName) {
         Boolean lastDpnOnVpn = Boolean.FALSE;
-        String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(rd, dpnId);
             VpnToDpnList dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id).orNull();
@@ -468,4 +465,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         }
     }
 
+    boolean isVpnFootPrintCleared(VpnInstanceOpDataEntry vpnInstanceOpData) {
+        return vpnInstanceOpData.getVpnToDpnList() == null || vpnInstanceOpData.getVpnToDpnList().isEmpty();
+    }
 }
