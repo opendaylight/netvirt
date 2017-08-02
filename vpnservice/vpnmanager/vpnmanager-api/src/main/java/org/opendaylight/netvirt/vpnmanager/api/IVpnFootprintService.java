@@ -23,6 +23,6 @@ public interface IVpnFootprintService {
      * @param interfaceName Name of the VPN interface to be added/removed to/from the specified DPN
      * @param add true for addition, false for removal
      */
-    void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String interfaceName,
+    void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add);
 }
