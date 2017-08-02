@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_b96ee094",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-02T16:40:11Z",
+      "side": 1,
+      "message": "double check the permissions on this file.  It looks like you\u0027re setting the execute bits.",
+      "revId": "c732ed75ff52b6695aa96635f876e689c760723c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d9711479",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-02T16:40:11Z",
+      "side": 1,
+      "message": "You don\u0027t use this constant anywhere.",
+      "revId": "c732ed75ff52b6695aa96635f876e689c760723c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
