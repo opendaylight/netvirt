@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_392b1084",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/VtyshCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-08-02T16:03:07Z",
+      "side": 1,
+      "message": "I’m guessing this might break some (downstream?) tools, but we’ll let the culprits fix this if that’s the case.",
+      "revId": "e84605a35e3b12b601e8d510dcd2d961bb925416",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
