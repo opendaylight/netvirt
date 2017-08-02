@@ -342,4 +342,15 @@
     <argument ref="dataBroker" />
     <argument ref="vpnSubnetRouteHandler" />
   </bean>
+
+  <bean id="vpnOpStatusListener"
+        class="org.opendaylight.netvirt.vpnmanager.VpnOpStatusListener"
+        init-method="start" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="bgpmanager" />
+    <argument ref="idManagerService" />
+    <argument ref="fibManager" />
+    <argument ref="mdsalUtils" />
+    <argument ref="vpnFootprintService" />
+  </bean>
 </blueprint>
