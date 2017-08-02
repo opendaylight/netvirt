@@ -37,6 +37,7 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
         this.entityOwnershipService = entityOwnershipService;
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }

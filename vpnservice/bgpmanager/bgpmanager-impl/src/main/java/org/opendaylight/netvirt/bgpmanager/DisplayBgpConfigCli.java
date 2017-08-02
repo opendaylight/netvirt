@@ -9,8 +9,8 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import java.io.PrintStream;
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -25,6 +25,7 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             required = false, multiValued = false)
     Boolean debug = false;
 
+    @Override
     protected Object doExecute() throws Exception {
         PrintStream ps = session.getConsole();
         BgpManager bm = Commands.getBgpManager();
@@ -53,7 +54,7 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             ps.printf("Total stale entries created %d \n", BgpConfigurationManager.getTotalStaledCount());
             ps.printf("Total stale entries cleared %d \n", BgpConfigurationManager.getTotalCleared());
 
-            ArrayList<EntityOwnerUtils.EntityEvent> eventsHistory = EntityOwnerUtils.getEventsHistory();
+            List<EntityOwnerUtils.EntityEvent> eventsHistory = EntityOwnerUtils.getEventsHistory();
             for (EntityOwnerUtils.EntityEvent event : eventsHistory) {
                 ps.printf("%s entity : %s amIOwner:%s hasOwner:%s \n", new Date(event.getTime()).toString(),
                         event.getEntityName(), event.hasOwner(), event.isOwner());

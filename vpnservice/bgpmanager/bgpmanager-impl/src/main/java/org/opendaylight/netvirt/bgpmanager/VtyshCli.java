@@ -23,16 +23,16 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 public class VtyshCli extends OsgiCommandSupport {
 
     @Option(name = "--cmd", description = "command to run", required = true, multiValued = false)
-    String cmd = null;
+    String cmd;
 
-    private static int serverPort = 2605;
-    private static String serverName = "localhost";
-    private static int handlerModule = 0;
     private static final int BGPD = 1;
-    public static String passwordCheckStr = "Password:";
-    public static String vtyPassword = "sdncbgpc";
-    public static String noPaginationCmd = "terminal length 0";
-    public static int sockTimeout = 5;
+    private static final String PASSWORD_CHECK_STR = "Password:";
+    private static final String VTY_PASSWORD = "sdncbgpc";
+    private static final String NO_PAGINATION_CMD = "terminal length 0";
+    private static final int SOCK_TIMEOUT = 5;
+    private static final int SERVER_PORT = 2605;
+
+    private static String serverName = "localhost";
 
     String[] validCommands = new String[] {
         "display routing ip bgp vpnv4 all",
@@ -57,6 +57,7 @@ public class VtyshCli extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
+        int handlerModule = 0;
         cmd = cmd.trim();
         if (cmd.equals("") || cmd.equals("help") || cmd.equals("-help") || cmd.equals("--help")) {
             for (String help : validCommands) {
@@ -120,7 +121,7 @@ public class VtyshCli extends OsgiCommandSupport {
         char hashChar = '#';
 
         try {
-            socket = new Socket(serverName, serverPort);
+            socket = new Socket(serverName, SERVER_PORT);
 
         } catch (UnknownHostException ioe) {
             session.getConsole().println("No host exists: " + ioe.getMessage());
@@ -130,7 +131,7 @@ public class VtyshCli extends OsgiCommandSupport {
             return;
         }
         try {
-            socket.setSoTimeout(sockTimeout * 1000);
+            socket.setSoTimeout(SOCK_TIMEOUT * 1000);
             outToSocket = new PrintWriter(socket.getOutputStream(), true);
             inFromSocket = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 
@@ -155,15 +156,14 @@ public class VtyshCli extends OsgiCommandSupport {
             } else {
                 sb.append(cbuf);
 
-                if (sb.toString().contains(passwordCheckStr)) {
-
+                if (sb.toString().contains(PASSWORD_CHECK_STR)) {
                     break;
                 }
             }
         }
 
         sb.setLength(0);
-        outToSocket.println(vtyPassword);
+        outToSocket.println(VTY_PASSWORD);
 
         while (true) {
             try {
@@ -189,14 +189,13 @@ public class VtyshCli extends OsgiCommandSupport {
             } else {
                 ch = (char) ip;
                 sb.append(ch);
-
             }
         }
 
         String promptStr = sb.toString();
         String prompt = promptStr.trim();
         sb.setLength(0);
-        outToSocket.println(noPaginationCmd);
+        outToSocket.println(NO_PAGINATION_CMD);
         while (true) {
             try {
                 ip = inFromSocket.read();
@@ -216,7 +215,6 @@ public class VtyshCli extends OsgiCommandSupport {
             } else {
                 ch = (char) ip;
                 sb.append(ch);
-
             }
         }
         sb.setLength(0);
