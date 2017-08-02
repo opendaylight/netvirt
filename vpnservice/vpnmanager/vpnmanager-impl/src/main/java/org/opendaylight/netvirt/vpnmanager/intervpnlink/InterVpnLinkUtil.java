@@ -107,7 +107,7 @@ public class InterVpnLinkUtil {
      * @param dpnList List of DPNs where the fake InterVpnLink interface must be added
      */
     public static void updateVpnFootprint(VpnFootprintService vpnFootprintService, String vpnName,
-        List<BigInteger> dpnList) {
+        String primaryRd, List<BigInteger> dpnList) {
         LOG.debug("updateVpnFootprint (add):  vpn={}  dpnList={}", vpnName, dpnList);
         // Note: when a set of DPNs is calculated for Vpn1, these DPNs are added to the VpnToDpn map of Vpn2. Why?
         // because we do the handover from Vpn1 to Vpn2 in those DPNs, so in those DPNs we must know how to reach
@@ -115,7 +115,7 @@ public class InterVpnLinkUtil {
         // Vpn2 is not physically present there.
         for (BigInteger dpnId : dpnList) {
             String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
-            vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName,
+            vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, primaryRd, ifaceName,
                     null/*ipAddressSourceValuePair*/, true /* addition */);
         }
     }
@@ -129,10 +129,10 @@ public class InterVpnLinkUtil {
      * @param dpnId DPN where the fake InterVpnLink interface must be removed from
      */
     public static void removeIVpnLinkIfaceFromVpnFootprint(VpnFootprintService vpnFootprintService,
-        String vpnName, BigInteger dpnId) {
+        String vpnName, String rd, BigInteger dpnId) {
         String ifaceName = buildInterVpnLinkIfaceName(vpnName, dpnId);
         LOG.debug("updateVpnFootprint (remove):  vpn={}  dpn={}  ifaceName={}", vpnName, dpnId, ifaceName);
-        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, ifaceName,
+        vpnFootprintService.updateVpnToDpnMapping(dpnId, vpnName, rd, ifaceName,
                 null/*ipAddressSourceValuePair*/, false /* removal */);
     }
 

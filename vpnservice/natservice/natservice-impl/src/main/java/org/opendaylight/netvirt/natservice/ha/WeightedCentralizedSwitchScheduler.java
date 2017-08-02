@@ -64,7 +64,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
             String vpnName = router.getRouterName();
-            long vpnId = NatUtil.getVpnId(dataBroker, routerName);
+            String primaryRd = NatUtil.getPrimaryRd(dataBroker, vpnName);
             for (Uuid subnetUuid :router.getSubnetIds()) {
                 Optional<Subnetmap> subnetMapEntry =
                         SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
@@ -72,7 +72,8 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
                 if (subnetMapEntry.isPresent()) {
 
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
-                    vpnFootprintService.updateVpnToDpnMapping(nextSwitchId, vpnName,
+
+                    vpnFootprintService.updateVpnToDpnMapping(nextSwitchId, vpnName, primaryRd,
                             routerPortUuid.getValue(), null, true);
                     NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerPortUuid.getValue(),
                             nextSwitchId, writeOperTxn);
@@ -99,14 +100,14 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             Routers router = natDataUtil.getRouter(routerName);
             String vpnName = router.getRouterName();
-            long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
+            String primaryRd = NatUtil.getPrimaryRd(dataBroker, vpnName);
             for (Uuid subnetUuid :router.getSubnetIds()) {
                 Optional<Subnetmap> subnetMapEntry =
                         SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
                                 dataBroker, LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
                 if (subnetMapEntry.isPresent()) {
                     Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
-                    vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, vpnName,
+                    vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, vpnName, primaryRd,
                             routerPortUuid.getValue(), null, false);
                     NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
                     NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
