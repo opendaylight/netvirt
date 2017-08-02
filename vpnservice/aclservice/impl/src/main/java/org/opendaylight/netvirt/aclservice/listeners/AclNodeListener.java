@@ -154,8 +154,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
      * @param dpnId the dpn id
      */
     private void createTableDefaultEntries(BigInteger dpnId) {
-        LOG.info("Adding default ACL entries for mode: "
-                + (securityGroupMode == null ? SecurityGroupMode.Stateful : securityGroupMode));
+        LOG.info("Adding default ACL entries for mode {}",
+                securityGroupMode == null ? SecurityGroupMode.Stateful : securityGroupMode);
 
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
             addStatefulIngressAclTableMissFlow(dpnId);
@@ -174,7 +174,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             addLearnIngressAclTableMissFlow(dpnId);
             addLearnEgressAclTableMissFlow(dpnId);
         } else {
-            LOG.error("Invalid security group mode (" + securityGroupMode + ") obtained from AclserviceConfig.");
+            LOG.error("Invalid security group mode ({}) obtained from AclserviceConfig.", securityGroupMode);
         }
     }
 
