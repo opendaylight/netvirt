@@ -290,7 +290,6 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             return;
         }
         List<TerminationPoint> terminationPoints = psNode.getTerminationPoint();
-        List<String> vlanIds = new ArrayList<>();
         if (terminationPoints == null || terminationPoints.isEmpty()) {
             return;
         }
@@ -308,8 +307,6 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
                 }
             }
         }
-
-
     }
 
     String getLocatorValue(HwvtepPhysicalLocatorRef locatorRef) {

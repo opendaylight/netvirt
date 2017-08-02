@@ -71,7 +71,6 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     protected void remove(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface del) {
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
-        final String vpnName = del.getVpnInstanceName();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
@@ -166,7 +165,6 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             return;
         }
 
-        final String vpnName = update.getVpnInstanceName();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {

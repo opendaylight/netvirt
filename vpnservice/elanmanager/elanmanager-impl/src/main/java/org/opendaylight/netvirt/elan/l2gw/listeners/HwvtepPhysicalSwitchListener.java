@@ -205,7 +205,6 @@ public class HwvtepPhysicalSwitchListener
         LOG.trace("L2gw node added {}", psName);
         String globalNodeId = getManagedByNodeId(identifier);
         final InstanceIdentifier<Node> globalNodeIid = getManagedByNodeIid(identifier);
-        final InstanceIdentifier<Node> wildCard = globalNodeIid.firstIdentifierOf(Topology.class).child(Node.class);
         NodeId nodeId = getNodeId(identifier);
         if (HwvtepHAUtil.isEmpty(phySwitchAdded.getTunnelIps())) {
             LOG.error("Could not find the /tunnel ips for node {}", nodeId.getValue());

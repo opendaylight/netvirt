@@ -1167,7 +1167,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
         if (natMode == NatMode.Conntrack) {
             if (originalSNATEnabled != updatedSNATEnabled) {
-                BigInteger primarySwitchId;
                 if (originalSNATEnabled) {
                     //SNAT disabled for the router
                     centralizedSwitchScheduler.releaseCentralizedSwitch(routerName);

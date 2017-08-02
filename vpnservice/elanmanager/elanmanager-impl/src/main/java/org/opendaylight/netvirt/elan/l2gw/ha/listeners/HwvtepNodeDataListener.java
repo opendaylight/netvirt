@@ -159,8 +159,6 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                               final T data,
                               final InstanceIdentifier<T> identifier,
                               final boolean copyToChild) throws ReadFailedException {
-        String destination = copyToChild ? "child" : "parent";
-        String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         Optional<T> existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
         if (create) {
             if (isDataUpdated(existingDataOptional, data)) {
