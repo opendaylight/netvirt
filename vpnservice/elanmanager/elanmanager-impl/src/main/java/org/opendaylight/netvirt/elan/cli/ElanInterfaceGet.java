@@ -27,9 +27,9 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
     @Argument(index = 0, name = "elanName", description = "ELAN-NAME", required = false, multiValued = false)
     private String elanName;
     private IInterfaceManager interfaceManager;
-    public static int MAX_LENGTH = 31;
+    public static final int MAX_LENGTH = 31;
     private IElanService elanProvider;
-    public static boolean isDisplay = true;
+    private boolean isDisplay = true;
 
     public void setElanProvider(IElanService elanServiceProvider) {
         this.elanProvider = elanServiceProvider;

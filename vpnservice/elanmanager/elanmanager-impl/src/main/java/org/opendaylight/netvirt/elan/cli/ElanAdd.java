@@ -25,7 +25,7 @@ public class ElanAdd extends OsgiCommandSupport {
     private String elanDescr;
     private static final Logger LOG = LoggerFactory.getLogger(ElanAdd.class);
     private IElanService elanProvider;
-    public static int MAX_LENGTH = 31;
+    public static final int MAX_LENGTH = 31;
 
     public void setElanProvider(IElanService elanServiceProvider) {
         this.elanProvider = elanServiceProvider;
