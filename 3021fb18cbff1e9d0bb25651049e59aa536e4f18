@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_80639c19",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 21
+      },
+      "lineNbr": 346,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T14:48:01Z",
+      "side": 1,
+      "message": "No.. there is no augmentation available at present",
+      "parentUuid": "ba1f61a0_007ccc1f",
+      "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_40ad2488",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 21
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-03T12:57:54Z",
       "side": 1,
       "message": "can we please code this slightly differently:\n\nif (vpnUtil.isVpnPendingDelete(dataBroker, primaryRd) {\n    LOG.INFO(\"Ignoring processing add of vpnInterface {} , as vpnInstance {} with primaryRd {} is already marked for deletion\"...\n     \n     return;\n}",
+      "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_23ee3aed",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T14:48:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_40ad2488",
       "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_83ba86df",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T14:48:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_60bb08c5",
+      "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_c0b0f4df",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
         "patchSetId": 21
@@ -64,6 +118,24 @@
       "writtenOn": "2017-08-03T12:57:54Z",
       "side": 1,
       "message": "ditto comment as pervious file.",
+      "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_43ad2e88",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T14:48:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_c0b0f4df",
       "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_63bb12c5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T14:48:01Z",
+      "side": 1,
+      "message": "I will use the max retries via System Property",
+      "parentUuid": "ba1f61a0_00ca0c4f",
+      "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_e0c6d848",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 21
@@ -104,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_831286b2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T14:48:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_e0c6d848",
+      "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_40c40440",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 21
@@ -115,6 +223,24 @@
       "writtenOn": "2017-08-03T12:57:54Z",
       "side": 1,
       "message": "we can have this method within the vpnFootprintService and invoke that from here.",
+      "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8360c636",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T14:48:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_40c40440",
       "revId": "3021fb18cbff1e9d0bb25651049e59aa536e4f18",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
