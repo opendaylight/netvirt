@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_88358c48",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-03T08:07:26Z",
+      "side": 1,
+      "message": "Hello\n\nRight, I will do it.\n\nThks, Noel.",
+      "parentUuid": "ba1f61a0_88abcc88",
+      "range": {
+        "startLine": 161,
+        "startChar": 4,
+        "endLine": 177,
+        "endChar": 5
+      },
+      "revId": "c49c33b56fcb5798daae13042770611f8ed22b73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ce5e7712",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 31
@@ -84,6 +108,30 @@
       "writtenOn": "2017-07-31T13:41:42Z",
       "side": 1,
       "message": "I dont think this method is going to work. This is called by createVpn and createInternalVpn, and this method tries to get all the subnetMap instances which have their vpnId set as \"vpn\". \nBut, vpnId will be set for a subnetMap only when a network/router is assoiciated to a bgpvpn or when a subnet is associated to a router. This happens later in the bgpvpn/internal-vpn life cycle.",
+      "range": {
+        "startLine": 1302,
+        "startChar": 34,
+        "endLine": 1302,
+        "endChar": 64
+      },
+      "revId": "c49c33b56fcb5798daae13042770611f8ed22b73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_fa1fa707",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1302,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-03T08:07:26Z",
+      "side": 1,
+      "message": "Hello Kiran\n\nSorry for my silence.\nYes I agree with you, me and Valentina are working about this step.\n\nWe will come back to you very soon.\n\nThks, Noel",
+      "parentUuid": "ba1f61a0_ce5e7712",
       "range": {
         "startLine": 1302,
         "startChar": 34,
