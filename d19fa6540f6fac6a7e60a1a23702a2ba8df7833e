@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_74490d8b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T05:18:22Z",
+      "side": 1,
+      "message": "Ids",
+      "range": {
+        "startLine": 475,
+        "startChar": 33,
+        "endLine": 475,
+        "endChar": 37
+      },
+      "revId": "d19fa6540f6fac6a7e60a1a23702a2ba8df7833e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_94448175",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 477,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T05:18:22Z",
+      "side": 1,
+      "message": "Ids",
+      "range": {
+        "startLine": 477,
+        "startChar": 31,
+        "endLine": 477,
+        "endChar": 35
+      },
+      "revId": "d19fa6540f6fac6a7e60a1a23702a2ba8df7833e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d45d594a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 490,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T05:18:22Z",
+      "side": 1,
+      "message": "You can directly iterate through originalSnMaps() and do a updateSnMaps.remove(snId). If this returns false, then the snid was present in originalSnMaps but not in updateSnMaps, and so you can call removePortsFromSubnetMapNode.\nFinally, the updatedSubnetMaps() will contain only the newly added FixedIps, and you can iterate through them and call updateSubnetMapNodeWihPorts.\nThis will avoid the concatenated snList that is created here, and also will reduce the number of iterations, and the objects iterated.",
+      "range": {
+        "startLine": 480,
+        "startChar": 12,
+        "endLine": 490,
+        "endChar": 13
+      },
+      "revId": "d19fa6540f6fac6a7e60a1a23702a2ba8df7833e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
