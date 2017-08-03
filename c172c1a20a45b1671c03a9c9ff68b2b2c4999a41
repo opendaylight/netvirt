@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_dd3bbd36",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T10:10:11Z",
+      "side": 1,
+      "message": "Done. Handled in VpnOpStatusListener",
+      "parentUuid": "ba1f61a0_1920ccf6",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_b950a05f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
         "patchSetId": 19
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-02T18:20:02Z",
       "side": 1,
       "message": "Does this represent the primary rd?",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9d1145af",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T10:10:11Z",
+      "side": 1,
+      "message": "Yes. vpnInstanceToVpnId is created using the primaryRd.",
+      "parentUuid": "ba1f61a0_b950a05f",
       "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_3d4e59c2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T10:10:11Z",
+      "side": 1,
+      "message": "If the vpnToDpnList() was not empty, then we dont have to do anything here. \nFinally, once the DpnInVpnChangeLstener deletes the vpnToDpnList, we will again get an update with state as PENDING_DELETE and vpnToDpnList as empty. That time, we will fire the below deletion DJC.\nOne more thing was that I had to even check if vpnToDpnLIst() is null, for unised VPN case. I have handled it now.",
+      "parentUuid": "ba1f61a0_59c7e412",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_f94a18ab",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 19
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_bdd1a9cf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T10:10:11Z",
+      "side": 1,
+      "message": "Done. I have used the default max retry count(from system properties) instead of 3(that we decided to use in FIB engine for optimisticlockexception). This is because, ultimately, we need to get all this cleaned up, so a count computed based on the system state would be better.",
+      "parentUuid": "ba1f61a0_f94a18ab",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_99d15cd0",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 19
@@ -81,6 +153,24 @@
       "writtenOn": "2017-08-02T18:20:02Z",
       "side": 1,
       "message": "if there is no vpnInstanceOpData what should be the deemed behaviour ?",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_dd50dd60",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1743,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-03T10:10:11Z",
+      "side": 1,
+      "message": "This method is used in the create cycle for interfaces. Right now,  if there is no vpnOpData, then we come out.\nThe right fix would be to queue the interface as unprocessed, and process it again once the vpn op data is available.\nI was thinking we can do this in a separate review, as it deals with a separate problem, i.e, that new review will take care of all the problems that will arise when a vpn and vpn-interface add is executed, but the delete is still in progress.",
+      "parentUuid": "ba1f61a0_99d15cd0",
       "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
