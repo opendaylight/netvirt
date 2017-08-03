@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_9df825e7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 35
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-03T10:34:39Z",
+      "side": 1,
+      "message": "why are we adding Vrf\u0027s as the key?\n - This may lead to some bugs during CRUD calls of MDSAL, as the VRF object may be different for the same InstanceIndentifier. \nIts better to use \"rd\" as the key..",
+      "range": {
+        "startLine": 170,
+        "startChar": 36,
+        "endLine": 170,
+        "endChar": 40
+      },
+      "revId": "4f4f9ab8b6672ed6ef0ea45e434266b46a00a77e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
