@@ -28,6 +28,8 @@ public class Network extends OsgiCommandSupport {
     private static final String NH = "--nexthop";
     private static final String LB = "--label";
     private static final String AFI = "--afi";
+    private static final String ERROR = "error: ";
+    private static final String IS_NEEDED = " is needed";
 
     private static final Logger LOG = LoggerFactory.getLogger(Network.class);
 
@@ -80,11 +82,11 @@ public class Network extends OsgiCommandSupport {
             case "add":
                 int label = qbgpConstants.LBL_EXPLICIT_NULL;
                 if (pfx == null) {
-                    session.getConsole().println("error: " + PFX + " is needed");
+                    session.getConsole().println(ERROR + PFX + IS_NEEDED);
                     return null;
                 }
                 if (nh == null) {
-                    session.getConsole().println("error: " + NH + " is needed");
+                    session.getConsole().println(ERROR + NH + IS_NEEDED);
                     return null;
                 }
                 //TODO: syntactic validation of prefix
@@ -101,7 +103,7 @@ public class Network extends OsgiCommandSupport {
                     }
                 }
                 if (!Commands.isValid(session.getConsole(), afi, Commands.Validators.AFI, AFI)) {
-                    session.getConsole().println("error: " + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
+                    session.getConsole().println(ERROR + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
                     return null;
                 }
                 LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
@@ -111,7 +113,7 @@ public class Network extends OsgiCommandSupport {
                 break;
             case "del":
                 if (pfx == null) {
-                    session.getConsole().println("error: " + PFX + " is needed");
+                    session.getConsole().println(ERROR + PFX + IS_NEEDED);
                     return null;
                 }
                 if (nh != null || lbl != null) {
@@ -119,7 +121,7 @@ public class Network extends OsgiCommandSupport {
                             + "; will be ignored");
                 }
                 if (!Commands.isValid(session.getConsole(), afi, Commands.Validators.AFI, AFI)) {
-                    session.getConsole().println("error: " + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
+                    session.getConsole().println(ERROR + AFI + " must be 1 (IPv4) or 2 (IPv6). Default is 1");
                     return null;
                 }
                 LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, pfx);
