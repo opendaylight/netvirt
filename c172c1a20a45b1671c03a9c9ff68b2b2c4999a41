@@ -174,6 +174,58 @@
       "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_40db641b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1743,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-03T12:57:54Z",
+      "side": 1,
+      "message": "Thanks for the clarification.\n\nIn places where we already have vpnInstanceOpData, can we avoid makeing this method invocation so that we will save an OperDS read from a config PL?",
+      "parentUuid": "ba1f61a0_dd50dd60",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_20d8f01c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-03T12:57:54Z",
+      "side": 1,
+      "message": "may be we can make this check as simpler twwo liner checks without disturbing the entire file lines ont he left side.",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_80043c7f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkNodeAddTask.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-03T12:57:54Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "c172c1a20a45b1671c03a9c9ff68b2b2c4999a41",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
