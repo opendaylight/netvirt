@@ -25,7 +25,7 @@ public class EtreeAdd extends OsgiCommandSupport {
     private String etreeDescr;
     private static final Logger LOG = LoggerFactory.getLogger(EtreeAdd.class);
     private IElanService elanProvider;
-    public static int MAX_LENGTH = 31;
+    public static final int MAX_LENGTH = 31;
 
     public void setElanProvider(IElanService elanServiceProvider) {
         this.elanProvider = elanServiceProvider;
