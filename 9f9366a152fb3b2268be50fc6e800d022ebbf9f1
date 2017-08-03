@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_945c7a27",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-03T23:53:01Z",
+      "side": 1,
+      "message": "I don\u0027t see that this list is being used - so wonder if it can be removed.",
+      "revId": "9f9366a152fb3b2268be50fc6e800d022ebbf9f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
