@@ -194,6 +194,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             return;
         }
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+<<<<<<< HEAD
+=======
+        if (interfaceInfo == null && elanInfo.isExternal()) {
+            // In deleting external network, the underlying ietf Inteface might have been removed
+            // from the config DS prior to deleting the ELAN interface. We try to get the InterfaceInfo
+            // from Operational DS instead
+            interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
+        }
+>>>>>>> ae9165a... BUG 8875 - Fix to remove ELAN interface flows when external network deleted
         String elanInstanceName = elanInfo.getElanInstanceName();
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan configWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInfo,
