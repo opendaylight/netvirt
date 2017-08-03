@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_d436f2e6",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-03T23:35:34Z",
+      "side": 1,
+      "message": "I\u0027d be inclined not to make this change.\n\nI\u0027m be worried that there may be some side effects (after glancing at the Ipv6PeriodicRAThread class code).",
+      "revId": "d2f808b8f6745732ceaf04b1b6cbe71ca1ef0301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b409be2e",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6ServiceInterfaceEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 856
+      },
+      "writtenOn": "2017-08-03T23:35:34Z",
+      "side": 1,
+      "message": "Hmm - the resulting code here doesn\u0027t make much sense.  No need to have a return true within a try-catch block.  I\u0027d guess that the deleted line serves the function of verifying that the \u0027name\u0027 can be turned into a Uuid.\nSo, better not make this change.",
+      "revId": "d2f808b8f6745732ceaf04b1b6cbe71ca1ef0301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
