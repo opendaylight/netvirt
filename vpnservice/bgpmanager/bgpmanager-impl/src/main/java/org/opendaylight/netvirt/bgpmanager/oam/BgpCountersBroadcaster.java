@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * Created by ECHIAPT on 9/25/2015.
  */
 public class BgpCountersBroadcaster extends NotificationBroadcasterSupport implements BgpCountersBroadcasterMBean  {
-    public Map<String, String> bgpCountersMap = new HashMap<>();
+    private Map<String, String> bgpCountersMap = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(BgpCountersBroadcaster.class);
 
     public Map<String, String> retrieveCounterMap() {

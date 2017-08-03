@@ -40,9 +40,9 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     private final BgpAlarmBroadcaster qbgpAlarmProducer;
     private final FibDSWriter fibDSWriter;
     private long qbgprestartTS = 0;
-    public Timer bgpAlarmsTimer;
-    public BgpAlarms bgpAlarms;
-    public BgpCounters bgpCounters;
+    private Timer bgpAlarmsTimer;
+    private BgpAlarms bgpAlarms;
+    private BgpCounters bgpCounters;
 
     public BgpManager(final DataBroker dataBroker,
             final BgpConfigurationManager bcm,

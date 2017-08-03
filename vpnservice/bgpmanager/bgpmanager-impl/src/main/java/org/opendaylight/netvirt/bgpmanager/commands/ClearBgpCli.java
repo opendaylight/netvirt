@@ -27,10 +27,10 @@ public class ClearBgpCli extends OsgiCommandSupport {
 
     private static int serverPort = 2605;
     private static String serverName = "localhost";
-    public static String passwordCheckStr = "Password:";
-    public static String vtyPassword = "sdncbgpc";
-    public static String enableCmd = "enable";
-    public static int sockTimeout = 5;
+    private static String passwordCheckStr = "Password:";
+    private static String vtyPassword = "sdncbgpc";
+    private static String enableCmd = "enable";
+    private static int sockTimeout = 5;
     static char HASH_PROMPT = '#';
     static char GT = '>';
 

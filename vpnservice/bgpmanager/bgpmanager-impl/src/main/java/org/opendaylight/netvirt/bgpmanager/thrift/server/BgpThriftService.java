@@ -40,7 +40,7 @@ public class BgpThriftService {
     TServer server;
 
     // to store copy fo FIB-VRF tables on QBGP restart.
-    public List<VrfTables> staleVrfTables;
+    private List<VrfTables> staleVrfTables;
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpThriftService.class);
 

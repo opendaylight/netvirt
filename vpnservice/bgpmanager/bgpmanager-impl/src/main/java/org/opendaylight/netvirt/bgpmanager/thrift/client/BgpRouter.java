@@ -33,9 +33,9 @@ public class BgpRouter {
     private static BgpConfigurator.Client bgpClient = null;
     boolean isConnected = false;
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouter.class);
-    public int startBGPresult = Integer.MIN_VALUE;
-    public String bgpHost = null;
-    public int bgpHostPort = 0;
+    private int startBGPresult = Integer.MIN_VALUE;
+    private String bgpHost = null;
+    private int bgpHostPort = 0;
     private long startTS = 0;
     private long connectTS = 0;
     private long lastConnectedTS = 0;
@@ -76,24 +76,24 @@ public class BgpRouter {
 
     private class BgpOp {
 
-        public Optype type;
-        public boolean add;
-        public String[] strs;
-        public int[] ints;
-        public List<String> irts;
-        public List<String> erts;
-        public long asNumber;
+        private Optype type;
+        private boolean add;
+        private String[] strs;
+        private int[] ints;
+        private List<String> irts;
+        private List<String> erts;
+        private long asNumber;
         static final int IGNORE = 0;
-        public layer_type thriftLayerType;
-        public protocol_type thriftProtocolType;
-        public int ethernetTag;
-        public String esi;
-        public String macAddress;
-        public int l2label;
-        public int l3label;
-        public encap_type thriftEncapType;
-        public String routermac;
-        public af_afi afi;
+        private layer_type thriftLayerType;
+        private protocol_type thriftProtocolType;
+        private int ethernetTag;
+        private String esi;
+        private String macAddress;
+        private int l2label;
+        private int l3label;
+        private encap_type thriftEncapType;
+        private String routermac;
+        private af_afi afi;
 
         BgpOp() {
             strs = new String[3];
