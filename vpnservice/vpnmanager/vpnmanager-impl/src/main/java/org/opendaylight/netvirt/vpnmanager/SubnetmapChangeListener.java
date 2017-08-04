@@ -81,6 +81,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             // subnet added to VPN case upon config DS replay after reboot
             // ports added to subnet upon config DS replay after reboot are handled implicitly by subnetAddedToVpn
             // in SubnetRouteHandler
+	    // subnetmap added to vpnId if isBgpvpn is true
             vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag);
         }
     }
@@ -120,6 +121,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             if (!isBgpVpn) {
                 return;
             }
+	    // vpnIdNew is the VPN that will be added the subnetmapupdate
             vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag);
             return;
         }
@@ -129,6 +131,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             if (!isBgpVpn) {
                 return;
             }
+	    // subnetmapOriginal removed from vpnIdOld
             vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true);
             return;
         }
