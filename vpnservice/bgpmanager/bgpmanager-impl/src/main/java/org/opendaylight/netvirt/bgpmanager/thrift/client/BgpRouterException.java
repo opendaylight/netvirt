@@ -52,17 +52,17 @@ public class BgpRouterException extends Exception {
 
         Function(Map<Integer, String> messages) {
             messageMap = messages;
-        } // ctor
+        }
 
         public Map<Integer, String> messages() {
             return messageMap;
-        } // messages getter
-    } // enum Function
+        }
+    }
 
     public BgpRouterException(BgpRouterException.Function func, int cause) {
         functionCode = func;
         errcode = cause;
-    } // public ctor
+    }
 
     public BgpRouterException(int cause) {
         this(Function.DEFAULT, cause);
@@ -74,11 +74,13 @@ public class BgpRouterException extends Exception {
 
     public Function getFunctionCode() {
         return functionCode;
-    } // getter getFunctionCode
+    }
 
     public String toString() {
         String message = functionCode.messages().get(errcode);
-        if (message == null) { // there is no function specific message
+
+        // there is no function specific message
+        if (message == null) {
             message = MESSAGES.get(errcode);
         }
         if (message != null) {
