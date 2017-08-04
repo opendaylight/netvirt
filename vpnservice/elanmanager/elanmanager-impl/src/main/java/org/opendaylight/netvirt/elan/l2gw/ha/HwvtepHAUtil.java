@@ -212,7 +212,7 @@ public class HwvtepHAUtil {
     }
 
     public static boolean isEmptyList(List list) {
-        return list == null || list.size() == 0;
+        return list == null || list.isEmpty();
     }
 
     public static boolean isEmpty(Collection collection) {
@@ -272,8 +272,8 @@ public class HwvtepHAUtil {
     }
 
     public static Node getCreated(DataObjectModification<Node> mod) {
-        if ((mod.getModificationType() == DataObjectModification.ModificationType.WRITE)
-                && (mod.getDataBefore() == null)) {
+        if (mod.getModificationType() == DataObjectModification.ModificationType.WRITE
+                && mod.getDataBefore() == null) {
             return mod.getDataAfter();
         }
         return null;
@@ -542,7 +542,7 @@ public class HwvtepHAUtil {
         }
         //also read from managed by attribute of switches and cleanup them as a back up if the above cleanup fails
         Optional<Topology> topologyOptional = tx
-                .read(CONFIGURATION, (InstanceIdentifier<Topology>)key.firstIdentifierOf(Topology.class)).checkedGet();
+                .read(CONFIGURATION, key.firstIdentifierOf(Topology.class)).checkedGet();
         String deletedNodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
         if (topologyOptional.isPresent()) {
             Topology topology = topologyOptional.get();

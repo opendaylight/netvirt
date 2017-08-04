@@ -35,9 +35,9 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
-    private ElanInterfaceManager elanInterfaceManager;
+    private final ElanInterfaceManager elanInterfaceManager;
     private final DataBroker broker;
-    private ElanUtils elanUtils;
+    private final ElanUtils elanUtils;
     private final EntityOwnershipService entityOwnershipService;
 
     public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db, ElanUtils elanUtils,
@@ -51,6 +51,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         LOG.trace("ElanGroupListener registered");
     }
 
+    @Override
     protected InstanceIdentifier<Group> getWildCardPath() {
         return InstanceIdentifier.create(Nodes.class).child(Node.class)
                 .augmentation(FlowCapableNode.class).child(Group.class);
@@ -95,7 +96,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
 
         List<L2GatewayDevice> allDevices = ElanL2GwCacheUtils.getAllElanDevicesFromCache();
-        if (allDevices == null || allDevices.size() == 0) {
+        if (allDevices == null || allDevices.isEmpty()) {
             LOG.trace("no elan devices present in cache {}", update.getKey().getGroupId());
             return;
         }
@@ -108,7 +109,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
 
         ConcurrentMap<String, L2GatewayDevice> devices =
                 ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanInstance.getElanInstanceName());
-        if (devices == null || devices.size() == 0) {
+        if (devices == null || devices.isEmpty()) {
             LOG.trace("no elan devices in elan cache {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());
             return;
@@ -133,7 +134,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             List<Bucket> bucketList = elanInterfaceManager.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
                     elanInstance.getElanTag());
             expectedElanFootprint--;//remove local bcgroup bucket
-            if (bucketList == null || (bucketList.size() != expectedElanFootprint)) {
+            if (bucketList == null || bucketList.size() != expectedElanFootprint) {
                 //no point in retrying if not able to meet expected foot print
                 return;
             }

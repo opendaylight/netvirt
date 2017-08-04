@@ -1047,8 +1047,8 @@ public class ElanUtils {
         Flow flowEntity;
         // if openstack-vni-semantics are enforced, segmentation ID is passed as network VNI for VxLAN based provider
         // networks, 0 otherwise
-        long lportTagOrVni = !isOpenStackVniSemanticsEnforced() ? lportTag : ((isVxlan(elanInstance))
-                ? elanInstance.getSegmentationId() : 0);
+        long lportTagOrVni = !isOpenStackVniSemanticsEnforced() ? lportTag : isVxlan(elanInstance)
+                ? elanInstance.getSegmentationId() : 0;
         flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName,
                 elanInstance);
         mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
@@ -1384,7 +1384,7 @@ public class ElanUtils {
             LOG.error("Error in RPC call getEgressActionsForInterface {}", e);
         }
 
-        if (result == null || result.size() == 0) {
+        if (result == null || result.isEmpty()) {
             LOG.warn("Could not build Egress actions for interface {} and tunnelId {}", interfaceName, tunnelKey);
         }
         return result;
@@ -1937,7 +1937,7 @@ public class ElanUtils {
 
     public static boolean isVxlanNetwork(DataBroker broker, String elanInstanceName) {
         ElanInstance elanInstance = getElanInstanceByName(broker, elanInstanceName);
-        return (elanInstance != null && isVxlan(elanInstance));
+        return elanInstance != null && isVxlan(elanInstance);
     }
 
     public static boolean isVxlan(ElanInstance elanInstance) {

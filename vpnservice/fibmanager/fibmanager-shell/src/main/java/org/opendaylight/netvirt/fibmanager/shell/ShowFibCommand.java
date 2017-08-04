@@ -98,7 +98,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
             }
         }
         console.println(HEADER);
-        if (options == null && prefixOrSubnet == null && (addrFamList == null || addrFamList.size() == 0)) {
+        if (options == null && prefixOrSubnet == null && (addrFamList == null || addrFamList.isEmpty())) {
             InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
             try {
                 FibEntries fibEntries = singleTxDb.syncRead(LogicalDatastoreType.CONFIGURATION, id);
@@ -130,7 +130,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
                 default :
             }
 
-            if ((addrFamList == null || addrFamList.size() == 0) && (prefixOrSubnet == null
+            if ((addrFamList == null || addrFamList.isEmpty()) && (prefixOrSubnet == null
                     || prefixOrSubnet.indexOf("/") < 5)) {
                 console.println("any address family is requiered or " + SUBNET + " is wrong");
                 usage(console);
