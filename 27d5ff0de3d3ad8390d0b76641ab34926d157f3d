@@ -142,6 +142,52 @@
       "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_64c83575",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:36:19Z",
+      "side": 1,
+      "message": "if (ret \u003d\u003d true \u0026\u0026 removeFibTable SET to FALSE)\n   the logic here: goes and removes from FIB as well which is in correct",
+      "range": {
+        "startLine": 110,
+        "startChar": 12,
+        "endLine": 110,
+        "endChar": 44
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_44c5315a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:36:19Z",
+      "side": 1,
+      "message": "may we have variable name reflects what we are doing?",
+      "range": {
+        "startLine": 300,
+        "startChar": 23,
+        "endLine": 300,
+        "endChar": 26
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
