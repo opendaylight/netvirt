@@ -639,7 +639,7 @@ public class FibUtil {
         InstanceIdentifier<Nexthops> nextHopsId = getNextHopsIdentifier(nextHopKey);
         List<String> targetDeviceIds = nexthops.getTargetDeviceId();
         targetDeviceIds.remove(dpnId.toString());
-        if (targetDeviceIds.size() == 0) {
+        if (targetDeviceIds.isEmpty()) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, nextHopsId);
         } else {
             Nexthops nextHopsToGroupId = new NexthopsBuilder().setKey(new NexthopsKey(nextHopKey))
@@ -711,14 +711,14 @@ public class FibUtil {
 
     protected static boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(DataBroker dataBroker, Uuid subnetId,
                                                                                long vpnId, String rd) {
-        return (isOpenStackVniSemanticsEnforced
-                && isVxlanNetworkAndInternalRouterVpn(dataBroker, subnetId, getVpnNameFromId(dataBroker, vpnId), rd));
+        return isOpenStackVniSemanticsEnforced
+                && isVxlanNetworkAndInternalRouterVpn(dataBroker, subnetId, getVpnNameFromId(dataBroker, vpnId), rd);
     }
 
     protected static boolean enforceVxlanDatapathSemanticsforInternalRouterVpn(DataBroker dataBroker, Uuid subnetId,
                                                                                String vpnName, String rd) {
-        return (isOpenStackVniSemanticsEnforced
-                && isVxlanNetworkAndInternalRouterVpn(dataBroker, subnetId, vpnName, rd));
+        return isOpenStackVniSemanticsEnforced
+                && isVxlanNetworkAndInternalRouterVpn(dataBroker, subnetId, vpnName, rd);
     }
 
     static NodeRef buildNodeRef(BigInteger dpId) {

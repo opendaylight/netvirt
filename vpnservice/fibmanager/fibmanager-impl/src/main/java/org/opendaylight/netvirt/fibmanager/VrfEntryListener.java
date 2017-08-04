@@ -263,8 +263,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
             // If original VRF Entry had nexthop null , but update VRF Entry
             // has nexthop , route needs to be created on remote Dpns
-            if (((originalRoutePath == null) || (originalRoutePath.isEmpty())
-                && (updateRoutePath != null) && (!updateRoutePath.isEmpty()) && usedRds.isEmpty())) {
+            if (originalRoutePath == null || originalRoutePath.isEmpty()
+                && updateRoutePath != null && !updateRoutePath.isEmpty() && usedRds.isEmpty()) {
                 // TODO(vivek): Though ugly, Not handling this code now, as each
                 // tep add event will invoke flow addition
                 LOG.trace("Original VRF entry NH is null for destprefix {}. And the prefix is not an extra route."
@@ -274,8 +274,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
             // If original VRF Entry had valid nexthop , but update VRF Entry
             // has nexthop empty'ed out, route needs to be removed from remote Dpns
-            if (((updateRoutePath == null) || (updateRoutePath.isEmpty())
-                && (originalRoutePath != null) && (!originalRoutePath.isEmpty()) && usedRds.isEmpty())) {
+            if (updateRoutePath == null || updateRoutePath.isEmpty()
+                && originalRoutePath != null && !originalRoutePath.isEmpty() && usedRds.isEmpty()) {
                 LOG.trace("Original VRF entry had valid NH for destprefix {}. And the prefix is not an extra route."
                         + "This event is IGNORED here.", update.getDestPrefix());
                 return;
@@ -460,8 +460,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
         });
         final List<InstructionInfo> instructions = new ArrayList<>();
-        BigInteger subnetRouteMeta = ((BigInteger.valueOf(elanTag)).shiftLeft(24))
-            .or((BigInteger.valueOf(vpnId).shiftLeft(1)));
+        BigInteger subnetRouteMeta = BigInteger.valueOf(elanTag).shiftLeft(24)
+            .or(BigInteger.valueOf(vpnId).shiftLeft(1));
         instructions.add(new InstructionWriteMetadata(subnetRouteMeta, MetaDataUtil.METADATA_MASK_SUBNET_ROUTE));
         instructions.add(new InstructionGotoTable(NwConstants.L3_SUBNET_ROUTE_TABLE));
         baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
@@ -577,7 +577,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         String[] values = destination.split("/");
         String destPrefixIpAddress = values[0];
-        int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
+        int prefixLength = values.length == 1 ? 0 : Integer.parseInt(values[1]);
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnTag), MetaDataUtil.METADATA_MASK_VRFID));
@@ -817,7 +817,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.debug("vpninstance {} name is present", vpnInstanceName);
             vpnInstancesList.remove(vpnInstanceName);
         }
-        if (vpnInstancesList.size() == 0) {
+        if (vpnInstancesList.isEmpty()) {
             LOG.debug("deleting LRI instance object for label {}", lri.getLabel());
             if (tx != null) {
                 tx.delete(LogicalDatastoreType.OPERATIONAL, lriId);
@@ -1421,7 +1421,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         LOG.debug("LFIB Entry for dpID {} : label : {} instructions {} : key {} {} successfully",
-            dpId, label, instructions, flowKey, (NwConstants.ADD_FLOW == addOrRemove) ? "ADDED" : "REMOVED");
+            dpId, label, instructions, flowKey, NwConstants.ADD_FLOW == addOrRemove ? "ADDED" : "REMOVED");
     }
 
     public void populateFibOnNewDpn(final BigInteger dpnId, final long vpnId, final String rd,
@@ -1556,7 +1556,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         action, localDpnId, vpnId, rd, destPrefix);
                     List<RoutePaths> routePathList = vrfEntry.getRoutePaths();
                     VrfEntry modVrfEntry;
-                    if (routePathList == null || (routePathList.isEmpty())) {
+                    if (routePathList == null || routePathList.isEmpty()) {
                         modVrfEntry = FibHelper.getVrfEntryBuilder(vrfEntry, label,
                                 Collections.singletonList(destTepIp),
                                 RouteOrigin.value(vrfEntry.getOrigin()), null /* parentVpnRd */).build();

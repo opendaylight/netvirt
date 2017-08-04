@@ -131,7 +131,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final IInterfaceManager interfaceManager;
     private final IdManagerService idManager;
     private final ElanForwardingEntriesHandler elanForwardingEntriesHandler;
-    private INeutronVpnManager neutronVpnManager;
+    private final INeutronVpnManager neutronVpnManager;
     private ElanL2GatewayUtils elanL2GatewayUtils;
     private ElanUtils elanUtils;
 
@@ -215,7 +215,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             return;
         }
         List<String> elanInterfaces = elanState.getElanInterfaces();
-        if (elanInterfaces.size() == 0) {
+        if (elanInterfaces.isEmpty()) {
             isLastElanInterface = true;
         }
         if (interfaceInfo != null) {
@@ -384,7 +384,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
                 // Removing all those MACs from External Devices belonging
                 // to this ELAN
-                if ((isVxlanNetworkOrVxlanSegment(elanInfo)) && ! macAddresses.isEmpty()) {
+                if (isVxlanNetworkOrVxlanSegment(elanInfo) && ! macAddresses.isEmpty()) {
                     elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo, macAddresses);
                 }
             }
@@ -1023,7 +1023,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             bucketId);
                     remoteListBucketInfo.addAll(elanL2GwDevicesBuckets);
 
-                    if (remoteListBucketInfo.size() == 0) {
+                    if (remoteListBucketInfo.isEmpty()) {
                         LOG.debug("No ITM is present on Dpn - {} ", dpnInterface.getDpId());
                         continue;
                     }
@@ -1239,7 +1239,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 }
             }
 
-            if (listBucket.size() == 0) { // No Buckets
+            if (listBucket.isEmpty()) { // No Buckets
                 createDropBucket(listBucket);
             }
 

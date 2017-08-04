@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -263,7 +263,7 @@ public class VPNServiceChainHandlerTest {
         verify(mdsalMgr, times(0)).installFlow(argumentCaptor.capture());
 
         List<FlowEntity> installedFlowsCaptured = argumentCaptor.getAllValues();
-        assert (installedFlowsCaptured.size() == 0);
+        assert installedFlowsCaptured.isEmpty();
 
     }
 
@@ -285,7 +285,7 @@ public class VPNServiceChainHandlerTest {
         verify(mdsalMgr, times(0)).installFlow(argumentCaptor.capture());
 
         List<FlowEntity> installedFlowsCaptured = argumentCaptor.getAllValues();
-        assert (installedFlowsCaptured.size() == 0);
+        assert installedFlowsCaptured.isEmpty();
 
     }
 
@@ -315,10 +315,10 @@ public class VPNServiceChainHandlerTest {
         ArgumentCaptor<Flow> argumentCaptor = ArgumentCaptor.forClass(Flow.class);
         verify(mdsalMgr, times(1)).installFlow((BigInteger)anyObject(), argumentCaptor.capture());
         List<Flow> installedFlowsCaptured = argumentCaptor.getAllValues();
-        assert (installedFlowsCaptured.size() == 1);
+        assert installedFlowsCaptured.size() == 1;
         Flow expectedLportDispatcherFlowEntity =
             VpnServiceChainUtils.buildLPortDispFromScfToL3VpnFlow(VPN_ID, DPN_ID, LPORT_TAG, NwConstants.ADD_FLOW);
-        assert (new FlowMatcher(expectedLportDispatcherFlowEntity).matches(installedFlowsCaptured.get(0)));
+        assert new FlowMatcher(expectedLportDispatcherFlowEntity).matches(installedFlowsCaptured.get(0));
 
         // Verifying VpnToDpn update
         String vpnPseudoPortIfaceName =
@@ -355,17 +355,17 @@ public class VPNServiceChainHandlerTest {
         ArgumentCaptor<FlowEntity> argumentCaptor = ArgumentCaptor.forClass(FlowEntity.class);
         verify(mdsalMgr, times(2)).installFlow(argumentCaptor.capture());
         List<FlowEntity> installedFlowsCaptured = argumentCaptor.getAllValues();
-        assert (installedFlowsCaptured.size() == 2);
+        assert installedFlowsCaptured.size() == 2;
 
         RoutePaths routePath = vrfEntry.getRoutePaths().get(0);
         FlowEntity expectedLFibFlowEntity =
             VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(DPN_ID, routePath.getLabel(),
                     routePath.getNexthopAddress(), LPORT_TAG);
-        assert (new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0)));
+        assert new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0));
 
         FlowEntity expectedLPortDispatcher =
             VpnServiceChainUtils.buildLportFlowDispForVpnToScf(DPN_ID, LPORT_TAG, SCF_TAG, tableId);
-        assert (new FlowEntityMatcher(expectedLPortDispatcher).matches(installedFlowsCaptured.get(1)));
+        assert new FlowEntityMatcher(expectedLPortDispatcher).matches(installedFlowsCaptured.get(1));
 
     }
 
@@ -397,17 +397,17 @@ public class VPNServiceChainHandlerTest {
         verify(ifaceMgr).bindService(eq(ifaceName), eq(ServiceModeIngress.class), anyObject());
         verify(mdsalMgr, times(2)).installFlow(argumentCaptor.capture());
         List<FlowEntity> installedFlowsCaptured = argumentCaptor.getAllValues();
-        assert (installedFlowsCaptured.size() == 2);
+        assert installedFlowsCaptured.size() == 2;
 
         RoutePaths routePath = vrfEntry.getRoutePaths().get(0);
         FlowEntity expectedLFibFlowEntity =
             VpnServiceChainUtils.buildLFibVpnPseudoPortFlow(DPN_ID, routePath.getLabel(),
                     routePath.getNexthopAddress(), LPORT_TAG);
-        assert (new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0)));
+        assert new FlowEntityMatcher(expectedLFibFlowEntity).matches(installedFlowsCaptured.get(0));
 
         FlowEntity expectedLPortDispatcher =
             VpnServiceChainUtils.buildLportFlowDispForVpnToScf(DPN_ID, LPORT_TAG, SCF_TAG, tableId);
-        assert (new FlowEntityMatcher(expectedLPortDispatcher).matches(installedFlowsCaptured.get(1)));
+        assert new FlowEntityMatcher(expectedLPortDispatcher).matches(installedFlowsCaptured.get(1));
 
     }
 
