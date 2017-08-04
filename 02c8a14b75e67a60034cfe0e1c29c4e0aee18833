@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_e48385ca",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-04T17:06:06Z",
+      "side": 1,
+      "message": "the {} should be added rather than using +",
+      "range": {
+        "startLine": 157,
+        "startChar": 55,
+        "endLine": 157,
+        "endChar": 57
+      },
+      "revId": "02c8a14b75e67a60034cfe0e1c29c4e0aee18833",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
