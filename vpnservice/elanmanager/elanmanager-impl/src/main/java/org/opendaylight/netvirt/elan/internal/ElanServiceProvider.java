@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -541,7 +541,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private boolean shouldDeleteTrunk(String trunkInterfaceName, String elanInterfaceName) {
         List<Interface> childInterfaces = interfaceManager.getChildInterfaces(trunkInterfaceName);
         if (childInterfaces == null || childInterfaces.isEmpty()
-                || (childInterfaces.size() == 1 && elanInterfaceName.equals(childInterfaces.get(0).getName()))) {
+                || childInterfaces.size() == 1 && elanInterfaceName.equals(childInterfaces.get(0).getName())) {
             LOG.debug("No more VLAN member interfaces left for trunk {}", trunkInterfaceName);
             return true;
         }
@@ -787,7 +787,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 if (update && !elanInstance.isExternal()) {
                     DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName,
                             bridgeMgr.getDatapathId(node));
-                    if (dpnInterfaces == null || dpnInterfaces.getInterfaces().size() == 0) {
+                    if (dpnInterfaces == null || dpnInterfaces.getInterfaces().isEmpty()) {
                         continue;
                     }
                 }
