@@ -39,6 +39,7 @@ public class FibDSWriter {
     private static final Logger LOG = LoggerFactory.getLogger(FibDSWriter.class);
     private final DataBroker dataBroker;
     private final SingleTransactionDataBroker singleTxDB;
+    private static final String PRFX_NOT_ASSOC_VPN = "Prefix {} not associated with vpn";
 
     public FibDSWriter(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
@@ -49,7 +50,7 @@ public class FibDSWriter {
                                              VrfEntry.EncapType encapType, int label, long l3vni,
                                              String gatewayMacAddress, RouteOrigin origin) {
         if (rd == null || rd.isEmpty()) {
-            LOG.error("Prefix {} not associated with vpn", prefix);
+            LOG.error(PRFX_NOT_ASSOC_VPN, prefix);
             return;
         }
 
@@ -132,7 +133,7 @@ public class FibDSWriter {
     public synchronized void removeFibEntryFromDS(String rd, String prefix) {
 
         if (rd == null || rd.isEmpty()) {
-            LOG.error("Prefix {} not associated with vpn", prefix);
+            LOG.error(PRFX_NOT_ASSOC_VPN, prefix);
             return;
         }
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
@@ -164,7 +165,7 @@ public class FibDSWriter {
     public synchronized void removeOrUpdateFibEntryFromDS(String rd, String prefix, String nextHop) {
 
         if (rd == null || rd.isEmpty()) {
-            LOG.error("Prefix {} not associated with vpn", prefix);
+            LOG.error(PRFX_NOT_ASSOC_VPN, prefix);
             return;
         }
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} and nextHop {}",
