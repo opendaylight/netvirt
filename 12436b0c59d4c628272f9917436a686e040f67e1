@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_84bf29d0",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1241,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 0,
+      "message": "This code will get into race condition issues, if there are more than one thread operating on the same Vrf.",
+      "revId": "12436b0c59d4c628272f9917436a686e040f67e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

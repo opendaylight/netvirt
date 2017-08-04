@@ -1,0 +1,147 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_440091aa",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 1,
+      "message": "If the idea is to remove the element, why are you creating a new ListObject here?",
+      "range": {
+        "startLine": 1207,
+        "startChar": 60,
+        "endLine": 1207,
+        "endChar": 95
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a42ced4b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1210,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 1,
+      "message": "If the idea is to remove the element, why are you creating a new ListObject here?",
+      "range": {
+        "startLine": 1210,
+        "startChar": 60,
+        "endLine": 1210,
+        "endChar": 95
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8431e9a4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1216,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 1,
+      "message": "why are we removing element, can you please insert comment?",
+      "range": {
+        "startLine": 1216,
+        "startChar": 32,
+        "endLine": 1216,
+        "endChar": 56
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e426e567",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1218,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 1,
+      "message": "why are we removing element, can you please insert comment?",
+      "range": {
+        "startLine": 1218,
+        "startChar": 36,
+        "endLine": 1218,
+        "endChar": 62
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c42be12e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 1,
+      "message": "Val object can\u0027t be used as key",
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4417f1ed",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1268,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 1,
+      "message": "why are you printing val directly here? Did you test this log message? in arguments you are getting RD value from new and old vals",
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a4d34d37",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-04T16:21:16Z",
+      "side": 1,
+      "message": "where are you fetching rd from Vrf?",
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
