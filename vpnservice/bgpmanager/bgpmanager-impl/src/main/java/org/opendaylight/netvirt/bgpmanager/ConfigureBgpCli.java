@@ -104,13 +104,13 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             required = false, multiValued = false)
     String logFile = null;
 
-    @Option(name = "--log-level", description = "log level emergencies,alerts,critical,errors,warnings,notifications,"
-            + "informational,debugging",
+    @Option(name = "--log-level", description = "log level EMERGENCIES,ALERTS,CRITICAL,ERRORS,WARNINGS,NOTIFICATIONS,"
+            + "INFORMATIONAL,DEBUGGING",
             required = false, multiValued = false)
     String logLevel = null;
 
     enum LogLevels {
-        emergencies, alerts, critical, errors, warnings, notifications, informational, debugging
+        EMERGENCIES, ALERTS, CRITICAL, ERRORS, WARNINGS, NOTIFICATIONS, INFORMATIONAL, DEBUGGING
     }
 
     @Override
@@ -259,7 +259,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         usage();
         session.getConsole().println(
                 "exec configure-bgp -op enable-logging --filename <filename> --log-level "
-                        + "[emergencies|alerts|critical|errors|warnings|notifications|informational|debugging]");
+                        + "[EMERGENCIES|ALERTS|CRITICAL|ERRORS|WARNINGS|NOTIFICATIONS|INFORMATIONAL|DEBUGGING]");
     }
 
     private void printGracefulRestartHelp() {
@@ -428,7 +428,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (!validLoglevel) {
             session.getConsole().println(
                     "Please provide valid log level "
-                            + "emergencies|alerts|critical|errors|warnings|notifications|informational|debugging");
+                            + "EMERGENCIES|ALERTS|CRITICAL|ERRORS|WARNINGS|NOTIFICATIONS|INFORMATIONAL|DEBUGGING");
             usage();
             session.getConsole().println(
                     "exec configure-bgp -op enable-log --log-file-path <logfile> --log-level <level>");
