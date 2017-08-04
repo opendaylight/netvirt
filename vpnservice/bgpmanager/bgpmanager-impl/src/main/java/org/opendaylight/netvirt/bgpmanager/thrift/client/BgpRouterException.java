@@ -42,6 +42,7 @@ public class BgpRouterException extends Exception {
     private final int errcode;
     private final Function functionCode;
 
+    // enum Function
     public enum Function {
         DEFAULT(ImmutableMap.of()),
         SET_PEER_SECRET(ImmutableMap.of(
@@ -54,15 +55,17 @@ public class BgpRouterException extends Exception {
             messageMap = messages;
         } // ctor
 
+        // messages getter
         public Map<Integer, String> messages() {
             return messageMap;
-        } // messages getter
-    } // enum Function
+        }
+    }
 
+    // public ctor
     public BgpRouterException(BgpRouterException.Function func, int cause) {
         functionCode = func;
         errcode = cause;
-    } // public ctor
+    }
 
     public BgpRouterException(int cause) {
         this(Function.DEFAULT, cause);
@@ -72,13 +75,16 @@ public class BgpRouterException extends Exception {
         return errcode;
     }
 
+    // getter getFunctionCode
     public Function getFunctionCode() {
         return functionCode;
-    } // getter getFunctionCode
+    }
 
     public String toString() {
         String message = functionCode.messages().get(errcode);
-        if (message == null) { // there is no function specific message
+
+        // there is no function specific message
+        if (message == null) {
             message = MESSAGES.get(errcode);
         }
         if (message != null) {
