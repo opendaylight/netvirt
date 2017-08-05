@@ -148,13 +148,16 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         Class<? extends SegmentTypeBase> updateSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(update);
         String updateSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(update);
         String updatePhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(update);
+        Boolean origExternal = NeutronvpnUtils.getIsExternal(original);
         Boolean updateExternal = NeutronvpnUtils.getIsExternal(update);
+        Boolean origIsFlatOrVlanNetwork = NeutronvpnUtils.isFlatOrVlanNetwork(original);
+        Boolean updateIsFlatOrVlanNetwork = NeutronvpnUtils.isFlatOrVlanNetwork(update);
 
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
-                || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)) {
-            if (NeutronvpnUtils.getIsExternal(original) && NeutronvpnUtils.isFlatOrVlanNetwork(original)
-                    && !NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
+                || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)
+                || !Objects.equals(origExternal, updateExternal)) {
+            if (origExternal && origIsFlatOrVlanNetwork && !updateIsFlatOrVlanNetwork) {
                 nvpnManager.removeExternalVpnInterfaces(original.getUuid());
                 nvpnManager.removeVpn(original.getUuid());
             }
@@ -164,15 +167,15 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
                 elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
                         updatePhysicalNetwork, buildSegments(update), updateExternal);
-                elanService.updateExternalElanNetwork(elanInstance);
+                if (updateExternal) {
+                    elanService.updateExternalElanNetwork(elanInstance);
+                }
             }
 
-            if (NeutronvpnUtils.getIsExternal(update) && NeutronvpnUtils.isFlatOrVlanNetwork(update)
-                    && !NeutronvpnUtils.isFlatOrVlanNetwork(original)) {
+            if (updateExternal && updateIsFlatOrVlanNetwork && !origIsFlatOrVlanNetwork) {
                 nvpnManager.createL3InternalVpn(update.getUuid(), null, null, null, null, null, null, null);
                 nvpnManager.createExternalVpnInterfaces(update.getUuid());
             }
-
         }
     }
 
