@@ -148,23 +148,29 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         Class<? extends SegmentTypeBase> updateSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(update);
         String updateSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(update);
         String updatePhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(update);
+        Boolean origExternal = NeutronvpnUtils.getIsExternal(original);
         Boolean updateExternal = NeutronvpnUtils.getIsExternal(update);
 
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
-                || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)) {
-            if (NeutronvpnUtils.getIsExternal(original) && NeutronvpnUtils.isFlatOrVlanNetwork(original)) {
+                || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)
+                || !Objects.equals(origExternal, updateExternal)) {
+            if (origExternal && NeutronvpnUtils.isFlatOrVlanNetwork(original)) {
                 nvpnManager.removeExternalVpnInterfaces(original.getUuid());
+                nvpnManager.removeVpn(original.getUuid());
             }
             ElanInstance elanInstance = elanService.getElanInstance(elanInstanceName);
             if (elanInstance != null) {
                 elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
                         updatePhysicalNetwork, buildSegments(update), updateExternal);
-                elanService.updateExternalElanNetwork(elanInstance);
+                if (updateExternal) {
+                    elanService.updateExternalElanNetwork(elanInstance);
+                }
             }
 
-            if (NeutronvpnUtils.getIsExternal(update) && NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
+            if (updateExternal && NeutronvpnUtils.isFlatOrVlanNetwork(update)) {
+                nvpnManager.createL3InternalVpn(update.getUuid(), null, null, null, null, null, null, null);
                 nvpnManager.createExternalVpnInterfaces(update.getUuid());
             }
         }
