@@ -12,6 +12,7 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.slf4j.Logger;
@@ -41,7 +42,7 @@ public class NeutronExternalSubnetHandler implements AutoCloseable {
         if (NeutronvpnUtils.getIsExternal(network) && NeutronvpnUtils.isFlatOrVlanNetwork(network)) {
             LOG.info("Added external subnet {} part of external network {} will create NAT external subnet",
                     subnetId.getValue(), networkId.getValue());
-            nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId);
+            nvpnManager.updateSubnetNode(subnetId, null/* routerId */, subnetId, null);
             nvpnNatManager.updateOrAddExternalSubnet(networkId, subnetId, routerIds);
             nvpnManager.createVpnInstanceForSubnet(subnetId);
         }
