@@ -124,7 +124,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId) {
         Uuid vpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, networkId);
         if (vpnId != null) {
-            nvpnManager.removeSubnetFromVpn(vpnId, subnetId);
+            nvpnManager.removeSubnetFromVpn(vpnId, subnetId, null);
         }
         if (networkId != null) {
             deleteSubnetToNetworkMapping(subnetId, networkId);
