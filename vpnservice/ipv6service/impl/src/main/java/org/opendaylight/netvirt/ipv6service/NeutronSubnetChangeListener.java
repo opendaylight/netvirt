@@ -71,7 +71,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.debug("Add Subnet notification handler is invoked...");
+        LOG.debug("Add Subnet notification handler is invoked {} ", input);
         if (IPV_MAP.get(input.getIpVersion()).equals(Ipv6Constants.IP_VERSION_V6)) {
             String ipv6AddrMode = "";
             if (input.getIpv6AddressMode() != null) {
@@ -89,13 +89,13 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void remove(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.debug("Remove Subnet notification handler is invoked...");
+        LOG.debug("Remove Subnet notification handler is invoked {}", input);
         ifMgr.removeSubnet(input.getUuid());
     }
 
     @Override
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
-        LOG.debug("Update Subnet notification handler is invoked...");
+        LOG.debug("Update Subnet notification handler is invoked Original: {}, Update: {}", original, update);
     }
 
     @Override

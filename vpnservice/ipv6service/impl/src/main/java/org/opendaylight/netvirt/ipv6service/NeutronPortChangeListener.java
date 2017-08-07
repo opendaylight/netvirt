@@ -7,7 +7,10 @@
  */
 package org.opendaylight.netvirt.ipv6service;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,49 +54,88 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port port) {
+        LOG.debug("Add port notification handler is invoked for port {} ", port);
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+            LOG.info("IPv6Service: Skipping router_gateway port {} for add event", port);
+            return;
+        }
+
         List<FixedIps> ipList = port.getFixedIps();
         for (FixedIps fixedip : ipList) {
             if (fixedip.getIpAddress().getIpv4Address() != null) {
                 continue;
             }
-
-            if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-                LOG.info("IPv6: Add port {} handler is invoked for a router interface.", port.getUuid());
-                // Add router interface
-                ifMgr.addRouterIntf(port.getUuid(),
-                        new Uuid(port.getDeviceId()),
-                        fixedip.getSubnetId(),
-                        port.getNetworkId(),
-                        fixedip.getIpAddress(),
-                        port.getMacAddress().getValue(),
-                        port.getDeviceOwner());
-            } else {
-                LOG.info("IPv6: Add port {} handler is invoked for a host interface.", port.getUuid());
-                // Add host interface
-                ifMgr.addHostIntf(port.getUuid(),
-                        fixedip.getSubnetId(),
-                        port.getNetworkId(),
-                        fixedip.getIpAddress(),
-                        port.getMacAddress().getValue(),
-                        port.getDeviceOwner());
-            }
+            addInterfaceInfo(port, fixedip);
         }
     }
 
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port port) {
-        LOG.debug("remove port notification handler is invoked...");
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+            LOG.info("IPv6Service: Skipping router_gateway port {} for remove event", port);
+            return;
+        }
+
+        LOG.debug("remove port notification handler is invoked for port {}", port);
         ifMgr.removePort(port.getUuid());
     }
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
-        LOG.debug("update port notification handler is invoked...");
-        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-            ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
-        } else {
-            ifMgr.updateHostIntf(update.getUuid(), update.getFixedIps());
+        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+            LOG.info("IPv6Service: Skipping router_gateway port {} for update event", update);
+            return;
         }
+
+        LOG.debug("update port notification handler is invoked for port {} ", update);
+
+        Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
+        Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
+        if (!oldIPs.equals(newIPs)) {
+            Boolean portIncludesV6Address = Boolean.FALSE;
+            ifMgr.clearAnyExistingSubnetInfo(update.getUuid());
+            List<FixedIps> ipList = update.getFixedIps();
+            for (FixedIps fixedip : ipList) {
+                if (fixedip.getIpAddress().getIpv4Address() != null) {
+                    continue;
+                }
+                portIncludesV6Address = Boolean.TRUE;
+                addInterfaceInfo(update, fixedip);
+            }
+
+            if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
+                ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
+            } else {
+                ifMgr.updateHostIntf(update.getUuid(), portIncludesV6Address);
+            }
+        }
+    }
+
+    protected void addInterfaceInfo(Port port, FixedIps fixedip) {
+        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
+            LOG.debug("IPv6: addInterfaceInfo is invoked for a router interface.", port.getUuid());
+            // Add router interface
+            ifMgr.addRouterIntf(port.getUuid(),
+                    new Uuid(port.getDeviceId()),
+                    fixedip.getSubnetId(),
+                    port.getNetworkId(),
+                    fixedip.getIpAddress(),
+                    port.getMacAddress().getValue(),
+                    port.getDeviceOwner());
+        } else {
+            LOG.debug("IPv6: addInterfaceInfo is invoked for a host interface.", port.getUuid());
+            // Add host interface
+            ifMgr.addHostIntf(port.getUuid(),
+                    fixedip.getSubnetId(),
+                    port.getNetworkId(),
+                    fixedip.getIpAddress(),
+                    port.getMacAddress().getValue(),
+                    port.getDeviceOwner());
+        }
+    }
+
+    private Set<FixedIps> getFixedIpSet(List<FixedIps> fixedIps) {
+        return fixedIps != null ? new HashSet<>(fixedIps) : Collections.emptySet();
     }
 
     @Override

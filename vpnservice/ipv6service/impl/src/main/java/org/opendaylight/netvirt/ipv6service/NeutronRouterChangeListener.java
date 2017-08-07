@@ -50,19 +50,19 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void add(InstanceIdentifier<Router> identifier, Router input) {
-        LOG.debug("Add Router notification handler is invoked...");
+        LOG.debug("Add Router notification handler is invoked {}.", input);
         ifMgr.addRouter(input.getUuid(), input.getName(), input.getTenantId(), input.isAdminStateUp());
     }
 
     @Override
     protected void remove(InstanceIdentifier<Router> identifier, Router input) {
-        LOG.debug("Remove Router notification handler is invoked...");
+        LOG.debug("Remove Router notification handler is invoked {}.", input);
         ifMgr.removeRouter(input.getUuid());
     }
 
     @Override
     protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
-        LOG.debug("Update Router notification handler is invoked...");
+        LOG.debug("Update Router notification handler is invoked. Original: {}, Updated: {}.", original, update);
     }
 
     @Override

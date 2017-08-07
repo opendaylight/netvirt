@@ -99,7 +99,7 @@ public class Ipv6ServiceInterfaceEventListener
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
         iface = Ipv6ServiceUtils.getInterface(dataBroker, add.getName());
         if (null != iface) {
-            LOG.debug("Port added {}", iface);
+            LOG.debug("Port {} is a Neutron port", iface);
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
 
