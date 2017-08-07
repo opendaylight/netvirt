@@ -18,6 +18,7 @@ public class NatConstants {
     public static BigInteger COOKIE_NAPT_BASE = new BigInteger("8000000", 16);
     public static final String NAPT_FLOWID_PREFIX = "SNAT.";
     public static final String FLOWID_SEPARATOR = ".";
+    public static final String COLON_SEPARATOR = ":";
     public static final int DEFAULT_NAPT_IDLE_TIMEOUT = 300;
     public static int EVENT_QUEUE_LENGTH = 1000000;
     public static final String FLOWID_PREFIX = "L3.";

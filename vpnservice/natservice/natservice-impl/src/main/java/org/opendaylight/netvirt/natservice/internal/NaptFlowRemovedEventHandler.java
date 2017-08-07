@@ -145,7 +145,8 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
                 LOG.error("onFlowRemoved : Null exception while retrieving routerId");
                 return;
             }
-
+            final String internalIpPortKey = routerId + NatConstants.COLON_SEPARATOR
+                    + internalIpv4HostAddress + NatConstants.COLON_SEPARATOR + internalPortNumber;
             //Get the external IP address and the port from the model
             IpPortExternal ipPortExternal = NatUtil.getExternalIpPortMap(dataBroker, routerId,
                 internalIpv4HostAddress, internalPortNumber.toString(), protocol);
@@ -192,7 +193,6 @@ public class NaptFlowRemovedEventHandler implements SalFlowListener {
             FlowEntity snatFlowEntity = NatUtil.buildFlowEntity(dpnId, tableId, switchFlowRef);
             long startTime = System.currentTimeMillis();
             mdsalManager.removeFlow(snatFlowEntity);
-            String internalIpPortKey = internalIpv4HostAddress + ":" + internalPortNumber;
             LOG.debug("onSwitchFlowRemoved : Elapsed time fo deleting table-{} flow for snat ({}) session:{}ms",
                     tableId, internalIpPortKey, (System.currentTimeMillis() - startTime));
             //Remove the SourceIP:Port key from the Napt packet handler map.

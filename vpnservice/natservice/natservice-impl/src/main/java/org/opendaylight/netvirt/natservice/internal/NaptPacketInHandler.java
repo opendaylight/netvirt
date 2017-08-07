@@ -122,7 +122,8 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                         LOG.error("onPacketReceived : Router ID is invalid");
                         return;
                     }
-                    String sourceIPPortKey = internalIPAddress + ":" + portNumber;
+                    String sourceIPPortKey = routerId + NatConstants.COLON_SEPARATOR
+                            + internalIPAddress + NatConstants.COLON_SEPARATOR + portNumber;
                     if (!INCOMING_PACKET_MAP.containsKey(sourceIPPortKey)) {
                         INCOMING_PACKET_MAP.put(sourceIPPortKey,
                                 new NatPacketProcessingState(System.currentTimeMillis(), -1));
@@ -144,8 +145,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                             NatPacketProcessingState state = INCOMING_PACKET_MAP.get(sourceIPPortKey);
                             long firstPacketInTime = state.getFirstPacketInTime();
                             long flowInstalledTime = state.getFlowInstalledTime();
-                            if (flowInstalledTime == -1
-                                    && (System.currentTimeMillis() - firstPacketInTime) > 4000) {
+                            if ((System.currentTimeMillis() - firstPacketInTime) > 4000) {
                                 LOG.error("NAT Service : Flow not installed even after 4sec."
                                         + "Dropping SNAT ({}) Packet", sourceIPPortKey);
                                 removeIncomingPacketMap(sourceIPPortKey);
