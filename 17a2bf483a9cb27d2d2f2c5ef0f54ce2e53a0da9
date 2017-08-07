@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_07a69410",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-08-07T18:19:24Z",
+      "side": 1,
+      "message": "will there be another patch to remove \"learn\"?",
+      "range": {
+        "startLine": 7,
+        "startChar": 7,
+        "endLine": 7,
+        "endChar": 16
+      },
+      "revId": "17a2bf483a9cb27d2d2f2c5ef0f54ce2e53a0da9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
