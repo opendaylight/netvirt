@@ -281,7 +281,8 @@ public class NaptEventHandler {
                                             internalAddress, externalAddress);
                                 }
                             });
-                    String key = naptEntryEvent.getIpAddress() + ":" + naptEntryEvent.getPortNumber();
+                    String key = naptEntryEvent.getRouterId() + NatConstants.COLON_SEPARATOR
+                            + naptEntryEvent.getIpAddress() + NatConstants.COLON_SEPARATOR + naptEntryEvent.getPortNumber();
                     NatPacketProcessingState state = NaptPacketInHandler.INCOMING_PACKET_MAP.get(key);
                     state.setFlowInstalledTime(System.currentTimeMillis());
                 } else {
