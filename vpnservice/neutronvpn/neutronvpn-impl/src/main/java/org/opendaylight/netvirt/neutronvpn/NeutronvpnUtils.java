@@ -745,7 +745,7 @@ public class NeutronvpnUtils {
                 }
             }
         }
-        LOG.debug("returning from getNeutronRouterSubnetIds for {}", routerId.getValue());
+        LOG.debug("getNeutronRouterSubnetIds returns {}", subnetIdList);
         return subnetIdList;
     }
 
@@ -1391,6 +1391,11 @@ public class NeutronvpnUtils {
         if (sm == null) {
             return false;
         }
+        IpVersionChoice ipVersion = getIpVersionFromString(sm.getSubnetIp());
+        return shouldVpnHandleIpVersionChoiceChangeToAdd(ipVersion, vpnId);
+    }
+
+    public boolean shouldVpnHandleIpVersionChoiceChangeToAdd(IpVersionChoice ipVersion, Uuid vpnId) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnId.getValue());
         if (vpnInstanceOpDataEntry == null) {
             return false;
@@ -1400,7 +1405,6 @@ public class NeutronvpnUtils {
                     + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnId.getValue());
             return false;
         }
-        IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
         boolean isIpv4Configured = vpnInstanceOpDataEntry.isIpv4Configured();
         boolean isVpnInstanceIpv4Changed = false;
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && isIpv4Configured == false) {
@@ -1434,8 +1438,11 @@ public class NeutronvpnUtils {
             if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnId)) {
                 snIpVersions.add(getIpVersionFromString(snMap.getSubnetIp()));
             }
+            if (snMap.getInternetVpnId() != null && snMap.getInternetVpnId().equals(vpnId)) {
+                snIpVersions.add(getIpVersionFromString(snMap.getSubnetIp()));
+            }
         }
-        IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
+        IpVersionChoice ipVersion = getIpVersionFromString(sm.getSubnetIp());
         if (!snIpVersions.contains(ipVersion)) {
             return true;
         }
@@ -1495,5 +1502,139 @@ public class NeutronvpnUtils {
                 new VpnInstanceKey(vpnId.getValue())).build();
         Optional<VpnInstance> vpnInstance = read(LogicalDatastoreType.CONFIGURATION, id);
         return (vpnInstance.isPresent()) ? vpnInstance.get() : null;
+    }
+
+    /**
+     *Get the Uuid of external network of the router (remember you that one router have only one external network).
+     * @param routerId the Uuid of the router which you try to reach the external network
+     * @return Uuid of externalNetwork or null if is not exist
+     */
+    protected Uuid getExternalNetworkUuidAttachedFromRouterUuid(Uuid routerId) {
+        LOG.info("getExternalNetworkUuidAttachedFromRouterUuid for {}", routerId.getValue());
+        Uuid externalNetworkUuid = null;
+        Router router = getNeutronRouter(routerId);
+        if (router != null && router.getExternalGatewayInfo() != null) {
+            externalNetworkUuid = router.getExternalGatewayInfo().getExternalNetworkId();
+        }
+        return externalNetworkUuid;
+    }
+
+    public Uuid getInternetvpnUuidBoundToRouterId(Uuid routerId) {
+        Uuid netId = getExternalNetworkUuidAttachedFromRouterUuid(routerId);
+        if (netId == null) {
+            return netId;
+        }
+        return getVpnForNetwork(netId);
+    }
+
+    /**
+     * This method get Uuid of internet vpn if existing one bound to the same router of the subnetUuid arg.
+     * Explanation: If the subnet (of arg subnetUuid) have a router bound and this router have an
+     * externalVpn (vpn on externalProvider network) then <b>its Uuid</b> will be returned.
+     * @param subnetUuid Uuid of subnet where you are finding a link to an external network
+     * @return Uuid of externalVpn or null if it is not found
+     */
+    public Uuid getInternetvpnUuidBoundToSubnetRouter(Uuid subnetUuid) {
+        if (subnetUuid == null) {
+            return null;
+        }
+        Subnetmap subnetmap = getSubnetmap(subnetUuid);
+        Uuid routerUuid = subnetmap.getRouterId();
+        Uuid externalNetworkUuid = null;
+        LOG.info("getInternetvpnUuidBoundToSubnetRouter for subnetUuid {}", subnetUuid.getValue());
+        if (routerUuid == null) {
+            return null;
+        }
+        externalNetworkUuid = getExternalNetworkUuidAttachedFromRouterUuid(routerUuid);
+        if (externalNetworkUuid != null) {
+            Uuid vpnIntUuid = getVpnForNetwork(externalNetworkUuid);
+            return vpnIntUuid;
+        }
+        return null;
+    }
+
+    /**
+     * Get all subnetmap associate to the belonging router of network.
+     * @param network the network which have router bound
+     * @return a list of Subnetmap of the router (which the network is associated)
+     */
+    public List<Subnetmap> getSubnetMapsforNetworkRoute(Network network) {
+        Uuid vpnUuid = null;
+        List<Subnetmap> subList = new ArrayList<>();
+        LOG.info("getSubnetMapsforNetworkRoute for network {}", network.getUuid());
+        vpnUuid = getVpnForNetwork(network.getUuid());
+        InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
+        Optional<Subnetmaps> optionalSubnetmaps = read(LogicalDatastoreType.CONFIGURATION,
+                       subnetmapsid);
+        if (!optionalSubnetmaps.isPresent()) {
+            LOG.error("getSubnetMapsforNetworkRoute: no subnetmaps");
+            return null;
+        }
+        List<Subnetmap> subnetmapList = optionalSubnetmaps.get().getSubnetmap();
+        if (vpnUuid != null) {
+            for (Subnetmap subnetmap : subnetmapList) {
+                if ((subnetmap.getInternetVpnId() != null)
+                     && subnetmap.getInternetVpnId().getValue().equals(vpnUuid.getValue())) {
+                    subList.add(subnetmap);
+                }
+            }
+        } else {
+            Uuid routerId = null;
+            for (Subnetmap subnetmap : subnetmapList) {
+                if (subnetmap.getRouterId() != null) {
+                    Uuid externalNetworkUuid = getExternalNetworkUuidAttachedFromRouterUuid(subnetmap.getRouterId());
+                    if (externalNetworkUuid != null && externalNetworkUuid.getValue()
+                         .equals(network.getUuid().getValue())) {
+                        routerId = subnetmap.getRouterId();
+                        break;
+                    }
+                }
+            }
+            if (routerId == null) {
+                LOG.error("getSubnetMapsforNetworkRoute: no subnet in routers using {}", network.getUuid());
+                return null;
+            }
+            for (Subnetmap subnetmap : subnetmapList) {
+                if (subnetmap.getRouterId() != null
+                        && subnetmap.getRouterId().getValue().matches(routerId.getValue())) {
+                    subList.add(subnetmap);
+                }
+            }
+        }
+        return subList;
+    }
+
+    public void updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType choice, Uuid vpn) {
+        String primaryRd = getVpnRd(vpn.getValue());
+        if (primaryRd == null) {
+            LOG.error("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
+                    + "Primary RD not found", choice, vpn.getValue());
+            return;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
+                    + "VpnInstanceOpDataEntry not found", choice, vpn.getValue());
+            return;
+        }
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
+        if (vpnInstanceOpDataEntry.getBgpvpnType().equals(choice)) {
+            LOG.error("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
+                    + "VpnInstanceOpDataEntry already set", choice, vpn.getValue());
+            return;
+        }
+        jobCoordinator.enqueueJob("VPN-" + vpn.getValue(), () -> {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
+            builder.setBgpvpnType(choice);
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+            LOG.info("updateVpnInstanceOpWithType: Successfully BgpvpnType {} for {}", choice, vpn.getValue());
+            return Collections.singletonList(writeTxn.submit());
+        });
+        return;
     }
 }
