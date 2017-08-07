@@ -14,13 +14,13 @@ import java.util.List;
 import java.util.Set;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -38,6 +38,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -51,14 +52,15 @@ import org.slf4j.LoggerFactory;
 public class NeutronvpnNatManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnNatManager.class);
     private final DataBroker dataBroker;
+    private final NeutronvpnManager nvpnManager;
     private static final int EXTERNAL_NO_CHANGE = 0;
     private static final int EXTERNAL_ADDED = 1;
     private static final int EXTERNAL_REMOVED = 2;
     private static final int EXTERNAL_CHANGED = 3;
 
-    @Inject
-    public NeutronvpnNatManager(final DataBroker dataBroker) {
+    public NeutronvpnNatManager(final DataBroker dataBroker, NeutronvpnManager neutronvpnManager) {
         this.dataBroker = dataBroker;
+        this.nvpnManager = neutronvpnManager;
     }
 
     @Override
@@ -324,6 +326,25 @@ public class NeutronvpnNatManager implements AutoCloseable {
             LOG.trace("Updating externalnetworks {}", networkss);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
             LOG.trace("Updated externalnetworks successfully to CONFIG Datastore");
+
+            //get vpn external form this network external to setup vpnInternet for ipv6
+            Uuid vpnExternal = NeutronvpnUtils.getVpnForNetwork(dataBroker, extNetId);
+            LOG.debug("addExternalNetworkToRouter : the vpnExternal {}", vpnExternal);
+            //get subnetmap associate to the router, any subnetmap "external" could be existing
+            List<Subnetmap> snList = NeutronvpnUtils.getNeutronRouterSubnetMaps(dataBroker, routerId);
+            LOG.debug("addExternalNetworkToRouter : the vpnExternal {} subnetmap to be set with vpnInternet {}",
+                    vpnExternal, snList);
+            for (Subnetmap sn : snList) {
+                if (sn.getInternetVpnId() == null) {
+                    continue;
+                }
+                IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+                if (ipVers == IpVersionChoice.IPV6) {
+                    LOG.debug("addExternalNetworkToRouter : setup vpnInternet IPv6 for vpnExternal {} subnetmap {}",
+                            vpnExternal, sn);
+                    nvpnManager.updateVpnInternetForSubnet(sn, vpnExternal, true);
+                }
+            }
         } catch (Exception ex) {
             LOG.error("Creation of externalnetworks failed for {}",
                 extNetId.getValue(), ex);
@@ -365,6 +386,34 @@ public class NeutronvpnNatManager implements AutoCloseable {
         } catch (Exception ex) {
             LOG.error("Removing externalnetwork {} from router {} failed", origExtNetId.getValue(),
                     routerId.getValue(), ex);
+        }
+
+        // Remove the vpnInternetId fromSubnetmap
+        try {
+            Optional<Networks> optionalNets = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                          LogicalDatastoreType.CONFIGURATION, netsIdentifier);
+            LOG.trace("Removing a vpnInternetId to SubnetMaps about External Networks node: {}",
+                    origExtNetId.getValue());
+            if (optionalNets.isPresent()) {
+                Networks nets = optionalNets.get();
+                Network net = NeutronvpnUtils.getNeutronNetwork(dataBroker, nets.getId());
+                List<Subnetmap> submapList = NeutronvpnUtils.getSubnetMapsforNetworkRoute(dataBroker, net);
+                for (Subnetmap sn : submapList) {
+                    if (sn.getInternetVpnId() == null) {
+                        continue;
+                    }
+                    LOG.trace("Removing a vpnInternetId {} to SubnetMap {}", sn.getInternetVpnId(), sn.getId());
+                    IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+                    if (ipVers == IpVersionChoice.IPV6) {
+                        LOG.debug("removeExternalNetworkFromRouter : clear vpnInternet IPv6 for vpnExternal {} "
+                                + "subnetmap {}", sn.getInternetVpnId(), sn);
+                        nvpnManager.updateVpnInternetForSubnet(sn, sn.getInternetVpnId(), false);
+                    }
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("Removing vpnInternetId about externalnetwork{} to subnetmap from router {} failed",
+                    origExtNetId.getValue(), routerId.getValue(), ex);
         }
     }
 
