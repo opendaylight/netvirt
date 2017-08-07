@@ -32,6 +32,7 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -257,15 +258,24 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             elanService.handleKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue(),
                     NwConstants.ADD_FLOW);
             if (existingVpnId == null) {
+                List<Uuid> listVpnIds = new ArrayList<>();
                 Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
                 if (vpnId == null) {
                     vpnId = routerId;
                 }
+                listVpnIds.add(vpnId);
+                Uuid internetVpnId = NeutronvpnUtils
+                     .getInternetvpnUuidBoundToRouterId(dataBroker, routerId);
                 List<Subnetmap> subnetMapList = new ArrayList<>();
                 List<FixedIps> portIps = routerPort.getFixedIps();
+                boolean portIsIpv6 = false;
                 for (FixedIps portIP : portIps) {
                     // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIP
                     // and addSubnetToVpn here
+                    if (internetVpnId != null
+                        && portIP.getIpAddress().getIpv6Address() != null) {
+                        portIsIpv6 = true;
+                    }
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                     Uuid subnetId = portIP.getSubnetId();
                     nvpnManager.updateSubnetNodeWithFixedIp(subnetId, routerId,
@@ -273,14 +283,21 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnetId);
                     subnetMapList.add(sn);
                 }
+                if (portIsIpv6) {
+                    listVpnIds.add(internetVpnId);
+                }
                 if (! subnetMapList.isEmpty()) {
-                    nvpnManager.createVpnInterface(Collections.singletonList(vpnId), routerPort, null);
+                    nvpnManager.createVpnInterface(listVpnIds, routerPort, null);
                 }
                 for (FixedIps portIP : routerPort.getFixedIps()) {
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                     NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, vpnId.getValue(),
                            NeutronvpnUtils.getIpVersionFromString(ipValue), true);
-                    nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
+                    if (internetVpnId != null) {
+                        NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, internetVpnId.getValue(),
+                               NeutronvpnUtils.getIpVersionFromString(ipValue), true);
+                    }
+                    nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId(), internetVpnId);
                     LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
                             ipValue, routerPort.getMacAddress(),
                             routerPort.getUuid().getValue(), vpnId.getValue());
@@ -310,6 +327,20 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (vpnId == null) {
                 vpnId = routerId;
             }
+            List<FixedIps> portIps = routerPort.getFixedIps();
+            for (FixedIps portIP : portIps) {
+                // Internet VPN : flush InternetVPN first
+                Uuid subnetId = portIP.getSubnetId();
+                Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnetId);
+                if (sn != null && sn.getInternetVpnId() != null) {
+                    if (NeutronvpnUtils.isSubnetmapIpVersionChangesVpnInstance(dataBroker,
+                                 sn.getId(), sn.getInternetVpnId())) {
+                        NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, sn.getInternetVpnId().getValue(),
+                              NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), false);
+                    }
+                    nvpnManager.updateVpnInternetForSubnetmap(sn, sn.getInternetVpnId(), false);
+                }
+            }
             /* Remove ping responder for router interfaces
              *  A router interface reference in a VPN will have to be removed before the host interface references
              * for that subnet in the VPN are removed. This is to ensure that the FIB Entry of the router interface
@@ -317,9 +348,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
              *  If router interface FIB entry is the last to be removed for a subnet in a VPN , then all the host
              *  interface references in the vpn will already have been cleared, which will cause failures in
              *  cleanup of router interface flows*/
-            nvpnManager.deleteVpnInterface(routerPort.getUuid().getValue(), null);
+            nvpnManager.deleteVpnInterface(routerPort.getUuid().getValue(), null, null);
             // update RouterInterfaces map
-            List<FixedIps> portIps = routerPort.getFixedIps();
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             for (FixedIps portIP : portIps) {
                 Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, portIP.getSubnetId());
@@ -332,7 +362,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     wrtConfigTxn);
                 // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
                 // and updateSubnetNodeWithFixedIP
-                nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
+                nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId(), sn != null ? sn.getInternetVpnId() : null);
                 nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null, null, null, null);
             }
             nvpnManager.removeFromNeutronRouterInterfacesMap(routerId, routerPort.getUuid().getValue());
@@ -351,6 +381,27 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleRouterGatewayUpdated(Port routerGwPort) {
         Uuid routerId = new Uuid(routerGwPort.getDeviceId());
         Uuid networkId = routerGwPort.getNetworkId();
+        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
+        boolean isExternal = false;
+        if (network != null) {
+            isExternal = NeutronvpnUtils.getIsExternal(network);
+        }
+        if (isExternal) {
+            Uuid vpnInternetId = NeutronvpnUtils.getVpnForNetwork(dataBroker, networkId);
+            if (vpnInternetId != null) {
+                List<Subnetmap> snList = NeutronvpnUtils.getNeutronRouterSubnetMaps(dataBroker, routerId);
+                for (Subnetmap sn : snList) {
+                    if (sn.getNetworkId() == networkId) {
+                        continue;
+                    }
+                    if (NeutronvpnUtils.getIpVersionFromSubnet(dataBroker, sn.getId()) != IpVersionChoice.IPV6) {
+                        continue;
+                    }
+                    final Uuid vpnId = null;
+                    nvpnManager.addSubnetToVpn(vpnId, sn.getId(), vpnInternetId);
+                }
+            }
+        }
         elanService.handleKnownL3DmacAddress(routerGwPort.getMacAddress().getValue(), networkId.getValue(),
                 NwConstants.ADD_FLOW);
 
@@ -390,11 +441,16 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             List<Uuid> vpnIdList =  new ArrayList<>();
             for (FixedIps ip: portIpAddrsList) {
                 Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), portId, null);
+                if (subnetMap != null && subnetMap.getInternetVpnId() != null) {
+                    if (!vpnIdList.contains(subnetMap.getInternetVpnId())) {
+                        vpnIdList.add(subnetMap.getInternetVpnId());
+                    }
+                }
                 if (subnetMap != null && subnetMap.getVpnId() != null) {
                     // can't use NeutronvpnUtils.getVpnForNetwork to optimise here, because it gives BGPVPN id
                     // obtained subnetMaps belongs to one network => vpnId must be the same for each port Ip
                     Uuid vpnId = subnetMap.getVpnId();
-                    if (vpnId != null && !vpnIdList.contains(vpnId)) {
+                    if (!vpnIdList.contains(vpnId)) {
                         vpnIdList.add(vpnId);
                     }
                 }
@@ -427,18 +483,25 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 return futures;
             }
             Uuid vpnId = null;
+            Uuid internetVpnId = null;
+            Uuid routerId = null;
             for (FixedIps ip: portIpsList) {
                 Subnetmap subnetMap = nvpnManager.removePortsFromSubnetmapNode(ip.getSubnetId(), portId, null);
                 if (subnetMap != null && subnetMap.getVpnId() != null) {
                     // can't use NeutronvpnUtils.getVpnForNetwork to optimise here, because it gives BGPVPN id
                     // obtained subnetMaps belongs to one network => vpnId must be the same for each port Ip
                     vpnId = subnetMap.getVpnId();
+                    internetVpnId = subnetMap.getInternetVpnId();
+                    routerId = subnetMap.getRouterId();
                 }
             }
-            if (vpnId != null) {
+            if (vpnId != null || internetVpnId != null) {
                 // remove vpn-interface for this neutron port
                 LOG.debug("removing VPN Interface for port {}", portName);
-                nvpnManager.deleteVpnInterface(portName, wrtConfigTxn);
+                nvpnManager.deleteVpnInterface(portName, null, wrtConfigTxn);
+                if (routerId != null) {
+                    nvpnManager.removeFromNeutronRouterInterfacesMap(routerId, port.getUuid().getValue());
+                }
             }
             // Remove of-port interface for this neutron port
             // ELAN interface is also implicitly deleted as part of this operation
@@ -476,6 +539,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             final List<Uuid> updateSnMapsIds = portupdateIps.stream().map(ip -> ip.getSubnetId())
                     .collect(Collectors.toList());
             List<Uuid> oldVpnIds = new ArrayList();
+            Uuid oldRouterId = null;
             for (Uuid snId: originalSnMapsIds) {
                 if (!updateSnMapsIds.remove(snId)) {
                     // snId was present in originalSnMapsIds, but not in updateSnMapsIds
@@ -485,25 +549,40 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         && !oldVpnIds.contains(subnetMapOld.getVpnId())) {
                         oldVpnIds.add(subnetMapOld.getVpnId());
                     }
+                    if (subnetMapOld != null && oldRouterId == null
+                        && subnetMapOld.getRouterId() != null) {
+                        oldRouterId = subnetMapOld.getRouterId();
+                    }
+                    if (subnetMapOld != null && subnetMapOld.getInternetVpnId() != null
+                        && !oldVpnIds.contains(subnetMapOld.getInternetVpnId())) {
+                        oldVpnIds.add(subnetMapOld.getInternetVpnId());
+                    }
                 }
             }
-            List<Uuid> newVpnId = new ArrayList();
+            List<Uuid> newVpnIds = new ArrayList();
             for (Uuid snId: updateSnMapsIds) {
                 Subnetmap subnetMapNew = nvpnManager.updateSubnetmapNodeWithPorts(snId, portupdate.getUuid(), null);
                 if (subnetMapNew != null) {
-                    if (subnetMapNew.getVpnId() != null && !newVpnId.contains(subnetMapNew.getVpnId())) {
-                        newVpnId.add(subnetMapNew.getVpnId());
+                    if (subnetMapNew.getVpnId() != null && !newVpnIds.contains(subnetMapNew.getVpnId())) {
+                        newVpnIds.add(subnetMapNew.getVpnId());
+                    }
+                    if (subnetMapNew.getInternetVpnId() != null
+                        && !newVpnIds.contains(subnetMapNew.getInternetVpnId())) {
+                        newVpnIds.add(subnetMapNew.getInternetVpnId());
                     }
                 }
             }
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             if (oldVpnIds != null && oldVpnIds.size() > 0) {
                 LOG.info("removing VPN Interface for port {}", portoriginal.getUuid().getValue());
-                nvpnManager.deleteVpnInterface(portoriginal.getUuid().getValue(), wrtConfigTxn);
+                nvpnManager.deleteVpnInterface(portoriginal.getUuid().getValue(), null, wrtConfigTxn);
+                if (oldRouterId != null) {
+                    nvpnManager.removeFromNeutronRouterInterfacesMap(oldRouterId, portoriginal.getUuid().getValue());
+                }
             }
-            if (newVpnId != null && newVpnId.size() > 0) {
+            if (newVpnIds != null && newVpnIds.size() > 0) {
                 LOG.info("Adding VPN Interface for port {}", portupdate.getUuid().getValue());
-                nvpnManager.createVpnInterface(newVpnId, portupdate, wrtConfigTxn);
+                nvpnManager.createVpnInterface(newVpnIds, portupdate, wrtConfigTxn);
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(wrtConfigTxn.submit());
