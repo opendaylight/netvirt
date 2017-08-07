@@ -327,6 +327,22 @@ module odl-l3vpn {
                  "This VPN Instance handles IPv6 traffic";
               default false;
            }
+           leaf bgpvpn-type {
+              type enumeration {
+                 enum BGPVPNInternet {
+                    value "0";
+                    description "BGPVPN Internet";
+                 }
+                 enum BGPVPNExternal {
+                    value "1";
+                    description "BGPVPN External";
+                 }
+                 enum VPN {
+                    value "2";
+                    description "Default VPN";
+                 }
+              }
+           }
            leaf type {
               description
                  "The type of the VPN Instance.
