@@ -53,6 +53,7 @@ public class Ipv6Constants {
     public static final String IP_VERSION_V4 = "IPv4";
     public static final String IP_VERSION_V6 = "IPv6";
     public static final String NETWORK_ROUTER_INTERFACE = "network:router_interface";
+    public static final String NETWORK_ROUTER_GATEWAY = "network:router_gateway";
 
     public static final BigInteger INVALID_DPID = new BigInteger("-1");
     public static final short DEFAULT_FLOW_PRIORITY = 50;

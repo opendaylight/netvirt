@@ -42,7 +42,9 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
@@ -129,6 +131,35 @@ public class Ipv6ServiceUtils {
                 .child(
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
                                 .Interface.class, new InterfaceKey(interfaceName)).build();
+    }
+
+    /**
+     * Build the interface state.
+     * @param interfaceName the interface name.
+     * @return the interface state.
+     */
+    public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+            .interfaces.state.Interface> buildStateInterfaceId(String interfaceName) {
+        InstanceIdentifier.InstanceIdentifierBuilder<Interface> idBuilder =
+                InstanceIdentifier.builder(InterfacesState.class)
+                .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+                        .state.Interface.class,
+                        new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
+                        .rev140508.interfaces.state.InterfaceKey(interfaceName));
+        return idBuilder.build();
+    }
+
+    /**
+     * Retrieves the interface state.
+     * @param dataBroker the data broker.
+     * @param interfaceName the interface name.
+     * @return the interface state.
+     */
+    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+            .Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
+                .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker).orNull();
     }
 
     public String bytesToHexString(byte[] bytes) {
