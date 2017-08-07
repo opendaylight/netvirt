@@ -29,14 +29,10 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
-import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
-import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
-import org.opendaylight.genius.mdsalutil.matches.MatchTcpFlags;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -167,9 +163,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         } else if (securityGroupMode == SecurityGroupMode.Transparent) {
             addTransparentIngressAclTableMissFlow(dpnId);
             addTransparentEgressAclTableMissFlow(dpnId);
-        } else if (securityGroupMode == SecurityGroupMode.Stateless) {
-            addStatelessIngressAclTableMissFlow(dpnId);
-            addStatelessEgressAclTableMissFlow(dpnId);
         } else if (securityGroupMode == SecurityGroupMode.Learn) {
             addLearnIngressAclTableMissFlow(dpnId);
             addLearnEgressAclTableMissFlow(dpnId);
@@ -422,125 +415,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 AclConstants.COOKIE_ACL_BASE, mkMatches, instructionsAcl);
         mdsalManager.installFlow(flowEntity);
         LOG.debug("Added Transparent Egress ACL Table allow all Flows for dpn {}", dpId);
-    }
-
-    /**
-     * Adds the ingress acl table miss flow.
-     *
-     * @param dpId the dp id
-     */
-    private void addStatelessIngressAclTableMissFlow(BigInteger dpId) {
-        List<MatchInfo> synMatches = new ArrayList<>();
-        synMatches.add(MatchEthernetType.IPV4);
-        synMatches.add(MatchIpProtocol.TCP);
-        synMatches.add(MatchTcpFlags.SYN);
-
-        List<ActionInfo> dropActionsInfos = new ArrayList<>();
-        dropActionsInfos.add(new ActionDrop());
-        List<InstructionInfo> synInstructions = new ArrayList<>();
-        synInstructions.add(new InstructionApplyActions(dropActionsInfos));
-
-        FlowEntity synFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
-                "SYN-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
-                AclConstants.PROTO_MATCH_SYN_DROP_PRIORITY, "Ingress Syn ACL Table Block", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, synMatches, synInstructions);
-        mdsalManager.installFlow(synFlowEntity);
-
-        synMatches = new ArrayList<>();
-        synMatches.add(MatchEthernetType.IPV4);
-        synMatches.add(MatchIpProtocol.TCP);
-        synMatches.add(MatchTcpFlags.SYN_ACK);
-
-        List<InstructionInfo> allowAllInstructions = new ArrayList<>();
-        allowAllInstructions.add(new InstructionGotoTable(NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE));
-
-        FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                "SYN-ACK-DEFAULT_ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
-                AclConstants.PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY, "Ingress Syn Ack ACL Table Allow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, synMatches, allowAllInstructions);
-        mdsalManager.installFlow(synAckFlowEntity);
-
-
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Ingress Stateless ACL Table Miss Flow",
-                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
-        mdsalManager.installFlow(flowEntity);
-
-        addIngressAclRemoteAclTableMissFlow(dpId);
-
-        short dispatcherTableId =  NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<InstructionInfo> instructions = new ArrayList<>();
-        actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0,
-                "Ingress Stateless Next ACL Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE,
-                mkMatches, instructions);
-        mdsalManager.installFlow(nextTblFlowEntity);
-
-        LOG.debug("Added Stateless Ingress ACL Table Miss Flows for dpn {}.", dpId);
-    }
-
-    /**
-     * Adds the stateless egress acl table miss flow.
-     *
-     * @param dpId the dp id
-     */
-    private void addStatelessEgressAclTableMissFlow(BigInteger dpId) {
-        List<MatchInfo> synMatches = new ArrayList<>();
-        synMatches.add(MatchEthernetType.IPV4);
-        synMatches.add(MatchIpProtocol.TCP);
-        synMatches.add(MatchTcpFlags.SYN);
-
-        List<InstructionInfo> allowAllInstructions = new ArrayList<>();
-        allowAllInstructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_FILTER_TABLE));
-        List<InstructionInfo> synInstructions;
-
-        if (config.getDefaultBehavior() == DefaultBehavior.Allow) {
-            synInstructions = allowAllInstructions;
-        } else {
-            synInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
-        }
-
-        FlowEntity synFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                "SYN-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
-                AclConstants.PROTO_MATCH_SYN_ALLOW_PRIORITY, "Egress Syn ACL Table " + config.getDefaultBehavior(),
-                0, 0, AclConstants.COOKIE_ACL_BASE, synMatches, synInstructions);
-        mdsalManager.installFlow(synFlowEntity);
-
-        synMatches = new ArrayList<>();
-        synMatches.add(MatchEthernetType.IPV4);
-        synMatches.add(MatchIpProtocol.TCP);
-        synMatches.add(MatchTcpFlags.SYN_ACK);
-
-        FlowEntity synAckFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                "SYN-ACK-DEFAULT_ALLOW-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
-                AclConstants.PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY, "Egress Syn Ack ACL Table Allow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, synMatches, allowAllInstructions);
-        mdsalManager.installFlow(synAckFlowEntity);
-
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Egress Stateless ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
-        mdsalManager.installFlow(flowEntity);
-
-        addEgressAclRemoteAclTableMissFlow(dpId);
-
-        short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<InstructionInfo> dispatcherInstructions = new ArrayList<>();
-        actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        dispatcherInstructions.add(new InstructionApplyActions(actionsInfos));
-        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0,
-                "Egress Stateless Next ACL Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches,
-                dispatcherInstructions);
-        mdsalManager.installFlow(nextTblFlowEntity);
-
-        LOG.debug("Added Stateless Egress ACL Table Miss Flows for dpn {}", dpId);
     }
 
     /**

@@ -16,7 +16,6 @@ module aclservice-config {
         leaf security-group-mode {
             type enumeration {
                 enum "transparent";
-                enum "stateless";
                 enum "stateful";
                 enum "learn";
             }
