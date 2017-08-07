@@ -12,24 +12,29 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.EventListener;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -80,6 +85,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksBuilder;
@@ -266,7 +272,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected Subnetmap updateSubnetNode(Uuid subnetId, Uuid routerId, Uuid vpnId) {
+    protected Subnetmap updateSubnetNode(Uuid subnetId, Uuid routerId, Uuid vpnId, Uuid internetvpnId) {
         Subnetmap subnetmap = null;
         SubnetmapBuilder builder = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
@@ -290,6 +296,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 if (vpnId != null) {
                     builder.setVpnId(vpnId);
                 }
+                builder.setInternetVpnId(internetvpnId);
+
                 subnetmap = builder.build();
                 LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
@@ -383,7 +391,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return subnetmap;
     }
 
-    protected Subnetmap removeFromSubnetNode(Uuid subnetId, Uuid networkId, Uuid routerId, Uuid vpnId, Uuid portId) {
+    protected Subnetmap removeFromSubnetNode(Uuid subnetId, Uuid networkId, Uuid routerId,
+                                            Uuid vpnId, Uuid portId) {
         Subnetmap subnetmap = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetId))
@@ -404,6 +413,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (vpnId != null) {
                         builder.setVpnId(null);
                     }
+                    builder.setInternetVpnId(null);
                     if (portId != null && builder.getPortList() != null) {
                         List<Uuid> portList = builder.getPortList();
                         portList.remove(portId);
@@ -769,6 +779,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 neutronvpnUtils.createVpnPortFixedIpToPort(vpnId.getValue(), ipValue,
                     infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
             }
+            if (snTemp != null && snTemp.getInternetVpnId() != null) {
+                neutronvpnUtils.createVpnPortFixedIpToPort(sn.getInternetVpnId().getValue(),
+                    ipValue, infName, port.getMacAddress().getValue(), isRouterInterface, wrtConfigTxn);
+            }
             if (routerId != null) {
                 Router rtr = neutronvpnUtils.getNeutronRouter(routerId);
                 if (rtr != null && rtr.getRoutes() != null) {
@@ -797,10 +811,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         writeVpnInterfaceToDs(vpnIds, infName, adjs, isRouterInterface, wrtConfigTxn);
     }
 
-    protected void withdrawPortIpFromVpnIface(Uuid vpnId, Port port, Subnetmap sn, WriteTransaction wrtConfigTxn) {
+    protected void withdrawPortIpFromVpnIface(Uuid vpnId, Uuid internetVpnId,
+                       Port port, Subnetmap sn, WriteTransaction wrtConfigTxn) {
         String infName = port.getUuid().getValue();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
         Optional<VpnInterface> optionalVpnInterface = null;
+        LOG.info("withdrawPortIpFromVpnIface vpn {} internetVpn {} Port {}",
+                   vpnId, internetVpnId, infName);
         try {
             optionalVpnInterface = SingleTransactionDataBroker
                 .syncReadOptional(dataBroker, LogicalDatastoreType
@@ -829,7 +846,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 LOG.error("withdrawPortIpFromVpnIface: suppressing primaryAdjacency {} FixedIp for vpnId {}",
                       adjString, vpnId);
-                neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(), String.valueOf(adjString), wrtConfigTxn);
+                if (vpnId != null) {
+                    neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(),
+                          String.valueOf(adjString), wrtConfigTxn);
+                }
+                if (internetVpnId != null) {
+                    neutronvpnUtils.removeVpnPortFixedIpToPort(internetVpnId.getValue(),
+                            String.valueOf(adjString), wrtConfigTxn);
+                }
             } else {
                 if (port.getDeviceOwner()
                     .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) && sn.getRouterId() != null)  {
@@ -841,21 +865,29 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 extraRoutesToRemove.add(rt);
                             }
                         }
-                        LOG.error("withdrawPortIpFromVpnIface: suppressing extraRoute {} for vpnId {}",
-                              extraRoutesToRemove, vpnId);
-                        removeAdjacencyforExtraRoute(vpnId, extraRoutesToRemove);
+                        if (vpnId != null) {
+                            LOG.error("withdrawPortIpFromVpnIface: suppressing extraRoute {} for vpnId {}",
+                                  extraRoutesToRemove, vpnId);
+                            removeAdjacencyforExtraRoute(vpnId, extraRoutesToRemove);
+                        }
+                        /* removeAdjacencyforExtraRoute done also for internet-vpn-id, in previous call */
                     }
                 }
             }
         }
         Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(updatedAdjsList).build();
-        updateVpnInterfaceWithAdjacencies(vpnId, infName, adjacencies, wrtConfigTxn);
+        if (vpnId != null) {
+            updateVpnInterfaceWithAdjacencies(vpnId, infName, adjacencies, wrtConfigTxn);
+        }
+        if (internetVpnId != null) {
+            updateVpnInterfaceWithAdjacencies(internetVpnId, infName, adjacencies, wrtConfigTxn);
+        }
         if (!isIpFromAnotherSubnet) {
             // no more subnetworks for neutron port
             if (sn != null && sn.getRouterId() != null) {
                 removeFromNeutronRouterInterfacesMap(sn.getRouterId(), port.getUuid().getValue());
             }
-            deleteVpnInterface(infName, wrtConfigTxn);
+            deleteVpnInterface(infName, null /* vpn-id */, wrtConfigTxn);
             return;
         }
         return;
@@ -863,13 +895,47 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void deleteVpnInterface(String infName, WriteTransaction wrtConfigTxn) {
+    protected boolean deleteVpnInterface(String infName, @Nullable String vpnId, WriteTransaction wrtConfigTxn) {
         Boolean wrtConfigTxnPresent = true;
         if (wrtConfigTxn == null) {
             wrtConfigTxnPresent = false;
             wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
         }
-        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier =
+            NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+        Optional<VpnInterface> optionalVpnInterface = null;
+        try {
+            optionalVpnInterface =
+                SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            vpnIfIdentifier);
+        } catch (Exception ex) {
+            LOG.error("Deletion of vpninterface {} already done", infName, ex);
+            return true;
+        }
+        if (!optionalVpnInterface.isPresent()) {
+            LOG.error("Deletion of vpninterface {} already done", infName);
+            return true;
+        }
+        if (vpnId != null) {
+            VpnInterface vpnInterface = optionalVpnInterface.get();
+            List<VpnInstanceNames> vpnList = vpnInterface.getVpnInstanceNames();
+            if (vpnList != null
+                && VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnId, vpnList)) {
+                VpnHelper.removeVpnInterfaceVpnInstanceNamesFromList(vpnId, vpnList);
+                VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
+                        .setVpnInstanceNames(vpnList);
+                wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
+                        .build());
+                if (!vpnList.isEmpty()) {
+                    if (!wrtConfigTxnPresent) {
+                        wrtConfigTxn.submit();
+                    }
+                    LOG.debug("Deleting vpn interface {} not immediately since vpnInstanceName "
+                              + "List not empty", infName);
+                    return false;
+                }
+            }
+        }
         try {
             LOG.debug("Deleting vpn interface {}", infName);
             wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
@@ -878,6 +944,82 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         if (!wrtConfigTxnPresent) {
             wrtConfigTxn.submit();
+        }
+        return true;
+    }
+
+    protected void removeVpnFromVpnInterface(Uuid vpnId, Port port,
+                                     WriteTransaction writeConfigTxn, Subnetmap sm) {
+        if (vpnId == null || port == null) {
+            return;
+        }
+        boolean isLockAcquired = false;
+        String infName = port.getUuid().getValue();
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
+
+        try {
+            isLockAcquired = interfaceLock.tryLock(infName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
+            Optional<VpnInterface> optionalVpnInterface = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType
+                    .CONFIGURATION, vpnIfIdentifier);
+            if (optionalVpnInterface.isPresent()) {
+                List<VpnInstanceNames> listVpn = optionalVpnInterface.get().getVpnInstanceNames();
+                if (listVpn != null
+                    && VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnId.getValue(), listVpn)) {
+                    VpnHelper.removeVpnInterfaceVpnInstanceNamesFromList(vpnId.getValue(), listVpn);
+                }
+                VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
+                         .setVpnInstanceNames(listVpn);
+                Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
+                LOG.debug("Updating vpn interface {}", infName);
+                List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
+                Iterator<Adjacency> adjacencyIter = adjacencyList.iterator();
+                while (adjacencyIter.hasNext()) {
+                    Adjacency adjacency = adjacencyIter.next();
+                    if (adjacency.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
+                        continue;
+                    }
+                    String mipToQuery = adjacency.getIpAddress().split("/")[0];
+                    InstanceIdentifier<LearntVpnVipToPort> id =
+                        NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(vpnId.getValue(), mipToQuery);
+                    Optional<LearntVpnVipToPort> optionalVpnVipToPort =
+                            SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                    LogicalDatastoreType.OPERATIONAL, id);
+                    if (optionalVpnVipToPort.isPresent()) {
+                        LOG.trace("Removing adjacencies from vpninterface {} upon dissociation of router {}",
+                             infName, vpnId);
+                        if (listVpn == null || listVpn.isEmpty()) {
+                            adjacencyIter.remove();
+                        }
+                        neutronvpnUtils.removeLearntVpnVipToPort(vpnId.getValue(), mipToQuery);
+                        LOG.trace("Entry for fixedIP {} for port {} on VPN removed from "
+                            + "VpnPortFixedIPToPortData", mipToQuery, infName, vpnId.getValue());
+                    }
+                }
+                List<FixedIps> ips = port.getFixedIps();
+                for (FixedIps ip : ips) {
+                    String ipValue = String.valueOf(ip.getIpAddress().getValue());
+                    neutronvpnUtils.removeVpnPortFixedIpToPort(vpnId.getValue(),
+                            ipValue, writeConfigTxn);
+                }
+                if (listVpn == null || listVpn.isEmpty()) {
+                    if (sm != null && sm.getRouterId() != null) {
+                        removeFromNeutronRouterInterfacesMap(sm.getRouterId(), port.getUuid().getValue());
+                    }
+                    deleteVpnInterface(port.getUuid().getValue(), null /* vpn-id */, writeConfigTxn);
+                } else {
+                    writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIfBuilder
+                            .build());
+                }
+            } else {
+                LOG.error("VPN Interface {} not found", infName);
+            }
+        } catch (ReadFailedException ex) {
+            LOG.error("Updation of vpninterface {} failed", infName, ex);
+        } finally {
+            if (isLockAcquired) {
+                interfaceLock.tryLock(infName);
+            }
         }
     }
 
@@ -1343,26 +1485,40 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         removeVpn(subnetId);
     }
 
-    protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
-        LOG.debug("addSubnetToVpn: Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
+    protected void addSubnetToVpn(@Nullable final Uuid vpnId, Uuid subnet, @Nullable final Uuid internetVpnId) {
+        LOG.debug("addSubnetToVpn: Adding subnet {} to vpn {}", subnet.getValue(),
+                  vpnId != null ? vpnId.getValue() : internetVpnId.getValue());
+        Subnetmap sn = updateSubnetNode(subnet, null, vpnId, internetVpnId);
         if (sn == null) {
             LOG.error("addSubnetToVpn: subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(),
-                vpnId.getValue());
+                 vpnId != null ? vpnId.getValue() : internetVpnId.getValue());
             return;
         }
-        VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
-        if (vpnMap == null) {
-            LOG.error("addSubnetToVpn: No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(),
-                subnet.getValue());
-            return;
+        if (vpnId != null) {
+            VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
+            if (vpnMap == null) {
+                LOG.error("addSubnetToVpn: No vpnMap for vpnId {},"
+                     + " cannot add subnet {} to VPN", vpnId.getValue(),
+                    subnet.getValue());
+                return;
+            }
+            final VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
+            LOG.info("addSubnetToVpn: VpnInstance {}", vpnInstance.toString());
+            if (isVpnOfTypeL2(vpnInstance)) {
+                neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
+                        NeutronEvpnUtils.Operation.ADD);
+            }
         }
-
-        final VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
-        if (isVpnOfTypeL2(vpnInstance)) {
-            neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
-                    NeutronEvpnUtils.Operation.ADD);
+        if (internetVpnId != null) {
+            VpnMap vpnMap = neutronvpnUtils.getVpnMap(internetVpnId);
+            if (vpnMap == null) {
+                LOG.error("addSubnetToVpn: No vpnMap for InternetVpnId {}, cannot add "
+                    + "subnet {} to VPN", internetVpnId.getValue(),
+                    subnet.getValue());
+                return;
+            }
         }
+        final Uuid internetId = internetVpnId;
         // Check if there are ports on this subnet and add corresponding vpn-interfaces
         List<Uuid> portList = sn.getPortList();
         if (portList != null) {
@@ -1382,15 +1538,27 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Adjacencies portAdj = createPortIpAdjacencies(port, isRouterInterface, wrtConfigTxn, sn,
                                 vpnIface);
                         if (vpnIface == null) {
-                            LOG.trace("create new VpnInterface for Port {}", vpnInfName);
-                            writeVpnInterfaceToDs(Collections.singletonList(vpnId), vpnInfName, portAdj,
-                                         isRouterInterface, wrtConfigTxn);
+                            LOG.trace("addSubnetToVpn: create new VpnInterface for Port {}", vpnInfName);
+                            Set<Uuid> listVpn = new HashSet<Uuid>();
+                            if (vpnId != null) {
+                                listVpn.add(vpnId);
+                            }
+                            if (internetId != null) {
+                                listVpn.add(internetId);
+                            }
+                            writeVpnInterfaceToDs(listVpn,
+                                     vpnInfName, portAdj, isRouterInterface, wrtConfigTxn);
                             if (sn.getRouterId() != null) {
                                 addToNeutronRouterInterfacesMap(sn.getRouterId(),portId.getValue());
                             }
                         } else {
                             LOG.trace("update VpnInterface for Port {} with adj {}", vpnInfName, portAdj);
-                            updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
+                            if (vpnId != null) {
+                                updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
+                            }
+                            if (internetId != null) {
+                                updateVpnInterfaceWithAdjacencies(internetId, vpnInfName, portAdj, wrtConfigTxn);
+                            }
                         }
                     }))
                 );
@@ -1398,23 +1566,56 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet) {
-        LOG.debug("Removing subnet {} from vpn {}", subnet.getValue(), vpnId.getValue());
-        VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
-        if (vpnMap == null) {
-            LOG.error("No vpnMap for vpnId {}, cannot remove subnet {} from VPN",
-                    vpnId.getValue(), subnet.getValue());
-            return;
+    protected void removeSubnetFromVpn(final Uuid vpnId, Uuid subnet, Uuid internetVpnId) {
+        LOG.debug("Removing subnet {} from vpn {}/{}", subnet.getValue(),
+                  vpnId, internetVpnId);
+        VpnMap vpnMap = null;
+        VpnInstance vpnInstance = null;
+        Preconditions.checkArgument(vpnId != null || internetVpnId != null,
+                      "removeSubnetFromVpn: at least one VPN must be not null");
+        if (vpnId != null) {
+            vpnMap = neutronvpnUtils.getVpnMap(vpnId);
+            if (vpnMap == null) {
+                LOG.error("No vpnMap for vpnId {}, cannot remove subnet {} from VPN",
+                        vpnId.getValue(), subnet.getValue());
+                return;
+            }
+            vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
         }
         Subnetmap sn = neutronvpnUtils.getSubnetmap(subnet);
-        final VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
-        if (isVpnOfTypeL2(vpnInstance)) {
+        if (sn != null && internetVpnId == null) {
+            internetVpnId = sn.getInternetVpnId();
+        }
+        if (internetVpnId != null) {
+            vpnMap = neutronvpnUtils.getVpnMap(internetVpnId);
+            if (vpnMap == null) {
+                LOG.error("No vpnMap for vpnId {}, cannot remove subnet {}"
+                        + " from Internet VPN",
+                        internetVpnId.getValue(), subnet.getValue());
+                return;
+            }
+        }
+        if (vpnInstance != null && isVpnOfTypeL2(vpnInstance)) {
             neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
                     NeutronEvpnUtils.Operation.DELETE);
+        }
+        boolean subnetVpnAssociation = false;
+        if (vpnId != null && sn.getVpnId() != null
+            && sn.getVpnId().getValue().equals(vpnId.getValue())) {
+            subnetVpnAssociation = true;
+        } else if (internetVpnId != null && sn.getInternetVpnId() != null
+            && sn.getInternetVpnId().getValue().matches(internetVpnId.getValue())) {
+            subnetVpnAssociation = true;
+        }
+        if (subnetVpnAssociation == false) {
+            LOG.error("Removing subnet : Subnetmap is not in VPN {}/{}, owns {} and {}",
+                      vpnId, internetVpnId, sn.getVpnId(), sn.getInternetVpnId());
+            return;
         }
         if (sn != null) {
             // Check if there are ports on this subnet; remove corresponding vpn-interfaces
             List<Uuid> portList = sn.getPortList();
+            final Uuid internetId = internetVpnId;
             if (portList != null) {
                 for (final Uuid portId : portList) {
                     LOG.debug("withdrawing subnet IP {} from vpn-interface {}", sn.getSubnetIp(), portId.getValue());
@@ -1424,7 +1625,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
 
                         if (port != null) {
-                            withdrawPortIpFromVpnIface(vpnId, port, sn, wrtConfigTxn);
+                            withdrawPortIpFromVpnIface(vpnId, internetId,
+                                      port, sn, wrtConfigTxn);
                         } else {
                             LOG.warn("Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since "
                                 + "port is absent in Neutron config DS", portId.getValue(), subnet.getValue());
@@ -1445,13 +1647,69 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
+    protected void updateVpnInternetForSubnet(Subnetmap sm, Uuid vpn, boolean isBeingAssociated) {
+        LOG.debug("updateVpnInternetForSubnet : {} subnet {} with BGPVPN Internet {} ",
+             isBeingAssociated ? "associating" : "dissociating", sm.getSubnetIp(),
+             vpn.getValue());
+        if (isBeingAssociated) {
+            updateSubnetNode(sm.getId(), null, null, vpn);
+        } else {
+            updateSubnetNode(sm.getId(), null, null, null);
+        }
+        try {
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+            if (isBeingAssociated) {
+                updateVpnInterface(vpn, null,
+                            neutronvpnUtils.getNeutronPort(sm.getRouterInterfacePortId()),
+                                        true, true, wrtConfigTxn);
+            } else {
+                removeVpnFromVpnInterface(vpn,
+                            neutronvpnUtils.getNeutronPort(sm.getRouterInterfacePortId()),
+                                            wrtConfigTxn, sm);
+            }
+            wrtConfigTxn.submit().checkedGet();
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Failed to update router interface {} in subnet {} "
+                     + "while handling vpn {}, returning",
+                     sm.getRouterInterfacePortId().getValue(),
+                     sm.getSubnetIp(), vpn);
+        }
+        // Check for ports on this subnet and update association of
+        // corresponding vpn-interfaces to internet vpn
+        List<Uuid> portList = sm.getPortList();
+        if (portList != null) {
+            for (Uuid port : portList) {
+                LOG.debug("Updating vpn-interface for port {} isBeingAssociated {}",
+                    port.getValue(), isBeingAssociated);
+                jobCoordinator.enqueueJob("PORT-" + port.getValue(), () -> {
+                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    if (isBeingAssociated) {
+                        updateVpnInterface(vpn, null, neutronvpnUtils.getNeutronPort(port),
+                                 isBeingAssociated, false, wrtConfigTxn);
+                    } else {
+                        removeVpnFromVpnInterface(vpn,
+                              neutronvpnUtils.getNeutronPort(port), wrtConfigTxn, sm);
+                    }
+                    futures.add(wrtConfigTxn.submit());
+                    return futures;
+                });
+            }
+        }
+    }
+
     private Subnetmap updateVpnForSubnet(Uuid oldVpnId, Uuid newVpnId, Uuid subnet, boolean isBeingAssociated) {
         LOG.debug("Moving subnet {} from oldVpn {} to newVpn {} ", subnet.getValue(),
                 oldVpnId.getValue(), newVpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, newVpnId);
+        Uuid networkUuid = neutronvpnUtils.getSubnetmap(subnet).getNetworkId();
+        Network network = neutronvpnUtils.getNeutronNetwork(networkUuid);
+        boolean netIsExternal = neutronvpnUtils.getIsExternal(network);
+        Uuid vpnExtUuid = netIsExternal ? null
+                : neutronvpnUtils.getInternetvpnUuidBoundToSubnetRouter(subnet);
+        Subnetmap sn = updateSubnetNode(subnet, null, newVpnId, vpnExtUuid);
         if (sn == null) {
             LOG.error("Updating subnet {} with newVpn {} failed", subnet.getValue(), newVpnId.getValue());
-            return null;
+            return sn;
         }
 
         //Update Router Interface first synchronously.
@@ -1921,7 +2179,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             Subnetmap sn = updateVpnForSubnet(routerId, vpnId, subnetId, true);
             if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sn, vpnId)) {
                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(),
-                    NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
+                          neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
             }
         }
 
@@ -1937,9 +2195,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void associateRouterToInternalVpn(Uuid vpnId, Uuid routerId) {
         List<Uuid> routerSubnets = neutronvpnUtils.getNeutronRouterSubnetIds(routerId);
+        Uuid internetVpnId = neutronvpnUtils.getInternetvpnUuidBoundToRouterId(routerId);
         LOG.debug("Adding subnets to internal vpn {}", vpnId.getValue());
         for (Uuid subnet : routerSubnets) {
-            addSubnetToVpn(vpnId, subnet);
+            IpVersionChoice version = neutronvpnUtils
+                   .getIpVersionFromSubnet(neutronvpnUtils.getSubnetmap(subnet));
+            if (version.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                addSubnetToVpn(vpnId, subnet, null);
+            } else {
+                addSubnetToVpn(vpnId, subnet, internetVpnId);
+            }
         }
     }
 
@@ -2025,7 +2290,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                         neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
                                                 NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
                                     }
-                                    addSubnetToVpn(vpn, subnet);
+                                    if (sn != null && sn.getInternetVpnId() != null) {
+                                        if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sn,
+                                                            sn.getInternetVpnId())) {
+                                            neutronvpnUtils.updateVpnInstanceWithIpFamily(sn
+                                                            .getInternetVpnId().getValue(),
+                                                   neutronvpnUtils.getIpVersionFromString(sn
+                                                            .getSubnetIp()), true);
+                                        }
+                                    }
+                                    addSubnetToVpn(vpn, subnet, sn != null ? sn.getInternetVpnId() : null);
                                     passedNwList.add(nw);
                                 } else {
                                     failedNwList.add(
@@ -2094,20 +2368,53 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         if (networkSubnets != null) {
                             boolean vpnInstanceIpVersionsRemoved = false;
                             IpVersionChoice vpnInstanceIpVersionsToRemove = IpVersionChoice.UNDEFINED;
+                            boolean vpnInstanceInternetIpVersionRemoved = false;
+                            Uuid vpnIdInternet = null;
                             for (Uuid subnet : networkSubnets) {
                                 Subnetmap sn = neutronvpnUtils.getSubnetmap(subnet);
                                 if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(sn, vpn)) {
                                     vpnInstanceIpVersionsToRemove = vpnInstanceIpVersionsToRemove.addVersion(
-                                            NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()));
+                                            neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()));
                                     vpnInstanceIpVersionsRemoved = true;
                                 }
-                                removeSubnetFromVpn(vpn, subnet);
-
+                                if (sn.getInternetVpnId() != null
+                                    && neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(sn,
+                                                                  sn.getInternetVpnId())) {
+                                    vpnInstanceInternetIpVersionRemoved = true;
+                                    vpnIdInternet = sn.getInternetVpnId();
+                                }
+                                removeSubnetFromVpn(vpn, subnet, null);
                                 passedNwList.add(nw);
                             }
                             if (vpnInstanceIpVersionsRemoved) {
                                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
                                         vpnInstanceIpVersionsToRemove, false);
+                            }
+                            if (vpnInstanceInternetIpVersionRemoved) {
+                                neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnIdInternet.getValue(),
+                                                   IpVersionChoice.IPV6, false);
+                            }
+                        }
+                        if (neutronvpnUtils.getIsExternal(network)) {
+                            neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry
+                                             .BgpvpnType.VPN, vpn);
+                            LOG.debug("Removing IPv6 network subnets...");
+                            List<Subnetmap> smList = neutronvpnUtils.getSubnetMapsforNetworkRoute(network);
+                            boolean vpnInstanceInternetIpVersionRemoved = false;
+                            if (smList != null && !smList.isEmpty()) {
+                                for (Subnetmap sm : smList) {
+                                    if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(sm, vpn)) {
+                                        vpnInstanceInternetIpVersionRemoved = true;
+                                    }
+                                    updateVpnInternetForSubnet(sm, vpn, false);
+                                }
+                            }
+                            if (vpnInstanceInternetIpVersionRemoved) {
+                                neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
+                                             IpVersionChoice.IPV6, false);
+                            }
+                            if (networkSubnets == null) {
+                                passedNwList.add(nw);
                             }
                         }
                     } else {
@@ -2384,16 +2691,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void handleNeutronRouterDeleted(Uuid routerId, List<Uuid> routerSubnetIds) {
         // check if the router is associated to some VPN
         Uuid vpnId = neutronvpnUtils.getVpnForRouter(routerId, true);
+        Uuid internetVpnId = neutronvpnUtils.getInternetvpnUuidBoundToRouterId(routerId);
         if (vpnId != null) {
             // remove existing external vpn interfaces
             for (Uuid subnetId : routerSubnetIds) {
-                removeSubnetFromVpn(vpnId, subnetId);
+                removeSubnetFromVpn(vpnId, subnetId, internetVpnId);
             }
             clearFromVpnMaps(vpnId, routerId, null);
         } else {
             // remove existing internal vpn interfaces
             for (Uuid subnetId : routerSubnetIds) {
-                removeSubnetFromVpn(routerId, subnetId);
+                removeSubnetFromVpn(routerId, subnetId, internetVpnId);
             }
         }
         // delete entire vpnMaps node for internal VPN
