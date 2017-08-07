@@ -49,12 +49,12 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
 
     @Override
     public void addSubnetToVpn(Uuid vpnId, Uuid subnet) {
-        nvManager.addSubnetToVpn(vpnId, subnet);
+        nvManager.addSubnetToVpn(vpnId, subnet, null /* internet-vpn-id */);
     }
 
     @Override
     public void removeSubnetFromVpn(Uuid vpnId, Uuid subnet) {
-        nvManager.removeSubnetFromVpn(vpnId, subnet);
+        nvManager.removeSubnetFromVpn(vpnId, subnet, null /* internet-vpn-id */);
     }
 
     @Override

@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -41,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -60,11 +62,14 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     private final DataBroker dataBroker;
     private final NeutronvpnUtils neutronvpnUtils;
+    private final NeutronvpnManager nvpnManager;
 
     @Inject
-    public NeutronvpnNatManager(final DataBroker dataBroker, final NeutronvpnUtils neutronvpnUtils) {
+    public NeutronvpnNatManager(final DataBroker dataBroker, final NeutronvpnUtils neutronvpnUtils,
+                                  final NeutronvpnManager neutronvpnManager) {
         this.dataBroker = dataBroker;
         this.neutronvpnUtils = neutronvpnUtils;
+        this.nvpnManager = neutronvpnManager;
     }
 
     @Override
@@ -326,6 +331,27 @@ public class NeutronvpnNatManager implements AutoCloseable {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
                     networkss);
             LOG.trace("Updated externalnetworks successfully to CONFIG Datastore");
+            //get vpn external form this network external to setup vpnInternet for ipv6
+            Uuid vpnExternal = neutronvpnUtils.getVpnForNetwork(extNetId);
+            if (vpnExternal == null) {
+                LOG.debug("addExternalNetworkToRouter : no vpnExternal for Network {}", extNetId);
+            }
+            LOG.debug("addExternalNetworkToRouter : the vpnExternal {}", vpnExternal);
+            //get subnetmap associate to the router, any subnetmap "external" could be existing
+            List<Subnetmap> snList = neutronvpnUtils.getNeutronRouterSubnetMaps(routerId);
+            LOG.debug("addExternalNetworkToRouter : the vpnExternal {} subnetmap to be set with vpnInternet {}",
+                    vpnExternal, snList);
+            for (Subnetmap sn : snList) {
+                if (sn.getInternetVpnId() == null) {
+                    continue;
+                }
+                IpVersionChoice ipVers = neutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+                if (ipVers == IpVersionChoice.IPV6) {
+                    LOG.debug("addExternalNetworkToRouter : setup vpnInternet IPv6 for vpnExternal {} subnetmap {}",
+                            vpnExternal, sn);
+                    nvpnManager.updateVpnInternetForSubnet(sn, vpnExternal, true);
+                }
+            }
         } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Creation of externalnetworks failed for {}",
                 extNetId.getValue(), ex);
@@ -348,92 +374,53 @@ public class NeutronvpnNatManager implements AutoCloseable {
         // Remove the router from the ExternalNetworks list
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
             .child(Networks.class, new NetworksKey(origExtNetId)).build();
-
+        Optional<Networks> optionalNets = null;
         try {
-            Optional<Networks> optionalNets =
-                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                            netsIdentifier);
+            optionalNets = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                            LogicalDatastoreType.CONFIGURATION, netsIdentifier);
+        } catch (ReadFailedException ex) {
+            LOG.error("Removing externalnetwork {} from router {} failed", origExtNetId.getValue(),
+                    routerId.getValue(), ex);
+            return;
+        }
+        if (!optionalNets.isPresent()) {
+            LOG.error("External Network {} not present in the NVPN datamodel", origExtNetId.getValue());
+            return;
+        }
+        Networks nets = optionalNets.get();
+        try {
             LOG.trace("Removing a router from External Networks node: {}", origExtNetId.getValue());
-            if (optionalNets.isPresent()) {
-                NetworksBuilder builder = new NetworksBuilder(optionalNets.get());
-                List<Uuid> rtrList = builder.getRouterIds();
-                if (rtrList != null) {
-                    rtrList.remove(routerId);
-                    builder.setRouterIds(rtrList);
-                    Networks networkss = builder.build();
-                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                            netsIdentifier, networkss);
-                    LOG.trace("Removed router {} from externalnetworks {}", routerId, origExtNetId.getValue());
-                }
+            NetworksBuilder builder = new NetworksBuilder(nets);
+            List<Uuid> rtrList = builder.getRouterIds();
+            if (rtrList != null) {
+                rtrList.remove(routerId);
+                builder.setRouterIds(rtrList);
+                Networks networkss = builder.build();
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        netsIdentifier, networkss);
+                LOG.trace("Removed router {} from externalnetworks {}", routerId, origExtNetId.getValue());
             }
-        } catch (TransactionCommitFailedException | ReadFailedException ex) {
+        } catch (TransactionCommitFailedException ex) {
             LOG.error("Removing externalnetwork {} from router {} failed", origExtNetId.getValue(),
                     routerId.getValue(), ex);
         }
-    }
 
-    public void addExternalNetworkToVpn(Network network, Uuid vpnId) {
-        Uuid extNetId = network.getUuid();
-
-        // Create and add Networks object for this External Network to the ExternalNetworks list
-        InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
-            .child(Networks.class, new NetworksKey(extNetId)).build();
-
-        try {
-            Optional<Networks> optionalNets =
-                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                            netsIdentifier);
-            LOG.trace("Adding vpn-id into Networks node {}", extNetId.getValue());
-            NetworksBuilder builder = null;
-            if (optionalNets.isPresent()) {
-                builder = new NetworksBuilder(optionalNets.get());
-            } else {
-                LOG.error("External Network {} not present in the NVPN datamodel", extNetId.getValue());
-                return;
+        // Remove the vpnInternetId fromSubnetmap
+        LOG.trace("Removing a vpnInternetId to SubnetMaps about External Networks node: {}",
+                origExtNetId.getValue());
+        Network net = neutronvpnUtils.getNeutronNetwork(nets.getId());
+        List<Subnetmap> submapList = neutronvpnUtils.getSubnetMapsforNetworkRoute(net);
+        for (Subnetmap sn : submapList) {
+            if (sn.getInternetVpnId() == null) {
+                continue;
             }
-            builder.setVpnid(vpnId);
-            Networks networkss = builder.build();
-            // Add Networks object to the ExternalNetworks list
-            LOG.trace("Setting VPN-ID for externalnetworks {}", networkss);
-            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
-                    networkss);
-            LOG.trace("Wrote with VPN-ID successfully to CONFIG Datastore");
-
-        } catch (TransactionCommitFailedException | ReadFailedException ex) {
-            LOG.error("Attaching VPN-ID to externalnetwork {} failed", extNetId.getValue(), ex);
-        }
-    }
-
-    public void removeExternalNetworkFromVpn(Network network) {
-        Uuid extNetId = network.getUuid();
-
-        // Create and add Networks object for this External Network to the ExternalNetworks list
-        InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
-            .child(Networks.class, new NetworksKey(extNetId)).build();
-
-        try {
-            Optional<Networks> optionalNets =
-                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                            netsIdentifier);
-            LOG.trace("Removing vpn-id from Networks node {}", extNetId.getValue());
-            NetworksBuilder builder = null;
-            if (optionalNets.isPresent()) {
-                builder = new NetworksBuilder(optionalNets.get());
-            } else {
-                LOG.error("External Network {} not present in the NVPN datamodel", extNetId.getValue());
-                return;
+            LOG.trace("Removing a vpnInternetId {} to SubnetMap {}", sn.getInternetVpnId(), sn.getId());
+            IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+            if (ipVers == IpVersionChoice.IPV6) {
+                LOG.debug("removeExternalNetworkFromRouter : clear vpnInternet IPv6 for vpnExternal {} "
+                        + "subnetmap {}", sn.getInternetVpnId(), sn);
+                nvpnManager.updateVpnInternetForSubnet(sn, sn.getInternetVpnId(), false);
             }
-
-            builder.setVpnid(null);
-            Networks networkss = builder.build();
-            // Add Networks object to the ExternalNetworks list
-            LOG.trace("Remove vpn-id for externalnetwork {}", networkss);
-            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
-                    networkss);
-            LOG.trace("Updated extnetworks successfully to CONFIG Datastore");
-
-        } catch (TransactionCommitFailedException | ReadFailedException ex) {
-            LOG.error("Removing VPN-ID from externalnetworks {} failed", extNetId.getValue(), ex);
         }
     }
 
