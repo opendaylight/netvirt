@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_443a4ace",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 5
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-08-07T13:41:48Z",
+      "side": 1,
+      "message": "Does the patch address this use-case?",
+      "range": {
+        "startLine": 7,
+        "startChar": 11,
+        "endLine": 7,
+        "endChar": 43
+      },
+      "revId": "5229c596ba2183139aabbefbe876e2b8c9b48d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
