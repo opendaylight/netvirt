@@ -83,7 +83,6 @@ public class Ipv6ServiceInterfaceEventListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface add) {
-        LOG.debug("Port added {}, {}", key, add);
         List<String> ofportIds = add.getLowerLayerIf();
 
         if (!L2vlan.class.equals(add.getType())) {
@@ -99,7 +98,7 @@ public class Ipv6ServiceInterfaceEventListener
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
         iface = Ipv6ServiceUtils.getInterface(dataBroker, add.getName());
         if (null != iface) {
-            LOG.debug("Port added {}", iface);
+            LOG.debug("Port {} is a Neutron port", iface.getName());
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
             BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
 
@@ -107,16 +106,16 @@ public class Ipv6ServiceInterfaceEventListener
                 Uuid portId = new Uuid(iface.getName());
                 VirtualPort port = ifMgr.obtainV6Interface(portId);
                 if (port == null) {
-                    LOG.info("Port {} not found, skipping.", portId);
+                    LOG.info("Port {} does not include IPv6Address, skipping.", portId);
                     return;
                 }
 
                 Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
-                ifMgr.updateInterface(portId, dpId, ofPort);
+                ifMgr.updateDpnInfo(portId, dpId, ofPort);
 
                 VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
                 if (routerPort == null) {
-                    LOG.info("Port {} is not associated to a Router, skipping.", routerPort);
+                    LOG.info("Port {} is not associated to a Router, skipping.", portId);
                     return;
                 }
                 // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.

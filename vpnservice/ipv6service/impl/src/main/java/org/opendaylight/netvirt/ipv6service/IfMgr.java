@@ -19,6 +19,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -29,6 +30,7 @@ import org.opendaylight.netvirt.ipv6service.utils.Ipv6TimerWheel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
@@ -245,9 +247,9 @@ public class IfMgr {
      * @param snetId subnet id
      */
     public void removeSubnet(Uuid snetId) {
-
         VirtualSubnet snet = vsubnets.get(snetId);
         if (snet != null) {
+            LOG.info("removeSubnet is invoked for {}", snetId);
             snet.removeSelf();
             vsubnets.remove(snetId);
             removeUnprocessed(unprocessedSubnetIntfs, snetId);
@@ -323,7 +325,7 @@ public class IfMgr {
     }
 
     public void updateRouterIntf(Uuid portId, Uuid rtrId, List<FixedIps> fixedIpsList) {
-        LOG.debug("updateRouterIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
+        LOG.info("updateRouterIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             LOG.info("Skip Router interface update for non-ipv6 port {}", portId);
@@ -413,6 +415,10 @@ public class IfMgr {
             // Do service binding for the port and set the serviceBindingStatus to true.
             ipv6ServiceUtils.bindIpv6Service(dataBroker, portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
             intf.setServiceBindingStatus(Boolean.TRUE);
+
+            /* Update the intf dpnId/ofPort from the Operational Store */
+            updateInterfaceDpidOfPortInfo(portId);
+
         } else {
             intf.setSubnetInfo(snetId, fixedIp);
         }
@@ -427,37 +433,18 @@ public class IfMgr {
         return;
     }
 
-    public void updateHostIntf(Uuid portId, List<FixedIps> fixedIpsList) {
-        LOG.debug("updateHostIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
-        Boolean portIncludesV6Address = Boolean.FALSE;
+    public void clearAnyExistingSubnetInfo(Uuid portId) {
+        VirtualPort intf = vintfs.get(portId);
+        if (intf != null) {
+            intf.clearSubnetInfo();
+        }
+    }
 
+    public void updateHostIntf(Uuid portId, Boolean portIncludesV6Address) {
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             LOG.warn("Update Host interface failed. Could not get Host interface details {}", portId);
             return;
-        }
-
-        intf.clearSubnetInfo();
-        for (FixedIps fip : fixedIpsList) {
-            IpAddress fixedIp = fip.getIpAddress();
-            if (fixedIp.getIpv4Address() != null) {
-                continue;
-            }
-            portIncludesV6Address = Boolean.TRUE;
-            //Save the interface ipv6 address in its fully expanded format
-            Ipv6Address addr = new Ipv6Address(InetAddresses
-                    .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
-            fixedIp = new IpAddress(addr);
-
-            intf.setSubnetInfo(fip.getSubnetId(), fixedIp);
-
-            VirtualSubnet snet = vsubnets.get(fip.getSubnetId());
-
-            if (snet != null) {
-                intf.setSubnet(fip.getSubnetId(), snet);
-            } else {
-                addUnprocessed(unprocessedSubnetIntfs, fip.getSubnetId(), intf);
-            }
         }
 
         /* If the VMPort initially included an IPv6 address (along with IPv4 address) and IPv6 address
@@ -467,31 +454,22 @@ public class IfMgr {
         if (portIncludesV6Address) {
             if (intf.getServiceBindingStatus() == Boolean.FALSE) {
                 Long elanTag = getNetworkElanTag(intf.getNetworkID());
+                LOG.info("In updateHostIntf, service binding for portId {}", portId);
                 ipv6ServiceUtils.bindIpv6Service(dataBroker, portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
                 intf.setServiceBindingStatus(Boolean.TRUE);
             }
         } else {
+            LOG.info("In updateHostIntf, removing service binding for portId {}", portId);
             ipv6ServiceUtils.unbindIpv6Service(dataBroker, portId.getValue());
             intf.setServiceBindingStatus(Boolean.FALSE);
         }
         return;
     }
 
-    public void updateInterface(Uuid portId, BigInteger dpId, Long ofPort) {
-        LOG.debug("in updateInterface portId {}, dpId {}, ofPort {}",
+    public void updateDpnInfo(Uuid portId, BigInteger dpId, Long ofPort) {
+        LOG.info("In updateDpnInfo portId {}, dpId {}, ofPort {}",
             portId, dpId, ofPort);
         VirtualPort intf = vintfs.get(portId);
-
-        if (intf == null) {
-            intf = new VirtualPort();
-            intf.setIntfUUID(portId);
-            if (intf != null) {
-                vintfs.put(portId, intf);
-            } else {
-                LOG.error("updateInterface failed for :{}", portId);
-            }
-        }
-
         if (intf != null) {
             intf.setDpId(dpId.toString())
                     .setOfPort(ofPort);
@@ -506,11 +484,30 @@ public class IfMgr {
         return;
     }
 
+    public void updateInterfaceDpidOfPortInfo(Uuid portId) {
+        LOG.debug("In updateInterfaceDpidOfPortInfo portId {}", portId);
+        Interface interfaceState = Ipv6ServiceUtils.getInterfaceStateFromOperDS(dataBroker, portId.getValue());
+        if (interfaceState == null) {
+            LOG.warn("In updateInterfaceDpidOfPortInfo, port info not found in Operational Store {}.", portId);
+            return;
+        }
+
+        List<String> ofportIds = interfaceState.getLowerLayerIf();
+        NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
+        BigInteger dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
+        if (!dpId.equals(Ipv6Constants.INVALID_DPID)) {
+            Long ofPort = MDSALUtil.getOfPortNumberFromPortName(nodeConnectorId);
+            updateDpnInfo(portId, dpId, ofPort);
+        }
+    }
+
+
     public void removePort(Uuid portId) {
         VirtualPort intf = vintfs.get(portId);
         if (intf != null) {
             intf.removeSelf();
             if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
+                LOG.info("In removePort for router interface, portId {}", portId);
                 MacAddress ifaceMac = MacAddress.getDefaultInstance(intf.getMacAddress());
                 Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
                 vrouterv6IntfMap.remove(intf.getNetworkID(), intf);
@@ -527,6 +524,7 @@ public class IfMgr {
                 intf.resetPeriodicTimeout();
                 LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
             } else {
+                LOG.info("In removePort for host interface, portId {}", portId);
                 // Remove the serviceBinding entry for the port.
                 ipv6ServiceUtils.unbindIpv6Service(dataBroker, portId.getValue());
                 // Remove the portId from the (network <--> List[dpnIds, List <ports>]) cache.
