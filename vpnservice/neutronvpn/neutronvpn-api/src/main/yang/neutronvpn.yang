@@ -55,6 +55,11 @@ module neutronvpn {
                 description "VPN to which this subnet belongs";
             }
 
+            leaf internet-vpn-id {
+                type    yang:uuid;
+                description "internet VPN to which this IPv6 subnet belongs";
+            }
+
             leaf-list port-list {
                 type yang:uuid;
             }
