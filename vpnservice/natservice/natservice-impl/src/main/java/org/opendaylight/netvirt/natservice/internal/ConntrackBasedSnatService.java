@@ -21,9 +21,9 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
-import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadMetadata;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
+import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMeta;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -128,8 +128,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         ctActionsList.add(nxCtAction);
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
                 .OUTBOUND_NAPT_TABLE,ctActionsList);
-        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(BigInteger.valueOf(routerId));
-        actionsInfos.add(actionLoadMeta);
+        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
+                .getVpnIdMetadata(routerId.longValue()));
+        actionsInfos.add(actionSetFieldMeta);
         actionsInfos.add(actionNxConntrack);
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
@@ -162,8 +163,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 LOG.error("ConntrackBasedSnatService : createOutboundTblTrackEntry : external subnet id is invalid.");
                 return;
             }
-            ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(BigInteger.valueOf(extSubnetId));
-            listActionInfo.add(actionLoadMeta);
+            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
+                    .getVpnIdMetadata(extSubnetId));
+            listActionInfo.add(actionSetFieldMeta);
             listActionInfo.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         }
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
@@ -200,8 +202,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 LOG.error("ConntrackBasedSnatService : createOutboundTblEntry : external subnet id is invalid.");
                 return;
             }
-            ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(BigInteger.valueOf(extSubnetId));
-            actionsInfos.add(actionLoadMeta);
+            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
+                    .getVpnIdMetadata(extSubnetId));
+            actionsInfos.add(actionSetFieldMeta);
             actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         }
         List<NxCtAction> ctActionsListCommit = new ArrayList<>();
@@ -285,8 +288,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<NxCtAction> ctActionsList = new ArrayList<>();
         NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
-        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(BigInteger.valueOf(routerId));
-        actionsInfos.add(actionLoadMeta);
+        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
+                .getVpnIdMetadata(routerId));
+        actionsInfos.add(actionSetFieldMeta);
         ctActionsList.add(nxCtAction);
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
                 .NAPT_PFIB_TABLE,ctActionsList);
