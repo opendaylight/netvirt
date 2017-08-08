@@ -159,9 +159,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             addStatefulIngressDefaultFlows(dpnId);
             addStatefulEgressDefaultFlows(dpnId);
             addConntrackDummyLookup(dpnId, NwConstants.ADD_FLOW);
-        } else if (securityGroupMode == SecurityGroupMode.Transparent) {
-            addTransparentIngressAclTableMissFlow(dpnId);
-            addTransparentEgressAclTableMissFlow(dpnId);
         } else if (securityGroupMode == SecurityGroupMode.Learn) {
             addLearnIngressAclTableMissFlow(dpnId);
             addLearnEgressAclTableMissFlow(dpnId);
@@ -402,23 +399,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         LOG.debug("Added Learn Ingress ACL Table Miss Flows for dpn {}", dpId);
     }
 
-    /**
-     * Adds the ingress acl table transparent flow.
-     *
-     * @param dpId the dp id
-     */
-    private void addTransparentIngressAclTableMissFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        List<InstructionInfo> instructionsAcl =
-                AclServiceOFFlowBuilder.getResubmitInstructionInfo(NwConstants.LPORT_DISPATCHER_TABLE);
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
-                getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE), 0, "Ingress ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, mkMatches, instructionsAcl);
-        mdsalManager.installFlow(flowEntity);
-        LOG.debug("Added Transparent Ingress ACL Table allow all Flows for dpn {}", dpId);
-    }
-
     private void addIngressAclFilterTableAllowFlow(BigInteger dpId) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
@@ -433,24 +413,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         LOG.debug("Added Ingress ACL Filter Table allow all Flows for dpn {}", dpId);
-    }
-
-    /**
-     * Adds the egress acl table transparent flow.
-     *
-     * @param dpId the dp id
-     */
-    private void addTransparentEgressAclTableMissFlow(BigInteger dpId) {
-
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        List<InstructionInfo> instructionsAcl =
-                AclServiceOFFlowBuilder.getResubmitInstructionInfo(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Ingress ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, mkMatches, instructionsAcl);
-        mdsalManager.installFlow(flowEntity);
-        LOG.debug("Added Transparent Egress ACL Table allow all Flows for dpn {}", dpId);
     }
 
     private void addStatefulIngressDefaultFlows(BigInteger dpId) {
