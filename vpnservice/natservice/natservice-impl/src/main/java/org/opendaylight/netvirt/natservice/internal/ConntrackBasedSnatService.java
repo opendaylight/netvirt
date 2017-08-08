@@ -21,9 +21,9 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadMetadata;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
-import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMeta;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -52,6 +52,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     protected final int snatCtStateMask = 0x40;
     protected final int dnatCtState = 0x80;
     protected final int dnatCtStateMask = 0x80;
+    protected final int loadStart = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
+    protected final int loadEnd = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
+            .METADATA_MASK_SH_FLAG.intValue());
     private static final Logger LOG = LoggerFactory.getLogger(ConntrackBasedSnatService.class);
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
@@ -127,9 +130,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         ctActionsList.add(nxCtAction);
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
                 .OUTBOUND_NAPT_TABLE,ctActionsList);
-        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                .getVpnIdMetadata(routerId.longValue()));
-        actionsInfos.add(actionSetFieldMeta);
+        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
+                .getVpnIdMetadata(routerId.longValue()), loadStart, loadEnd);
+        actionsInfos.add(actionLoadMeta);
         actionsInfos.add(actionNxConntrack);
         List<InstructionInfo> instructions = new ArrayList<>();
         instructions.add(new InstructionApplyActions(actionsInfos));
@@ -161,9 +164,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 LOG.error("createOutboundTblTrackEntry : external subnet id is invalid.");
                 return;
             }
-            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                    .getVpnIdMetadata(extSubnetId));
-            listActionInfo.add(actionSetFieldMeta);
+            ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
+                    .getVpnIdMetadata(extSubnetId), loadStart, loadEnd);
+            listActionInfo.add(actionLoadMeta);
             listActionInfo.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         }
         ArrayList<InstructionInfo> instructionInfo = new ArrayList<>();
@@ -198,9 +201,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 LOG.error("createOutboundTblEntry : external subnet id is invalid.");
                 return;
             }
-            ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                    .getVpnIdMetadata(extSubnetId));
-            actionsInfos.add(actionSetFieldMeta);
+            ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
+                    .getVpnIdMetadata(extSubnetId), loadStart, loadEnd);
+            actionsInfos.add(actionLoadMeta);
             actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
         }
         List<NxCtAction> ctActionsListCommit = new ArrayList<>();
@@ -278,9 +281,9 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<NxCtAction> ctActionsList = new ArrayList<>();
         NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
-        ActionSetFieldMeta actionSetFieldMeta = new ActionSetFieldMeta(MetaDataUtil
-                .getVpnIdMetadata(routerId));
-        actionsInfos.add(actionSetFieldMeta);
+        ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
+                .getVpnIdMetadata(routerId), loadStart, loadEnd);
+        actionsInfos.add(actionLoadMeta);
         ctActionsList.add(nxCtAction);
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
                 .NAPT_PFIB_TABLE,ctActionsList);
@@ -308,5 +311,16 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         String flowRef = getFlowRef(dpnId, NwConstants.NAPT_PFIB_TABLE, routerId);
         syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
+    }
+
+    private int mostSignificantBit(int value) {
+        int mask = 1 << 31;
+        for (int bitIndex = 31; bitIndex >= 0; bitIndex--) {
+            if ((value & mask) != 0) {
+                return bitIndex;
+            }
+            mask >>>= 1;
+        }
+        return -1;
     }
 }
