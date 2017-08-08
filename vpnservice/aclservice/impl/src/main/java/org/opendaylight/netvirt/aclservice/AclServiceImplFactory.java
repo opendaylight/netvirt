@@ -66,8 +66,6 @@ public class AclServiceImplFactory extends AbstractLifecycle {
             return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else if (securityGroupMode == SecurityGroupMode.Stateless) {
             return new StatelessIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
-        } else if (securityGroupMode == SecurityGroupMode.Transparent) {
-            return new TransparentIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else {
             return new LearnIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         }
@@ -79,8 +77,6 @@ public class AclServiceImplFactory extends AbstractLifecycle {
             return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else if (securityGroupMode == SecurityGroupMode.Stateless) {
             return new StatelessEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
-        } else if (securityGroupMode == SecurityGroupMode.Transparent) {
-            return new TransparentEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         } else {
             return new LearnEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
         }
