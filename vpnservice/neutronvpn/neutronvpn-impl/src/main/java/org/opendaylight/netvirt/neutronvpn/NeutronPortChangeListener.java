@@ -341,6 +341,20 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleRouterGatewayUpdated(Port routerGwPort) {
         Uuid routerId = new Uuid(routerGwPort.getDeviceId());
         Uuid networkId = routerGwPort.getNetworkId();
+        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
+        boolean isExternal = false;
+        if (network != null) {
+            isExternal = NeutronvpnUtils.getIsExternal(network);
+        }
+        if (isExternal) {
+            Uuid vpnInternetId = NeutronvpnUtils.getVpnForNetwork(dataBroker, networkId);
+            if (vpnInternetId != null) {
+                List<Subnetmap> snList = NeutronvpnUtils.getNeutronRouterSubnetMaps(dataBroker, routerId);
+                for (Subnetmap sn : snList) {
+                    nvpnManager.updateSubnetNode(sn.getId(), sn.getRouterId(), sn.getVpnId(), vpnInternetId);
+                }
+            }
+        }
         elanService.handleKnownL3DmacAddress(routerGwPort.getMacAddress().getValue(), networkId.getValue(),
                 NwConstants.ADD_FLOW);
 
