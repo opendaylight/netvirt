@@ -311,6 +311,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         return true;
     }
 
+    // return only the first VPN subnetopdataentry
     private static SubnetOpDataEntry getTargetSubnetForPacketOut(DataBroker broker, long elanTag, int ipAddress) {
         ElanTagName elanInfo = VpnUtil.getElanInfoByElanTag(broker, elanTag);
         if (elanInfo == null) {
@@ -330,8 +331,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         LOG.debug("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX, subnetList,
                 elanInfo.getName());
         for (Uuid subnetId : subnetList) {
-            Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
+            String vpnName = null;//subnetId->getVpnId();
+            Subnetmap sn = VpnUtil.getSubnetmapFromItsUuid(broker, subnetId);
+            if (sn != null && sn.getVpnId() != null) {
+                vpnName = VpnUtil.getVpnNameFromUuid(broker, sn.getVpnId());
+            }
+            Optional<SubnetOpDataEntry> optionalSubs;
+            optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                  VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId, vpnName));
             if (!optionalSubs.isPresent()) {
                 continue;
             }
@@ -346,7 +353,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 }
             }
         }
-
         return null;
     }
 
