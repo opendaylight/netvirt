@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -65,6 +66,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         LOG.trace("add:SubnetmapChangeListener add subnetmap method - key: {}, value: {}", identifier, subnetmap);
         Uuid subnetId = subnetmap.getId();
         Uuid vpnId = subnetmap.getVpnId();
+        boolean isExtNetwork = VpnUtil.getIsExternal(VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId()));
         if (subnetmap.getVpnId() != null) {
             // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
             // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
@@ -74,7 +76,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                     vpnId.getValue(), subnetmap.getNetworkId().getValue(), subnetId.getValue());
                 return;
             }
-            if (VpnUtil.getIsExternal(network)) {
+            if (isExtNetwork) {
                 return;
             }
             boolean isBgpVpn = !vpnId.equals(subnetmap.getRouterId());
@@ -92,7 +94,29 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                 IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmap.getSubnetIp());
                 VpnUtil.updateVpnInstanceWithIpFamily(dataBroker, vpnId.getValue(), ipVersion);
             }
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag);
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag, true);
+        }
+        if (subnetmap.getInternetVpnId() != null) {
+            // SubnetRoute for ExternalNetwork is not impacting for internetvpn
+            if (isExtNetwork) {
+                return;
+            }
+            boolean isBgpVpn = !subnetmap.getInternetVpnId().equals(subnetmap.getRouterId());
+            String elanInstanceName = subnetmap.getNetworkId().getValue();
+            Long elanTag = getElanTag(elanInstanceName);
+            if (elanTag.equals(0L)) {
+                LOG.error("add:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
+                        + "subnetmapListener add for subnet {}", elanInstanceName, subnetId.getValue());
+                return;
+            }
+            // subnet added to VPN case upon config DS replay after reboot
+            // ports added to subnet upon config DS replay after reboot are handled implicitly by subnetAddedToVpn
+            // in SubnetRouteHandler
+            if (isBgpVpn) {
+                IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmap.getSubnetIp());
+                VpnUtil.updateVpnInstanceWithIpFamily(dataBroker, subnetmap.getInternetVpnId().getValue(), ipVersion);
+            }
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag, false);
         }
     }
 
@@ -106,120 +130,145 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap
             subnetmapUpdate) {
-        LOG.trace("update:SubnetmapListener update subnetmap method - key {}, original {}, update {}", identifier,
-                subnetmapOriginal, subnetmapUpdate);
-        Uuid vpnIdNew = subnetmapUpdate.getVpnId();
-        Uuid vpnIdOld = subnetmapOriginal.getVpnId();
-        Uuid subnetId = subnetmapUpdate.getId();
-        String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
-        // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
-        // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
+        LOG.trace("update:SubnetmapListener update subnetmap method - key: {}, original: {}, update: {}",
+                    identifier, subnetmapOriginal, subnetmapUpdate);
+        Uuid vpnIdNewOther = subnetmapUpdate.getVpnId();
+        Uuid vpnIdOldOther = subnetmapOriginal.getVpnId();
+        Uuid vpnIdInternetNew = subnetmapUpdate.getInternetVpnId();
+        Uuid vpnIdInternetOld = subnetmapOriginal.getInternetVpnId();
         Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
+        Uuid subnetId = subnetmapUpdate.getId();
         if (network == null) {
-            LOG.info("update: vpnIdNew: {}, vpnIdOld: {}, networkId: {}, subnetId: {}: network was not found",
-                vpnIdNew.getValue(), vpnIdOld.getValue(), elanInstanceName, subnetId.getValue());
+            LOG.info("update: ExtVpn : vpnIdNew: {}, vpnIdOld: {} "
+                + " InternetVpn : vpnIdNew: {}, vpnIdOld {} "
+                + ", subnetId: {}: network was not found",
+                vpnIdOldOther, vpnIdNewOther, vpnIdInternetOld, vpnIdInternetNew, subnetId.getValue());
             return;
         }
+        String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
+       // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
+        // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
         if (VpnUtil.getIsExternal(network)) {
             return;
         }
-        Long elanTag = getElanTag(elanInstanceName);
-        if (elanTag.equals(0L)) {
-            LOG.error("update:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
-                + "subnetmapListener update for subnet {}", elanInstanceName, subnetId.getValue());
-            return;
-        }
-        // subnet added to VPN case
-        if (vpnIdNew != null && vpnIdOld == null) {
-            boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
-            if (!isBgpVpn) {
+        HashMap<Uuid, Uuid> mapVpnIdsNewOld = new HashMap<Uuid, Uuid>();
+        mapVpnIdsNewOld.put(vpnIdInternetNew, vpnIdInternetOld);
+        mapVpnIdsNewOld.put(vpnIdNewOther, vpnIdOldOther);
+        mapVpnIdsNewOld.forEach((vpnIdNew,vpnIdOld) -> {
+            boolean isExternalVpn = true;
+            if (vpnIdNew == vpnIdInternetNew && vpnIdOld == vpnIdInternetOld) {
+                isExternalVpn = false;
+            }
+            Long elanTag = getElanTag(elanInstanceName);
+            if (elanTag.equals(0L)) {
+                LOG.error("update:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
+                    + "subnetmapListener update for subnet {}", elanInstanceName, subnetId.getValue());
                 return;
             }
-            IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmapUpdate.getSubnetIp());
-            VpnUtil.updateVpnInstanceWithIpFamily(dataBroker, vpnIdNew.getValue(), ipVersion);
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag);
-            return;
-        }
-        // subnet removed from VPN case
-        if (vpnIdOld != null && vpnIdNew == null) {
-            Boolean isBgpVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
-            if (!isBgpVpn) {
-                return;
-            }
-            String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnIdOld.getValue());
-            if (primaryRd != null) {
-                InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
-                Optional<Subnetmaps> allSubnetMaps = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    subnetMapsId);
-                // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
-                List<IpVersionChoice> snIpVersions = new ArrayList<>();
-                for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
-                    if (snMap.getId().equals(subnetmapOriginal.getId())) {
-                        continue;
-                    }
-                    if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnIdOld)) {
-                        snIpVersions.add(NeutronUtils.getIpVersion(snMap.getSubnetIp()));
-                    }
-                }
-                IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmapOriginal.getSubnetIp());
-                if (!snIpVersions.contains(ipVersion)) {
-                    // no more subnet with given IpVersion for current VpnInstance
-                    VpnUtil.withdrawIpFamilyFromVpnInstance(dataBroker, vpnIdOld.getValue(), ipVersion);
-                }
-            }
-            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true);
-            return;
-        }
-        // subnet updated in VPN case
-        if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
-            boolean isRouterDissociatedFromVpn = !vpnIdOld.equals(subnetmapUpdate.getRouterId());
-            String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnIdOld.getValue());
-            if (isRouterDissociatedFromVpn && primaryRd != null) {
-                InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
-                Optional<Subnetmaps> allSubnetMaps = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    subnetMapsId);
-                // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
-                List<IpVersionChoice> snIpVersions = new ArrayList<>();
-                for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
-                    if (snMap.getId().equals(subnetmapUpdate.getId())) {
-                        continue;
-                    }
-                    if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnIdOld)) {
-                        snIpVersions.add(NeutronUtils.getIpVersion(snMap.getSubnetIp()));
-                    }
+            // subnet added to VPN case
+            if (vpnIdNew != null && vpnIdOld == null) {
+                boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
+                if (!isBgpVpn) {
+                    return;
                 }
                 IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmapUpdate.getSubnetIp());
-                if (!snIpVersions.contains(ipVersion)) {
-                    // no more subnet with given IpVersion for current VpnInstance
-                    VpnUtil.withdrawIpFamilyFromVpnInstance(dataBroker, vpnIdOld.getValue(), ipVersion);
-                }
+                VpnUtil.updateVpnInstanceWithIpFamily(dataBroker, vpnIdNew.getValue(), ipVersion);
+                vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag, isExternalVpn);
+                return;
             }
-            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag);
-            return;
-        }
-        // port added/removed to/from subnet case
-        List<Uuid> oldPortList;
-        List<Uuid> newPortList;
-        newPortList = subnetmapUpdate.getPortList() != null ? subnetmapUpdate.getPortList() : new ArrayList<>();
-        oldPortList = subnetmapOriginal.getPortList() != null ? subnetmapOriginal.getPortList() : new ArrayList<>();
-        if (newPortList.size() == oldPortList.size()) {
-            return;
-        }
-        if (newPortList.size() > oldPortList.size()) {
-            for (Uuid portId : newPortList) {
-                if (! oldPortList.contains(portId)) {
-                    vpnSubnetRouteHandler.onPortAddedToSubnet(subnetmapUpdate, portId);
+            // subnet removed from VPN case
+            if (vpnIdOld != null && vpnIdNew == null) {
+                Boolean isBgpVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
+                if (!isBgpVpn) {
                     return;
                 }
+                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnIdOld.getValue());
+                if (primaryRd != null) {
+                    InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
+                    Optional<Subnetmaps> allSubnetMaps = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        subnetMapsId);
+                    // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
+                    List<IpVersionChoice> snIpVersions = new ArrayList<>();
+                    for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
+                        if (snMap.getId().equals(subnetmapOriginal.getId())) {
+                            continue;
+                        }
+                        if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnIdOld)) {
+                            snIpVersions.add(NeutronUtils.getIpVersion(snMap.getSubnetIp()));
+                        }
+                    }
+                    IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmapOriginal.getSubnetIp());
+                    if (!snIpVersions.contains(ipVersion)) {
+                        // no more subnet with given IpVersion for current VpnInstance
+                        VpnUtil.withdrawIpFamilyFromVpnInstance(dataBroker, vpnIdOld.getValue(), ipVersion);
+                    }
+                }
+                // should be removed from internet VPN too
+                vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true, isExternalVpn);
+                return;
             }
-        } else {
-            for (Uuid portId : oldPortList) {
-                if (! newPortList.contains(portId)) {
-                    vpnSubnetRouteHandler.onPortRemovedFromSubnet(subnetmapUpdate, portId);
+            // subnet updated in VPN case
+            if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
+                boolean isRouterDissociatedFromVpn = !vpnIdOld.equals(subnetmapUpdate.getRouterId());
+                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnIdOld.getValue());
+                if (isRouterDissociatedFromVpn && primaryRd != null) {
+                    InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
+                    Optional<Subnetmaps> allSubnetMaps = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        subnetMapsId);
+                    // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
+                    List<IpVersionChoice> snIpVersions = new ArrayList<>();
+                    for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
+                        if (snMap.getId().equals(subnetmapUpdate.getId())) {
+                            continue;
+                        }
+                        if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnIdOld)) {
+                            snIpVersions.add(NeutronUtils.getIpVersion(snMap.getSubnetIp()));
+                        }
+                    }
+                    IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmapUpdate.getSubnetIp());
+                    if (!snIpVersions.contains(ipVersion)) {
+                        // no more subnet with given IpVersion for current VpnInstance
+                        VpnUtil.withdrawIpFamilyFromVpnInstance(dataBroker, vpnIdOld.getValue(), ipVersion);
+                    }
+                }
+                vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true, isExternalVpn);
+                boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
+                if (!isBgpVpn) {
                     return;
                 }
+                IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmapUpdate.getSubnetIp());
+                VpnUtil.updateVpnInstanceWithIpFamily(dataBroker, vpnIdNew.getValue(), ipVersion);
+                vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag, isExternalVpn);
+                return;
             }
-        }
+            String vpnName = VpnUtil.getVpnNameFromUuid(dataBroker, vpnIdNew);
+            if (vpnName == null) {
+                return;
+            }
+            // port added/removed to/from subnet case
+            List<Uuid> oldPortList;
+            List<Uuid> newPortList;
+            newPortList = subnetmapUpdate.getPortList() != null ? subnetmapUpdate.getPortList() : new ArrayList<>();
+            oldPortList = subnetmapOriginal.getPortList() != null ? subnetmapOriginal.getPortList() : new ArrayList<>();
+            if (newPortList.size() == oldPortList.size()) {
+                return;
+            }
+            if (newPortList.size() > oldPortList.size()) {
+                for (Uuid portId : newPortList) {
+                    if (! oldPortList.contains(portId)) {
+                        vpnSubnetRouteHandler.onPortAddedToSubnet(subnetmapUpdate, portId, vpnName);
+                        return;
+                    }
+                }
+            } else {
+                for (Uuid portId : oldPortList) {
+                    if (! newPortList.contains(portId)) {
+                        vpnSubnetRouteHandler.onPortRemovedFromSubnet(subnetmapUpdate, portId, vpnName);
+                        return;
+                    }
+                }
+            }
+        });
     }
 
     @Override
