@@ -382,18 +382,18 @@ module odl-l3vpn {
     container subnet-op-data {
         config false;
         list subnet-op-data-entry {
-            key subnet-id;
+            key "subnet-id vpn-name";
             leaf subnet-id {
                 type    yang:uuid;
                 description "UUID representing the subnet ";
             }
-            leaf nh-dpnId {
-                type uint64;
-                description "DpnId for the DPN used as nexthop for this subnet";
-            }
             leaf vpn-name {
                 type string;
                 description "VPN Instance name";
+            }
+            leaf nh-dpnId {
+                type uint64;
+                description "DpnId for the DPN used as nexthop for this subnet";
             }
             leaf vrf-id {
                 type string;
