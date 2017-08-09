@@ -191,6 +191,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
@@ -1132,9 +1133,11 @@ public final class VpnUtil {
                 NetworkMapKey(networkId)).build();
     }
 
-    static InstanceIdentifier<SubnetOpDataEntry> buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId) {
-        return InstanceIdentifier.builder(SubnetOpData.class)
-                .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+    static InstanceIdentifier<SubnetOpDataEntry>
+        buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId, String vpnName) {
+        InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
+            .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId, vpnName)).build();
+        return subOpIdentifier;
     }
 
     static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
@@ -1830,6 +1833,28 @@ public final class VpnUtil {
         return isVpnPendingDelete;
     }
 
+    /** Get vpnName from Uuid of the vpn.
+     * @param broker the data borker from which read the data
+     * @param vpnUuid Uuid of the vpn
+     * @return null if vpnName was not found or the String name of vpn
+     */
+    public static String getVpnNameFromUuid(DataBroker broker, Uuid vpnUuid) {
+        String vpnName = null;
+        if (vpnUuid == null) {
+            return null;
+        }
+        InstanceIdentifier<VpnInstance> id =
+               InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
+                      .l3vpn.rev140815.VpnInstances.class)
+                      .child(VpnInstance.class, new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns
+                      .yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey(vpnUuid.getValue())).build();
+        Optional<VpnInstance> vi = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vi.isPresent()) {
+            vpnName = vi.get().getVpnInstanceName();
+        }
+        return vpnName;
+    }
+
     public static VpnTargets getOpVpnTargets(DataBroker broker, String rd) {
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
@@ -1961,5 +1986,28 @@ public final class VpnUtil {
             sn = optionalSn.get();
         }
         return sn;
+    }
+
+    /** Get boolean true if vpn is bgpvpn internet, false otherwise.
+     * @param dataBroker databroker for transaction
+     * @param vpnName name of the input VPN
+     * @param interfaceName name of the vpn interface, where VPN is attached
+     * @return true or false
+     */
+    public static boolean isBgpVpnInternet(DataBroker dataBroker, String vpnName, String interfaceName) {
+        List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
+        if (adjs == null) {
+            LOG.warn("isBgpVpnInternet: could not determine if VPN {} is BGPVPN Internet", vpnName);
+            return false;
+        }
+        for (Adjacency adj : adjs) {
+            if (adj.getSubnetId() != null) {
+                Subnetmap sn = VpnUtil.getSubnetmapFromItsUuid(dataBroker, adj.getSubnetId());
+                if (sn.getInternetVpnId() != null && sn.getInternetVpnId().getValue().equals(vpnName)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
