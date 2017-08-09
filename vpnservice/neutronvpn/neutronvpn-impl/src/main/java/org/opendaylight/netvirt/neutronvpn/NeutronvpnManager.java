@@ -1033,6 +1033,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         SettableFuture<RpcResult<GetL3VPNOutput>> result = SettableFuture.create();
         Uuid inputVpnId = input.getId();
         List<VpnInstance> vpns = new ArrayList<>();
+        List<L3vpnInstances> l3vpnList = new ArrayList<>();
 
         try {
             if (inputVpnId == null) {
@@ -1051,6 +1052,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     }
                 } else {
                     // No VPN present
+                    opBuilder.setL3vpnInstances(l3vpnList);
                     result.set(RpcResultBuilder.<GetL3VPNOutput>success().withResult(opBuilder.build()).build());
                     return result;
                 }
@@ -1072,7 +1074,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             "invalid-value", message).build());
                 }
             }
-            List<L3vpnInstances> l3vpnList = new ArrayList<>();
             for (VpnInstance vpnInstance : vpns) {
                 Uuid vpnId = new Uuid(vpnInstance.getVpnInstanceName());
                 // create VpnMaps id
