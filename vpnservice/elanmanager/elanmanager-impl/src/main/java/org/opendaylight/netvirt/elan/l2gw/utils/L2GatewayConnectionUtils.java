@@ -146,10 +146,17 @@ public class L2GatewayConnectionUtils {
     }
 
     public void addL2GatewayConnection(L2gatewayConnection input) {
-        addL2GatewayConnection(input, null/*deviceName*/);
+        addL2GatewayConnection(input, null/*deviceName*/, null);
     }
 
-    public void addL2GatewayConnection(L2gatewayConnection input, String l2GwDeviceName) {
+    public void addL2GatewayConnection(final L2gatewayConnection input,
+                                       final String l2GwDeviceName) {
+        addL2GatewayConnection(input, l2GwDeviceName, null);
+    }
+
+    public void addL2GatewayConnection(final L2gatewayConnection input,
+                                       final String l2GwDeviceName ,
+                                       L2gateway l2Gateway) {
         LOG.info("Adding L2gateway Connection with ID: {}", input.getKey().getUuid());
 
         Uuid networkUuid = input.getNetworkId();
@@ -167,7 +174,9 @@ public class L2GatewayConnectionUtils {
             LOG.error("Neutron network with id {} is not VxlanNetwork", networkUuid.getValue());
         } else {
             Uuid l2GatewayId = input.getL2gatewayId();
-            L2gateway l2Gateway = getNeutronL2gateway(broker, l2GatewayId);
+            if (l2Gateway == null) {
+                l2Gateway = getNeutronL2gateway(broker, l2GatewayId);
+            }
             if (l2Gateway == null) {
                 LOG.error("L2Gateway with id {} is not present", l2GatewayId.getValue());
             } else {

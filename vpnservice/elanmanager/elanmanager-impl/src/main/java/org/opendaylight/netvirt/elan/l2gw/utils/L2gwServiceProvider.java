@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
@@ -21,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,6 +70,23 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
     public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(Uuid l2GatewayId) {
         return this.elanUtils.getL2GatewayConnectionUtils().getL2GwConnectionsByL2GatewayId(
                 this.dataBroker, l2GatewayId);
+    }
+
+    @Override
+    public void addL2GatewayConnection(L2gatewayConnection input) {
+        this.elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(input);
+    }
+
+    @Override
+    public void addL2GatewayConnection(L2gatewayConnection input,
+                                       String l2GwDeviceName,
+                                       L2gateway l2Gateway) {
+        this.elanUtils.getL2GatewayConnectionUtils().addL2GatewayConnection(input, l2GwDeviceName, l2Gateway);
+    }
+
+    @Override
+    public List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, Set<Uuid> l2GatewayIds) {
+        return L2GatewayConnectionUtils.getAssociatedL2GwConnections(dataBroker, l2GatewayIds);
     }
 
     @Override
