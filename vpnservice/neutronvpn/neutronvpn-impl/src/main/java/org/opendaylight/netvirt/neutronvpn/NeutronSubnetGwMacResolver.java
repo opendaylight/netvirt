@@ -73,7 +73,7 @@ public class NeutronSubnetGwMacResolver {
         arpFuture = executorService.scheduleAtFixedRate(() -> {
             try {
                 sendArpRequestsToExtGateways();
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 LOG.warn("Failed to send ARP request to GW ips", t);
             }
         }, 0, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
