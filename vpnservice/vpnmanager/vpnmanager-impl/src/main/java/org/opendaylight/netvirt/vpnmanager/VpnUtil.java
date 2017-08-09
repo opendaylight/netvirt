@@ -185,6 +185,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
@@ -1102,9 +1103,10 @@ public class VpnUtil {
         return id;
     }
 
-    static InstanceIdentifier<SubnetOpDataEntry> buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId) {
+    static InstanceIdentifier<SubnetOpDataEntry>
+        buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId, String vpnName) {
         InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
-                .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+            .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId, vpnName)).build();
         return subOpIdentifier;
     }
 
@@ -1775,6 +1777,28 @@ public class VpnUtil {
         return isVpnPendingDelete;
     }
 
+    /** Get vpnName from Uuid of the vpn.
+     * @param broker the data borker from which read the data
+     * @param vpnUuid Uuid of the vpn
+     * @return null if vpnName was not found or the String name of vpn
+     */
+    public static String getVpnNameFromUuid(DataBroker broker, Uuid vpnUuid) {
+        String vpnName = null;
+        if (vpnUuid == null) {
+            return null;
+        }
+        InstanceIdentifier<VpnInstance> id =
+               InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
+                      .l3vpn.rev140815.VpnInstances.class)
+                      .child(VpnInstance.class, new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns
+                      .yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey(vpnUuid.getValue())).build();
+        Optional<VpnInstance> vi = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vi.isPresent()) {
+            vpnName = vi.get().getVpnInstanceName();
+        }
+        return vpnName;
+    }
+
     public static VpnTargets getOpVpnTargets(DataBroker broker, String rd) {
         List<VpnTarget> vpnTargetList = new ArrayList<>();
         VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
@@ -1841,4 +1865,18 @@ public class VpnUtil {
         LOG.info("withdrawIpFamilyFromVpn: Successfully {} from Vpn {}", ipVersion.toString(), vpnName);
     }
 
+    /** Get Subnetmap from its Uuid.
+     * @param broker the data broker for look for data
+     * @param subnetUuid the subnet's Uuid
+     * @return the Subnetmap of Uuid or null if it is not found
+     */
+    public static Subnetmap getSubnetmapFromItsUuid(DataBroker broker, Uuid subnetUuid) {
+        Subnetmap sn = null;
+        InstanceIdentifier<Subnetmap> id = buildSubnetmapIdentifier(subnetUuid);
+        Optional<Subnetmap> optionalSn = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (optionalSn.isPresent()) {
+            sn = optionalSn.get();
+        }
+        return sn;
+    }
 }
