@@ -38,6 +38,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -365,6 +368,30 @@ public class NeutronvpnNatManager implements AutoCloseable {
         } catch (Exception ex) {
             LOG.error("Removing externalnetwork {} from router {} failed", origExtNetId.getValue(),
                     routerId.getValue(), ex);
+        }
+
+        // Remove the vpnInternetId fromSubnetmap
+        try {
+            Optional<Networks> optionalNets = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                          LogicalDatastoreType.CONFIGURATION, netsIdentifier);
+            LOG.trace("Removing a vpnInternetId to SubnetMaps about External Networks node: {}",
+                    origExtNetId.getValue());
+            if (optionalNets.isPresent()) {
+                Networks nets = optionalNets.get();
+                Network net = NeutronvpnUtils.getNeutronNetwork(dataBroker, nets.getId());
+                List<Subnetmap> submapList = NeutronvpnUtils.getSubnetMapsforNetworkRoute(dataBroker, net);
+                for (Subnetmap sn : submapList) {
+                    LOG.trace("Removing a vpnInternetId {} to SubnetMap {}", sn.getInternetVpnId(), sn.getId());
+                    SubnetmapBuilder builderSn = new SubnetmapBuilder(sn);
+                    Subnetmap snNew = builderSn.setInternetVpnId(null).build();
+                    InstanceIdentifier<Subnetmap> subnetmapid = InstanceIdentifier.builder(Subnetmaps.class)
+                        .child(Subnetmap.class, snNew.getKey()).build();
+                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetmapid, snNew);
+                }
+            }
+        } catch (Exception ex) {
+            LOG.error("Removing vpnInternetId about externalnetwork{} to subnetmap from router {} failed",
+                    origExtNetId.getValue(), routerId.getValue(), ex);
         }
     }
 
