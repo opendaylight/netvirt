@@ -110,7 +110,7 @@ public class InterfaceStateChangeListener
                                     operFuture.get();
                                 } catch (ExecutionException e) {
                                     LOG.error("InterfaceStateChange - Exception encountered while submitting"
-                                                    + " operational future for addVpnInterface {} : {}",
+                                                    + " operational future for addVpnInterface {}",
                                             vpnInterface.getName(), e);
                                     return null;
                                 }
@@ -174,7 +174,7 @@ public class InterfaceStateChangeListener
                                 operFuture.get();
                             } catch (ExecutionException e) {
                                 LOG.error("InterfaceStateChange - Exception encountered while submitting operational"
-                                        + " future for removeVpnInterface {} : {}", vpnInterface.getName(), e);
+                                        + " future for removeVpnInterface {}", vpnInterface.getName(), e);
                                 return null;
                             }
                             futures.add(writeConfigTxn.submit());
@@ -267,7 +267,7 @@ public class InterfaceStateChangeListener
                                 operFuture.get();
                             } catch (ExecutionException e) {
                                 LOG.error("InterfaceStateChange - Exception encountered while submitting operational"
-                                        + " future for updateVpnInterface {} : {}", vpnInterface.getName(), e);
+                                        + " future for updateVpnInterface {}", vpnInterface.getName(), e);
                                 return null;
                             }
                             futures.add(writeConfigTxn.submit());

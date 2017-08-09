@@ -1020,8 +1020,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         List<AdjacencyResult> adjacencyResults = baseVrfEntryHandler.resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
         if (adjacencyResults == null || adjacencyResults.isEmpty()) {
-            LOG.error("Could not get interface for route-paths: {} in vpn {}", vrfEntry.getRoutePaths(), rd);
-            LOG.warn("Failed to add Route: {} in vpn: {}", vrfEntry.getDestPrefix(), rd);
+            LOG.error("Could not get interface for route-paths: {} in vpn {} on DPN {}",
+                    vrfEntry.getRoutePaths(), rd, remoteDpnId);
+            LOG.error("Failed to add Route: {} in vpn: {}", vrfEntry.getDestPrefix(), rd);
             return;
         }
 
@@ -1124,7 +1125,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                           final VrfEntry vrfEntry, final Routes extraRoute) {
 
         if (prefixInfo == null) {
-            LOG.debug("Cleanup VPN Data Failed as unable to find prefix Info for prefix {}", vrfEntry.getDestPrefix());
+            LOG.error("Cleanup VPN Data Failed as unable to find prefix Info for prefix {} VpnId {} rd {}",
+                    vrfEntry.getDestPrefix(), vpnId, rd);
             return; //Don't have any info for this prefix (shouldn't happen); need to return
         }
 

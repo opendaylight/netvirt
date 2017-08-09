@@ -543,7 +543,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
 
             if (!nextHops.isEmpty()) {
-                LOG.trace("NextHops are " + nextHops);
+                LOG.trace("NextHops are {}",nextHops);
                 for (Adjacency nextHop : nextHops) {
                     try {
                         if (nextHop.getAdjacencyType() != AdjacencyType.ExtraRoute) {
@@ -803,7 +803,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 null /*gatewayMacAddress*/);
                     }
                 } catch (Exception ex) {
-                    LOG.error("Exception when advertising prefix {} on rd {} as {}", prefix, rd, ex);
+                    LOG.error("Exception when advertising prefix {} on rd {}", prefix, rd, ex);
                 }
             }
         }
@@ -884,7 +884,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             bgpManager.withdrawPrefix(rd, prefix);
                         }
                     } catch (Exception ex) {
-                        LOG.error("Exception when withdrawing prefix {} on rd {} as {}", prefix, rd, ex);
+                        LOG.error("Exception when withdrawing prefix {} on rd {}", prefix, rd, ex);
                     }
                 }
             }
@@ -1189,7 +1189,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         if (adjacencies.isPresent()) {
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
             if (!nextHops.isEmpty()) {
-                LOG.trace("NextHops are " + nextHops);
+                LOG.trace("NextHops are {}", nextHops);
                 for (Adjacency nextHop : nextHops) {
                     String rd = nextHop.getVrfId();
                     List<String> nhList = new ArrayList<>();
@@ -1706,7 +1706,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 List<Adjacency> adjacencies = optAdjacencies.get().getAdjacency();
 
                 if (!adjacencies.isEmpty()) {
-                    LOG.trace("Adjacencies are " + adjacencies);
+                    LOG.trace("Adjacencies are {}", adjacencies);
                     Iterator<Adjacency> adjIt = adjacencies.iterator();
                     while (adjIt.hasNext()) {
                         Adjacency adjElem = adjIt.next();
@@ -2184,7 +2184,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     operFuture.get();
                                 } catch (ExecutionException | InterruptedException e) {
                                     LOG.error("Exception encountered while submitting operational"
-                                            + " future for vpnInterface {}: " + "{}", vpnInterface, e);
+                                            + " future for vpnInterface {}", vpnInterface, e);
                                 }
                                 futures.add(writeConfigTxn.submit());
                                 return futures;

@@ -222,7 +222,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         try {
             destPrefix = InetAddress.getByName(ipAddress);
         } catch (UnknownHostException e) {
-            LOG.error("Failed to get destPrefix for prefix {} ", vrfEntry.getDestPrefix(), e);
+            LOG.error("Failed to get destPrefix for prefix {} rd {} VpnId {} DPN {}",
+                    vrfEntry.getDestPrefix(), rd, vpnId, dpId, e);
             return;
         }
 
