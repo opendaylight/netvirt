@@ -16,6 +16,24 @@
       "revId": "d735683071053c473403059d6ae12d705d8ff737",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3f13d45d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-09T12:32:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_196ef301",
+      "revId": "d735683071053c473403059d6ae12d705d8ff737",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
