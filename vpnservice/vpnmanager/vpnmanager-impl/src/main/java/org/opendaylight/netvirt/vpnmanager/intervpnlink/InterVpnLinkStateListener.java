@@ -66,7 +66,7 @@ public class InterVpnLinkStateListener
                 InterVpnLinkCache.getInterVpnLinkByName(after.getInterVpnLinkName());
 
             if (!optIVpnLink.isPresent()) {
-                LOG.warn("InterVpnLink {} became ACTIVE, but could not found its info in Cache");
+                LOG.warn("InterVpnLink became ACTIVE, but could not found its info in Cache");
                 InterVpnLinkCache.addInterVpnLinkStateToCaches(after);
                 optIVpnLink = InterVpnLinkCache.getInterVpnLinkByName(after.getInterVpnLinkName());
             }

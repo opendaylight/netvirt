@@ -60,7 +60,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("add:SubnetmapChangeListener add subnetmap method - key: " + identifier + ", value=" + subnetmap);
+        LOG.trace("add:SubnetmapChangeListener add subnetmap method - key {}, value={}",identifier, subnetmap);
         Uuid subnetId = subnetmap.getId();
         Uuid vpnId = subnetmap.getVpnId();
         if (subnetmap.getVpnId() != null) {
@@ -87,8 +87,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
 
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("remove:SubnetmapChangeListener remove subnetmap method - key: " + identifier + ", value"
-                + subnetmap);
+        LOG.trace("remove:SubnetmapChangeListener remove subnetmap method - key: {}  value {}", identifier, subnetmap);
     }
 
     @Override

@@ -148,7 +148,8 @@ public class FibRpcServiceImpl implements FibRpcService {
         try {
             destPrefix = InetAddress.getByName(ipAddress);
         } catch (UnknownHostException e) {
-            LOG.error("UnknowHostException in removeRoute. Failed  to remove Route for ipPrefix {}", ipAddress, e);
+            LOG.error("UnknowHostException in removeRoute. Failed  to remove Route for ipPrefix {} DPN {} Vpn {}",
+                    ipAddress, dpnId, vpnId, e);
             return;
         }
         List<MatchInfo> matches = new ArrayList<>();
@@ -171,7 +172,7 @@ public class FibRpcServiceImpl implements FibRpcService {
 
         mdsalManager.removeFlow(dpnId, flowEntity);
 
-        LOG.debug("FIB entry for route {} on dpn {} removed successfully", ipAddress, dpnId);
+        LOG.info("FIB entry for prefix {} on dpn {} vpn {} removed successfully", ipAddress, dpnId,  vpnId);
     }
 
     private void makeLocalFibEntry(long vpnId, BigInteger dpnId, String ipPrefix,
@@ -184,7 +185,8 @@ public class FibRpcServiceImpl implements FibRpcService {
         try {
             destPrefix = InetAddress.getByName(ipAddress);
         } catch (UnknownHostException e) {
-            LOG.error("UnknowHostException in addRoute. Failed  to add Route for ipPrefix {}", ipAddress, e);
+            LOG.error("UnknowHostException in addRoute. Failed  to add Route for ipPrefix {} VpnId {} DPN{}",
+                    ipAddress, vpnId, dpnId, e);
             return;
         }
         List<MatchInfo> matches = new ArrayList<>();

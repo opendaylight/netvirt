@@ -123,7 +123,7 @@ public class VpnSubnetRouteHandler {
                         new SubnetmapKey(subnetId)).build();
                 Optional<Subnetmap> sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
                 if (!sm.isPresent()) {
-                    LOG.error("onSubnetAddedToVpn: Unable to retrieve subnetmap entry for subnet : " + subnetId);
+                    LOG.error("onSubnetAddedToVpn: Unable to retrieve subnetmap entry for subnet {}", subnetId);
                     return;
                 }
                 subMap = sm.get();
@@ -152,7 +152,7 @@ public class VpnSubnetRouteHandler {
                         subnetId.getValue());
                     return;
                 }
-                LOG.debug("onSubnetAddedToVpn: Creating new SubnetOpDataEntry node for subnet: " + subnetId.getValue());
+                LOG.debug("onSubnetAddedToVpn: Creating new SubnetOpDataEntry node for subnet {}", subnetId.getValue());
                 Map<BigInteger, SubnetToDpn> subDpnMap = new HashMap<>();
                 BigInteger dpnId = null;
                 SubnetToDpn subDpn = null;
@@ -163,7 +163,7 @@ public class VpnSubnetRouteHandler {
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
 
                 if (isBgpVpn && !VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                    LOG.error("onSubnetAddedToVpn: The VPN Instance name " + vpnName + " does not have RD ");
+                    LOG.error("onSubnetAddedToVpn: The VPN Instance name {} does not have RD", vpnName);
                     return;
                 }
 
@@ -190,13 +190,13 @@ public class VpnSubnetRouteHandler {
                                 continue;
                             }
                             if (dpnId.equals(BigInteger.ZERO)) {
-                                LOG.info("onSubnetAddedToVpn: Port " + port.getValue()
-                                    + " is not assigned DPN yet, ignoring ");
+                                LOG.info("onSubnetAddedToVpn: Port {} is not assigned DPN yet ignoring",
+                                        port.getValue());
                                 continue;
                             }
                             subOpDpnManager.addPortOpDataEntry(port.getValue(), subnetId, dpnId);
                             if (intfState.getOperStatus() != OperStatus.Up) {
-                                LOG.info("onSubnetAddedToVpn: Port " + port.getValue() + " is not UP yet, ignoring ");
+                                LOG.info("onSubnetAddedToVpn: Port {} is not UP yet, ignoring", port.getValue());
                                 continue;
                             }
                             subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, port.getValue());
@@ -232,7 +232,7 @@ public class VpnSubnetRouteHandler {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
         Uuid subnetId = subnetmap.getId();
-        LOG.info("onSubnetDeletedFromVpn: Subnet " + subnetId.getValue() + " being removed from vpn");
+        LOG.info("onSubnetDeletedFromVpn: Subnet {} being removed from vpn", subnetId.getValue());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -240,7 +240,7 @@ public class VpnSubnetRouteHandler {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
                         new SubnetOpDataEntryKey(subnetId)).build();
-                LOG.trace(" Removing the SubnetOpDataEntry node for subnet: " +  subnetId.getValue());
+                LOG.trace(" Removing the SubnetOpDataEntry node for subnet {}", subnetId.getValue());
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
@@ -260,7 +260,7 @@ public class VpnSubnetRouteHandler {
                         new SubnetmapKey(subnetId)).build();
                 Optional<Subnetmap> sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
                 if (!sm.isPresent()) {
-                    LOG.error("Stale ports removal: Unable to retrieve subnetmap entry for subnet : " + subnetId);
+                    LOG.error("Stale ports removal: Unable to retrieve subnetmap entry for subnet {}", subnetId);
                 } else {
                     Subnetmap subMap = sm.get();
                     List<Uuid> portList = subMap.getPortList();
@@ -269,7 +269,7 @@ public class VpnSubnetRouteHandler {
                             InstanceIdentifier<PortOpDataEntry> portOpIdentifier =
                                 InstanceIdentifier.builder(PortOpData.class).child(PortOpDataEntry.class,
                                     new PortOpDataEntryKey(port.getValue())).build();
-                            LOG.trace("Deleting portOpData entry for port " + port.getValue());
+                            LOG.trace("Deleting portOpData entry for port {}", port.getValue());
                             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
                         }
                     }
@@ -323,7 +323,7 @@ public class VpnSubnetRouteHandler {
     public void onPortAddedToSubnet(Subnetmap subnetmap, Uuid portId) {
         Uuid subnetId = subnetmap.getId();
         boolean isRouteAdvertised = false;
-        LOG.info("onPortAddedToSubnet: Port " + portId.getValue() + " being added to subnet " + subnetId.getValue());
+        LOG.info("onPortAddedToSubnet: Port {} being added to subnet {}", portId.getValue(), subnetId.getValue());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -350,17 +350,17 @@ public class VpnSubnetRouteHandler {
                     dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
                 } catch (Exception e) {
                     LOG.error("onSubnetAddedToVpn: Unable to obtain dpnId for interface {},",
-                            " subnetroute inclusion for this interface failed with exception {}",
+                            " subnetroute inclusion for this interface failed with exception",
                             portId.getValue(), e);
                     return;
                 }
                 if (dpnId.equals(BigInteger.ZERO)) {
-                    LOG.info("onPortAddedToSubnet: Port " + portId.getValue() + " is not assigned DPN yet, ignoring ");
+                    LOG.info("onPortAddedToSubnet: Port {} is not assigned DPN yet, ignoring", portId.getValue());
                     return;
                 }
                 subOpDpnManager.addPortOpDataEntry(portId.getValue(), subnetId, dpnId);
                 if (intfState.getOperStatus() != OperStatus.Up) {
-                    LOG.info("onPortAddedToSubnet: Port " + portId.getValue() + " is not UP yet, ignoring ");
+                    LOG.info("onPortAddedToSubnet: Port {} is not UP yet, ignoring ", portId.getValue());
                     return;
                 }
                 LOG.debug("onPortAddedToSubnet: Updating the SubnetOpDataEntry node for subnet {}",
@@ -394,7 +394,7 @@ public class VpnSubnetRouteHandler {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (Exception e) {
-            LOG.error("Unable to handle port {} added to subnet {} {}", portId.getValue(), subnetId.getValue(), e);
+            LOG.error("Unable to handle port {} added to subnet {}", portId.getValue(), subnetId.getValue(), e);
         }
     }
 
@@ -404,8 +404,8 @@ public class VpnSubnetRouteHandler {
         Uuid subnetId = subnetmap.getId();
         boolean isRouteAdvertised = false;
 
-        LOG.info(
-            "onPortRemovedFromSubnet: Port " + portId.getValue() + " being removed from subnet " + subnetId.getValue());
+        LOG.info("onPortRemovedFromSubnet: Port {} being removed from subnet {}",
+                portId.getValue(), subnetId.getValue());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -421,7 +421,7 @@ public class VpnSubnetRouteHandler {
                     return;
                 }
                 LOG.debug(
-                    "onPortRemovedFromSubnet: Updating the SubnetOpDataEntry node for subnet: " + subnetId.getValue());
+                    "onPortRemovedFromSubnet: Updating the SubnetOpDataEntry node for subnet {} ", subnetId.getValue());
                 boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, portId.getValue());
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
@@ -456,19 +456,18 @@ public class VpnSubnetRouteHandler {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (Exception e) {
-            LOG.error("Unable to handle port {} removed from subnet {} {}", portId.getValue(), subnetId.getValue(),
-                e);
+            LOG.error("Unable to handle port {} removed from subnet {}", portId.getValue(), subnetId.getValue(), e);
         }
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onInterfaceUp(BigInteger dpnId, String intfName, Uuid subnetId) {
-        LOG.info("onInterfaceUp: Port " + intfName);
+        LOG.info("onInterfaceUp: Port {}", intfName);
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         SubnetToDpn subDpn = null;
         if ((dpnId == null) || Objects.equals(dpnId, BigInteger.ZERO)) {
-            LOG.error("onInterfaceUp: Unable to determine the DPNID for port {}" + intfName);
+            LOG.error("onInterfaceUp: Unable to determine the DPNID for port {}", intfName);
             return;
         }
         try {
@@ -484,7 +483,7 @@ public class VpnSubnetRouteHandler {
                     return;
                 }
 
-                LOG.debug("onInterfaceUp: Updating the SubnetOpDataEntry node for subnet: " + subnetId.getValue());
+                LOG.debug("onInterfaceUp: Updating the SubnetOpDataEntry node for subnet {}", subnetId.getValue());
                 subOpDpnManager.addPortOpDataEntry(intfName, subnetId, dpnId);
                 subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, intfName);
                 if (subDpn == null) {
@@ -509,30 +508,29 @@ public class VpnSubnetRouteHandler {
                 }
                 SubnetOpDataEntry subOpEntry = subOpBuilder.build();
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                LOG.info("onInterfaceUp: Updated subnetopdataentry to OP Datastore port up " + intfName);
+                LOG.info("onInterfaceUp: Updated subnetopdataentry to OP Datastore port up {}", intfName);
             } catch (Exception ex) {
                 LOG.error("Creation of SubnetOpDataEntry for subnet {} failed", subnetId.getValue(), ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (Exception e) {
-            LOG.error("Unable to handle interface up event for port {} in subnet {} {}", intfName,
-                subnetId.getValue(), e);
+            LOG.error("Unable to handle interface up event for port {} in subnet {}", intfName, subnetId.getValue(), e);
         }
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onInterfaceDown(final BigInteger dpnId, final String interfaceName, Uuid subnetId) {
-        LOG.info("onInterfaceDown: Port " + interfaceName);
+        LOG.info("onInterfaceDown: Port {}", interfaceName);
         if ((dpnId == null) || (Objects.equals(dpnId, BigInteger.ZERO))) {
-            LOG.error("onInterfaceDown: Unable to determine the DPNID for port " + interfaceName);
+            LOG.error("onInterfaceDown: Unable to determine the DPNID for port {}", interfaceName);
             return;
         }
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
-                LOG.debug("onInterfaceDown: Updating the SubnetOpDataEntry node for subnet: " + subnetId.getValue());
+                LOG.debug("onInterfaceDown: Updating the SubnetOpDataEntry node for subnet {} ", subnetId.getValue());
                 boolean last = subOpDpnManager.removeInterfaceFromDpn(subnetId, dpnId, interfaceName);
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
@@ -551,8 +549,8 @@ public class VpnSubnetRouteHandler {
                     // select another NhDpnId
                     if (last) {
                         LOG.debug(
-                            "onInterfaceDown: Last active port " + interfaceName + " on the subnet: " + subnetId
-                                .getValue());
+                            "onInterfaceDown: Last active port {} on the subnet {}",
+                                interfaceName, subnetId.getValue());
                         // last port on this DPN, so we need to elect the new NHDpnId
                         electNewDpnForSubnetRoute(subOpBuilder, dpnId, subnetId, null /*networkId*/,
                                 !VpnUtil.isExternalSubnetVpn(subnetOpDataEntry.getVpnName(), subnetId.getValue()));
@@ -568,8 +566,8 @@ public class VpnSubnetRouteHandler {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (Exception e) {
-            LOG.error("Unable to handle interface down event for port {} in subnet {} {}", interfaceName,
-                subnetId.getValue(), e);
+            LOG.error("Unable to handle interface down event for port {} in subnet {}", interfaceName,
+                    subnetId.getValue(), e);
         }
     }
 
@@ -618,7 +616,7 @@ public class VpnSubnetRouteHandler {
             }
         } catch (Exception e) {
             LOG.error("Unable to handle tunnel up event for subnetId {} dpnId {}", subnetId.getValue(),
-                dpnId.toString());
+                dpnId.toString(), e);
         }
     }
 
@@ -660,7 +658,7 @@ public class VpnSubnetRouteHandler {
             }
         } catch (Exception e) {
             LOG.error("Unable to handle tunnel down event for subnetId {} dpnId {}", subnetId.getValue(),
-                dpnId.toString());
+                dpnId.toString(), e);
         }
     }
 
@@ -734,7 +732,7 @@ public class VpnSubnetRouteHandler {
             bgpManager.advertisePrefix(rd, null /*macAddress*/, subnetIp, Collections.singletonList(nextHopIp),
                     encapType, label, l3vni, 0 /*l2vni*/, null /*gatewayMacAddress*/);
         } catch (Exception e) {
-            LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnId {}", rd, subnetIp, e,
+            LOG.error("Fail: Subnet route not advertised for rd {} subnetIp {} with dpnId {}", rd, subnetIp,
                     nhDpnId, e);
             return false;
         }
@@ -758,7 +756,7 @@ public class VpnSubnetRouteHandler {
             try {
                 bgpManager.withdrawPrefix(rd, subnetIp);
             } catch (Exception e) {
-                LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {} due to exception {}",
+                LOG.error("Fail: Subnet route not withdrawn for rd {} subnetIp {} due to exception",
                         rd, subnetIp, e);
                 return false;
             }
@@ -822,7 +820,7 @@ public class VpnSubnetRouteHandler {
                     }
                 } catch (Exception e) {
                     LOG.warn("Unable to find TepIp for rd {} subnetroute subnetip {} for dpnid {}, attempt next",
-                            rd, subnetIp, nhDpnId.toString());
+                            rd, subnetIp, nhDpnId.toString(), e);
                     continue;
                 }
             }
