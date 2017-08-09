@@ -182,6 +182,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
@@ -1099,9 +1100,10 @@ public class VpnUtil {
         return id;
     }
 
-    static InstanceIdentifier<SubnetOpDataEntry> buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId) {
+    static InstanceIdentifier<SubnetOpDataEntry>
+        buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId, String vpnName) {
         InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
-                .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+            .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId, vpnName)).build();
         return subOpIdentifier;
     }
 
