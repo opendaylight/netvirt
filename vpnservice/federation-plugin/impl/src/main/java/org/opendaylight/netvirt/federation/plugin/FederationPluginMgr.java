@@ -509,8 +509,8 @@ public class FederationPluginMgr
                 .child(RouteKeyItem.class, new RouteKeyItemKey(FederationPluginConstants.RPC_ROUTE_KEY));
             routedRpcHandle.registerPath(MgrContext.class, path);
             subscribeIngressPluginsIfNeeded(null, true);
-        } catch (Throwable t) {
-            LOG.error("Error while doing leader init logic", t);
+        } catch (Exception e) {
+            LOG.error("Error while doing leader init logic", e);
         }
 
     }

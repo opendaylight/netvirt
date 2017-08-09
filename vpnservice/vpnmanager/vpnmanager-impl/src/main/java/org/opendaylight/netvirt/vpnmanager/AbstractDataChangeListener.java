@@ -60,7 +60,7 @@ public abstract class AbstractDataChangeListener<T extends DataObject> implement
             this.createData(createdData);
             this.updateData(updateData, originalData);
             this.removeData(removeData, originalData);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             LOG.error("failed to handle dcn ", e);
         }
     }
