@@ -7,10 +7,15 @@
  */
 package org.opendaylight.netvirt.neutronvpn.l2gw;
 
+import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -21,16 +26,20 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.devices.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.L2gateways;
@@ -111,6 +120,68 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     @Override
     protected void update(InstanceIdentifier<L2gateway> identifier, L2gateway original, L2gateway update) {
         LOG.trace("Updating L2gateway : key: {}, original value={}, update value={}", identifier, original, update);
+        List<L2gatewayConnection> connections = l2gwService.getAssociatedL2GwConnections(
+                dataBroker, Sets.newHashSet(update.getUuid()));
+        if (connections == null) {
+            LOG.warn("There are no connections associated with l2 gateway uuid {} name {}",
+                    update.getUuid(), update.getName());
+            return;
+        }
+        if (original.getDevices() == null) {
+            connections.forEach(
+                (connection) -> l2gwService.addL2GatewayConnection(connection));
+            return;
+        }
+        DataStoreJobCoordinator.getInstance().enqueueJob("l2gw.update", () -> {
+            ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
+            DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
+            List<ListenableFuture<Void>> fts = new ArrayList<ListenableFuture<Void>>();
+            original.getDevices()
+                    .stream()
+                    .filter((originalDevice) -> originalDevice.getInterfaces() != null)
+                    .forEach((originalDevice) -> {
+                        String deviceName = originalDevice.getDeviceName();
+                        L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(deviceName);
+                        NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(
+                                new NodeId(l2GwDevice.getHwvtepNodeId()), deviceName);
+                        originalDevice.getInterfaces()
+                                .stream()
+                                .filter((intf) -> !updatedDeviceInterfaces.containsInterface(
+                                        deviceName, intf.getInterfaceName()))
+                                .forEach((intf) -> {
+                                    connections.forEach((connection) -> {
+                                        Integer vlanId = connection.getSegmentId();
+                                        if (intf.getSegmentationIds() != null
+                                                && !intf.getSegmentationIds().isEmpty()) {
+                                            for (Integer vlan : intf.getSegmentationIds()) {
+                                                HwvtepUtils.deleteVlanBinding(transaction,
+                                                        physicalSwitchNodeId, intf.getInterfaceName(), vlan);
+                                            }
+                                        } else {
+                                            LOG.debug("Deleting vlan binding {} {} {}",
+                                                    physicalSwitchNodeId, intf.getInterfaceName(), vlanId);
+                                            HwvtepUtils.deleteVlanBinding(transaction, physicalSwitchNodeId,
+                                                    intf.getInterfaceName(), vlanId);
+                                        }
+                                    });
+                                });
+                    });
+            fts.add(transaction.submit());
+            Futures.addCallback(fts.get(0), new FutureCallback<Void>() {
+                @Override
+                public void onSuccess(Void success) {
+                    LOG.debug("Successfully deleted vlan bindings for l2gw update {}", update);
+                        connections.forEach((l2GwConnection) ->
+                                l2gwService.addL2GatewayConnection(l2GwConnection, null, update));
+                }
+
+                @Override
+                public void onFailure(Throwable throwable) {
+                    LOG.error("Failed to delete vlan bindings as part of l2gw udpate {}", update);
+                }
+            });
+            return fts;
+        }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
     private synchronized void addL2Device(Devices l2Device, L2gateway input) {
@@ -185,5 +256,28 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     @Override
     protected L2GatewayListener getDataTreeChangeListener() {
         return this;
+    }
+
+    static class DeviceInterfaces {
+        Map<String, Map<String, Interfaces>> deviceInterfacesMap = new HashMap<>();
+
+        DeviceInterfaces(L2gateway l2gateway) {
+            if (l2gateway.getDevices() != null) {
+                l2gateway.getDevices().forEach((device) -> {
+                    deviceInterfacesMap.putIfAbsent(device.getDeviceName(), new HashMap<>());
+                    if (device.getInterfaces() != null) {
+                        device.getInterfaces().forEach((intf) ->
+                                deviceInterfacesMap.get(device.getDeviceName()).put(intf.getInterfaceName(), intf));
+                    }
+                });
+            }
+        }
+
+        boolean containsInterface(String deviceName, String interfaceName) {
+            if (deviceInterfacesMap.containsKey(deviceName)) {
+                return deviceInterfacesMap.get(deviceName).containsKey(interfaceName);
+            }
+            return false;
+        }
     }
 }
