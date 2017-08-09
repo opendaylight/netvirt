@@ -9,7 +9,7 @@
 package org.opendaylight.netvirt.fibmanager.api;
 
   /* Usage:
-   * RouteOrigin origin = RouteOrigin.value("b");
+
    * RouteOrigin origin = RouteOrigin.BGP;
    */
 
