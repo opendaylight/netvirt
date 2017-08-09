@@ -58,7 +58,7 @@ public class SubnetOpDpnManagerTest {
 
     InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
         InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-            new SubnetOpDataEntryKey(subnetId)).build();
+            new SubnetOpDataEntryKey(subnetId, infName)).build();
     InstanceIdentifier<SubnetToDpn> dpnOpId = subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpId));
     InstanceIdentifier<PortOpDataEntry> portOpIdentifier =
         InstanceIdentifier.builder(PortOpData.class).child(PortOpDataEntry.class,
@@ -115,7 +115,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testAddInterfaceToDpn() {
 
-        subOpDpnManager.addInterfaceToDpn(subnetId, dpId, infName);
+        subOpDpnManager.addInterfaceToDpn(subnetId, dpId, infName, infName);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
                 WriteTransaction.CREATE_MISSING_PARENTS);
@@ -146,7 +146,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testRemoveInterfaceFromDpn() {
 
-        subOpDpnManager.removeInterfaceFromDpn(subnetId, dpId, infName);
+        subOpDpnManager.removeInterfaceFromDpn(subnetId, dpId, infName, infName);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
     }
