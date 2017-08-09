@@ -90,7 +90,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                     interfaceName);
                             try {
                                 BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
-                                vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId);
+                                vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId, interfaceName);
                             } catch (Exception e) {
                                 LOG.error("SubnetRouteInterfaceListener add: Unable to obtain dpnId for"
                                         + " interface {} subnetroute inclusion for this interface"
@@ -142,7 +142,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             }
                         }
                         if (!dpnId.equals(BigInteger.ZERO)) {
-                            vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName(), subnetId);
+                            vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName(), subnetId, intrf.getName());
                         }
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         return futures;
@@ -195,7 +195,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                                 LOG.info("SubnetRouteInterfaceListener update: Received port UP event"
                                         + " for interface {} ", update.getName());
-                                vpnSubnetRouteHandler.onInterfaceUp(dpnId, update.getName(), subnetId);
+                                vpnSubnetRouteHandler.onInterfaceUp(dpnId, update.getName(), subnetId,
+                                            update.getName());
                             } else if (update.getOperStatus().equals(Interface.OperStatus.Down)
                                     || update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
                                 /*
@@ -206,7 +207,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                         + "for interface {} ", update.getOperStatus()
                                         .equals(Interface.OperStatus.Unknown) ? "UNKNOWN" : "DOWN",
                                         update.getName());
-                                vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName(), subnetId);
+                                vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName(), subnetId,
+                                            update.getName());
                             }
                         }
                         return futures;
