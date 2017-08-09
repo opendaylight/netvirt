@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_6e3484de",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-08-09T05:21:37Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_b0e34232",
+      "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bf0cc143",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
@@ -119,6 +137,24 @@
       "side": 1,
       "message": "Which is why using strings as synchronisers isn’t such a good idea :-/. Short of inspecting all the code paths, there’s no way of knowing whether an instance of String is unique, without interning it explicitly before use...",
       "parentUuid": "da2a55be_347ab0f1",
+      "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4e31c0eb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2332,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-08-09T05:21:37Z",
+      "side": 1,
+      "message": "Yes Stephen, Agree to your point. Let us try to avoid using string for synchonization. We might also have to relook at netvirt/genius code to avoid synchronization/intern on strings overall.",
+      "parentUuid": "da2a55be_10d20e5c",
       "revId": "9ce2f1710433b9897dd8bb438cb6a982b2dd7f43",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
