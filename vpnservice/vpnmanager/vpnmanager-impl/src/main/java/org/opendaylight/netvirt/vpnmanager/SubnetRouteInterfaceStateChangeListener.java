@@ -25,6 +25,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -89,19 +90,29 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                     dataStoreCoordinator.enqueueJob("SUBNETROUTE-" + subnetIdList.get(0),
                         () -> {
                             String interfaceName = intrf.getName();
-                            LOG.info("{} add: Received port UP event for interface {} subnetIds {}",
+                            LOG.info("{} add: Received port UP event for interface {} subnets {}",
                                     LOGGING_PREFIX, interfaceName, subnetIdList);
+                            BigInteger dpnId = BigInteger.ZERO;
                             try {
-                                BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
-                                for (Uuid subnetId : subnetIdList) {
-                                    vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId);
-                                }
+                                dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
                             } catch (Exception e) {
                                 LOG.error("{} add: Unable to obtain dpnId for interface {} in subnets {},"
                                         + " subnetroute inclusion for this interface failed with exception {}",
                                         LOGGING_PREFIX, interfaceName, subnetIdList, e);
                             }
+                            InstanceIdentifier<VpnInterface> id = VpnUtil
+                                    .getVpnInterfaceIdentifier(interfaceName);
+                            Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
+                                 LogicalDatastoreType.CONFIGURATION, id);
                             List<ListenableFuture<Void>> futures = new ArrayList<>();
+                            if (!cfgVpnInterface.isPresent()) {
+                                return futures;
+                            }
+                            for (String vpnName : cfgVpnInterface.get().getVpnInstanceNames()) {
+                                for (Uuid subnetId : subnetIdList) {
+                                    vpnSubnetRouteHandler.onInterfaceUp(dpnId, intrf.getName(), subnetId, vpnName);
+                                }
+                            }
                             return futures;
                         });
                 }
@@ -148,12 +159,32 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 dpnId = optVpnInterface.get().getDpnId();
                             }
                         }
-                        if (!dpnId.equals(BigInteger.ZERO)) {
-                            for (Uuid subnetId : subnetIdList) {
-                                vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName(), subnetId);
+                        InstanceIdentifier<VpnInterface> id = VpnUtil
+                                .getVpnInterfaceIdentifier(interfaceName);
+                        Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
+                                 LogicalDatastoreType.CONFIGURATION, id);
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        if (!cfgVpnInterface.isPresent()) {
+                            return futures;
+                        }
+                        for (String vpnName : cfgVpnInterface.get().getVpnInstanceNames()) {
+                            InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
+                                   .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                            Optional<VpnInterfaceOpDataEntry> optVpnInterface = VpnUtil.read(dataBroker,
+                                   LogicalDatastoreType.OPERATIONAL, idOper);
+                            if (optVpnInterface.isPresent()) {
+                                BigInteger dpnIdLocal = dpnId;
+                                if (dpnIdLocal.equals(BigInteger.ZERO)) {
+                                    dpnIdLocal = optVpnInterface.get().getDpnId();
+                                }
+                                if (!dpnIdLocal.equals(BigInteger.ZERO)) {
+                                    for (Uuid subnetId : subnetIdList) {
+                                        vpnSubnetRouteHandler.onInterfaceDown(dpnId, intrf.getName(),
+                                                        subnetId, vpnName);
+                                    }
+                                }
                             }
                         }
-                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         return futures;
                     });
             }
@@ -200,31 +231,46 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 dpnId = optVpnInterface.get().getDpnId();
                             }
                         }
-                        if (!dpnId.equals(BigInteger.ZERO)) {
-                            InstanceIdentifier<VpnInterface> id = VpnUtil
-                                    .getVpnInterfaceIdentifier(interfaceName);
-                            Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
-                                    LogicalDatastoreType.CONFIGURATION, id);
-                            if (!cfgVpnInterface.isPresent()) {
-                                return futures;
-                            }
-                            if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
-                                LOG.info("{} update: Received port UP event for interface {} in subnets {}",
-                                        LOGGING_PREFIX, update.getName(), subnetIdList);
-                                for (Uuid subnetId : subnetIdList) {
-                                    vpnSubnetRouteHandler.onInterfaceUp(dpnId, update.getName(), subnetId);
+                        InstanceIdentifier<VpnInterface> id = VpnUtil
+                                .getVpnInterfaceIdentifier(interfaceName);
+                        Optional<VpnInterface> cfgVpnInterface = VpnUtil.read(dataBroker,
+                                 LogicalDatastoreType.CONFIGURATION, id);
+                        if (!cfgVpnInterface.isPresent()) {
+                            return futures;
+                        }
+                        for (String vpnName : cfgVpnInterface.get().getVpnInstanceNames()) {
+                            InstanceIdentifier<VpnInterfaceOpDataEntry> idOper = VpnUtil
+                                   .getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                            Optional<VpnInterfaceOpDataEntry> optVpnInterface = VpnUtil.read(dataBroker,
+                                   LogicalDatastoreType.OPERATIONAL, idOper);
+                            if (optVpnInterface.isPresent()) {
+                                BigInteger dpnIdLocal = dpnId;
+                                if (dpnIdLocal.equals(BigInteger.ZERO)) {
+                                    dpnIdLocal = optVpnInterface.get().getDpnId();
                                 }
-                            } else if (update.getOperStatus().equals(Interface.OperStatus.Down)
-                                    || update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
-                                /*
-                                 * If the interface went down voluntarily (or) if the interface is not
-                                 * reachable from control-path involuntarily, trigger subnetRoute election
-                                 */
-                                LOG.info("{} update: Received port {} event for interface {} in subnet {} ",
-                                        LOGGING_PREFIX, update.getOperStatus().equals(Interface.OperStatus.Unknown)
-                                                ? "UNKNOWN" : "DOWN", update.getName(), subnetIdList);
-                                for (Uuid subnetId : subnetIdList) {
-                                    vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName(), subnetId);
+                                if (!dpnIdLocal.equals(BigInteger.ZERO)) {
+                                    if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
+                                        LOG.info("SubnetRouteInterfaceListener update: Received port UP event"
+                                                   + " for interface {} vpnName {}", update.getName(), vpnName);
+                                        for (Uuid subnetId : subnetIdList) {
+                                            vpnSubnetRouteHandler.onInterfaceUp(dpnId, update.getName(), subnetId,
+                                                        vpnName);
+                                        }
+                                    } else if (update.getOperStatus().equals(Interface.OperStatus.Down)
+                                            || update.getOperStatus().equals(Interface.OperStatus.Unknown)) {
+                                        /*
+                                         * If the interface went down voluntarily (or) if the interface is not
+                                         * reachable from control-path involuntarily, trigger subnetRoute election
+                                         */
+                                        LOG.info("SubnetRouteInterfaceListener update: Received port {} event "
+                                                + "for interface {} vpnName {}", update.getOperStatus()
+                                                .equals(Interface.OperStatus.Unknown) ? "UNKNOWN" : "DOWN",
+                                                update.getName(), vpnName);
+                                        for (Uuid subnetId : subnetIdList) {
+                                            vpnSubnetRouteHandler.onInterfaceDown(dpnId, update.getName(), subnetId,
+                                                        vpnName);
+                                        }
+                                    }
                                 }
                             }
                         }
