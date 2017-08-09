@@ -181,7 +181,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         }
 
         BigInteger dpId = InterfaceUtils.getDpIdFromInterface(interfaceState);
-        if (interfaceState.getLowerLayerIf() == null || interfaceState.getLowerLayerIf().size() == 0) {
+        if (interfaceState.getLowerLayerIf() == null || interfaceState.getLowerLayerIf().isEmpty()) {
             LOG.warn("Lower layer if wasn't found for port {}", portId);
             return RpcResultBuilder.<GetNodeConnectorCountersOutput>failed().buildFuture();
         }
@@ -461,7 +461,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     private Set<String> getAllPortRequestsUniqueIds(String interfaceId, List<CounterRequests> counterRequests) {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (CounterRequests counterRequest : counterRequests) {
             if (counterRequest.getPortId().equals(interfaceId)) {
                 result.add(counterRequest.getGeneratedUniqueId());
@@ -471,7 +471,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     }
 
     private Set<String> getAllRquestsUniqueIds(List<CounterRequests> counterRequests) {
-        Set<String> result = new HashSet<String>();
+        Set<String> result = new HashSet<>();
         for (CounterRequests counterRequest : counterRequests) {
             result.add(counterRequest.getGeneratedUniqueId());
         }
@@ -903,7 +903,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     private void creatIngressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
             InstanceIdentifier<IngressElementCountersRequestConfig> ecrcIdentifier) {
         IngressElementCountersRequestConfigBuilder iecrcb = new IngressElementCountersRequestConfigBuilder();
-        List<CounterRequests> counterRequests = new ArrayList<CounterRequests>();
+        List<CounterRequests> counterRequests = new ArrayList<>();
         iecrcb.setCounterRequests(counterRequests);
         IngressElementCountersRequestConfig iecrc = iecrcb.build();
         transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, iecrc,
@@ -913,7 +913,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
     private void creatEgressEelementCountersContainerInConfig(ReadWriteTransaction transaction,
             InstanceIdentifier<EgressElementCountersRequestConfig> ecrcIdentifier) {
         EgressElementCountersRequestConfigBuilder eecrcb = new EgressElementCountersRequestConfigBuilder();
-        List<CounterRequests> counterRequests = new ArrayList<CounterRequests>();
+        List<CounterRequests> counterRequests = new ArrayList<>();
         eecrcb.setCounterRequests(counterRequests);
         EgressElementCountersRequestConfig eecrc = eecrcb.build();
         transaction.put(LogicalDatastoreType.CONFIGURATION, ecrcIdentifier, eecrc,

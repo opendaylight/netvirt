@@ -115,8 +115,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
         nvpnManager.createSubnetmapNode(subnetId, String.valueOf(subnet.getCidr().getValue()),
                 subnet.getTenantId(), networkId,
-                (providerType != null) ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
-                (segmentationId != null) ? Long.valueOf(segmentationId) : 0L);
+                providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
+                segmentationId != null ? Long.valueOf(segmentationId) : 0L);
         createSubnetToNetworkMapping(subnetId, networkId);
     }
 
@@ -172,7 +172,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 NetworkMapBuilder nwMapBuilder = new NetworkMapBuilder(optionalNetworkMap.get());
                 List<Uuid> subnetIdList = nwMapBuilder.getSubnetIdList();
                 if (subnetIdList.remove(subnetId)) {
-                    if (subnetIdList.size() == 0) {
+                    if (subnetIdList.isEmpty()) {
                         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
                         LOG.debug("Deleted network node in NetworkMaps DS for network {}", subnetId.getValue(),
                                 networkId.getValue());
