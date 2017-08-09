@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_3f2594c2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-09T14:48:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_44319feb",
+      "range": {
+        "startLine": 501,
+        "startChar": 16,
+        "endLine": 512,
+        "endChar": 17
+      },
+      "revId": "51e3937352da5d37da0b176034eb9a04c4e4955a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_a4821b50",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 43
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_ba74f29c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-09T14:48:54Z",
+      "side": 1,
+      "message": "Thanks, Kiran.\n\nYes, we understand that, when router, i.e. internal VPN has been just created, it doesn\u0027t contain any subnetworks and, hence, its IpFamily is underfined. \n\nSo at line 846: ipVersChoices will be set as IpVersionChoice.UNDEFINED, and in line 849 this value will be passed to updateVpnInstanceNode. \n\nIt allows to have something like IpFamily attribute value for InternalVpn instance, when we\u0027ve juste created this new instance, rather than obtain null, when we call getIpFamily().",
+      "parentUuid": "ba1f61a0_a4821b50",
+      "range": {
+        "startLine": 846,
+        "startChar": 8,
+        "endLine": 849,
+        "endChar": 109
+      },
+      "revId": "51e3937352da5d37da0b176034eb9a04c4e4955a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_c1174150",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 43
@@ -59,6 +107,30 @@
       "writtenOn": "2017-08-09T10:41:30Z",
       "side": 1,
       "message": "return rep;",
+      "range": {
+        "startLine": 1307,
+        "startChar": 11,
+        "endLine": 1307,
+        "endChar": 24
+      },
+      "revId": "51e3937352da5d37da0b176034eb9a04c4e4955a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5a5fb60e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-09T14:48:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_c1174150",
       "range": {
         "startLine": 1307,
         "startChar": 11,
