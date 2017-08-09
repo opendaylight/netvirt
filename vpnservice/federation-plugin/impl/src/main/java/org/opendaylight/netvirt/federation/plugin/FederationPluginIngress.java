@@ -92,8 +92,8 @@ public class FederationPluginIngress implements IFederationPluginIngress {
             processFullSyncModifications(generationNumber);
             logger.info("Changing state to IDLE for remoteIP {}", remoteIp);
             state = State.IDLE;
-        } catch (Throwable t) {
-            logger.error("Deciding to call Full Sync again because failed in processing pending modifications", t);
+        } catch (Exception e) {
+            logger.error("Deciding to call Full Sync again because failed in processing pending modifications", e);
             subscriptionMgr.resubscribe(remoteIp);
         }
     }
@@ -165,8 +165,8 @@ public class FederationPluginIngress implements IFederationPluginIngress {
             } catch (FederationCorruptedStateException e) {
                 logger.error("Deciding to call Full Sync again because transactions failed too many times");
                 subscriptionMgr.resubscribe(remoteIp);
-            } catch (Throwable t) {
-                logger.error("Failed to process modification on listener key {}", listenerKey, t);
+            } catch (Exception e) {
+                logger.error("Failed to process modification on listener key {}", listenerKey, e);
             }
         }
     }
