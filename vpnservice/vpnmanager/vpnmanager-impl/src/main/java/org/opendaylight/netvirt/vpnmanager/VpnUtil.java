@@ -15,6 +15,10 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -47,6 +51,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -179,6 +184,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
@@ -1120,9 +1126,11 @@ public final class VpnUtil {
                 NetworkMapKey(networkId)).build();
     }
 
-    static InstanceIdentifier<SubnetOpDataEntry> buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId) {
-        return InstanceIdentifier.builder(SubnetOpData.class)
-                .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
+    static InstanceIdentifier<SubnetOpDataEntry>
+        buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId, String vpnName) {
+        InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
+            .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId, vpnName)).build();
+        return subOpIdentifier;
     }
 
     static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
@@ -1781,6 +1789,28 @@ public final class VpnUtil {
         return isVpnPendingDelete;
     }
 
+    /** Get vpnName from Uuid of the vpn.
+     * @param broker the data borker from which read the data
+     * @param vpnUuid Uuid of the vpn
+     * @return null if vpnName was not found or the String name of vpn
+     */
+    public static String getVpnNameFromUuid(DataBroker broker, Uuid vpnUuid) {
+        String vpnName = null;
+        if (vpnUuid == null) {
+            return null;
+        }
+        InstanceIdentifier<VpnInstance> id =
+               InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
+                      .l3vpn.rev140815.VpnInstances.class)
+                      .child(VpnInstance.class, new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns
+                      .yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey(vpnUuid.getValue())).build();
+        Optional<VpnInstance> vi = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vi.isPresent()) {
+            vpnName = vi.get().getVpnInstanceName();
+        }
+        return vpnName;
+    }
+
     /** Get Subnetmap from its Uuid.
      * @param broker the data broker for look for data
      * @param subnetUuid the subnet's Uuid
@@ -1795,4 +1825,74 @@ public final class VpnUtil {
         }
         return sn;
     }
+
+    public static boolean isAdjacencyEligibleToVpn(DataBroker dataBroker, Adjacency adjacency,
+                      String vpnName, String interfaceName) {
+        // returns true if BGPVPN Internet and adjacency is IPv6, false otherwise
+        boolean adjacencyEligible = true;
+        // if BGPVPN internet, return false if subnetmap has not internetVpnId() filled in
+        if (isBgpVpnInternet(dataBroker, vpnName)) {
+            Subnetmap sn = VpnUtil.getSubnetmapFromItsUuid(
+                       dataBroker, adjacency.getSubnetId());
+            if (sn != null && sn.getInternetVpnId() == null) {
+                adjacencyEligible = false;
+            }
+        }
+        return adjacencyEligible;
+    }
+
+    /** Get boolean true if vpn is bgpvpn internet, false otherwise.
+     * @param dataBroker databroker for transaction
+     * @param vpnName name of the input VPN
+     * @return true or false
+     */
+    public static boolean isBgpVpnInternet(DataBroker dataBroker, String vpnName) {
+        String primaryRd = getVpnRd(dataBroker, vpnName);
+        if (primaryRd == null) {
+            LOG.error("isBgpVpnInternet VPN {}."
+                      + "Primary RD not found", vpnName);
+            return false;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("isBgpVpnInternet VPN {}."
+                     + "VpnInstanceOpDataEntry not found", vpnName);
+            return false;
+        }
+        LOG.error("isBgpVpnInternet VPN {}."
+             + "Successfully VpnInstanceOpDataEntry.getBgpvpnType {}",
+             vpnName, vpnInstanceOpDataEntryOptional.get().getBgpvpnType());
+        if (vpnInstanceOpDataEntryOptional.get().getBgpvpnType() == VpnInstanceOpDataEntry
+               .BgpvpnType.BGPVPNInternet) {
+            return true;
+        }
+        return false;
+    }
+
+    /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
+     * @param ipAddress String of an representation IP address V4 or V6
+     * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED otherwise
+     */
+    public static IpVersionChoice getIpVersionFromString(String ipAddress) {
+        IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
+        if (ipAddress.indexOf("/") > 0) {
+            ipAddress = ipAddress.substring(0, ipAddress.indexOf("/"));
+        }
+        try {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            if (address instanceof Inet4Address) {
+                return IpVersionChoice.IPV4;
+            } else if (address instanceof Inet6Address) {
+                return IpVersionChoice.IPV6;
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            ipchoice = IpVersionChoice.UNDEFINED;
+        }
+        return ipchoice;
+    }
+
 }
