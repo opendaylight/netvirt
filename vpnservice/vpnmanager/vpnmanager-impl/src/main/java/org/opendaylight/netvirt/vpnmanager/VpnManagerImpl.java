@@ -427,12 +427,12 @@ public class VpnManagerImpl implements IVpnManager {
 
     @Override
     public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
-        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag);
+        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn, elanTag, true);
     }
 
     @Override
     public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
-        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn);
+        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn, true);
     }
 
     @Override
