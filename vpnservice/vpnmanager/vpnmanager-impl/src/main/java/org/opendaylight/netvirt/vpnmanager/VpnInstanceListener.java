@@ -265,6 +265,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         if (VpnUtil.isBgpVpn(vpnInstanceName, primaryRd)) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
                 .instance.op.data.entry.vpntargets.VpnTarget> opVpnTargetList = new ArrayList<>();
+            builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal);
             if (value.getL3vni() != null) {
                 builder.setL3vni(value.getL3vni());
             }
@@ -291,6 +292,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
             List<String> rds = config.getRouteDistinguisher();
             builder.setRd(rds);
+        } else {
+            builder.setBgpvpnType(VpnInstanceOpDataEntry.BgpvpnType.VPN);
         }
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
