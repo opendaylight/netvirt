@@ -393,17 +393,21 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 }
             }
 
+            VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
+            rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName());
+            String vpnName = VpnUtil.getVpnNameFromRd(dataBroker, rd);
+
             if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
                 for (Uuid subnetId : subnetList) {
                     // Populate the List of subnets
-                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelUpEvent(subnetId, srcDpnId);
+                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelUpEvent(subnetId, srcDpnId, vpnName);
                 }
             }
 
             if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
                 for (Uuid subnetId : subnetList) {
                     // Populate the List of subnets
-                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelDownEvent(subnetId, srcDpnId);
+                    vpnSubnetRouteHandler.updateSubnetRouteOnTunnelDownEvent(subnetId, srcDpnId, vpnName);
                 }
             }
         } catch (Exception e) {
