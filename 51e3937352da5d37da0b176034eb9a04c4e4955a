@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_44319feb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-09T10:41:30Z",
+      "side": 1,
+      "message": "Please move this before createVpnInterface",
+      "range": {
+        "startLine": 501,
+        "startChar": 16,
+        "endLine": 512,
+        "endChar": 17
+      },
+      "revId": "51e3937352da5d37da0b176034eb9a04c4e4955a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a4821b50",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 849,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-09T10:41:30Z",
+      "side": 1,
+      "message": "This code will not help. InternalVpn Is created when a router is created. At that time, no subnets will be present in the router, and hence, subnetMaps will not have routerId.",
+      "range": {
+        "startLine": 846,
+        "startChar": 8,
+        "endLine": 849,
+        "endChar": 109
+      },
+      "revId": "51e3937352da5d37da0b176034eb9a04c4e4955a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c1174150",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-09T10:41:30Z",
+      "side": 1,
+      "message": "return rep;",
+      "range": {
+        "startLine": 1307,
+        "startChar": 11,
+        "endLine": 1307,
+        "endChar": 24
+      },
+      "revId": "51e3937352da5d37da0b176034eb9a04c4e4955a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a44dfb74",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 1337,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-09T10:41:30Z",
+      "side": 1,
+      "message": "Not required, as the caller has a null check",
+      "range": {
+        "startLine": 1334,
+        "startChar": 8,
+        "endLine": 1337,
+        "endChar": 9
+      },
+      "revId": "51e3937352da5d37da0b176034eb9a04c4e4955a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
