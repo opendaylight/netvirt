@@ -210,6 +210,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void createSubnetmapNode(Uuid subnetId, String subnetIp, Uuid tenantId, Uuid networkId,
                                        NetworkAttributes.NetworkType networkType, long segmentationId) {
         try {
+            // Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
+            // boolean netIsExternal = NeutronvpnUtils.getIsExternal(network);
+            // Uuid internetVpnUuid = netIsExternal ? null
+            //         :  NeutronvpnUtils.getInternetvpnUuidBoundToSubnetRouter(dataBroker, subnetId);
+            Uuid internetVpnUuid = null;
             InstanceIdentifier<Subnetmap> subnetMapIdentifier = NeutronvpnUtils.buildSubnetMapIdentifier(subnetId);
             synchronized (subnetId.getValue().intern()) {
                 Optional<Subnetmap> sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
@@ -220,7 +225,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 SubnetmapBuilder subnetmapBuilder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId))
                         .setId(subnetId).setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId)
-                        .setNetworkType(networkType).setSegmentationId(segmentationId);
+                        .setNetworkType(networkType).setSegmentationId(segmentationId)
+                        .setInternetVpnId(internetVpnUuid);
                 LOG.debug("Adding a new subnet node in Subnetmaps DS for subnet {}", subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         subnetMapIdentifier, subnetmapBuilder.build());
@@ -232,7 +238,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected Subnetmap updateSubnetNode(Uuid subnetId, Uuid routerId, Uuid vpnId) {
+    protected Subnetmap updateSubnetNode(Uuid subnetId, Uuid routerId, Uuid vpnId, Uuid internetvpnId) {
         Subnetmap subnetmap = null;
         SubnetmapBuilder builder = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
@@ -254,6 +260,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 if (vpnId != null) {
                     builder.setVpnId(vpnId);
                 }
+                if (internetvpnId != null) {
+                    builder.setInternetVpnId(internetvpnId);
+                }
+
                 subnetmap = builder.build();
                 LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
@@ -365,6 +375,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (vpnId != null) {
                         builder.setVpnId(null);
                     }
+                    builder.setInternetVpnId(null);
                     if (portId != null && builder.getPortList() != null) {
                         List<Uuid> portList = builder.getPortList();
                         portList.remove(portId);
@@ -1277,7 +1288,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
         LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
+        Uuid networkUuid = NeutronvpnUtils.getSubnetmap(dataBroker, subnet).getNetworkId();
+        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkUuid);
+        boolean netIsExternal = NeutronvpnUtils.getIsExternal(network);
+        Uuid vpnExtUuid = netIsExternal ? null
+                : NeutronvpnUtils.getInternetvpnUuidBoundToSubnetRouter(dataBroker, subnet);
+        Subnetmap sn = updateSubnetNode(subnet, null, vpnId, vpnExtUuid);
         if (sn == null) {
             LOG.error("subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
             return;
@@ -1374,7 +1390,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private void updateVpnForSubnet(Uuid oldVpnId, Uuid newVpnId, Uuid subnet, boolean isBeingAssociated) {
         LOG.debug("Moving subnet {} from oldVpn {} to newVpn {} ", subnet.getValue(),
                 oldVpnId.getValue(), newVpnId.getValue());
-        Subnetmap sn = updateSubnetNode(subnet, null, newVpnId);
+        Uuid networkUuid = NeutronvpnUtils.getSubnetmap(dataBroker, subnet).getNetworkId();
+        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkUuid);
+        boolean netIsExternal = NeutronvpnUtils.getIsExternal(network);
+        Uuid vpnExtUuid = netIsExternal ? null
+                : NeutronvpnUtils.getInternetvpnUuidBoundToSubnetRouter(dataBroker, subnet);
+        Subnetmap sn = updateSubnetNode(subnet, null, newVpnId, vpnExtUuid);
         if (sn == null) {
             LOG.error("Updating subnet {} with newVpn {} failed", subnet.getValue(), newVpnId.getValue());
             return;
@@ -1821,6 +1842,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     }
                     if (NeutronvpnUtils.getIsExternal(network)) {
                         nvpnNatManager.addExternalNetworkToVpn(network, vpn);
+                        List<Subnetmap> smList = NeutronvpnUtils.getSubnetMapsforNetworkRoute(dataBroker, network);
+                        for (Subnetmap sm : smList) {
+                            updateSubnetNode(sm.getId(), sm.getRouterId(), sm.getVpnId(), vpnId/*externalvpnId*/);
+                        }
                     }
                 }
             }
@@ -2464,4 +2489,5 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     public Future<RpcResult<DeleteEVPNOutput>> deleteEVPN(DeleteEVPNInput input) {
         return neutronEvpnManager.deleteEVPN(input);
     }
+
 }
