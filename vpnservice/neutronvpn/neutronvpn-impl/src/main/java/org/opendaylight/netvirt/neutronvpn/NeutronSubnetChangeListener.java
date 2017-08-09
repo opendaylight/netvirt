@@ -83,7 +83,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         }
         NeutronvpnUtils.addToSubnetCache(input);
         handleNeutronSubnetCreated(input, network);
-        externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null);
+        externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null, dataBroker);
     }
 
     @Override
@@ -99,7 +99,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
         handleNeutronSubnetDeleted(subnetId, networkId);
-        externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
+        externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId, dataBroker);
         NeutronvpnUtils.removeFromSubnetCache(input);
     }
 
