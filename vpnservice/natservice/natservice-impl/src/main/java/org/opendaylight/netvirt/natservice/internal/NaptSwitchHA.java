@@ -103,7 +103,7 @@ public class NaptSwitchHA {
     private Collection<String> externalIpsCache;
     private Map<String, Long> externalIpsLabel;
     private final EvpnNaptSwitchHA evpnNaptSwitchHA;
-    private SnatServiceManager natServiceManager;
+    private final SnatServiceManager natServiceManager;
     private NatMode natMode = NatMode.Controller;
 
     @Inject
@@ -1005,7 +1005,7 @@ public class NaptSwitchHA {
                                     + "on NAPT switch {} ", externalIp, routerId, naptSwitch);
                 }
             } else {
-                if (externalIpLabel == null || externalIpLabel.size() == 0) {
+                if (externalIpLabel == null || externalIpLabel.isEmpty()) {
                     LOG.error("bestEffortDeletion : ExternalIpLabel map is empty for router {}", routerName);
                     return;
                 }
