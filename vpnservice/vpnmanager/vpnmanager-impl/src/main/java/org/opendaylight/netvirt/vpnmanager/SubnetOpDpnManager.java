@@ -44,11 +44,11 @@ public class SubnetOpDpnManager {
         broker = db;
     }
 
-    private SubnetToDpn addDpnToSubnet(Uuid subnetId, BigInteger dpnId) {
+    private SubnetToDpn addDpnToSubnet(Uuid subnetId, BigInteger dpnId, String vpnName) {
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                 InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                    new SubnetOpDataEntryKey(subnetId)).build();
+                    new SubnetOpDataEntryKey(subnetId,vpnName)).build();
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
@@ -65,6 +65,7 @@ public class SubnetOpDpnManager {
             LOG.info("addDpnToSubnet: Created SubnetToDpn entry for subnet {} with DPNId {} ", subnetId.getValue(),
                     dpnId);
             return subDpn;
+
         } catch (TransactionCommitFailedException ex) {
             LOG.error("addDpnToSubnet: Creation of SubnetToDpn for subnet {} with DpnId {} failed",
                     subnetId.getValue(), dpnId, ex);
@@ -72,11 +73,11 @@ public class SubnetOpDpnManager {
         }
     }
 
-    private void removeDpnFromSubnet(Uuid subnetId, BigInteger dpnId) {
+    private void removeDpnFromSubnet(Uuid subnetId, BigInteger dpnId, String vpnName) {
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                 InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                    new SubnetOpDataEntryKey(subnetId)).build();
+                    new SubnetOpDataEntryKey(subnetId, vpnName)).build();
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
@@ -94,20 +95,20 @@ public class SubnetOpDpnManager {
         }
     }
 
-    public SubnetToDpn addInterfaceToDpn(Uuid subnetId, BigInteger dpnId, String intfName) {
+    public SubnetToDpn addInterfaceToDpn(Uuid subnetId, BigInteger dpnId, String intfName, String vpnName) {
         SubnetToDpn subDpn = null;
         try {
             // Create and add SubnetOpDataEntry object for this subnet to the SubnetOpData container
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                 InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                    new SubnetOpDataEntryKey(subnetId)).build();
+                    new SubnetOpDataEntryKey(subnetId, vpnName)).build();
             //Please use a synchronize block here as we donot need a cluster-wide lock
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (!optionalSubDpn.isPresent()) {
                 // Create a new DPN Entry
-                subDpn = addDpnToSubnet(subnetId, dpnId);
+                subDpn = addDpnToSubnet(subnetId, dpnId, vpnName);
             } else {
                 subDpn = optionalSubDpn.get();
             }
@@ -164,12 +165,12 @@ public class SubnetOpDpnManager {
         }
     }
 
-    public boolean removeInterfaceFromDpn(Uuid subnetId, BigInteger dpnId, String intfName) {
+    public boolean removeInterfaceFromDpn(Uuid subnetId, BigInteger dpnId, String intfName, String vpnName) {
         boolean dpnRemoved = false;
         try {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                 InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                    new SubnetOpDataEntryKey(subnetId)).build();
+                    new SubnetOpDataEntryKey(subnetId, vpnName)).build();
             InstanceIdentifier<SubnetToDpn> dpnOpId =
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
@@ -186,7 +187,7 @@ public class SubnetOpDpnManager {
             vpnIntfList.remove(vpnIntfs);
             if (vpnIntfList.isEmpty()) {
                 // Remove the DPN as well
-                removeDpnFromSubnet(subnetId, dpnId);
+                removeDpnFromSubnet(subnetId, dpnId, vpnName);
                 dpnRemoved = true;
             } else {
                 subDpnBuilder.setVpnInterfaces(vpnIntfList);
