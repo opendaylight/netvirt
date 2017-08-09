@@ -156,7 +156,7 @@ public class BgpThriftService {
                         routermac,
                         afi);
 
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOG.error("failed to handle update route ", e);
             }
         }
