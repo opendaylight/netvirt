@@ -100,6 +100,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -1374,8 +1377,11 @@ public class NeutronvpnUtils {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> cbc2abce051e... neutronvpn: subnetmap update for associate_network
     /**
      * Get the Uuid of external network of the router (remember you that one router have only one external network).
      * @param broker the DataBroker
@@ -1427,9 +1433,12 @@ public class NeutronvpnUtils {
         return subList;
     }
 
+<<<<<<< HEAD
 =======
 >>>>>>> c31f3810a7e0... neutronvpn: create ipv4 or ipv6 context
 >>>>>>> a771ba92ca69... neutronvpn: create ipv4 or ipv6 context
+=======
+>>>>>>> cbc2abce051e... neutronvpn: subnetmap update for associate_network
     /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
      * @param ipAddress String of an representation IP address V4 or V6
      * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED if any
