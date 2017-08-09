@@ -93,6 +93,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -864,6 +867,28 @@ public class NeutronvpnUtils {
         }
     }
 
+    /**
+     * This method get the subnet from cache first so if not existing in cache from DS then store it in cache.
+     * @param subnetUuid the Uuid fo subnet
+     * @return the Sutnet otherwise null if it is not existing or wrong argument
+     */
+    public static Subnet getSubnetAndStoreItInCache(DataBroker broker, Uuid subnetUuid) {
+        if (subnetUuid == null) {
+            return null;
+        }
+        Subnet subnet = subnetMap.get(subnetUuid);
+        if (subnet == null) {
+            InstanceIdentifier<Subnet> inst = InstanceIdentifier.create(Neutron.class).child(Subnets.class).child(Subnet
+                    .class, new SubnetKey(subnetUuid));
+            Optional<Subnet> sn = read(broker, LogicalDatastoreType.CONFIGURATION, inst);
+            if (sn.isPresent()) {
+                subnet = sn.get();
+                subnetMap.put(subnetUuid, subnet);
+            }
+        }
+        return subnet;
+    }
+
     public static String getSegmentationIdFromNeutronNetwork(Network network) {
         String segmentationId = null;
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
@@ -1257,7 +1282,8 @@ public class NeutronvpnUtils {
         return (!isEmpty(collection));
     }
 
-    /**Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of the router.
+    /**
+     * Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of the router.
      * @param dataBroker to get informations from data store
      * @param routerUuid the Uuid for which find out the IP version associated
      * @return an IpVersionChoice used by the router from its attached subnetmaps. IpVersionChoice.UNDEFINED if any
@@ -1285,7 +1311,8 @@ public class NeutronvpnUtils {
         return rep;
     }
 
-    /**This method return the list of Subnetmap associated to the router or a empty list if any.
+    /**
+     * This method return the list of Subnetmap associated to the router or a empty list if any.
      * @param broker the data broker to get information
      * @param routerId the Uuid of router for which subnetmap is find out
      * @return a list of Subnetmap associated to the router. it could be empty if any
@@ -1302,5 +1329,86 @@ public class NeutronvpnUtils {
             }
         }
         return subnetIdList;
+    }
+
+    /**
+     * Get the Uuid of external network of the router (remember you that one router have only one external network).
+     * @param broker the DataBroker
+     * @param routerId the Uuid of the router which you try to reach the external network
+     * @return Uuid of externalNetwork or null if is not exist
+     */
+    protected static Uuid getExternalNetworkUuidAttachedFromRouterUuid(DataBroker broker, Uuid routerId) {
+        LOG.info("getExternalNetworkUuidAttachedFromRouterUuid for {}", routerId.getValue());
+        Uuid externalNetworkUuid = null;
+        Router router = getNeutronRouter(broker, routerId);
+        if (router != null && router.getExternalGatewayInfo() != null) {
+            externalNetworkUuid = router.getExternalGatewayInfo().getExternalNetworkId();
+        }
+        return externalNetworkUuid;
+    }
+
+    /**
+     * This method get Uuid of internet vpn if existing one bound to the same router of the subnetUuid arg.
+     * <br><br><u>Explanation:</u><br>If the subnet (of arg subnetUuid) have a router bound and this router have an
+     * externalVpn (vpn on externalProvider network) then <b>its Uuid</b> will be returned.
+     * @param dataBroker the DataBroker to do action
+     * @param subnetUuid Uuid of subnet where you are finding a link to an external network
+     * @return Uuid of externalVpn or null if it is not found
+     */
+    public static Uuid getInternetvpnUuidBoundToSubnetRouter(DataBroker dataBroker, Uuid subnetUuid) {
+        if (subnetUuid == null) {
+            return null;
+        }
+        Subnetmap subnetmap = NeutronvpnUtils.getSubnetmap(dataBroker, subnetUuid);
+        Uuid routerUuid = subnetmap.getRouterId();
+        Uuid externalNetworkUuid = null;
+        LOG.info("getInternetvpnUuidBoundToSubnetRouter for subnetUuid {}", subnetUuid.getValue());
+        if (routerUuid == null) {
+            return null;
+        }
+        externalNetworkUuid = NeutronvpnUtils.getExternalNetworkUuidAttachedFromRouterUuid(dataBroker, routerUuid);
+        if (externalNetworkUuid != null) {
+            Uuid vpnIntUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, externalNetworkUuid);
+            return vpnIntUuid;
+        }
+        return null;
+    }
+
+    /**
+     * Get all subnetmap associate to the belonging router of network.
+     * @param dataBroker the dataBroker to do action
+     * @param network the network which have router bound
+     * @return a list of Subnetmap of the router (which the network is associated)
+     */
+    public static List<Subnetmap> getSubnetMapsforNetworkRoute(DataBroker dataBroker, Network network) {
+        Uuid vpnUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, network.getUuid());
+        Uuid routerUuid = getRouterforVpn(dataBroker, vpnUuid);
+        List<Subnetmap> subList = getNeutronRouterSubnetMaps(dataBroker, routerUuid);
+        return subList;
+    }
+
+    /**
+     * This method find from subnetUuid if it is ip version 4 or 6 (-1 mean unfindable).
+     * @param broker the data broker to do action
+     * @param subnetUuid the Uuid of subnet for which found the IP version used
+     * @return the IP version (4 or 6) or -1 if it is unfindable
+     */
+    public static int getIpVersionForNeutronSubnet(DataBroker broker, Uuid subnetUuid) {
+        int version = -1;
+        Subnet subnet = getSubnetAndStoreItInCache(broker, subnetUuid);
+        if (subnet == null) {
+            return version;
+        }
+
+        Class<? extends IpVersionBase> ipVersionBase = subnet.getIpVersion();
+        if (ipVersionBase == null) {
+            return version;
+        }
+        if (ipVersionBase.equals(IpVersionV4.class)) {
+            version = 4;
+        } else if (ipVersionBase.equals(IpVersionV6.class)) {
+            version = 6;
+        }
+        return version;
     }
 }
