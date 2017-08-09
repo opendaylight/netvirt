@@ -227,7 +227,8 @@ public class NexthopManager implements AutoCloseable {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+                LOG.error("RPC Call to Get Unique Id for nexthopKey {} returned with Errors {}",
+                        nexthopKey, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting Unique Id for key {}", nexthopKey, e);
@@ -242,7 +243,7 @@ public class NexthopManager implements AutoCloseable {
                     new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                LOG.error("RPC Call to Get egress actions for interface {} returned with Errors {}",
                     ifName, rpcResult.getErrors());
             } else {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions =
@@ -340,7 +341,8 @@ public class NexthopManager implements AutoCloseable {
 
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
         if (groupId == 0) {
-            LOG.error("Unable to allocate groupId for vpnId {} , prefix {}", vpnId, ipAddress);
+            LOG.error("Unable to allocate groupId for vpnId {} , prefix {}  IntfName {}, nextHopAddr {}",
+                    vpnId, ipAddress, ifName, ipNextHopAddress);
             return groupId;
         }
         String nextHopLockStr = vpnId + ipAddress;
@@ -557,7 +559,7 @@ public class NexthopManager implements AutoCloseable {
                 }
             } else {
                 //throw error
-                LOG.error("Local Next hop for {} on dpn {} not deleted", ipAddress, dpnId);
+                LOG.error("Local Next hop for Prefix {} VpnId {} on dpn {} not deleted", ipAddress, vpnId, dpnId);
             }
         }
     }
@@ -678,7 +680,8 @@ public class NexthopManager implements AutoCloseable {
                     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder
                         .getDefaultInstance(nextHopIp));
             } catch (Exception ex) {
-                LOG.error("Error while retrieving nexthop pointer for nexthop {} : ", nextHopIp, ex);
+                LOG.error("Error while retrieving nexthop pointer for nexthop {} remoteDpn {}",
+                        nextHopIp, remoteDpnId, ex);
             }
         }
 

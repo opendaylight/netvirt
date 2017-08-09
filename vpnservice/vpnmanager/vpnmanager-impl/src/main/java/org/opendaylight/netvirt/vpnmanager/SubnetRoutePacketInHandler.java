@@ -98,7 +98,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     // attempt to respond.
                     long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
 
-                    LOG.debug("Processing IPv4 Packet received with Source IP {} " + "and Target IP {} and vpnId {}",
+                    LOG.debug("Processing IPv4 Packet received with Source IP {} and Target IP {} and vpnId {}",
                             srcIpStr, dstIpStr, vpnId);
 
                     Optional<VpnIds> vpnIdsOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -160,7 +160,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     private void handleBgpVpnSubnetRoute(IPv4 ipv4, byte[] srcMac, byte[] dstIp, String dstIpStr, String srcIpStr,
             long elanTag) throws UnknownHostException {
-        LOG.debug("Processing IPv4 Packet received with Source IP {} " + "and Target IP {} and elan Tag {}", srcIpStr,
+        LOG.debug("Processing IPv4 Packet received with Source IP {} and Target IP {} and elan Tag {}", srcIpStr,
                 dstIpStr, elanTag);
         SubnetOpDataEntry targetSubnetForPacketOut =
                 getTargetSubnetForPacketOut(dataBroker, elanTag, ipv4.getDestinationAddress());
@@ -293,7 +293,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
 
         List<Uuid> subnetList = optionalNetworkMap.get().getSubnetIdList();
-        LOG.trace("Obtained subnetList as " + subnetList);
+        LOG.trace("Obtained subnetList as {}", subnetList);
         for (Uuid subnetId : subnetList) {
             Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
@@ -302,9 +302,9 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             }
             SubnetOpDataEntry subOpEntry = optionalSubs.get();
             if (subOpEntry.getNhDpnId() != null) {
-                LOG.trace("Viewing Subnet " + subnetId);
+                LOG.trace("Viewing Subnet {}", subnetId);
                 boolean match = NWUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
-                LOG.trace("Viewing Subnet " + subnetId + " matching " + match);
+                LOG.trace("Viewing Subnet {} matching {}", subnetId, match);
                 if (match) {
                     return subOpEntry;
                 }

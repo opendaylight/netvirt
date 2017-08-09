@@ -89,7 +89,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                             } catch (Exception e) {
                                 LOG.error("SubnetRouteInterfaceListener add: Unable to obtain dpnId for"
                                         + " interface {} subnetroute inclusion for this interface"
-                                        + "failed with exception {}", interfaceName, e);
+                                        + "failed with exception", interfaceName, e);
                             }
                             return futures;
                         });
@@ -179,7 +179,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                         } catch (Exception e) {
                             LOG.error("SubnetRouteInterfaceListener remove: Unable to retrieve dpnId"
                                     + " for interface {}. Fetching from vpn interface itself"
-                                    + " due to exception {}", update.getName(), e);
+                                    + " due to exception", update.getName(), e);
                             InstanceIdentifier<VpnInterface> id = VpnUtil
                                     .getVpnInterfaceIdentifier(interfaceName);
                             Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker,

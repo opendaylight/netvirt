@@ -61,7 +61,7 @@ public class SubnetOpDpnManager {
             List<VpnInterfaces> vpnIntfList = new ArrayList<>();
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             SubnetToDpn subDpn = subDpnBuilder.build();
-            LOG.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
+            LOG.trace("Creating SubnetToDpn entry for subnet {} with DPNId {}", subnetId.getValue(),dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
             return subDpn;
         } catch (TransactionCommitFailedException ex) {
@@ -83,7 +83,7 @@ public class SubnetOpDpnManager {
                     subnetId.getValue(), dpnId);
                 return;
             }
-            LOG.trace("Deleting SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
+            LOG.trace("Deleting SubnetToDpn entry for subnet {} with DPNId {}", subnetId.getValue(), dpnId);
             SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
         } catch (TransactionCommitFailedException ex) {
             LOG.error("Deletion of SubnetToDpn for subnet {} with DPN {} failed", subnetId.getValue(), dpnId, ex);
@@ -115,7 +115,7 @@ public class SubnetOpDpnManager {
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             subDpn = subDpnBuilder.build();
 
-            LOG.trace("Creating SubnetToDpn entry for subnet  " + subnetId.getValue() + " with DPNId " + dpnId);
+            LOG.trace("Creating SubnetToDpn entry for subnet {} with DPNId {}",subnetId.getValue(), dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
         } catch (TransactionCommitFailedException ex) {
             LOG.error("Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed", intfName,
@@ -149,7 +149,7 @@ public class SubnetOpDpnManager {
                 portOpBuilder.setDpnId(dpnId);
                 portOpEntry = portOpBuilder.build();
             }
-            LOG.trace("Creating PortOpData entry for port " + intfName + " with DPNId " + dpnId);
+            LOG.trace("Creating PortOpData entry for port {} with DPNId {}", intfName, dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
                 portOpEntry);
         } catch (TransactionCommitFailedException ex) {

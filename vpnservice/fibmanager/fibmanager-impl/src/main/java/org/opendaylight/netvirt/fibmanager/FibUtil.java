@@ -190,7 +190,7 @@ public class FibUtil {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+                LOG.error("RPC Call to Get Unique Id for key {} returned with Errors {}", idKey, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when getting Unique Id for key {}", idKey, e);
@@ -257,7 +257,7 @@ public class FibUtil {
                     gwMacAddress, parentVpnRd, writeConfigTxn, broker);
             LOG.debug("Created/Updated vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
         } catch (Exception e) {
-            LOG.error("addFibEntryToDS: error ", e);
+            LOG.error("addFibEntryToDS: Prefix {} rd {} label {} error ", prefix, rd, label, e);
         }
     }
 
@@ -310,7 +310,7 @@ public class FibUtil {
             }
             LOG.debug("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
         } catch (Exception e) {
-            LOG.error("addFibEntryToDS: error ", e);
+            LOG.error("addFibEntryForRouterInterface: prefix {} rd {} label {} error ", prefix, rd, label, e);
         }
     }
 

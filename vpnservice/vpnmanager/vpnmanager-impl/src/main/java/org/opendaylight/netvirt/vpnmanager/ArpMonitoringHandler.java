@@ -73,7 +73,7 @@ public class ArpMonitoringHandler
                     VpnConstants.ARP_MONITORING_ENTITY, VpnConstants.ARP_MONITORING_ENTITY,
                     null/*listener*/);
         } catch (CandidateAlreadyRegisteredException e) {
-            LOG.error("failed to register the entity " + VpnConstants.ARP_MONITORING_ENTITY);
+            LOG.error("failed to register the entity {}", VpnConstants.ARP_MONITORING_ENTITY);
         }
     }
 
@@ -126,7 +126,7 @@ public class ArpMonitoringHandler
                         new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
                                 interfaceRpc, neutronVpnService, interfaceManager));
             } catch (UnknownHostException e) {
-                LOG.error("Error in deserializing packet {} with exception {}", value, e);
+                LOG.error("Error in deserializing packet {} with exception", value, e);
             }
         });
     }
@@ -156,7 +156,7 @@ public class ArpMonitoringHandler
                 coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
             } catch (UnknownHostException e) {
-                LOG.error("Error in deserializing packet {} with exception {}", value, e);
+                LOG.error("Error in deserializing packet {} with exception", value, e);
             }
         });
     }
