@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_f965d545",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-10T07:09:14Z",
+      "side": 1,
+      "message": "UpdateVpnInstanceNode with the rightipVersionChoice needs to be called when a new router interface is added as well",
+      "range": {
+        "startLine": 252,
+        "startChar": 17,
+        "endLine": 252,
+        "endChar": 43
+      },
+      "revId": "1c2503572ece749f5764e38185412bd39e2ff471",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_793c4530",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 494,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-10T07:09:14Z",
+      "side": 1,
+      "message": "add an else for this if condition, and add a log.error saying vpn {}is not available for network {}. Not updating vpnInstanceNode and vpnInterface for port{}",
+      "range": {
+        "startLine": 494,
+        "startChar": 16,
+        "endLine": 494,
+        "endChar": 17
+      },
+      "revId": "1c2503572ece749f5764e38185412bd39e2ff471",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5936a153",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 496,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-10T07:09:14Z",
+      "side": 1,
+      "message": "Move this inside if(vpnInstance!\u003dnull). If there is no vpn instance, then the vpn interface should not be created as well",
+      "range": {
+        "startLine": 495,
+        "startChar": 16,
+        "endLine": 496,
+        "endChar": 83
+      },
+      "revId": "1c2503572ece749f5764e38185412bd39e2ff471",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_197a69f1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-10T07:09:14Z",
+      "side": 1,
+      "message": "This code is incorrect. The neutronvpn.revxxxx.VpnIntstane is just an object used in Vpn CRUD RPCs.\nYou need to fetch VpnInstance from the Vpn Datastore.\nPlease see VpnUtil.getVpnInstance() method. You will have to either call that, or modify this method similar to that.",
+      "range": {
+        "startLine": 205,
+        "startChar": 8,
+        "endLine": 218,
+        "endChar": 13
+      },
+      "revId": "1c2503572ece749f5764e38185412bd39e2ff471",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_39892dec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 1307,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-10T07:09:14Z",
+      "side": 1,
+      "message": "rep",
+      "range": {
+        "startLine": 1307,
+        "startChar": 19,
+        "endLine": 1307,
+        "endChar": 23
+      },
+      "revId": "1c2503572ece749f5764e38185412bd39e2ff471",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_996db935",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 1311,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-10T07:09:14Z",
+      "side": 1,
+      "message": "rep",
+      "range": {
+        "startLine": 1311,
+        "startChar": 19,
+        "endLine": 1311,
+        "endChar": 23
+      },
+      "revId": "1c2503572ece749f5764e38185412bd39e2ff471",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
