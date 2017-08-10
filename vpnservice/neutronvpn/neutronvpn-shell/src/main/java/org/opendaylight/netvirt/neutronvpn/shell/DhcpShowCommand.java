@@ -14,6 +14,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -38,22 +39,24 @@ public class DhcpShowCommand extends OsgiCommandSupport {
         try {
             InstanceIdentifier<DhcpConfig> iid = InstanceIdentifier.create(DhcpConfig.class);
             DhcpConfig dhcpConfig = read(iid);
-            if (dhcpConfig == null || dhcpConfig.getConfigs() == null) {
-                //TODO: Should we print the defaults?
-                session.getConsole().println("Failed to get DHCP Configuration. Try again");
-                return null;
-            }
-            if (!dhcpConfig.getConfigs().isEmpty()) {
+            if (isDhcpConfigAvailable(dhcpConfig)) {
                 leaseDuration = dhcpConfig.getConfigs().get(0).getLeaseDuration();
                 defDomain = dhcpConfig.getConfigs().get(0).getDefaultDomain();
             }
-            session.getConsole().println("Lease Duration: " + ((leaseDuration != null) ? leaseDuration : 86400));
-            session.getConsole().println("Default Domain: " + ((defDomain != null) ? defDomain : "openstacklocal"));
+            session.getConsole().println(
+                    "Lease Duration: " + ((leaseDuration != null) ? leaseDuration : DhcpMConstants.DEFAULT_LEASE_TIME));
+            session.getConsole().println(
+                    "Default Domain: " + ((defDomain != null) ? defDomain : DhcpMConstants.DEFAULT_DOMAIN_NAME));
         } catch (Exception e) {
             session.getConsole().println("Failed to fetch configuration parameters. Try again");
             LOG.error("Failed to fetch DHCP parameters",e);
         }
         return null;
+    }
+
+    private boolean isDhcpConfigAvailable(DhcpConfig dhcpConfig) {
+        return dhcpConfig != null && dhcpConfig.getConfigs() != null
+                && !dhcpConfig.getConfigs().isEmpty();
     }
 
     // TODO Clean up the exception handling
