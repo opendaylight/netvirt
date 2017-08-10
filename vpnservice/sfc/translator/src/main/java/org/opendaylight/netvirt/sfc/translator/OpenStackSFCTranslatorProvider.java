@@ -45,6 +45,8 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
         neutronPortPairListener = new NeutronPortPairListener(dataBroker);
         neutronPortPairGroupListener = new NeutronPortPairGroupListener(dataBroker);
         neutronPortChainListener = new NeutronPortChainListener(dataBroker, rspService);
+        SfcMdsalHelper sfcMdsal = new SfcMdsalHelper(dataBroker);
+        sfcMdsal.addNetvirLogicalSff();
         if (this.rspService == null) {
             LOG.warn("RenderedServicePath Service is not available. Translation layer might not work as expected.");
         }
