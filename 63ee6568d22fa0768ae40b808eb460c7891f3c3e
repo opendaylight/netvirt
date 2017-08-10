@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_79f56582",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-08-10T08:49:53Z",
+      "side": 1,
+      "message": "Please print the RD here.",
+      "revId": "63ee6568d22fa0768ae40b808eb460c7891f3c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_7063cbb1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
         "patchSetId": 39
