@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * Utility methods to read OpenDaylight OVSDB models.
  */
 public class OvsdbMdsalHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(SfcMdsalHelper.class);
+    private static final Logger LOG = LoggerFactory.getLogger(OvsdbMdsalHelper.class);
     private static final String OVSDB_TOPOLOGY_ID = "ovsdb:1";
     private static final InstanceIdentifier<Topology> TOPOLOGY_PATH
             = InstanceIdentifier.create(NetworkTopology.class)
