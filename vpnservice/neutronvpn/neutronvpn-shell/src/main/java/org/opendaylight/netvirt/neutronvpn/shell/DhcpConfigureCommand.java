@@ -8,11 +8,10 @@
 
 package org.opendaylight.netvirt.neutronvpn.shell;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -21,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.DhcpConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.dhcp.config.Configs;
@@ -28,6 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 
 @Command(scope = "vpnservice", name = "dhcp-configure", description = "configuring parameters for DHCP Service")
 public class DhcpConfigureCommand extends OsgiCommandSupport {
@@ -43,8 +46,6 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
     String defaultDomain;
 
     private DataBroker dataBroker;
-    private static final String DEF_DOMAIN = "openstacklocal";
-    private static final Integer DEF_LEASE_DURATION = 86400;
 
     public void setDataBroker(DataBroker broker) {
         this.dataBroker = broker;
@@ -59,8 +60,8 @@ public class DhcpConfigureCommand extends OsgiCommandSupport {
                 session.getConsole().println(getHelp());
                 return null;
             }
-            Integer currLeaseDuration = DEF_LEASE_DURATION;
-            String currDefDomain = DEF_DOMAIN;
+            Integer currLeaseDuration = DhcpMConstants.DEFAULT_LEASE_TIME;
+            String currDefDomain = DhcpMConstants.DEFAULT_DOMAIN_NAME;
             ConfigsBuilder dccBuilder = new ConfigsBuilder();
             InstanceIdentifier<DhcpConfig> iid = InstanceIdentifier.create(DhcpConfig.class);
             DhcpConfig currentConfig = read(iid);
