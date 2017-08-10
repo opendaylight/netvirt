@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.opendaylight.netvirt.sfc.translator.OvsdbMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.OvsdbPortMetadata;
+import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfDataPlaneLocatorName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
@@ -26,12 +27,15 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev14070
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sl.rev140701.Mac;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sl.rev140701.SlTransportType;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sl.rev140701.VxlanGpe;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sl.rev140701.data.plane.locator.locator.type.IpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sf.ovs.rev160107.SfDplOvsAugmentation;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sf.ovs.rev160107.SfDplOvsAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sf.ovs.rev160107.connected.port.OvsPortBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.service.functions.service.function.sf.data.plane.locator.locator.type.LogicalInterface;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.service.functions.service.function.sf.data.plane.locator.locator.type.LogicalInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
@@ -55,6 +59,7 @@ public class PortPairTranslator {
     private static final String DPL_TRANSPORT_PARAM = "dpl-transport";
     private static final String DPL_IP_PARAM = "dpl-ip";
     private static final String DPL_PORT_PARAM = "dpl-port";
+    private static final String SFF_LOGICAL = "-logical";
     private static final String SFF_STR = "sff";
 
     public static final ImmutableBiMap<String, Class<? extends SlTransportType>> DPL_TRANSPORT_TYPE
@@ -173,7 +178,19 @@ public class PortPairTranslator {
 
         sfDataPlaneLocatorBuilder.setLocatorType(sfLocator.build());
 
+        SfDataPlaneLocatorBuilder logicalInterfaceDplBuilder = new SfDataPlaneLocatorBuilder();
+        String dataPlaneName = portPair.getName() + SFF_LOGICAL + DPL_SUFFIX_PARAM;
+        logicalInterfaceDplBuilder.setName(new SfDataPlaneLocatorName(dataPlaneName));
+        logicalInterfaceDplBuilder.setTransport(Mac.class);
+        SffName defaultSffName = new SffName(SfcMdsalHelper.NETVIRT_LOGICAL_SFF_NAME);
+        logicalInterfaceDplBuilder.setServiceFunctionForwarder(defaultSffName);
+        String neutronPortValue = neutronPort.getUuid().getValue();
+        LogicalInterface neutronIntf = new LogicalInterfaceBuilder().setInterfaceName(neutronPortValue).build();
+        logicalInterfaceDplBuilder.setLocatorType(neutronIntf);
+
         List<SfDataPlaneLocator> sfDataPlaneLocatorList = new ArrayList<>();
+
+        sfDataPlaneLocatorList.add(logicalInterfaceDplBuilder.build());
         sfDataPlaneLocatorList.add(sfDataPlaneLocatorBuilder.build());
         //Set management IP to same as DPL IP.
         serviceFunctionBuilder.setIpMgmtAddress(sfLocator.getIp());
