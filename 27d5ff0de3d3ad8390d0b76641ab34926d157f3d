@@ -242,6 +242,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_2a26edb7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1268,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-10T10:48:41Z",
+      "side": 1,
+      "message": "Hi, thank for your comment.\nthe log is just for debugging.\nval (new and old) could give us the rd String or null. We think that could help to try to get RD in debugging from time to time.\n\nPlease if you are any else remark I am waiting for.\n\nNoel",
+      "parentUuid": "ba1f61a0_4417f1ed",
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_a4d34d37",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 39
@@ -253,6 +271,24 @@
       "writtenOn": "2017-08-04T16:21:16Z",
       "side": 1,
       "message": "where are you fetching rd from Vrf?",
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8aaf19e3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1271,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-10T10:48:41Z",
+      "side": 1,
+      "message": "Hello Siva\n\nI agree, I will change this log.\n\nThks\nNoel",
+      "parentUuid": "ba1f61a0_a4d34d37",
       "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
