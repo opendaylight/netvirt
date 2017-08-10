@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_05831a57",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpDesignatedDpnListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-10T12:47:22Z",
+      "side": 1,
+      "message": "some subteam follwed that format, for eeg, all VPN Files we followed that principle, but not sure if all others might follow the same way..",
+      "parentUuid": "ba1f61a0_4ae9a17f",
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8a02793c",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2017-08-10T12:08:28Z",
       "side": 1,
       "message": "is there a more generic term for CSS?",
+      "range": {
+        "startLine": 283,
+        "startChar": 42,
+        "endLine": 283,
+        "endChar": 45
+      },
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_457d126e",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-10T12:47:22Z",
+      "side": 1,
+      "message": "OVS Switch",
+      "parentUuid": "ba1f61a0_8a02793c",
       "range": {
         "startLine": 283,
         "startChar": 42,
@@ -59,6 +101,23 @@
         "endLine": 285,
         "endChar": 21
       },
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8596ea92",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-10T12:47:22Z",
+      "side": 1,
+      "message": "when we use jobkeys, can we have a \u0027-\u0027 between the keys so its easy to extract info during troubleshooting logs.",
       "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
