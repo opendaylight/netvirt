@@ -138,6 +138,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     return;
                 }
                 DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId);
+                if (replyPkt == null) {
+                    LOG.error("Unable to construct reply packet for interface name {}", interfaceName);
+                    return;
+                }
                 byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, interfaceInfo.getMacAddress());
                 sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
             }
@@ -282,6 +286,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 return fixedIp.getIpAddress().getIpv4Address().getValue();
             }
         }
+        LOG.error("Could not find ipv4 address for port {}", port);
         return null;
     }
 
