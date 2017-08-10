@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_4ae9a17f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpDesignatedDpnListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-10T12:08:28Z",
+      "side": 1,
+      "message": "There were recent debugging changes to make the logs more like \"\u003cmethod\u003e ....\", so here it would be \"remove for DesignatedSwitchForTunnel: {}\"",
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8a02793c",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-10T12:08:28Z",
+      "side": 1,
+      "message": "is there a more generic term for CSS?",
+      "range": {
+        "startLine": 283,
+        "startChar": 42,
+        "endLine": 283,
+        "endChar": 45
+      },
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6aff4535",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-10T12:08:28Z",
+      "side": 1,
+      "message": "same comment",
+      "range": {
+        "startLine": 285,
+        "startChar": 18,
+        "endLine": 285,
+        "endChar": 21
+      },
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
