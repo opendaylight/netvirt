@@ -61,6 +61,7 @@ public class DhcpDesignatedDpnListener
 
     @Override
     protected void remove(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel del) {
+        LOG.debug("Received remove for {}", del);
         dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(del.getDpId()),
                 del.getTunnelRemoteIpAddress(), del.getElanInstanceName());
         dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(del.getElanInstanceName(),
@@ -70,6 +71,7 @@ public class DhcpDesignatedDpnListener
     @Override
     protected void update(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel original,
             DesignatedSwitchForTunnel update) {
+        LOG.debug("Received update original {}, update {}", original, update);
         BigInteger designatedDpnId = BigInteger.valueOf(update.getDpId());
         IpAddress tunnelRemoteIpAddress = update.getTunnelRemoteIpAddress();
         String elanInstanceName = update.getElanInstanceName();
@@ -82,6 +84,7 @@ public class DhcpDesignatedDpnListener
 
     @Override
     protected void add(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel add) {
+        LOG.debug("Received add for {}", add);
         BigInteger designatedDpnId = BigInteger.valueOf(add.getDpId());
         IpAddress tunnelRemoteIpAddress = add.getTunnelRemoteIpAddress();
         String elanInstanceName = add.getElanInstanceName();

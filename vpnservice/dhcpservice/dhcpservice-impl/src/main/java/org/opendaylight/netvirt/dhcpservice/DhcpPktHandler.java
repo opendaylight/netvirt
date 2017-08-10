@@ -130,6 +130,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     return;
                 }
                 DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId);
+                if (replyPkt == null) {
+                    LOG.error("Unable to construct reply packet for interface name {}", interfaceName);
+                    return;
+                }
                 byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, interfaceInfo.getMacAddress());
                 sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
             }
@@ -224,6 +228,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
         if (port != null && subnet != null) {
             String clientIp = getIpv4Address(port);
             String serverIp = null;
+            if (subnet.getGatewayIp() == null) {
+                LOG.error("GatewayIp is null for subnet {} and port {}", subnet, port);
+                return dhcpInfo;
+            }
             if (isIpv4Address(subnet.getGatewayIp())) {
                 serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
             }
@@ -265,10 +273,14 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 return fixedIp.getIpAddress().getIpv4Address().getValue();
             }
         }
+        LOG.error("Could not find ipv4 address for port {}", port);
         return null;
     }
 
     private boolean isIpv4Address(IpAddress ip) {
+        if (ip == null) {
+            return false;
+        }
         return ip.getIpv4Address() != null;
     }
 

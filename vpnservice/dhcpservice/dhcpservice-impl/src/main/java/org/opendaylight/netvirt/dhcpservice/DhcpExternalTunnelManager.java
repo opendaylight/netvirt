@@ -33,6 +33,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -181,15 +182,20 @@ public class DhcpExternalTunnelManager {
             @Override
             public void onSuccess(Boolean isOwner) {
                 if (isOwner) {
-                    synchronized (getTunnelIpDpnKey(tunnelIp, designatedDpnId)) {
-                        WriteTransaction tx = broker.newWriteOnlyTransaction();
-                        dpns.remove(designatedDpnId);
-                        for (BigInteger dpn : dpns) {
-                            installDhcpDropAction(dpn, vmMacAddress, tx);
-                        }
-                        installDhcpEntries(designatedDpnId, vmMacAddress, tx);
-                        DhcpServiceUtils.submitTransaction(tx);
-                    }
+                    String tunnelIpDpnKey = getTunnelIpDpnKey(tunnelIp, designatedDpnId);
+                    DataStoreJobCoordinator.getInstance()
+                            .enqueueJob(getJobKey(tunnelIpDpnKey), () -> {
+                                synchronized (tunnelIpDpnKey) {
+                                    WriteTransaction tx = broker.newWriteOnlyTransaction();
+                                    dpns.remove(designatedDpnId);
+                                    for (BigInteger dpn : dpns) {
+                                        installDhcpDropAction(dpn, vmMacAddress, tx);
+                                    }
+                                    installDhcpEntries(designatedDpnId, vmMacAddress, tx);
+                                    DhcpServiceUtils.submitTransaction(tx);
+                                    return null;
+                                }
+                            });
                 } else {
                     LOG.trace("Exiting installDhcpEntries since this cluster node is not the owner for dpn");
                 }
@@ -274,7 +280,19 @@ public class DhcpExternalTunnelManager {
         removeFromLocalCache(dpnId, tunnelIp, elanInstanceName);
     }
 
+    // This method is called whenever new CSS is added.
     public void installDhcpDropActionOnDpn(BigInteger dpId) {
+        // During CSC restart we'll get add for designatedDpns as well and we
+        // need not install drop flows for those dpns
+        if (designatedDpnsToTunnelIpElanNameCache.get(dpId) != null) {
+            LOG.trace("The dpn {} is designated DPN need not install drop flows");
+            return;
+        }
+        // Read from DS since the cache may not get loaded completely in restart scenario
+        if (isDpnDesignatedDpn(dpId)) {
+            LOG.trace("The dpn {} is designated DPN need not install drop flows");
+            return;
+        }
         List<String> vmMacs = getAllVmMacs();
         LOG.trace("Installing drop actions to this new DPN {} VMs {}", dpId, vmMacs);
         WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -282,6 +300,23 @@ public class DhcpExternalTunnelManager {
             installDhcpDropAction(dpId, vmMacAddress, tx);
         }
         DhcpServiceUtils.submitTransaction(tx);
+    }
+
+    private boolean isDpnDesignatedDpn(BigInteger dpId) {
+        InstanceIdentifier<DesignatedSwitchesForExternalTunnels> instanceIdentifier =
+                InstanceIdentifier.builder(DesignatedSwitchesForExternalTunnels.class).build();
+        Optional<DesignatedSwitchesForExternalTunnels> designatedSwitchForTunnelOptional =
+                MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, instanceIdentifier);
+        if (designatedSwitchForTunnelOptional.isPresent()) {
+            List<DesignatedSwitchForTunnel> list =
+                    designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel();
+            for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
+                if (dpId.equals(designatedSwitchForTunnel.getDpId())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private List<String> getAllVmMacs() {
@@ -645,25 +680,33 @@ public class DhcpExternalTunnelManager {
             @Override
             public void onSuccess(Boolean isOwner) {
                 if (isOwner) {
-                    LOG.info("Installing remote McastMac");
-                    L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
-                    String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(designatedDpnId),
-                            device.getHwvtepNodeId());
-                    IpAddress internalTunnelIp = null;
-                    if (tunnelInterfaceName != null) {
-                        Interface tunnelInterface =
-                                interfaceManager.getInterfaceInfoFromConfigDataStore(tunnelInterfaceName);
-                        if (tunnelInterface == null) {
-                            LOG.trace("Tunnel Interface is not present {}", tunnelInterfaceName);
-                            return;
+                    DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(elanInstanceName), () -> {
+                        LOG.info("Installing remote McastMac");
+                        L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
+                        if (device == null) {
+                            LOG.error("Unable to get L2Device for tunnelIp {} and elanInstanceName {}", tunnelIp,
+                                elanInstanceName);
+                            return null;
                         }
-                        internalTunnelIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
-                        WriteTransaction transaction = broker.newWriteOnlyTransaction();
-                        putRemoteMcastMac(transaction, elanInstanceName, device, internalTunnelIp);
-                        if (transaction != null) {
-                            transaction.submit();
+                        String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(designatedDpnId),
+                                device.getHwvtepNodeId());
+                        IpAddress internalTunnelIp = null;
+                        if (tunnelInterfaceName != null) {
+                            Interface tunnelInterface =
+                                    interfaceManager.getInterfaceInfoFromConfigDataStore(tunnelInterfaceName);
+                            if (tunnelInterface == null) {
+                                LOG.trace("Tunnel Interface is not present {}", tunnelInterfaceName);
+                                return null;
+                            }
+                            internalTunnelIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
+                            WriteTransaction transaction = broker.newWriteOnlyTransaction();
+                            putRemoteMcastMac(transaction, elanInstanceName, device, internalTunnelIp);
+                            if (transaction != null) {
+                                transaction.submit();
+                            }
                         }
-                    }
+                        return null;
+                    });
                 } else {
                     LOG.info("Installing remote McastMac is not executed for this node.");
                 }
@@ -757,11 +800,14 @@ public class DhcpExternalTunnelManager {
             @Override
             public void onSuccess(Boolean isOwner) {
                 if (isOwner) {
-                    WriteTransaction tx = broker.newWriteOnlyTransaction();
-                    for (final BigInteger dpn : dpns) {
-                        unInstallDhcpEntries(dpn, vmMacAddress, tx);
-                    }
-                    DhcpServiceUtils.submitTransaction(tx);
+                    DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(vmMacAddress), () -> {
+                        WriteTransaction tx = broker.newWriteOnlyTransaction();
+                        for (final BigInteger dpn : dpns) {
+                            unInstallDhcpEntries(dpn, vmMacAddress, tx);
+                        }
+                        DhcpServiceUtils.submitTransaction(tx);
+                        return null;
+                    });
                 } else {
                     LOG.trace("Exiting unInstallDhcpEntries since this cluster node is not the owner for dpn");
                 }
@@ -793,5 +839,9 @@ public class DhcpExternalTunnelManager {
         }
         LOG.trace("DhcpExternalTunnelManager getTunnelIpBasedOnElan returned tunnelIP {}", tunnelIp);
         return tunnelIp;
+    }
+
+    private String getJobKey(final String jobKeySuffix) {
+        return DhcpMConstants.DHCP_JOB_KEY_PREFIX + jobKeySuffix;
     }
 }
