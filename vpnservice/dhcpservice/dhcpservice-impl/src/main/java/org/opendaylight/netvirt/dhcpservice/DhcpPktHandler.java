@@ -293,6 +293,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 return fixedIp.getIpAddress().getIpv4Address().getValue();
             }
         }
+        LOG.error("Could not find ipv4 address for port {}", port);
         return null;
     }
 
