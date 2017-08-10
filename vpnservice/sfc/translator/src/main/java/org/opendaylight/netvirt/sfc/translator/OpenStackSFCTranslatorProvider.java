@@ -16,7 +16,10 @@ import org.opendaylight.netvirt.sfc.translator.flowclassifier.NeutronFlowClassif
 import org.opendaylight.netvirt.sfc.translator.portchain.NeutronPortChainListener;
 import org.opendaylight.netvirt.sfc.translator.portchain.NeutronPortPairGroupListener;
 import org.opendaylight.netvirt.sfc.translator.portchain.NeutronPortPairListener;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePathService;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +33,7 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
     private NeutronPortPairListener neutronPortPairListener;
     private NeutronPortPairGroupListener neutronPortPairGroupListener;
     private NeutronPortChainListener neutronPortChainListener;
+    public static final String NETVIRT_LOGICAL_SFF_NAME = "Netvirt-Logical-SFF";
 
     @Inject
     public OpenStackSFCTranslatorProvider(final DataBroker dataBroker, final RenderedServicePathService rspService) {
@@ -45,6 +49,11 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
         neutronPortPairListener = new NeutronPortPairListener(dataBroker);
         neutronPortPairGroupListener = new NeutronPortPairGroupListener(dataBroker);
         neutronPortChainListener = new NeutronPortChainListener(dataBroker, rspService);
+        ServiceFunctionForwarderBuilder sffBuilder = new ServiceFunctionForwarderBuilder();
+        sffBuilder.setName(new SffName(NETVIRT_LOGICAL_SFF_NAME));
+        ServiceFunctionForwarder sff = sffBuilder.build();
+        SfcMdsalHelper sfcMdsal = new SfcMdsalHelper(dataBroker);
+        sfcMdsal.addServiceFunctionForwarder(sff);
         if (this.rspService == null) {
             LOG.warn("RenderedServicePath Service is not available. Translation layer might not work as expected.");
         }

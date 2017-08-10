@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.translator;
 
-import java.util.List;
+import java.util.Objects;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -216,17 +216,13 @@ public class SfcMdsalHelper {
         ServiceFunctionForwarders existingSffs =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, sffIid).orNull();
-        if (existingSffs != null
-                && existingSffs.getServiceFunctionForwarder() != null
-                && !existingSffs.getServiceFunctionForwarder().isEmpty()) {
 
-            List<ServiceFunctionForwarder> existingSffList = existingSffs.getServiceFunctionForwarder();
-            for (ServiceFunctionForwarder sff : existingSffList) {
-                if (sff.getIpMgmtAddress().getIpv4Address().equals(new Ipv4Address(ipAddress))) {
-                    return sff;
-                }
-            }
-        }
-        return null;
+        return existingSffs == null || existingSffs.getServiceFunctionForwarder() == null
+                ? null
+                : existingSffs.getServiceFunctionForwarder().stream()
+                    .filter(sff -> Objects.nonNull(sff.getIpMgmtAddress()))
+                    .filter(sff -> new Ipv4Address(ipAddress).equals(sff.getIpMgmtAddress().getIpv4Address()))
+                    .findFirst()
+                    .orElse(null);
     }
 }
