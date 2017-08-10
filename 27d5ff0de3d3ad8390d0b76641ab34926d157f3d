@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_dad606c5",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-10T09:03:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_440091aa",
+      "range": {
+        "startLine": 1207,
+        "startChar": 60,
+        "endLine": 1207,
+        "endChar": 95
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_a42ced4b",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 39
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-04T16:21:16Z",
       "side": 1,
       "message": "If the idea is to remove the element, why are you creating a new ListObject here?",
+      "range": {
+        "startLine": 1210,
+        "startChar": 60,
+        "endLine": 1210,
+        "endChar": 95
+      },
+      "revId": "27d5ff0de3d3ad8390d0b76641ab34926d157f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1ad89eee",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 1210,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-10T09:03:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_a42ced4b",
       "range": {
         "startLine": 1210,
         "startChar": 60,
