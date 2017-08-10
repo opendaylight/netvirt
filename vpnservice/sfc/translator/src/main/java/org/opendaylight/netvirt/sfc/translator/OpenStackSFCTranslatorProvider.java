@@ -16,7 +16,9 @@ import org.opendaylight.netvirt.sfc.translator.flowclassifier.NeutronFlowClassif
 import org.opendaylight.netvirt.sfc.translator.portchain.NeutronPortChainListener;
 import org.opendaylight.netvirt.sfc.translator.portchain.NeutronPortPairGroupListener;
 import org.opendaylight.netvirt.sfc.translator.portchain.NeutronPortPairListener;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePathService;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,6 +47,9 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
         neutronPortPairListener = new NeutronPortPairListener(dataBroker);
         neutronPortPairGroupListener = new NeutronPortPairGroupListener(dataBroker);
         neutronPortChainListener = new NeutronPortChainListener(dataBroker, rspService);
+        ServiceFunctionForwarderBuilder sffBuilder = new ServiceFunctionForwarderBuilder();
+        sffBuilder.setName(new SffName("sff-logical-default"));
+        sffBuilder.build();
         if (this.rspService == null) {
             LOG.warn("RenderedServicePath Service is not available. Translation layer might not work as expected.");
         }
