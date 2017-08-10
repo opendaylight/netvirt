@@ -1156,7 +1156,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE,
                         null);
                 removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnOpInterface.getVpnInstanceName(),
-                        vpnId, writeConfigTxn, writeInvTxn, interfaceState);
+                        vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                 if (interfaceManager.isExternalInterface(interfaceName)) {
                     processExternalVpnInterface(vpnOpInterface, vpnId, dpId, lportTag, writeInvTxn,
                             NwConstants.DEL_FLOW);
@@ -1177,6 +1177,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     private void removeAdjacenciesFromVpn(final BigInteger dpnId, final int lportTag, final String interfaceName,
                                           final String vpnName, final long vpnId, WriteTransaction writeConfigTxn,
+                                          final WriteTransaction writeOperTxn,
                                           final WriteTransaction writeInvTxn, Interface interfaceState) {
         //Read NextHops
         InstanceIdentifier<VpnInterface> identifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
@@ -1256,6 +1257,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                 }
             }
+        } else {
+            // this vpn interface has no more adjacency left, so clean up the vpn interface from Operational DS
+            LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.", interfaceName, dpnId, primaryRd);
+            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL, identifier);
         }
     }
 
