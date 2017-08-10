@@ -1,0 +1,113 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_f0bfa2ce",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/OpenStackSFCTranslatorProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-08-10T15:04:16Z",
+      "side": 1,
+      "message": "Extract this to a static final variable. I can suggest \"Netvirt\" or \"Netvirt-Logical-SFF\" as the SFF name.",
+      "range": {
+        "startLine": 51,
+        "startChar": 39,
+        "endLine": 51,
+        "endChar": 60
+      },
+      "revId": "a788ef46520bbb5cc30cda1e6d74b89dbc3aa68d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_10a236ae",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/OpenStackSFCTranslatorProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-08-10T15:04:16Z",
+      "side": 1,
+      "message": "You need to call SfcMdsalHelper#addServiceFunctionForwarder",
+      "revId": "a788ef46520bbb5cc30cda1e6d74b89dbc3aa68d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_70929258",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/PortPairTranslator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-08-10T15:04:16Z",
+      "side": 1,
+      "message": "Maybe more intuitive to use logicalInterfaceDplBuilder or similar as name.",
+      "range": {
+        "startLine": 179,
+        "startChar": 34,
+        "endLine": 179,
+        "endChar": 60
+      },
+      "revId": "a788ef46520bbb5cc30cda1e6d74b89dbc3aa68d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_30b13af9",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/PortPairTranslator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-08-10T15:04:16Z",
+      "side": 1,
+      "message": "Extract to final static variable.",
+      "range": {
+        "startLine": 180,
+        "startChar": 71,
+        "endLine": 180,
+        "endChar": 84
+      },
+      "revId": "a788ef46520bbb5cc30cda1e6d74b89dbc3aa68d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_90958642",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/portchain/PortPairTranslator.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-08-10T15:04:16Z",
+      "side": 1,
+      "message": "Extract to final static variable.",
+      "range": {
+        "startLine": 183,
+        "startChar": 75,
+        "endLine": 183,
+        "endChar": 96
+      },
+      "revId": "a788ef46520bbb5cc30cda1e6d74b89dbc3aa68d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
