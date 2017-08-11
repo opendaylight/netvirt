@@ -110,6 +110,7 @@ public class ElanL2GatewayUtils {
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Pair<NodeId, String>, DeleteLogicalSwitchJob> deleteJobs = new ConcurrentHashMap<>();
 
     public ElanL2GatewayUtils(DataBroker broker, ItmRpcService itmRpcService, ElanUtils elanUtils,
                               EntityOwnershipService entityOwnershipService,
@@ -1106,12 +1107,12 @@ public class ElanL2GatewayUtils {
             public void run() {
                 Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<>(hwvtepNodeId,
                         lsName);
-                logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
-
                 DeleteLogicalSwitchJob deleteLsJob = new DeleteLogicalSwitchJob(broker,
                         ElanL2GatewayUtils.this, hwvtepNodeId, lsName);
                 dataStoreJobCoordinator.enqueueJob(deleteLsJob.getJobKey(), deleteLsJob,
                         SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+                deleteJobs.put(nodeIdLogicalSwitchNamePair, deleteLsJob);
+                logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
             }
         };
         logicalSwitchDeletedTasks.putIfAbsent(nodeIdLogicalSwitchNamePair, logicalSwitchDeleteTask);
@@ -1125,6 +1126,10 @@ public class ElanL2GatewayUtils {
             LOG.debug("Delete logical switch {} action on node {} cancelled", lsName, hwvtepNodeId);
             logicalSwitchDeleteTask.cancel();
             logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
+            if (deleteJobs.containsKey(nodeIdLogicalSwitchNamePair)) {
+                deleteJobs.get(nodeIdLogicalSwitchNamePair).cancel();
+                deleteJobs.remove(nodeIdLogicalSwitchNamePair);
+            }
         }
     }
 

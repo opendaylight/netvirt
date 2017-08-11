@@ -72,6 +72,9 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         String elanInstanceName = elanInstance.getElanInstanceName();
         LOG.debug("running assosiate l2gw connection job for {} {} ", elanInstanceName, hwvtepNodeId);
 
+        elanL2GatewayUtils.cancelDeleteLogicalSwitch(new NodeId(hwvtepNodeId),
+                ElanL2GatewayUtils.getLogicalSwitchFromElan(elanInstanceName));
+
         // Create Logical Switch if it's not created already in the device
         if (createLogicalSwitch) {
             LOG.info("creating logical switch {} for {} ", elanInstanceName, hwvtepNodeId);
