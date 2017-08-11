@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRoutePacketInHandler.class);
+    private static final String LOGGING_PREFIX = "SUBNETROUTE:";
     private final DataBroker dataBroker;
     private final PacketProcessingService packetService;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
@@ -66,23 +67,24 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPacketReceived(PacketReceived notification) {
-        LOG.trace("PacketReceived invoked...");
 
         short tableId = notification.getTableId().getValue();
+        LOG.trace("{} onPacketReceived: Packet punted from table {}", LOGGING_PREFIX, tableId);
         byte[] data = notification.getPayload();
         if (notification.getMatch() == null || notification.getMatch().getMetadata() == null) {
-            LOG.debug("on packet received where the match or metadata are null");
+            LOG.error("{} onPacketReceived: Received from table {} where the match or metadata are null",
+                    LOGGING_PREFIX, tableId);
             return;
         }
         BigInteger metadata = notification.getMatch().getMetadata().getMetadata();
         Ethernet res = new Ethernet();
 
         if (tableId == NwConstants.L3_SUBNET_ROUTE_TABLE) {
-            LOG.trace("Some packet received as {}", notification);
+            LOG.trace("{} onPacketReceived: Some packet received as {}", LOGGING_PREFIX, notification);
             try {
                 res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
             } catch (PacketException e) {
-                LOG.warn("Failed to decode Packet ", e);
+                LOG.error("{} onPacketReceived: Failed to decode Packet ", LOGGING_PREFIX, e);
                 VpnManagerCounters.subnet_route_packet_failed.inc();
                 return;
             }
@@ -98,8 +100,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     // attempt to respond.
                     long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
 
-                    LOG.debug("Processing IPv4 Packet received with Source IP {} and Target IP {} and vpnId {}",
-                            srcIpStr, dstIpStr, vpnId);
+                    LOG.info("{} onPacketReceived: Processing IPv4 Packet received with Source IP {} and Target IP {}"
+                            + " and vpnId {}", LOGGING_PREFIX, srcIpStr, dstIpStr, vpnId);
 
                     Optional<VpnIds> vpnIdsOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId));
@@ -108,32 +110,34 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         // Donot trigger subnetroute logic for packets from
                         // unknown VPNs
                         VpnManagerCounters.subnet_route_packet_ignored.inc();
-                        LOG.debug("Ignoring IPv4 packet with destination Ip {} and source Ip {} as it came on "
-                                + "unknown VPN with ID {}", dstIpStr, srcIpStr, vpnId);
+                        LOG.info("{} onPacketReceived: Ignoring IPv4 packet with destination Ip {} and source Ip {}"
+                                + " as it came on unknown VPN with ID {}", LOGGING_PREFIX, dstIpStr, srcIpStr, vpnId);
                         return;
                     }
 
                     String vpnIdVpnInstanceName = vpnIdsOptional.get().getVpnInstanceName();
                     if (VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker, vpnIdVpnInstanceName, dstIpStr) != null) {
                         VpnManagerCounters.subnet_route_packet_ignored.inc();
-                        LOG.debug("IPv4 Packet received with Target IP {} is a valid Neutron port, "
-                                + "ignoring subnet route processing", dstIpStr);
+                        LOG.info("{} onPacketReceived: IPv4 Packet received with Target IP {} source IP {} vpnId {} "
+                                + "is a valid Neutron port,ignoring subnet route processing", LOGGING_PREFIX, dstIpStr,
+                                srcIp, vpnId);
                         return;
                     }
 
                     if (VpnUtil.getLearntVpnVipToPort(dataBroker, vpnIdVpnInstanceName, dstIpStr) != null) {
                         VpnManagerCounters.subnet_route_packet_ignored.inc();
-                        LOG.debug("IPv4 Packet received with Target IP {} is an already discovered IPAddress, "
-                                + "ignoring subnet route processing", dstIpStr);
+                        LOG.info("{} onPacketReceived: IPv4 Packet received with Target IP {} source Ip {} vpnId {}"
+                                + " is an already discovered IPAddress, ignoring subnet route processing",
+                                LOGGING_PREFIX, dstIpStr, srcIp, vpnId);
                         return;
                     }
 
                     long elanTag = MetaDataUtil.getElanTagFromMetadata(metadata);
                     if (elanTag == 0L) {
                         VpnManagerCounters.subnet_route_packet_failed.inc();
-                        LOG.debug(
-                                "elanTag value from metadata found to be 0, for IPv4 Packet received with Target IP {}",
-                                dstIpStr);
+                        LOG.error("{} onPacketReceived: elanTag value from metadata found to be 0, for IPv4 "
+                                + " Packet received with Target IP {} src Ip vpnId", LOGGING_PREFIX, dstIpStr, srcIp,
+                                vpnId);
                         return;
                     }
 
@@ -149,7 +153,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             } catch (Exception ex) {
                 // Failed to handle packet
                 VpnManagerCounters.subnet_route_packet_failed.inc();
-                LOG.error("Failed to handle subnetroute packets ", ex);
+                LOG.error("{} onPacketReceived: Failed to handle subnetroute packet.", LOGGING_PREFIX, ex);
             }
             return;
         }
@@ -160,8 +164,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     private void handleBgpVpnSubnetRoute(IPv4 ipv4, byte[] srcMac, byte[] dstIp, String dstIpStr, String srcIpStr,
             long elanTag) throws UnknownHostException {
-        LOG.debug("Processing IPv4 Packet received with Source IP {} and Target IP {} and elan Tag {}", srcIpStr,
-                dstIpStr, elanTag);
+        LOG.info("{} handleBgpVpnSubnetRoute: Processing IPv4 Packet received with Source IP {} and Target IP {}"
+                + " and elan Tag {}", LOGGING_PREFIX, srcIpStr, dstIpStr, elanTag);
         SubnetOpDataEntry targetSubnetForPacketOut =
                 getTargetSubnetForPacketOut(dataBroker, elanTag, ipv4.getDestinationAddress());
 
@@ -171,7 +175,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     elanTag);
         } else {
             VpnManagerCounters.subnet_route_packet_failed.inc();
-            LOG.debug("Could not find target subnet for packet out {}", dstIpStr);
+            LOG.debug("{} handleBgpVpnSubnetRoute: Could not find target subnet for packet out {}", LOGGING_PREFIX,
+                    dstIpStr);
         }
     }
 
@@ -248,14 +253,16 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
         if (externalRouter == null) {
             VpnManagerCounters.subnet_route_packet_failed.inc();
-            LOG.debug("Can't find external router with id {}", routerId);
+            LOG.debug("{} handlePacketToExternalNetwork: Can't find external router with id {}", LOGGING_PREFIX,
+                    routerId);
             return;
         }
 
         List<ExternalIps> externalIps = externalRouter.getExternalIps();
         if (externalIps == null || externalIps.isEmpty()) {
             VpnManagerCounters.subnet_route_packet_failed.inc();
-            LOG.debug("Router {} doesn't have any external ips.", externalRouter.getRouterName());
+            LOG.debug("{} handlePacketToExternalNetwork: Router {} doesn't have any external ips.",
+                    LOGGING_PREFIX, externalRouter.getRouterName());
             return;
         }
 
@@ -263,15 +270,16 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 .filter(eip -> vpnInstanceNameUuid.equals(eip.getSubnetId())).findFirst();
         if (!externalIp.isPresent()) {
             VpnManagerCounters.subnet_route_packet_failed.inc();
-            LOG.debug("Router {} doesn't have an external ip for subnet id {}.", externalRouter.getRouterName(),
-                    vpnInstanceNameUuid);
+            LOG.debug("{} handlePacketToExternalNetwork: Router {} doesn't have an external ip for subnet id {}.",
+                    LOGGING_PREFIX, externalRouter.getRouterName(), vpnInstanceNameUuid);
             return;
         }
 
         BigInteger dpnId = centralizedSwitchProvider.getPrimarySwitchForRouter(externalRouter.getRouterName());
         if (BigInteger.ZERO.equals(dpnId)) {
             VpnManagerCounters.subnet_route_packet_failed.inc();
-            LOG.debug("Could not find primary switch for router {}.", externalRouter.getRouterName());
+            LOG.debug("{} handlePacketToExternalNetwork: Could not find primary switch for router {}.",
+                    LOGGING_PREFIX, externalRouter.getRouterName());
             return;
         }
 
@@ -281,19 +289,21 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private static SubnetOpDataEntry getTargetSubnetForPacketOut(DataBroker broker, long elanTag, int ipAddress) {
         ElanTagName elanInfo = VpnUtil.getElanInfoByElanTag(broker, elanTag);
         if (elanInfo == null) {
-            LOG.debug("Unable to retrieve ElanInfo for elanTag {}", elanTag);
+            LOG.error("{} getTargetDpnForPacketOut: Unable to retrieve ElanInfo for elanTag {}", LOGGING_PREFIX,
+                    elanTag);
             return null;
         }
 
         Optional<NetworkMap> optionalNetworkMap = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 VpnUtil.buildNetworkMapIdentifier(new Uuid(elanInfo.getName())));
         if (!optionalNetworkMap.isPresent()) {
-            LOG.debug("No network map found for elan info {}", elanInfo.getName());
+            LOG.debug("{} getTargetDpnForPacketOut: No network map found for elan info {}", elanInfo.getName());
             return null;
         }
 
         List<Uuid> subnetList = optionalNetworkMap.get().getSubnetIdList();
-        LOG.trace("Obtained subnetList as {}", subnetList);
+        LOG.debug("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX, subnetList,
+                elanInfo.getName());
         for (Uuid subnetId : subnetList) {
             Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
@@ -302,9 +312,10 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             }
             SubnetOpDataEntry subOpEntry = optionalSubs.get();
             if (subOpEntry.getNhDpnId() != null) {
-                LOG.trace("Viewing Subnet {}", subnetId);
+                LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {}", LOGGING_PREFIX, subnetId.getValue());
                 boolean match = NWUtil.isIpInSubnet(ipAddress, subOpEntry.getSubnetCidr());
-                LOG.trace("Viewing Subnet {} matching {}", subnetId, match);
+                LOG.trace("{} getTargetDpnForPacketOut: Viewing Subnet {} matching {}", LOGGING_PREFIX,
+                        subnetId.getValue(), match);
                 if (match) {
                     return subOpEntry;
                 }
