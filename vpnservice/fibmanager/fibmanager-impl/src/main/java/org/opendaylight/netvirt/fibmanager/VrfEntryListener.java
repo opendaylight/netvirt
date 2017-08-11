@@ -16,6 +16,8 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -40,6 +42,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionPopMpls;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -106,9 +109,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private static final String FLOWID_PREFIX = "L3.";
     private static final BigInteger COOKIE_VM_FIB_TABLE =  new BigInteger("8000003", 16);
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
+    private static final int IPV4_ADDR_PREFIX_LENGTH = 32;
     private static final int LFIB_INTERVPN_PRIORITY = 15;
     public static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     private static final int DJC_MAX_RETRIES = 3;
+    private static BigInteger COOKIE_TABLE_MISS = new BigInteger("8000004", 16);
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
@@ -340,6 +345,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     for (final VpnToDpnList curDpn : vpnToDpnList) {
                         if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                             installSubnetRouteInFib(curDpn.getDpnId(), elanTag, rd, vpnId, vrfEntry, tx);
+                            installSubnetBroadcastAddrDropRule(curDpn.getDpnId(), rd, vpnId.longValue(),
+                                    vrfEntry, NwConstants.ADD_FLOW, tx);
                         }
                     }
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -487,6 +494,60 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         if (!wrTxPresent) {
             tx.submit();
+        }
+    }
+
+    private void installSubnetBroadcastAddrDropRule(final BigInteger dpnId, final String rd, final long vpnId,
+                                                    final VrfEntry vrfEntry, int addOrRemove, WriteTransaction tx) {
+        List<MatchInfo> matches = new ArrayList<>();
+
+        LOG.debug("SUBNETROUTE: installSubnetBroadcastAddrDropRule: destPrefix {} rd {} vpnId {} dpnId {}",
+                vrfEntry.getDestPrefix(), rd, vpnId, dpnId);
+        String[] ipAddress = vrfEntry.getDestPrefix().split("/");
+        String subnetBroadcastAddr = FibUtil.getBroadcastAddressFromCidr(vrfEntry.getDestPrefix());
+        final int prefixLength = (ipAddress.length == 1) ? 0 : Integer.parseInt(ipAddress[1]);
+
+        InetAddress destPrefix;
+        try {
+            destPrefix = InetAddress.getByName(subnetBroadcastAddr);
+        } catch (UnknownHostException e) {
+            LOG.error("Failed to get destPrefix for prefix {} rd {} VpnId {} DPN {}",
+                    vrfEntry.getDestPrefix(), rd, vpnId, dpnId, e);
+            return;
+        }
+
+        // Match on VpnId and SubnetBroadCast IP address
+        matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
+        matches.add(MatchEthernetType.IPV4);
+
+        if (prefixLength != 0) {
+            matches.add(new MatchIpv4Destination(subnetBroadcastAddr, Integer.toString(IPV4_ADDR_PREFIX_LENGTH)));
+        }
+
+        //Action is to drop the packet
+        List<InstructionInfo> dropInstructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionDrop());
+        dropInstructions.add(new InstructionApplyActions(actionsInfos));
+
+        int priority = DEFAULT_FIB_FLOW_PRIORITY + IPV4_ADDR_PREFIX_LENGTH;
+        String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, rd, priority, destPrefix);
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef, priority,
+                flowRef, 0, 0, COOKIE_TABLE_MISS, matches, dropInstructions);
+
+        Flow flow = flowEntity.getFlowBuilder().build();
+        String flowId = flowEntity.getFlowId();
+        FlowKey flowKey = new FlowKey(new FlowId(flowId));
+        Node nodeDpn = FibUtil.buildDpnNode(dpnId);
+
+        InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
+                .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
+                .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
+
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId,flow, true);
+        } else {
+            tx.delete(LogicalDatastoreType.CONFIGURATION, flowInstanceId);
         }
     }
 
@@ -1277,6 +1338,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 optionalLabel.ifPresent(label -> makeLFibTableEntry(curDpn.getDpnId(), label, null,
                                         DEFAULT_FIB_FLOW_PRIORITY, NwConstants.DEL_FLOW, tx));
                             }
+
+                            installSubnetBroadcastAddrDropRule(curDpn.getDpnId(), rd, vpnInstance.getVpnId(),
+                                    vrfEntry, NwConstants.DEL_FLOW, tx);
                         }
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         futures.add(tx.submit());
@@ -1453,6 +1517,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         if (subnetRoute != null) {
                             long elanTag = subnetRoute.getElantag();
                             installSubnetRouteInFib(dpnId, elanTag, rd, vpnId, vrfEntry, tx);
+                            installSubnetBroadcastAddrDropRule(dpnId, rd, vpnId, vrfEntry, NwConstants.ADD_FLOW, tx);
                             continue;
                         }
                         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
@@ -1630,6 +1695,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                                 vrfEntry.getDestPrefix());
                                     }
                                 }
+                                installSubnetBroadcastAddrDropRule(dpnId, rd, vpnId, vrfEntry,
+                                        NwConstants.DEL_FLOW, tx);
                                 continue;
                             }
                             // ping responder for router interfaces
