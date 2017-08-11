@@ -331,8 +331,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
         if (subnetRoute != null) {
             final long elanTag = subnetRoute.getElantag();
-            LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
-                    rd, vrfEntry.getDestPrefix(), elanTag);
+            LOG.trace("SUBNETROUTE: createFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"
+                    + " with elantag {}", rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()), () -> {
@@ -454,8 +454,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             }
                         }
                     }
-                    LOG.debug("Fetched labelRouteInfo for label {} interface {} and got dpn {}",
-                            label, lri.getVpnInterfaceName(), lri.getDpnId());
+                    LOG.debug("SUBNETROUTE: installSubnetRouteInFib: Fetched labelRouteInfo for label {} interface {}"
+                            + " and got dpn {}", label, lri.getVpnInterfaceName(), lri.getDpnId());
                 }
             }
         });
@@ -926,7 +926,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (localNextHopInfo != null) {
                     String localNextHopIP = localNextHopInfo.getIpAddress();
                     BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                            vpnId, rd, vrfEntry, isExtraroute);
+                            vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         LOG.trace("Deleting ECMP group for prefix {}, dpn {}", vrfEntry.getDestPrefix(), dpnId);
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
@@ -951,7 +951,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
                         prefixBuilder.setDpnId(lri.getDpnId());
                         BigInteger dpnId = checkDeleteLocalFibEntry(prefixBuilder.build(), nextHopAddressList.get(0),
-                                vpnId, rd, vrfEntry, isExtraroute);
+                                vpnId, rd, vrfEntry, isExtraroute, lri.getParentVpnid());
                         if (!dpnId.equals(BigInteger.ZERO)) {
                             returnLocalDpnId.add(dpnId);
                         }
@@ -962,7 +962,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         } else {
             String localNextHopIP = localNextHopInfo.getIpAddress();
             BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                vpnId, rd, vrfEntry, isExtraroute);
+                vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
             if (!dpnId.equals(BigInteger.ZERO)) {
                 returnLocalDpnId.add(dpnId);
             }
@@ -972,8 +972,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private BigInteger checkDeleteLocalFibEntry(Prefixes localNextHopInfo, final String localNextHopIP,
-                                                final Long vpnId, final String rd,
-                                                final VrfEntry vrfEntry, boolean isExtraroute) {
+                                                final Long vpnId, final String rd, final VrfEntry vrfEntry,
+                                                boolean isExtraroute, final Long parentVpnId) {
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -999,7 +999,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //TODO: verify below adjacency call need to be optimized (?)
             //In case of the removal of the extra route, the loadbalancing group is updated
             if (!isExtraroute) {
-                baseVrfEntryHandler.deleteLocalAdjacency(dpnId, vpnId, localNextHopIP, vrfEntry.getDestPrefix());
+                baseVrfEntryHandler.deleteLocalAdjacency(dpnId, parentVpnId, localNextHopIP, vrfEntry.getDestPrefix());
             }
             return dpnId;
         }
@@ -1261,8 +1261,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId());
         if (subnetRoute != null) {
             elanTag = subnetRoute.getElantag();
-            LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
-                rd, vrfEntry.getDestPrefix(), elanTag);
+            LOG.trace("SUBNETROUTE: deleteFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"
+                    + " with elantag {}", rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()),
@@ -1298,14 +1298,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             String parentRd = lri.getParentVpnRd();
                             FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                                     FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
-                            LOG.trace("deleteFibEntries: Released subnetroute label {} for rd {} prefix {} as "
-                                    + "labelRouteInfo cleared", label, rd,
-                                    vrfEntry.getDestPrefix());
+                            LOG.trace("SUBNETROUTE: deleteFibEntries: Released subnetroute label {} for rd {} prefix {}"
+                                    + " as labelRouteInfo cleared", label, rd, vrfEntry.getDestPrefix());
                         }
                     } else {
                         FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
                                 FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
-                        LOG.trace("deleteFibEntries: Released subnetroute label {} for rd {} prefix {}",
+                        LOG.trace("SUBNETROUTE: deleteFibEntries: Released subnetroute label {} for rd {} prefix {}",
                                 label, rd, vrfEntry.getDestPrefix());
                     }
                 }
@@ -1613,9 +1612,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                 /* Handle subnet routes here */
                             SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
                             if (subnetRoute != null) {
-                                LOG.trace("Cleaning subnetroute {} on dpn {} for vpn {} : cleanUpDpnForVpn",
-                                        vrfEntry.getDestPrefix(),
-                                        dpnId, rd);
+                                LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Cleaning subnetroute {} on dpn {}"
+                                        + " for vpn {}", vrfEntry.getDestPrefix(), dpnId, rd);
                                 baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
                                         NwConstants.DEL_FLOW, tx, null);
                                 List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
@@ -1624,9 +1622,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         makeLFibTableEntry(dpnId, routePath.getLabel(), null,
                                                 DEFAULT_FIB_FLOW_PRIORITY,
                                                 NwConstants.DEL_FLOW, tx);
-                                        LOG.trace("cleanUpDpnForVpn: Released subnetroute label {} "
-                                                        + "for rd {} prefix {}",
-                                                routePath.getLabel(), rd,
+                                        LOG.trace("SUBNETROUTE: cleanUpDpnForVpn: Released subnetroute label {} for"
+                                                + " rd {} prefix {}", routePath.getLabel(), rd,
                                                 vrfEntry.getDestPrefix());
                                     }
                                 }
