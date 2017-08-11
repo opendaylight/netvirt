@@ -406,6 +406,10 @@ module odl-l3vpn {
                 type task-state;
                 description "The status of the subnet route advertisement/withdrawal";
             }
+            leaf last-adv-state {
+                type task-state;
+                description "The previous status of the subnet route advertisement/withdrawal.";
+            }
             leaf elan-tag {
                 type uint32;
             }
