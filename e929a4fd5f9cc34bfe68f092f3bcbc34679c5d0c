@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_bd6ce29d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpDesignatedDpnListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-08-11T04:42:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_4ae9a17f",
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8a02793c",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
         "patchSetId": 1
@@ -84,6 +102,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_9d691e8e",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-08-11T04:42:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_8a02793c",
+      "range": {
+        "startLine": 283,
+        "startChar": 42,
+        "endLine": 283,
+        "endChar": 45
+      },
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_6aff4535",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
         "patchSetId": 1
@@ -107,6 +149,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_fd05bac2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 285,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-08-11T04:42:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_6aff4535",
+      "range": {
+        "startLine": 285,
+        "startChar": 18,
+        "endLine": 285,
+        "endChar": 21
+      },
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8596ea92",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
         "patchSetId": 1
@@ -118,6 +184,24 @@
       "writtenOn": "2017-08-10T12:47:22Z",
       "side": 1,
       "message": "when we use jobkeys, can we have a \u0027-\u0027 between the keys so its easy to extract info during troubleshooting logs.",
+      "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_dd0a76d1",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 845,
+      "author": {
+        "id": 3630
+      },
+      "writtenOn": "2017-08-11T04:42:49Z",
+      "side": 1,
+      "message": "The DHCP_JOB_KEY_PREFIX already has a \"_\". Let me know if that should be alright.",
+      "parentUuid": "ba1f61a0_8596ea92",
       "revId": "e929a4fd5f9cc34bfe68f092f3bcbc34679c5d0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
