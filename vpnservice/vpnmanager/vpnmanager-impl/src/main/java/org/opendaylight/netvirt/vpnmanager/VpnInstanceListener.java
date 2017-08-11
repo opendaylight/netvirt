@@ -66,6 +66,8 @@ import org.slf4j.LoggerFactory;
 public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener>
     implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
+    private static final String LOGGING_PREFIX_ADD = "VPN-ADD:";
+    private static final String LOGGING_PREFIX_DELETE = "VPN-REMOVE:";
     private final DataBroker dataBroker;
     private final IBgpManager bgpManager;
     private final IdManagerService idManager;
@@ -104,7 +106,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
-        LOG.trace("Remove VPN event key: {}, value: {}", identifier, del);
+        LOG.trace("{} remove: VPN event key: {}, value: {}", LOGGING_PREFIX_DELETE, identifier, del);
         final String vpnName = del.getVpnInstanceName();
         Optional<VpnInstanceOpDataEntry> vpnOpValue;
         String primaryRd = VpnUtil.getPrimaryRd(del);
@@ -114,12 +116,14 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             vpnOpValue = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd));
         } catch (ReadFailedException e) {
-            LOG.error("Exception when attempting to retrieve VpnInstanceOpDataEntry for VPN {}. ", vpnName, e);
+            LOG.error("{} remove: Exception when attempting to retrieve VpnInstanceOpDataEntry for VPN {}. ",
+                    LOGGING_PREFIX_DELETE,  vpnName, e);
             return;
         }
 
         if (!vpnOpValue.isPresent()) {
-            LOG.error("Unable to retrieve VpnInstanceOpDataEntry for VPN {}. ", vpnName);
+            LOG.error("{} remove: Unable to retrieve VpnInstanceOpDataEntry for VPN {}. ", LOGGING_PREFIX_DELETE,
+                    vpnName);
             return;
         } else {
             DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
@@ -131,8 +135,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build());
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(writeTxn.submit());
-                LOG.info("call: Operational status set to PENDING_DELETE for vpn {} with rd {}", vpnName,
-                        primaryRd);
+                LOG.info("{} call: Operational status set to PENDING_DELETE for vpn {} with rd {}",
+                        LOGGING_PREFIX_DELETE, vpnName, primaryRd);
                 return futures;
             }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
@@ -141,14 +145,14 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @Override
     protected void update(InstanceIdentifier<VpnInstance> identifier,
         VpnInstance original, VpnInstance update) {
-        LOG.trace("Update VPN event key: {}, value: {}", identifier, update);
+        LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}. Ignoring", identifier, update);
         String vpnName = update.getVpnInstanceName();
         vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(dataBroker,vpnName);
     }
 
     @Override
     protected void add(final InstanceIdentifier<VpnInstance> identifier, final VpnInstance value) {
-        LOG.trace("Add VPN event key: {}, value: {}", identifier, value);
+        LOG.trace("{} add: Add VPN event key: {}, value: {}", LOGGING_PREFIX_ADD, identifier, value);
         final String vpnName = value.getVpnInstanceName();
 
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -157,6 +161,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     }
 
     private class AddVpnInstanceWorker implements Callable<List<ListenableFuture<Void>>> {
+        private final Logger log = LoggerFactory.getLogger(AddVpnInstanceWorker.class);
         IdManagerService idManager;
         VpnInterfaceManager vpnInterfaceManager;
         VpnInstance vpnInstance;
@@ -183,7 +188,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             try {
                 checkFutures.get();
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Error creating vpn {} ", vpnInstance.getVpnInstanceName());
+                log.error("{} call: Error creating vpn {} ", LOGGING_PREFIX_ADD, vpnInstance.getVpnInstanceName());
                 throw new RuntimeException(e.getMessage());
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -204,15 +209,12 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
         if (vpnId == 0) {
-            LOG.error(
-                "Unable to fetch label from Id Manager. Bailing out of adding operational data for Vpn Instance {}",
-                value.getVpnInstanceName());
-            LOG.error(
-                "Unable to fetch label from Id Manager. Bailing out of adding operational data for Vpn Instance {}",
-                value.getVpnInstanceName());
+            LOG.error("{} addVpnInstance: Unable to fetch label from Id Manager. Bailing out of adding operational"
+                    + " data for Vpn Instance {}", LOGGING_PREFIX_ADD, value.getVpnInstanceName());
             return;
         }
-        LOG.info("VPN Id {} generated for VpnInstanceName {}", vpnId, vpnInstanceName);
+        LOG.info("{} addVpnInstance: VPN Id {} generated for VpnInstanceName {}", LOGGING_PREFIX_ADD, vpnId,
+                vpnInstanceName);
         String primaryRd = VpnUtil.getPrimaryRd(value);
         org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance
             vpnInstanceToVpnId = VpnUtil.getVpnInstanceToVpnId(vpnInstanceName, vpnId, primaryRd);
@@ -246,13 +248,16 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 try {
                     fibManager.setConfTransType("L3VPN", "VXLAN");
                 } catch (Exception e) {
-                    LOG.error("Exception caught setting the L3VPN tunnel transportType", e);
+                    LOG.error("{} addVpnInstance: Exception caught setting the L3VPN tunnel transportType for vpn {}",
+                            LOGGING_PREFIX_ADD, vpnInstanceName, e);
                 }
             } else {
-                LOG.trace("Configured tunnel transport type for L3VPN as {}", cachedTransType);
+                LOG.debug("{} addVpnInstance: Configured tunnel transport type for L3VPN {} as {}", LOGGING_PREFIX_ADD,
+                        vpnInstanceName, cachedTransType);
             }
         } catch (Exception e) {
-            LOG.error("Error when trying to retrieve tunnel transport type for L3VPN ", e);
+            LOG.error("{} addVpnInstance: Error when trying to retrieve tunnel transport type for L3VPN {}",
+                    LOGGING_PREFIX_ADD, vpnInstanceName, e);
         }
 
         VpnInstanceOpDataEntryBuilder builder =
@@ -297,10 +302,12 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd),
                 builder.build(), TransactionUtil.DEFAULT_CALLBACK);
         }
-        LOG.info("VpnInstanceOpData populated successfully for vpn {} rd {}", vpnInstanceName, primaryRd);
+        LOG.info("{} addVpnInstance: VpnInstanceOpData populated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
+                vpnInstanceName, primaryRd);
     }
 
     private class PostAddVpnInstanceWorker implements FutureCallback<List<Void>> {
+        private final Logger log = LoggerFactory.getLogger(PostAddVpnInstanceWorker.class);
         VpnInstance vpnInstance;
         String vpnName;
 
@@ -324,6 +331,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 notifyTask();
                 vpnInterfaceManager.vpnInstanceIsReady(vpnName);
             }
+            log.info("{} onSuccess: Vpn Instance Op Data addition for {} successful.", LOGGING_PREFIX_ADD, vpnName);
             VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker,
                     VpnUtil.getPrimaryRd(vpnInstance));
 
@@ -383,7 +391,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                     }
                 }
             } else {
-                LOG.error("vpn target list is empty, cannot add BGP VPN {} VRF {}", this.vpnName, primaryRd);
+                log.error("{} addBgpVrf: vpn target list is empty, cannot add BGP VPN {} VRF {}", LOGGING_PREFIX_ADD,
+                        this.vpnName, primaryRd);
                 return false;
             }
             //Advertise all the rds and check if primary Rd advertisement fails
@@ -393,7 +402,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                             LayerType.LAYER3;
                     bgpManager.addVrf(rd, irtList, ertList, layerType);
                 } catch (Exception e) {
-                    LOG.error("Exception when adding VRF {} to BGP {}. Exception {}", rd, vpnName, e);
+                    log.error("{} addBgpVrf: Exception when adding VRF to BGP for vpn {} rd {}", LOGGING_PREFIX_ADD,
+                            vpnName, rd, e);
                     return rd.equals(primaryRd);
                 }
                 return false;
@@ -419,7 +429,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         @Override
         public void onFailure(Throwable throwable) {
-            LOG.error("Job for vpnInstance: {} failed with exception: {}", vpnName ,throwable);
+            log.error("{} onFailure: Job for vpnInstance: {} failed with exception: {}", LOGGING_PREFIX_ADD, vpnName,
+                    throwable);
             vpnInterfaceManager.vpnInstanceFailed(vpnName);
         }
     }
@@ -432,10 +443,10 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         if (!optionalVpns.isPresent()
             || optionalVpns.get().getVpnInstance() == null
             || optionalVpns.get().getVpnInstance().isEmpty()) {
-            LOG.trace("No VPNs configured.");
+            LOG.trace("isVPNConfigured: No VPNs configured.");
             return false;
         }
-        LOG.trace("VPNs are configured on the system.");
+        LOG.trace("isVPNConfigured: VPNs are configured on the system.");
         return true;
     }
 

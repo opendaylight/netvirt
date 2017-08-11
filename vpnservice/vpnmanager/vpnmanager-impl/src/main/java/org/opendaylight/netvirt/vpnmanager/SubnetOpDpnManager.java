@@ -53,19 +53,21 @@ public class SubnetOpDpnManager {
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (optionalSubDpn.isPresent()) {
-                LOG.error("Cannot create, SubnetToDpn for subnet {} as DPN {} already seen in datastore",
-                    subnetId.getValue(), dpnId);
+                LOG.error("addDpnToSubnet: Cannot create, SubnetToDpn for subnet {} as DPN {}"
+                        + " already seen in datastore", subnetId.getValue(), dpnId);
                 return null;
             }
             SubnetToDpnBuilder subDpnBuilder = new SubnetToDpnBuilder().setKey(new SubnetToDpnKey(dpnId));
             List<VpnInterfaces> vpnIntfList = new ArrayList<>();
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             SubnetToDpn subDpn = subDpnBuilder.build();
-            LOG.trace("Creating SubnetToDpn entry for subnet {} with DPNId {}", subnetId.getValue(),dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
+            LOG.info("addDpnToSubnet: Created SubnetToDpn entry for subnet {} with DPNId {} ", subnetId.getValue(),
+                    dpnId);
             return subDpn;
         } catch (TransactionCommitFailedException ex) {
-            LOG.error("Creation of SubnetToDpn for subnet {} with DpnId {} failed", subnetId.getValue(), dpnId, ex);
+            LOG.error("addDpnToSubnet: Creation of SubnetToDpn for subnet {} with DpnId {} failed",
+                    subnetId.getValue(), dpnId, ex);
             return null;
         }
     }
@@ -79,14 +81,16 @@ public class SubnetOpDpnManager {
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (!optionalSubDpn.isPresent()) {
-                LOG.warn("Cannot delete, SubnetToDpn for subnet {} DPN {} not available in datastore",
-                    subnetId.getValue(), dpnId);
+                LOG.warn("removeDpnFromSubnet: Cannot delete, SubnetToDpn for subnet {} DPN {} not available"
+                        + " in datastore", subnetId.getValue(), dpnId);
                 return;
             }
-            LOG.trace("Deleting SubnetToDpn entry for subnet {} with DPNId {}", subnetId.getValue(), dpnId);
+            LOG.trace("removeDpnFromSubnet: Deleting SubnetToDpn entry for subnet {} with DPNId {}",
+                    subnetId.getValue(), dpnId);
             SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
         } catch (TransactionCommitFailedException ex) {
-            LOG.error("Deletion of SubnetToDpn for subnet {} with DPN {} failed", subnetId.getValue(), dpnId, ex);
+            LOG.error("removeDpnFromSubnet: Deletion of SubnetToDpn for subnet {} with DPN {} failed",
+                    subnetId.getValue(), dpnId, ex);
         }
     }
 
@@ -115,11 +119,12 @@ public class SubnetOpDpnManager {
             subDpnBuilder.setVpnInterfaces(vpnIntfList);
             subDpn = subDpnBuilder.build();
 
-            LOG.trace("Creating SubnetToDpn entry for subnet {} with DPNId {}",subnetId.getValue(), dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId, subDpn);
+            LOG.info("addInterfaceToDpn: Created SubnetToDpn entry for subnet {} with DPNId {} intfName {}",
+                    subnetId.getValue(), dpnId, intfName);
         } catch (TransactionCommitFailedException ex) {
-            LOG.error("Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed", intfName,
-                subnetId.getValue(), dpnId, ex);
+            LOG.error("addInterfaceToDpn: Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed",
+                    intfName, subnetId.getValue(), dpnId, ex);
             return null;
         }
         return subDpn;
@@ -149,12 +154,13 @@ public class SubnetOpDpnManager {
                 portOpBuilder.setDpnId(dpnId);
                 portOpEntry = portOpBuilder.build();
             }
-            LOG.trace("Creating PortOpData entry for port {} with DPNId {}", intfName, dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
                 portOpEntry);
+            LOG.info("addPortOpDataEntry: Created PortOpData entry for port {} with DPNId {} intfName {}",
+                    intfName, dpnId, intfName);
         } catch (TransactionCommitFailedException ex) {
-            LOG.error("Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed", intfName,
-                subnetId.getValue(), dpnId, ex);
+            LOG.error("addPortOpDataEntry: Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed",
+                    intfName, subnetId.getValue(), dpnId, ex);
         }
     }
 
@@ -168,8 +174,8 @@ public class SubnetOpDpnManager {
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (!optionalSubDpn.isPresent()) {
-                LOG.warn("Cannot delete, SubnetToDpn for subnet {} DPN {} not available in datastore",
-                    subnetId.getValue(), dpnId);
+                LOG.error("removeInterfaceFromDpn: Cannot delete, SubnetToDpn for intf {} subnet {} DPN {}"
+                        + " not available in datastore", intfName, subnetId.getValue(), dpnId);
                 return false;
             }
 
@@ -187,9 +193,11 @@ public class SubnetOpDpnManager {
                 SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId,
                     subDpnBuilder.build());
             }
+            LOG.info("removeInterfaceFromDpn: Removed interface {} from sunbet {} dpn {}",
+                    intfName, subnetId.getValue(), dpnId);
         } catch (TransactionCommitFailedException ex) {
-            LOG.error("Deletion of Interface {} for SubnetToDpn on subnet {} with DPN {} failed", intfName,
-                subnetId.getValue(), dpnId, ex);
+            LOG.error("removeInterfaceFromDpn: Deletion of Interface {} for SubnetToDpn on subnet {}"
+                    + " with DPN {} failed", intfName, subnetId.getValue(), dpnId, ex);
             return false;
         }
         return dpnRemoved;
@@ -204,12 +212,13 @@ public class SubnetOpDpnManager {
         Optional<PortOpDataEntry> optionalPortOp =
             VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
-            LOG.error("Cannot delete, portOp for port {} is not available in datastore", intfName);
+            LOG.error("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
+                    intfName);
             return null;
         } else {
             portOpEntry = optionalPortOp.get();
-            LOG.trace("Deleting portOpData entry for port {}", intfName);
             MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+            LOG.info("removePortOpDataEntry: Deleted portOpData entry for port {}", intfName);
         }
         return portOpEntry;
     }
@@ -222,7 +231,7 @@ public class SubnetOpDpnManager {
         Optional<PortOpDataEntry> optionalPortOp =
             VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
-            LOG.error("Cannot get, portOp for port {} is not available in datastore", intfName);
+            LOG.error("getPortOpDataEntry: Cannot get, portOp for port {} is not available in datastore", intfName);
             return null;
         }
         return optionalPortOp.get();
