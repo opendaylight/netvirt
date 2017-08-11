@@ -167,7 +167,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 session.getConsole().println(getHelp("create"));
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("error populating createL3VPN", e);
+            LOG.error("error populating createL3VPN for VPN ID {}", vid, e);
             session.getConsole().println("Error populating createL3VPN : " + e.getMessage());
             session.getConsole().println(getHelp("create"));
         }
@@ -208,7 +208,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                     }
                 }
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("error while adding subnet(s) to VPN", e);
+                LOG.error("error while adding subnet(s) to VPN {}", vid, e);
                 session.getConsole().println("Error while adding subnet(s) to VPN: " + e.getMessage());
                 session.getConsole().println(getHelp("create"));
             }
@@ -247,7 +247,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("error while adding removing subnet(s) from VPN", e);
+            LOG.error("error while adding removing subnet(s) from VPN {}", vid, e);
             session.getConsole().println("Error while removing subnet(s) from VPN: " + e.getMessage());
             session.getConsole().println(getHelp("delete"));
         }
@@ -268,7 +268,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                     session.getConsole().println(getHelp("delete"));
                 }
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("error populating deleteL3VPN", e);
+                LOG.error("error populating deleteL3VPN for VPN ID {}", vid, e);
                 session.getConsole().println("Error populating deleteL3VPN : " + e.getMessage());
                 session.getConsole().println(getHelp("delete"));
             }
