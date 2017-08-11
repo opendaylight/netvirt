@@ -148,7 +148,6 @@
     <argument ref="vpnInterfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
     <argument ref="subnetOpDpnManager" />
-    <argument ref="neutronVpnService" />
   </bean>
 
   <bean id="vpnSubnetRouteHandler"
