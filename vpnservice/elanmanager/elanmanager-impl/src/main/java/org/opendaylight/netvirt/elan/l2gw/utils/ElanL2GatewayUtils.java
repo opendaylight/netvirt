@@ -110,6 +110,7 @@ public class ElanL2GatewayUtils {
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Pair<NodeId, String>, DeleteLogicalSwitchJob> deleteJobs = new ConcurrentHashMap<>();
 
     public ElanL2GatewayUtils(DataBroker broker, ItmRpcService itmRpcService, ElanUtils elanUtils,
                               EntityOwnershipService entityOwnershipService,
@@ -874,13 +875,6 @@ public class ElanL2GatewayUtils {
                  .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
             NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId,
                     hwVtepDevice.getDeviceName());
-            TerminationPoint portTerminationPoint = HwvtepUtils.getPhysicalPortTerminationPoint(broker,
-                    LogicalDatastoreType.OPERATIONAL, physicalSwitchNodeId, deviceInterface.getInterfaceName());
-            if (portTerminationPoint == null) {
-                // port is not present in Hwvtep; don't configure VLAN bindings
-                // on this port
-                continue;
-            }
             List<VlanBindings> vlanBindings = new ArrayList<>();
             if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
                 for (Integer vlanId : deviceInterface.getSegmentationIds()) {
@@ -1106,12 +1100,12 @@ public class ElanL2GatewayUtils {
             public void run() {
                 Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<>(hwvtepNodeId,
                         lsName);
-                logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
-
                 DeleteLogicalSwitchJob deleteLsJob = new DeleteLogicalSwitchJob(broker,
                         ElanL2GatewayUtils.this, hwvtepNodeId, lsName);
                 dataStoreJobCoordinator.enqueueJob(deleteLsJob.getJobKey(), deleteLsJob,
                         SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+                deleteJobs.put(nodeIdLogicalSwitchNamePair, deleteLsJob);
+                logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
             }
         };
         logicalSwitchDeletedTasks.putIfAbsent(nodeIdLogicalSwitchNamePair, logicalSwitchDeleteTask);
@@ -1125,6 +1119,10 @@ public class ElanL2GatewayUtils {
             LOG.debug("Delete logical switch {} action on node {} cancelled", lsName, hwvtepNodeId);
             logicalSwitchDeleteTask.cancel();
             logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
+            if (deleteJobs.containsKey(nodeIdLogicalSwitchNamePair)) {
+                deleteJobs.get(nodeIdLogicalSwitchNamePair).cancel();
+                deleteJobs.remove(nodeIdLogicalSwitchNamePair);
+            }
         }
     }
 
