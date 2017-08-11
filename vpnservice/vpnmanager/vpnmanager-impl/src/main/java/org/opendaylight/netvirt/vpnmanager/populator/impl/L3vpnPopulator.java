@@ -90,10 +90,13 @@ public abstract class L3vpnPopulator implements VpnPopulator {
 
             VrfTables vrfTableNew = new VrfTablesBuilder().setRouteDistinguisher(rd).setVrfEntry(vrfEntryList).build();
             VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId, vrfTableNew);
+            LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Added vrfEntry for {} nexthop {} label {} rd {}"
+                    + " vpnName {}", prefix, nextHop, label, rd, vpnName);
         } else { // Found in MDSAL database
             VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+            LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Updated vrfEntry for {} nexthop {} label {} rd {}"
+                    + " vpnName {}", prefix, nextHop, label, rd, vpnName);
         }
-        LOG.debug("Updated vrfEntry for {} nexthop {} label {}", prefix, nextHop, label);
 
         //Will be handled appropriately with the iRT patch for EVPN
         if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
@@ -106,8 +109,6 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                         RouteOrigin.SELF_IMPORTED, networkName).addAugmentation(SubnetRoute.class, route).build();
                 List<VrfEntry> importingVrfEntryList = Collections.singletonList(importingVrfEntry);
                 for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
-                    LOG.info("Exporting subnet route rd {} prefix {} nexthop {} label {} to vpn {}", rd, prefix,
-                            nextHop, label, vpnInstance.getVpnInstanceName());
                     String importingRd = vpnInstance.getVrfId();
                     InstanceIdentifier<VrfTables> importingVrfTableId =
                             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class,
@@ -116,9 +117,14 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                             .setVrfEntry(importingVrfEntryList).build();
                     VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, importingVrfTableId,
                             importingVrfTable);
+                    LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Exported route rd {} prefix {} nexthop {}"
+                            + " label {} to vpn {} importingRd {}", rd, prefix, nextHop, label,
+                            vpnInstance.getVpnInstanceName(), importingRd);
                 }
             }
         }
+        LOG.info("SUBNETROUTE: addSubnetRouteFibEntryToDS: Created vrfEntry for {} nexthop {} label {} and elantag {}"
+                + "rd {} vpnName {}", prefix, nextHop, label, elantag, rd, vpnName);
     }
 
     @Override
@@ -132,21 +138,23 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                                   RouteOrigin origin, WriteTransaction writeConfigTxn) {
         try {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
-            LOG.info("ADD: Adding Fib entry rd {} prefix {} nextHop {} label {} l3vni {} origin {}",
-                     rd, prefix, nextHopIp, label, l3vni, origin.getValue());
+            LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
+                    nextHopList, label, gatewayMac);
             fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
                     encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
-            LOG.info("ADD: Added Fib entry rd {} prefix {} nextHop {} label {}, l3vni {} origin {}",
-                     rd, prefix, nextHopIp, label, l3vni, origin.getValue());
+            LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
+                    nextHopList, label, gatewayMac);
             // Advertise the prefix to BGP only if nexthop ip is available
             if (nextHopList != null && !nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
                         l3vni, 0 /*l2vni*/, gatewayMac);
             } else {
-                LOG.warn("NextHopList is null/empty. Hence rd {} prefix {} is not advertised to BGP", rd, prefix);
+                LOG.error("addPrefixToBGP: NextHopList is null/empty. Hence rd {} prefix {} nextHop {} label {}"
+                        + " gwMac {} is not advertised to BGP", rd, prefix, nextHopList, label, gatewayMac);
             }
         } catch (Exception e) {
-            LOG.error("Add prefix failed", e);
+            LOG.error("addPrefixToBGP: Add prefix {} with rd {} nextHop {} label {} gwMac {} failed {}", prefix, rd,
+                    nextHopIp, label, gatewayMac, e);
         }
     }
 }
