@@ -30,11 +30,11 @@ public class TransactionUtil {
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         public void onSuccess(Void result) {
-            LOG.debug("Success in Datastore operation");
+            LOG.debug("onSuccess: Success in Datastore operation");
         }
 
         public void onFailure(Throwable error) {
-            LOG.error("Error in Datastore operation", error);
+            LOG.error("onFailure: Error in Datastore operation", error);
         }
 
         ;
@@ -49,6 +49,7 @@ public class TransactionUtil {
         try {
             result = tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
+            LOG.debug("read: Error while reading data from path {}", path);
             throw new RuntimeException(e);
         }
 
@@ -72,7 +73,8 @@ public class TransactionUtil {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing VPN instance to ID info to datastore (path, data) : ({}, {})", path, data);
+            LOG.error("syncWrite: Error writing VPN instance to ID info to datastore (path, data) : ({}, {})",
+                    path, data);
             throw new RuntimeException(e.getMessage());
         }
     }

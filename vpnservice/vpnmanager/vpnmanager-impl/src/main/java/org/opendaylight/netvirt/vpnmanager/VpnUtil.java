@@ -436,10 +436,11 @@ public class VpnUtil {
             if (rpcResult.isSuccessful()) {
                 return rpcResult.getResult().getIdValue().intValue();
             } else {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+                LOG.error("getUniqueId: RPC Call to Get Unique Id from pool {} with key {} returned with Errors {}",
+                        poolName, idKey, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id", e);
+            LOG.error("getUniqueId: Exception when getting Unique Id from pool {} for key {}", poolName, idKey, e);
         }
         return 0;
     }
@@ -450,10 +451,11 @@ public class VpnUtil {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+                LOG.error("releaseId: RPC Call to release Id for key {} from pool {} returned with Errors {}",
+                        idKey, poolName, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id for key {}", idKey, e);
+            LOG.error("releaseId: Exception when releasing Id for key {} from pool {}", idKey, poolName, e);
         }
     }
 
@@ -593,7 +595,7 @@ public class VpnUtil {
             try {
                 bgpManager.withdrawPrefix(rd, vrfEntry.getDestPrefix());
             } catch (Exception e) {
-                LOG.error("Could not withdraw route to {} with route-paths {} in VpnRd {}",
+                LOG.error("withdrawRoutes: Could not withdraw route to {} with route-paths {} in VpnRd {}",
                           vrfEntry.getDestPrefix(), vrfEntry.getRoutePaths(), rd);
             }
         });
@@ -807,9 +809,9 @@ public class VpnUtil {
         try {
             delete(broker, datastoreType, path, DEFAULT_CALLBACK);
         } catch (SchemaValidationFailedException sve) {
-            LOG.info("Could not delete {}. SchemaValidationFailedException: {}", path, sve.getMessage());
+            LOG.info("tryDelete: Could not delete {}. SchemaValidationFailedException: {}", path, sve.getMessage());
         } catch (Exception e) {
-            LOG.info("Could not delete {}. Unhandled error: {}", path, e.getMessage());
+            LOG.info("tryDelete: Could not delete {}. Unhandled error: {}", path, e.getMessage());
         }
     }
 
@@ -834,7 +836,7 @@ public class VpnUtil {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            LOG.error("syncWrite: Error writing to datastore (path, data) : ({}, {})", path, data);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -847,7 +849,7 @@ public class VpnUtil {
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore (path, data) : ({}, {})", path, data);
+            LOG.error("syncUpdate: Error writing to datastore (path, data) : ({}, {})", path, data);
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -925,7 +927,8 @@ public class VpnUtil {
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
-            LOG.error("Exception during cleanup of PrefixToInterface for VPN ID {}", vpnId, e);
+            LOG.error("removePrefixToInterfaceForVpnId: Exception during cleanup of PrefixToInterface for VPN ID {}",
+                    vpnId, e);
         }
     }
 
@@ -945,7 +948,8 @@ public class VpnUtil {
                         DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
-            LOG.error("Exception during cleanup of VPNToExtraRoute for VPN {}", vpnName, e);
+            LOG.error("removeVpnExtraRouteForVpna: Exception during cleanup of VPNToExtraRoute for VPN {}",
+                    vpnName, e);
         }
     }
 
@@ -961,7 +965,8 @@ public class VpnUtil {
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
-            LOG.error("Exception during cleanup of VPNInstanceOpDataEntry for VPN {}", vpnName, e);
+            LOG.error("removeVpnOpInstance: Exception during cleanup of VPNInstanceOpDataEntry for VPN {}",
+                    vpnName, e);
         }
     }
 
@@ -978,7 +983,8 @@ public class VpnUtil {
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
-            LOG.error("Exception during clean up of VpnInstanceToVpnId for VPN {}", vpnName, e);
+            LOG.error("removeVpnInstanceToVpnId: Exception during clean up of VpnInstanceToVpnId for VPN {}",
+                    vpnName, e);
         }
     }
 
@@ -993,7 +999,8 @@ public class VpnUtil {
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
-            LOG.error("Exception during clean up of VpnIdToVpnInstance for VPNID {}", vpnId, e);
+            LOG.error("removeVpnIdToVpnInstance: Exception during clean up of VpnIdToVpnInstance for VPNID {}",
+                    vpnId, e);
         }
     }
 
@@ -1013,7 +1020,8 @@ public class VpnUtil {
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
-            LOG.error("Exception during clean up of VrfTable from FIB for VPN {}", vpnName, e);
+            LOG.error("removeVrfTableForVpn: Exception during clean up of VrfTable from FIB for VPN {}",
+                    vpnName, e);
         }
     }
 
@@ -1033,7 +1041,7 @@ public class VpnUtil {
                     DEFAULT_CALLBACK);
             }
         } catch (Exception e) {
-            LOG.error("Exception during cleanup of L3NextHop for VPN ID {}", vpnId, e);
+            LOG.error("removeL3nexthopForVpnId: Exception during cleanup of L3NextHop for VPN ID {}", vpnId, e);
         }
     }
 
@@ -1061,8 +1069,8 @@ public class VpnUtil {
                             .setMacAddress(macAddress.toLowerCase())
                             .setCreationTime(new SimpleDateFormat("MM/dd/yyyy h:mm:ss a").format(new Date()));
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
-            LOG.debug("ARP learned for fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to "
-                    + "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
+            LOG.debug("createLearntVpnVipToPort: ARP learned for fixedIp: {}, vpn {}, interface {}, mac {},"
+                    + " isSubnetIp {} added to VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
         }
     }
 
@@ -1078,7 +1086,8 @@ public class VpnUtil {
         synchronized ((vpnName + fixedIp).intern()) {
             InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
             MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
-            LOG.debug("Delete learned ARP for fixedIp: {}, vpn {} removed from VpnPortipToPort DS", fixedIp, vpnName);
+            LOG.debug("removeLearntVpnVipToPort: Delete learned ARP for fixedIp: {}, vpn {} removed from"
+                    + " VpnPortipToPort DS", fixedIp, vpnName);
         }
     }
 
@@ -1123,19 +1132,19 @@ public class VpnUtil {
         List<BigInteger> result = new ArrayList<>();
         String rd = getVpnRd(dataBroker, vpnInstanceName);
         if (rd == null) {
-            LOG.debug("Could not find Route-Distinguisher for VpnName={}", vpnInstanceName);
+            LOG.debug("getDpnsOnVpn: Could not find Route-Distinguisher for VpnName={}", vpnInstanceName);
             return result;
         }
 
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker, rd);
         if (vpnInstanceOpData == null) {
-            LOG.debug("Could not find OpState for VpnName={}", vpnInstanceName);
+            LOG.debug("getDpnsOnVpn: Could not find OpState for VpnName={}", vpnInstanceName);
             return result;
         }
 
         List<VpnToDpnList> vpnToDpnList = vpnInstanceOpData.getVpnToDpnList();
         if (vpnToDpnList == null) {
-            LOG.debug("Could not find DPN footprint for VpnName={}", vpnInstanceName);
+            LOG.debug("getDpnsOnVpn: Could not find DPN footprint for VpnName={}", vpnInstanceName);
             return result;
         }
         for (VpnToDpnList vpnToDpn : vpnToDpnList) {
@@ -1272,7 +1281,7 @@ public class VpnUtil {
         String errMsg = "Unable to getLock for subnet " + subnetId;
         try {
             if (result != null && result.get().isSuccessful()) {
-                LOG.debug("Acquired lock for {}", subnetId);
+                LOG.debug("lockSubnet: Acquired lock for {}", subnetId);
             } else {
                 throw new RuntimeException(errMsg);
             }
@@ -1287,12 +1296,12 @@ public class VpnUtil {
         Future<RpcResult<Void>> result = lockManager.unlock(input);
         try {
             if (result != null && result.get().isSuccessful()) {
-                LOG.debug("Unlocked {}", subnetId);
+                LOG.debug("unlockSubnet: Unlocked {}", subnetId);
             } else {
-                LOG.debug("Unable to unlock subnet {}", subnetId);
+                LOG.debug("unlockSubnet: Unable to unlock subnet {}", subnetId);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Unable to unlock subnet {}", subnetId);
+            LOG.error("unlockSubnet: Unable to unlock subnet {}", subnetId);
             throw new RuntimeException(String.format("Unable to unlock subnetId %s", subnetId), e.getCause());
         }
     }
@@ -1309,7 +1318,8 @@ public class VpnUtil {
                     neutronVpnService.getNeutronSubnet(port.getFixedIps().get(0).getSubnetId()).getGatewayIp());
             }
         } else {
-            LOG.debug("neutron vpn service is not configured");
+            LOG.error("getGatewayIpAddressFromInterface: neutron vpn service is not configured."
+                    + " Failed for interface {}.", srcInterface);
         }
         return gatewayIp;
     }
@@ -1325,7 +1335,7 @@ public class VpnUtil {
             vpnIdsOptional
             = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdsInstanceIdentifier);
         if (!vpnIdsOptional.isPresent()) {
-            LOG.trace("VPN {} not configured", vpnId);
+            LOG.error("getGWMacAddressFromInterface: VPN {} not configured", vpnId);
             return gatewayMac;
         }
         VpnPortipToPort vpnTargetIpToPort = VpnUtil.getNeutronPortFromVpnPortFixedIp(dataBroker,
@@ -1357,13 +1367,14 @@ public class VpnUtil {
                 if (isOwner) {
                     job.run();
                 } else {
-                    LOG.trace("job is not run as i m not cluster owner desc :{} ", jobDescription);
+                    LOG.trace("runOnlyInLeaderNode: job is not run as i m not cluster owner desc :{} ",
+                            jobDescription);
                 }
             }
 
             @Override
             public void onFailure(Throwable error) {
-                LOG.error("Failed to identity cluster owner ", error);
+                LOG.error("runOnlyInLeaderNode: Failed to identity cluster owner ", error);
             }
         });
     }
@@ -1371,18 +1382,19 @@ public class VpnUtil {
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
         BigInteger dpnId = vpnInterface.getDpnId();
         String rd = VpnUtil.getVpnRd(broker, vpnInterface.getVpnInstanceName());
-        LOG.trace("GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
+        LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
                 vpnInterface.getName(), vpnInterface.getVpnInstanceName());
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
         if (vpnInstanceOpData != null) {
-            LOG.trace("GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
+            LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
             List<VpnToDpnList> dpnToVpns = vpnInstanceOpData.getVpnToDpnList();
             if (dpnToVpns != null) {
                 for (VpnToDpnList dpn : dpnToVpns) {
                     if (dpn.getDpnId().equals(dpnId)) {
                         return dpn.getVpnInterfaces().contains(vpnInterface.getName());
                     }
-                    LOG.trace("VpnInterface {} not present in DpnId {} ", vpnInterface.getName(), dpn.getDpnId());
+                    LOG.info("isVpnIntfPresentInVpnToDpnList: VpnInterface {} not present in DpnId {} vpn {}",
+                            vpnInterface.getName(), dpn.getDpnId(), vpnInterface.getVpnInstanceName());
                 }
             }
         }
@@ -1400,7 +1412,8 @@ public class VpnUtil {
         if (vpnIdsOptional.isPresent() && vpnIdsOptional.get().isExternalVpn()) {
             PhysAddress gwMacAddress = interfaceState.getPhysAddress();
             if (gwMacAddress == null) {
-                LOG.error("Failed to get gwMacAddress for interface {}", interfaceName);
+                LOG.error("setupGwMacIfExternalVpn: Failed to get gwMacAddress for interface {} on dpn {} vpn {}",
+                        interfaceName, dpnId.toString(), vpnIdsOptional.get().getVpnInstanceName());
                 return;
             }
 
@@ -1439,7 +1452,8 @@ public class VpnUtil {
         if (subnet.isPresent()) {
             Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
             if (ipVersionBase.equals(IpVersionV4.class)) {
-                LOG.trace("Obtained subnet {} for vpn interface", subnet.get().getUuid().getValue());
+                LOG.trace("getVpnSubnetGatewayIp: Obtained subnet {} for vpn interface",
+                        subnet.get().getUuid().getValue());
                 gwIpAddress = Optional.of(subnet.get().getGatewayIp().getIpv4Address().getValue());
                 return gwIpAddress;
             }
