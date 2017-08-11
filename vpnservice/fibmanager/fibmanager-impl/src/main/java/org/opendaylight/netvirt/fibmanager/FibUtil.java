@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
+import com.google.common.net.InetAddresses;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -774,5 +775,18 @@ public class FibUtil {
         Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
 
         return nodeDpn;
+    }
+
+    public static String getBroadcastAddressFromCidr(String cidr) {
+        String[] ipaddressValues = cidr.split("/");
+        int address = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues[0]));
+        int cidrPart = Integer.parseInt(ipaddressValues[1]);
+        int netmask = 0;
+        for (int j = 0; j < cidrPart; ++j) {
+            netmask |= (1 << 31 - j);
+        }
+        int network = (address & netmask);
+        int broadcast = network | ~(netmask);
+        return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
     }
 }
