@@ -93,6 +93,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
+        String vpnName = input.getUuid().getValue();
         if (isBgpvpnTypeL3(input.getType())) {
             VpnInstance.Type vpnInstanceType = VpnInstance.Type.L3;
             // handle route-target(s)
@@ -125,13 +126,14 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             } else {
                 String[] rdParams = rd.get(0).split(":");
                 if (rdParams[0].trim().equals(adminRDValue)) {
-                    LOG.error("AS specific part of RD should not be same as that defined by DC Admin");
+                    LOG.error("AS specific part of RD should not be same as that defined by DC Admin. Error "
+                            + "encountered for BGPVPN {} with RD {}", vpnName, rd.get(0));
                     return;
                 }
                 List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
                 if (!Collections.disjoint(existingRDs, rd)) {
-                    LOG.error("Failed to create VPN {} as another VPN with the same RD {} already exists.",
-                            input.getUuid().getValue(), rd);
+                    LOG.error("Failed to create VPN {} as another VPN with the same RD {} already exists.", vpnName,
+                            rd);
                     return;
                 }
                 Uuid router = null;
@@ -139,19 +141,20 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                     // currently only one router
                     router = input.getRouters().get(0);
                 }
-                if (rd != null) {
+                if (!rd.isEmpty()) {
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
                                 importRouteTargets, exportRouteTargets, router, input.getNetworks(),
                                 vpnInstanceType, 0 /*l3vni*/);
                     } catch (Exception e) {
-                        LOG.error("Creation of BGPVPN {} failed with error message {}. ", input.getUuid(),
-                                e.getMessage(), e);
+                        LOG.error("Creation of BGPVPN {} failed with error {} ", vpnName, e);
                     }
                 } else {
-                    LOG.error("Create BgpVPN with id " + input.getUuid() + " failed due to missing/invalid RD value.");
+                    LOG.error("Create BgpVPN with id {} failed due to missing RD value", vpnName);
                 }
             }
+        } else {
+            LOG.error("BGPVPN type for VPN {} is not L3", vpnName);
         }
     }
 
@@ -174,12 +177,15 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             nvpnManager.removeVpn(input.getUuid());
             // Release RD Id in pool
             NeutronvpnUtils.releaseRDId(idManager, NeutronConstants.RD_IDPOOL_NAME, input.getUuid().toString());
+        } else {
+            LOG.error("BGPVPN type for VPN {} is not L3", input.getUuid().getValue());
         }
     }
 
     @Override
     protected void update(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn original, Bgpvpn update) {
         LOG.trace("Update Bgpvpn : key: {}, value={}", identifier, update);
+        Uuid vpnId = update.getUuid();
         if (isBgpvpnTypeL3(update.getType())) {
             try {
                 handleVpnInstanceUpdate(original.getUuid().getValue(), original.getRouteDistinguishers(),
@@ -190,11 +196,12 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             }
             List<Uuid> oldNetworks = original.getNetworks();
             List<Uuid> newNetworks = update.getNetworks();
-            Uuid vpnId = update.getUuid();
             handleNetworksUpdate(vpnId, oldNetworks, newNetworks);
             List<Uuid> oldRouters = original.getRouters();
             List<Uuid> newRouters = update.getRouters();
             handleRoutersUpdate(vpnId, oldRouters, newRouters);
+        } else {
+            LOG.error("BGPVPN type for VPN {} is not L3", vpnId.getValue());
         }
     }
 
@@ -210,7 +217,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             String rd = originalRdsInter.next();
             //If the existing rd is not present in the updateRds list, not allow to process the updateRDs.
             if (!updateRDs.contains(rd)) {
-                LOG.error("The existing RD:{} not present in the updatedRDsList:{}", rd, updateRDs);
+                LOG.error("The existing RD {} not present in the updatedRDsList:{}", rd, updateRDs);
                 throw new UnsupportedOperationException("The existing RD not present in the updatedRDsList");
             }
         }
@@ -263,10 +270,10 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             if (oldRouters != null && !oldRouters.isEmpty()) {
                 if (oldRouters.size() > 1 || newRouters.size() > 1) {
                     VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
-                    if (vpnMap.getRouterId() != null) {
-                        LOG.warn("Only Single Router association to a given bgpvpn is allowed. Kindly de-associate"
-                            + " router " + vpnMap.getRouterId().getValue()
-                            + " from vpn " + vpnId + " before proceeding with associate");
+                    if (vpnMap != null && vpnMap.getRouterId() != null) {
+                        LOG.warn("Only single router association to a given bgpvpn is allowed. Kindly disassociate "
+                                + "router {} from vpn {} before proceeding with associate",
+                                vpnMap.getRouterId().getValue(), vpnId.getValue());
                     }
                 }
             } else if (validateRouteInfo(newRouters.get(0))) {
@@ -287,6 +294,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
             if ((result != null) && (result.get().isSuccessful())) {
                 LOG.info("Created IdPool for Bgpvpn RD");
+            } else {
+                LOG.error("Failed to create ID pool for BGPVPN RD, result future returned {}", result);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Failed to create idPool for Bgpvpn RD", e);
@@ -296,8 +305,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     private boolean validateRouteInfo(Uuid routerID) {
         Uuid assocVPNId;
         if ((assocVPNId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerID, true)) != null) {
-            LOG.warn("VPN router association failed  due to router " + routerID.getValue()
-                    + " already associated to another VPN " + assocVPNId.getValue());
+            LOG.warn("VPN router association failed due to router {} already associated to another VPN {}",
+                    routerID.getValue(), assocVPNId.getValue());
             return false;
         }
         return true;
