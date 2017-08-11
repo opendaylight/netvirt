@@ -14,6 +14,7 @@ import static org.opendaylight.netvirt.fibmanager.VrfEntryListener.isOpenStackVn
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.net.InetAddresses;
 
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -782,5 +783,18 @@ public class FibUtil {
         Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
 
         return nodeDpn;
+    }
+
+    public static String getBroadcastAddressFromCidr(String cidr) {
+        String[] ipaddressValues = cidr.split("/");
+        int address = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues[0]));
+        int cidrPart = Integer.parseInt(ipaddressValues[1]);
+        int netmask = 0;
+        for (int j = 0; j < cidrPart; ++j) {
+            netmask |= (1 << 31 - j);
+        }
+        int network = (address & netmask);
+        int broadcast = network | ~(netmask);
+        return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
     }
 }
