@@ -229,7 +229,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         LOG.error("Interface {} is not present", portName);
                     }
                 } catch (Exception e) {
-                    LOG.error("Failed to update interface {} due to the exception {}", portName, e);
+                    LOG.error("Failed to update interface {}", portName, e);
                 }
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(wrtConfigTxn.submit());
@@ -335,7 +335,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
         Router router = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
         if (router == null) {
-            LOG.warn("No router found for router GW port {} router id {}", routerGwPort.getUuid(), routerId.getValue());
+            LOG.error("No router found for router GW port {} for router {}", routerGwPort.getUuid().getValue(),
+                    routerId.getValue());
             return;
         }
         gwMacResolver.sendArpRequestsToExtGateways(router);
@@ -514,7 +515,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 LOG.warn("Interface {} is already present", infName);
             }
         } catch (Exception e) {
-            LOG.error("failed to create interface {} due to the exception {} ", infName, e.getMessage());
+            LOG.error("failed to create interface {}", infName, e);
         }
         return infName;
     }
@@ -553,7 +554,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 LOG.error("Interface {} is not present", name);
             }
         } catch (Exception e) {
-            LOG.error("Failed to delete interface {} due to the exception {}", name, e.getMessage());
+            LOG.error("Failed to delete interface {}", name, e);
         }
     }
 
@@ -592,8 +593,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 floatingipIdToPortMacMappingBuilder.build());
         } catch (Exception e) {
             LOG.error("Creating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP"
-                + " Port Info Config DS failed with exception {}",
-                floatingIpId.getValue(), floatingIpPortId.getValue(), e);
+                + " Port Info Config DS failed", floatingIpId.getValue(), floatingIpPortId.getValue(), e);
         }
     }
 

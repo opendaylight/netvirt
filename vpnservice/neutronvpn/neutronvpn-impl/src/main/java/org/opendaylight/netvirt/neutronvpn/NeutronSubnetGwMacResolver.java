@@ -74,7 +74,7 @@ public class NeutronSubnetGwMacResolver {
             try {
                 sendArpRequestsToExtGateways();
             } catch (Exception e) {
-                LOG.warn("Failed to send ARP request to GW ips", e);
+                LOG.error("Failed to send ARP request to GW ips", e);
             }
         }, 0, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS);
 
@@ -104,7 +104,7 @@ public class NeutronSubnetGwMacResolver {
         LOG.trace("Send ARP requests to external GW for router {}", router);
         Port extPort = getRouterExtGatewayPort(router);
         if (extPort == null) {
-            LOG.trace("External GW port for router {} is missing", router);
+            LOG.trace("External GW port for router {} is missing", router.getUuid().getValue());
             return;
         }
 
@@ -179,19 +179,19 @@ public class NeutronSubnetGwMacResolver {
         ExternalGatewayInfo extGatewayInfo = router.getExternalGatewayInfo();
         String routerName = router.getUuid().getValue();
         if (extGatewayInfo == null) {
-            LOG.trace("External GW info missing for router {}", routerName);
+            LOG.error("External GW info missing for router {}", routerName);
             return null;
         }
 
         Uuid extNetworkId = extGatewayInfo.getExternalNetworkId();
         if (extNetworkId == null) {
-            LOG.trace("External network id missing for router {}", routerName);
+            LOG.error("External network id missing for router {}", routerName);
             return null;
         }
 
         BigInteger primarySwitch = cswitchProvider.getPrimarySwitchForRouter(routerName);
         if (primarySwitch == null || BigInteger.ZERO.equals(primarySwitch)) {
-            LOG.trace("Primary switch has not been allocated for router {}", routerName);
+            LOG.error("Primary switch has not been allocated for router {}", routerName);
             return null;
         }
 
@@ -200,7 +200,7 @@ public class NeutronSubnetGwMacResolver {
 
     private IpAddress getExternalGwIpAddress(Uuid subnetId) {
         if (subnetId == null) {
-            LOG.trace("Subnet id is null");
+            LOG.error("Subnet id is null");
             return null;
         }
 
