@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,14 +42,20 @@ public class DhcpInterfaceConfigListener
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DhcpManager dhcpManager;
+    private final DhcpserviceConfig config;
+    private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
     private DataStoreJobCoordinator dataStoreJobCoordinator;
 
     public DhcpInterfaceConfigListener(DataBroker dataBroker,
-            DhcpExternalTunnelManager dhcpExternalTunnelManager, DhcpManager dhcpManager) {
+            DhcpExternalTunnelManager dhcpExternalTunnelManager, DhcpManager dhcpManager,
+                                       final DhcpserviceConfig config,
+                                       final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
         super(Interface.class, DhcpInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dhcpManager = dhcpManager;
+        this.config = config;
+        this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
         dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     }
@@ -104,7 +111,7 @@ public class DhcpInterfaceConfigListener
             }
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
-            if (null != subnet && subnet.isEnableDhcp()) {
+            if (null != subnet && subnet.isEnableDhcp() || isValidAllocationPoolInterface(add)) {
                 WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
                 if (LOG.isDebugEnabled()) {
                     LOG.debug("Binding DHCP service for interface {}", interfaceName);
@@ -114,6 +121,14 @@ public class DhcpInterfaceConfigListener
             }
             return futures;
         }, DhcpMConstants.RETRY_COUNT);
+    }
+
+    private boolean isValidAllocationPoolInterface(Interface add) {
+        if (config.isDhcpDynamicAllocationPoolEnabled()
+            && dhcpAllocationPoolMgr.getAllocationPoolByPort(add.getName()) != null) {
+            return true;
+        }
+        return false;
     }
 
     @Override

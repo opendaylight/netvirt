@@ -51,6 +51,7 @@ public class DhcpManager {
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
+    private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
 
     private int dhcpOptLeaseTime = 0;
     private String dhcpOptDefDomainName;
@@ -62,7 +63,8 @@ public class DhcpManager {
             final INeutronVpnManager neutronVpnManager,
             final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager,
-            final @Named("elanService") IElanService ielanService) {
+            final @Named("elanService") IElanService ielanService,
+            final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
         this.config = config;
@@ -70,6 +72,7 @@ public class DhcpManager {
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.interfaceManager = interfaceManager;
         this.elanService = ielanService;
+        this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
@@ -78,8 +81,9 @@ public class DhcpManager {
         LOG.trace("Netvirt DHCP Manager Init .... {}",config.isControllerDhcpEnabled());
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager,
-                    interfaceManager, elanService);
-            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this);
+                    interfaceManager, elanService, config, dhcpAllocationPoolMgr);
+            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this,
+                config, dhcpAllocationPoolMgr);
             LOG.info("DHCP Service initialized");
         }
     }

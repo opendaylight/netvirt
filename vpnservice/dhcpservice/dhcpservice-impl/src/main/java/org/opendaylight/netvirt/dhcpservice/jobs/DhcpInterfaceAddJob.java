@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.dhcpservice.DhcpAllocationPoolManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
@@ -33,6 +34,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.network.AllocationPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.InterfaceNameMacAddresses;
@@ -40,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpserv
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,6 +57,8 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     BigInteger dpnId;
     IInterfaceManager interfaceManager;
     private final IElanService elanService;
+    private final DhcpserviceConfig config;
+    private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -68,7 +73,8 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
 
     public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                DataBroker dataBroker, Interface interfaceAdd, BigInteger dpnId,
-                               IInterfaceManager interfaceManager, IElanService elanService) {
+                               IInterfaceManager interfaceManager, IElanService elanService,
+                               final DhcpserviceConfig config, final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
         super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -77,6 +83,8 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
+        this.config = config;
+        this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
     }
 
     @Override
@@ -86,6 +94,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         LOG.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpnId);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+        ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
         if (iface != null) {
             IfTunnel tunnelInterface = iface.getAugmentation(IfTunnel.class);
             if (tunnelInterface != null && !tunnelInterface.isInternal()) {
@@ -98,6 +107,21 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             }
         }
         if (!dpnId.equals(DhcpMConstants.INVALID_DPID)) {
+            if (config.isDhcpDynamicAllocationPoolEnabled()) {
+                // FIXME: IS this needed? Do we ned ArpResponder flow too?
+                String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
+                AllocationPool pool = (networkId != null) ? dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId)
+                    : null;
+                if (networkId == null || pool == null) {
+                    LOG.warn("No Dhcp Allocation Pool was found for interface: {}", interfaceName);
+                    return Collections.emptyList();
+                }
+                WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
+                dhcpManager.installDhcpEntries(dpnId, interfaceAdd.getPhysAddress().getValue(), flowTx);
+                futures.add(flowTx.submit());
+                // TODO add ARP responder flow???
+                return futures;
+            }
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
             if (null == subnet || !subnet.isEnableDhcp()) {
@@ -115,7 +139,6 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             }
             LOG.trace("Installing the Arp responder for interface {} with DHCP MAC {} & IP {}.", interfaceName,
                     subnetToDhcp.get().getPortMacaddress(), subnetToDhcp.get().getPortFixedip());
-            ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
             builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(subnetToDhcp.get().getPortFixedip())
                     .setSha(subnetToDhcp.get().getPortMacaddress()).setLportTag(interfaceAdd.getIfIndex());
             builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName,

@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,16 +45,22 @@ public class DhcpInterfaceEventListener
     private final DataStoreJobCoordinator dataStoreJobCoordinator;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
+    private final DhcpserviceConfig config;
+    private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
 
     public DhcpInterfaceEventListener(DhcpManager dhcpManager, DataBroker dataBroker,
                                       DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                                      IInterfaceManager interfaceManager, IElanService elanService) {
+                                      IInterfaceManager interfaceManager, IElanService elanService,
+                                      final DhcpserviceConfig config,
+                                      final DhcpAllocationPoolManager dhcpAllocationPoolMgr) {
         super(Interface.class, DhcpInterfaceEventListener.class);
         this.dhcpManager = dhcpManager;
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
+        this.config = config;
+        this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
         dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     }
@@ -134,7 +141,7 @@ public class DhcpInterfaceEventListener
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker,
-                add, dpnId, interfaceManager, elanService);
+                add, dpnId, interfaceManager, elanService, config, dhcpAllocationPoolMgr);
         dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
