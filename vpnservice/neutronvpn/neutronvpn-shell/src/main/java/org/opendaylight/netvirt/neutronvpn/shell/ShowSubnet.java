@@ -103,7 +103,7 @@ public class ShowSubnet extends OsgiCommandSupport {
             }
         } catch (Exception e) {
             System.out.println("Error fetching data for given subnetId ");
-            LOG.error("Error Fetching Data",e);
+            LOG.error("Error Fetching Data", e);
         }
 
         return null;

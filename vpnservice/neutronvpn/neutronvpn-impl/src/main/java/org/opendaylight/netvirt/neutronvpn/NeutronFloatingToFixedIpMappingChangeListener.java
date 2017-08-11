@@ -176,7 +176,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 routerPortsBuilder.build());
             LOG.debug("FloatingIpInfo DS updated for floating IP {} ", floatingIpAddress);
         } catch (Exception e) {
-            LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress);
+            LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress, e);
         } finally {
             if (isLockAcquired) {
                 NeutronvpnUtils.unlock(routerName);
@@ -217,7 +217,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                         LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
                         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intExtPortMapIdentifier);
                     } catch (Exception e) {
-                        LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap);
+                        LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap, e);
                     } finally {
                         if (isLockAcquired) {
                             NeutronvpnUtils.unlock(fixedIpAddress);
@@ -230,7 +230,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             }
         } catch (Exception e) {
             LOG.error("Failed to delete internal-to-external-port-map from FloatingIpInfo DS for fixed Ip {}",
-                    fixedIpAddress);
+                    fixedIpAddress, e);
         }
     }
 
@@ -272,7 +272,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     + "association(s)");
             }
         } catch (Exception e) {
-            LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}", fixedNeutronPortName);
+            LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}",
+                    fixedNeutronPortName, e);
         }
     }
 
@@ -300,7 +301,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, portsIdentifierBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Failure in deletion of routerPorts node {}", routerName);
+            LOG.error("Failure in deletion of routerPorts node {}", routerName, e);
         } finally {
             if (isLockAcquired) {
                 NeutronvpnUtils.unlock(lockName);
@@ -323,8 +324,8 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     floatingIpIdToPortMappingBuilder.build());
         } catch (Exception e) {
             LOG.error("Updating floating IP UUID {} to Floating IP neutron port {} mapping in Floating IP"
-                    + " Port Info Config DS to set isFloatingIpDeleted flag as true failed with exception {}",
-                floatingIpId.getValue(), floatingIpPortId.getValue(), e);
+                    + " Port Info Config DS to set isFloatingIpDeleted flag as true failed", floatingIpId.getValue(),
+                    floatingIpPortId.getValue(), e);
         }
     }
 
@@ -338,7 +339,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         } catch (Exception e) {
             LOG.error("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating "
-                + "IP Port Info Config DS failed with exception {}", floatingIpId.getValue(), e);
+                + "IP Port Info Config DS failed", floatingIpId.getValue(), e);
         }
     }
 }

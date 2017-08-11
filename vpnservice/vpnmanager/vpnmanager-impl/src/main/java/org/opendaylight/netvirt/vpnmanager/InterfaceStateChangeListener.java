@@ -95,7 +95,7 @@ public class InterfaceStateChangeListener
                                 final BigInteger dpnId = intfDpnId;
                                 final int ifIndex = intrf.getIfIndex();
                                 if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
-                                    LOG.info("VPN Interface add event - intfName {} onto vpnName {} "
+                                    LOG.error("VPN Interface add event - intfName {} onto vpnName {} "
                                                     + "running oper-driven, VpnInstance not ready, holding on",
                                             vpnInterface.getName(), vpnInterface.getVpnInstanceName());
                                     return futures;
@@ -233,7 +233,7 @@ public class InterfaceStateChangeListener
                                                     + " oper-driven UP", vpnInterface.getName(),
                                             vpnInterface.getVpnInstanceName());
                                     if (!vpnInterfaceManager.isVpnInstanceReady(vpnInterface.getVpnInstanceName())) {
-                                        LOG.info("VPN Interface update event - intfName {} onto vpnName {} "
+                                        LOG.error("VPN Interface update event - intfName {} onto vpnName {} "
                                                         + "running oper-driven UP, VpnInstance not ready, holding on",
                                                 vpnInterface.getName(), vpnInterface.getVpnInstanceName());
                                         return futures;

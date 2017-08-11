@@ -49,7 +49,7 @@ public class DhcpShowCommand extends OsgiCommandSupport {
                     "Default Domain: " + ((defDomain != null) ? defDomain : DhcpMConstants.DEFAULT_DOMAIN_NAME));
         } catch (Exception e) {
             session.getConsole().println("Failed to fetch configuration parameters. Try again");
-            LOG.error("Failed to fetch DHCP parameters",e);
+            LOG.error("Failed to fetch DHCP parameters", e);
         }
         return null;
     }

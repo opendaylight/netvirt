@@ -193,7 +193,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         try {
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, iid, feature);
         } catch (TransactionCommitFailedException e) {
-            LOG.warn("Error configuring feature " + feature, e);
+            LOG.warn("Error configuring feature {}", feature, e);
         }
     }
 
@@ -250,13 +250,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 if (vpnId != null) {
                     builder.setVpnId(vpnId);
                 }
-
                 subnetmap = builder.build();
                 LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
             }
         } catch (Exception e) {
-            LOG.error("Updation of subnetMap failed for node: {}", subnetId.getValue());
+            LOG.error("Updation of subnetMap failed for node: {}", subnetId.getValue(), e);
         }
         return subnetmap;
     }
@@ -293,7 +292,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
         } catch (Exception e) {
             LOG.error("WithRouterFixedIP: Updation of subnetMap for Router FixedIp failed for node: {}",
-                subnetId.getValue());
+                subnetId.getValue(), e);
         }
     }
 
@@ -336,8 +335,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         } catch (Exception e) {
-            LOG.error("Updating port list of a given subnetMap failed for node: {} with exception{}",
-                    subnetId.getValue(), e);
+            LOG.error("Updating port list of a given subnetMap failed for node: {}", subnetId.getValue(), e);
         }
         return subnetmap;
     }
@@ -745,7 +743,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         ipValue, wrtConfigTxn);
             }
         } catch (Exception ex) {
-            LOG.error("Deletion of vpninterface {} failed due to {}", infName, ex);
+            LOG.error("Deletion of vpninterface {} failed", infName, ex);
         }
         if (routerId != null) {
             removeFromNeutronRouterInterfacesMap(routerId, infName);
@@ -787,7 +785,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
                         if (optionalVpnVipToPort.isPresent()) {
                             LOG.trace("Removing adjacencies from vpninterface {} upon dissociation of router {} "
-                                + "from VPN " + "{}", infName, vpnId, oldVpnId);
+                                + "from VPN {}", infName, vpnId, oldVpnId);
                             adjacencyIter.remove();
                             NeutronvpnUtils.removeLearntVpnVipToPort(dataBroker, oldVpnId.getValue(), mipToQuery);
                             LOG.trace("Entry for fixedIP {} for port {} on VPN removed from "
@@ -813,7 +811,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.error("VPN Interface {} not found", infName);
             }
         } catch (Exception ex) {
-            LOG.error("Updation of vpninterface {} failed due to {}", infName, ex);
+            LOG.error("Updation of vpninterface {} failed", infName, ex);
         } finally {
             if (isLockAcquired) {
                 NeutronvpnUtils.unlock(infName);
@@ -881,9 +879,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (networks != null) {
             List<String> failStrings = associateNetworksToVpn(vpn, networks);
             if (failStrings != null &&  !failStrings.isEmpty()) {
-                LOG.error("VPN {} association to networks failed with error message {}. ",
-                        vpn.getValue(), failStrings.get(0));
-                throw new Exception(failStrings.get(0));
+                LOG.error("VPN {} association to networks failed for networks: {}. ",
+                        vpn.getValue(), failStrings.toString());
+                throw new Exception(failStrings.toString());
             }
         }
     }
@@ -1354,11 +1352,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         LOG.debug("Label generated for destination {} is: {}",
                                 destination, rpcResult.getResult().getLabel());
                     } else {
-                        LOG.warn("RPC call to add a static Route to {} with nexthop {} returned with errors {}",
+                        LOG.error("RPC call to add a static Route to {} with nexthop {} returned with errors {}",
                                 destination, nexthop, rpcResult.getErrors());
                     }
                 } catch (InterruptedException | ExecutionException e) {
-                    LOG.warn("Error happened while invoking addStaticRoute RPC: ", e);
+                    LOG.error("Error happened while invoking addStaticRoute RPC for nexthop {} with destination {} "
+                            + "for VPN {}", nexthop, destination, vpnName.getValue(), e);
                 }
             } else {
                 // Any other case is a fault.
@@ -1476,7 +1475,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         }
                     }
                 } else {
-                    LOG.debug("Unable to find VPN NextHop interface to apply extra-route destination {} on VPN {} "
+                    LOG.error("Unable to find VPN NextHop interface to apply extra-route destination {} on VPN {} "
                         + "with nexthop {}", destination, vpnId.getValue(), nextHop);
                 }
             }
@@ -1548,14 +1547,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         LOG.trace("extra route {} deleted successfully", route);
                     }
                 } catch (Exception e) {
-                    LOG.error("exception in deleting extra route: {}" + e);
+                    LOG.error("exception in deleting extra route with destination {} for interface {}",
+                            destination, infName, e);
                 } finally {
                     if (isLockAcquired) {
                         NeutronvpnUtils.unlock(infName);
                     }
                 }
             } else {
-                LOG.error("Incorrect input received for extra route. {}", route);
+                LOG.error("Incorrect input received for extra route: {}", route);
             }
         }
     }
@@ -1620,7 +1620,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             // update subnet-vpn association
             removeFromSubnetNode(subnet, null, null, vpnId, null);
         } else {
-            LOG.warn("Subnetmap for subnet {} not found", subnet.getValue());
+            LOG.error("Subnetmap for subnet {} not found", subnet.getValue());
         }
     }
 
@@ -2120,7 +2120,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                     ipList.toString()));
                         } else {
                             result.add(String.format(" %-36s  %-19s  %-13s  %-20s ", port.getUuid().getValue(), port
-                                    .getMacAddress().getValue(), "Not Assigned", "Not " + "Assigned"));
+                                    .getMacAddress().getValue(), "Not Assigned", "Not Assigned"));
                         }
                     } catch (Exception e) {
                         LOG.error("Failed to retrieve neutronPorts info for port {}: ", port.getUuid().getValue(),
@@ -2206,7 +2206,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("error getting VPN info : ", e);
+            LOG.error("error getting VPN info for VPN {}: ", vpnuuid.getValue(), e);
             System.out.println("error getting VPN info : " + e.getMessage());
         }
         return result;
@@ -2214,13 +2214,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     protected void createExternalVpnInterfaces(Uuid extNetId) {
         if (extNetId == null) {
-            LOG.trace("external network is null");
+            LOG.error("createExternalVpnInterfaces: external network is null");
             return;
         }
 
         Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
         if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
-            LOG.trace("No external ports attached to external network {}", extNetId.getValue());
+            LOG.error("No external ports attached to external network {}", extNetId.getValue());
             return;
         }
 
@@ -2236,7 +2236,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void removeExternalVpnInterfaces(Uuid extNetId) {
         Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
         if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
-            LOG.trace("No external ports attached for external network {}", extNetId);
+            LOG.error("No external ports attached for external network {}", extNetId.getValue());
             return;
         }
         try {
@@ -2251,7 +2251,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             wrtConfigTxn.submit();
 
         } catch (Exception ex) {
-            LOG.error("Removal of vpninterfaces {} failed due to {}", extElanInterfaces, ex);
+            LOG.error("Removal of vpninterfaces {} failed", extElanInterfaces, ex);
         }
     }
 
@@ -2264,7 +2264,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private void writeVpnInterfaceToDs(Uuid vpnId, String infName, Adjacencies adjacencies,
             Boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
         if (vpnId == null || infName == null) {
-            LOG.debug("vpn id or interface is null");
+            LOG.error("vpn id or interface is null");
             return;
         }
 
@@ -2287,7 +2287,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.info("Creating vpn interface {}", vpnIf);
             wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
         } catch (Exception ex) {
-            LOG.error("Creation of vpninterface {} failed due to {}", infName, ex);
+            LOG.error("Creation of vpninterface {} failed", infName, ex);
         }
 
         if (!wrtConfigTxnPresent) {

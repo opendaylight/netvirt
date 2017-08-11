@@ -108,7 +108,8 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
         OvsdbNodeAugmentation ovsdbNode = getOvsdbNodeAugmentation(node);
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchExternalIds() != null) {
             for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds()) {
-                if (openvswitchExternalIds.getExternalIdKey().startsWith(OS_HOST_CONFIG_CONFIG_KEY_PREFIX)) {
+                if (openvswitchExternalIds.getExternalIdKey() != null && openvswitchExternalIds.getExternalIdKey()
+                        .startsWith(OS_HOST_CONFIG_CONFIG_KEY_PREFIX)) {
                     // Extract the host type. Max 8 characters after
                     // suffix OS_HOST_CONFIG_CONFIG_KEY_PREFIX.length()
                     String hostType = openvswitchExternalIds.getExternalIdKey().substring(
@@ -164,7 +165,7 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
         OvsdbNodeAugmentation ovsdbNode = getOvsdbNodeAugmentation(node);
         if (ovsdbNode != null && ovsdbNode.getOpenvswitchExternalIds() != null) {
             for (OpenvswitchExternalIds openvswitchExternalIds : ovsdbNode.getOpenvswitchExternalIds()) {
-                if (openvswitchExternalIds.getExternalIdKey().equals(key)) {
+                if (key.equals(openvswitchExternalIds.getExternalIdKey())) {
                     return openvswitchExternalIds.getExternalIdValue();
                 }
             }
@@ -181,12 +182,6 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
             }
         }
         return ovsdbNode;
-    }
-
-    private InstanceIdentifier<Hostconfig> createInstanceIdentifier() {
-        return InstanceIdentifier.create(Neutron.class)
-                .child(Hostconfigs.class)
-                .child(Hostconfig.class);
     }
 
     private InstanceIdentifier<Hostconfig> createInstanceIdentifier(Hostconfig hostconfig) {

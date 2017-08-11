@@ -82,9 +82,9 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void add(InstanceIdentifier<Network> identifier, Network input) {
         LOG.trace("Adding Network : key: {}, value={}", identifier, input);
+        String networkId = input.getUuid().getValue();
         if (!NeutronvpnUtils.isNetworkTypeSupported(input)) {
-            LOG.error("Neutronvpn doesn't support this network provider type for this network {} and uuid {}.", input
-                    .getName(), input.getUuid().getValue());
+            LOG.error("Neutronvpn doesn't support the provider type for given network {}", networkId);
             return;
         }
         Class<? extends NetworkTypeBase> networkType = input.getAugmentation(NetworkProviderExtension.class)
@@ -105,10 +105,10 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             elanService.createExternalElanNetwork(elanInstance);
             ProviderTypes providerNwType = NeutronvpnUtils.getProviderNetworkType(input);
             if (providerNwType == null) {
-                LOG.error("NeutronVPN: Unable to get Network Provider Type for network {}", input.getUuid().getValue());
+                LOG.error("Unable to get Network Provider Type for network {}", networkId);
                 return;
             }
-            LOG.trace("NeutronVPN: External Network Provider Type is {}", providerNwType.getName());
+            LOG.trace("External Network Provider Type for network {} is {}", networkId, providerNwType.getName());
             nvpnNatManager.addExternalNetwork(input);
             if (NeutronvpnUtils.isFlatOrVlanNetwork(input)) {
                 nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, null, null);
@@ -199,18 +199,18 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
 
     private ElanInstance createElanInstance(Network input) {
         String elanInstanceName = input.getUuid().getValue();
+        InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
+        Optional<ElanInstance> existingElanInstance = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                id);
+        if (existingElanInstance.isPresent()) {
+            return existingElanInstance.get();
+        }
         Class<? extends SegmentTypeBase> segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(input);
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
         Boolean isExternal = NeutronvpnUtils.getIsExternal(input);
         ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId,
                                                        physicalNetworkName, buildSegments(input), isExternal);
-        InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        Optional<ElanInstance> existingElanInstance =
-            MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        if (existingElanInstance.isPresent()) {
-            return existingElanInstance.get();
-        }
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         LOG.debug("ELANInstance {} created", elanInstanceName);
         return elanInstance;

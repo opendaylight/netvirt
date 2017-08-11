@@ -264,7 +264,7 @@ public class FibUtil {
                     gwMacAddress, parentVpnRd, writeConfigTxn, broker);
             LOG.debug("Created/Updated vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
         } catch (Exception e) {
-            LOG.error("addFibEntryToDS: Prefix {} rd {} label {} error ", prefix, rd, label, e);
+            LOG.error("addOrUpdateFibEntry: Prefix {} rd {} label {} error ", prefix, rd, label, e);
         }
     }
 
