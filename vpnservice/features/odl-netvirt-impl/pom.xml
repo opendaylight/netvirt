@@ -175,6 +175,11 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>coe-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml" -->
             <groupId>${project.groupId}</groupId>
             <artifactId>aclservice-impl</artifactId>

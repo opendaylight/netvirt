@@ -24,10 +24,11 @@
     <modules>
         <module>vpnservice-features</module>
         <module>odl-netvirt-api</module>
+        <module>odl-netvirt-coe</module>
         <module>odl-netvirt-impl</module>
         <module>odl-netvirt-openstack</module>
-        <module>odl-netvirt-ui</module>
         <module>odl-netvirt-sfc</module>
+        <module>odl-netvirt-ui</module>
     </modules>
 
     <!-- Maven Site Configuration The following configuration is necessary
