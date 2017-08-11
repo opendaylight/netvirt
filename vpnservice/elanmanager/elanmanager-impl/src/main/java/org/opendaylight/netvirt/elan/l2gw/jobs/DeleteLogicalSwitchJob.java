@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -40,6 +41,8 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
 
+    private volatile boolean cancelled = false;
+
     private static final Logger LOG = LoggerFactory.getLogger(DeleteLogicalSwitchJob.class);
 
     public DeleteLogicalSwitchJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils , NodeId hwvtepNodeId,
@@ -51,12 +54,21 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
         LOG.debug("created logical switch deleted job for {} on {}", logicalSwitchName, hwvtepNodeId);
     }
 
+    public void cancel() {
+        this.cancelled = true;
+    }
+
     public String getJobKey() {
         return logicalSwitchName;
     }
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
+        if (cancelled) {
+            LOG.info("Delete logical switch job cancelled ");
+            return null;
+        }
+        ReadWriteTransaction transaction = broker.newReadWriteTransaction();
         LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
