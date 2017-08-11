@@ -83,12 +83,13 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
-                    LOG.debug("Exporting route with rd {} prefix {} nexthop {} label {} to VPN {}", vpnRd,
-                            nextHopIpAddress, nextHopIp, label, vpn);
                     fibManager.addOrUpdateFibEntry(broker, vpnRd, null /*macAddress*/,
                             nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                             0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
                             writeConfigTxn);
+                    LOG.info("populateFib: Exported route with rd {} prefix {} nexthop {} label {}"
+                            + " to VPN {} for interface {} on dpn {}", vpnRd, nextHop.getIpAddress(), nextHopIp, label,
+                            vpn, input.getInterfaceName(), input.getDpnId());
                 }
             }
         } else {
@@ -96,6 +97,9 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             fibManager.addOrUpdateFibEntry(broker, vpnName, null /*macAddress*/,
                     nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                     0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, input.getRouteOrigin(), writeConfigTxn);
+            LOG.info("populateFib: Added internal FIB entry for prefix {} nexthop {} label {}"
+                    + " to VPN {} for interface {} on dpn {}", nextHop.getIpAddress(), nextHopIp, label, vpnName,
+                    input.getInterfaceName(), input.getDpnId());
         }
     }
 
