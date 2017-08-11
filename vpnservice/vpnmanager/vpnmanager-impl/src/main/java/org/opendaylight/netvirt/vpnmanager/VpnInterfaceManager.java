@@ -1555,10 +1555,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
         for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
             String importingRd = vpnInstance.getVrfId();
-            LOG.info("Deleting imported subnet route rd {} prefix {} from vpn {}", rd, prefix,
-                vpnInstance.getVpnInstanceName());
+            LOG.info("SUBNETROUTE: deleteSubnetRouteFibEntryFromDS: Deleting imported subnet route rd {} prefix {}"
+                    + " from vpn {} importingRd {}", rd, prefix, vpnInstance.getVpnInstanceName(), importingRd);
             fibManager.removeFibEntry(dataBroker, importingRd, prefix, null);
         }
+        LOG.info("SUBNETROUTE: deleteSubnetRouteFibEntryFromDS: Removed subnetroute FIB for prefix {} rd {}"
+                + " vpnName {}", prefix, rd, vpnName);
     }
 
     protected void addNewAdjToVpnInterface(InstanceIdentifier<VpnInterface> identifier, String primaryRd,
