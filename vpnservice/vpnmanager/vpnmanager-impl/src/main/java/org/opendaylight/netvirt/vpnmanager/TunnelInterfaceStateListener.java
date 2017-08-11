@@ -130,7 +130,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
-        LOG.trace("Tunnel deletion---- {}", del);
+        LOG.trace("remove: Tunnel deletion---- {}", del);
         if (isGreTunnel(del)) {
             programDcGwLoadBalancingGroup(del, NwConstants.DEL_FLOW);
         }
@@ -140,14 +140,15 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     @Override
     protected void update(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList original,
         StateTunnelList update) {
-        LOG.trace("Tunnel updation---- {}", update);
-        LOG.trace("ITM Tunnel {} of type {} state event changed from :{} to :{}",
+        LOG.trace("update: Tunnel updation---- {}", update);
+        LOG.info("update: ITM Tunnel {} of type {} state event changed from :{} to :{}",
             update.getTunnelInterfaceName(),
             fibManager.getTransportTypeStr(update.getTransportType().toString()),
             original.getOperState(), update.getOperState());
         TunnelOperStatus tunOpStatus = update.getOperState();
         if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
-            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
+            LOG.info("update: Returning from unsupported tunnelOperStatus {} for tunnel interface {}", tunOpStatus,
+                    update.getTunnelInterfaceName());
             return;
         }
         if (isGreTunnel(update)) {
@@ -159,7 +160,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         String srcTepIp = String.valueOf(update.getSrcInfo().getTepIp().getValue());
         List<VpnInstanceOpDataEntry> vpnInstanceOpData = VpnUtil.getAllVpnInstanceOpData(dataBroker);
         if (vpnInstanceOpData == null) {
-            LOG.trace("No vpnInstanceOpdata present");
+            LOG.trace("update: No vpnInstanceOpdata present");
             return;
         }
         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
@@ -196,19 +197,20 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void add(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList add) {
-        LOG.trace("Tunnel addition---- {}", add);
+        LOG.trace("add: Tunnel addition---- {}", add);
         TunnelOperStatus tunOpStatus = add.getOperState();
         if ((tunOpStatus != TunnelOperStatus.Down) && (tunOpStatus != TunnelOperStatus.Up)) {
-            LOG.trace("Returning from unsupported tunnelOperStatus {}", tunOpStatus);
+            LOG.info("add: Returning from unsupported tunnelOperStatus {} for tunnel interface {}", tunOpStatus,
+                    add.getTunnelInterfaceName());
             return;
         }
         if (tunOpStatus != TunnelOperStatus.Up) {
-            LOG.trace("Tunnel {} is not yet UP.", add.getTunnelInterfaceName());
+            LOG.error("add: Tunnel {} is not yet UP.", add.getTunnelInterfaceName());
         }
         if (isGreTunnel(add)) {
             programDcGwLoadBalancingGroup(add, NwConstants.ADD_FLOW);
         }
-        LOG.trace("ITM Tunnel ,type {} ,added between src: {} and dest: {}",
+        LOG.info("add: ITM Tunnel ,type {} ,added between src: {} and dest: {}",
             fibManager.getTransportTypeStr(add.getTransportType().toString()),
             add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
         handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
@@ -225,17 +227,20 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         BigInteger remoteDpnId = null;
         boolean isTepDeletedOnDpn = false;
 
-        LOG.trace("Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ", srcDpnId, srcTepIp, destTepIp);
+        LOG.info("handleTunnelEventForDPN: Handle tunnel event for srcDpn {} SrcTepIp {} DestTepIp {} ",
+                srcDpnId, srcTepIp, destTepIp);
         int tunTypeVal = getTunnelType(stateTunnelList);
-        LOG.trace("tunTypeVal is {}", tunTypeVal);
+        LOG.trace("handleTunnelEventForDPN: tunTypeVal is {}", tunTypeVal);
         try {
             if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                LOG.trace(" Tunnel ADD event received for Dpn {} VTEP Ip {} ", srcDpnId, srcTepIp);
+                LOG.info("handleTunnelEventForDPN: Tunnel ADD event received for Dpn {} VTEP Ip {} destTepIp",
+                        srcDpnId, srcTepIp, destTepIp);
                 if (isTunnelInLogicalGroup(stateTunnelList)) {
                     return;
                 }
             } else if (tunnelAction == TunnelAction.TUNNEL_EP_DELETE) {
-                LOG.trace(" Tunnel DELETE event received for Dpn {} VTEP Ip {} ", srcDpnId, srcTepIp);
+                LOG.info("handleTunnelEventForDPN: Tunnel DELETE event received for Dpn {} VTEP Ip {} DestTepIp",
+                        srcDpnId, srcTepIp, destTepIp);
                 // When tunnel EP is deleted on a DPN , VPN gets two deletion event.
                 // One for a DPN on which tunnel EP was deleted and another for other-end DPN.
                 // Update the adj for the vpninterfaces for a DPN on which TEP is deleted.
@@ -245,12 +250,14 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 try {
                     endpointIpForDPN = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, srcDpnId);
                 } catch (Exception e) {
+                    LOG.error("handleTunnelEventForDPN: Unable to resolve endpoint IP for srcDpn {}", srcDpnId);
                     /* this dpn does not have the VTEP */
                     endpointIpForDPN = null;
                 }
 
                 if (endpointIpForDPN == null) {
-                    LOG.trace("Tunnel TEP is deleted on Dpn {} VTEP Ip {}", srcDpnId, srcTepIp);
+                    LOG.info("handleTunnelEventForDPN: Tunnel TEP is deleted on Dpn {} VTEP Ip {} destTepIp", srcDpnId,
+                            srcTepIp, destTepIp);
                     isTepDeletedOnDpn = true;
                 }
             }
@@ -264,13 +271,15 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     intfRpcService.getDpnInterfaceList(new GetDpnInterfaceListInputBuilder().setDpid(srcDpnId).build());
                 RpcResult<GetDpnInterfaceListOutput> rpcResult = result.get();
                 if (!rpcResult.isSuccessful()) {
-                    LOG.warn("RPC Call to GetDpnInterfaceList for dpnid {} returned with Errors {}", srcDpnId,
-                        rpcResult.getErrors());
+                    LOG.error("handleTunnelEventForDPN: RPC Call to GetDpnInterfaceList for srcDpnid {} srcTepIp {}"
+                            + " destTepIP {} returned with Errors {}", srcDpnId, srcTepIp, destTepIp,
+                            rpcResult.getErrors());
                 } else {
                     srcDpninterfacelist = rpcResult.getResult().getInterfacesList();
                 }
             } catch (Exception e) {
-                LOG.warn("Exception when querying for GetDpnInterfaceList for dpnid {}", srcDpnId, e);
+                LOG.error("handleTunnelEventForDPN: Exception {} when querying for GetDpnInterfaceList for srcDpnid {}"
+                        + " srcTepIp {} destTepIp {}, trace {}", e, srcDpnId, srcTepIp, destTepIp, e.getStackTrace());
             }
 
             // Get the list of VpnInterfaces from Intf Mgr for a destDPN only for internal tunnel.
@@ -281,13 +290,16 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                         new GetDpnInterfaceListInputBuilder().setDpid(remoteDpnId).build());
                     RpcResult<GetDpnInterfaceListOutput> rpcResult = result.get();
                     if (!rpcResult.isSuccessful()) {
-                        LOG.warn("RPC Call to GetDpnInterfaceList for dpnid {} returned with Errors {}", srcDpnId,
-                            rpcResult.getErrors());
+                        LOG.error("handleTunnelEventForDPN: RPC Call to GetDpnInterfaceList for remoteDpnid {}"
+                                + " srcTepIP {} destTepIp {} returned with Errors {}", remoteDpnId, srcTepIp,
+                                destTepIp, rpcResult.getErrors());
                     } else {
                         destDpninterfacelist = rpcResult.getResult().getInterfacesList();
                     }
                 } catch (Exception e) {
-                    LOG.warn("Exception when querying for GetDpnInterfaceList for dpnid {}", srcDpnId, e);
+                    LOG.error("handleTunnelEventForDPN: Exception {} when querying for GetDpnInterfaceList"
+                            + " for remoteDpnid {} srcTepIp {} destTepIp {}, trace {}", e, remoteDpnId,
+                            srcTepIp, destTepIp, e.getStackTrace());
                 }
             }
 
@@ -349,8 +361,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     long vpnId = VpnUtil.getVpnId(dataBroker, vpnInterface.getVpnInstanceName());
                     if (vpnIdRdMap.containsKey(vpnId)) {
                         rd = vpnIdRdMap.get(vpnId);
-                        LOG.trace(" Remote DpnId {} VpnId {} rd {} VpnInterface {}", remoteDpnId, vpnId, rd,
-                            vpnInterface);
+                        LOG.info("handleTunnelEventForDPN: Remote DpnId {} VpnId {} rd {} VpnInterface {} srcTepIp {}"
+                                + " destTepIp {}", remoteDpnId, vpnId, rd , vpnInterface, srcTepIp, destTepIp);
                         for (Adjacency adj : adjList) {
                             prefix = adj.getIpAddress();
                             long label = adj.getLabel();
@@ -395,8 +407,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 }
             }
         } catch (Exception e) {
-            LOG.error("Unable to handle the tunnel event.", e);
-            return;
+            LOG.error("handleTunnelEventForDPN: Unable to handle the tunnel event for srcDpnId {} srcTepIp {}"
+                    + " remoteDpnid {} destTepIp {}", srcDpnId, srcTepIp, remoteDpnId, destTepIp, e);
         }
     }
 
@@ -503,7 +515,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 }
             }
         }
-        LOG.trace("MULTIPLE_VxLAN_TUNNELS: ignoring the tunnel event for {}", ifaceName);
+        LOG.trace("isTunnelInLogicalGroup: MULTIPLE_VxLAN_TUNNELS: ignoring the tunnel event for {}", ifaceName);
         return false;
     }
 }
