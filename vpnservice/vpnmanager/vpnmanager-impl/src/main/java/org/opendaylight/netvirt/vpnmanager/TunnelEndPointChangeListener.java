@@ -68,13 +68,13 @@ public class TunnelEndPointChangeListener
     protected void add(InstanceIdentifier<TunnelEndPoints> key, TunnelEndPoints tep) {
         BigInteger dpnId = key.firstIdentifierOf(DPNTEPsInfo.class).firstKeyOf(DPNTEPsInfo.class).getDPNID();
         if (BigInteger.ZERO.equals(dpnId)) {
-            LOG.warn("Invalid DPN id for TEP {}", tep.getInterfaceName());
+            LOG.warn("add: Invalid DPN id for TEP {}", tep.getInterfaceName());
             return;
         }
 
         List<VpnInstance> vpnInstances = VpnHelper.getAllVpnInstances(broker);
         if (vpnInstances == null || vpnInstances.isEmpty()) {
-            LOG.debug("No VPN instances defined");
+            LOG.warn("add: No VPN instances defined");
             return;
         }
 
@@ -83,7 +83,7 @@ public class TunnelEndPointChangeListener
         for (VpnInstance vpnInstance : vpnInstances) {
             final String vpnName = vpnInstance.getVpnInstanceName();
             final long vpnId = VpnUtil.getVpnId(broker, vpnName);
-            LOG.trace("Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
+            LOG.info("add: Handling TEP {} add for VPN instance {}", tep.getInterfaceName(), vpnName);
             final String primaryRd = VpnUtil.getPrimaryRd(broker, vpnName);
             if (!VpnUtil.isVpnPendingDelete(broker, primaryRd)) {
                 List<VpnInterfaces> vpnInterfaces = VpnUtil.getDpnVpnInterfaces(broker, vpnInstance, dpnId);
@@ -92,8 +92,6 @@ public class TunnelEndPointChangeListener
                         String vpnInterfaceName = vpnInterface.getInterfaceName();
                         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
                             () -> {
-                                LOG.trace("Handling TEP {} add for VPN instance {} VPN interface {}",
-                                        tep.getInterfaceName(), vpnName, vpnInterfaceName);
                                 WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                                 WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
                                 WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
@@ -104,7 +102,7 @@ public class TunnelEndPointChangeListener
                                         interfaceState =
                                         InterfaceUtils.getInterfaceStateFromOperDS(broker, vpnInterfaceName);
                                 if (interfaceState == null) {
-                                    LOG.debug("Cannot retrieve interfaceState for vpnInterfaceName {}, "
+                                    LOG.debug("add: Cannot retrieve interfaceState for vpnInterfaceName {}, "
                                             + "cannot generate lPortTag and process adjacencies", vpnInterfaceName);
                                     return futures;
                                 }
@@ -117,6 +115,8 @@ public class TunnelEndPointChangeListener
                                                 writeConfigTxn.submit(),
                                                 writeInvTxn.submit());
                                 futures.addAll(checkedFutures);
+                                LOG.trace("add: Handled TEP {} add for VPN instance {} VPN interface {}",
+                                        tep.getInterfaceName(), vpnName, vpnInterfaceName);
                                 return futures;
                             });
                     }
