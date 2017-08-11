@@ -320,6 +320,7 @@
         class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener"
         init-method="init" destroy-method="close">
   <argument ref="dataBroker" />
+  <argument ref="entityOwnershipService" />
   <argument ref="elanUtils" />
 
   </bean>

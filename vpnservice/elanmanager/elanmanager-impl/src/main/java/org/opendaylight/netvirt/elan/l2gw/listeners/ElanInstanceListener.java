@@ -12,13 +12,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.L2gatewayConnections;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,11 +36,14 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
 
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
+    private final EntityOwnershipService entityOwnershipService;
     private static final Map<String, List<Runnable>> WAITING_JOB_LIST = new ConcurrentHashMap<>();
 
-    public ElanInstanceListener(final DataBroker db, final ElanUtils elanUtils) {
+    public ElanInstanceListener(final DataBroker db, EntityOwnershipService entityOwnershipService,
+                                final ElanUtils elanUtils) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
+        this.entityOwnershipService = entityOwnershipService;
         this.l2GatewayConnectionUtils = elanUtils.getL2GatewayConnectionUtils();
         registerListener(LogicalDatastoreType.CONFIGURATION, db);
     }
@@ -48,17 +57,27 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     @Override
     protected void remove(final InstanceIdentifier<ElanInstance> identifier,
                           final ElanInstance del) {
-        LOG.debug("Elan instance {} deleted from Operational tree ", del);
-        List<L2gatewayConnection> l2gatewayConnections =
-                L2GatewayConnectionUtils.getL2GwConnectionsByElanName(
-                        this.broker, del.getElanInstanceName());
-        if (l2gatewayConnections != null) {
-            LOG.debug("L2Gatewconnection {} to be deleted as part of Elan Instance deletion {}",
-                    l2gatewayConnections, del);
-            for (L2gatewayConnection l2gatewayConnection : l2gatewayConnections) {
-                l2GatewayConnectionUtils.deleteL2GatewayConnection(l2gatewayConnection);
+        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, del.getElanInstanceName(), () -> {
+            LOG.info("Elan instance {} deleted from Configuration tree ", del);
+            List<L2gatewayConnection> connections =
+                    L2GatewayConnectionUtils.getL2GwConnectionsByElanName(
+                            this.broker, del.getElanInstanceName());
+            if (connections == null || connections.isEmpty()) {
+                return null;
             }
-        }
+            try {
+                ReadWriteTransaction tx = this.broker.newReadWriteTransaction();
+                for (L2gatewayConnection connection : connections) {
+                    InstanceIdentifier<L2gatewayConnection> iid = InstanceIdentifier.create(Neutron.class)
+                            .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.getKey());
+                    tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
+                }
+                tx.submit().checkedGet();
+            } catch (TransactionCommitFailedException e) {
+                LOG.error("Failed to delete associated l2gwconnection while deleting network", e);
+            }
+            return null;
+        });
     }
 
     @Override
