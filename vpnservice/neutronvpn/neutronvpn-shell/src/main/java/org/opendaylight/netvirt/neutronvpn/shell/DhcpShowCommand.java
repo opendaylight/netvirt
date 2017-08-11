@@ -51,7 +51,7 @@ public class DhcpShowCommand extends OsgiCommandSupport {
             session.getConsole().println("Default Domain: " + ((defDomain != null) ? defDomain : "openstacklocal"));
         } catch (Exception e) {
             session.getConsole().println("Failed to fetch configuration parameters. Try again");
-            LOG.error("Failed to fetch DHCP parameters",e);
+            LOG.error("Failed to fetch DHCP parameters", e);
         }
         return null;
     }
