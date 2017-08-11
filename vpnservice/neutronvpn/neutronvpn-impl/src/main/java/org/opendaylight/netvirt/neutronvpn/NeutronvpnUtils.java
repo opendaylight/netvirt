@@ -181,6 +181,7 @@ public class NeutronvpnUtils {
         if (sn.isPresent()) {
             return sn.get();
         }
+        LOG.error("getSubnetmap failed, subnet {} is not present", subnetId.getValue());
         return null;
     }
 
@@ -207,6 +208,7 @@ public class NeutronvpnUtils {
                 }
             }
         }
+        LOG.error("getVpnForNetwork: Failed for network {} as no VPN present in VPNMaps DS", network.getValue());
         return null;
     }
 
@@ -216,6 +218,7 @@ public class NeutronvpnUtils {
         if (optionalSubnetMap.isPresent()) {
             return optionalSubnetMap.get().getVpnId();
         }
+        LOG.error("getVpnForSubnet: Failed as subnetMap DS is absent for subnet {}", subnetId.getValue());
         return null;
     }
 
@@ -225,6 +228,7 @@ public class NeutronvpnUtils {
         if (optionalSubnetMap.isPresent()) {
             return optionalSubnetMap.get().getNetworkId();
         }
+        LOG.error("getNetworkForSubnet: Failed as subnetMap DS is absent for subnet {}", subnetId.getValue());
         return null;
     }
 
@@ -250,6 +254,7 @@ public class NeutronvpnUtils {
                 }
             }
         }
+        LOG.error("getVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId.getValue());
         return null;
     }
 
@@ -261,6 +266,7 @@ public class NeutronvpnUtils {
             VpnMap vpnMap = optionalVpnMap.get();
             return vpnMap.getRouterId();
         }
+        LOG.error("getRouterforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;
     }
 
@@ -272,6 +278,7 @@ public class NeutronvpnUtils {
             VpnMap vpnMap = optionalVpnMap.get();
             return vpnMap.getNetworkIds();
         }
+        LOG.error("getNetworksforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;
     }
 
@@ -297,6 +304,8 @@ public class NeutronvpnUtils {
         if (vpnPortipToPortData.isPresent()) {
             return vpnPortipToPortData.get().getPortName();
         }
+        LOG.error("getNeutronPortNameFromVpnPortFixedIp: Failed as vpnPortipToPortData DS is absent for VPN {} and"
+                + " fixed IP {}", vpnName, fixedIp);
         return null;
     }
 
@@ -306,6 +315,7 @@ public class NeutronvpnUtils {
         if (optionalNetworkMap.isPresent()) {
             return optionalNetworkMap.get().getSubnetIdList();
         }
+        LOG.error("getSubnetIdsFromNetworkId: Failed as networkmap DS is absent for network {}", networkId.getValue());
         return null;
     }
 
@@ -711,7 +721,7 @@ public class NeutronvpnUtils {
                 }
             } catch (InterruptedException e) {
                 locks.get(lockName).getRight().decrementAndGet();
-                LOG.error("Unable to acquire lock for  {}", lockName);
+                LOG.error("Unable to acquire lock for  {}", lockName, e);
                 throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
             }
         } else {
@@ -722,7 +732,7 @@ public class NeutronvpnUtils {
                 locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
             } catch (Exception e) {
                 locks.get(lockName).getRight().decrementAndGet();
-                LOG.error("Unable to acquire lock for  {}", lockName);
+                LOG.error("Unable to acquire lock for  {}", lockName, e);
                 throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
             }
         }
@@ -736,7 +746,7 @@ public class NeutronvpnUtils {
             try {
                 locks.get(lockName).getLeft().writeLock().unlock();
             } catch (Exception e) {
-                LOG.error("Unable to un-lock for " + lockName, e);
+                LOG.error("Unable to un-lock for {}", lockName, e);
                 return false;
             }
             if (0 == locks.get(lockName).getRight().decrementAndGet()) {
@@ -773,9 +783,10 @@ public class NeutronvpnUtils {
                 LOG.trace("Unable to read on subnet datastore");
             }
         } catch (Exception e) {
-            LOG.error("Failed to retrieve IP prefix from port : ", e);
+            LOG.error("Failed to retrieve IP prefix from port for port {}", port.getUuid().getValue(), e);
             System.out.println("Failed to retrieve IP prefix from port : " + e.getMessage());
         }
+        LOG.error("Failed for port {}", port.getUuid().getValue());
         return null;
     }
 
@@ -1046,6 +1057,8 @@ public class NeutronvpnUtils {
                 }
             }
         }
+        LOG.error("Error in getting provider network type since network provider extension is null for network "
+                + "{}", network.getUuid().getValue());
         return null;
     }
 
@@ -1056,7 +1069,10 @@ public class NeutronvpnUtils {
 
     static boolean isNetworkOfType(Network network, Class<? extends NetworkTypeBase> type) {
         NetworkProviderExtension npe = network.getAugmentation(NetworkProviderExtension.class);
-        return npe != null && npe.getNetworkType() != null && type.isAssignableFrom(npe.getNetworkType());
+        if (npe != null && npe.getNetworkType() != null) {
+            return type.isAssignableFrom(npe.getNetworkType());
+        }
+        return false;
     }
 
     static boolean isFlatOrVlanNetwork(Network network) {
@@ -1135,11 +1151,13 @@ public class NeutronvpnUtils {
             if (rpcResult.isSuccessful()) {
                 return rpcResult.getResult().getIdValue().intValue();
             } else {
-                LOG.debug("RPC Call to Get Unique Id returned with Errors", rpcResult.getErrors());
+                LOG.error("RPC call to get unique ID for pool name {} with ID key {} returned with errors {}",
+                        poolName, idKey, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.debug("Exception when getting Unique Id", e);
+            LOG.error("Exception when getting Unique Id for poolname {} and ID Key {}", poolName, idKey, e);
         }
+        LOG.error("getUniqueRdId: Failed to return ID for poolname {} and ID Key {}", poolName, idKey);
         return null;
     }
 
@@ -1149,12 +1167,13 @@ public class NeutronvpnUtils {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.debug("RPC Call to Get Unique Id returned with Errors", rpcResult.getErrors());
+                LOG.error("RPC Call to Get Unique Id returned with errors for poolname {} and ID Key {}",
+                        poolName, idKey, rpcResult.getErrors());
             } else {
-                LOG.info("ID for RD " + idKey + " released successfully");
+                LOG.info("ID {} for RD released successfully", idKey);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.debug("Exception when trying to release ID into the pool", idKey, e);
+            LOG.error("Exception when trying to release ID for poolname {} and ID Key {}", poolName, idKey, e);
         }
     }
 

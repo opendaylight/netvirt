@@ -55,6 +55,7 @@ import org.slf4j.LoggerFactory;
 
 public class VpnSubnetRouteHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnSubnetRouteHandler.class);
+    private static final String LOGGING_PREFIX = "SUBNETROUTE:";
     private final DataBroker dataBroker;
     private final SubnetOpDpnManager subOpDpnManager;
     private final IBgpManager bgpManager;
@@ -340,6 +341,13 @@ public class VpnSubnetRouteHandler {
                         portId.getValue(), subnetId.getValue());
                     return;
                 }
+                String vpnName = optionalSubs.get().getVpnName();
+                String subnetIp = optionalSubs.get().getSubnetCidr();
+                String rd = optionalSubs.get().getVrfId();
+                String routeAdvState = optionalSubs.get().getRouteAdvState().toString();
+                LOG.info("{} onPortAddedToSubnet: Port {} being added to subnet {} subnetIp {} vpnName {} rd {} "
+                                + "TaskState {}", LOGGING_PREFIX, portId.getValue(), subnetId.getValue(), subnetIp,
+                        vpnName, rd, routeAdvState);
                 subOpDpnManager.addPortOpDataEntry(portId.getValue(), subnetId, null);
                 Interface intfState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker,portId.getValue());
                 if (intfState == null) {
@@ -350,24 +358,33 @@ public class VpnSubnetRouteHandler {
                 try {
                     dpnId = InterfaceUtils.getDpIdFromInterface(intfState);
                 } catch (Exception e) {
-                    LOG.error("onSubnetAddedToVpn: Unable to obtain dpnId for interface {},",
-                            " subnetroute inclusion for this interface failed with exception",
-                            portId.getValue(), e);
+                    LOG.error("{} onPortAddedToSubnet: Unable to obtain dpnId for interface {}. subnetroute inclusion"
+                                    + " for this interface failed for subnet {} subnetIp {} vpn {} rd {} with "
+                                    + "exception {}", LOGGING_PREFIX, portId.getValue(), subnetId.getValue(), subnetIp,
+                            vpnName, rd, e);
                     return;
                 }
                 if (dpnId.equals(BigInteger.ZERO)) {
-                    LOG.info("onPortAddedToSubnet: Port {} is not assigned DPN yet, ignoring", portId.getValue());
+                    LOG.error("{} onPortAddedToSubnet: Port {} is not assigned DPN yet, ignoring subnetRoute "
+                                    + "inclusion for the interface into subnet {} subnetIp {} vpnName {} rd {}",
+                            LOGGING_PREFIX, portId.getValue(), subnetId.getValue(), subnetIp, vpnName, rd);
                     return;
                 }
                 subOpDpnManager.addPortOpDataEntry(portId.getValue(), subnetId, dpnId);
                 if (intfState.getOperStatus() != OperStatus.Up) {
-                    LOG.info("onPortAddedToSubnet: Port {} is not UP yet, ignoring ", portId.getValue());
+                    LOG.error("{} onPortAddedToSubnet: Port {} is not UP yet, ignoring subnetRoute inclusion for "
+                                    + "the interface into subnet {} subnetIp {} vpnName {} rd {}", LOGGING_PREFIX,
+                            portId.getValue(), subnetId.getValue(), subnetIp, vpnName, rd);
                     return;
                 }
-                LOG.debug("onPortAddedToSubnet: Updating the SubnetOpDataEntry node for subnet {}",
-                    subnetId.getValue());
+                LOG.debug("{} onPortAddedToSubnet: Port {} added. Updating the SubnetOpDataEntry node for subnet {} "
+                                + "subnetIp {} vpnName {} rd {} TaskState {}", LOGGING_PREFIX, portId.getValue(),
+                        subnetId.getValue(), subnetIp, vpnName, rd, routeAdvState);
                 SubnetToDpn subDpn = subOpDpnManager.addInterfaceToDpn(subnetId, dpnId, portId.getValue());
                 if (subDpn == null) {
+                    LOG.error("{} onPortAddedToSubnet: subnet-to-dpn list is null for subnetId {}. portId {}, "
+                                    + "vpnName {}, rd {}, subnetIp {}", LOGGING_PREFIX, subnetId.getValue(),
+                            portId.getValue(), vpnName, rd, subnetIp);
                     return;
                 }
                 SubnetOpDataEntry subnetOpDataEntry = optionalSubs.get();

@@ -135,12 +135,12 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
             if (interVpnLink.isPresent()) {
                 Optional<InterVpnLinkState> interVpnLinkState =
                         NeutronvpnUtils.getInterVpnLinkState(dataBroker, interVpnLink.get().getName());
-                if (interVpnLinkState.isPresent()
-                    && interVpnLinkState.get().getState() == InterVpnLinkState.State.Active) {
+                if (interVpnLinkState.isPresent() && interVpnLinkState.get().getState()
+                        == InterVpnLinkState.State.Active) {
                     interVpnLinkRoutes.add(route);
                     nexthopsXinterVpnLinks.put(nextHop, interVpnLink.get());
                 } else {
-                    LOG.warn("Failed installing route to {}. Reason: InterVPNLink {} is not Active",
+                    LOG.error("Failed installing route to {}. Reason: InterVPNLink {} is not Active",
                             String.valueOf(route.getDestination().getValue()), interVpnLink.get().getName());
                 }
             } else {
