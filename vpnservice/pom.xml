@@ -20,6 +20,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <packaging>pom</packaging>
   <modelVersion>4.0.0</modelVersion>
   <modules>
+    <module>coe</module>
     <module>commons</module>
     <module>model-bgp</module>
     <module>vpnmanager</module>
