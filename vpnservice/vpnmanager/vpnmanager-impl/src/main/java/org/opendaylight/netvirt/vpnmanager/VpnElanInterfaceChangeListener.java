@@ -47,18 +47,18 @@ public class VpnElanInterfaceChangeListener
     protected void remove(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceName = elanInterface.getName();
         if (!elanService.isExternalInterface(interfaceName)) {
-            LOG.trace("Interface {} is not external. Ignoring interface removal", interfaceName);
+            LOG.debug("remove: Interface {} is not external. Ignoring interface removal", interfaceName);
             return;
         }
 
         if (!VpnUtil.isVpnInterfaceConfigured(broker, interfaceName)) {
-            LOG.trace("VpnInterface was never configured for {}. Ignoring interface removal", interfaceName);
+            LOG.debug("remove: VpnInterface was never configured for {}. Ignoring interface removal", interfaceName);
             return;
         }
 
-        LOG.info("Removing VPN interface {}", interfaceName);
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnUtil.delete(broker, LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier);
+        LOG.info("remove: Removed VPN interface {}", interfaceName);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class VpnElanInterfaceChangeListener
     protected void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceName = elanInterface.getName();
         if (!elanService.isExternalInterface(interfaceName)) {
-            LOG.trace("Interface {} is not external. Ignoring", interfaceName);
+            LOG.debug("add: Interface {} is not external. Ignoring", interfaceName);
             return;
         }
 
@@ -79,20 +79,23 @@ public class VpnElanInterfaceChangeListener
         try {
             networkId = new Uuid(elanInterface.getElanInstanceName());
         } catch (IllegalArgumentException e) {
-            LOG.debug("ELAN instance {} is not Uuid", elanInterface.getElanInstanceName());
+            LOG.debug("add: ELAN instance {} for interface {} is not Uuid", elanInterface.getElanInstanceName(),
+                    elanInterface.getName());
             return;
         }
 
         Uuid vpnId = VpnUtil.getExternalNetworkVpnId(broker, networkId);
         if (vpnId == null) {
-            LOG.trace("Network {} is not external or vpn-id missing. Ignoring", networkId.getValue());
+            LOG.debug("add: Network {} is not external or vpn-id missing. Ignoring interface {} on elan {}",
+                    networkId.getValue(), elanInterface.getName(), elanInterface.getElanInstanceName());
             return;
         }
 
-        LOG.info("Adding VPN interface {} with VPN-id {}", interfaceName, vpnId.getValue());
         VpnInterface vpnInterface = VpnUtil.getVpnInterface(interfaceName, vpnId.getValue(), null, null, Boolean.FALSE);
         InstanceIdentifier<VpnInterface> vpnInterfaceIdentifier = VpnUtil.getVpnInterfaceIdentifier(interfaceName);
         VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, vpnInterfaceIdentifier, vpnInterface);
+        LOG.info("add: Added VPN interface {} with VPN-id {} elanInstance {}", interfaceName, vpnId.getValue(),
+                elanInterface.getElanInstanceName());
     }
 
     @Override
