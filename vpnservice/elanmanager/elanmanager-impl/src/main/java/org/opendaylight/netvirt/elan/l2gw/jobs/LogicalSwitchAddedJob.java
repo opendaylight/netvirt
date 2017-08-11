@@ -65,6 +65,7 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
+        elanL2GatewayUtils.cancelDeleteLogicalSwitch(new NodeId(elanL2GwDevice.getHwvtepNodeId()), logicalSwitchName);
         LOG.debug("running logical switch added job for {} {}", logicalSwitchName,
                 elanL2GwDevice.getHwvtepNodeId());
         List<ListenableFuture<Void>> futures = new ArrayList<>();
