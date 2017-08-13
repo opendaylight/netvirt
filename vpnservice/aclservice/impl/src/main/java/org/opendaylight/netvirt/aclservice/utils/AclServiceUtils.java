@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
@@ -303,7 +304,7 @@ public final class AclServiceUtils {
      */
     public static List<MatchInfoBase> buildDhcpMatches(int srcPort, int dstPort, int lportTag,
             Class<? extends ServiceModeBase> serviceMode) {
-        List<MatchInfoBase> matches = new ArrayList<>(6);
+        List<MatchInfoBase> matches = new ArrayList<>(5);
         matches.add(MatchEthernetType.IPV4);
         matches.add(MatchIpProtocol.UDP);
         matches.add(new MatchUdpDestinationPort(dstPort));
@@ -495,6 +496,28 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
+    /**
+     * Builds the arp ip matches.
+     * @param ipPrefixOrAddress the ip prefix or address
+     * @return the MatchInfoBase list
+     */
+    public static List<MatchInfoBase> buildArpIpMatches(IpPrefixOrAddress ipPrefixOrAddress) {
+        List<MatchInfoBase> flowMatches = new ArrayList<>();
+        IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
+        if (ipPrefix != null) {
+            Ipv4Prefix ipv4Prefix = ipPrefix.getIpv4Prefix();
+            if (ipv4Prefix != null && !ipv4Prefix.getValue().equals(AclConstants.IPV4_ALL_NETWORK)) {
+                flowMatches.add(new MatchArpSpa(ipv4Prefix));
+            }
+        } else {
+            IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
+            if (ipAddress.getIpv4Address() != null) {
+                flowMatches.add(new MatchArpSpa(ipAddress.getIpv4Address().getValue(), "32"));
+            }
+        }
+        return flowMatches;
+    }
+
     private List<MatchInfoBase> buildAclIdMetadataMatch(Uuid remoteAclId) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         BigInteger aclId = buildAclId(remoteAclId);
@@ -606,7 +629,7 @@ public final class AclServiceUtils {
         return config;
     }
 
-    private static boolean isIPv4Address(AllowedAddressPairs aap) {
+    public static boolean isIPv4Address(AllowedAddressPairs aap) {
         IpPrefixOrAddress ipPrefixOrAddress = aap.getIpAddress();
         IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
         if (ipPrefix != null) {
@@ -615,7 +638,7 @@ public final class AclServiceUtils {
             }
         } else {
             IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
-            if (ipAddress.getIpv4Address() != null) {
+            if (ipAddress != null && ipAddress.getIpv4Address() != null) {
                 return true;
             }
         }
