@@ -15,6 +15,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
+import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
@@ -32,6 +33,7 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder
 import org.opendaylight.genius.mdsalutil.MetaDataUtil
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 import org.opendaylight.genius.mdsalutil.NwConstants
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
@@ -355,7 +357,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F4"
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F410.0.0.2/32"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -365,6 +367,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchArpSpa(new Ipv4Prefix("10.0.0.2/32")),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
@@ -462,7 +466,27 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:A4"
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:F410.0.0.100/32"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2054L),
+                    new MatchArpSha(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchArpSpa(new Ipv4Prefix("10.0.0.100/32")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 63010
+                tableId = NwConstants.INGRESS_ACL_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_ARP_123_987_0D:AA:D8:42:30:A410.0.0.101/32"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -472,10 +496,54 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchArpSpa(new Ipv4Prefix("10.0.0.101/32")),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Client_v4123_987_0D:AA:D8:42:30:A4_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(2048L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(67 as short),
+                    new MatchUdpSourcePort(68 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4"))
+                ]
+                priority = 63010
+                tableId = 211 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_DHCP_Client_v6_123_987_0D:AA:D8:42:30:A4_Permit_"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetType(34525L),
+                    new MatchIpProtocol(17 as short),
+                    new MatchUdpDestinationPort(547 as short),
+                    new MatchUdpSourcePort(546 as short),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4"))
+                ]
+                priority = 63010
+                tableId = 211 as short
             ]
         ]
     }
@@ -1837,7 +1905,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_DHCP_Client_v4123_987__Permit_"
+                flowId = "Egress_DHCP_Client_v4123_987_" + mac + "_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1849,7 +1917,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(67 as short),
                     new MatchUdpSourcePort(68 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
                 tableId = 211 as short
@@ -1857,7 +1926,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
+                flowId = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1869,7 +1938,8 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(547 as short),
                     new MatchUdpSourcePort(546 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
                 tableId = 211 as short
@@ -2065,6 +2135,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress(mac)),
+                    new MatchEthernetSource(new MacAddress(mac)),
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
