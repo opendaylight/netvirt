@@ -13,6 +13,8 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
+import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6
@@ -27,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
@@ -953,7 +956,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_DHCP_Client_v4123_987__Permit_"
+                flowId = "Egress_DHCP_Client_v4123_987_" + mac + "_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -965,7 +968,8 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(67 as short),
                     new MatchUdpSourcePort(68 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
                 tableId = 211 as short
@@ -973,7 +977,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_DHCP_Client_v6_123_987__Permit_"
+                flowId = "Egress_DHCP_Client_v6_123_987_" + mac + "_Permit_"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -985,7 +989,8 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchIpProtocol(17 as short),
                     new MatchUdpDestinationPort(547 as short),
                     new MatchUdpSourcePort(546 as short),
-                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG),
+                    new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
                 tableId = 211 as short
@@ -1100,7 +1105,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
-                flowId = "Egress_ARP_123_987_" + mac
+                flowId = "Egress_ARP_123_987_" + mac + "10.0.0.1/32"
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
@@ -1110,6 +1115,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 matchInfoList = #[
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress(mac)),
+                    new MatchArpSpa(new Ipv4Prefix("10.0.0.1/32")),
                     new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
                 ]
                 priority = 63010
