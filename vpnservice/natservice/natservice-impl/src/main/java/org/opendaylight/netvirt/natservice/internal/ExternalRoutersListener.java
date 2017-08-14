@@ -251,19 +251,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             long segmentId = NatUtil.getVpnId(dataBroker, routerName);
             // Allocate Primary Napt Switch for this router
             BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, segmentId);
-            if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
-                LOG.error("add : Failed to get or allocate NAPT switch for router {}. NAPT"
-                        + " flow installation will be delayed", routerName);
-                return;
-            }
+            if (primarySwitchId != null && primarySwitchId.equals(BigInteger.ZERO)) {
+                handleRouterGwFlows(routers, primarySwitchId, NwConstants.ADD_FLOW);
+                if (!routers.isEnableSnat()) {
+                    LOG.info("add : SNAT is disabled for external router {} ", routerName);
+                    return;
+                }
 
-            handleRouterGwFlows(routers, primarySwitchId, NwConstants.ADD_FLOW);
-            if (!routers.isEnableSnat()) {
-                LOG.info("add : SNAT is disabled for external router {} ", routerName);
-                return;
+                handleEnableSnat(routers, segmentId, primarySwitchId);
             }
-
-            handleEnableSnat(routers, segmentId, primarySwitchId);
         }
     }
 
@@ -333,9 +329,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         NatOverVxlanUtil.getRouterVni(idManager, routerName, NatConstants.INVALID_ID);
         primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
         LOG.debug("handleEnableSnat : Primary NAPT switch DPN ID {}", primarySwitchId);
-        if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.info("handleEnableSnat : Unable to to select the primary NAPT switch for router {}", routerName);
-        }
 
         return primarySwitchId;
     }
@@ -487,7 +480,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private void addOrDelDefaultFibRouteForSNAT(String routerName, boolean create) {
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
         if (switches == null || switches.isEmpty()) {
-            LOG.error("addOrDelDefaultFibRouteForSNAT : No switches found for router {}", routerName);
+            LOG.debug("addOrDelDefaultFibRouteForSNAT : No switches found for router {}", routerName);
             return;
         }
         long routerId = NatUtil.readVpnId(dataBroker, routerName);
@@ -1198,8 +1191,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
              */
             BigInteger dpnId = getPrimaryNaptSwitch(routerName, routerId);
             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                LOG.error("update : Failed to get or allocate NAPT switch for router {} during Update()",
-                        routerName);
+                // Router has no interface attached
                 return;
             }
             Uuid networkId = original.getNetworkId();
@@ -1639,9 +1631,17 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
 
                 BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-                handleRouterGwFlows(router, primarySwitchId, NwConstants.DEL_FLOW);
-                Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
-                handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId);
+                if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
+                    // No NAPT switch for external router, probably because the router is not attached to any
+                    // internal networks
+                    LOG.debug("No NAPT switch for router {}, check if router is attached to any internal network",
+                            routerName);
+                    return;
+                } else {
+                    handleRouterGwFlows(router, primarySwitchId, NwConstants.DEL_FLOW);
+                    Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+                    handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId);
+                }
                 NatOverVxlanUtil.releaseVNI(routerName, idManager);
             }
         }
