@@ -39,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NetvirtsfcAclActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.RedirectToSfc;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -123,15 +124,27 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
+        List<String> interfaces = new ArrayList<>();
+        NeutronNetwork network = matches.getAugmentation(NeutronNetwork.class);
+        if (network != null) {
+            interfaces.addAll(netvirtProvider.getLogicalInterfacesFromNeutronNetwork(network));
+        }
+
+        Optional.ofNullable(matches.getAugmentation(NeutronPorts.class))
+                .map(NeutronPorts::getSourcePortUuid)
+                .filter(interfaces::contains)
+                .ifPresent(interfaces::add);
+
+        if (interfaces.isEmpty()) {
+            LOG.error("Ace has no neutron entity to match against");
+            return Collections.emptySet();
+        }
 
         Map<NodeId, List<InterfaceKey>> nodeToInterfaces = new HashMap<>();
-        NeutronNetwork neutronNetwork = matches.getAugmentation(NeutronNetwork.class);
-        if (neutronNetwork != null) {
-            for (String iface : netvirtProvider.getLogicalInterfacesFromNeutronNetwork(neutronNetwork)) {
-                geniusProvider.getNodeIdFromLogicalInterface(iface).ifPresent(
-                    nodeId -> nodeToInterfaces.computeIfAbsent(nodeId, key -> new ArrayList<>()).add(
-                            new InterfaceKey(iface)));
-            }
+        for (String iface : interfaces) {
+            geniusProvider.getNodeIdFromLogicalInterface(iface).ifPresent(
+                nodeId -> nodeToInterfaces.computeIfAbsent(nodeId, key -> new ArrayList<>()).add(
+                        new InterfaceKey(iface)));
         }
 
         LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);
