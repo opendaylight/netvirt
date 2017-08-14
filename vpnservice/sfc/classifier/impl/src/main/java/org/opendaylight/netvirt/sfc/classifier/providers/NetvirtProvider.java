@@ -23,7 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetwork;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,15 +38,14 @@ public class NetvirtProvider {
         this.dataBroker = dataBroker;
     }
 
-    public List<String> getLogicalInterfacesFromNeutronNetwork(NeutronNetwork nw) {
+    public List<String> getLogicalInterfacesFromNeutronNetwork(String nw) {
         InstanceIdentifier<NetworkMap> networkMapIdentifier =
-                getNetworkMapIdentifier(new Uuid(nw.getNetworkUuid()));
+                getNetworkMapIdentifier(new Uuid(nw));
 
         NetworkMap networkMap =
                 MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier).orNull();
         if (networkMap == null) {
-            LOG.warn("getLogicalInterfacesFromNeutronNetwork cant get NetworkMap for NW UUID [{}]",
-                    nw.getNetworkUuid());
+            LOG.warn("getLogicalInterfacesFromNeutronNetwork cant get NetworkMap for NW UUID [{}]", nw);
             return Collections.emptyList();
         }
 
@@ -58,16 +56,12 @@ public class NetvirtProvider {
                 InstanceIdentifier<Subnetmap> subnetId = getSubnetMapIdentifier(subnetUuid);
                 Subnetmap subnet = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subnetId).orNull();
                 if (subnet == null) {
-                    LOG.warn(
-                            "getLogicalInterfacesFromNeutronNetwork cant get Subnetmap for NW UUID [{}] Subnet UUID "
-                                    + "[{}]",
-                            nw.getNetworkUuid(), subnetUuid.getValue());
+                    LOG.warn("Cant get Subnetmap for NW UUID [{}] Subnet UUID [{}]", nw, subnetUuid.getValue());
                     continue;
                 }
 
                 if (subnet.getPortList() == null || subnet.getPortList().isEmpty()) {
-                    LOG.warn("getLogicalInterfacesFromNeutronNetwork No ports on Subnet: NW UUID [{}] Subnet UUID [{}]",
-                            nw.getNetworkUuid(), subnetUuid.getValue());
+                    LOG.warn("No ports on Subnet: NW UUID [{}] Subnet UUID [{}]", nw, subnetUuid.getValue());
                     continue;
                 }
 

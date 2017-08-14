@@ -27,6 +27,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronPortsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.RedirectToSfc;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.RedirectToSfcBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV4;
@@ -58,6 +60,7 @@ public class FlowClassifierTranslator {
 
         ActionsBuilder actionsBuilder = new ActionsBuilder();
         RedirectToSfcBuilder redirectToSfcBuilder = new RedirectToSfcBuilder();
+        NeutronPortsBuilder neutronPortsBuilder = new NeutronPortsBuilder();
 
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         DestinationPortRangeBuilder destinationPortRange = new DestinationPortRangeBuilder();
@@ -128,10 +131,10 @@ public class FlowClassifierTranslator {
             destinationPortRange.setUpperPort(new PortNumber(flowClassifier.getDestinationPortRangeMax()));
         }
         if (flowClassifier.getLogicalSourcePort() != null) {
-            // No respective ACL construct for it.
+            neutronPortsBuilder.setSourcePortUuid(flowClassifier.getLogicalSourcePort().getValue());
         }
         if (flowClassifier.getLogicalDestinationPort() != null) {
-            // No respective ACL construct for it.
+            neutronPortsBuilder.setDestinationPortUuid((flowClassifier.getLogicalDestinationPort().getValue()));
         }
         if (flowClassifier.getL7Parameter() != null) {
             //It's currently not supported.
@@ -139,6 +142,7 @@ public class FlowClassifierTranslator {
 
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(aceIpBuilder.build());
+        matchesBuilder.addAugmentation(NeutronPorts.class, neutronPortsBuilder.build());
 
         //Set redirect-to-rsp action if rsp name is provided
         if (rspName != null) {
