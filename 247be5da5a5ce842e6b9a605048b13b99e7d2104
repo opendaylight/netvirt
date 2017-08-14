@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_30e81010",
+        "filename": "vpnservice/sfc/translator/src/main/java/org/opendaylight/netvirt/sfc/translator/OpenStackSFCTranslatorProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6230
+      },
+      "writtenOn": "2017-08-14T14:33:02Z",
+      "side": 1,
+      "message": "You could make this public and reuse it in PortPairTranslator, instead of defining a new one there.\nI suggest the variabe name NETVIRT_LOGICAL_SFF_NAME, as right now is more of a constant than a default that can be changed for something else.",
+      "range": {
+        "startLine": 30,
+        "startChar": 32,
+        "endLine": 30,
+        "endChar": 42
+      },
+      "revId": "247be5da5a5ce842e6b9a605048b13b99e7d2104",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
