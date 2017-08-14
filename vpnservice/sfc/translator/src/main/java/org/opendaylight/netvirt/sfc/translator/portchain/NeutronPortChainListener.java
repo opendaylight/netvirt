@@ -14,8 +14,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -60,7 +58,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
 
     private static final InstanceIdentifier<PortChain> PORT_CHAIN_IID =
             InstanceIdentifier.create(Neutron.class).child(PortChains.class).child(PortChain.class);
-    private final ExecutorService eventProcessor;
     private final SfcMdsalHelper sfcMdsalHelper;
     private final NeutronMdsalHelper neutronMdsalHelper;
     private final OvsdbMdsalHelper ovsdbMdsalHelper;
@@ -73,7 +70,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         this.ovsdbMdsalHelper = new OvsdbMdsalHelper(db);
         this.rspService = rspService;
         ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Port-Chain-Event-Processor").build();
-        this.eventProcessor = Executors.newSingleThreadExecutor(threadFactory);
     }
 
     /**
@@ -119,7 +115,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
     @Override
     public void add(final InstanceIdentifier<PortChain> path, final PortChain newPortChain) {
         processPortChain(newPortChain);
-        eventProcessor.submit(() -> processPortChain(newPortChain));
     }
 
     private void processPortChain(PortChain newPortChain) {
