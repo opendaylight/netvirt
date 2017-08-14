@@ -47,10 +47,10 @@ public class ClassifierUpdate implements Runnable {
 
         classifierRenderers.forEach(
             classifierRenderer -> {
-                entriesToAdd.forEach(classifierRenderableEntry ->
-                        classifierRenderableEntry.render(classifierRenderer));
                 entriesToRemove.forEach(classifierRenderableEntry ->
                         classifierRenderableEntry.suppress(classifierRenderer));
+                entriesToAdd.forEach(classifierRenderableEntry ->
+                        classifierRenderableEntry.render(classifierRenderer));
             });
     }
 }
