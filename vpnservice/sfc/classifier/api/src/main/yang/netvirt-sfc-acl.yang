@@ -18,6 +18,17 @@ module netvirt-sfc-acl {
         }
     }
 
+    augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries/ietf-acl:ace/ietf-acl:matches" {
+        description "Match traffic based on its source or destination neutron port";
+        ext:augment-identifier "neutron-ports";
+        leaf source-port-uuid {
+            type string;
+        }
+        leaf destination-port-uuid {
+            type string;
+        }
+    }
+
     grouping netvirtsfc-acl-actions {
         leaf sfc-name {
             type string;
