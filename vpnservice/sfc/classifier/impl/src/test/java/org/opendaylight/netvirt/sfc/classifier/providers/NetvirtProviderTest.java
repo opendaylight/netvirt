@@ -27,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.sfc.acl.rev150105.NeutronNetworkBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class NetvirtProviderTest extends ConstantSchemaAbstractDataBrokerTest {
@@ -48,37 +47,27 @@ public class NetvirtProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     public void getLogicalInterfacesFromNeutronNetwork() {
 
         // Network doesnt exist
-        NeutronNetworkBuilder nwBuilder = new NeutronNetworkBuilder();
-        nwBuilder.setNetworkUuid(NW_UUID_NOEXIST_STR);
-        List<String> interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(nwBuilder.build());
+        List<String> interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(NW_UUID_NOEXIST_STR);
         assertTrue(interfaces.isEmpty());
 
         // Network exists, subnet list empty
         createNetworkMap(NW_UUID_STR);
-        nwBuilder = new NeutronNetworkBuilder();
-        nwBuilder.setNetworkUuid(NW_UUID_STR);
-        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(nwBuilder.build());
+        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(NW_UUID_STR);
         assertTrue(interfaces.isEmpty());
 
         // Network exists, subnet does not exist
         createNetworkMap(NW_UUID_STR, SUBNET_UUID_STR, false, EMPTY_STR);
-        nwBuilder = new NeutronNetworkBuilder();
-        nwBuilder.setNetworkUuid(NW_UUID_STR);
-        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(nwBuilder.build());
+        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(NW_UUID_STR);
         assertTrue(interfaces.isEmpty());
 
         // Network exists, subnet exists, no ports
         createNetworkMap(NW_UUID_STR, SUBNET_UUID_STR, true, EMPTY_STR);
-        nwBuilder = new NeutronNetworkBuilder();
-        nwBuilder.setNetworkUuid(NW_UUID_STR);
-        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(nwBuilder.build());
+        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(NW_UUID_STR);
         assertTrue(interfaces.isEmpty());
 
         // Network exists, subnet exists, port exists
         createNetworkMap(NW_UUID_STR, SUBNET_UUID_STR, true, PORT_UUID_STR);
-        nwBuilder = new NeutronNetworkBuilder();
-        nwBuilder.setNetworkUuid(NW_UUID_STR);
-        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(nwBuilder.build());
+        interfaces = netvirtProvider.getLogicalInterfacesFromNeutronNetwork(NW_UUID_STR);
         assertFalse(interfaces.isEmpty());
     }
 

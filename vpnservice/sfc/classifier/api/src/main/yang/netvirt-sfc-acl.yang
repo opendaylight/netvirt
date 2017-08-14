@@ -11,9 +11,18 @@ module netvirt-sfc-acl {
     }
 
     augment "/ietf-acl:access-lists/ietf-acl:acl/ietf-acl:access-list-entries/ietf-acl:ace/ietf-acl:matches" {
-        description "Neutron network uuid";
-        ext:augment-identifier "neutron-network";
-        leaf network-uuid {
+        description "Match on neutron entities";
+        ext:augment-identifier "neutron-matches";
+        leaf source-network-uuid {
+            description "Match traffic originating on this network";
+            type string;
+        }
+        leaf source-port-uuid {
+            description "Match traffic originating on this port";
+            type string;
+        }
+        leaf destination-port-uuid {
+            description "Match traffic terminating on this port";
             type string;
         }
     }
