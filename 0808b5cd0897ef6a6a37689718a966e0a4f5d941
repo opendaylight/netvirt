@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_07baf7dd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 457,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-14T09:21:27Z",
+      "side": 1,
+      "message": "Method name is already included. installSubnetRouterInFib is the method name",
+      "parentUuid": "ba1f61a0_93e2ad9d",
+      "revId": "0808b5cd0897ef6a6a37689718a966e0a4f5d941",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_d3f38571",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-11T16:29:47Z",
       "side": 1,
       "message": "might as well use the same conventions across the patch - some use a static string , others use this prefix. Maybe there is a better way than adding this prefix so that we can leverage this across all the modules.\n\nAnd the same consistency, most logs are just starting with the method name, where that is different here.",
+      "revId": "0808b5cd0897ef6a6a37689718a966e0a4f5d941",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c7a61fc1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-14T09:21:27Z",
+      "side": 1,
+      "message": "The idea behind the logging prefix was to identify a particular use case. In some files such as this, its easier to identify the use case since the entire file caters to the subnet-route feature.\n\nIn other files, its not straight-forward. Te same method is being used for multiple features and use-cases, hence adding a prefix there is challenging. Hence they have only the method name in them.\n\nI think we can retain this, until we find a centralised way to leverage logging prefixes across modules.",
+      "parentUuid": "ba1f61a0_d3f38571",
       "revId": "0808b5cd0897ef6a6a37689718a966e0a4f5d941",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
