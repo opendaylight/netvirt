@@ -118,7 +118,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      */
     @Override
     public void add(final InstanceIdentifier<PortChain> path, final PortChain newPortChain) {
-        processPortChain(newPortChain);
         eventProcessor.submit(() -> processPortChain(newPortChain));
     }
 
