@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_827415fe",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-08-14T12:52:34Z",
+      "side": 1,
+      "message": "I see fundamental issue with this design approach :\n\n\"vpnInterface.getVpnInstanceName().get(0)\" will always give only one router VPN Instance Name. So this vpninterface/port will always be part of the same router instance which might be either of IPv4/IPv6. VpnInterface IPv4 adj is part of Router1(IPv4) capable and VpnInterface IPv6 adj is part of Router2(IPv6) capable.\n\nWhen BGP-VPN is created and these two routes i.e Router1 and Router2 are associated with BGP-VPN , the swap of interface from internal-VPN(Router VPN) to BGP-VPN will fail",
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
