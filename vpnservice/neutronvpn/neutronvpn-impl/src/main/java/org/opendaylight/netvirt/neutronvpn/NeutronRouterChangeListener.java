@@ -82,17 +82,19 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     protected void remove(InstanceIdentifier<Router> identifier, Router input) {
         LOG.trace("Removing router : key: {}, value={}", identifier, input);
         Uuid routerId = input.getUuid();
-        //NOTE: Pass an empty routerSubnetIds list, as router interfaces
-        //will be removed from VPN by invocations from NeutronPortChangeListener
-        List<Uuid> routerSubnetIds = new ArrayList<>();
-        nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
-
         // Handle router deletion for the NAT service
+        /*External Router and networks is handled before deleting the internal VPN, as there is dependency
+        on vpn operational data to release Lport tag in case of L3VPN over VxLAN*/
         if (input.getExternalGatewayInfo() != null) {
             Uuid extNetId = input.getExternalGatewayInfo().getExternalNetworkId();
             List<ExternalFixedIps> externalFixedIps = input.getExternalGatewayInfo().getExternalFixedIps();
             nvpnNatManager.removeExternalNetworkFromRouter(extNetId, input, externalFixedIps);
         }
+        //NOTE: Pass an empty routerSubnetIds list, as router interfaces
+        //will be removed from VPN by invocations from NeutronPortChangeListener
+        List<Uuid> routerSubnetIds = new ArrayList<>();
+        nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
+
         NeutronvpnUtils.removeFromRouterCache(input);
     }
 
