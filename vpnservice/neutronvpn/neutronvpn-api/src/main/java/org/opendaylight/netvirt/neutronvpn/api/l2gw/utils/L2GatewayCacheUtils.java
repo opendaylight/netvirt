@@ -83,4 +83,24 @@ public class L2GatewayCacheUtils {
         addL2DeviceToCache(psName, l2GwDevice);
         return l2GwDevice;
     }
+
+    public static synchronized  L2GatewayDevice updateL2GatewayCache(String psName, String hwvtepNodeId,
+                                                                     List<TunnelIps> tunnelIps) {
+        L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
+        if (l2GwDevice == null) {
+            l2GwDevice = new L2GatewayDevice();
+            l2GwDevice.setDeviceName(psName);
+        }
+        l2GwDevice.setConnected(true);
+        l2GwDevice.setHwvtepNodeId(hwvtepNodeId);
+
+        if (tunnelIps != null && !tunnelIps.isEmpty()) {
+            for (TunnelIps tunnelIp : tunnelIps) {
+                IpAddress tunnelIpAddr = tunnelIp.getTunnelIpsKey();
+                l2GwDevice.addTunnelIp(tunnelIpAddr);
+            }
+        }
+        addL2DeviceToCache(psName, l2GwDevice);
+        return l2GwDevice;
+    }
 }

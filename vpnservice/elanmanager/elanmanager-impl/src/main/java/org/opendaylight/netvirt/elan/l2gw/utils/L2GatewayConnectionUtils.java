@@ -31,6 +31,7 @@ import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -276,7 +277,7 @@ public class L2GatewayConnectionUtils {
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     createLogicalSwitch = true;
                 } else {
-                    addL2DeviceToElanL2GwCache(broker ,elanName, l2GatewayDevice, l2GwConnId, l2Device);
+                    addL2DeviceToElanL2GwCache(broker ,elanName, elanUtils, l2GatewayDevice, l2GwConnId, l2Device);
                     createLogicalSwitch = false;
                 }
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
@@ -294,6 +295,7 @@ public class L2GatewayConnectionUtils {
     }
 
     public static L2GatewayDevice addL2DeviceToElanL2GwCache(final DataBroker broker, String elanName,
+                                                             ElanUtils elanUtils,
                                                              L2GatewayDevice l2GatewayDevice,
             Uuid l2GwConnId, Devices l2Device) {
         String l2gwDeviceNodeId = l2GatewayDevice.getHwvtepNodeId();
@@ -312,7 +314,7 @@ public class L2GatewayConnectionUtils {
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
         elanL2GwDevice.getL2gwConnectionIdToDevices().computeIfAbsent(l2GwConnId, key -> new HashSet<>()).add(
                 l2Device);
-        readAndCopyLocalUcastMacsToCache(broker, elanName, l2GatewayDevice);
+        readAndCopyLocalUcastMacsToCache(broker, elanUtils, elanName, l2GatewayDevice);
 
         LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;
@@ -327,6 +329,7 @@ public class L2GatewayConnectionUtils {
     }
 
     private static void readAndCopyLocalUcastMacsToCache(final DataBroker broker,
+                                                         final ElanUtils elanUtils,
                                                          final String elanName,
                                                          final L2GatewayDevice l2GatewayDevice) {
 
@@ -339,15 +342,26 @@ public class L2GatewayConnectionUtils {
                     new SettableFutureCallback<Optional<Node>>(settableFuture) {
                         @Override
                         public void onSuccess(Optional<Node> resultNode) {
+                            HwvtepLocalUcastMacListener localUcastMacListener =
+                                    new HwvtepLocalUcastMacListener(broker, elanUtils);
+                            settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = (Optional<Node>) resultNode;
                             if (nodeOptional.isPresent()) {
                                 Node node = nodeOptional.get();
                                 if (node.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
                                     List<LocalUcastMacs> localUcastMacs =
                                             node.getAugmentation(HwvtepGlobalAugmentation.class).getLocalUcastMacs();
-                                    if (localUcastMacs != null) {
-                                        localUcastMacs.forEach(l2GatewayDevice::addUcastLocalMac);
+                                    if (localUcastMacs == null) {
+                                        return;
                                     }
+                                    localUcastMacs.stream()
+                                            .filter((mac) -> {
+                                                return macBelongsToLogicalSwitch(mac, elanName);
+                                            })
+                                            .forEach((mac) -> {
+                                                InstanceIdentifier<LocalUcastMacs> macIid = getMacIid(nodeIid, mac);
+                                                localUcastMacListener.added(macIid, mac);
+                                            });
                                 }
                             }
                         }
@@ -375,4 +389,15 @@ public class L2GatewayConnectionUtils {
         }
         return l2GwConnections;
     }
+
+    private static boolean macBelongsToLogicalSwitch(LocalUcastMacs mac, String logicalSwitchName) {
+        InstanceIdentifier<LogicalSwitches> iid = (InstanceIdentifier<LogicalSwitches>)
+                mac.getLogicalSwitchRef().getValue();
+        return iid.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue().equals(logicalSwitchName);
+    }
+
+    static InstanceIdentifier<LocalUcastMacs> getMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
+        return nodeIid.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, mac.getKey());
+    }
+
 }
