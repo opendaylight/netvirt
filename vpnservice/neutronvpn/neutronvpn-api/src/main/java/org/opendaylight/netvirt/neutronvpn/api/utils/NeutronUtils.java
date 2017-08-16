@@ -8,8 +8,10 @@
 
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
+import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -39,6 +41,7 @@ public class NeutronUtils {
     public static final String PORT_STATUS_DOWN = "DOWN";
     public static final String PORT_STATUS_ERROR = "ERROR";
     public static final String PORT_STATUS_NOTAPPLICABLE = "N/A";
+    private static Pattern uuidPattern;
 
     /**
      * Create a Neutron Port status entry in the operational data store.
@@ -191,5 +194,22 @@ public class NeutronUtils {
         return segmentationId;
     }
 
+    public static boolean isUuid(String possibleUuid) {
+        Preconditions.checkNotNull(possibleUuid, "possibleUuid == null");
+
+        if (uuidPattern == null) {
+            // Thread safe because it really doesn't matter even if we were to do this initialization more than once
+            if (Uuid.PATTERN_CONSTANTS.size() != 1) {
+                throw new IllegalStateException("Uuid.PATTERN_CONSTANTS.size() != 1");
+            }
+            uuidPattern = Pattern.compile(Uuid.PATTERN_CONSTANTS.get(0));
+        }
+
+        if (uuidPattern.matcher(possibleUuid).matches()) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 
 }
