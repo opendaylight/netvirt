@@ -176,8 +176,9 @@ public class FibDSWriter {
                     .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
             Optional<VrfEntry> existingVrfEntry =
                     singleTxDB.syncReadOptional(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
-            List<RoutePaths> routePaths =
-                    existingVrfEntry.transform(VrfEntry::getRoutePaths).or(Collections.EMPTY_LIST);
+            // Don’t use Optional.transform() here, getRoutePaths() can return null
+            List<RoutePaths> routePaths = existingVrfEntry.isPresent() ? existingVrfEntry.get().getRoutePaths() :
+                    Collections.emptyList();
             if (routePaths.size() == 1) {
                 if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
                     BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);

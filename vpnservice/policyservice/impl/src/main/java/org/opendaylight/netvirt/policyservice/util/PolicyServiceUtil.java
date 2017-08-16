@@ -373,10 +373,11 @@ public class PolicyServiceUtil {
         InstanceIdentifier<UnderlayNetwork> identifier = InstanceIdentifier.create(UnderlayNetworks.class)
                 .child(UnderlayNetwork.class, new UnderlayNetworkKey(underlayNetwork));
         try {
-            return SingleTransactionDataBroker
-                    .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier)
-                    .transform(UnderlayNetwork::getDpnToInterface)
-                    .or(Collections.emptyList());
+            // Don’t use Optional.transform() here, getDpnToInterface() can return null
+            Optional<UnderlayNetwork> optionalUnderlayNetwork = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL, identifier);
+            return optionalUnderlayNetwork.isPresent() ? optionalUnderlayNetwork.get().getDpnToInterface()
+                    : Collections.emptyList();
         } catch (ReadFailedException e) {
             LOG.warn("Failed to get DPNs for underlay network {}", underlayNetwork);
             return Collections.emptyList();

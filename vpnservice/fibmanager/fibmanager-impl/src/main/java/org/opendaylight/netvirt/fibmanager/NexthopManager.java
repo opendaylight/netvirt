@@ -952,9 +952,11 @@ public class NexthopManager implements AutoCloseable {
             InstanceIdentifier<StateTunnelList> tunnelStateId =
                     InstanceIdentifier.builder(TunnelsState.class).child(
                             StateTunnelList.class, new StateTunnelListKey(tunnelName)).build();
-            return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, tunnelStateId)
-                    .transform(StateTunnelList::getOperState)
-                    .or(TunnelOperStatus.Down) == TunnelOperStatus.Up;
+            // Don’t use Optional.transform() here, getOperState() can return null
+            Optional<StateTunnelList> optionalStateTunnelList =
+                    MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, tunnelStateId);
+            return optionalStateTunnelList.isPresent()
+                    && optionalStateTunnelList.get().getOperState() == TunnelOperStatus.Up;
         }
         return false;
     }

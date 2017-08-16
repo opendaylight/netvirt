@@ -310,7 +310,9 @@ public class FibRpcServiceImpl implements FibRpcService {
     //TODO: Below Util methods to be removed once VpnUtil methods are exposed in api bundle
     public static String getVpnRd(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
+        // Don’t use Optional.transform() here, getVrfId() can return null
+        Optional<VpnInstance> optionalVpnInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnInstance.isPresent() ? optionalVpnInstance.get().getVrfId() : null;
     }
 
     static InstanceIdentifier<VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
@@ -336,7 +338,9 @@ public class FibRpcServiceImpl implements FibRpcService {
 
     static long getVpnId(DataBroker broker, String vpnName) {
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
+        // Don’t use Optional.transform() here, getVpnId() can return null
+        Optional<VpnInstance> optionalVpnInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnInstance.isPresent() ? optionalVpnInstance.get().getVpnId() : -1L;
     }
 
 

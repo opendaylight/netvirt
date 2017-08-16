@@ -184,9 +184,10 @@ public class VpnServiceChainUtils {
      * @return the RouteDistinguiser for the specified VPN
      */
     public static String getVpnRd(DataBroker broker, String vpnName) {
-
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVrfId).orNull();
+        // Don’t use Optional.transform() here, getVrfId() can return null
+        Optional<VpnInstance> optionalVpnInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnInstance.isPresent() ? optionalVpnInstance.get().getVrfId() : null;
     }
 
     /**
@@ -199,8 +200,10 @@ public class VpnServiceChainUtils {
     public static List<VrfEntry> getAllVrfEntries(DataBroker broker, String rd) {
         InstanceIdentifier<VrfTables> vpnVrfTables =
             InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).build();
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables).transform(
-                VrfTables::getVrfEntry).or(new ArrayList<>());
+        // Don’t use Optional.transform() here, getVrfEntry() can return null
+        Optional<VrfTables> optionalVrfTables =
+                MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, vpnVrfTables);
+        return optionalVrfTables.isPresent() ? optionalVrfTables.get().getVrfEntry() : new ArrayList<>();
     }
 
     /**
@@ -413,8 +416,11 @@ public class VpnServiceChainUtils {
 
     public static Optional<Long> getVpnPseudoLportTag(DataBroker broker, String rd) {
         InstanceIdentifier<VpnToPseudoPortData> path = getVpnToPseudoPortTagIid(rd);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path).transform(
-                VpnToPseudoPortData::getVpnLportTag);
+        // Don’t use Optional.transform() here, getVpnLportTag() can return null
+        Optional<VpnToPseudoPortData> optionalVpnToPseudoPortData =
+                MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+        return Optional.fromNullable(
+                optionalVpnToPseudoPortData.isPresent() ? optionalVpnToPseudoPortData.get().getVpnLportTag() : null);
     }
 
     /**

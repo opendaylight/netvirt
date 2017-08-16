@@ -209,7 +209,9 @@ public class FibUtil {
     public static long getVpnId(DataBroker broker, String vpnName) {
 
         InstanceIdentifier<VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnInstance::getVpnId).or(-1L);
+        // Don’t use Optional.transform() here, getVpnId() can return null
+        Optional<VpnInstance> optionalVpnInstance = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnInstance.isPresent() ? optionalVpnInstance.get().getVpnId() : -1L;
     }
 
     /**
@@ -220,13 +222,18 @@ public class FibUtil {
      * @return The vpn instance
      */
     public static Optional<String> getVpnNameFromRd(DataBroker broker, String rd) {
-        return getVpnInstanceOpData(broker, rd).transform(VpnInstanceOpDataEntry::getVpnInstanceName);
+        // Don’t use Optional.transform() here, getVpnInstanceName() can return null
+        Optional<VpnInstanceOpDataEntry> optionalVpnInstanceOpDataEntry = getVpnInstanceOpData(broker, rd);
+        return Optional.fromNullable(
+                optionalVpnInstanceOpDataEntry.isPresent() ? optionalVpnInstanceOpDataEntry.get().getVpnInstanceName()
+                        : null);
     }
 
     public static String getVpnNameFromId(DataBroker broker, long vpnId) {
         InstanceIdentifier<VpnIds> id = getVpnIdToVpnInstanceIdentifier(vpnId);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).transform(VpnIds::getVpnInstanceName)
-                .orNull();
+        // Don’t use Optional.transform() here, getVpnInstanceName() can return null
+        Optional<VpnIds> optionalVpnIds = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnIds.isPresent() ? optionalVpnIds.get().getVpnInstanceName() : null;
     }
 
     static InstanceIdentifier<VpnIds> getVpnIdToVpnInstanceIdentifier(long vpnId) {
@@ -485,7 +492,8 @@ public class FibUtil {
         }
         return routePaths.stream()
                 .filter(routePath -> routePath.getNexthopAddress().equals(nextHopIp))
-                .findFirst().map(RoutePaths::getLabel);
+                .findFirst()
+                .map(RoutePaths::getLabel);
     }
 
     public static InstanceIdentifier<Interface> buildStateInterfaceId(String interfaceName) {
