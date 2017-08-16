@@ -228,7 +228,9 @@ service BgpConfigurator {
     Routes getRoutes(1:protocol_type p_type, 2:i32 optype, 3:i32 winSize, 4:af_afi afi),
     i32 enableMultipath(1:af_afi afi, 2:af_safi safi),
     i32 disableMultipath(1:af_afi afi, 2:af_safi safi),
-    i32 multipaths(1:string rd, 2:i32 maxPath)
+    i32 multipaths(1:string rd, 2:i32 maxPath),
+    i32 enableEORDelay(1:i32 delay),
+    i32 sendEOR()
 }
 
 service BgpUpdater {

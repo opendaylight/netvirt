@@ -39,6 +39,7 @@ public class BgpRouter {
     private long startTS = 0;
     private long connectTS = 0;
     private long lastConnectedTS = 0;
+    private static final int THRIFT_TIMEOUT_MILLI = 10000;
 
     public long getLastConnectedTS() {
         return lastConnectedTS;
@@ -66,7 +67,7 @@ public class BgpRouter {
 
 
     private enum Optype {
-        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP
+        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP, EOR, DELAY_EOR
     }
 
     private static final int GET_RTS_INIT = 0;
@@ -94,6 +95,7 @@ public class BgpRouter {
         public encap_type thriftEncapType;
         public String routermac;
         public af_afi afi;
+        public int delayEOR;
 
         BgpOp() {
             strs = new String[3];
@@ -123,7 +125,7 @@ public class BgpRouter {
             TSocket ts = new TSocket(bgpHost, bgpPort, CONNECTION_TIMEOUT);
             transport = ts;
             transport.open();
-            ts.setTimeout(0);
+            ts.setTimeout(THRIFT_TIMEOUT_MILLI);
             isConnected = true;
             setLastConnectedTS(System.currentTimeMillis());
         } catch (TTransportException tte) {
@@ -259,6 +261,12 @@ public class BgpRouter {
                 break;
             case VRFMP:
                 result = bgpClient.multipaths(bop.strs[0], bop.ints[0]);
+                break;
+            case EOR:
+                result = bgpClient.sendEOR();
+                break;
+            case DELAY_EOR:
+                bgpClient.send_enableEORDelay(op.delayEOR);
                 break;
             default:
                 break;
@@ -428,9 +436,6 @@ public class BgpRouter {
 
         // TODO: receive correct protocol_type here, currently populating with dummy protocol type
         Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize, afi);
-        if (outRoutes.errcode != 0) {
-            return outRoutes;
-        }
         handle.setMore(outRoutes.more);
         if (outRoutes.more == 0) {
             handle.setState(BgpSyncHandle.DONE);
@@ -544,6 +549,19 @@ public class BgpRouter {
         bop.type = Optype.VRFMP;
         bop.strs[0] = rd;
         bop.ints[0] = maxpath;
+        dispatch(bop);
+    }
+
+    public synchronized void sendEOR() throws TException, BgpRouterException {
+        bop.type = Optype.EOR;
+        LOG.debug("EOR message sent");
+        dispatch(bop);
+    }
+
+    public synchronized void delayEOR(int delay) throws TException, BgpRouterException {
+        bop.type = Optype.DELAY_EOR;
+        bop.delayEOR = delay;
+        LOG.debug("EOR delay time in Seconds sent");
         dispatch(bop);
     }
 }
