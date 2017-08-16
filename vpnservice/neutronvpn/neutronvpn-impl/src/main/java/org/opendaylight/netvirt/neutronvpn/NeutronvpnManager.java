@@ -788,7 +788,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Router rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
                 if (rtr == null && rtr.getRoutes() != null) {
                     List<Routes> extraRoutesToRemove = new ArrayList<>();
-                    for(Routes rt: rtr.getRoutes()) {
+                    for (Routes rt: rtr.getRoutes()) {
                         if (rt.getNexthop().toString().equals(ipToRemove.getIpAddress().toString())) {
                             extraRoutesToRemove.add(rt);
                         }
