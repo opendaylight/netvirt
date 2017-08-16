@@ -73,7 +73,7 @@ public class HwvtepTerminationPointListener
         this.broker = broker;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.entityOwnershipService = entityOwnershipService;
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        //registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         LOG.debug("created HwvtepTerminationPointListener");
     }
 
