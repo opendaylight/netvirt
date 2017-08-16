@@ -289,7 +289,6 @@ public class ElanL2GatewayMulticastUtils {
         RemoteMcastMacs remoteMcastMac = new RemoteMcastMacsBuilder()
                 .setMacEntryKey(new MacAddress(ElanConstants.UNKNOWN_DMAC)).setLogicalSwitchRef(lsRef)
                 .setLocatorSet(locators).build();
-        HwvtepUtils.putRemoteMcastMac(transaction, nodeId, remoteMcastMac);
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
                 remoteMcastMac.getKey());
         ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
