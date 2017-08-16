@@ -150,6 +150,8 @@ public class BgpConfigurationManager {
     private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
     private static final String SDNC_BGP_MIP = "vpnservice.bgp.thrift.bgp.mip";
     private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.sdnc.mip";
+    private static final String BGP_EOR_DELAY = "vpnservice.bgp.eordelay";
+    private static final String DEF_BGP_EOR_DELAY = "1800";
     private static final String CLUSTER_CONF_FILE = "/cluster/etc/cluster.conf";
     private static final Timer IP_ACTIVATION_CHECK_TIMER = new Timer();
     private static final int STALE_FIB_WAIT = 60;
@@ -232,6 +234,7 @@ public class BgpConfigurationManager {
     static int totalCleared = 0;
     static int totalExternalRoutes = 0;
     static int totalExternalMacRoutes = 0;
+    static int delayEorSeconds = 0;
 
     private static final Class[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
@@ -267,6 +270,7 @@ public class BgpConfigurationManager {
         bgpRouter = BgpRouter.getInstance();
         odlThriftIp = getProperty(SDNC_BGP_MIP, DEF_SDNC_BGP_MIP);
         bgpThriftIp = getProperty(BGP_SDNC_MIP, DEF_BGP_SDNC_MIP);
+        delayEorSeconds = Integer.valueOf(getProperty(BGP_EOR_DELAY, DEF_BGP_EOR_DELAY));
         registerCallbacks();
 
         LOG.info("BGP Configuration manager initialized");
@@ -1608,6 +1612,7 @@ public class BgpConfigurationManager {
             LOG.error("cancelling already running bgp replay task");
             lastReplayJobFt.cancel(true);
             lastReplayJobFt = null;
+            staledFibEntriesMap.clear();
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             LOG.error("Failed to cancel previous replay job ", e);
@@ -1755,6 +1760,9 @@ public class BgpConfigurationManager {
                         addroute = true;
                     }
                 }
+            } else {
+                LOG.debug("rd {} map is null while processing prefix {} ", rd, prefix);
+                addroute = true;
             }
         } else {
             LOG.debug("Route add ** {} ** {}/{} ** {} ** {} ", rd, prefix, plen, nextHop, label);
@@ -1969,6 +1977,24 @@ public class BgpConfigurationManager {
                 startBgpAlarmsTask();
             }
 
+            /*
+             * commenting this due to a bug with QBGP. Will uncomment once QBGP fix is done.
+             * This wont have any functional impacts
+             */
+            //try {
+            //    br.delayEOR(delayEorSeconds);
+            //} catch (TException | BgpRouterException e) {
+            //    LOG.error("Replay: delayEOR() number of seconds to wait for EOR from ODL:", e);
+            //}
+
+            List<Neighbors> neighbors = config.getNeighbors();
+            if (neighbors != null) {
+                LOG.error("configuring existing Neighbors present for replay total neighbors {}", neighbors.size());
+                replayNbrConfig(neighbors, br);
+            } else {
+                LOG.error("no Neighbors present for replay config ");
+            }
+
             Logging logging = config.getLogging();
             if (logging != null) {
                 try {
@@ -2032,13 +2058,7 @@ public class BgpConfigurationManager {
                     }
                 }
             }
-            List<Neighbors> neighbors = config.getNeighbors();
-            if (neighbors != null) {
-                LOG.error("configuring existing Neighbors present for replay total neighbors {}", neighbors.size());
-                replayNbrConfig(neighbors, br);
-            } else {
-                LOG.error("no Neighbors present for replay config ");
-            }
+
 
             List<Multipath> multipaths = config.getMultipath();
 
@@ -2069,6 +2089,13 @@ public class BgpConfigurationManager {
                         LOG.info("Replay:vrfMaxPath() received exception: \"" + e + "\"");
                     }
                 }
+            }
+
+            //send End of Rib Marker to Qthriftd.
+            try {
+                br.sendEOR();
+            } catch (TException | BgpRouterException e) {
+                LOG.error("Replay:sedEOR() received exception:", e);
             }
         }
     }
