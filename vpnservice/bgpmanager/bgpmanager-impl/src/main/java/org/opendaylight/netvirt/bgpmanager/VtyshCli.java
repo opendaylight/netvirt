@@ -52,7 +52,8 @@ public class VtyshCli extends OsgiCommandSupport {
         "display routing bgp neighbors",
         "display routing bgp neighbors <ip>",
         "display routing bgp ipv4 unicast <ip>",
-        "display routing bgp ipv4 unicast <ip/mask>"
+        "display routing bgp ipv4 unicast <ip/mask>",
+        "display routing running-config"
     };
 
     @Override
@@ -77,6 +78,10 @@ public class VtyshCli extends OsgiCommandSupport {
         switch (firstArg) {
             case "ip":
             case "bgp":
+                handlerModule = BGPD;
+                break;
+            case "running-config":
+                cmd = "running-config";
                 handlerModule = BGPD;
                 break;
             default:
