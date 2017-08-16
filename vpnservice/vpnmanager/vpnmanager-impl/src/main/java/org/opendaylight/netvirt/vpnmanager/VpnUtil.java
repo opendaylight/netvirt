@@ -57,6 +57,11 @@ import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -1767,4 +1772,53 @@ public class VpnUtil {
         return isVpnPendingDelete;
     }
 
+    /** Get vpnname from Uuid of the vpn.
+     * @param broker the data borker from which read the data
+     * @param vpnUuid Uuid of the vpn
+     * @return null if unfindable or the String name of vpn
+     */
+    public static String getVpnNameFromUuid(DataBroker broker, Uuid vpnUuid) {
+        String vpnname = null;
+        InstanceIdentifier<VpnInstance> id =
+            InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815
+                .VpnInstances.class).child(VpnInstance.class, new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns
+                .yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey(vpnUuid.getValue())).build();
+        Optional<VpnInstance> vi = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (vi.isPresent()) {
+            vpnname = vi.get().getVpnInstanceName();
+        }
+        return vpnname;
+    }
+
+    /** Get VpnTargets from Vpn instance.
+     * @param vpnInstanceOpData VPN instance entry from Operational DS
+     * @return vpnTargets
+     */
+    public static VpnTargets getOpVpnTargets(DataBroker broker, VpnInstanceOpDataEntry vpnInstanceOpData) {
+        List<VpnTarget> vpnTargetList = new ArrayList<>();
+        VpnTargets vpnTargets = null;
+        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op
+            .data.entry.VpnTargets opVpnTargets = vpnInstanceOpData.getVpnTargets();
+        if (opVpnTargets == null) {
+            vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+            return vpnTargets;
+        }
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op
+            .data.entry.vpntargets.VpnTarget> opVpnTargetList = opVpnTargets.getVpnTarget();
+        if (opVpnTargetList == null) {
+            vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+            return vpnTargets;
+        }
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op
+                .data.entry.vpntargets.VpnTarget opVpnTarget : opVpnTargetList) {
+            VpnTargetBuilder vpnTargetsBuilder =
+                new VpnTargetBuilder().setKey(new VpnTargetKey(opVpnTarget.getKey().getVrfRTValue()))
+                    .setVrfRTType(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af
+                        .config.vpntargets.VpnTarget.VrfRTType.forValue(opVpnTarget.getVrfRTType().getIntValue()))
+                    .setVrfRTValue(opVpnTarget.getVrfRTValue());
+            vpnTargetList.add(vpnTargetsBuilder.build());
+        }
+        return new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+    }
 }
+
