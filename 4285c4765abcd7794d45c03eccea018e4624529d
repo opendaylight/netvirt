@@ -16,6 +16,24 @@
       "revId": "4285c4765abcd7794d45c03eccea018e4624529d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_cb10deaa",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-16T09:00:16Z",
+      "side": 1,
+      "message": "This patch ensures that the same BgpVrfHandler is used to process BGP routes for both the MplsOverVpn and Evpn Use cases.\nHence this block is moved upwards, so that a EVPN bgp route gets processed via BGPHandler instead of EVPNHandler.",
+      "parentUuid": "da2a55be_d4e24a00",
+      "revId": "4285c4765abcd7794d45c03eccea018e4624529d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
