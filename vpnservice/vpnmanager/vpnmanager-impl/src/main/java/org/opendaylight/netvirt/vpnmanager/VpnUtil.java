@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
@@ -22,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import javax.annotation.Nullable;
@@ -186,6 +188,7 @@ public class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
     private static final int DEFAULT_PREFIX_LENGTH = 32;
     private static final String PREFIX_SEPARATOR = "/";
+    private static Pattern uuidPattern;
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
@@ -1753,4 +1756,21 @@ public class VpnUtil {
         return isVpnPendingDelete;
     }
 
+    static boolean isUuidValidPattern(String possibleUuid) {
+        Preconditions.checkNotNull(possibleUuid, "possibleUuid == null");
+
+        if (uuidPattern == null) {
+            // Thread safe because it really doesn't matter even if we were to do this initialization more than once
+            if (Uuid.PATTERN_CONSTANTS.size() != 1) {
+                throw new IllegalStateException("Uuid.PATTERN_CONSTANTS.size() != 1");
+            }
+            uuidPattern = Pattern.compile(Uuid.PATTERN_CONSTANTS.get(0));
+        }
+
+        if (uuidPattern.matcher(possibleUuid).matches()) {
+            return Boolean.TRUE;
+        } else {
+            return Boolean.FALSE;
+        }
+    }
 }

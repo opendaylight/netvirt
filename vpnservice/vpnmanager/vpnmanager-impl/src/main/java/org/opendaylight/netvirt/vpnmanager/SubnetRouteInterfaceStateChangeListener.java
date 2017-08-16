@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -23,6 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.port.op.data.PortOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,16 +36,19 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
     private final SubnetOpDpnManager subOpDpnManager;
+    private final INeutronVpnManager neutronVpnManager;
 
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
         final VpnInterfaceManager vpnInterfaceManager,
         final VpnSubnetRouteHandler vpnSubnetRouteHandler,
-        final SubnetOpDpnManager subnetOpDpnManager) {
+        final SubnetOpDpnManager subnetOpDpnManager,
+        final INeutronVpnManager neutronVpnService) {
         super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.subOpDpnManager = subnetOpDpnManager;
+        this.neutronVpnManager = neutronVpnService;
     }
 
     public void start() {
@@ -65,17 +70,17 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        final Uuid subnetId;
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.trace("SubnetRouteInterfaceListener add: Received interface {} up event", intrf);
                 if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intrf.getName());
-                    if (portOpEntry == null) {
-                        LOG.trace("SubnetRouteInterfaceListener add: Received Port UP event for {}"
-                                + " that is not part of subnetRoute, ignoring", intrf.getName());
+                    subnetId = getSubnetId(intrf);
+                    if (subnetId == null) {
+                        LOG.error("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
+                                intrf.getName());
                         return;
                     }
-                    final Uuid subnetId = portOpEntry.getSubnetId();
                     DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                     dataStoreCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                         () -> {
@@ -106,16 +111,16 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        final Uuid subnetId;
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
-                PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intrf.getName());
-                if (portOpEntry == null) {
-                    LOG.trace("SubnetRouteInterfaceListener remove: Received Port DOWN event for {}"
-                            + " that is not part of subnetRoute, ignoring", intrf.getName());
+                subnetId = getSubnetId(intrf);
+                if (subnetId == null) {
+                    LOG.error("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
+                            intrf.getName());
                     return;
                 }
-                final Uuid subnetId = portOpEntry.getSubnetId();
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                     () -> {
@@ -156,19 +161,18 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
         Interface original, Interface update) {
+        final Uuid subnetId;
         try {
             String interfaceName = update.getName();
             if (L2vlan.class.equals(update.getType())) {
                 LOG.trace("SubnetRouteInterfaceListener update: Operation Interface update event - Old: {}, New: {}",
                     original, update);
-                PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(update.getName());
-                if (portOpEntry == null) {
-                    LOG.trace("SubnetRouteInterfaceListener update: Received Port {} event for {}"
-                                    + " that is not part of subnetRoute, ignoring",
-                            update.getOperStatus(), update.getName());
+                subnetId = getSubnetId(update);
+                if (subnetId == null) {
+                    LOG.error("SubnetRouteInterfaceListener update: Port {} doesnt exist in configDS",
+                            update.getName());
                     return;
                 }
-                final Uuid subnetId = portOpEntry.getSubnetId();
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 dataStoreCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                     () -> {
@@ -212,6 +216,27 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
         } catch (Exception e) {
             LOG.error("SubnetRouteInterfaceListener update: Exception observed in handling deletion of VPNInterface {}",
                     update.getName(), e);
+        }
+    }
+
+    protected Uuid getSubnetId(Interface intrf) {
+
+        if (!VpnUtil.isUuidValidPattern(intrf.getName())) {
+            LOG.error("SubnetRouteInterfaceListener: Interface {} doesnt have valid uuid pattern", intrf.getName());
+            return null;
+        }
+
+        PortOpDataEntry portOpEntry = subOpDpnManager.getPortOpDataEntry(intrf.getName());
+        if (portOpEntry != null) {
+            return portOpEntry.getSubnetId();
+        }
+        LOG.trace("SubnetRouteInterfaceListener : Received Port {} event for {} that is not part of subnetRoute",
+                intrf.getOperStatus(), intrf.getName());
+        Port port = neutronVpnManager.getNeutronPort(intrf.getName());
+        if (port != null && port.getFixedIps() != null && port.getFixedIps().size() > 0) {
+            return port.getFixedIps().get(0).getSubnetId();
+        } else {
+            return null;
         }
     }
 }
