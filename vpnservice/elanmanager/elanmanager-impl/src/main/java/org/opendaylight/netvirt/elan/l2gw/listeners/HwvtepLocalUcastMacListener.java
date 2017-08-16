@@ -93,7 +93,7 @@ public class HwvtepLocalUcastMacListener extends
     }
 
     @Override
-    protected void added(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macAdded) {
+    public void added(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macAdded) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase();
 
