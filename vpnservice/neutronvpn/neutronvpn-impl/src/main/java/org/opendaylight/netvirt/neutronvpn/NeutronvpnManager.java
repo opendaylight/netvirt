@@ -537,8 +537,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 newVpn = builder.setIpv6Family(ipv6vpnBuilder.build()).build();
             }
             if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
-                newVpn = builder.setIpv4Family(null).build();
-                newVpn = builder.setIpv6Family(null).build();
+                // no subnets presented in router set by default support of IPv4 family
+                newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
             }
             isLockAcquired = NeutronUtils.lock(vpnName);
             LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
