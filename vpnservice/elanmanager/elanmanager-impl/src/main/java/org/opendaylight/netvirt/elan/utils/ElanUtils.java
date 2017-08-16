@@ -1569,8 +1569,10 @@ public class ElanUtils {
      */
     public List<ExternalTunnel> getAllExternalTunnels(LogicalDatastoreType datastoreType) {
         InstanceIdentifier<ExternalTunnelList> iid = InstanceIdentifier.builder(ExternalTunnelList.class).build();
-        return read(broker, datastoreType, iid).transform(ExternalTunnelList::getExternalTunnel).or(
-                Collections.emptyList());
+        // Don’t use Optional.transform() here, getExternalTunnel() can return null
+        Optional<ExternalTunnelList> optionalExternalTunnelList = read(broker, datastoreType, iid);
+        return optionalExternalTunnelList.isPresent() ? optionalExternalTunnelList.get().getExternalTunnel()
+                : Collections.emptyList();
     }
 
     /**

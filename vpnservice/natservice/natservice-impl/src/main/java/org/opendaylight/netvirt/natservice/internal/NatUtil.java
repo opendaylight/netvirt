@@ -307,8 +307,11 @@ public class NatUtil {
     static String getVpnInstanceFromVpnIdentifier(DataBroker broker, long vpnId) {
         InstanceIdentifier<VpnIds> id = InstanceIdentifier.builder(VpnIdToVpnInstance.class)
             .child(VpnIds.class, new VpnIdsKey(vpnId)).build();
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(VpnIds::getVpnInstanceName).orNull();
+        // Don’t use Optional.transform() here, getVpnInstanceName() can return null
+        Optional<VpnIds> optionalVpnIds =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnIds.isPresent() ? optionalVpnIds.get().getVpnInstanceName() : null;
     }
 
     /*
@@ -345,8 +348,11 @@ public class NatUtil {
             return null;
         }
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Routers::getNetworkId).orNull();
+        // Don’t use Optional.transform() here, getNetworkId() can return null
+        Optional<Routers> optionalRouters =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalRouters.isPresent() ? optionalRouters.get().getNetworkId() : null;
     }
 
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
@@ -370,27 +376,39 @@ public class NatUtil {
      */
     static boolean isSnatEnabledForRouterId(DataBroker broker, String routerId) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Routers::isEnableSnat).or(false);
+        // Don’t use Optional.transform() here, isEnableSnat() can return null
+        Optional<Routers> optionalRouters =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalRouters.isPresent() && optionalRouters.get().isEnableSnat();
     }
 
     public static Uuid getVpnIdfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Networks::getVpnid).orNull();
+        // Don’t use Optional.transform() here, getVpnid() can return null
+        Optional<Networks> optionalNetworks =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalNetworks.isPresent() ? optionalNetworks.get().getVpnid() : null;
     }
 
     public static ProviderTypes getProviderTypefromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Networks::getProviderNetworkType).orNull();
+        // Don’t use Optional.transform() here, getProviderNetworkType() can return null
+        Optional<Networks> optionalNetworks =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalNetworks.isPresent() ? optionalNetworks.get().getProviderNetworkType() : null;
     }
 
     @Nonnull
     public static List<Uuid> getRouterIdsfromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<Networks> id = buildNetworkIdentifier(networkId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Networks::getRouterIds).or(Collections.emptyList());
+        // Don’t use Optional.transform() here, getRouterIds() can return null
+        Optional<Networks> optionalNetworks =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalNetworks.isPresent() ? optionalNetworks.get().getRouterIds() : Collections.emptyList();
     }
 
     static String getAssociatedExternalNetwork(DataBroker dataBroker, String routerId) {
@@ -429,8 +447,11 @@ public class NatUtil {
             return null;
         }
         InstanceIdentifier<RouterToNaptSwitch> id = buildNaptSwitchIdentifier(routerName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(RouterToNaptSwitch::getPrimarySwitchId).orNull();
+        // Don’t use Optional.transform() here, getPrimarySwitchId() can return null
+        Optional<RouterToNaptSwitch> optionalRouterToNaptSwitch =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalRouterToNaptSwitch.isPresent() ? optionalRouterToNaptSwitch.get().getPrimarySwitchId() : null;
     }
 
     private static InstanceIdentifier<RouterToNaptSwitch> buildNaptSwitchIdentifier(String routerId) {
@@ -441,8 +462,11 @@ public class NatUtil {
 
     public static String getRouterName(DataBroker broker, Long routerId) {
         InstanceIdentifier<RouterIds> id = buildRouterIdentifier(routerId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(RouterIds::getRouterName).orNull();
+        // Don’t use Optional.transform() here, getRouterName() can return null
+        Optional<RouterIds> optionalRouterIds =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalRouterIds.isPresent() ? optionalRouterIds.get().getRouterName() : null;
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vrfId) {
@@ -453,11 +477,13 @@ public class NatUtil {
     public static long readVpnId(DataBroker broker, String vpnName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                        .VpnInstance::getVpnId).or(
-                NatConstants.INVALID_ID);
+        // Don’t use Optional.transform() here, getVpnId() can return null
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                .VpnInstance>
+                optionalVpnInstance =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnInstance.isPresent() ? optionalVpnInstance.get().getVpnId() : NatConstants.INVALID_ID;
     }
 
     public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, BigInteger cookie, String flowId) {
@@ -503,10 +529,13 @@ public class NatUtil {
 
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
             .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                        .VpnInstance::getVrfId).orNull();
+        // Don’t use Optional.transform() here, getVrfId() can return null
+        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                .VpnInstance>
+                optionalVpnInstance =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalVpnInstance.isPresent() ? optionalVpnInstance.get().getVrfId() : null;
     }
 
     public static IpPortExternal getExternalIpPortMap(DataBroker broker, Long routerId, String internalIpAddress,
@@ -514,8 +543,11 @@ public class NatUtil {
         ProtocolTypes protocolType = NatUtil.getProtocolType(protocol);
         InstanceIdentifier<IpPortMap> ipPortMapId =
             buildIpToPortMapIdentifier(routerId, internalIpAddress, internalPort, protocolType);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, ipPortMapId).transform(IpPortMap::getIpPortExternal).orNull();
+        // Don’t use Optional.transform() here, getIpPortExternal() can return null
+        Optional<IpPortMap> optionalIpPortMap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, ipPortMapId);
+        return optionalIpPortMap.isPresent() ? optionalIpPortMap.get().getIpPortExternal() : null;
     }
 
     private static InstanceIdentifier<IpPortMap> buildIpToPortMapIdentifier(Long routerId, String internalIpAddress,
@@ -603,9 +635,11 @@ public class NatUtil {
 
     static long getAssociatedVpn(DataBroker broker, String routerName) {
         InstanceIdentifier<Routermapping> routerMappingId = NatUtil.getRouterVpnMappingId(routerName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.OPERATIONAL, routerMappingId).transform(Routermapping::getVpnId).or(
-                NatConstants.INVALID_ID);
+        // Don’t use Optional.transform() here, getVpnId() can return null
+        Optional<Routermapping> optionalRoutermapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.OPERATIONAL, routerMappingId);
+        return optionalRoutermapping.isPresent() ? optionalRoutermapping.get().getVpnId() : NatConstants.INVALID_ID;
     }
 
     public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId, Logger log) {
@@ -692,10 +726,12 @@ public class NatUtil {
     @Nonnull
     public static List<Integer> getInternalIpPortListInfo(DataBroker dataBroker, Long routerId,
                                                           String internalIpAddress, ProtocolTypes protocolType) {
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION,
-                buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType)).transform(
-                IntIpProtoType::getPorts).or(Collections.emptyList());
+        // Don’t use Optional.transform() here, getPorts() can return null
+        Optional<IntIpProtoType> optionalIntIpProtoType =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION,
+                        buildSnatIntIpPortIdentifier(routerId, internalIpAddress, protocolType));
+        return optionalIntIpProtoType.isPresent() ? optionalIntIpProtoType.get().getPorts() : Collections.emptyList();
     }
 
     public static InstanceIdentifier<IntIpProtoType> buildSnatIntIpPortIdentifier(Long routerId,
@@ -886,8 +922,11 @@ public class NatUtil {
             .builder(Subnetmaps.class)
             .child(Subnetmap.class, new SubnetmapKey(subnetId))
             .build();
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, subnetmapId).transform(Subnetmap::getSubnetIp).orNull();
+        // Don’t use Optional.transform() here, getSubnetIp() can return null
+        Optional<Subnetmap> optionalSubnetmap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, subnetmapId);
+        return optionalSubnetmap.isPresent() ? optionalSubnetmap.get().getSubnetIp() : null;
 
     }
 
@@ -1403,9 +1442,11 @@ public class NatUtil {
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class)
             .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(NetworkMap::getSubnetIdList).or(
-                Collections.emptyList());
+        // Don’t use Optional.transform() here, getSubnetIdList() can return null
+        Optional<NetworkMap> optionalNetworkMap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalNetworkMap.isPresent() ? optionalNetworkMap.get().getSubnetIdList() : Collections.emptyList();
     }
 
     public static String getSubnetGwMac(DataBroker broker, Uuid subnetId, String vpnName) {
@@ -1476,16 +1517,22 @@ public class NatUtil {
 
     protected static String getFloatingIpPortMacFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                FloatingIpIdToPortMapping::getFloatingIpPortMacAddress).orNull();
+        // Don’t use Optional.transform() here, getFloatingIpPortMacAddress() can return null
+        Optional<FloatingIpIdToPortMapping> optionalFloatingIpIdToPortMapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalFloatingIpIdToPortMapping.isPresent()
+                ? optionalFloatingIpIdToPortMapping.get().getFloatingIpPortMacAddress() : null;
     }
 
     protected static Uuid getFloatingIpPortSubnetIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                FloatingIpIdToPortMapping::getFloatingIpPortSubnetId).orNull();
+        // Don’t use Optional.transform() here, getFloatingIpPortSubnetId() can return null
+        Optional<FloatingIpIdToPortMapping> optionalFloatingIpIdToPortMapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalFloatingIpIdToPortMapping.isPresent()
+                ? optionalFloatingIpIdToPortMapping.get().getFloatingIpPortSubnetId() : null;
     }
 
     static InstanceIdentifier<FloatingIpIdToPortMapping> buildfloatingIpIdToPortMappingIdentifier(Uuid floatingIpId) {
@@ -1563,8 +1610,11 @@ public class NatUtil {
             return null;
         }
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(Routers::getExtGwMacAddress).orNull();
+        // Don’t use Optional.transform() here, getExtGwLacAddress() can return null
+        Optional<Routers> optionalRouters =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalRouters.isPresent() ? optionalRouters.get().getExtGwMacAddress() : null;
     }
 
     static InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
@@ -1576,16 +1626,21 @@ public class NatUtil {
 
     public static String getNeutronRouterNamebyUuid(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<Router> neutronRouterIdentifier = NatUtil.buildNeutronRouterIdentifier(routerUuid);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, neutronRouterIdentifier).transform(Router::getName).orNull();
+        // Don’t use Optional.transform() here, getName() can return null
+        Optional<Router> optionalRouter =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, neutronRouterIdentifier);
+        return optionalRouter.isPresent() ? optionalRouter.get().getName() : null;
     }
 
     @Nonnull
     public static List<Ports> getFloatingIpPortsForRouter(DataBroker broker, Uuid routerUuid) {
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = getRouterPortsId(routerUuid.getValue());
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION,
-                routerPortsIdentifier).transform(RouterPorts::getPorts).or(Collections.emptyList());
+        // Don’t use Optional.transform() here, getPorts() can return null
+        Optional<RouterPorts> optionalRouterPorts =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier);
+        return optionalRouterPorts.isPresent() ? optionalRouterPorts.get().getPorts() : Collections.emptyList();
     }
 
     @Nonnull

@@ -612,9 +612,12 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     protected long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
         InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
             NatUtil.getIntExtPortMapIdentifier(routerId, interfaceName, internalIp);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                LogicalDatastoreType.OPERATIONAL, intExtPortMapIdentifier).transform(
-                InternalToExternalPortMap::getLabel).or(NatConstants.INVALID_ID);
+        // Don’t use Optional.transform() here, getLabel() can return null
+        Optional<InternalToExternalPortMap> optionalInternalToExternalPortMap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, intExtPortMapIdentifier);
+        return optionalInternalToExternalPortMap.isPresent() ? optionalInternalToExternalPortMap.get().getLabel()
+                : NatConstants.INVALID_ID;
     }
 
     static void updateOperationalDS(DataBroker dataBroker, String routerId, String interfaceName, long label,

@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -238,8 +239,11 @@ public class NatEvpnUtil {
     public static Uuid getFloatingIpInterfaceIdFromFloatingIpId(DataBroker broker, Uuid floatingIpId) {
         InstanceIdentifier<FloatingIpIdToPortMapping> id =
                 NatUtil.buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).transform(
-                FloatingIpIdToPortMapping::getFloatingIpPortId).orNull();
+        // Don’t use Optional.transform() here, getFloatingIpPortId() can return null
+        Optional<FloatingIpIdToPortMapping> optionalFloatingIpIdToPortMapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, id);
+        return optionalFloatingIpIdToPortMapping.isPresent()
+                ? optionalFloatingIpIdToPortMapping.get().getFloatingIpPortId() : null;
     }
 }

@@ -15,9 +15,11 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
@@ -484,10 +486,14 @@ public class NaptManager {
             .child(ExternalIpCounter.class, new ExternalIpCounterKey(external)).build();
     }
 
+    @Nonnull
     public static List<IpMap> getIpMapList(DataBroker broker, Long routerId) {
         InstanceIdentifier<IpMapping> id = getIpMapList(routerId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.OPERATIONAL, id).transform(IpMapping::getIpMap).orNull();
+        // Don’t use Optional.transform() here, getIpMap() can return null
+        Optional<IpMapping> optionalIpMapping =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.OPERATIONAL, id);
+        return optionalIpMapping.isPresent() ? optionalIpMapping.get().getIpMap() : Collections.emptyList();
     }
 
     protected static InstanceIdentifier<IpMapping> getIpMapList(long routerId) {

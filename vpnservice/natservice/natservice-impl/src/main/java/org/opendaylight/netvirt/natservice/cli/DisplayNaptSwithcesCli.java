@@ -79,7 +79,9 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
     }
 
     private String getDpnLocalIp(BigInteger dpId) {
-        return getPortsNode(dpId).transform(node -> getOpenvswitchOtherConfig(node, LOCAL_IP)).orNull();
+        Optional<Node> optionalPortsNode = getPortsNode(dpId);
+        // Don’t use Optional.transform() here, getOpenvswitchOtherConfig() can return null
+        return optionalPortsNode.isPresent() ? getOpenvswitchOtherConfig(optionalPortsNode.get(), LOCAL_IP) : null;
     }
 
     private String getOpenvswitchOtherConfig(Node node, String key) {

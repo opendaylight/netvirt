@@ -124,7 +124,8 @@ public class QosInterfaceStateChangeListener extends AsyncDataTreeChangeListener
         if (uuid.isPresent()) {
             Port port = neutronVpnManager.getNeutronPort(portName);
             if (port != null) {
-                return uuid.transform(neutronVpnManager::getNeutronPort);
+                // Don’t use Optional.transform() here, getNeutronPort() can return null
+                return Optional.fromNullable(neutronVpnManager.getNeutronPort(uuid.get()));
             }
             LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
             QosNeutronUtils.removeStaleFlowEntry(dataBroker,mdsalUtils,odlInterfaceRpcService,intrf);
