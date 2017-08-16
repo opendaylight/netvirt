@@ -73,7 +73,8 @@ public class HwvtepTerminationPointListener
         this.broker = broker;
         this.elanL2GatewayUtils = elanUtils.getElanL2GatewayUtils();
         this.entityOwnershipService = entityOwnershipService;
-        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+        //No longer needed as port reconciliation is added in plugin
+        //registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         LOG.debug("created HwvtepTerminationPointListener");
     }
 

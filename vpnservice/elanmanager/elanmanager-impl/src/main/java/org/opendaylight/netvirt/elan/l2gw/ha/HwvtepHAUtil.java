@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -452,8 +451,8 @@ public class HwvtepHAUtil {
      * @return Transformed switches
      */
     public static List<Switches> buildSwitchesForHANode(Node childNode,
-                                              InstanceIdentifier<Node> haNodePath,
-                                              Optional<Node> haNode) {
+                                                        InstanceIdentifier<Node> haNodePath,
+                                                        Optional<Node> haNode) {
         List<Switches> psList = new ArrayList<>();
         boolean switchesAlreadyPresent = false;
         if (haNode.isPresent()) {

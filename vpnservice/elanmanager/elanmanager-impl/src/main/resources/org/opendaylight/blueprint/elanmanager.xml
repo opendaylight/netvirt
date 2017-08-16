@@ -224,6 +224,8 @@
     <argument ref="entityOwnershipService" />
     <argument ref="elanUtils" />
     <argument ref="l2gwService" />
+    <argument ref="l2gatewayUtils" />
+    <argument ref="haOpClusteredListener" />
   </bean>
 
   <bean id="hwvtepTerminationPointListener"
@@ -379,6 +381,15 @@
     <argument ref="dataBroker" />
     <argument ref="interfaceManager" />
     <argument ref="elanService" />
+  </bean>
+
+  <bean id="l2gatewayUtils"
+        class="org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayUtils"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="itmRpcService" />
+    <argument ref="entityOwnershipService" />
+    <argument ref="elanUtils" />
   </bean>
 
 </blueprint>
