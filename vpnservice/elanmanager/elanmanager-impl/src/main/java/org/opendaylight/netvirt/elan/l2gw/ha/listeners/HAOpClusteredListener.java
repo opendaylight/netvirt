@@ -7,12 +7,22 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
+import java.util.stream.Collectors;
+
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -29,38 +39,63 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
     private static DataBroker dataBroker;
     private ListenerRegistration<HAOpClusteredListener> registration;
+    private final Set<InstanceIdentifier<Node>> connectedNodes = ConcurrentHashMap.newKeySet();
+    private final Map<InstanceIdentifier<Node>, Set<Consumer<Optional<Node>>>> waitingJobs = new ConcurrentHashMap<>();
 
     public HAOpClusteredListener(DataBroker db) throws Exception {
         super(LogicalDatastoreType.OPERATIONAL, db);
         LOG.info("Registering HAOpClusteredListener");
     }
 
+    public Set<InstanceIdentifier<Node>> getConnectedNodes() {
+        return connectedNodes;
+    }
+
     @Override
-    void onGlobalNodeDelete(InstanceIdentifier<Node> key, Node added, ReadWriteTransaction tx)  {
+    synchronized  void onGlobalNodeDelete(InstanceIdentifier<Node> key, Node added, ReadWriteTransaction tx)  {
+        connectedNodes.remove(key);
         hwvtepHACache.updateDisconnectedNodeStatus(key);
     }
 
     @Override
     void onPsNodeDelete(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)  {
+        connectedNodes.remove(key);
         hwvtepHACache.updateDisconnectedNodeStatus(key);
     }
 
     @Override
     void onPsNodeAdd(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)    {
+        connectedNodes.add(key);
         hwvtepHACache.updateConnectedNodeStatus(key);
     }
 
     @Override
-    void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node updated, ReadWriteTransaction tx)  {
+    synchronized void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node updated, ReadWriteTransaction tx)  {
+        connectedNodes.add(key);
         addToCacheIfHAChildNode(key, updated);
         hwvtepHACache.updateConnectedNodeStatus(key);
+        if (waitingJobs.containsKey(key) && !waitingJobs.get(key).isEmpty()) {
+            try {
+                HAJobScheduler jobScheduler = HAJobScheduler.getInstance();
+                Optional<Node> nodeOptional = tx.read(LogicalDatastoreType.OPERATIONAL, key).checkedGet();
+                if (nodeOptional.isPresent()) {
+                    waitingJobs.get(key).forEach(
+                            (waitingJob) -> jobScheduler.submitJob(() -> waitingJob.accept(nodeOptional)));
+                    waitingJobs.get(key).clear();
+                } else {
+                    LOG.error("Failed to read oper node {}", key);
+                }
+            } catch (ReadFailedException e) {
+                LOG.error("Failed to read oper node {}", key);
+            }
+        }
     }
 
     public static void addToCacheIfHAChildNode(InstanceIdentifier<Node> childPath, Node childNode) {
         String haId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(childNode);
         if (!Strings.isNullOrEmpty(haId)) {
             InstanceIdentifier<Node> parentId = HwvtepHAUtil.createInstanceIdentifierFromHAId(haId);
-            HwvtepHAUtil.updateL2GwCacheNodeId(childNode, parentId);
+            //HwvtepHAUtil.updateL2GwCacheNodeId(childNode, parentId);
             hwvtepHACache.addChild(parentId, childPath/*child*/);
         }
     }
@@ -76,13 +111,13 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
 
 
         if (!wasHAChild && isHAChild) {
-            LOG.debug(getPrintableNodeId(childPath) + " " + "became ha_child");
+            LOG.debug(getNodeId(childPath) + " " + "became ha_child");
         } else if (wasHAChild && !isHAChild) {
-            LOG.debug(getPrintableNodeId(childPath) + " " + "unbecome ha_child");
+            LOG.debug(getNodeId(childPath) + " " + "unbecome ha_child");
         }
     }
 
-    static String getPrintableNodeId(InstanceIdentifier<Node> key) {
+    static String getNodeId(InstanceIdentifier<Node> key) {
         String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
         int idx = nodeId.indexOf("uuid/");
         if (idx > 0) {
@@ -131,6 +166,31 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
             }
             //TODO handle unhaed case
         }
+    }
+
+    public Set<InstanceIdentifier<Node>> getConnected(Set<InstanceIdentifier<Node>> candidateds) {
+        if (candidateds == null) {
+            return Collections.emptySet();
+        }
+        return candidateds.stream()
+                .filter( (iid) -> connectedNodes.contains(iid))
+                .collect(Collectors.toSet());
+    }
+
+    public synchronized void runAfterNodeIsConnected(InstanceIdentifier<Node> iid, Consumer<Optional<Node>> consumer) {
+        if (connectedNodes.contains(iid)) {
+            ReadWriteTransaction tx = db.newReadWriteTransaction();
+            HAJobScheduler.getInstance().submitJob( () -> {
+                try {
+                    consumer.accept(tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet());
+                } catch (ReadFailedException e) {
+                    LOG.error("Failed to read oper ds {}", iid);
+                }
+            });
+            return;
+        }
+        waitingJobs.putIfAbsent(iid, ConcurrentHashMap.newKeySet());
+        waitingJobs.get(iid).add(consumer);
     }
 }
 
