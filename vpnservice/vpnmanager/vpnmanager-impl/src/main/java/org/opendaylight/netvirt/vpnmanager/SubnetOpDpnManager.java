@@ -141,14 +141,14 @@ public class SubnetOpDpnManager {
                 portOpBuilder =
                     new PortOpDataEntryBuilder().setKey(new PortOpDataEntryKey(intfName)).setPortId(intfName);
                 portOpBuilder.setSubnetId(subnetId);
-                portOpBuilder.setDpnId(dpnId);
-                portOpEntry = portOpBuilder.build();
             } else {
                 portOpBuilder = new PortOpDataEntryBuilder(optionalPortOp.get());
                 portOpBuilder.setSubnetId(subnetId);
-                portOpBuilder.setDpnId(dpnId);
-                portOpEntry = portOpBuilder.build();
             }
+            if (dpnId != null && !dpnId.equals(BigInteger.ZERO)) {
+                portOpBuilder.setDpnId(dpnId);
+            }
+            portOpEntry = portOpBuilder.build();
             LOG.trace("Creating PortOpData entry for port {} with DPNId {}", intfName, dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
                 portOpEntry);
