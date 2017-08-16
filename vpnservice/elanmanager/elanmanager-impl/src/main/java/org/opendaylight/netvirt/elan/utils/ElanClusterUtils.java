@@ -112,4 +112,23 @@ public class ElanClusterUtils {
             return futures;
         }, ElanConstants.JOB_MAX_RETRIES);
     }
+
+    public static void runInNonLeader(EntityOwnershipService entityOwnershipService, Runnable runnable) {
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isOwner) {
+                if (!isOwner) {
+                    runnable.run();
+                }
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.error("Failed to identity cluster owner for job ");
+            }
+        });
+    }
 }
