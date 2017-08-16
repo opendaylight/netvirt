@@ -289,8 +289,8 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 nvpnManager.createVpnInterface(vpnId, routerPort, null);
 
             } else {
-                LOG.error("Neutron subnetwork {} corresponding to router interface port {} for neutron router {} already"
-                    + " associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(),
+                LOG.error("Neutron subnetwork {} corresponding to router interface port {} for neutron router {} "
+                    + "already associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(),
                     routerId.getValue(), existingVpnId.getValue());
             }
         }
