@@ -452,7 +452,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             new InterVpnLinkCreationErrorMessageBuilder().setErrorMessage(errorMsg).build();
         InterVpnLinkCreationError notif =
             new InterVpnLinkCreationErrorBuilder().setInterVpnLinkCreationErrorMessage(errMsg).build();
-        final ListenableFuture<? extends Object> eventFuture = this.notificationsService.offerNotification(notif);
+        final ListenableFuture<?> eventFuture = this.notificationsService.offerNotification(notif);
         Futures.addCallback(eventFuture, new FutureCallback<Object>() {
             @Override
             public void onFailure(Throwable error) {
