@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -169,7 +170,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 portsList.add(fixedNeutronPortBuilder.build());
                 routerPortsBuilder.setPorts(portsList);
             }
-            isLockAcquired = NeutronvpnUtils.lock(routerName);
+            isLockAcquired = NeutronUtils.lock(routerName);
             LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
                 + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier,
@@ -179,7 +180,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress, e);
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(routerName);
+                NeutronUtils.unlock(routerName);
             }
         }
     }
@@ -213,14 +214,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                             InternalToExternalPortMapKey(fixedIpAddress)).build();
                     try {
                         // remove particular internal-to-external-port-map
-                        isLockAcquired = NeutronvpnUtils.lock(fixedIpAddress);
+                        isLockAcquired = NeutronUtils.lock(fixedIpAddress);
                         LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
                         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intExtPortMapIdentifier);
                     } catch (Exception e) {
                         LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap, e);
                     } finally {
                         if (isLockAcquired) {
-                            NeutronvpnUtils.unlock(fixedIpAddress);
+                            NeutronUtils.unlock(fixedIpAddress);
                         }
                     }
                 }
@@ -287,14 +288,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             if (portsList.size() == 1) {
                 // remove entire routerPorts node
                 lockName = routerName;
-                isLockAcquired = NeutronvpnUtils.lock(lockName);
+                isLockAcquired = NeutronUtils.lock(lockName);
                 LOG.debug("removing routerPorts node: {} ", routerName);
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder
                         .build());
             } else {
                 // remove entire ports node under this routerPorts node
                 lockName = fixedNeutronPortName;
-                isLockAcquired = NeutronvpnUtils.lock(lockName);
+                isLockAcquired = NeutronUtils.lock(lockName);
                 LOG.debug("removing ports node {} under routerPorts node {}", fixedNeutronPortName, routerName);
                 InstanceIdentifier.InstanceIdentifierBuilder<Ports> portsIdentifierBuilder =
                     routerPortsIdentifierBuilder.child(Ports.class, new PortsKey(fixedNeutronPortName));
@@ -304,7 +305,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             LOG.error("Failure in deletion of routerPorts node {}", routerName, e);
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(lockName);
+                NeutronUtils.unlock(lockName);
             }
         }
     }
