@@ -136,7 +136,7 @@ public class NAPTSwitchSelector {
     }
 
     public List<BigInteger> getDpnsForVpn(String routerName) {
-        LOG.debug("getDpnsForVpn: called for RouterName {}", routerName);
+        LOG.info("getDpnsForVpn: called for RouterName {}", routerName);
         long bgpVpnId = NatUtil.getBgpVpnId(dataBroker, routerName);
         // TODO Why?
         if (bgpVpnId != NatConstants.INVALID_ID) {

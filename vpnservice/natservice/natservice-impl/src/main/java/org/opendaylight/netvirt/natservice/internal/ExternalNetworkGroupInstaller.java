@@ -75,6 +75,10 @@ public class ExternalNetworkGroupInstaller {
         }
 
         String macAddress = NatUtil.getSubnetGwMac(broker, subnetId, networkId.getValue());
+        if (macAddress == null) {
+            LOG.error("installExtNetGroupEntries : No Mac Address found for subnet id {}", subnetId.getValue());
+            return;
+        }
         installExtNetGroupEntries(subnetMap, macAddress);
     }
 

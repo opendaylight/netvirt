@@ -55,7 +55,8 @@ public class SubnetmapListener extends AsyncDataTreeChangeListenerBase<Subnetmap
     @Override
     protected void update(InstanceIdentifier<Subnetmap> identifier,
                           Subnetmap subnetmapBefore, Subnetmap subnetmapAfter) {
-        LOG.trace("update key: {}, original: {}, update: {}", subnetmapAfter.getKey(), subnetmapBefore, subnetmapAfter);
+        LOG.info("*** update key: {}, original: {}, update: {}",
+                 subnetmapAfter.getKey(), subnetmapBefore, subnetmapAfter);
         NatServiceCounters.subnetmap_update.inc();
         externalNetworkGroupInstaller.installExtNetGroupEntries(subnetmapAfter);
     }
