@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2016, 2017 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -14,11 +14,11 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.genius.idmanager.IdManager;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.interfacemanager.rpcservice.InterfaceManagerRpcService;
+import org.opendaylight.genius.lockmanager.LockManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
-import org.opendaylight.lockmanager.LockManager;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
