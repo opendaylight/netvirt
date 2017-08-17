@@ -12,11 +12,23 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
@@ -210,6 +222,89 @@ public class NeutronUtils {
         } else {
             return Boolean.FALSE;
         }
+    
+    /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
+     * @param ipAddress String of an representation IP address V4 or V6
+     * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED if any
+     */
+    public static IpVersionChoice getIpVersion(String ipAddress) {
+        IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
+        try {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            if (address instanceof Inet4Address) {
+                return IpVersionChoice.IPV4;
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            ipchoice = IpVersionChoice.UNDEFINED;
+        }
+        try {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            if (address instanceof Inet6Address) {
+                return IpVersionChoice.IPV6;
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            ipchoice = IpVersionChoice.UNDEFINED;
+        }
+        return ipchoice;
     }
 
+    private static long LOCK_WAIT_TIME = 10L;
+    private static TimeUnit secUnit = TimeUnit.SECONDS;
+    static ConcurrentHashMap<String, ImmutablePair<ReadWriteLock,AtomicInteger>> locks = new ConcurrentHashMap<>();
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static boolean lock(String lockName) {
+        if (locks.get(lockName) != null) {
+            synchronized (locks) {
+                if (locks.get(lockName) == null) {
+                    locks.putIfAbsent(lockName, new ImmutablePair<>(new
+                            ReentrantReadWriteLock(), new AtomicInteger(0)));
+                }
+                locks.get(lockName).getRight().incrementAndGet();
+            }
+            try {
+                if (locks.get(lockName) != null) {
+                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+                }
+            } catch (InterruptedException e) {
+                locks.get(lockName).getRight().decrementAndGet();
+                LOG.error("Unable to acquire lock for  {}", lockName);
+                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
+            }
+        } else {
+            locks.putIfAbsent(lockName, new ImmutablePair<>(new ReentrantReadWriteLock(),
+                    new AtomicInteger(0)));
+            locks.get(lockName).getRight().incrementAndGet();
+            try {
+                locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+            } catch (Exception e) {
+                locks.get(lockName).getRight().decrementAndGet();
+                LOG.error("Unable to acquire lock for  {}", lockName);
+                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
+            }
+        }
+        return true;
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static boolean unlock(String lockName) {
+        if (locks.get(lockName) != null) {
+            try {
+                locks.get(lockName).getLeft().writeLock().unlock();
+            } catch (Exception e) {
+                LOG.error("Unable to un-lock for " + lockName, e);
+                return false;
+            }
+            if (0 == locks.get(lockName).getRight().decrementAndGet()) {
+                synchronized (locks) {
+                    if (locks.get(lockName).getRight().get() == 0) {
+                        locks.remove(lockName);
+                    }
+                }
+            }
+        }
+        return true;
+    }
 }
