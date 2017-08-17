@@ -361,7 +361,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 rd);
         AddEventData data = new AddEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
         AddDpnEvent event = new AddDpnEventBuilder().setAddEventData(data).build();
-        final ListenableFuture<? extends Object> eventFuture = notificationPublishService.offerNotification(event);
+        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
         Futures.addCallback(eventFuture, new FutureCallback<Object>() {
             @Override
             public void onFailure(Throwable error) {
@@ -382,7 +382,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 vpnName, rd);
         RemoveEventData data = new RemoveEventDataBuilder().setVpnName(vpnName).setRd(rd).setDpnId(dpnId).build();
         RemoveDpnEvent event = new RemoveDpnEventBuilder().setRemoveEventData(data).build();
-        final ListenableFuture<? extends Object> eventFuture = notificationPublishService.offerNotification(event);
+        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
         Futures.addCallback(eventFuture, new FutureCallback<Object>() {
             @Override
             public void onFailure(Throwable error) {
@@ -406,7 +406,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 .setVpnId(vpnId).setDpnId(dpnId).build();
         AddInterfaceToDpnOnVpnEvent event = new AddInterfaceToDpnOnVpnEventBuilder()
                 .setAddInterfaceEventData(data).build();
-        final ListenableFuture<? extends Object> eventFuture = notificationPublishService.offerNotification(event);
+        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
         Futures.addCallback(eventFuture, new FutureCallback<Object>() {
             @Override
             public void onFailure(Throwable error) {
@@ -430,7 +430,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 .setVpnId(vpnId).setDpnId(dpnId).build();
         RemoveInterfaceFromDpnOnVpnEvent event = new RemoveInterfaceFromDpnOnVpnEventBuilder()
                 .setRemoveInterfaceEventData(data).build();
-        final ListenableFuture<? extends Object> eventFuture = notificationPublishService.offerNotification(event);
+        final ListenableFuture<?> eventFuture = notificationPublishService.offerNotification(event);
         Futures.addCallback(eventFuture, new FutureCallback<Object>() {
             @Override
             public void onFailure(Throwable error) {
