@@ -232,21 +232,23 @@ public class NeutronvpnUtils {
 
     // @param external vpn - true if external vpn being fetched, false for internal vpn
     protected static Uuid getVpnForRouter(DataBroker broker, Uuid routerId, Boolean externalVpn) {
+        if (routerId == null) {
+            return null;
+        }
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
-            if (routerId != null) {
-                for (VpnMap vpnMap : allMaps) {
-                    if (routerId.equals(vpnMap.getRouterId())) {
-                        if (externalVpn) {
-                            if (!routerId.equals(vpnMap.getVpnId())) {
-                                return vpnMap.getVpnId();
-                            }
-                        } else {
-                            if (routerId.equals(vpnMap.getVpnId())) {
-                                return vpnMap.getVpnId();
-                            }
+            for (VpnMap vpnMap : allMaps) {
+                Uuid router = vpnMap.getRouterId();
+                if (router != null && routerId.equals(routerId)) {
+                    if (externalVpn) {
+                        if (!routerId.equals(vpnMap.getVpnId())) {
+                            return vpnMap.getVpnId();
+                        }
+                    } else {
+                        if (routerId.equals(vpnMap.getVpnId())) {
+                            return vpnMap.getVpnId();
                         }
                     }
                 }
