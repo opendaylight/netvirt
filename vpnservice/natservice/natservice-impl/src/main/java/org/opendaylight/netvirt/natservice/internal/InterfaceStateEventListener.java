@@ -41,6 +41,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.port.map.ip.port.mapping.intext.ip.protocol.type.ip.port.map.IpPortExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.IpPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.snatint.ip.port.map.intip.port.map.ip.port.IntIpProtoType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.GetFixedIPsForNeutronPortOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService;
@@ -165,9 +167,15 @@ public class InterfaceStateEventListener
         for (String internalIp : fixedIps) {
             LOG.debug("removeSnatEntriesForPort : Internal Ip retrieved for interface {} is {} in router with Id {}",
                 interfaceName, internalIp, routerId);
-            for (ProtocolTypes protocol : protocolTypesList) {
-                List<Integer> portList = NatUtil.getInternalIpPortListInfo(dataBroker, routerId, internalIp, protocol);
-                for (Integer portnum : portList) {
+            IpPort ipPort = NatUtil.getInternalIpPortInfo(dataBroker, routerId, internalIp);
+            if (ipPort == null) {
+                LOG.debug("removeSnatEntriesForPort : no snatint-ip-port-map found for ip:{}", internalIp);
+                continue;
+            }
+
+            for (IntIpProtoType protoType: ipPort.getIntIpProtoType()) {
+                ProtocolTypes protocol = protoType.getProtocol();
+                for (Integer portnum : protoType.getPorts()) {
                     //build and remove the flow in outbound table
                     try {
                         removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
@@ -209,11 +217,10 @@ public class InterfaceStateEventListener
                             + "ipportmap {} for router {} failed {}", internalIpPort, routerId, ex);
                     }
                 }
-                // delete the entry from SnatIntIpPortMap DS
-                LOG.debug("removeSnatEntriesForPort : Removing InternalIp :{} portlist :{} "
-                        + "for protocol :{} of router {}", internalIp, portList, protocol, routerId);
-                naptManager.removeFromSnatIpPortDS(routerId, internalIp);
             }
+            // delete the entry from SnatIntIpPortMap DS
+            LOG.debug("removeSnatEntriesForPort : Removing InternalIp:{} on router {}", internalIp, routerId);
+            naptManager.removeFromSnatIpPortDS(routerId, internalIp);
         }
     }
 
