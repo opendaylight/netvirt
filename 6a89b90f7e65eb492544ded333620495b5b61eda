@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_31d4801f",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-17T15:47:46Z",
+      "side": 1,
+      "message": "How about handling of race conditions like simultaneous add/delete/add. Do we have some design in place for that?",
+      "range": {
+        "startLine": 351,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 71
+      },
+      "revId": "6a89b90f7e65eb492544ded333620495b5b61eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b1e7d011",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 374,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2017-08-17T15:47:46Z",
+      "side": 1,
+      "message": "Please provide the table names.",
+      "range": {
+        "startLine": 374,
+        "startChar": 22,
+        "endLine": 374,
+        "endChar": 33
+      },
+      "revId": "6a89b90f7e65eb492544ded333620495b5b61eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
