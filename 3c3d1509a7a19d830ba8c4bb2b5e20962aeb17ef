@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba1f61a0_2be1b3d0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-17T12:54:48Z",
+      "side": 1,
+      "message": "I think we should clean up the gw flows here ? Since the clean up logic requires primary switch id, we may not be able to do it later, hence leading to stale flows. So may need a fix to prevent the primary switch id being null if I understand this correctly.",
+      "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8bac1fa2",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 2
