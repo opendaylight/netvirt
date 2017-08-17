@@ -37,6 +37,42 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_f6b93e2f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_168841e6",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_56a92ade",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_168841e6",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_7c5a4151",
         "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
         "patchSetId": 26
@@ -66,6 +102,42 @@
       "side": 1,
       "message": "Hi\n\nOk in fact \"in\" is better, I\u0027ll change it.\n\nThks\nNoel",
       "parentUuid": "da2a55be_7c5a4151",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_96aa82d0",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_b62175fd",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b6afc6e2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_b62175fd",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -107,6 +179,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_d6b4fa36",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_760d3d3e",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3c7289e5",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 26
@@ -136,6 +226,24 @@
       "side": 1,
       "message": "Hi Joshua\n\nI agree, I will fix it.\n\nThks,\nNoel.",
       "parentUuid": "da2a55be_3c7289e5",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3683d657",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_b607b51b",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -177,6 +285,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_16869265",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 1321,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_390bb626",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_bc7dd9b3",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 26
@@ -206,6 +332,24 @@
       "side": 1,
       "message": "Hi,\n\nRigth now return is not reachable, I will delete it. \nThks,\nNoel",
       "parentUuid": "da2a55be_bc7dd9b3",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_767d4e6e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2317,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_590f8a2e",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -247,6 +391,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_56800a46",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2448,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_f9759e98",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_3c49e98b",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 26
@@ -276,6 +438,24 @@
       "side": 1,
       "message": "Hi,\n\nRight to break.\nThks,\nNoel",
       "parentUuid": "da2a55be_3c49e98b",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b696a692",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 2464,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_f99c7ec2",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -317,6 +497,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_36eab60f",
+        "filename": "vpnservice/model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 26
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_b991669b",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_01a0fef2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/#VpnInstanceListener.java#",
         "patchSetId": 26
@@ -352,6 +550,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_16edf225",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/#VpnInstanceListener.java#",
+        "patchSetId": 26
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_79dece6e",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_615a9af4",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 26
@@ -381,6 +597,24 @@
       "side": 1,
       "message": "Hi Joshua\n\nRight, this is true;I will do it.\n\nThks,\nNoel",
       "parentUuid": "da2a55be_615a9af4",
+      "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_76f42ef2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 26
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_d9d41a49",
       "revId": "e412756111bab2dc864c45ff5c3f1dff13eb254d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
