@@ -22,6 +22,30 @@
       "revId": "102558e9190b1c17676b5f9aaf62beb6a5d20f3d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_369c76c0",
+        "filename": "vpnservice/bgpmanager/bgpmanager-api/src/main/java/org/opendaylight/netvirt/bgpmanager/api/IBgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-17T13:45:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_e0ed4af1",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 1
+      },
+      "revId": "102558e9190b1c17676b5f9aaf62beb6a5d20f3d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
