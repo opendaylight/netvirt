@@ -33,6 +33,41 @@
       "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_31900043",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-17T16:47:27Z",
+      "side": 1,
+      "message": "+1",
+      "parentUuid": "ba1f61a0_8bac1fa2",
+      "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b1db50ec",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1643,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-17T16:47:27Z",
+      "side": 1,
+      "message": "i could see the below methods invoked in handleDisableSnat even though primarynaptswitchId is null...\n\nMay be we need to move that down after if (naptSwitchDpnId \u003d\u003d null || ...) check there.",
+      "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
