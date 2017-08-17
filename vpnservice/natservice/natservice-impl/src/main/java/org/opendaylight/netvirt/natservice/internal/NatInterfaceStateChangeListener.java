@@ -110,7 +110,7 @@ public class NatInterfaceStateChangeListener
     }
 
     void handleRouterInterfacesUpEvent(String routerName, String interfaceName, WriteTransaction writeOperTxn) {
-        LOG.debug("handleRouterInterfacesUpEvent : Handling UP event for router interface {} in Router {}",
+        LOG.info("handleRouterInterfacesUpEvent : Handling UP event for router interface {} in Router {}",
                 interfaceName, routerName);
         BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, interfaceName);
         if (dpId.equals(BigInteger.ZERO)) {

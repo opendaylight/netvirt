@@ -974,7 +974,7 @@ public class NatUtil {
             return;
         }
 
-        LOG.debug("addToNeutronRouterDpnsMap : Adding the Router {} and DPN {} for the Interface {} in the "
+        LOG.info("addToNeutronRouterDpnsMap : Adding the Router {} and DPN {} for the Interface {} in the "
                 + "ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
         InstanceIdentifier<DpnVpninterfacesList> dpnVpnInterfacesListIdentifier = getRouterDpnId(routerName, dpId);
 
@@ -986,14 +986,14 @@ public class NatUtil {
             new RouterInterfacesBuilder().setKey(new RouterInterfacesKey(interfaceName))
             .setInterface(interfaceName).build();
         if (optionalDpnVpninterfacesList.isPresent()) {
-            LOG.debug("addToNeutronRouterDpnsMap : RouterDpnList already present for the Router {} and DPN {} for the "
+            LOG.info("addToNeutronRouterDpnsMap : RouterDpnList already present for Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL, dpnVpnInterfacesListIdentifier
                     .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router
                             .dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces.class,
                             new RouterInterfacesKey(interfaceName)), routerInterface, true);
         } else {
-            LOG.debug("addToNeutronRouterDpnsMap : Building new RouterDpnList for the Router {} and DPN {} for the "
+            LOG.info("addToNeutronRouterDpnsMap : Building new RouterDpnList for the Router {} and DPN {} for the "
                     + "Interface {} in the ODL-L3VPN : NeutronRouterDpn map", routerName, dpId, interfaceName);
             RouterDpnListBuilder routerDpnListBuilder = new RouterDpnListBuilder();
             routerDpnListBuilder.setRouterId(routerName);
@@ -1017,7 +1017,7 @@ public class NatUtil {
             return;
         }
 
-        LOG.debug("addToDpnRoutersMap : Adding the DPN {} and router {} for the Interface {} in the ODL-L3VPN : "
+        LOG.info("addToDpnRoutersMap : Adding the DPN {} and router {} for the Interface {} in the ODL-L3VPN : "
                 + "DPNRouters map", dpId, routerName, interfaceName);
         InstanceIdentifier<DpnRoutersList> dpnRoutersListIdentifier = getDpnRoutersId(dpId);
 
@@ -1040,7 +1040,7 @@ public class NatUtil {
                         + "DPNRouters map", routerName, dpId);
             }
         } else {
-            LOG.debug("addToDpnRoutersMap : Building new DPNRoutersList for the Router {} present in the DPN {} "
+            LOG.info("addToDpnRoutersMap : Building new DPNRoutersList for the Router {} present in the DPN {} "
                     + "ODL-L3VPN : DPNRouters map", routerName, dpId);
             DpnRoutersListBuilder dpnRoutersListBuilder = new DpnRoutersListBuilder();
             dpnRoutersListBuilder.setDpnId(dpId);
