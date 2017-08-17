@@ -709,6 +709,23 @@ public class NatUtil {
         return intIpProtocolTypeId;
     }
 
+    public static InstanceIdentifier<IpPort> buildSnatIntIpPortIdentifier(Long routerId,
+            String internalIpAddress) {
+        InstanceIdentifier<IpPort> intIpProtocolTypeId =
+            InstanceIdentifier.builder(SnatintIpPortMap.class)
+                .child(IntipPortMap.class, new IntipPortMapKey(routerId))
+                .child(IpPort.class, new IpPortKey(internalIpAddress)).build();
+        return intIpProtocolTypeId;
+    }
+
+    @Nonnull
+    public static IpPort getInternalIpPortInfo(DataBroker dataBroker, Long routerId,
+                                                          String internalIpAddress) {
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                LogicalDatastoreType.CONFIGURATION,
+                buildSnatIntIpPortIdentifier(routerId, internalIpAddress)).orNull();
+    }
+
     public static ProtocolTypes getProtocolType(NAPTEntryEvent.Protocol protocol) {
         ProtocolTypes protocolType = ProtocolTypes.TCP.toString().equals(protocol.toString())
             ? ProtocolTypes.TCP : ProtocolTypes.UDP;
