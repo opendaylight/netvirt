@@ -24,17 +24,13 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -97,6 +93,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV6;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -154,9 +153,6 @@ public class NeutronvpnUtils {
 
     private static final Set<Class<? extends NetworkTypeBase>> SUPPORTED_NETWORK_TYPES = Sets.newConcurrentHashSet();
 
-    private static long LOCK_WAIT_TIME = 10L;
-    private static TimeUnit secUnit = TimeUnit.SECONDS;
-
     static {
         registerSupportedNetworkType(NetworkTypeFlat.class);
         registerSupportedNetworkType(NetworkTypeVlan.class);
@@ -168,7 +164,7 @@ public class NeutronvpnUtils {
         throw new UnsupportedOperationException("Utility class should not be instantiated");
     }
 
-    static ConcurrentHashMap<String, ImmutablePair<ReadWriteLock,AtomicInteger>> locks = new ConcurrentHashMap<>();
+
 
     public static void registerSupportedNetworkType(Class<? extends NetworkTypeBase> netType) {
         SUPPORTED_NETWORK_TYPES.add(netType);
@@ -739,62 +735,6 @@ public class NeutronvpnUtils {
         return subnetIdList;
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    protected static boolean lock(String lockName) {
-        if (locks.get(lockName) != null) {
-            synchronized (locks) {
-                if (locks.get(lockName) == null) {
-                    locks.putIfAbsent(lockName, new ImmutablePair<>(new
-                            ReentrantReadWriteLock(), new AtomicInteger(0)));
-                }
-                locks.get(lockName).getRight().incrementAndGet();
-            }
-            try {
-                if (locks.get(lockName) != null) {
-                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
-                }
-            } catch (InterruptedException e) {
-                locks.get(lockName).getRight().decrementAndGet();
-                LOG.error("Unable to acquire lock for  {}", lockName, e);
-                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
-            }
-        } else {
-            locks.putIfAbsent(lockName, new ImmutablePair<>(new ReentrantReadWriteLock(),
-                    new AtomicInteger(0)));
-            locks.get(lockName).getRight().incrementAndGet();
-            try {
-                locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
-            } catch (Exception e) {
-                locks.get(lockName).getRight().decrementAndGet();
-                LOG.error("Unable to acquire lock for  {}", lockName, e);
-                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
-            }
-        }
-        return true;
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    protected static boolean unlock(String lockName) {
-        if (locks.get(lockName) != null) {
-            try {
-                locks.get(lockName).getLeft().writeLock().unlock();
-            } catch (Exception e) {
-                LOG.error("Unable to un-lock for {}", lockName, e);
-                return false;
-            }
-            if (0 == locks.get(lockName).getRight().decrementAndGet()) {
-                synchronized (locks) {
-                    if (locks.get(lockName).getRight().get() == 0) {
-                        locks.remove(lockName);
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
     // TODO Clean up the exception handling and the console output
     @SuppressWarnings({"checkstyle:IllegalCatch", "checkstyle:RegexpSinglelineJava"})
     protected static Short getIPPrefixFromPort(DataBroker broker, Port port) {
@@ -1320,4 +1260,50 @@ public class NeutronvpnUtils {
         return (!isEmpty(collection));
     }
 
+    /**Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of the router.
+     * @param dataBroker to get informations from data store
+     * @param routerUuid the Uuid for which find out the IP version associated
+     * @return an IpVersionChoice used by the router from its attached subnetmaps. IpVersionChoice.UNDEFINED if any
+     */
+    public static IpVersionChoice getIpVersionChoicesFromRouterUuid(DataBroker dataBroker, Uuid routerUuid) {
+        IpVersionChoice rep = IpVersionChoice.UNDEFINED;
+        if (routerUuid == null) {
+            return rep;
+        }
+        List<Subnetmap> subnetmapList = getNeutronRouterSubnetMaps(dataBroker, routerUuid);
+        if (subnetmapList.isEmpty()) {
+            return rep;
+        }
+        for (Subnetmap sn : subnetmapList) {
+            if (sn.getSubnetIp() != null) {
+                IpVersionChoice ipVers = NeutronUtils.getIpVersion(sn.getSubnetIp());
+                if (rep.choice != ipVers.choice) {
+                    rep.addVersion(ipVers);
+                }
+                if (rep.choice == rep.IPV4AND6.choice) {
+                    return rep;
+                }
+            }
+        }
+        return rep;
+    }
+
+    /**This method return the list of Subnetmap associated to the router or a empty list if any.
+     * @param broker the data broker to get information
+     * @param routerId the Uuid of router for which subnetmap is find out
+     * @return a list of Subnetmap associated to the router. it could be empty if any
+     */
+    protected static List<Subnetmap> getNeutronRouterSubnetMaps(DataBroker broker, Uuid routerId) {
+        List<Subnetmap> subnetIdList = new ArrayList<>();
+        Optional<Subnetmaps> subnetMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
+            InstanceIdentifier.builder(Subnetmaps.class).build());
+        if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
+            for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
+                if (routerId.equals(subnetmap.getRouterId())) {
+                    subnetIdList.add(subnetmap);
+                }
+            }
+        }
+        return subnetIdList;
+    }
 }
