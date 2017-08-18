@@ -678,8 +678,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // enty.
         // Add interface to the ElanInterfaceForwardingEntires Container
         createElanInterfaceTablesList(interfaceName, tx);
+        futures.add(ElanUtils.waitForTransactionToComplete(tx));
         if (interfaceInfo != null) {
-            installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn, tx);
+            installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces,
+                    isFirstInterfaceInDpn, null);
 
             // add the vlan provider interface to remote BC group for the elan
             // for internal vlan networks
@@ -690,7 +692,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 }
             }
         }
-        futures.add(ElanUtils.waitForTransactionToComplete(tx));
+
         if (isFirstInterfaceInDpn && isVxlanNetworkOrVxlanSegment(elanInstance)) {
             //update the remote-DPNs remoteBC group entry with Tunnels
             LOG.trace("update remote bc group for elan {} on other DPNs for newly added dpn {}", elanInstance, dpId);
