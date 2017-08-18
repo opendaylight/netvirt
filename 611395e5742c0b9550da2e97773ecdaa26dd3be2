@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_0cb5e230",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 878,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-08-18T10:42:28Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_6961f038",
+      "range": {
+        "startLine": 878,
+        "startChar": 92,
+        "endLine": 878,
+        "endChar": 108
+      },
+      "revId": "611395e5742c0b9550da2e97773ecdaa26dd3be2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
