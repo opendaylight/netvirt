@@ -19,6 +19,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -35,10 +36,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
+import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
@@ -161,6 +165,7 @@ public class BgpConfigurationManager {
     private long cfgReplayStartTime = 0;
     private long cfgReplayEndTime = 0;
     private long staleCleanupTime = 0;
+    public static boolean config_server_updated = false;
     private static final int DS_RETRY_COOUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
 
@@ -344,7 +349,7 @@ public class BgpConfigurationManager {
         return property == null ? def : property;
     }
 
-    static boolean ignoreClusterDcnEventForFollower() {
+    public static boolean ignoreClusterDcnEventForFollower() {
         return !EntityOwnerUtils.amIEntityOwner(BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME);
     }
 
@@ -402,6 +407,7 @@ public class BgpConfigurationManager {
                 // Ignored
             }
             LOG.debug("issueing bgp router connect to host {}", val.getHost().getValue());
+            config_server_updated = true;
             synchronized (BgpConfigurationManager.this) {
                 boolean res = bgpRouter.connect(val.getHost().getValue(),
                         val.getPort().intValue());
@@ -427,6 +433,7 @@ public class BgpConfigurationManager {
             if (ignoreClusterDcnEventForFollower()) {
                 return;
             }
+            config_server_updated = true;
             synchronized (BgpConfigurationManager.this) {
                 bgpRouter.disconnect();
             }
@@ -1248,6 +1255,7 @@ public class BgpConfigurationManager {
 
     Future lastCleanupJob;
     Future lastReplayJobFt = null;
+    ScheduledFuture routeCleanupFuture =  null;
 
     protected void activateMIP() {
         try {
@@ -1585,18 +1593,18 @@ public class BgpConfigurationManager {
                 LOG.info("took {} msecs for stale fibDSWriter map creation ", getStaleEndTime() - getStaleStartTime());
                 LOG.info("started bgp config replay ");
                 setCfgReplayStartTime(System.currentTimeMillis());
-                try {
-                    replay();
-                } catch (TimeoutException | ExecutionException e) {
-                    LOG.error("Error while replaying routes. {}", e);
-                }
+                boolean replaySucceded = replay();
                 setCfgReplayEndTime(System.currentTimeMillis());
                 LOG.info("took {} msecs for bgp replay ", getCfgReplayEndTime() - getCfgReplayStartTime());
-                long routeSyncTime = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
-                Thread.sleep(routeSyncTime * 1000L);
-                setStaleCleanupTime(routeSyncTime);
-                new RouteCleanup().call();
-            } catch (InterruptedException eCancel) {
+                if (replaySucceded) {
+                    LOG.info("starting the stale cleanup timer");
+                    long routeSyncTime = getStalePathtime(BGP_RESTART_ROUTE_SYNC_SEC, config.getAsId());
+                    setStaleCleanupTime(routeSyncTime);
+                    routeCleanupFuture = executor.schedule(new RouteCleanup(), routeSyncTime, TimeUnit.SECONDS);
+                } else {
+                    staledFibEntriesMap.clear();
+                }
+            } catch (InterruptedException | TimeoutException | ExecutionException eCancel) {
                 LOG.error("Stale Cleanup Task Cancelled", eCancel);
             }
         };
@@ -1610,9 +1618,16 @@ public class BgpConfigurationManager {
     private void cancelPreviousReplayJob() {
         try {
             LOG.error("cancelling already running bgp replay task");
-            lastReplayJobFt.cancel(true);
-            lastReplayJobFt = null;
-            staledFibEntriesMap.clear();
+            if (lastReplayJobFt != null) {
+                lastReplayJobFt.cancel(true);
+                lastReplayJobFt = null;
+                staledFibEntriesMap.clear();
+            }
+            if (routeCleanupFuture != null) {
+                routeCleanupFuture.cancel(true);
+                routeCleanupFuture = null;
+                staledFibEntriesMap.clear();
+            }
             Thread.sleep(2000);
         } catch (InterruptedException e) {
             LOG.error("Failed to cancel previous replay job ", e);
@@ -1840,48 +1855,129 @@ public class BgpConfigurationManager {
         return labelInStaleMap != null && !labelInStaleMap.equals(Long.valueOf(label));
     }
 
-    private static void replayNbrConfig(List<Neighbors> neighbors, BgpRouter br) {
+    static class ReplayNbr {
+        Neighbors nbr;
+        boolean shouldRetry = false;
+
+        public Neighbors getNbr() {
+            return nbr;
+        }
+
+        public boolean isShouldRetry() {
+            return shouldRetry;
+        }
+
+        public void setShouldRetry(boolean retryNbr) {
+            this.shouldRetry = retryNbr;
+        }
+
+        ReplayNbr(Neighbors nbr, boolean shouldRetry) {
+            this.nbr = nbr;
+            this.shouldRetry = shouldRetry;
+        }
+    }
+
+    private static boolean replayNbrConfig(List<Neighbors> neighbors, BgpRouter br) {
+        if ((neighbors == null) || (neighbors.isEmpty())) {
+            LOG.error("Replaying nbr configuration, received NULL list ");
+            return true;
+        }
+
+        List<ReplayNbr> replayNbrList = new ArrayList<>();
         for (Neighbors nbr : neighbors) {
-            try {
-                final String md5password = extractMd5Secret(nbr);
-                br.addNeighbor(nbr.getAddress().getValue(),
-                        nbr.getRemoteAs(), md5password);
-                //itmProvider.buildTunnelsToDCGW(new IpAddress(nbr.getAddress().getValue().toCharArray()));
-            } catch (TException | BgpRouterException e) {
-                LOG.error("Replay:addNbr() received exception", e);
-                continue;
-            }
-            EbgpMultihop en = nbr.getEbgpMultihop();
-            if (en != null) {
-                try {
-                    br.addEbgpMultihop(en.getPeerIp().getValue(),
-                            en.getNhops().intValue());
-                } catch (TException | BgpRouterException e) {
-                    LOG.error("Replay:addEBgp() received exception", e);
-                }
-            }
-            UpdateSource us = nbr.getUpdateSource();
-            if (us != null) {
-                try {
-                    br.addUpdateSource(us.getPeerIp().getValue(),
-                            us.getSourceIp().getValue());
-                } catch (TException | BgpRouterException e) {
-                    LOG.error("Replay:addUS() received exception", e);
-                }
-            }
-            List<AddressFamilies> afs = nbr.getAddressFamilies();
-            if (afs != null) {
-                for (AddressFamilies af : afs) {
-                    af_afi afi = af_afi.findByValue(af.getAfi().intValue());
-                    af_safi safi = af_safi.findByValue(af.getSafi().intValue());
-                    try {
-                        br.addAddressFamily(af.getPeerIp().getValue(), afi, safi);
-                    } catch (TException | BgpRouterException e) {
-                        LOG.error("Replay:addAf() received exception", e);
-                    }
-                }
+            if (nbr != null) {
+                replayNbrList.add(new ReplayNbr(nbr, true));
             }
         }
+        final int numberOfNbrRetries = 3;
+        RetryOnException nbrRetry = new RetryOnException(numberOfNbrRetries);
+        do {
+            for (ReplayNbr replayNbr : replayNbrList) {
+                if (!replayNbr.isShouldRetry()) {
+                    continue;
+                }
+                boolean replayDone = false;
+                LOG.debug("Replaying addNbr {}", replayNbr.getNbr().getAddress().getValue());
+                replayDone = false;
+                try {
+                    final String md5password = extractMd5Secret(replayNbr.getNbr());
+                    br.addNeighbor(replayNbr.getNbr().getAddress().getValue(),
+                            replayNbr.getNbr().getRemoteAs().longValue(), md5password);
+                    UpdateSource us = replayNbr.getNbr().getUpdateSource();
+                    if (us != null) {
+                        LOG.debug("Replaying updatesource along with nbr: {} US-ip: {} to peer {}",
+                                replayNbr.getNbr().getAddress().getValue(),
+                                us.getSourceIp().getValue(),
+                                us.getPeerIp().getValue());
+                        br.addUpdateSource(us.getPeerIp().getValue(),
+                                us.getSourceIp().getValue());
+                    }
+                    replayDone = true;
+                } catch (TException | BgpRouterException eNbr) {
+                    LOG.debug("Replaying addNbr {}, exception: ", replayNbr.getNbr().getAddress().getValue(), eNbr);
+                }
+                boolean replaySuccess = true;
+                replaySuccess = (replaySuccess && replayDone);
+                LOG.debug("Replay addNbr {} successful", replayNbr.getNbr().getAddress().getValue());
+
+                //Update Source handling
+                UpdateSource us = replayNbr.getNbr().getUpdateSource();
+                if (replayDone == false && us != null) {
+                    LOG.debug("Replaying updatesource {} to peer {}", us.getSourceIp().getValue(),
+                            us.getPeerIp().getValue());
+                    replayDone = false;
+                    try {
+                        br.addUpdateSource(us.getPeerIp().getValue(),
+                                us.getSourceIp().getValue());
+                        replayDone = true;
+                    } catch (TException | BgpRouterException eUs) {
+                        LOG.debug("Replaying UpdateSource for Nbr {}, exception:",
+                                replayNbr.getNbr().getAddress().getValue(), eUs);
+                    }
+                    LOG.debug("Replay updatesource {} successful", us.getSourceIp().getValue());
+                    replaySuccess = (replaySuccess && replayDone);
+                }
+                //Ebgp Multihope
+                EbgpMultihop en = replayNbr.getNbr().getEbgpMultihop();
+                if (en != null) {
+                    replayDone = false;
+                    try {
+                        br.addEbgpMultihop(en.getPeerIp().getValue(),
+                                en.getNhops().intValue());
+                        replayDone = true;
+                    } catch (TException | BgpRouterException eEbgpMhop) {
+                        LOG.debug("Replaying EbgpMultihop for Nbr {}, exception: ",
+                                replayNbr.getNbr().getAddress().getValue(), eEbgpMhop);
+                    }
+                    replaySuccess = (replaySuccess && replayDone);
+                }
+
+                //afs
+                List<AddressFamilies> afs = replayNbr.getNbr().getAddressFamilies();
+                if (afs != null) {
+                    for (AddressFamilies af : afs) {
+                        af_afi afi = af_afi.findByValue(af.getAfi().intValue());
+                        af_safi safi = af_safi.findByValue(af.getSafi().intValue());
+                        replayDone = false;
+                        try {
+                            br.addAddressFamily(af.getPeerIp().getValue(), afi, safi);
+                            replayDone = true;
+                        } catch (TException | BgpRouterException eAFs) {
+                            LOG.debug("Replaying AddressFamily for Nbr {}, exception:",
+                                    replayNbr.getNbr().getAddress().getValue(), eAFs);
+                        }
+                        replaySuccess = (replaySuccess && replayDone);
+                    }
+                }
+                //replay is success --> no need to replay this nbr in next iteration.
+                replayNbr.setShouldRetry(replaySuccess ? false : true);
+            }
+        } while (nbrRetry.decrementAndRetry());
+        boolean replaySuccess = true;
+        for (ReplayNbr replayNbr : replayNbrList) {
+            replaySuccess = (replaySuccess && (!replayNbr.isShouldRetry()));
+        }
+        return replaySuccess;
     }
 
     public static String getConfigHost() {
@@ -1923,7 +2019,8 @@ public class BgpConfigurationManager {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public synchronized void replay() throws InterruptedException, TimeoutException, ExecutionException {
+    public synchronized boolean replay() throws InterruptedException, TimeoutException, ExecutionException {
+        boolean replaySucceded = true;
         synchronized (bgpConfigurationManager) {
             String host = getConfigHost();
             int port = getConfigPort();
@@ -1936,17 +2033,18 @@ public class BgpConfigurationManager {
                     msg += "; Configuration Replay aborted";
                 }
                 LOG.error(msg);
-                return;
+                return replaySucceded;
             }
             config = getConfig();
             if (config == null) {
                 LOG.error("bgp config is empty nothing to push to bgp");
-                return;
+                return replaySucceded;
             }
             BgpRouter br = bgpRouter;
             AsId asId = config.getAsId();
             if (asId == null) {
-                return;
+                LOG.error("bgp as-id is null");
+                return replaySucceded;
             }
             long asNum = asId.getLocalAs();
             IpAddress routerId = asId.getRouterId();
@@ -1955,19 +2053,58 @@ public class BgpConfigurationManager {
             String rid = routerId == null ? "" : new String(routerId.getValue());
             int stalepathTime = (int) getStalePathtime(RESTART_DEFAULT_GR, config.getAsId());
             boolean announceFbit = true;
-            try {
-                br.startBgp(asNum, rid, stalepathTime, announceFbit);
-            } catch (BgpRouterException bre) {
-                if (bre.getErrorCode() == BgpRouterException.BGP_ERR_ACTIVE) {
-                    doRouteSync();
-                } else {
-                    LOG.error("Replay: startBgp() received exception: \""
-                            + bre + "\"; " + ADD_WARN);
+            boolean replayDone = false;
+            final int numberOfStartBgpRetries = 3;
+            RetryOnException startBgpRetry = new RetryOnException(numberOfStartBgpRetries);
+            do {
+                try {
+                    LOG.debug("Replaying BGPConfig ");
+                    br.startBgp(asNum, rid, stalepathTime, announceFbit);
+                    LOG.debug("Replay BGPConfig successful");
+                    replayDone = true;
+                    break;
+                } catch (BgpRouterException bre) {
+                    if (bre.getErrorCode() == BgpRouterException.BGP_ERR_ACTIVE) {
+                        LOG.debug("Starting the routesync for exception", bre);
+                        startBgpRetry.errorOccured();
+                        if (!startBgpRetry.shouldRetry()) {
+                            LOG.debug("starting route sync for BgpRouter exception");
+                            doRouteSync();
+                        }
+                    } else {
+                        LOG.error("Replay: startBgp() received exception error {} : ",
+                                bre.getErrorCode(), bre);
+                        startBgpRetry.errorOccured();
+                    }
+                } catch (TApplicationException tae) {
+                    if (tae.getType() == BgpRouterException.BGP_ERR_ACTIVE) {
+                        LOG.debug("Starting the routesync for exception", tae);
+                        startBgpRetry.errorOccured();
+                        if (!startBgpRetry.shouldRetry()) {
+                            LOG.debug("starting route sync for Thrift BGP_ERR_ACTIVE exception");
+                            doRouteSync();
+                        }
+                    } else if (tae.getType() == BgpRouterException.BGP_ERR_COMMON_FAILURE) {
+                        LOG.debug("Starting the routesync for AS-ID started exception", tae);
+                        startBgpRetry.errorOccured();
+                        if (!startBgpRetry.shouldRetry()) {
+                            LOG.debug("starting route sync for Thrift BGP_ERR_COMMON_FAILURE exception");
+                            doRouteSync();
+                        }
+                    } else {
+                        LOG.error("Replay: startBgp() received exception type {}: ",
+                                tae.getType(), tae);
+                        startBgpRetry.errorOccured();
+                    }
+                } catch (Exception e) {
+                    //not unusual. We may have restarted & BGP is already on
+                    LOG.error("Replay:startBgp() received exception: ", e);
+                    startBgpRetry.errorOccured();
                 }
-            } catch (TException e) {
-                //not unusual. We may have restarted & BGP is already on
-                LOG.error("Replay:startBgp() received exception: \"" + e + "\"");
-            }
+            } while (startBgpRetry.shouldRetry());
+
+            replaySucceded = replayDone;
+
 
             if (getBgpCounters() == null) {
                 startBgpCountersTask();
@@ -1990,7 +2127,10 @@ public class BgpConfigurationManager {
             List<Neighbors> neighbors = config.getNeighbors();
             if (neighbors != null) {
                 LOG.error("configuring existing Neighbors present for replay total neighbors {}", neighbors.size());
-                replayNbrConfig(neighbors, br);
+                boolean neighborConfigReplayResult = replayNbrConfig(neighbors, br);
+                if (neighborConfigReplayResult == false) {
+                    replaySucceded = false;
+                }
             } else {
                 LOG.error("no Neighbors present for replay config ");
             }
@@ -2016,12 +2156,23 @@ public class BgpConfigurationManager {
             List<Vrfs> vrfs = config.getVrfs();
             if (vrfs != null) {
                 for (Vrfs vrf : vrfs) {
-                    try {
-                        br.addVrf(vrf.getLayerType(), vrf.getRd(), vrf.getImportRts(),
-                                vrf.getExportRts());
-                    } catch (TException | BgpRouterException e) {
-                        LOG.error("Replay:addVrf() received exception", e);
-                    }
+                    final int numberOfVrfRetries = 3;
+                    replayDone = false;
+                    RetryOnException vrfRetry = new RetryOnException(numberOfVrfRetries);
+                    do {
+                        try {
+                            LOG.debug("Replaying addVrf {}", vrf.getRd());
+                            br.addVrf(vrf.getLayerType(), vrf.getRd(), vrf.getImportRts(),
+                                    vrf.getExportRts());
+                            LOG.debug("Replay addVrf {} successful", vrf.getRd());
+                            replayDone = true;
+                            break;
+                        } catch (Exception e) {
+                            LOG.error("Replay:addVrf() {} received exception: ", vrf.getRd(), e);
+                            vrfRetry.errorOccured();
+                        }
+                    } while (vrfRetry.shouldRetry());
+                    replaySucceded = replaySucceded && replayDone;
                 }
             }
 
@@ -2063,7 +2214,7 @@ public class BgpConfigurationManager {
             List<Multipath> multipaths = config.getMultipath();
 
             if (multipaths != null) {
-                for (Multipath multipath: multipaths) {
+                for (Multipath multipath : multipaths) {
                     if (multipath != null) {
                         af_afi afi = af_afi.findByValue(multipath.getAfi().intValue());
                         af_safi safi = af_safi.findByValue(multipath.getSafi().intValue());
@@ -2082,7 +2233,7 @@ public class BgpConfigurationManager {
             }
             List<VrfMaxpath> vrfMaxpaths = config.getVrfMaxpath();
             if (vrfMaxpaths != null) {
-                for (VrfMaxpath vrfMaxpath: vrfMaxpaths) {
+                for (VrfMaxpath vrfMaxpath : vrfMaxpaths) {
                     try {
                         br.multipaths(vrfMaxpath.getRd(), vrfMaxpath.getMaxpaths());
                     } catch (TException | BgpRouterException e) {
@@ -2092,12 +2243,23 @@ public class BgpConfigurationManager {
             }
 
             //send End of Rib Marker to Qthriftd.
-            try {
-                br.sendEOR();
-            } catch (TException | BgpRouterException e) {
-                LOG.error("Replay:sedEOR() received exception:", e);
-            }
+            final int numberOfEORRetries = 3;
+            replayDone = false;
+            RetryOnException eorRetry = new RetryOnException(numberOfEORRetries);
+            do {
+                try {
+                    br.sendEOR();
+                    LOG.debug("Replay sendEOR {} successful");
+                    replayDone = true;
+                    break;
+                } catch (Exception e) {
+                    eorRetry.errorOccured();
+                    LOG.error("Replay:sedEOR() received exception:", e);
+                }
+            } while (eorRetry.shouldRetry());
+            replaySucceded = replaySucceded && replayDone;
         }
+        return replaySucceded;
     }
 
     private <T extends DataObject> void update(InstanceIdentifier<T> iid, T dto) {
