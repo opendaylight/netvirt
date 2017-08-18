@@ -53,4 +53,15 @@ public interface IHAEventHandler {
                                    InstanceIdentifier<Node> haChildPath,
                                    ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException;
+
+    void copyChildPSOpToHAPS(Node childPsNode,
+                                    InstanceIdentifier<Node> haPath,
+                                    InstanceIdentifier<Node> haPspath,
+                                    ReadWriteTransaction tx)
+            throws InterruptedException, ExecutionException, ReadFailedException;
+
+    void copyHAPSConfigToChildPS(Node haPsNode,
+                                 InstanceIdentifier<Node> childPath,
+                                 ReadWriteTransaction tx)
+            throws InterruptedException, ExecutionException, ReadFailedException;
 }

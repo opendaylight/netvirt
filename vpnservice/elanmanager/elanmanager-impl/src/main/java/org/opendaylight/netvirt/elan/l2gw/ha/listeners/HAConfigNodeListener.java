@@ -39,7 +39,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     }
 
     @Override
-    void onPsNodeAdd(InstanceIdentifier<Node> key,
+    void onPsNodeAdd(InstanceIdentifier<Node> haPsPath,
                      Node haPSNode,
                      ReadWriteTransaction tx) throws InterruptedException, ExecutionException, ReadFailedException {
         //copy the ps node data to children
@@ -48,6 +48,8 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
         for (InstanceIdentifier<Node> childSwitchId : childSwitchIds) {
             haEventHandler.copyHAPSUpdateToChild(haPSNode, null/*haOriginal*/, childSwitchId, tx);
         }
+        InstanceIdentifier<Node> haPath = HwvtepHAUtil.getGlobalNodePathFromPSNode(haPSNode);
+        HwvtepHAUtil.addGlobalNodeSwitches(haPath, haPsPath, LogicalDatastoreType.CONFIGURATION, tx);
         LOG.trace("Handle config ps node add {}", psId);
     }
 
@@ -80,7 +82,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     }
 
     @Override
-    void onPsNodeDelete(InstanceIdentifier<Node> key,
+    void onPsNodeDelete(InstanceIdentifier<Node> haPsPath,
                         Node deletedPsNode,
                         ReadWriteTransaction tx) throws ReadFailedException {
         //delete ps children nodes
@@ -88,6 +90,10 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
         Set<InstanceIdentifier<Node>> childPsIds = HwvtepHAUtil.getPSChildrenIdsForHAPSNode(psId);
         for (InstanceIdentifier<Node> childPsId : childPsIds) {
             HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, childPsId);
+        }
+        InstanceIdentifier<Node> haPath = HwvtepHAUtil.getGlobalNodePathFromPSNode(deletedPsNode);
+        if (hwvtepHACache.isHAEnabledDevice(haPath)) {
+            HwvtepHAUtil.deleteGlobalNodeSwitches(haPath, haPsPath, LogicalDatastoreType.CONFIGURATION, tx);
         }
     }
 
@@ -102,6 +108,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
         for (InstanceIdentifier<Node> childId : children) {
             HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, childId);
         }
-        HwvtepHAUtil.deletePSNodesOfNode(key, haNode, tx);
+        //delete of ps nodes are taken care by hwvtepphysicalswitch listener
+        //HwvtepHAUtil.deletePSNodesOfNode(key, haNode, tx);
     }
 }

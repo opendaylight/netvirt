@@ -35,8 +35,12 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HAListeners implements AutoCloseable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HAListeners.class);
 
     private final DataBroker broker;
     private final List<HwvtepNodeDataListener> listeners = new ArrayList<>();
@@ -46,6 +50,9 @@ public class HAListeners implements AutoCloseable {
 
     public HAListeners(DataBroker broker) {
         this.broker = broker;
+    }
+
+    public void init() {
         registerListener(LocalMcastMacs.class, new LocalMcastCmd());
         registerListener(RemoteMcastMacs.class, new RemoteMcastCmd());
         registerListener(LocalUcastMacs.class, new LocalUcastCmd());
@@ -59,9 +66,6 @@ public class HAListeners implements AutoCloseable {
                 ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
     }
 
-    public void init() {
-    }
-
     @Override
     public void close() throws Exception {
         for (HwvtepNodeDataListener listener : listeners) {
@@ -71,16 +75,26 @@ public class HAListeners implements AutoCloseable {
 
     private <T extends ChildOf<HwvtepGlobalAttributes>> void registerListener(Class<T> clazz,
                                                                               MergeCommand mergeCommand) {
-        listeners.add(new GlobalAugmentationListener(broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
-                ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY));
-        listeners.add(new GlobalAugmentationListener(broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
-                ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
+        GlobalAugmentationListener listener = new GlobalAugmentationListener(
+                broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
+                ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY);
+        listener.init();
+        listeners.add(listener);
+
+        if (mergeCommand instanceof RemoteUcastCmd) {
+            return;
+        }
+        listener = new GlobalAugmentationListener(
+                broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
+                ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY);
+        listener.init();
+        listeners.add(listener);
     }
 
-    class GlobalAugmentationListener<T extends DataObject
+    public static class GlobalAugmentationListener<T extends DataObject
             & ChildOf<HwvtepGlobalAttributes> & Identifiable> extends HwvtepNodeDataListener<T> {
 
-        GlobalAugmentationListener(DataBroker broker, Class<T> clazz, Class eventClazz,
+        public GlobalAugmentationListener(DataBroker broker, Class<T> clazz, Class eventClazz,
                                    MergeCommand mergeCommand,
                                    ResourceBatchingManager.ShardResource datastoreType) {
             super(broker, clazz, eventClazz, mergeCommand, datastoreType);
