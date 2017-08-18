@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_493b4c9c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1482,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-18T08:35:00Z",
+      "side": 1,
+      "message": "Since RD list is the same for both the ipV4 and ipv6 families in a vpn instance, please fetch the rds from only one of them.",
+      "range": {
+        "startLine": 1467,
+        "startChar": 16,
+        "endLine": 1482,
+        "endChar": 17
+      },
+      "revId": "ab29694ecd0506144bd458d030de0668f9b33942",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
