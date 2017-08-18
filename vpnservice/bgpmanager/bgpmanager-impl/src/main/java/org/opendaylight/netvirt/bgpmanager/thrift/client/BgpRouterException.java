@@ -17,6 +17,8 @@ public class BgpRouterException extends Exception {
     public static final int BGP_ERR_INITED = 101;
     public static final int BGP_ERR_NOT_INITED = 102;
     public static final int BGP_ERR_IN_ITER = 103;
+    public static final int BGP_ERR_COMMON_FAILURE = 2;
+
 
     // the following consts are server-dictated. do not modify
     public static final int BGP_ERR_FAILED = qbgpConstants.BGP_ERR_FAILED;

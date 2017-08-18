@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
+import java.net.ConnectException;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.thrift.TException;
@@ -16,6 +17,8 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
+import org.opendaylight.netvirt.bgpmanager.RetryOnException;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpConfigurator;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.Routes;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
@@ -23,6 +26,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.layer_type;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.LayerType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +44,10 @@ public class BgpRouter {
     private long connectTS = 0;
     private long lastConnectedTS = 0;
     private static final int THRIFT_TIMEOUT_MILLI = 10000;
+
+    public static TTransport getTransport() {
+        return transport;
+    }
 
     public long getLastConnectedTS() {
         return lastConnectedTS;
@@ -119,17 +127,47 @@ public class BgpRouter {
         this.bgpHost = bgpHost;
         this.bgpHostPort = bgpPort;
 
+        final int numberOfConnectRetries = 180;
+        RetryOnException connectRetry = new RetryOnException(numberOfConnectRetries);
+
         disconnect();
         setConnectTS(System.currentTimeMillis());
-        try {
-            TSocket ts = new TSocket(bgpHost, bgpPort, CONNECTION_TIMEOUT);
-            transport = ts;
-            transport.open();
-            ts.setTimeout(THRIFT_TIMEOUT_MILLI);
-            isConnected = true;
-            setLastConnectedTS(System.currentTimeMillis());
-        } catch (TTransportException tte) {
-            LOG.info("Failed connecting to " + msgPiece + "; Exception: " + tte);
+        do {
+            if (BgpConfigurationManager.ignoreClusterDcnEventForFollower()) {
+                LOG.error("Non Entity BGP owner trying to connect to thrift. Returning");
+                isConnected = false;
+                return false;
+            }
+            if (BgpConfigurationManager.config_server_updated) {
+                LOG.error("Config server updated while connecting to server {} {}", bgpHost, bgpPort);
+                isConnected = false;
+                return false;
+            }
+            try {
+                LOG.error("Trying to connect BGP config server at {} : {}", bgpHost, bgpPort);
+                TSocket ts = new TSocket(bgpHost, bgpPort, CONNECTION_TIMEOUT);
+                transport = ts;
+                transport.open();
+                ts.setTimeout(THRIFT_TIMEOUT_MILLI);
+                isConnected = true;
+                setLastConnectedTS(System.currentTimeMillis());
+                LOG.error("Connected to BGP config server at {} : {}", bgpHost, bgpPort);
+                break;
+            } catch (TTransportException tte) {
+                LOG.info("Failed connecting to BGP config server at {} : {}. msg: {}; Exception :",
+                        bgpHost, bgpPort, msgPiece, tte);
+                if (tte.getCause() instanceof ConnectException) {
+                    LOG.error("Connect exception. Failed connecting to BGP config server at {} : {}. "
+                            + "msg: {}; Exception :", bgpHost, bgpPort, msgPiece, tte);
+                    connectRetry.errorOccured();
+                } else {
+                    //In Case of other exceptions we try only 3 times
+                    connectRetry.errorOccured(60);
+                }
+            }
+        } while (connectRetry.shouldRetry());
+
+        if (!connectRetry.shouldRetry()) {
             isConnected = false;
             return false;
         }
@@ -163,6 +201,37 @@ public class BgpRouter {
     }
 
     private void dispatch(BgpOp op) throws TException, BgpRouterException {
+        final int numberOfDispathRetries = 3;
+        RetryOnException dispatchRetries = new RetryOnException(numberOfDispathRetries);
+        try {
+            dispatchInternal(op);
+        } catch (TTransportException tte) {
+            LOG.error("dispatch command to qthriftd failed, command: {}, exception:", op.toString(), tte);
+            reConnect(tte);
+            dispatchInternal(op);
+        }
+    }
+
+    private void reConnect(TTransportException tte) {
+        Bgp bgpConfig = BgpConfigurationManager.getConfig();
+        if (bgpConfig != null) {
+            LOG.error("Received TTransportException, while configuring qthriftd, goind for Disconnect/Connect "
+                            + " Host: {}, Port: {}", bgpConfig.getConfigServer().getHost().getValue(),
+                    bgpConfig.getConfigServer().getPort().intValue());
+            br.disconnect();
+            try {
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                LOG.error("Exception wile reconnecting ", e);
+            }
+            br.connect(bgpConfig.getConfigServer().getHost().getValue(),
+                    bgpConfig.getConfigServer().getPort().intValue());
+        } else {
+            LOG.error("Unable to send commands to thrift and fetch bgp configuration", tte);
+        }
+    }
+
+    private void dispatchInternal(BgpOp op) throws TException, BgpRouterException {
         int result = 1;
 
         if (bgpClient == null) {

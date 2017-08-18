@@ -17,6 +17,8 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.netvirt.bgpmanager.commands.Cache;
 import org.opendaylight.netvirt.bgpmanager.commands.Commands;
+import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
+
 
 @Command(scope = "odl", name = "display-bgp-config", description = "")
 public class DisplayBgpConfigCli extends OsgiCommandSupport {
@@ -32,6 +34,12 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
 
         if (debug) {
             ps.printf("\nis ODL Connected to Q-BGP: %s\n", bm.isBgpConnected() ? "TRUE" : "FALSE");
+            if (BgpRouter.getTransport() != null) {
+                ps.printf("\nODL BGP Router transport is open: %s\n",
+                        BgpRouter.getTransport().isOpen() ? "TRUE" : "FALSE");
+            } else {
+                ps.printf("\nODL BGP Router transport is NULL\n");
+            }
             //last ODL connection attempted TS
             ps.printf("Last ODL connection attempt TS: %s\n", new Date(bm.getConnectTS()));
             //last successful connected TS
