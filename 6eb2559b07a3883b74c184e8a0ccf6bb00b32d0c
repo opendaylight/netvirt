@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_57480487",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 1226,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-18T07:46:59Z",
+      "side": 1,
+      "message": "We are not agree here, because in Neutron OpenStack, when we add a subnet A (IPv4) from network B in router C, this creates a separate neutron-port with only IPv4 address. If then we will add subnet D (IPv6) from the same network B in the same router C \u003d\u003e this will also creates a separate neutron port with only IPv6 address. So for dualstack network B, in this case, we will have 2 neutron-ports and we suppose, that this is logical to create a new VPN interface for each neutron-port.\n\nWhen we create new neutron port in dualstack network B with \"neutron port-create B\", in OpenStack this creates one neutron port with 2 IP addresses, and in ODL we will call handleNeutronPortCreated(), which will create only one VPN interface. This VPN interface will handle 2 IP addresses as well.\n\nSo, would you confirm, please, that we should create only one VPN interface (with different adjacencies) for all subnetworks N, which are in the same neutron network and which are added as a ports in a router R (internal VPN) ?",
+      "parentUuid": "ba1f61a0_c8957d41",
+      "revId": "6eb2559b07a3883b74c184e8a0ccf6bb00b32d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_6839f140",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 56
