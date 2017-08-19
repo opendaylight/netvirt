@@ -24,6 +24,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.RspName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfDataPlaneLocatorName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfcName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SftTypeName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePaths;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePathBuilder;
@@ -47,6 +49,7 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     private static final String SF_NAME = "SF1";
     private static final String SF_DPL_NAME = "SF_DPL";
     private static final String LOGICAL_IF_NAME = "eccb57ae-5a2e-467f-823e-45d7bb2a6a9a";
+    private static final Long PATH_ID = Long.valueOf(1);
 
     private SfcProvider sfcProvider;
 
@@ -116,7 +119,7 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
 
     private RenderedServicePathBuilder createRsp(RspName rspName) {
         RenderedServicePathBuilder rspBuilder = new RenderedServicePathBuilder();
-        rspBuilder.setName(rspName);
+        rspBuilder.setName(rspName).setServiceChainName(SfcName.getDefaultInstance(SFC_NAME)).setPathId(PATH_ID);
 
         return rspBuilder;
     }
@@ -137,7 +140,7 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
             rspBuilder.setRenderedServicePathHop(hops);
         }
 
-        ServiceFunctionBuilder sfBuilder = new ServiceFunctionBuilder();
+        ServiceFunctionBuilder sfBuilder = new ServiceFunctionBuilder().setType(SftTypeName.getDefaultInstance("NAT"));
         SfDataPlaneLocatorBuilder sfDplBuilder = new SfDataPlaneLocatorBuilder();
         if (createLogicalSfDpl) {
             LogicalInterfaceBuilder liBuilder = new LogicalInterfaceBuilder();
