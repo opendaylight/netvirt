@@ -10,9 +10,13 @@ package org.opendaylight.netvirt.aclservice.tests
 import org.opendaylight.controller.md.sal.binding.api.DataBroker
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.AdminStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceBuilder
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state._interface.Statistics;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state._interface.StatisticsBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.DateAndTime;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier
 
@@ -33,7 +37,11 @@ class StateInterfaceBuilderHelper {
             lowerLayerIf = #[ "openflow:123:456" ]
             ifIndex = 987
             operStatus = OperStatus.Up
+            adminStatus = AdminStatus.Up
             type = L2vlan
+            statistics = new StatisticsBuilder() >> [
+                discontinuityTime = DateAndTime.getDefaultInstance("8330-42-22T79:08:74Z")
+            ]
         ]
         MDSALUtil.syncWrite(dataBroker, OPERATIONAL, id, stateInterface);
     }

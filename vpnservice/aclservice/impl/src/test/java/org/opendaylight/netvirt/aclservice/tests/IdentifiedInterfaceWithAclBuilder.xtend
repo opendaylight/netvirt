@@ -9,7 +9,9 @@ package org.opendaylight.netvirt.aclservice.tests
 
 import java.util.List
 import javax.annotation.concurrent.NotThreadSafe
+
 import org.opendaylight.netvirt.aclservice.tests.infra.DataTreeIdentifierDataObjectPairBuilder
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder
@@ -50,6 +52,7 @@ class IdentifiedInterfaceWithAclBuilder implements DataTreeIdentifierDataObjectP
                 allowedAddressPairs = ifAllowedAddressPairs
             ])
             name = interfaceName
+            type = L2vlan
         ]
     }
 
