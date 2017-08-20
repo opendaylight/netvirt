@@ -127,7 +127,7 @@ public class BgpRouter {
             isConnected = true;
             setLastConnectedTS(System.currentTimeMillis());
         } catch (TTransportException tte) {
-            LOG.error("Failed connecting to " + msgPiece + "; Exception: " + tte);
+            LOG.info("Failed connecting to " + msgPiece + "; Exception: " + tte);
             isConnected = false;
             return false;
         }
