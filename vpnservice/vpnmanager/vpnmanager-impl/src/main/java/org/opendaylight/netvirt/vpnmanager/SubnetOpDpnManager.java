@@ -222,7 +222,7 @@ public class SubnetOpDpnManager {
         Optional<PortOpDataEntry> optionalPortOp =
             VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
-            LOG.error("Cannot get, portOp for port {} is not available in datastore", intfName);
+            LOG.info("Cannot get, portOp for port {} is not available in datastore", intfName);
             return null;
         }
         return optionalPortOp.get();

@@ -161,7 +161,7 @@ public class EvpnUtils {
     public String getEvpnRd(ElanInstance elanInfo) {
         String evpnName = getEvpnNameFromElan(elanInfo);
         if (evpnName == null) {
-            LOG.error("getEvpnRd : evpnName is NULL for elanInfo {}", elanInfo);
+            LOG.info("getEvpnRd : evpnName is NULL for elanInfo {}", elanInfo);
             return null;
         }
         return vpnManager.getVpnRd(broker, evpnName);
@@ -177,7 +177,7 @@ public class EvpnUtils {
     private void advertisePrefix(ElanInstance elanInfo, String rd,
                                  String macAddress, String prefix, String interfaceName, BigInteger dpnId) {
         if (rd == null) {
-            LOG.error("advertisePrefix : rd is NULL for elanInfo {}, macAddress {}", elanInfo, macAddress);
+            LOG.info("advertisePrefix : rd is NULL for elanInfo {}, macAddress {}", elanInfo, macAddress);
             return;
         }
         String nextHop = getEndpointIpAddressForDPN(dpnId);
