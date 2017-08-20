@@ -1103,8 +1103,8 @@ public class ElanUtils {
             if (isVlan(elanInstance) || isFlat(elanInstance)) {
                 String interfaceName = getExternalElanInterface(elanInstance.getElanInstanceName(), srcDpId);
                 if (null == interfaceName) {
-                    LOG.error("buildRemoteDmacFlowEntry: Could not find interfaceName for {} {}", srcDpId,
-                            elanInstance);
+                    LOG.info("buildRemoteDmacFlowEntry: Could not find interfaceName for {} {}", srcDpId,
+                        elanInstance);
                 }
                 actions = getEgressActionsForInterface(interfaceName, null);
             } else if (isVxlan(elanInstance)) {
