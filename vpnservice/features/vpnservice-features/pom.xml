@@ -45,15 +45,6 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
-        <!-- Federation isn’t part of Nitrogen
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>odl-netvirt-federation</artifactId>
-            <version>${project.version}</version>
-            <type>xml</type>
-            <classifier>features</classifier>
-        </dependency>
-        -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>odl-netvirt-ui</artifactId>
