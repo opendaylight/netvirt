@@ -1491,7 +1491,7 @@ public class NatUtil {
             return learntIpToPortOpt.get().getMacAddress();
         }
 
-        LOG.error("getSubnetGwMac : No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
+        LOG.info("getSubnetGwMac : No resolution was found to GW ip {} in subnet {}", gatewayIp, subnetId.getValue());
         return null;
     }
 
