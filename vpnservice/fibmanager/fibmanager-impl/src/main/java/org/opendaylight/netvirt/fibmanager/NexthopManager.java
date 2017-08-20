@@ -419,12 +419,12 @@ public class NexthopManager implements AutoCloseable {
         RpcResult<AddGroupOutput> rpcResult = null;
         try {
             rpcResult = groupStats.get();
-            if (rpcResult != null && rpcResult.isSuccessful() && rpcResult.getResult() != null) {
+            if (rpcResult != null && rpcResult.isSuccessful()) {
                 LOG.info("Group {} with key {} has been successfully installed directly on dpn {}.", groupId,
                         nextHopKey, dpnId);
             } else {
                 LOG.error("Unable to install group {} with key {} directly on dpn {} due to {}.", groupId, nextHopKey,
-                        dpnId, rpcResult.getErrors());
+                        dpnId, rpcResult != null ? rpcResult.getErrors() : null);
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error while installing group {} directly on dpn {}", groupId, dpnId);
