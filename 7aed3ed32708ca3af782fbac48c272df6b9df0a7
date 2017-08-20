@@ -1,0 +1,265 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_783ff4d6",
+        "filename": "vpnservice/coe/api/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_38357cf7",
+        "filename": "vpnservice/coe/api/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "do we need renderer in the name? If so, seems like we have been leaning more towards coe.renderer-api. It would be good to remove it to match the package also since that does not have renderer in the path either.",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d82540c3",
+        "filename": "vpnservice/coe/api/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_983c68e4",
+        "filename": "vpnservice/coe/api/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "remove this",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b8204cb1",
+        "filename": "vpnservice/coe/api/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "move name up under artifactId",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_18307800",
+        "filename": "vpnservice/coe/api/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "remove this whole block as checkstyle is enabled in the commons/binding-parent",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f82ac48e",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "all comments from renderer-api apply",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_58195087",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "see if this is not needed as it is included in the commons/binding-parent",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_381c5c77",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9813c865",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d80c2045",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "is this needed for anything?",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b807ac1c",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "remove",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1807d81d",
+        "filename": "vpnservice/coe/impl/src/main/java/org/opendaylight/netvirt/coe/PodListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "is there a genius class we can use here?",
+      "range": {
+        "startLine": 31,
+        "startChar": 36,
+        "endLine": 31,
+        "endChar": 58
+      },
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_53001101",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "move up to alphabetical order",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3303dd0e",
+        "filename": "vpnservice/features/vpnservice-features/pom.xml",
+        "patchSetId": 7
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-20T10:53:20Z",
+      "side": 1,
+      "message": "goes ahead and remove this whitespace as cleanup",
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
