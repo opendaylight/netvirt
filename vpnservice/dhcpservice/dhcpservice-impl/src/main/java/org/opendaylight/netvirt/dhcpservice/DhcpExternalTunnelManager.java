@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -15,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
@@ -30,9 +32,11 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -67,7 +71,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacsBuilder;
@@ -76,6 +79,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -638,22 +642,32 @@ public class DhcpExternalTunnelManager {
     }
 
     public RemoteMcastMacs createRemoteMcastMac(Node dstDevice, String logicalSwitchName, IpAddress internalTunnelIp) {
-        List<LocatorSet> locators = new ArrayList<>();
-        for (TerminationPoint tp : dstDevice.getTerminationPoint()) {
-            HwvtepPhysicalLocatorAugmentation aug = tp.getAugmentation(HwvtepPhysicalLocatorAugmentation.class);
-            if (internalTunnelIp.getIpv4Address().equals(aug.getDstIp().getIpv4Address())) {
-                HwvtepPhysicalLocatorRef phyLocRef = new HwvtepPhysicalLocatorRef(
-                        HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(dstDevice.getNodeId(), aug));
-                locators.add(new LocatorSetBuilder().setLocatorRef(phyLocRef).build());
-            }
-        }
+        Set<LocatorSet> locators = new HashSet<>();
+        TerminationPointKey terminationPointKey = HwvtepSouthboundUtils.getTerminationPointKey(
+                internalTunnelIp.getIpv4Address().getValue());
+        HwvtepPhysicalLocatorRef phyLocRef = new HwvtepPhysicalLocatorRef(
+                HwvtepSouthboundUtils.createInstanceIdentifier(dstDevice.getNodeId()).child(TerminationPoint.class,
+                        terminationPointKey));
+        locators.add(new LocatorSetBuilder().setLocatorRef(phyLocRef).build());
+
         HwvtepLogicalSwitchRef lsRef = new HwvtepLogicalSwitchRef(HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(dstDevice.getNodeId(), new HwvtepNodeName(logicalSwitchName)));
 
-        RemoteMcastMacs remoteUcastMacs = new RemoteMcastMacsBuilder()
+        RemoteMcastMacs remoteMcastMacs = new RemoteMcastMacsBuilder()
                 .setMacEntryKey(new MacAddress(UNKNOWN_DMAC))
-                .setLogicalSwitchRef(lsRef).setLocatorSet(locators).build();
-        return remoteUcastMacs;
+                .setLogicalSwitchRef(lsRef).build();
+        InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(
+                dstDevice.getNodeId(), remoteMcastMacs.getKey());
+        ReadOnlyTransaction transaction = broker.newReadOnlyTransaction();
+        try {
+            //TODO do async mdsal read
+            remoteMcastMacs = transaction.read(LogicalDatastoreType.CONFIGURATION, iid).checkedGet().get();
+            locators.addAll(remoteMcastMacs.getLocatorSet());
+            return new RemoteMcastMacsBuilder(remoteMcastMacs).setLocatorSet(new ArrayList<>(locators)).build();
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read the macs {}", iid);
+        }
+        return null;
     }
 
     private WriteTransaction putRemoteMcastMac(WriteTransaction transaction, String elanName,
@@ -702,7 +716,7 @@ public class DhcpExternalTunnelManager {
                             WriteTransaction transaction = broker.newWriteOnlyTransaction();
                             putRemoteMcastMac(transaction, elanInstanceName, device, internalTunnelIp);
                             if (transaction != null) {
-                                transaction.submit();
+                                return Lists.newArrayList(transaction.submit());
                             }
                         }
                         return null;
