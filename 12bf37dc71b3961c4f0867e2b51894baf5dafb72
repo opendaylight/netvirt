@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_4fdfc53b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 514,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-21T11:09:24Z",
+      "side": 1,
+      "message": "(ipAddress !\u003d null) \u0026\u0026 (ipAddress.getIpV4Address())",
+      "revId": "12bf37dc71b3961c4f0867e2b51894baf5dafb72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
