@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_2c5d3fea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 224,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-08-21T09:35:32Z",
+      "side": 1,
+      "message": "We need to ignore interface of external networks. But unfortunately that info is not available in ietf-interfaces/interfaces-state. Hence this is the only option we have right now.",
+      "parentUuid": "ba1f61a0_f6aade17",
+      "revId": "78b339c8f8746bbd7c1594ccae7121e39b91c38c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_1667b226",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2017-08-17T14:51:25Z",
       "side": 1,
       "message": "is this an error or just something we don\u0027t care about in this code path? The last patch was reverted because the unknown patter caused an exception, but this latest patch looks to just swap an exception for an error.",
+      "range": {
+        "startLine": 225,
+        "startChar": 16,
+        "endLine": 225,
+        "endChar": 21
+      },
+      "revId": "78b339c8f8746bbd7c1594ccae7121e39b91c38c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4c119304",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-08-21T09:35:32Z",
+      "side": 1,
+      "message": "Yes we dont care about this one. I can make it debug log.",
+      "parentUuid": "ba1f61a0_1667b226",
       "range": {
         "startLine": 225,
         "startChar": 16,
