@@ -157,10 +157,12 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     @Override
-    protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove) {
+    protected void programGeneralFixedRules(AclInterface port, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove) {
         LOG.info("programFixedRules : {} default rules.", action == Action.ADD ? "adding" : "removing");
 
+        BigInteger dpid = port.getDpId();
+        int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
             Set<MacAddress> aapMacs =
                 allowedAddresses.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
@@ -172,6 +174,7 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             egressAclIcmpv6AllowedList(dpid, lportTag, addOrRemove);
 
             programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
+            programL2BroadcastAllowRule(port, addOrRemove);
         }
     }
 
@@ -432,6 +435,42 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
                     AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                     AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        }
+    }
+
+    /**
+     * Programs broadcast rules.
+     *
+     * @param port the Acl Interface port
+     * @param addOrRemove whether to delete or add flow
+     */
+    @Override
+    protected void programBroadcastRules(AclInterface port, int addOrRemove) {
+        programL2BroadcastAllowRule(port, addOrRemove);
+    }
+
+    /**
+     * Programs Non-IP broadcast rules.
+     *
+     * @param port the Acl Interface port
+     * @param addOrRemove whether to delete or add flow
+     */
+    private void programL2BroadcastAllowRule(AclInterface port, int addOrRemove) {
+        BigInteger dpId = port.getDpId();
+        int lportTag = port.getLPortTag();
+        List<AllowedAddressPairs> allowedAddresses = port.getAllowedAddressPairs();
+        Set<MacAddress> macs = allowedAddresses.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        for (MacAddress mac : macs) {
+            List<MatchInfoBase> matches = new ArrayList<>();
+            matches.add(new MatchEthernetSource(mac));
+            matches.add(buildLPortTagMatch(lportTag));
+
+            List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(new ArrayList<>());
+
+            String flowName = "Egress_L2Broadcast_" + dpId + "_" + lportTag + "_" + mac.getValue();
+            syncFlow(dpId, NwConstants.INGRESS_ACL_TABLE, flowName,
+                    AclConstants.PROTO_L2BROADCAST_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE,
+                    matches, instructions, addOrRemove);
         }
     }
 

@@ -25,8 +25,10 @@ public final class AclConstants {
     public static final Integer PROTO_DHCP_SERVER_MATCH_PRIORITY = 63010;
     public static final Integer PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY = 63010;
     public static final Integer PROTO_ARP_TRAFFIC_MATCH_PRIORITY = 63010;
+    public static final Integer PROTO_ARP_TRAFFIC_DROP_PRIORITY = 63009;
+    public static final Integer PROTO_L2BROADCAST_TRAFFIC_MATCH_PRIORITY = 61005;
     public static final Integer PROTO_MATCH_PRIORITY = 61010;
-    public static final Integer PREFIX_MATCH_PRIORITY = 61009;
+    public static final Integer PROTO_IP_TRAFFIC_DROP_PRIORITY = 61009;
     public static final Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
     public static final Integer PROTO_PORT_MATCH_PRIORITY = 61007;
     public static final Integer PROTO_PORT_PREFIX_MATCH_PRIORITY = 61007;
@@ -61,6 +63,9 @@ public final class AclConstants {
 
     public static final String IPV4_ALL_NETWORK = "0.0.0.0/0";
     public static final String IPV6_ALL_NETWORK = "::/0";
+    public static final String BROADCAST_MAC = "ff:ff:ff:ff:ff:ff";
+    public static final String IPV4_ALL_SUBNET_BROADCAST_ADDR = "255.255.255.255";
+
     public static final long TCP_FLAG_SYN = 1 << 1;
     public static final long TCP_FLAG_ACK = 1 << 4;
     public static final long TCP_FLAG_SYN_ACK = TCP_FLAG_SYN + TCP_FLAG_ACK;

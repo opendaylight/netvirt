@@ -157,9 +157,30 @@ class FlowEntryObjectsBase {
             ]
     }
 
+     protected def fixedEgressL2BroadcastFlowsPort1() {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F3"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 61005
+                tableId = 211 as short
+            ]
+        ]
+     }
+
      protected def fixedEgressFlowsPort1() {
         #[
-
             new FlowEntityBuilder >> [
                 dpnId = 123bi
                 cookie = 110100480bi
@@ -457,6 +478,28 @@ class FlowEntryObjectsBase {
         ]
     }
 
+     protected def fixedEgressL2BroadcastFlowsPort2 () {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F4"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 61005
+                tableId = 211 as short
+            ]
+         ]
+     }
+
      protected def fixedEgressFlowsPort2 () {
         #[
             new FlowEntityBuilder >> [
@@ -752,6 +795,28 @@ class FlowEntryObjectsBase {
                 priority = 63010
                 tableId = 241 as short
             ]
+        ]
+    }
+
+    protected def fixedEgressL2BroadcastFlowsPort3 () {
+       #[
+           new FlowEntityBuilder >> [
+               dpnId = 123bi
+               cookie = 110100480bi
+               flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:F5"
+               flowName = "ACL"
+               instructionInfoList = #[
+                   new InstructionApplyActions(#[
+                       new ActionNxResubmit(17 as short)
+                   ])
+               ]
+               matchInfoList = #[
+                   new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5")),
+                   new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+               ]
+               priority = 61005
+               tableId = 211 as short
+           ]
         ]
     }
 

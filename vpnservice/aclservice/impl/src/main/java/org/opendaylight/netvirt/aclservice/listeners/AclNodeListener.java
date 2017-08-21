@@ -159,12 +159,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                 securityGroupMode == null ? SecurityGroupMode.Stateful : securityGroupMode);
 
         if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
-            addStatefulIngressAclTableMissFlow(dpnId);
-            addStatefulEgressAclTableMissFlow(dpnId);
-            addConntrackRules(dpnId, NwConstants.LPORT_DISPATCHER_TABLE, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                    NwConstants.ADD_FLOW);
-            addConntrackRules(dpnId, NwConstants.EGRESS_LPORT_DISPATCHER_TABLE, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                    NwConstants.ADD_FLOW);
+            addStatefulIngressDefaultFlows(dpnId);
+            addStatefulEgressDefaultFlows(dpnId);
             addConntrackDummyLookup(dpnId, NwConstants.ADD_FLOW);
         } else if (securityGroupMode == SecurityGroupMode.Transparent) {
             addTransparentIngressAclTableMissFlow(dpnId);
@@ -178,6 +174,13 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         } else {
             LOG.error("Invalid security group mode ({}) obtained from AclserviceConfig.", securityGroupMode);
         }
+    }
+
+    private void addStatefulEgressDefaultFlows(BigInteger dpId) {
+        addStatefulEgressAclTableMissFlow(dpId);
+        addConntrackRules(dpId, NwConstants.EGRESS_LPORT_DISPATCHER_TABLE, NwConstants.EGRESS_ACL_FILTER_TABLE,
+                NwConstants.ADD_FLOW);
+        addStatefulEgressDropFlows(dpId);
     }
 
     /**
@@ -254,6 +257,36 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         LOG.debug("Added Egress ACL Filter Table allow all Flows for dpn {}", dpId);
+    }
+
+    private void addStatefulEgressDropFlows(BigInteger dpId) {
+        List<InstructionInfo> dropInstructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        List<MatchInfoBase> arpDropMatches = new ArrayList<>();
+        arpDropMatches.add(MatchEthernetType.ARP);
+        FlowEntity antiSpoofingArpDropFlowEntity =
+                MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
+                        "Egress ACL Table ARP Drop Flow", AclConstants.PROTO_ARP_TRAFFIC_DROP_PRIORITY,
+                        "Egress ACL Table ARP Drop Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, arpDropMatches,
+                        dropInstructions);
+        mdsalManager.installFlow(antiSpoofingArpDropFlowEntity);
+
+        List<MatchInfoBase> ipDropMatches = new ArrayList<>();
+        ipDropMatches.add(MatchEthernetType.IPV4);
+        FlowEntity antiSpoofingIpDropFlowEntity =
+                MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
+                        "Egress ACL Table IP Drop Flow", AclConstants.PROTO_IP_TRAFFIC_DROP_PRIORITY,
+                        "Egress ACL Table IP Drop Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, ipDropMatches,
+                        dropInstructions);
+        mdsalManager.installFlow(antiSpoofingIpDropFlowEntity);
+
+        List<MatchInfoBase> ipv6DropMatches = new ArrayList<>();
+        ipv6DropMatches.add(MatchEthernetType.IPV6);
+        FlowEntity antiSpoofingIpv6DropFlowEntity =
+                MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
+                        "Egress ACL Table IPv6 Drop Flow", AclConstants.PROTO_IP_TRAFFIC_DROP_PRIORITY,
+                        "Egress ACL Table IPv6 Drop Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, ipv6DropMatches,
+                        dropInstructions);
+        mdsalManager.installFlow(antiSpoofingIpv6DropFlowEntity);
     }
 
     private void addLearnEgressAclTableMissFlow(BigInteger dpId) {
@@ -545,6 +578,13 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         LOG.debug("Added Stateless Egress ACL Table Miss Flows for dpn {}", dpId);
     }
 
+    private void addStatefulIngressDefaultFlows(BigInteger dpId) {
+        addStatefulIngressAclTableMissFlow(dpId);
+        addConntrackRules(dpId, NwConstants.LPORT_DISPATCHER_TABLE, NwConstants.INGRESS_ACL_FILTER_TABLE,
+                NwConstants.ADD_FLOW);
+        addStatefulIngressAllowBroadcastFlow(dpId);
+    }
+
     /**
      * Adds the ingress acl table miss flow.
      *
@@ -589,6 +629,28 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         LOG.debug("Added Ingress ACL Remote Table Miss Flows for dpn {}", dpId);
+    }
+
+    private void addStatefulIngressAllowBroadcastFlow(BigInteger dpId) {
+        final List<MatchInfoBase> ipBroadcastMatches =
+                AclServiceUtils.buildBroadcastIpV4Matches(AclConstants.IPV4_ALL_SUBNET_BROADCAST_ADDR);
+        List<InstructionInfo> ipBroadcastInstructions = new ArrayList<>();
+        ipBroadcastInstructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE));
+        String ipBroadcastflowName = "Ingress_v4_Broadcast_" + dpId + "_Permit";
+        FlowEntity ipBroadcastFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
+                ipBroadcastflowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE,
+                ipBroadcastMatches, ipBroadcastInstructions);
+        mdsalManager.installFlow(ipBroadcastFlowEntity);
+
+        final List<MatchInfoBase> l2BroadcastMatch = AclServiceUtils.buildL2BroadcastMatches();
+        List<ActionInfo> l2BroadcastActionsInfos = new ArrayList<>();
+        List<InstructionInfo> l2BroadcastInstructions = getDispatcherTableResubmitInstructions(l2BroadcastActionsInfos,
+                NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
+        String l2BroadcastflowName = "Ingress_L2_Broadcast_" + dpId + "_Permit";
+        FlowEntity l2BroadcastFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
+                l2BroadcastflowName, AclConstants.PROTO_L2BROADCAST_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, l2BroadcastMatch, l2BroadcastInstructions);
+        mdsalManager.installFlow(l2BroadcastFlowEntity);
     }
 
     private void addConntrackRules(BigInteger dpnId, short dispatcherTableId,short tableId, int write) {
