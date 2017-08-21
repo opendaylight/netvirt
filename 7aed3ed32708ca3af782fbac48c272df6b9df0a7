@@ -361,6 +361,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_8e454272",
+        "filename": "vpnservice/coe/impl/src/main/java/org/opendaylight/netvirt/coe/PodListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-08-21T08:34:53Z",
+      "side": 1,
+      "message": "Personally I prefer using these directly if we don\u0027t want bells and whistles Genius classes bring in.",
+      "parentUuid": "ba1f61a0_f3bf85a8",
+      "range": {
+        "startLine": 31,
+        "startChar": 36,
+        "endLine": 31,
+        "endChar": 58
+      },
+      "revId": "7aed3ed32708ca3af782fbac48c272df6b9df0a7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_53001101",
         "filename": "vpnservice/features/pom.xml",
         "patchSetId": 7
