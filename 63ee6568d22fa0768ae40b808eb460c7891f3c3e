@@ -2,6 +2,98 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba1f61a0_6cc0d77c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 582,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-21T09:30:45Z",
+      "side": 1,
+      "message": "This logic will not work.\nIts true that vpnMaps have routerId and networkIds as attributes, but these are not related to each other.\nFor example, if subnetA(of networkA) is associated to RouterA which is added to bgpvpnA, then the vpnMaps of bgpvpnA will not contain networkA. It will only contain routerA. Only if you add a new networkB directly to bgpvpnA, then the vpnMaps for bppvpnA will contain networkB.",
+      "range": {
+        "startLine": 572,
+        "startChar": 8,
+        "endLine": 582,
+        "endChar": 13
+      },
+      "revId": "63ee6568d22fa0768ae40b808eb460c7891f3c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4c2233a5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 39
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-21T09:30:45Z",
+      "side": 1,
+      "message": "or null",
+      "range": {
+        "startLine": 599,
+        "startChar": 36,
+        "endLine": 599,
+        "endChar": 43
+      },
+      "revId": "63ee6568d22fa0768ae40b808eb460c7891f3c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ce257ac3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 39
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-21T09:30:45Z",
+      "side": 1,
+      "message": "routers(s)",
+      "range": {
+        "startLine": 125,
+        "startChar": 31,
+        "endLine": 125,
+        "endChar": 38
+      },
+      "revId": "63ee6568d22fa0768ae40b808eb460c7891f3c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6e3f2ed7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 39
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-21T09:30:45Z",
+      "side": 1,
+      "message": "router(s)",
+      "range": {
+        "startLine": 178,
+        "startChar": 40,
+        "endLine": 178,
+        "endChar": 42
+      },
+      "revId": "63ee6568d22fa0768ae40b808eb460c7891f3c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_905e3fe8",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
         "patchSetId": 39
