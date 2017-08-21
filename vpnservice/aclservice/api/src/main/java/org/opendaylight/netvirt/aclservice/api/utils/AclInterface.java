@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.List;
 
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 
 /**
@@ -41,6 +42,9 @@ public class AclInterface {
 
     /** The allowed address pairs. */
     List<AllowedAddressPairs> allowedAddressPairs;
+
+    /** The IP broadcast CIDRs. */
+    List<IpPrefixOrAddress> subnetIpPrefixes;
 
     /** The port is marked for delete. */
     Boolean isMarkedForDelete = false;
@@ -196,6 +200,24 @@ public class AclInterface {
      */
     public void setAllowedAddressPairs(List<AllowedAddressPairs> allowedAddressPairs) {
         this.allowedAddressPairs = allowedAddressPairs;
+    }
+
+    /**
+     * Gets the Subnet IP Prefix.
+     *
+     * @return the Subnet IP Prefix
+     */
+    public List<IpPrefixOrAddress> getSubnetIpPrefixes() {
+        return subnetIpPrefixes;
+    }
+
+    /**
+     * Sets the Subnet IP Prefix.
+     *
+     * @param subnetIpPrefixes the Subnet IP Prefix
+     */
+    public void setSubnetIpPrefixes(List<IpPrefixOrAddress> subnetIpPrefixes) {
+        this.subnetIpPrefixes = subnetIpPrefixes;
     }
 
     /**
