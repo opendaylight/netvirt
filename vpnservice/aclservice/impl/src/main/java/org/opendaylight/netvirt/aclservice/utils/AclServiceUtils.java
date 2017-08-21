@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +22,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
@@ -30,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
@@ -61,6 +64,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
@@ -92,8 +96,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortsSubnetIpPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -168,6 +175,12 @@ public final class AclServiceUtils {
             LOG.error("Failed to read InstanceIdentifier {} from {}", path, datastoreType, e);
             return Optional.absent();
         }
+    }
+
+    public static <T extends DataObject> void delete(
+            DataBroker broker, LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
+        WriteTransaction tx = broker.newWriteOnlyTransaction();
+        tx.delete(datastoreType, path);
     }
 
     /**
@@ -354,6 +367,20 @@ public final class AclServiceUtils {
         return matches;
     }
 
+    public static List<MatchInfoBase> buildBroadcastIpV4Matches(String ipAddr) {
+        List<MatchInfoBase> matches = new ArrayList<>(2);
+        matches.add(new MatchEthernetDestination(new MacAddress(AclConstants.BROADCAST_MAC)));
+        matches.addAll(AclServiceUtils.buildIpMatches(new IpPrefixOrAddress(ipAddr.toCharArray()),
+                MatchCriteria.MATCH_DESTINATION));
+        return matches;
+    }
+
+    public static List<MatchInfoBase> buildL2BroadcastMatches() {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(new MatchEthernetDestination(new MacAddress(AclConstants.BROADCAST_MAC)));
+        return matches;
+    }
+
     /**
      * Builds the service id.
      *
@@ -453,6 +480,33 @@ public final class AclServiceUtils {
             dpId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         }
         return dpId;
+    }
+
+    public static List<String> getIpBroadcastAddresses(List<IpPrefixOrAddress> cidrs) {
+        List<String> ipBroadcastAddresses = new ArrayList<>();
+        for (IpPrefixOrAddress cidr : cidrs) {
+            IpPrefix cidrIpPrefix = cidr.getIpPrefix();
+            if (cidrIpPrefix != null) {
+                Ipv4Prefix cidrIpv4Prefix = cidrIpPrefix.getIpv4Prefix();
+                if (cidrIpv4Prefix != null) {
+                    ipBroadcastAddresses.add(getBroadcastAddressFromCidr(cidrIpv4Prefix.getValue()));
+                }
+            }
+        }
+        return ipBroadcastAddresses;
+    }
+
+    public static String getBroadcastAddressFromCidr(String cidr) {
+        String[] ipaddressValues = cidr.split("/");
+        int address = InetAddresses.coerceToInteger(InetAddresses.forString(ipaddressValues[0]));
+        int cidrPart = Integer.parseInt(ipaddressValues[1]);
+        int netmask = 0;
+        for (int j = 0; j < cidrPart; ++j) {
+            netmask |= (1 << 31 - j);
+        }
+        int network = (address & netmask);
+        int broadcast = network | ~(netmask);
+        return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
     }
 
     /**
@@ -732,6 +786,22 @@ public final class AclServiceUtils {
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+    }
+
+    public static List<IpPrefixOrAddress> getSubnetIpPrefixes(DataBroker broker, String portId) {
+        InstanceIdentifier<PortSubnetIpPrefixes> id = InstanceIdentifier.builder(PortsSubnetIpPrefixes.class)
+                .child(PortSubnetIpPrefixes.class, new PortSubnetIpPrefixesKey(portId)).build();
+        Optional<PortSubnetIpPrefixes> portSubnetIpPrefixes = read(broker, LogicalDatastoreType.OPERATIONAL, id);
+        if (portSubnetIpPrefixes.isPresent()) {
+            return portSubnetIpPrefixes.get().getSubnetIpPrefixes();
+        }
+        return null;
+    }
+
+    public static void deleteSubnetIpPrefixes(DataBroker broker, String portId) {
+        InstanceIdentifier<PortSubnetIpPrefixes> id = InstanceIdentifier.builder(PortsSubnetIpPrefixes.class)
+                    .child(PortSubnetIpPrefixes.class, new PortSubnetIpPrefixesKey(portId)).build();
+        MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
     }
 
     public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {

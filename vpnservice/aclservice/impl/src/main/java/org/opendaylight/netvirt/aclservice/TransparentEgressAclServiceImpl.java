@@ -47,8 +47,8 @@ public class TransparentEgressAclServiceImpl extends AbstractEgressAclServiceImp
     }
 
     @Override
-    protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action,
+    protected void programGeneralFixedRules(AclInterface port, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, Action action,
             int addOrRemove) {
         LOG.debug("transparent egress acl service - do nothing");
     }
