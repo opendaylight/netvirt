@@ -47,6 +47,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
     protected def etherFlows() {
         fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + etherEgressFlowsPort1
@@ -54,6 +55,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort2
         + etherIngressFlowsPort2
         + etherIngressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
@@ -64,11 +66,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
         + tcpIngressFlowPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + tcpIngressFlowPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + tcpEgressFlowPort2
@@ -79,6 +83,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
     protected def udpFlows() {
         fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + udpEgressFlowsPort1
@@ -86,6 +91,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort2
         + udpIngressFlowsPort2
         + udpIngressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + udpEgressFlowsPort2
@@ -96,11 +102,13 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
         + icmpIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + icmpIngressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + icmpEgressFlowsPort2
@@ -112,6 +120,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         +fixedConntrackIngressFlowsPort1
         + udpIngressPortRangeFlows
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + tcpEgressRangeFlows
@@ -121,6 +130,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
         + udpIngressAllFlows
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + tcpEgressAllFlows
@@ -149,6 +159,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
     protected def multipleAcl() {
           fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + etherEgressFlowsPort1
@@ -158,6 +169,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort2
         + etherIngressFlowsPort2
         + etherIngressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
@@ -373,6 +385,23 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_TABLE
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:A4"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 61005
+                tableId = 211 as short
             ]
          ]
     }
@@ -543,6 +572,23 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4"))
                 ]
                 priority = 63010
+                tableId = 211 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_0D:AA:D8:42:30:A4"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:A4")),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 61005
                 tableId = 211 as short
             ]
         ]
@@ -2140,6 +2186,23 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
+                tableId = 211 as short
+            ],
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_" + mac
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress(mac)),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 61005
                 tableId = 211 as short
             ]
         ]
