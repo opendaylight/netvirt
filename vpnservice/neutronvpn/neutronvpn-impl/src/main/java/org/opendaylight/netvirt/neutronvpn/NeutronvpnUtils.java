@@ -57,8 +57,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.ReleaseIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAclBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortsSubnetIpPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeGre;
@@ -672,6 +676,37 @@ public class NeutronvpnUtils {
         interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
     }
 
+    protected static void populateSubnetIpPrefixes(DataBroker broker, Port port) {
+        List<IpPrefixOrAddress> subnetIpPrefixes = NeutronvpnUtils.getSubnetIpPrefixes(broker, port);
+        if (subnetIpPrefixes != null) {
+            String portId = port.getUuid().getValue();
+            InstanceIdentifier portSubnetIpPrefixIdentifier =
+                NeutronvpnUtils.buildPortSubnetIpPrefixIdentifier(portId);
+            PortSubnetIpPrefixesBuilder subnetIpPrefixesBuilder = new PortSubnetIpPrefixesBuilder()
+                    .setKey(new PortSubnetIpPrefixesKey(portId)).setPortId(portId)
+                    .setSubnetIpPrefixes(subnetIpPrefixes);
+            MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portSubnetIpPrefixIdentifier,
+                    subnetIpPrefixesBuilder.build());
+            LOG.debug("Created Subnet IP Prefixes for port {}", port.getUuid().getValue());
+        }
+    }
+
+    protected static List<IpPrefixOrAddress> getSubnetIpPrefixes(DataBroker broker, Port port) {
+        List<Uuid> subnetIds = getSubnetIdsFromNetworkId(broker, port.getNetworkId());
+        if (subnetIds == null) {
+            LOG.error("Failed to get Subnet Ids for the Network {}", port.getNetworkId());
+            return null;
+        }
+        List<IpPrefixOrAddress> subnetIpPrefixes = new ArrayList<>();
+        for (Uuid subnetId : subnetIds) {
+            Subnet subnet = getNeutronSubnet(broker, subnetId);
+            if (subnet != null) {
+                subnetIpPrefixes.add(new IpPrefixOrAddress(subnet.getCidr()));
+            }
+        }
+        return subnetIpPrefixes;
+    }
+
     protected static Subnet getNeutronSubnet(DataBroker broker, Uuid subnetId) {
         Subnet subnet = null;
         subnet = subnetMap.get(subnetId);
@@ -1016,6 +1051,12 @@ public class NeutronvpnUtils {
     static InstanceIdentifier<FloatingIpIdToPortMapping> buildfloatingIpIdToPortMappingIdentifier(Uuid floatingIpId) {
         return InstanceIdentifier.builder(FloatingIpPortInfo.class).child(FloatingIpIdToPortMapping.class, new
                 FloatingIpIdToPortMappingKey(floatingIpId)).build();
+    }
+
+    static InstanceIdentifier<PortSubnetIpPrefixes> buildPortSubnetIpPrefixIdentifier(String portId) {
+        InstanceIdentifier<PortSubnetIpPrefixes> id = InstanceIdentifier.builder(PortsSubnetIpPrefixes.class)
+            .child(PortSubnetIpPrefixes.class, new PortSubnetIpPrefixesKey(portId)).build();
+        return id;
     }
 
     // TODO Clean up the exception handling

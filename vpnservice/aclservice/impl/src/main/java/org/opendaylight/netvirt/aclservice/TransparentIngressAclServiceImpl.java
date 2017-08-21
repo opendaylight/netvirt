@@ -50,8 +50,8 @@ public class TransparentIngressAclServiceImpl extends AbstractIngressAclServiceI
     }
 
     @Override
-    protected void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action,
+    protected void programGeneralFixedRules(AclInterface port, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, Action action,
             int addOrRemove) {
         LOG.debug("transparent ingress acl service - do nothing");
     }

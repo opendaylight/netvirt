@@ -41,10 +41,12 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
     protected def etherFlows() {
         fixedIngressFlowsPort1
         + etherFlowIngressPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + etherFlowEgressPort1
         + fixedIngressFlowsPort2
         + etherIngressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + etheregressFlowPort2
         + remoteFlows
@@ -53,10 +55,12 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
     protected def tcpFlows() {
         fixedIngressFlowsPort1
         + tcpIngressFlowPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + tcpEgressFlowPort1
         + fixedIngressFlowsPort2
         + tcpIngressFlowPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + tcpEgressFlowPort2
         + remoteFlows
@@ -64,33 +68,40 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
 
     protected def udpFlows() {
         fixedIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + remoteFlows
     }
 
     protected def icmpFlows() {
         fixedIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
+        + fixedEgressL2BroadcastFlowsPort2
         + fixedEgressFlowsPort2
         + remoteFlows
     }
 
     protected def dstRangeFlows() {
         fixedIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
         + tcpEgressRangeFlows
     }
 
     protected def dstAllFlows() {
         fixedIngressFlowsPort1
+        + fixedEgressL2BroadcastFlowsPort1
         + fixedEgressFlowsPort1
     }
 
     protected def icmpFlowsForTwoAclsHavingSameRules() {
         fixedIngressFlowsPort3
+        + fixedEgressL2BroadcastFlowsPort3
         + fixedEgressFlowsPort3
     }
 
@@ -1120,6 +1131,23 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
                 ]
                 priority = 63010
+                tableId = 211 as short
+            ],
+             new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Egress_L2Broadcast_123_987_" + mac
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionApplyActions(#[
+                        new ActionNxResubmit(17 as short)
+                    ])
+                ]
+                matchInfoList = #[
+                    new MatchEthernetSource(new MacAddress(mac)),
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
+                ]
+                priority = 61005
                 tableId = 211 as short
             ]
         ]
