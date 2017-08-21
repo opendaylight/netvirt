@@ -80,4 +80,18 @@ module aclservice {
             }
         }
     }
+
+    container ports-subnet-ip-prefixes {
+        list port-subnet-ip-prefixes {
+            key port-id;
+            leaf port-id {
+                type string;
+                description "Port ID";
+            }
+            leaf-list subnet-ip-prefixes {
+                type ip-prefix-or-address;
+                description "Subnet IP Prefixes of the Port.";
+            }
+        }
+    }
 }

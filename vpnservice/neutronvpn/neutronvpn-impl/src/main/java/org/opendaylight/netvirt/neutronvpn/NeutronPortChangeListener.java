@@ -217,7 +217,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     if (optionalInf.isPresent()) {
                         InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
                         if (origSecurityEnabled || updatedSecurityEnabled) {
-                            InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
+                            InterfaceAcl infAcl = handlePortSecurityUpdated(dataBroker, original, update,
                                     origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
                             interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
                         }
@@ -464,8 +464,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         });
     }
 
-    private static InterfaceAclBuilder handlePortSecurityUpdated(Port portOriginal, Port portUpdated, boolean
-            origSecurityEnabled, boolean updatedSecurityEnabled, InterfaceBuilder interfaceBuilder) {
+    private static InterfaceAclBuilder handlePortSecurityUpdated(DataBroker dataBroker, Port portOriginal,
+            Port portUpdated, boolean origSecurityEnabled, boolean updatedSecurityEnabled,
+            InterfaceBuilder interfaceBuilder) {
         String interfaceName = portUpdated.getUuid().getValue();
         InterfaceAclBuilder interfaceAclBuilder = null;
         if (origSecurityEnabled != updatedSecurityEnabled) {
@@ -535,6 +536,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             interfaceAclBuilder.setPortSecurityEnabled(true);
             NeutronvpnUtils.populateInterfaceAclBuilder(interfaceAclBuilder, port);
             interfaceBuilder.addAugmentation(InterfaceAcl.class, interfaceAclBuilder.build());
+            NeutronvpnUtils.populateSubnetIpPrefixes(dataBroker, port);
         }
         return interfaceBuilder.build();
     }

@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -108,6 +109,12 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         }
         AclInterface aclInterface = updateAclInterfaceCache(added);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
+            if (aclInterface.getSubnetIpPrefixes() == null) {
+                // For upgrades
+                List<IpPrefixOrAddress> subnetIpPrefixes = AclServiceUtils.getSubnetIpPrefixes(dataBroker,
+                        added.getName());
+                aclInterface.setSubnetIpPrefixes(subnetIpPrefixes);
+            }
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
