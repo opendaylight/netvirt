@@ -168,6 +168,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         updateArpForAllowedAddressPairs(dpId, portAfter.getLPortTag(), deletedAllowedAddressPairs,
                 portAfter.getAllowedAddressPairs());
+        if (portAfter.getSubnetIpPrefixes() != null && portBefore.getSubnetIpPrefixes() == null) {
+            programBroadcastRules(portAfter, NwConstants.ADD_FLOW);
+        }
 
         updateAclInterfaceInCache(portBefore);
         // Have to delete and add all rules because there can be following scenario: Interface1 with SG1, Interface2
@@ -231,7 +234,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         LOG.debug("Applying ACL Allowed Address on DpId {}, lportTag {}, Action {}", dpId, lportTag, action);
         List<Uuid> aclUuidList = port.getSecurityGroups();
         String portId = port.getInterfaceId();
-        programGeneralFixedRules(dpId, "", allowedAddresses, lportTag, action, addOrRemove);
+        programGeneralFixedRules(port, "", allowedAddresses, action, addOrRemove);
         programSpecificFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
             programAclRules(port, aclUuidList, addOrRemove);
@@ -289,15 +292,14 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     /**
      * Program the default anti-spoofing rules.
      *
-     * @param dpid the dpid
+     * @param port the acl interface
      * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
      * @param action add/modify/remove action
      * @param addOrRemove addorRemove
      */
-    protected abstract void programGeneralFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, Action action, int addOrRemove);
+    protected abstract void programGeneralFixedRules(AclInterface port, String dhcpMacAddress,
+            List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove);
 
     /**
      * Update arp for allowed address pairs.
@@ -345,6 +347,14 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      */
     protected abstract void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
             List<AllowedAddressPairs> syncAllowedAddresses);
+
+    /**
+     * Programs broadcast rules.
+     *
+     * @param port the Acl Interface port
+     * @param addOrRemove whether to delete or add flow
+     */
+    protected abstract void programBroadcastRules(AclInterface port, int addOrRemove);
 
     /**
      * Writes/remove the flow to/from the datastore.
