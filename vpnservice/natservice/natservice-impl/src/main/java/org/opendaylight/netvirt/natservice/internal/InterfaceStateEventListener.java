@@ -341,7 +341,7 @@ public class InterfaceStateEventListener
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, portToIpMapIdentifier);
         if (!port.isPresent()) {
-            LOG.error("getIntExtPortMapListForPortName : Unable to read router port entry for router ID {} "
+            LOG.info("getIntExtPortMapListForPortName : Unable to read router port entry for router ID {} "
                     + "and port name {}", routerId, portName);
             return null;
         }
