@@ -737,32 +737,44 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         writeVpnInterfaceToDs(vpnId, infName, adjs, isRouterInterface, wrtConfigTxn);
     }
 
+    protected void withdrawPortIpFromVpnIface(Uuid vpnId, Port port, Subnetmap sn, WriteTransaction wrtConfigTxn) {
+        String infName = port.getUuid().getValue();
+        // if port is a router interface
+        if (sn.getRouterInterfacePortId() == port.getUuid()) {
+            removeFromNeutronRouterInterfacesMap(sn.getRouterId(), infName);
+            NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), sn.getRouterInterfaceFixedIp(),
+                wrtConfigTxn);
+            deleteVpnInterface(infName, wrtConfigTxn);
+            return;
+        }
+        // if port is a VM interface
+        List<FixedIps> portIps = port.getFixedIps();
+        Boolean isIpFromAnotherSubnet = false;
+        for (FixedIps ip : portIps) {
+            String ipValue = String.valueOf(ip.getIpAddress().getValue());
+            if (FibHelper.isBelongingPrefix(ip.getIpAddress().getValue(), sn.getSubnetIp())) {
+                NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(), ipValue, wrtConfigTxn);
+            } else {
+                isIpFromAnotherSubnet = true;
+            }
+        }
+        if (!isIpFromAnotherSubnet) {
+            deleteVpnInterface(infName, wrtConfigTxn);
+        }
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void deleteVpnInterface(Uuid vpnId, Port port, WriteTransaction wrtConfigTxn) {
+    protected void deleteVpnInterface(String infName, WriteTransaction wrtConfigTxn) {
         Boolean wrtConfigTxnPresent = true;
         if (wrtConfigTxn == null) {
             wrtConfigTxnPresent = false;
             wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
         }
-        String infName = port.getUuid().getValue();
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
         try {
-            LOG.debug("Deleting vpn interface {}", infName);
-            wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
-
-            Uuid rtrId = null;
-            List<FixedIps> ips = port.getFixedIps();
-            for (FixedIps ip : ips) {
-                String ipValue = String.valueOf(ip.getIpAddress().getValue());
-                NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(),
-                        ipValue, wrtConfigTxn);
-                Uuid routerId = NeutronvpnUtils.getSubnetmap(dataBroker, ip.getSubnetId()).getRouterId();
-                if (routerId != null && routerId != rtrId) {
-                    removeFromNeutronRouterInterfacesMap(routerId, infName);
-                    rtrId = routerId;
-                }
-            }
+                LOG.debug("Deleting vpn interface {}", infName);
+                wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
         } catch (Exception ex) {
             LOG.error("Deletion of vpninterface {} failed", infName, ex);
         }
@@ -1629,9 +1641,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Port port = NeutronvpnUtils.getNeutronPort(dataBroker, portId);
 
                         if (port != null) {
-                            deleteVpnInterface(vpnId, port, wrtConfigTxn);
+                            withdrawPortIpFromVpnIface(vpnId, port, sn, wrtConfigTxn);
                         } else {
-                            LOG.error("Cannot proceed with deleteVpnInterface for port {} in subnet {} since port is "
+                            LOG.error("Cannot proceed with withdrawPortIpFromVpnIface for port {} in subnet {} since port is "
                                 + "absent in Neutron config DS", portId.getValue(), subnet.getValue());
                         }
                         futures.add(wrtConfigTxn.submit());
