@@ -61,14 +61,15 @@ public class DhcpLogicalSwitchListener
     @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
-            registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+            //Taken care by mcast mac listener
+            //registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
         }
     }
 
     @Override
     @PreDestroy
     public void close() {
-        super.close();
+        //super.close();
         LOG.info("DhcpLogicalSwitchListener Closed");
     }
 
