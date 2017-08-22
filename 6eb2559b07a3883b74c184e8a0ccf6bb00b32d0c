@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_098822e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 1226,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-22T14:32:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_57480487",
+      "revId": "6eb2559b07a3883b74c184e8a0ccf6bb00b32d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_6839f140",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 56
@@ -48,6 +66,24 @@
       "writtenOn": "2017-08-17T09:58:20Z",
       "side": 1,
       "message": "There is a fundamental issue here :\n\nSay router (say Router-1) is having two subnets (IPv4 and IPv6). Remove one of the subnet (say IPv6). Then handleRouterInterfaceRemoved () -\u003e removeSubnetFromVpn() -\u003e deleteVpnInterface() is called. This will go and delete the vpn-interfaces. This is a major BUG.\n\nThe design should be , if port has IPv4 and IPv6 addresses (i.e two subnets) , then VpnInterface needs to be updated. The adjacency corresponding to subnet being removed needs to be deleted from VpnInterface and update must be done. \n\nTo maintain backward compatibility , if port has only stack(IPv4 or IPv6) , when subnet is removed from router Router-1 , VpnInterface must be deleted.",
+      "revId": "6eb2559b07a3883b74c184e8a0ccf6bb00b32d0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_696efe30",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 1605,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-22T14:32:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_6839f140",
       "revId": "6eb2559b07a3883b74c184e8a0ccf6bb00b32d0c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
