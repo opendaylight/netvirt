@@ -141,6 +141,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * @param generateIntBridgeMac whether or not the int bridge's mac should be set to a random value
      */
     public void processNodePrep(Node node, boolean generateIntBridgeMac) {
+        LOG.info("JOSH processNodePrep {}", node);
         if (isOvsdbNode(node)) {
             ensureBridgesExist(node, generateIntBridgeMac);
 
