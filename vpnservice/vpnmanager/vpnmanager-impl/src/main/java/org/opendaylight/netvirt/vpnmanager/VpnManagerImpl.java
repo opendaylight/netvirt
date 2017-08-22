@@ -16,6 +16,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -37,10 +39,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -57,6 +61,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final IElanService elanService;
     private final IInterfaceManager interfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
+    private WaitForIt waiter;
 
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
@@ -209,6 +214,76 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
+        String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
+        if (extInterfaceName == null) {
+            LOG.warn("JOSH Failed to install responder flows for {}. No external interface found for DPN id {}", id, dpnId);
+            this.waiter = new WaitForIt(this.dataBroker, id, fixedIps, macAddress, dpnId, extNetworkId, writeTx, addOrRemove);
+            return;
+        }
+        doSetupArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extNetworkId, writeTx, addOrRemove);
+    }
+
+    class WaitForIt extends AsyncDataTreeChangeListenerBase<DpnInterfaces, WaitForIt> {
+
+        private final String id;
+        private final String macAddress;
+        private final BigInteger dpnId;
+        private final Uuid extNetworkId;
+        private final int addOrRemove;
+        private final Collection<String> fixedIps;
+        private final DataBroker dataBroker;
+
+        public WaitForIt(DataBroker dataBroker, String id, Collection<String> fixedIps, String macAddress, BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove) {
+            super(DpnInterfaces.class, WaitForIt.class);
+            this.dataBroker = dataBroker;
+            this.id = id;
+            this.fixedIps = fixedIps;
+            this.macAddress = macAddress;
+            this.dpnId = dpnId;
+            this.extNetworkId = extNetworkId;
+            this.addOrRemove = addOrRemove;
+            LOG.warn("JOSH waiting for it");
+            init();
+        }
+
+        @Override
+        public void init() {
+            LOG.info("{} init", getClass().getSimpleName());
+            registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        }
+
+        @Override
+        protected InstanceIdentifier<DpnInterfaces> getWildCardPath() {
+            InstanceIdentifier<DpnInterfaces> ret = elanService.getElanDpnInterfaceOperationalDataPath(this.extNetworkId.getValue(), this.dpnId);
+            LOG.warn("JOSH waiting for {}", ret);
+            return ret;
+        }
+
+        @Override
+        protected void remove(InstanceIdentifier<DpnInterfaces> instanceIdentifier, DpnInterfaces dpnInterfaces) {
+            LOG.info("WaitForIt, remove???");
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<DpnInterfaces> instanceIdentifier, DpnInterfaces dpnInterfaces, DpnInterfaces t1) {
+            LOG.info("WaitForIt, update???");
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<DpnInterfaces> instanceIdentifier, DpnInterfaces dpnInterfaces) {
+            LOG.info("WaitForIt, ADD!");
+            WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+            doSetupArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, extNetworkId, writeTx, addOrRemove);
+            writeTx.submit();
+        }
+
+        @Override
+        protected WaitForIt getDataTreeChangeListener() {
+            return this;
+        }
+    }
+
+    private void doSetupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress, BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove) {
         String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
         if (extInterfaceName == null) {
             LOG.warn("Failed to install responder flows for {}. No external interface found for DPN id {}", id, dpnId);

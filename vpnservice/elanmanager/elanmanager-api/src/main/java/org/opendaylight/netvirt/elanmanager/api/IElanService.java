@@ -15,10 +15,12 @@ import java.util.List;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public interface IElanService extends IEtreeService {
 
@@ -94,5 +96,6 @@ public interface IElanService extends IEtreeService {
      * @see ArpResponderInput
      */
     void removeArpResponderFlow(ArpResponderInput arpResponderInput);
+    InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName, BigInteger dpnId);
 
 }
