@@ -381,7 +381,7 @@ public class VpnSubnetRouteHandler {
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
-                    LOG.error("{} onPortAddedToSubnet: Port {} is part of a subnet {} that is not in VPN, ignoring",
+                    LOG.info("{} onPortAddedToSubnet: Port {} is part of a subnet {} that is not in VPN, ignoring",
                             LOGGING_PREFIX, portId.getValue(), subnetId.getValue());
                     return;
                 }
