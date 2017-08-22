@@ -212,7 +212,7 @@ public class SubnetOpDpnManager {
         Optional<PortOpDataEntry> optionalPortOp =
             VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
-            LOG.error("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
+            LOG.info("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
                     intfName);
             return null;
         } else {
