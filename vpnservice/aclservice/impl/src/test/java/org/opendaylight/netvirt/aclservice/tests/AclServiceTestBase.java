@@ -114,9 +114,6 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterface - start");
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
-        // Given
-        // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
-        dataBrokerUtil.put(
                 new IdentifiedInterfaceWithAclBuilder().interfaceName(PORT_1).portSecurity(true).build());
         dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
                 .interfaceName("port1")
