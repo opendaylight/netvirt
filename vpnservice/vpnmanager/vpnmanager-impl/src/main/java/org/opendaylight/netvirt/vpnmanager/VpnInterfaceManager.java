@@ -312,7 +312,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         final String interfaceName = vpnInterface.getName();
         if (!isInterfaceUp) {
             final String vpnName = vpnInterface.getVpnInstanceName();
-            LOG.error("processVpnInterfaceUp: Binding vpn service to interface {} onto dpn {} for vpn {}",
+            LOG.info("processVpnInterfaceUp: Binding vpn service to interface {} onto dpn {} for vpn {}",
                     interfaceName, dpId, vpnName);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
@@ -1049,12 +1049,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<String> rts = new ArrayList<>();
         VpnTargets targets = vpnInstance.getVpnTargets();
         if (targets == null) {
-            LOG.error("getRts: vpn targets not available for {}", name);
+            LOG.info("getRts: vpn targets not available for {}", name);
             return rts;
         }
         List<VpnTarget> vpnTargets = targets.getVpnTarget();
         if (vpnTargets == null) {
-            LOG.error("getRts: vpnTarget values not available for {}", name);
+            LOG.info("getRts: vpnTarget values not available for {}", name);
             return rts;
         }
         for (VpnTarget target : vpnTargets) {
