@@ -1674,7 +1674,7 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_multipaths();
+        return new Client(prot).recv_multipaths();
       }
     }
 
@@ -1706,7 +1706,7 @@ public class BgpConfigurator {
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
-        return (new Client(prot)).recv_enableEORDelay();
+        return new Client(prot).recv_enableEORDelay();
       }
     }
 
@@ -3675,19 +3675,21 @@ public class BgpConfigurator {
       public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
         return new AsyncMethodCallback<Integer>() {
-          public void onComplete(Integer o) {
+          @Override
+                public void onComplete(Integer o) {
             enableEORDelay_result result = new enableEORDelay_result();
             result.success = o;
             result.setSuccessIsSet(true);
             try {
-              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              fcall.sendResponse(fb, result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
               LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+                public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             enableEORDelay_result result = new enableEORDelay_result();
@@ -3710,7 +3712,7 @@ public class BgpConfigurator {
         return false;
       }
 
-      public void start(I iface, enableEORDelay_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      public void start(I iface, enableEORDelay_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws org.apache.thrift.TException {
         iface.enableEORDelay(args.delay,resultHandler);
       }
     }
@@ -3727,19 +3729,21 @@ public class BgpConfigurator {
       public AsyncMethodCallback<Integer> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
         return new AsyncMethodCallback<Integer>() {
-          public void onComplete(Integer o) {
+          @Override
+                public void onComplete(Integer o) {
             sendEOR_result result = new sendEOR_result();
             result.success = o;
             result.setSuccessIsSet(true);
             try {
-              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              fcall.sendResponse(fb, result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
               return;
             } catch (Exception e) {
               LOG.error("Exception writing to internal frame buffer", e);
             }
             fb.close();
           }
-          public void onError(Exception e) {
+          @Override
+                public void onError(Exception e) {
             byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
             org.apache.thrift.TBase msg;
             sendEOR_result result = new sendEOR_result();
@@ -3762,7 +3766,7 @@ public class BgpConfigurator {
         return false;
       }
 
-      public void start(I iface, sendEOR_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws TException {
+      public void start(I iface, sendEOR_args args, org.apache.thrift.async.AsyncMethodCallback<Integer> resultHandler) throws org.apache.thrift.TException {
         iface.sendEOR(resultHandler);
       }
     }
@@ -25494,7 +25498,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField DELAY_FIELD_DESC = new org.apache.thrift.protocol.TField("delay", org.apache.thrift.protocol.TType.I32, (short)1);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableEORDelay_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableEORDelay_argsTupleSchemeFactory());
@@ -25852,7 +25856,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new enableEORDelay_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new enableEORDelay_resultTupleSchemeFactory());
@@ -26210,8 +26214,7 @@ public class BgpConfigurator {
   public static class sendEOR_args implements org.apache.thrift.TBase<sendEOR_args, sendEOR_args._Fields>, java.io.Serializable, Cloneable, Comparable<sendEOR_args>   {
     private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("sendEOR_args");
 
-
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new sendEOR_argsStandardSchemeFactory());
       schemes.put(TupleScheme.class, new sendEOR_argsTupleSchemeFactory());
@@ -26460,7 +26463,7 @@ public class BgpConfigurator {
 
     private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.I32, (short)0);
 
-    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<>();
     static {
       schemes.put(StandardScheme.class, new sendEOR_resultStandardSchemeFactory());
       schemes.put(TupleScheme.class, new sendEOR_resultTupleSchemeFactory());
