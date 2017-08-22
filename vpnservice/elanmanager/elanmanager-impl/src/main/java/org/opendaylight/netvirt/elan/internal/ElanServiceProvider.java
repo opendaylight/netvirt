@@ -646,6 +646,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         return elanUtils.getExternalElanInterface(elanInstanceName, dpnId);
     }
 
+    public DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpnId) {
+        return elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
+    }
+
+    public InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName, BigInteger dpnId) {
+        return ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpnId);
+    }
+
     @Override
     public boolean isExternalInterface(String interfaceName) {
         return interfaceManager.isExternalInterface(interfaceName);
