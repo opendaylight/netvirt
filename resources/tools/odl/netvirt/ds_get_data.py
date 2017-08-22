@@ -1,0 +1,122 @@
+import collections
+import json
+import netvirt_utils as utils
+import constants as const
+
+
+def get_ds_data(name, file_name=None,ds_type=None):
+    res = const.DSMAP[name]
+    filename = res[const.DSM_FILE] if file_name is None else file_name
+    dstype = res[const.DSM_DSTYPE] if ds_type is None else ds_type
+    path = res[const.DSM_PATH]
+    root1 = res[const.DSM_ROOT1]
+    root2 = res[const.DSM_ROOT2]
+    data = {}
+    try:
+        with open(filename) as data_file:
+            data = json.load(data_file)[root1][root2]
+    except IOError:
+        url = utils.create_url(dstype, path)
+        result = utils.grabJson(url)
+        if result:
+            data = result[root1][root2]
+    return data
+
+
+def get_config_interfaces(file_name=None):
+    # Returns dict of ifaces, key is iface name
+    if_dict = {}
+    ifaces = get_ds_data('ifconfig',file_name)
+    for iface in ifaces:
+        if_dict[iface['name']] = iface
+    return if_dict
+
+
+def get_neutron_ports(file_name=None):
+    port_dict = {}
+    ports = get_ds_data('neutronports',file_name)
+    for port in ports:
+        port_dict[port['uuid']] = port
+    return port_dict
+
+
+def get_interface_states(file_name=None):
+    ifs_dict = {}
+    ifstates = get_ds_data('ifstate',file_name)
+    for ifstate in ifstates:
+        ifs_dict[ifstate['name']] = ifstate
+    return ifs_dict
+
+
+def get_config_tunnels(file_name='tunnel-config.log'):
+    tun_dict = {}
+    tunnels = {}
+    try:
+        with open(file_name) as tunconfig_file:
+            tunnels = json.load(tunconfig_file)['tunnel-list']['internal-tunnel']
+    except Exception:
+        pass
+    for tunnel in tunnels:
+        for tun_name in tunnel['tunnel-interface-names']:
+            tun_dict[tun_name] = tunnel
+    return tun_dict
+
+
+def get_tunnel_states(file_name=None):
+    tun_dict = {}
+    tunnels = get_ds_data('tunstate',file_name)
+    for tunnel in tunnels:
+        tun_dict[tunnel['tunnel-interface-name']] = tunnel
+    return tun_dict
+
+
+def get_topology_nodes(file_name, type = 'ovsdb:1', dsType = 'config'):
+    nodes_dict = {}
+    topologies = {}
+    nodes = {}
+    try:
+        with open(file_name) as topology_file:
+            topologies = json.load(topology_file)['topology']
+            nodes = [topology['node'] for topology in topologies if topology['topology-id'] == type][0]
+    except IOError:
+        url = utils.create_url(dsType, "network-topology:network-topology/{}".format(type))
+        result = utils.grabJson(url)
+        if result:
+            nodes = result['node']
+    for node in nodes:
+        nodes_dict[node['node-id']] = node
+    return nodes_dict
+
+
+def get_topology_config(file_name='topology-config.log', type = 'ovsdb:1'):
+    return get_topology_nodes(file_name)
+
+
+def get_topology_oper(file_name='topology-oper.log', type = 'ovsdb:1', dsType = 'operational'):
+    return get_topology_nodes(file_name, type)
+
+
+def get_inventory_nodes(file_name, dsType = 'config'):
+    nodes_dict = {}
+    nodes = get_ds_data('inventory', file_name, dsType)
+    for node in nodes:
+        nodes_dict[node['id']] = node
+    return nodes_dict
+
+
+def get_inventory_config(file_name=None):
+    return get_inventory_nodes(file_name)
+
+
+def get_inventory_oper(file_name='inventory-oper.log'):
+    return get_inventory_nodes(file_name, 'operational')
+
+
+def get_service_bindings(file_name=None):
+    # Returns dict of ifaces, key is iface name
+    sb_dict = collections.defaultdict(dict)
+    sb_infos = get_ds_data('bindings',file_name)
+    for sb_info in sb_infos:
+        service_mode = sb_info['service-mode'][len('interface-service-bindings:'):]
+        sb_dict[sb_info['interface-name']][service_mode] =  sb_info
+    return dict(sb_dict)
