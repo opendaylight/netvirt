@@ -127,11 +127,6 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterface - start");
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
-        // Given
-        // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
-        Pair<DataTreeIdentifier<Interface>, Interface> port1 = new IdentifiedInterfaceWithAclBuilder()
-                .interfaceName(PORT_1)
-                .portSecurity(true).build();
         testInterfaceManager.addInterfaceInfo(newInterfaceInfo("port1"));
         testInterfaceManager.addInterface(port1.getValue());
         dataBrokerUtil.put(port1);
