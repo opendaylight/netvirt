@@ -154,10 +154,10 @@ public class BgpRouter {
                 LOG.error("Connected to BGP config server at {} : {}", bgpHost, bgpPort);
                 break;
             } catch (TTransportException tte) {
-                LOG.info("Failed connecting to BGP config server at {} : {}. msg: {}; Exception :",
+                LOG.debug("Failed connecting to BGP config server at {} : {}. msg: {}; Exception :",
                         bgpHost, bgpPort, msgPiece, tte);
                 if (tte.getCause() instanceof ConnectException) {
-                    LOG.error("Connect exception. Failed connecting to BGP config server at {} : {}. "
+                    LOG.debug("Connect exception. Failed connecting to BGP config server at {} : {}. "
                             + "msg: {}; Exception :", bgpHost, bgpPort, msgPiece, tte);
                     connectRetry.errorOccured();
                 } else {
