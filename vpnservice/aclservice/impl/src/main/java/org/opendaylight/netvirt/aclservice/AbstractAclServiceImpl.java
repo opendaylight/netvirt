@@ -15,7 +15,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -101,7 +100,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     @Override
     public boolean bindAcl(AclInterface port) {
         if (port == null || port.getSecurityGroups() == null) {
-            LOG.error("port and port security groups cannot be null");
+            LOG.error("Port and port security groups cannot be null for binding ACL service, port={}", port);
             return false;
         }
         bindService(port);
@@ -113,9 +112,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean unbindAcl(AclInterface port) {
-        BigInteger dpId = port.getDpId();
-        if (dpId == null) {
-            LOG.error("Unable to find DpId from ACL interface with id {}", port.getInterfaceId());
+        if (port == null) {
+            LOG.error("Port cannot be null for unbinding ACL service");
             return false;
         }
         unbindService(port);
@@ -139,9 +137,9 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.debug("On ACL update, Port security is {} for {}", isPortSecurityEnable ? "Enabled" :
                     "Disabled", portAfter.getInterfaceId());
             if (isPortSecurityEnable) {
-                result = applyAcl(portAfter) && bindAcl(portAfter);
+                result = applyAcl(portAfter);
             } else {
-                result = removeAcl(portBefore) && unbindAcl(portBefore);
+                result = removeAcl(portBefore);
             }
         } else if (isPortSecurityEnable) {
             // Acls has been updated, find added/removed Acls and act accordingly.
