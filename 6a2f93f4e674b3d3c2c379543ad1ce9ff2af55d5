@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_f3193b89",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 42
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:34:54Z",
+      "side": 1,
+      "message": "leaf-refs are not upgrade compatible. This might affect migration scenarios.\nBetter to keep this attribute as a string",
+      "range": {
+        "startLine": 191,
+        "startChar": 11,
+        "endLine": 195,
+        "endChar": 13
+      },
+      "revId": "6a2f93f4e674b3d3c2c379543ad1ce9ff2af55d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
