@@ -25,6 +25,75 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_93a6ff51",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
+        "patchSetId": 44
+      },
+      "lineNbr": 805,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:30:17Z",
+      "side": 1,
+      "message": "names",
+      "range": {
+        "startLine": 805,
+        "startChar": 31,
+        "endLine": 805,
+        "endChar": 33
+      },
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5385a7ab",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:30:17Z",
+      "side": 1,
+      "message": "Please make sure that if this vpn interface has two vpnInstanceNames, then this setter should not remove one of them.\nBetter yet, just remove this setter from here. Since we are using syncUpdate, the vpnInstancelist will be preserved for this vpn interface",
+      "range": {
+        "startLine": 220,
+        "startChar": 46,
+        "endLine": 220,
+        "endChar": 101
+      },
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_938f1fcc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:30:17Z",
+      "side": 1,
+      "message": "same comment as above",
+      "range": {
+        "startLine": 259,
+        "startChar": 42,
+        "endLine": 259,
+        "endChar": 94
+      },
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_827415fe",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 44
@@ -36,6 +105,29 @@
       "writtenOn": "2017-08-14T12:52:34Z",
       "side": 1,
       "message": "I see fundamental issue with this design approach :\n\n\"vpnInterface.getVpnInstanceName().get(0)\" will always give only one router VPN Instance Name. So this vpninterface/port will always be part of the same router instance which might be either of IPv4/IPv6. VpnInterface IPv4 adj is part of Router1(IPv4) capable and VpnInterface IPv6 adj is part of Router2(IPv6) capable.\n\nWhen BGP-VPN is created and these two routes i.e Router1 and Router2 are associated with BGP-VPN , the swap of interface from internal-VPN(Router VPN) to BGP-VPN will fail",
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_13720fe5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:30:17Z",
+      "side": 1,
+      "message": "I think this block has not been rebased properly. Recently, a fix was merged replacing the block with the method deleteExtraRouteFromCurrentAndImportingVpns()",
+      "range": {
+        "startLine": 1719,
+        "startChar": 36,
+        "endLine": 1730,
+        "endChar": 37
+      },
       "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
