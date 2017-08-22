@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_d603450b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:43:35Z",
+      "side": 1,
+      "message": "Optional\u003cVpnInterfaceOpDataEntry\u003e",
+      "range": {
+        "startLine": 225,
+        "startChar": 11,
+        "endLine": 225,
+        "endChar": 35
+      },
+      "revId": "4bd0635aba4c47b6af2578c83f1fdc77b1390b2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_360bc126",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:43:35Z",
+      "side": 1,
+      "message": "vpnInterfaceOpDataEntry.\nIts a good practice to return the optional object, and then in the caller, check for isPresent()",
+      "range": {
+        "startLine": 231,
+        "startChar": 15,
+        "endLine": 231,
+        "endChar": 90
+      },
+      "revId": "4bd0635aba4c47b6af2578c83f1fdc77b1390b2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_560f552e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-22T12:43:35Z",
+      "side": 1,
+      "message": "This method is going to be a bit tricky now. Since the interface is being removed, you will have to set the scheduledToRemove flag for two data-store objects... (interface, vpnName1) and (interface, vpnName2)",
+      "range": {
+        "startLine": 1049,
+        "startChar": 4,
+        "endLine": 1063,
+        "endChar": 5
+      },
+      "revId": "4bd0635aba4c47b6af2578c83f1fdc77b1390b2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
