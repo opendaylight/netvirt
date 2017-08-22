@@ -149,6 +149,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void processNodePrep(Node node, boolean generateIntBridgeMac) {
+        LOG.info("JOSH processNodePrep {}", node);
         if (isOvsdbNode(node)) {
             if (southboundUtils.readBridgeNode(node, INTEGRATION_BRIDGE) == null) {
                 LOG.debug("OVSDB node in operational does not have br-int, create one {}", node.getNodeId().getValue());

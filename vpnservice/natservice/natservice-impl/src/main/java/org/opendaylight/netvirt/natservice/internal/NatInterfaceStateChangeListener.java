@@ -72,10 +72,10 @@ public class NatInterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("add : Interface {} up event received", intrf);
-        if (!L2vlan.class.equals(intrf.getType())) {
-            LOG.debug("add : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
-            return;
-        }
+//        if (!L2vlan.class.equals(intrf.getType())) {
+//            LOG.debug("NAT Service : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
+//            return;
+//        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatInterfaceStateAddWorker natIfaceStateAddWorker = new NatInterfaceStateAddWorker(intrf);
         coordinator.enqueueJob(NAT_DS + "-" + intrf.getName(), natIfaceStateAddWorker);
@@ -86,10 +86,10 @@ public class NatInterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("remove : Interface {} removed event received", intrf);
-        if (!L2vlan.class.equals(intrf.getType())) {
-            LOG.debug("remove : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
-            return;
-        }
+//        if (!L2vlan.class.equals(intrf.getType())) {
+//            LOG.debug("NAT Service : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
+//            return;
+//        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatInterfaceStateRemoveWorker natIfaceStateRemoveWorker = new NatInterfaceStateRemoveWorker(intrf);
         coordinator.enqueueJob(NAT_DS + "-" + intrf.getName(), natIfaceStateRemoveWorker);
@@ -100,10 +100,10 @@ public class NatInterfaceStateChangeListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         LOG.trace("update : Operation Interface update event - Old: {}, New: {}", original, update);
-        if (!L2vlan.class.equals(update.getType())) {
-            LOG.debug("update : Interface {} is not Vlan Interface.Ignoring", update.getName());
-            return;
-        }
+//        if (!L2vlan.class.equals(update.getType())) {
+//            LOG.debug("NAT Service : Interface {} is not Vlan Interface.Ignoring", update.getName());
+//            return;
+//        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatInterfaceStateUpdateWorker natIfaceStateupdateWorker = new NatInterfaceStateUpdateWorker(original,update);
         coordinator.enqueueJob(NAT_DS + "-" + update.getName(), natIfaceStateupdateWorker);

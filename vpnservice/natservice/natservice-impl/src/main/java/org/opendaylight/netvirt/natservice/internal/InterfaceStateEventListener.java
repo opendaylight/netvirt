@@ -98,10 +98,10 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delintrf) {
         LOG.trace("remove : Interface {} removed event received", delintrf);
-        if (!L2vlan.class.equals(delintrf.getType())) {
-            LOG.debug("remove : Interface {} is a not type Vlan.Ignoring", delintrf.getName());
-            return;
-        }
+//        if (!L2vlan.class.equals(delintrf.getType())) {
+//            LOG.debug("NAT Service : Interface {} is a not type Vlan.Ignoring", delintrf.getName());
+//            return;
+//        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatFlowRemoveWorker natFlowRemoveWorker =
                 new NatFlowRemoveWorker(delintrf);
@@ -114,10 +114,10 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Interface> identifier, Interface original, Interface update) {
         LOG.trace("update : Operation Interface update event - Old: {}, New: {}", original, update);
-        if (!L2vlan.class.equals(update.getType())) {
-            LOG.debug("update : Interface {} is not type Vlan.Ignoring", update.getName());
-            return;
-        }
+//        if (!L2vlan.class.equals(update.getType())) {
+//            LOG.debug("NAT Service : Interface {} is not type Vlan.Ignoring", update.getName());
+//            return;
+//        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatFlowUpdateWorker natFlowUpdateWorker =
                 new NatFlowUpdateWorker(original, update);
@@ -131,10 +131,10 @@ public class InterfaceStateEventListener
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("add : Interface {} up event received", intrf);
-        if (!L2vlan.class.equals(intrf.getType())) {
-            LOG.debug("add : Interface {} is not type vlan.Ignoring", intrf.getName());
-            return;
-        }
+//        if (!L2vlan.class.equals(intrf.getType())) {
+//            LOG.debug("NAT Service : Interface {} is not type vlan.Ignoring", intrf.getName());
+//            return;
+//        }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatFlowAddWorker natFlowAddWorker =
                 new NatFlowAddWorker(intrf);
