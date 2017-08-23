@@ -33,6 +33,24 @@
       "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3d6f1cff",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 69
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T13:46:12Z",
+      "side": 1,
+      "message": "I\u0027m not agree with you at point, that here we will iterate  over portList, which does not contain router-interface-port. \n\nI don\u0027t see in NeutronPortChangeListener.handleRouterInterfaceAdded(),  that we call any other function, which will call independently addToNeutronRouterInterfacesMap(). \n\nIn NeutronPortChangeListener.handleRouterInterfaceAdded() we call addSubnetToVpn(), hence subnet, which will be passed as an argument there will contain router-interface-port ?\n\nWould you be so kind and clarify this point again from your side, please ?",
+      "parentUuid": "ba1f61a0_e2c043e2",
+      "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
