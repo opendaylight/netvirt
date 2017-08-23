@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_78e882e2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 72
+      },
+      "lineNbr": 2375,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-23T15:34:59Z",
+      "side": 1,
+      "message": "Hi Valentina\n\nPlease could you replace this Exception by IllegalStateException \n\nThks\nNoel",
+      "range": {
+        "startLine": 2375,
+        "startChar": 17,
+        "endLine": 2375,
+        "endChar": 26
+      },
+      "revId": "fde456b424e86b30222cadd6eee72b0d20003d9e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
