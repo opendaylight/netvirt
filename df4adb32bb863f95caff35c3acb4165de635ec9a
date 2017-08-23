@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_7e9b4b72",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-23T21:09:58Z",
+      "side": 1,
+      "message": "what is this for?",
+      "revId": "df4adb32bb863f95caff35c3acb4165de635ec9a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
