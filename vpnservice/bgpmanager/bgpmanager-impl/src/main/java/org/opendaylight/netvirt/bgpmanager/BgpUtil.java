@@ -18,8 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -54,7 +52,6 @@ public class BgpUtil {
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
     private static DataBroker dataBroker;
     public static final int PERIODICITY = 500;
-    private static AtomicInteger pendingWrTransaction = new AtomicInteger(0);
     public static final int BATCH_SIZE = 1000;
     public static Integer batchSize;
     public static Integer batchInterval;
@@ -87,11 +84,6 @@ public class BgpUtil {
             retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
         }
         return retValue;
-    }
-
-    // return number of pending Write Transactions with BGP-Util (no read)
-    public static int getGetPendingWrTransaction() {
-        return pendingWrTransaction.get();
     }
 
     static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
