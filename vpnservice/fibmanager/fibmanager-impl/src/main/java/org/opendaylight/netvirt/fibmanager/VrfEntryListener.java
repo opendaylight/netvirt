@@ -320,9 +320,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final Collection<VpnToDpnList> vpnToDpnList;
         if (vrfEntry.getParentVpnRd() != null
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+            // This block MUST BE HIT only for PNF (Physical Network Function) FIB Entries.
             VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
             vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
                 vpnInstance.getVpnToDpnList();
+            LOG.info("createFibEntries: Processing creation of PNF FIB entry with rd {} prefix {}",
+                    vrfEntry.getParentVpnRd(), vrfEntry.getDestPrefix());
         } else {
             vpnToDpnList = vpnInstance.getVpnToDpnList();
         }
@@ -706,8 +709,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             long localGroupId;
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
-                LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip local dpn {} FIB processing",
-                        vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
+                LOG.debug("checkCreateLocalFibEntry: NAT Prefix {} with vpnId {} rd {}. Skip local dpn {}"
+                        + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
                 return dpnId;
             }
             String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
@@ -976,6 +979,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                                 final VrfEntry vrfEntry, boolean isExtraroute) {
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
+            if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
+                LOG.debug("checkDeleteLocalFibEntry: NAT Prefix {} with vpnId {} rd {}. Skip local dpn {}"
+                        + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
+                return dpnId;
+            }
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob(FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId,
                     vrfEntry.getDestPrefix()), () -> {
@@ -1253,7 +1261,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
         }
-        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        final Collection<VpnToDpnList> vpnToDpnList;
+        if (vrfEntry.getParentVpnRd() != null
+                && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+            // This block MUST BE HIT only for PNF (Physical Network Function) FIB Entries.
+            VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
+            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
+                    vpnInstance.getVpnToDpnList();
+            LOG.info("deleteFibEntries: Processing deletion of PNF FIB entry with rd {} prefix {}",
+                    vrfEntry.getParentVpnRd(), vrfEntry.getDestPrefix());
+        } else {
+            vpnToDpnList = vpnInstance.getVpnToDpnList();
+        }
         long elanTag = 0L;
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
         final java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
