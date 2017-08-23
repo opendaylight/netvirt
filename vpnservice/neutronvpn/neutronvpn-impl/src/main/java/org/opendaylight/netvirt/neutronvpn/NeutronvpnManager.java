@@ -1289,16 +1289,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     .CONFIGURATION, routerInterfacesId);
             Interfaces routerInterface = new InterfacesBuilder().setKey(new InterfacesKey(interfaceName))
                 .setInterfaceId(interfaceName).build();
+            List<Interfaces> interfaces = new ArrayList<>();
             if (optRouterInterfaces.isPresent()) {
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId.child(Interfaces
-                        .class, new InterfacesKey(interfaceName)), routerInterface);
-            } else {
-                RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
-                List<Interfaces> interfaces = new ArrayList<>();
-                interfaces.add(routerInterface);
-                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId.child(Interfaces
-                        .class, new InterfacesKey(interfaceName)), routerInterface);
+                interfaces = optRouterInterfaces.get().getInterfaces();
             }
+            RouterInterfacesBuilder builder = new RouterInterfacesBuilder().setRouterId(routerId);
+            interfaces.add(routerInterface);
+            builder.setInterfaces(interfaces);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerInterfacesId, builder.build());
         }
     }
 
