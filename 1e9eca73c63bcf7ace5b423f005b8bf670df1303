@@ -93,6 +93,30 @@
       "revId": "1e9eca73c63bcf7ace5b423f005b8bf670df1303",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e2f2036e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-08-23T10:05:20Z",
+      "side": 1,
+      "message": "Yes, you are right. SG can be null. bindAcl() is only called when PortSecurityEnabled is true.",
+      "parentUuid": "ba1f61a0_623bb338",
+      "range": {
+        "startLine": 108,
+        "startChar": 16,
+        "endLine": 108,
+        "endChar": 21
+      },
+      "revId": "1e9eca73c63bcf7ace5b423f005b8bf670df1303",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
