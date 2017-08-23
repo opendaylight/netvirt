@@ -8,16 +8,11 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
@@ -55,19 +50,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BgpUtil {
+
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
+
     private static DataBroker dataBroker;
     private static BindingTransactionChain fibTransact;
+
     public static final int PERIODICITY = 500;
-    private static AtomicInteger pendingWrTransaction = new AtomicInteger(0);
     public static final int BATCH_SIZE = 1000;
+
+    private static AtomicInteger pendingWrTransaction = new AtomicInteger(0);
     public static Integer batchSize;
     public static Integer batchInterval;
     private static int txChainAttempts = 0;
 
     private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
 
-    /** get a translation from prefix ipv6 to afi<br>.
+    /**
+     * get a translation from prefix ipv6 to afi<br>.
     * "ffff::1/128" sets afi as 2 because is an IPv6 value
     * @param argPrefix ip address as ipv4 or ipv6
     * @return afi 1 for AFI_IP 2 for AFI_IPV6
@@ -98,16 +98,6 @@ public class BgpUtil {
     // return number of pending Write Transactions with BGP-Util (no read)
     public static int getGetPendingWrTransaction() {
         return pendingWrTransaction.get();
-    }
-
-    static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-            .setNameFormat("bgp-util-mdsal-%d").build();
-
-    static ExecutorService threadPool = Executors.newFixedThreadPool(1, namedThreadFactory);
-
-
-    static synchronized BindingTransactionChain getTransactionChain() {
-        return fibTransact;
     }
 
     static void registerWithBatchManager(ResourceHandler resourceHandler) {
@@ -147,7 +137,7 @@ public class BgpUtil {
         initTransactionChain();
     }
 
-    static synchronized void initTransactionChain() {
+    private static synchronized void initTransactionChain() {
         if (fibTransact != null) {
             fibTransact.close();
             LOG.error("*** TxChain Close, *** Attempts: {}", txChainAttempts);
@@ -157,7 +147,7 @@ public class BgpUtil {
         txChainAttempts++;
     }
 
-    static class BgpUtilTransactionChainListener implements TransactionChainListener {
+    private static class BgpUtilTransactionChainListener implements TransactionChainListener {
         @Override
         public void onTransactionChainFailed(TransactionChain<?, ?> transactionChain,
                                              AsyncTransaction<?, ?> asyncTransaction, Throwable throwable) {
@@ -221,7 +211,7 @@ public class BgpUtil {
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
-    static String getElanNamefromRd(DataBroker broker, String rd)  {
+    private static String getElanNamefromRd(DataBroker broker, String rd)  {
         InstanceIdentifier<EvpnRdToNetwork> id = getEvpnRdToNetworkIdentifier(rd);
         Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(broker,
                 LogicalDatastoreType.CONFIGURATION, id);
@@ -231,7 +221,7 @@ public class BgpUtil {
         return null;
     }
 
-    public static InstanceIdentifier<EvpnRdToNetwork> getEvpnRdToNetworkIdentifier(String rd) {
+    private static InstanceIdentifier<EvpnRdToNetwork> getEvpnRdToNetworkIdentifier(String rd) {
         return InstanceIdentifier.builder(EvpnRdToNetworks.class)
                 .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
     }
@@ -270,8 +260,8 @@ public class BgpUtil {
         BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId);
     }
 
-    public static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
-        IpAddress tepAdress = (tepIp == null) ? null : new IpAddress(tepIp.toCharArray());
+    private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
+        IpAddress tepAdress = tepIp == null ? null : new IpAddress(tepIp.toCharArray());
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
                 new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
                 new ExternalTepsKey(tepAdress)).build();
@@ -279,7 +269,6 @@ public class BgpUtil {
 
     public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker2, rd);
-        return (vpnInstanceOpData != null) ? vpnInstanceOpData.getVpnInstanceName() : null;
+        return vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
     }
 }
-
