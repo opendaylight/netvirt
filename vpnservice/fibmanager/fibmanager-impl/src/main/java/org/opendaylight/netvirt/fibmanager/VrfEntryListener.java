@@ -1314,7 +1314,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
         }
-        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        final Collection<VpnToDpnList> vpnToDpnList;
+        if (vrfEntry.getParentVpnRd() != null
+                && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+            VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
+            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
+                    vpnInstance.getVpnToDpnList();
+        } else {
+            vpnToDpnList = vpnInstance.getVpnToDpnList();
+        }
         long elanTag = 0L;
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
         final java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);

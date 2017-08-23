@@ -1323,6 +1323,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             }
                         }
                     } else {
+                        primaryRd = nextHop.isPhysNetworkFunc() ? nextHop.getSubnetId().getValue() : primaryRd;
                         fibManager.removeFibEntry(dataBroker, primaryRd, nextHop.getIpAddress(), writeConfigTxn);
                     }
 
