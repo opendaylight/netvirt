@@ -73,7 +73,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
-        LOG.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
+        LOG.info("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         String elanName = deletedElan.getElanInstanceName();
         // check the elan Instance present in the Operational DataStore
@@ -138,6 +138,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
+        LOG.info("Update ElanInstance - Key: {} from old: {} to new: {}", identifier, original, update);
         Long existingElanTag = original.getElanTag();
         String elanName = update.getElanInstanceName();
         if (existingElanTag != null && existingElanTag.equals(update.getElanTag())) {
@@ -165,6 +166,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance elanInstanceAdded) {
+        LOG.info("Add ElanInstance - Key: {}, value: {}", identifier, elanInstanceAdded);
         String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
         Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         if (elanInfo == null) {
