@@ -1323,6 +1323,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             }
                         }
                     } else {
+                        primaryRd = nextHop.isPhysNetworkFunc() ? nextHop.getSubnetId().getValue() : primaryRd;
                         fibManager.removeFibEntry(dataBroker, primaryRd, nextHop.getIpAddress(), writeConfigTxn);
                     }
 
@@ -1807,6 +1808,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     deleteExtraRouteFromCurrentAndImportingVpns(currVpnIntf.getVpnInstanceName(),
                                             adj.getIpAddress(), nh, rd, currVpnIntf.getName(), writeConfigTxn);
                                 }
+                            } else if (adj.isPhysNetworkFunc()) {
+                                LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet [}",
+                                        adj.getIpAddress(), adj.getSubnetId());
+                                fibManager.removeFibEntry(dataBroker, adj.getSubnetId().getValue(), adj.getIpAddress(),
+                                        writeConfigTxn);
                             }
                             break;
                         }
