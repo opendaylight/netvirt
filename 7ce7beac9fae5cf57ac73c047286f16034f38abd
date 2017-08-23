@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_b8915a9b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 70
+      },
+      "lineNbr": 754,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T15:14:49Z",
+      "side": 1,
+      "message": "If port is a router port we should update RouterInterfaces object for subnet\u0027s router, because we remove a port from router",
+      "parentUuid": "ba1f61a0_3dad5c9d",
+      "range": {
+        "startLine": 754,
+        "startChar": 17,
+        "endLine": 754,
+        "endChar": 35
+      },
+      "revId": "7ce7beac9fae5cf57ac73c047286f16034f38abd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_dda520b6",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 70
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-23T12:23:02Z",
       "side": 1,
       "message": "it seems in old code, this function is called whatever the value of \u0027isRouterInterface\u0027",
+      "range": {
+        "startLine": 1267,
+        "startChar": 20,
+        "endLine": 1267,
+        "endChar": 51
+      },
+      "revId": "7ce7beac9fae5cf57ac73c047286f16034f38abd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d83b6e9a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 70
+      },
+      "lineNbr": 1267,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T15:14:49Z",
+      "side": 1,
+      "message": "I don\u0027t see in NeutronPortChangeListener, that we call this function, when we add a port to router, hence subnet",
+      "parentUuid": "ba1f61a0_dda520b6",
       "range": {
         "startLine": 1267,
         "startChar": 20,
