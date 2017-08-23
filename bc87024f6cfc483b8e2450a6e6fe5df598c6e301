@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_5dabf0d5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T12:10:49Z",
+      "side": 1,
+      "message": "Yes, the only way to update VpnInstance in Configurational DataStore, is to utilise VpnInstanceBuilder.\n\nin line 279 we write updated  VpnInstanceBuilder with appropriate vpnIdentifier in Configurational datastore, so we replace there obsolete VpnInstance entry with updated",
+      "parentUuid": "ba1f61a0_629293a0",
+      "range": {
+        "startLine": 261,
+        "startChar": 12,
+        "endLine": 263,
+        "endChar": 88
+      },
+      "revId": "bc87024f6cfc483b8e2450a6e6fe5df598c6e301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_42430f14",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 14
@@ -36,6 +60,30 @@
       "writtenOn": "2017-08-23T09:18:15Z",
       "side": 1,
       "message": "vpnName was equal to subOpBuilder.getVpnName().\nI think it is ok to do that change.\n\nnote however that before, the vpnName was retrived from subnetmapop-\u003evpnid",
+      "range": {
+        "startLine": 310,
+        "startChar": 25,
+        "endLine": 310,
+        "endChar": 84
+      },
+      "revId": "bc87024f6cfc483b8e2450a6e6fe5df598c6e301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_dd09a0de",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T12:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_42430f14",
       "range": {
         "startLine": 310,
         "startChar": 25,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_7dfa34be",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 323,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T12:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_0260f7a3",
+      "range": {
+        "startLine": 323,
+        "startChar": 16,
+        "endLine": 323,
+        "endChar": 56
+      },
+      "revId": "bc87024f6cfc483b8e2450a6e6fe5df598c6e301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_e20963de",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 14
@@ -82,6 +154,30 @@
       "writtenOn": "2017-08-23T09:18:15Z",
       "side": 1,
       "message": "I would call subnetOpDataEntriesForVpn.delete(subnetop) first.",
+      "range": {
+        "startLine": 401,
+        "startChar": 12,
+        "endLine": 401,
+        "endChar": 33
+      },
+      "revId": "bc87024f6cfc483b8e2450a6e6fe5df598c6e301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9dff28aa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 401,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T12:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_e20963de",
       "range": {
         "startLine": 401,
         "startChar": 12,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_dd3080a0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T12:10:49Z",
+      "side": 1,
+      "message": "No, we do not need else here, this if allows to withdraw IpFamily IPv4/IPv6 only in the case, when there is no more any Subnet with same IpFamily attached to VPN",
+      "parentUuid": "ba1f61a0_82fa27bb",
+      "range": {
+        "startLine": 407,
+        "startChar": 12,
+        "endLine": 407,
+        "endChar": 13
+      },
+      "revId": "bc87024f6cfc483b8e2450a6e6fe5df598c6e301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_42282f34",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 14
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_3d28bc33",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1798,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T12:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_42282f34",
+      "range": {
+        "startLine": 1798,
+        "startChar": 28,
+        "endLine": 1798,
+        "endChar": 51
+      },
+      "revId": "bc87024f6cfc483b8e2450a6e6fe5df598c6e301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_82e867e3",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 14
@@ -151,6 +295,30 @@
       "writtenOn": "2017-08-23T09:18:15Z",
       "side": 1,
       "message": "this makes confusion with an other function called getVpnTargets, generated from yang files.\n\nis it possible to rename this function .\nAlso, this function is called in order to populate a new vpnInstanceOpData, whereas we only need to update the IPVersionChoice.\nIsnt it possible to have a method to just update IPVersionChoice ?",
+      "range": {
+        "startLine": 1812,
+        "startChar": 29,
+        "endLine": 1812,
+        "endChar": 42
+      },
+      "revId": "bc87024f6cfc483b8e2450a6e6fe5df598c6e301",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1d2b3831",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1812,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-23T12:10:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_82e867e3",
       "range": {
         "startLine": 1812,
         "startChar": 29,
