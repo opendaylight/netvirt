@@ -20,12 +20,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChain;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionChainListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
@@ -57,13 +53,11 @@ import org.slf4j.LoggerFactory;
 public class BgpUtil {
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
     private static DataBroker dataBroker;
-    private static BindingTransactionChain fibTransact;
     public static final int PERIODICITY = 500;
     private static AtomicInteger pendingWrTransaction = new AtomicInteger(0);
     public static final int BATCH_SIZE = 1000;
     public static Integer batchSize;
     public static Integer batchInterval;
-    private static int txChainAttempts = 0;
 
     private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
 
@@ -105,11 +99,6 @@ public class BgpUtil {
 
     static ExecutorService threadPool = Executors.newFixedThreadPool(1, namedThreadFactory);
 
-
-    static synchronized BindingTransactionChain getTransactionChain() {
-        return fibTransact;
-    }
-
     static void registerWithBatchManager(ResourceHandler resourceHandler) {
         ResourceBatchingManager resBatchingManager = ResourceBatchingManager.getInstance();
         resBatchingManager.registerBatchableResource("BGP-RESOURCES", bgpResourcesBufferQ, resourceHandler);
@@ -144,31 +133,6 @@ public class BgpUtil {
 
     public static void setBroker(final DataBroker broker) {
         BgpUtil.dataBroker = broker;
-        initTransactionChain();
-    }
-
-    static synchronized void initTransactionChain() {
-        if (fibTransact != null) {
-            fibTransact.close();
-            LOG.error("*** TxChain Close, *** Attempts: {}", txChainAttempts);
-            fibTransact = null;
-        }
-        BgpUtil.fibTransact = dataBroker.createTransactionChain(new BgpUtilTransactionChainListener());
-        txChainAttempts++;
-    }
-
-    static class BgpUtilTransactionChainListener implements TransactionChainListener {
-        @Override
-        public void onTransactionChainFailed(TransactionChain<?, ?> transactionChain,
-                                             AsyncTransaction<?, ?> asyncTransaction, Throwable throwable) {
-            LOG.error("*** TxChain Creation Failed *** Attempts: {}", txChainAttempts);
-            initTransactionChain();
-        }
-
-        @Override
-        public void onTransactionChainSuccessful(TransactionChain<?, ?> transactionChain) {
-            LOG.trace("TxChain Creation Success");
-        }
     }
 
     public static DataBroker getBroker() {
@@ -271,7 +235,7 @@ public class BgpUtil {
     }
 
     public static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
-        IpAddress tepAdress = (tepIp == null) ? null : new IpAddress(tepIp.toCharArray());
+        IpAddress tepAdress = tepIp == null ? null : new IpAddress(tepIp.toCharArray());
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
                 new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
                 new ExternalTepsKey(tepAdress)).build();
@@ -279,7 +243,7 @@ public class BgpUtil {
 
     public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker2, rd);
-        return (vpnInstanceOpData != null) ? vpnInstanceOpData.getVpnInstanceName() : null;
+        return vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
     }
 }
 
