@@ -335,7 +335,7 @@ public class BgpRouter {
                 result = bgpClient.sendEOR();
                 break;
             case DELAY_EOR:
-                bgpClient.send_enableEORDelay(op.delayEOR);
+                result = bgpClient.enableEORDelay(op.delayEOR);
                 break;
             default:
                 break;

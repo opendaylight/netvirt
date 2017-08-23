@@ -2114,15 +2114,11 @@ public class BgpConfigurationManager {
                 startBgpAlarmsTask();
             }
 
-            /*
-             * commenting this due to a bug with QBGP. Will uncomment once QBGP fix is done.
-             * This wont have any functional impacts
-             */
-            //try {
-            //    br.delayEOR(delayEorSeconds);
-            //} catch (TException | BgpRouterException e) {
-            //    LOG.error("Replay: delayEOR() number of seconds to wait for EOR from ODL:", e);
-            //}
+            try {
+                br.delayEOR(delayEorSeconds);
+            } catch (TException | BgpRouterException e) {
+                LOG.error("Replay: delayEOR() number of seconds to wait for EOR from ODL:", e);
+            }
 
             List<Neighbors> neighbors = config.getNeighbors();
             if (neighbors != null) {
