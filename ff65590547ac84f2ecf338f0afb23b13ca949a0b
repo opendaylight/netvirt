@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_a2476b4a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 69
+      },
+      "lineNbr": 741,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-08-23T12:19:23Z",
+      "side": 1,
+      "message": "Still the problem is not solved here:\n\nSay router (say Router-1) is having two subnets (IPv4 and IPv6). Remove one of the subnet (say IPv6). Then handleRouterInterfaceRemoved () -\u003e removeSubnetFromVpn() -\u003ewithdrawPortIpFromVpnIface(). PortIps will have both IPv4 and IPv6 address. IPv6 address which is part of IPv6 subnet being removed , VpnPortipToPort entry is removed. For IPv4 address , isIpFromAnotherSubnet flag is set as TRUE.\n\nWhere are you updating the VpnInterface ? VpnInterface adjacency list needs to be updated by removing the IPv6 adjacency, as IPv6 subnet is being removed.",
+      "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e2c043e2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 69
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-08-23T12:19:23Z",
+      "side": 1,
+      "message": "addToNeutronRouterInterfacesMap should not be called here. Its wrong. In this method addSubnetToVpn() , we are iterating over portList which will not contain router-interface-port.\n\naddToNeutronRouterInterfacesMap() and createvpnInterface() for router-interface-port is already done outside addSubnetToVpn().",
+      "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
