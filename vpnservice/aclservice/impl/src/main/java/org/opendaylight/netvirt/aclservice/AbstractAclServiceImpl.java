@@ -84,7 +84,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         if (port.getSecurityGroups() == null) {
-            LOG.error("port security groups cannot be null");
+            LOG.info("Port {} without SGs", port.getInterfaceId());
             return false;
         }
         BigInteger dpId = port.getDpId();
@@ -100,8 +100,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean bindAcl(AclInterface port) {
-        if (port == null || port.getSecurityGroups() == null) {
-            LOG.error("port and port security groups cannot be null");
+        if (port == null) {
+            LOG.error("port cannot be null");
             return false;
         }
         bindService(port);
