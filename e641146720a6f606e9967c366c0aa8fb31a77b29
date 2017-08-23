@@ -1,0 +1,165 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_a7e13d9c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 51
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T08:02:08Z",
+      "side": 1,
+      "message": "some info to add , in order to reflect the changes.",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 1
+      },
+      "revId": "e641146720a6f606e9967c366c0aa8fb31a77b29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a7c01d2b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T08:02:08Z",
+      "side": 1,
+      "message": "I would think LOG.trace should be kept too.\nIs there any reason to remove that:\nLOG.trace(\"Updating Port : key: {}, original value\u003d{}, update value\u003d{}\", identifier, original, update); ?",
+      "range": {
+        "startLine": 174,
+        "startChar": 8,
+        "endLine": 174,
+        "endChar": 16
+      },
+      "revId": "e641146720a6f606e9967c366c0aa8fb31a77b29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2711cdac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 414,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T08:02:08Z",
+      "side": 1,
+      "message": "should be moved to line 417 ( after the for FixedIp loop)",
+      "range": {
+        "startLine": 414,
+        "startChar": 20,
+        "endLine": 414,
+        "endChar": 37
+      },
+      "revId": "e641146720a6f606e9967c366c0aa8fb31a77b29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_876eb92d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 701,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T08:02:08Z",
+      "side": 1,
+      "message": "is it possible that vpnId is null ?",
+      "range": {
+        "startLine": 701,
+        "startChar": 67,
+        "endLine": 701,
+        "endChar": 72
+      },
+      "revId": "e641146720a6f606e9967c366c0aa8fb31a77b29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c778b1f4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 705,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T08:02:08Z",
+      "side": 1,
+      "message": "this seems to be a piece of code for two router setup.\nI think it is ok to keep it here.",
+      "range": {
+        "startLine": 705,
+        "startChar": 36,
+        "endLine": 705,
+        "endChar": 54
+      },
+      "revId": "e641146720a6f606e9967c366c0aa8fb31a77b29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_07c92926",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 1114,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T08:02:08Z",
+      "side": 1,
+      "message": "the original code does the same.\nthis piece of code should not change",
+      "range": {
+        "startLine": 1114,
+        "startChar": 20,
+        "endLine": 1114,
+        "endChar": 36
+      },
+      "revId": "e641146720a6f606e9967c366c0aa8fb31a77b29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_47d321d6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T08:02:08Z",
+      "side": 1,
+      "message": "this function is not used in this gerrit ID\nit should be moved to an other gerrit ID or suppressed.",
+      "range": {
+        "startLine": 305,
+        "startChar": 37,
+        "endLine": 305,
+        "endChar": 60
+      },
+      "revId": "e641146720a6f606e9967c366c0aa8fb31a77b29",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
