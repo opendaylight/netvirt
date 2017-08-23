@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_18ed068c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T16:37:15Z",
+      "side": 1,
+      "message": "Hi SivaKumar.\ncould you be more specific please?",
+      "parentUuid": "ba1f61a0_f82752b4",
+      "range": {
+        "startLine": 56,
+        "startChar": 12,
+        "endLine": 56,
+        "endChar": 81
+      },
+      "revId": "9c780d8862b62ccaeaf4073f76bf291c809a16c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_38228aa4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
         "patchSetId": 51
