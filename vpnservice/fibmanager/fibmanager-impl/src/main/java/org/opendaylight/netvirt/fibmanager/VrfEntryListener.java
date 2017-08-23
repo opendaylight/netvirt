@@ -325,9 +325,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final Collection<VpnToDpnList> vpnToDpnList;
         if (vrfEntry.getParentVpnRd() != null
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+            // This block MUST BE HIT only for PNF (Physical Network Function) FIB Entries.
             VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
             vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
                 vpnInstance.getVpnToDpnList();
+            LOG.info("createFibEntries: Processing creation of PNF FIB entry with rd {} prefix {}",
+                    vrfEntry.getParentVpnRd(), vrfEntry.getDestPrefix());
         } else {
             vpnToDpnList = vpnInstance.getVpnToDpnList();
         }
@@ -1314,7 +1317,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
         }
-        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        final Collection<VpnToDpnList> vpnToDpnList;
+        if (vrfEntry.getParentVpnRd() != null
+                && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+            // This block MUST BE HIT only for PNF (Physical Network Function) FIB Entries.
+            VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
+            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
+                    vpnInstance.getVpnToDpnList();
+            LOG.info("deleteFibEntries: Processing deletion of PNF FIB entry with rd {} prefix {}",
+                    vrfEntry.getParentVpnRd(), vrfEntry.getDestPrefix());
+        } else {
+            vpnToDpnList = vpnInstance.getVpnToDpnList();
+        }
         long elanTag = 0L;
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
         final java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
