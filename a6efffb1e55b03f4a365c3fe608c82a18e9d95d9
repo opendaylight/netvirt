@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_e2996320",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 71
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-23T12:23:02Z",
+      "side": 1,
+      "message": "it seems in old code\n\naddToNeutronRouterInterfacesMap() is called whatever value of isRouterInterface.\nsee https://git.opendaylight.org/gerrit/#/c/57977/56..71/vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java for more information.",
+      "range": {
+        "startLine": 1266,
+        "startChar": 18,
+        "endLine": 1266,
+        "endChar": 40
+      },
+      "revId": "a6efffb1e55b03f4a365c3fe608c82a18e9d95d9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
