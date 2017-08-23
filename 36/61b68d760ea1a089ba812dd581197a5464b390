@@ -1,0 +1,10 @@
+Code-Review+1: Siva Kumar Perumalla VVKA <sivakumar.perumalla@ericsson.com>
+Code-Review+1: de Prandieres Noel <prandieres@6wind.com>
+Code-Review+2: Sam Hague <shague@redhat.com>
+Code-Review+1: A H <an.ho@huawei.com>
+Verified+1: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-by: Thanh Ha <thanh.ha@linuxfoundation.org>
+Submitted-at: Wed, 23 Aug 2017 23:54:04 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/62216
+Project: netvirt
+Branch: refs/heads/stable/carbon
