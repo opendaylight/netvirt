@@ -18,8 +18,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import org.opendaylight.controller.md.sal.binding.api.BindingTransactionChain;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.AsyncTransaction;
@@ -59,7 +57,6 @@ public class BgpUtil {
     private static DataBroker dataBroker;
     private static BindingTransactionChain fibTransact;
     public static final int PERIODICITY = 500;
-    private static AtomicInteger pendingWrTransaction = new AtomicInteger(0);
     public static final int BATCH_SIZE = 1000;
     public static Integer batchSize;
     public static Integer batchInterval;
@@ -93,11 +90,6 @@ public class BgpUtil {
             retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
         }
         return retValue;
-    }
-
-    // return number of pending Write Transactions with BGP-Util (no read)
-    public static int getGetPendingWrTransaction() {
-        return pendingWrTransaction.get();
     }
 
     static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
@@ -271,7 +263,7 @@ public class BgpUtil {
     }
 
     public static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
-        IpAddress tepAdress = (tepIp == null) ? null : new IpAddress(tepIp.toCharArray());
+        IpAddress tepAdress = tepIp == null ? null : new IpAddress(tepIp.toCharArray());
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,
                 new ElanInstanceKey(elanInstanceName)).child(ExternalTeps.class,
                 new ExternalTepsKey(tepAdress)).build();
@@ -279,7 +271,7 @@ public class BgpUtil {
 
     public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
         VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker2, rd);
-        return (vpnInstanceOpData != null) ? vpnInstanceOpData.getVpnInstanceName() : null;
+        return vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
     }
 }
 
