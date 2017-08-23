@@ -1878,7 +1878,7 @@ public class BgpConfigurationManager {
     }
 
     private static boolean replayNbrConfig(List<Neighbors> neighbors, BgpRouter br) {
-        if ((neighbors == null) || (neighbors.isEmpty())) {
+        if (neighbors == null || neighbors.isEmpty()) {
             LOG.error("Replaying nbr configuration, received NULL list ");
             return true;
         }
@@ -1917,7 +1917,7 @@ public class BgpConfigurationManager {
                     LOG.debug("Replaying addNbr {}, exception: ", replayNbr.getNbr().getAddress().getValue(), eNbr);
                 }
                 boolean replaySuccess = true;
-                replaySuccess = (replaySuccess && replayDone);
+                replaySuccess = replaySuccess && replayDone;
                 LOG.debug("Replay addNbr {} successful", replayNbr.getNbr().getAddress().getValue());
 
                 //Update Source handling
@@ -1935,7 +1935,7 @@ public class BgpConfigurationManager {
                                 replayNbr.getNbr().getAddress().getValue(), eUs);
                     }
                     LOG.debug("Replay updatesource {} successful", us.getSourceIp().getValue());
-                    replaySuccess = (replaySuccess && replayDone);
+                    replaySuccess = replaySuccess && replayDone;
                 }
                 //Ebgp Multihope
                 EbgpMultihop en = replayNbr.getNbr().getEbgpMultihop();
@@ -1949,7 +1949,7 @@ public class BgpConfigurationManager {
                         LOG.debug("Replaying EbgpMultihop for Nbr {}, exception: ",
                                 replayNbr.getNbr().getAddress().getValue(), eEbgpMhop);
                     }
-                    replaySuccess = (replaySuccess && replayDone);
+                    replaySuccess = replaySuccess && replayDone;
                 }
 
                 //afs
@@ -1966,7 +1966,7 @@ public class BgpConfigurationManager {
                             LOG.debug("Replaying AddressFamily for Nbr {}, exception:",
                                     replayNbr.getNbr().getAddress().getValue(), eAFs);
                         }
-                        replaySuccess = (replaySuccess && replayDone);
+                        replaySuccess = replaySuccess && replayDone;
                     }
                 }
                 //replay is success --> no need to replay this nbr in next iteration.
@@ -1975,7 +1975,7 @@ public class BgpConfigurationManager {
         } while (nbrRetry.decrementAndRetry());
         boolean replaySuccess = true;
         for (ReplayNbr replayNbr : replayNbrList) {
-            replaySuccess = (replaySuccess && (!replayNbr.isShouldRetry()));
+            replaySuccess = replaySuccess && !replayNbr.isShouldRetry();
         }
         return replaySuccess;
     }
@@ -2566,18 +2566,6 @@ public class BgpConfigurationManager {
     public static void createStaleFibMap() {
         totalStaledCount = 0;
         try {
-            /*
-            * at the time Stale FIB creation, Wait till all PENDING write transaction
-             * to complete (or)wait for max timeout value of STALE_FIB_WAIT Seconds.
-             */
-            int retry = STALE_FIB_WAIT;
-            while (BgpUtil.getGetPendingWrTransaction() != 0 && retry > 0) {
-                Thread.sleep(1000);
-                retry--;
-                if (retry == 0) {
-                    LOG.error("TimeOut occured {} seconds, in waiting stale fibDSWriter create", STALE_FIB_WAIT);
-                }
-            }
             staledFibEntriesMap.clear();
             InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
             DataBroker db = BgpUtil.getBroker();
@@ -2613,7 +2601,7 @@ public class BgpConfigurationManager {
             } else {
                 LOG.error("createStaleFibMap:: FIBentries.class is not present");
             }
-        } catch (InterruptedException | ReadFailedException e) {
+        } catch (ReadFailedException e) {
             LOG.error("createStaleFibMap:: error ", e);
         }
         LOG.error("created {} staled entries ", totalStaledCount);
@@ -2627,19 +2615,6 @@ public class BgpConfigurationManager {
         totalExternalRoutes = 0;
         totalExternalMacRoutes = 0;
         try {
-            /*
-            * at the time FIB route deletion, Wait till all PENDING write transaction
-             * to complete (or)wait for max timeout value of STALE_FIB_WAIT Seconds.
-             */
-            int retry = STALE_FIB_WAIT;
-            String rd;
-            while (BgpUtil.getGetPendingWrTransaction() != 0 && retry > 0) {
-                Thread.sleep(1000);
-                retry--;
-                if (retry == 0) {
-                    LOG.error("TimeOut occured {} seconds, while deleting external routes", STALE_FIB_WAIT);
-                }
-            }
             InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
             DataBroker db = BgpUtil.getBroker();
             if (db == null) {
@@ -2656,7 +2631,7 @@ public class BgpConfigurationManager {
                 }
                 List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
                 for (VrfTables vrfTable : staleVrfTables) {
-                    rd = vrfTable.getRouteDistinguisher();
+                    String rd = vrfTable.getRouteDistinguisher();
                     if (vrfTable.getVrfEntry() != null) {
                         for (VrfEntry vrfEntry : vrfTable.getVrfEntry()) {
                             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
@@ -2680,7 +2655,7 @@ public class BgpConfigurationManager {
             } else {
                 LOG.error("deleteExternalFibRoutes:: FIBentries.class is not present");
             }
-        } catch (InterruptedException | ReadFailedException e) {
+        } catch (ReadFailedException e) {
             LOG.error("deleteExternalFibRoutes:: error ", e);
         }
         LOG.debug("deleted {} fib entries {} mac entries", totalExternalRoutes, totalExternalMacRoutes);
