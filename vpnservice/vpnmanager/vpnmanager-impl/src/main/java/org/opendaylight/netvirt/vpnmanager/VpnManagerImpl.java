@@ -175,7 +175,7 @@ public class VpnManagerImpl implements IVpnManager {
         }
 
         if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
-            LOG.error("Failed to handle router GW flow in GW-MAC table. DPN id is missing for router-id {}",
+            LOG.info("setupRouterGwMacFlow: DPN id is missing for router-id {}",
                     routerName);
             return;
         }
