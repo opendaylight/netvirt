@@ -87,6 +87,24 @@
       "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b264d249",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 69
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-24T15:05:46Z",
+      "side": 1,
+      "message": "I\u0027m updating RouterInterfaces map, when we call handleRouterInterfaceAdded (), so \n\nnvpnManager.addToNeutronRouterInterfacesMap is called explicitly in this method.\n\nWhen router-port (subnet) will be deleted, we call:\nnvpnManager.removeFromNeutronRouterInterfacesMap(routerId, routerPort.getUuid().getValue()) in handleRouterInterfaceRemoved()\n\nI don\u0027t see any problems to move addToNeutronRouterInterfacesMap, removeFromNeutronRouterInterfacesMap calls in NeutronPortChangeListener, because handleRouterInterfaceAdded () and handleRouterInterfaceRemoved() are always called with router-port, which we need to delete or add. So this router-port exists and in deletion case is ready to be deleted.",
+      "parentUuid": "ba1f61a0_c42f08f5",
+      "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
