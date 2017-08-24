@@ -33,6 +33,24 @@
       "revId": "244ac18589f47f3844478dca627074c98ef077c0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_677d7e1c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 16
+      },
+      "lineNbr": 1346,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-24T11:54:18Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_d6cb491c",
+      "revId": "244ac18589f47f3844478dca627074c98ef077c0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
