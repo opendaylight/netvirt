@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_e7de8e10",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-24T11:53:15Z",
+      "side": 1,
+      "message": "yes. it seems : if !GRE or !ipv6) return",
+      "parentUuid": "ba1f61a0_443b1838",
+      "range": {
+        "startLine": 56,
+        "startChar": 12,
+        "endLine": 56,
+        "endChar": 81
+      },
+      "revId": "9c780d8862b62ccaeaf4073f76bf291c809a16c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_38228aa4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
         "patchSetId": 51
@@ -96,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_07ec82c6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-24T11:53:15Z",
+      "side": 1,
+      "message": "we are in the update procedure.\nso we remove the reference to internetvpnId.\nthis is why we set the null value.",
+      "parentUuid": "ba1f61a0_38228aa4",
+      "range": {
+        "startLine": 115,
+        "startChar": 77,
+        "endLine": 115,
+        "endChar": 81
+      },
+      "revId": "9c780d8862b62ccaeaf4073f76bf291c809a16c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_9d544822",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 51
@@ -107,6 +155,30 @@
       "writtenOn": "2017-08-23T14:53:46Z",
       "side": 1,
       "message": "isn\u0027t it vpnInternetId?",
+      "range": {
+        "startLine": 379,
+        "startChar": 49,
+        "endLine": 379,
+        "endChar": 53
+      },
+      "revId": "9c780d8862b62ccaeaf4073f76bf291c809a16c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_67d29e01",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-24T11:53:15Z",
+      "side": 1,
+      "message": "indeed, whatever, removeFromSubnetNode will remove the internetvpnid field. the removeFromSubnetNode will not have this extra parameter",
+      "parentUuid": "ba1f61a0_9d544822",
       "range": {
         "startLine": 379,
         "startChar": 49,
