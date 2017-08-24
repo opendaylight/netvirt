@@ -22,6 +22,30 @@
       "revId": "6a2f93f4e674b3d3c2c379543ad1ce9ff2af55d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2d9fe751",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 42
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-24T16:27:45Z",
+      "side": 1,
+      "message": "I proposed an upgrade with type string.\nI did not limit the string size, because it is not limited in ietf-interfaces.yang file ( from yangtools)",
+      "parentUuid": "ba1f61a0_f3193b89",
+      "range": {
+        "startLine": 191,
+        "startChar": 11,
+        "endLine": 195,
+        "endChar": 13
+      },
+      "revId": "6a2f93f4e674b3d3c2c379543ad1ce9ff2af55d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
