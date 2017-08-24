@@ -71,6 +71,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_a7301602",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 39
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-24T12:46:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_ce257ac3",
+      "range": {
+        "startLine": 125,
+        "startChar": 31,
+        "endLine": 125,
+        "endChar": 38
+      },
+      "revId": "63ee6568d22fa0768ae40b808eb460c7891f3c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_6e3f2ed7",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
         "patchSetId": 39
