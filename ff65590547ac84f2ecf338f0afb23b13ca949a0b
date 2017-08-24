@@ -69,6 +69,24 @@
       "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c42f08f5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 69
+      },
+      "lineNbr": 1264,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-08-24T09:35:38Z",
+      "side": 1,
+      "message": "Inside handleRouterInterfaceAdded method , createVpnInterface is called for routerPort  Inside createVpnInterface() at the bottom, addToNeutronRouterInterfacesMap is called where routerPort is added.\n\nAfter createVpnInterface, addSubnetToVpn() is called where ports inside a subnetmap are iterated over. portList contains only the VM ports , but not the routerPort.\n\nHence my above comments still hold good. So please change the code accordingly.",
+      "parentUuid": "ba1f61a0_3d6f1cff",
+      "revId": "ff65590547ac84f2ecf338f0afb23b13ca949a0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
