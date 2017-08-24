@@ -111,6 +111,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_64e8dce2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-24T08:49:32Z",
+      "side": 1,
+      "message": "Hi Hanamantagoud,\n\nWe agree there is a design concern if we only pick up this commit ID.\nHowever, this is an intermediate commit in dual stack two router setup branch.\nAn other commit introduces the two router handling. see:\nhttps://git.opendaylight.org/gerrit/#/c/59700/28/vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java@216\n\nAccording to your concern, about splitting ipv4 adjacencies and ipv6 adjacencies to the appropriate router, there may be some more work to do. however, this should not be in that commit ID. more in 59700 commit ID.\n\nDo you agree on how to tackle this design issue ? \n\nRegards,",
+      "parentUuid": "ba1f61a0_827415fe",
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_13720fe5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 44
