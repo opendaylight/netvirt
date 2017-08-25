@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_85bfc7fa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-25T20:21:38Z",
+      "side": 1,
+      "message": "append the Log file with LOG.Error(\"onSubnetAddedToVpn: ...\")\n\nthe same for above LOG.debug (\"Updating\")\n\nit is better to explicitly adding new code with explicit function where the code is called.\nmore info :\n\nhttps://wiki.opendaylight.org/view/BestPractices/Logging_Best_Practices#Use_parameterized_logging",
+      "range": {
+        "startLine": 283,
+        "startChar": 16,
+        "endLine": 283,
+        "endChar": 34
+      },
+      "revId": "27460ecab1a373a8fb5e9227d6fb5ef5d46e7c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_65ba930b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 421,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-25T20:21:38Z",
+      "side": 1,
+      "message": "idem . add more information on the log message.\nsame for above",
+      "range": {
+        "startLine": 421,
+        "startChar": 16,
+        "endLine": 421,
+        "endChar": 37
+      },
+      "revId": "27460ecab1a373a8fb5e9227d6fb5ef5d46e7c9d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
