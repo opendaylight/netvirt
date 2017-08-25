@@ -1,0 +1,18 @@
+[GitCommit]
+bears = GitCommitBear
+ignore_length_regex = Signed-off-by,
+    Also-by,
+    Co-authored-by,
+    http://,
+    https://
+
+[ShellCheck]
+bears = ShellCheckBear,
+    SpaceConsistencyBear
+files = **.sh
+ignore = .git/**,
+    .tox/**,
+    jenkins-scripts/*-local-env.sh
+shell = bash
+indent_size = 4
+use_spaces = yeah
