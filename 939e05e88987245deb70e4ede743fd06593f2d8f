@@ -22,6 +22,30 @@
       "revId": "939e05e88987245deb70e4ede743fd06593f2d8f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_538ab8bf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-25T12:28:43Z",
+      "side": 1,
+      "message": "Hi Valentina\n\nI will not do that because the spec said \"If a network contains more than two different ethertype subnetworks, exception won\u0027t be raised, but this configuration isn\u0027t supported.\"\nthen we have not to raise an exception I am thinking.\n\nIf you are not agree tell me more about that please\n\nNoel",
+      "parentUuid": "3afa9182_12489a5a",
+      "range": {
+        "startLine": 364,
+        "startChar": 0,
+        "endLine": 364,
+        "endChar": 16
+      },
+      "revId": "939e05e88987245deb70e4ede743fd06593f2d8f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
