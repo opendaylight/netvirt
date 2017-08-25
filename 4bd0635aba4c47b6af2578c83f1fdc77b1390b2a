@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_388563ad",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-25T06:56:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_d603450b",
+      "range": {
+        "startLine": 225,
+        "startChar": 11,
+        "endLine": 225,
+        "endChar": 35
+      },
+      "revId": "4bd0635aba4c47b6af2578c83f1fdc77b1390b2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_360bc126",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 37
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_588ad7bf",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-25T06:56:17Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_360bc126",
+      "range": {
+        "startLine": 231,
+        "startChar": 15,
+        "endLine": 231,
+        "endChar": 90
+      },
+      "revId": "4bd0635aba4c47b6af2578c83f1fdc77b1390b2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_560f552e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 37
@@ -59,6 +107,30 @@
       "writtenOn": "2017-08-22T12:43:35Z",
       "side": 1,
       "message": "This method is going to be a bit tricky now. Since the interface is being removed, you will have to set the scheduledToRemove flag for two data-store objects... (interface, vpnName1) and (interface, vpnName2)",
+      "range": {
+        "startLine": 1049,
+        "startChar": 4,
+        "endLine": 1063,
+        "endChar": 5
+      },
+      "revId": "4bd0635aba4c47b6af2578c83f1fdc77b1390b2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f8baab6c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-25T06:56:17Z",
+      "side": 1,
+      "message": "Hi Kiran,\n\nwhat we did actually is :\n- remove call will be called to delete the cfg vpn interface\n- then processVpnInterfaceDown will be called for each vpn interface op data entry.\n- then scheduleVpnInterfaceForRemoval() is called\n\ncurrently, scheduleVpnInterfaceForRemoval() is wrong, since it tries to remove a vpninterface which does not exist ( interfaceId ).\n\nwhat we think that should be done is:\n- instead of calling scheduleVpnInterfaceforRemoval, call a function that sets the vpninterface state of vpn interface op data entry to DOWN\n-  scheduleVpnInterfaceForRemoval(), but only remove the vpninterfaceopdataentry.\n- reuse scheduleVpnInterfaceForRemoval() that is called outside of processVpnInterfacedown. It will schedule remove of VpnInterafce from Config DS, and vpninterfaceopdataentry from operDS.\n\nanyfeedback is welcome",
+      "parentUuid": "ba1f61a0_560f552e",
       "range": {
         "startLine": 1049,
         "startChar": 4,
