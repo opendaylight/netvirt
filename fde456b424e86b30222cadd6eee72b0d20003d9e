@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba1f61a0_5d2130b3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 72
+      },
+      "lineNbr": 1274,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-08-26T20:47:22Z",
+      "side": 1,
+      "message": "I think that whatever the presence of not of the vpnIface, calling directly createVpnInterface does the same.\n\nI would simplify by calling again createVpnInterface ( since the key for VpnInterface will match the existing structure)",
+      "range": {
+        "startLine": 1274,
+        "startChar": 21,
+        "endLine": 1274,
+        "endChar": 43
+      },
+      "revId": "fde456b424e86b30222cadd6eee72b0d20003d9e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_78e882e2",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 72
