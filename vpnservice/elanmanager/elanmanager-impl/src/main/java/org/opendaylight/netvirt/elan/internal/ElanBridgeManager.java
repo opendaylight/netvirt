@@ -12,6 +12,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -21,6 +22,7 @@ import java.util.Random;
 
 import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -34,6 +36,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.DatapathTypeNetdev;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbNodeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigsBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -41,7 +45,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,16 +149,9 @@ public class ElanBridgeManager implements IElanBridgeManager {
      */
     public void processNodePrep(Node node, boolean generateIntBridgeMac) {
         if (isOvsdbNode(node)) {
-            ensureBridgesExist(node, generateIntBridgeMac);
-
-            //if br-int already exists, we can add provider networks
-            Node brIntNode = southboundUtils.readBridgeNode(node, INTEGRATION_BRIDGE);
-            if (brIntNode != null) {
-                if (!addControllerToBridge(node, INTEGRATION_BRIDGE)) {
-                    LOG.error("Failed to set controller to existing integration bridge {}", brIntNode);
-                }
-
-                prepareIntegrationBridge(node, brIntNode);
+            if(southboundUtils.readBridgeNode(node, INTEGRATION_BRIDGE) == null) {
+                LOG.debug("OVSDB node {} discovered without br-int, creating br-int", node.getNodeId().getValue());
+                ensureBridgesExist(node, generateIntBridgeMac);
             }
             return;
         }
@@ -169,6 +169,13 @@ public class ElanBridgeManager implements IElanBridgeManager {
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
+        if (southboundUtils.getBridgeFromConfig(ovsdbNode, INTEGRATION_BRIDGE) == null) {
+            LOG.debug("br-int in operational but not config, copying into config");
+            Node brIntConfig = copyBridgeForConfig(brIntNode);
+            InstanceIdentifier<Node> brNodeIid = SouthboundUtils.createInstanceIdentifier(brIntNode.getNodeId());
+            this.mdsalUtils.put(LogicalDatastoreType.CONFIGURATION, brNodeIid, brIntConfig);
+        }
+
         Map<String, String> providerMappings = getOpenvswitchOtherConfigMap(ovsdbNode, PROVIDER_MAPPINGS_KEY);
 
         for (String value : providerMappings.values()) {
@@ -190,6 +197,35 @@ public class ElanBridgeManager implements IElanBridgeManager {
 
         }
 
+        if (!addControllerToBridge(ovsdbNode, INTEGRATION_BRIDGE)) {
+            LOG.error("Failed to set controller to existing integration bridge {}", brIntNode);
+        }
+
+    }
+
+    private Node copyBridgeForConfig(Node brIntNode) {
+        NodeBuilder bridgeNodeBuilder = new NodeBuilder(brIntNode);
+
+        //termination points need to be masssaged to remove the ifindex field
+        //which are not allowed in the config data store
+        List<TerminationPoint> terminationPoints = brIntNode.getTerminationPoint();
+        if(terminationPoints != null){
+            List<TerminationPoint> newTerminationPoints = new ArrayList<>();
+            for(TerminationPoint tp : terminationPoints){
+                OvsdbTerminationPointAugmentation ovsdbTerminationPointAugmentation =
+                                                        tp.getAugmentation(OvsdbTerminationPointAugmentation.class);
+                TerminationPointBuilder tpBuilder = new TerminationPointBuilder(tp);
+                if (ovsdbTerminationPointAugmentation != null) {
+                    OvsdbTerminationPointAugmentationBuilder tpAugmentationBuilder =
+                                new OvsdbTerminationPointAugmentationBuilder(ovsdbTerminationPointAugmentation);
+                    tpAugmentationBuilder.setIfindex(null);
+                    tpBuilder.addAugmentation(OvsdbTerminationPointAugmentation.class, tpAugmentationBuilder.build());
+                }
+                newTerminationPoints.add(tpBuilder.build());
+            }
+            bridgeNodeBuilder.setTerminationPoint(newTerminationPoints);
+        }
+        return bridgeNodeBuilder.build();
     }
 
     private void patchBridgeToBrInt(Node intBridgeNode, Node exBridgeNode, String physnetBridgeName) {
