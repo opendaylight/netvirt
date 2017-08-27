@@ -142,16 +142,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
      */
     public void processNodePrep(Node node, boolean generateIntBridgeMac) {
         if (isOvsdbNode(node)) {
-            ensureBridgesExist(node, generateIntBridgeMac);
-
-            //if br-int already exists, we can add provider networks
-            Node brIntNode = southboundUtils.readBridgeNode(node, INTEGRATION_BRIDGE);
-            if (brIntNode != null) {
-                if (!addControllerToBridge(node, INTEGRATION_BRIDGE)) {
-                    LOG.error("Failed to set controller to existing integration bridge {}", brIntNode);
-                }
-
-                prepareIntegrationBridge(node, brIntNode);
+            if(southboundUtils.readBridgeNode(node, INTEGRATION_BRIDGE) == null) {
+                ensureBridgesExist(node, generateIntBridgeMac);
             }
             return;
         }
@@ -188,6 +180,10 @@ public class ElanBridgeManager implements IElanBridgeManager {
                 }
             }
 
+        }
+
+        if (!addControllerToBridge(ovsdbNode, INTEGRATION_BRIDGE)) {
+            LOG.error("Failed to set controller to existing integration bridge {}", brIntNode);
         }
 
     }
