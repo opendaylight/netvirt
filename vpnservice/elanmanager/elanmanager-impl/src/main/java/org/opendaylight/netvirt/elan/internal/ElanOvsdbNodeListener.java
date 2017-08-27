@@ -89,7 +89,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
 
     @Override
     protected void add(InstanceIdentifier<Node> identifier, Node node) {
-        LOG.debug("ElanOvsdbNodeListener.add, new node detected {}", node);
+        LOG.debug("ElanOvsdbNodeListener.add, new node detected {} {}", node, identifier);
         doNodeUpdate(node);
         elanProvider.createExternalElanNetworks(node);
     }
