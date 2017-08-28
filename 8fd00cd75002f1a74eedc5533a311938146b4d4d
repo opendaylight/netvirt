@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_bb32ea0d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-08-28T09:46:20Z",
+      "side": 1,
+      "message": "Please make sure that this syncWrite will not trigger multiple events in the following case:\n1) RouterInterfaces already has a list of interfaces, say 3. Now if you add one more and do a syncWrite, it should not generate 4 events, that is one for each interface in the list. \nPlease see NatRouterInterfaceListener.java. This listens to each interface in the list.",
+      "range": {
+        "startLine": 1299,
+        "startChar": 12,
+        "endLine": 1299,
+        "endChar": 64
+      },
+      "revId": "8fd00cd75002f1a74eedc5533a311938146b4d4d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
