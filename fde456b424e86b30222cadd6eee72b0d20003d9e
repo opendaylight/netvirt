@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_fb362251",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 72
+      },
+      "lineNbr": 1274,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-08-28T08:43:01Z",
+      "side": 1,
+      "message": "See explanations of Hanamantagoud V Kandagal in review for PS 56: \"for the same port Port-1 , createVpnInterface() is being called where for the same interface IPv6 adjacency is added and syncWrite is called. Due to this behavior might be unpredictable in VpnInterfaceManager\"\n\nhttps://git.opendaylight.org/gerrit/#/c/57977/56/vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java@1226\n\nI agree with him, that to check in this method if VpnIface is already created or not it is a best design approach.",
+      "parentUuid": "ba1f61a0_5d2130b3",
+      "range": {
+        "startLine": 1274,
+        "startChar": 21,
+        "endLine": 1274,
+        "endChar": 43
+      },
+      "revId": "fde456b424e86b30222cadd6eee72b0d20003d9e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_78e882e2",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 72
