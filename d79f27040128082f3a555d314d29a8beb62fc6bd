@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_85aea783",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T07:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_5385a7ab",
+      "range": {
+        "startLine": 220,
+        "startChar": 46,
+        "endLine": 220,
+        "endChar": 101
+      },
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_938f1fcc",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
         "patchSetId": 44
@@ -130,6 +154,30 @@
       "writtenOn": "2017-08-22T12:30:17Z",
       "side": 1,
       "message": "same comment as above",
+      "range": {
+        "startLine": 259,
+        "startChar": 42,
+        "endLine": 259,
+        "endChar": 94
+      },
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a5bacbbd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T07:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_938f1fcc",
       "range": {
         "startLine": 259,
         "startChar": 42,
@@ -188,6 +236,30 @@
       "writtenOn": "2017-08-22T12:30:17Z",
       "side": 1,
       "message": "I think this block has not been rebased properly. Recently, a fix was merged replacing the block with the method deleteExtraRouteFromCurrentAndImportingVpns()",
+      "range": {
+        "startLine": 1719,
+        "startChar": 36,
+        "endLine": 1730,
+        "endChar": 37
+      },
+      "revId": "d79f27040128082f3a555d314d29a8beb62fc6bd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a5e12bd2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T07:37:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_13720fe5",
       "range": {
         "startLine": 1719,
         "startChar": 36,
