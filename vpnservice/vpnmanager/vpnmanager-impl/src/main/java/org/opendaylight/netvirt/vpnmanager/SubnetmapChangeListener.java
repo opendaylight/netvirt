@@ -176,12 +176,16 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             Optional<ElanInstance> elanInstance = VpnUtil.read(dataBroker, LogicalDatastoreType
                     .CONFIGURATION, elanIdentifierId);
             if (elanInstance.isPresent()) {
-                elanTag = elanInstance.get().getElanTag();
+                if (elanInstance.get().getElanTag() != null) {
+                    elanTag = elanInstance.get().getElanTag();
+                } else {
+                    LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}", elanInstanceName)
+                }
             } else {
                 LOG.error("Notification failed because of failure in reading ELANInstance {}", elanInstanceName);
             }
         } catch (Exception e) {
-            LOG.error("Notification failed because of failure in fetching elanTag from ElanInstance {} config DS",
+            LOG.error("Notification failed because of failure in fetching elanTag for ElanInstance {}",
                 elanInstanceName, e);
         }
         return elanTag;
