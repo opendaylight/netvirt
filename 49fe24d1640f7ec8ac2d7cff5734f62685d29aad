@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_7b77d23a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T09:57:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_381da910",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_98765d3d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 7
@@ -65,6 +83,24 @@
       "writtenOn": "2017-06-18T07:01:56Z",
       "side": 1,
       "message": "Super nit: Indentation here is wrong. Start the text of the comment on the next line. There are some more of these below as well.",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5b72ce49",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1282,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T09:57:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_98765d3d",
       "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -88,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_fb9aa261",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T09:57:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_7873b14d",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_d88f4522",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 7
@@ -99,6 +153,24 @@
       "writtenOn": "2017-06-18T07:01:56Z",
       "side": 1,
       "message": "Naming: The word \"around\" here is not clear. How about, getSubnetMapsforNetworkRouter?",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3ba43aa5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1305,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T09:57:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_d88f4522",
       "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -122,6 +194,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_1b9fb651",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1306,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T09:57:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_b894f937",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1af78d9a_38a00990",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 7
@@ -133,6 +223,24 @@
       "writtenOn": "2017-06-18T07:01:56Z",
       "side": 1,
       "message": "Not sure about this but if you are already pulling the subnetMap, why not stick it into the cache? There are already methods for putting and removing things from that cache, why not add a method that checks for an item in the cache and if absent pulls it from the mdsal and then adds it to the cache?",
+      "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_dbecfe91",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1360,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T09:57:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1af78d9a_38a00990",
       "revId": "49fe24d1640f7ec8ac2d7cff5734f62685d29aad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
