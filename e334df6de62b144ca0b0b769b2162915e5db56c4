@@ -140,6 +140,30 @@
       "revId": "e334df6de62b144ca0b0b769b2162915e5db56c4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_bdc5cc3d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1290,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T07:59:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3afa9182_092df046",
+      "range": {
+        "startLine": 1290,
+        "startChar": 8,
+        "endLine": 1290,
+        "endChar": 42
+      },
+      "revId": "e334df6de62b144ca0b0b769b2162915e5db56c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
