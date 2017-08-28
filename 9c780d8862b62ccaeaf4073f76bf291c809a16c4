@@ -97,6 +97,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_1b08562c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T10:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_e7de8e10",
+      "range": {
+        "startLine": 56,
+        "startChar": 12,
+        "endLine": 56,
+        "endChar": 81
+      },
+      "revId": "9c780d8862b62ccaeaf4073f76bf291c809a16c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_38228aa4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
         "patchSetId": 51
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "we are in the update procedure.\nso we remove the reference to internetvpnId.\nthis is why we set the null value.",
       "parentUuid": "ba1f61a0_38228aa4",
+      "range": {
+        "startLine": 115,
+        "startChar": 77,
+        "endLine": 115,
+        "endChar": 81
+      },
+      "revId": "9c780d8862b62ccaeaf4073f76bf291c809a16c4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7e1ea064",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 51
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-08-28T10:11:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_07ec82c6",
       "range": {
         "startLine": 115,
         "startChar": 77,
