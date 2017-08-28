@@ -12,5 +12,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
     <reference id="dataBroker"
                interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
-
+    <reference id="jobCoordinator"
+               interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
 </blueprint>
