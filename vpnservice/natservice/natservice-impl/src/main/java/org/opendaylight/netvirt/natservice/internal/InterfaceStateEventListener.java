@@ -19,6 +19,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -104,7 +105,8 @@ public class InterfaceStateEventListener
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatFlowRemoveWorker natFlowRemoveWorker =
                 new NatFlowRemoveWorker(delintrf);
-        coordinator.enqueueJob(NAT_FLOW + "-" + delintrf.getName(), natFlowRemoveWorker);
+        coordinator.enqueueJob(NAT_FLOW + "-" + delintrf.getName(), natFlowRemoveWorker,
+                NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     @Override
@@ -119,7 +121,8 @@ public class InterfaceStateEventListener
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatFlowUpdateWorker natFlowUpdateWorker =
                 new NatFlowUpdateWorker(original, update);
-        coordinator.enqueueJob(NAT_FLOW + "-" + update.getName(), natFlowUpdateWorker);
+        coordinator.enqueueJob(NAT_FLOW + "-" + update.getName(), natFlowUpdateWorker,
+                NatConstants.NAT_DJC_MAX_RETRIES);
 
     }
 
@@ -135,7 +138,8 @@ public class InterfaceStateEventListener
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         NatFlowAddWorker natFlowAddWorker =
                 new NatFlowAddWorker(intrf);
-        coordinator.enqueueJob(NAT_FLOW + "-" + intrf.getName(), natFlowAddWorker);
+        coordinator.enqueueJob(NAT_FLOW + "-" + intrf.getName(), natFlowAddWorker,
+                NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     // TODO Clean up the exception handling
@@ -303,7 +307,7 @@ public class InterfaceStateEventListener
             + "router {} ip {} port {}", tableId, dpnId, routerId, ipAddress, ipPort);
     }
 
-    private void processInterfaceAdded(String portName, String routerId) {
+    private void processInterfaceAdded(String portName, String routerId, List<ListenableFuture<Void>> futures) {
         LOG.trace("processInterfaceAdded : Processing Interface Add Event for interface {}", portName);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
         if (intExtPortMapList == null || intExtPortMapList.isEmpty()) {
@@ -311,12 +315,16 @@ public class InterfaceStateEventListener
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
+        WriteTransaction installFlowInvTx = dataBroker.newWriteOnlyTransaction();
         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
-            floatingIPListener.createNATFlowEntries(portName, intExtPortMap, portIid, routerId);
+            floatingIPListener.createNATFlowEntries(portName, intExtPortMap, portIid, routerId, installFlowInvTx);
         }
+        //final submit call for installFlowInvTx
+        futures.add(NatUtil.waitForTransactionToComplete(installFlowInvTx));
     }
 
-    private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId) {
+    private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId,
+                                         List<ListenableFuture<Void>> futures) {
         LOG.trace("processInterfaceRemoved : Processing Interface Removed Event for interface {} on DPN ID {}",
                 portName, dpnId);
         List<InternalToExternalPortMap> intExtPortMapList = getIntExtPortMapListForPortName(portName, routerId);
@@ -325,10 +333,13 @@ public class InterfaceStateEventListener
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
+        WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
             LOG.trace("processInterfaceRemoved : Removing DNAT Flow entries for dpnId {} ", dpnId);
-            floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId);
+            floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId, removeFlowInvTx);
         }
+        //final submit call for removeFlowInvTx
+        futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
     }
 
     private List<InternalToExternalPortMap> getIntExtPortMapListForPortName(String portName, String routerId) {
@@ -381,7 +392,7 @@ public class InterfaceStateEventListener
                 LOG.trace("call : Port added event received for interface {} ", interfaceName);
                 String routerId = getRouterIdForPort(dataBroker, interfaceName);
                 if (routerId != null) {
-                    processInterfaceAdded(interfaceName, routerId);
+                    processInterfaceAdded(interfaceName, routerId, futures);
                 }
             } catch (Exception ex) {
                 LOG.error("call : Exception caught in Interface {} Operational State Up event",
@@ -432,7 +443,7 @@ public class InterfaceStateEventListener
                         LOG.error("call : Unable to get DPN ID for the Interface {}", interfaceName);
                         return futures;
                     }
-                    processInterfaceRemoved(interfaceName, dpId, routerName);
+                    processInterfaceRemoved(interfaceName, dpId, routerName, futures);
                     removeSnatEntriesForPort(interfaceName, routerName);
                 } else {
                     LOG.debug("call : PORT_REMOVE: Router Id is null either Interface {} is not associated "

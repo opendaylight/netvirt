@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -137,18 +138,22 @@ public class ExternalNetworksChangeListener
         //Check for VPN disassociation
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
-        WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
-        if (originalVpn == null && updatedVpn != null) {
-            //external network is dis-associated from L3VPN instance
-            associateExternalNetworkWithVPN(update, writeFlowInvTx);
-        } else if (originalVpn != null && updatedVpn == null) {
-            //external network is associated with vpn
-            disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
-            //Remove the SNAT entries
-            removeSnatEntries(original, original.getId(), writeFlowInvTx);
-        }
-        futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
+            WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            if (originalVpn == null && updatedVpn != null) {
+                //external network is dis-associated from L3VPN instance
+                associateExternalNetworkWithVPN(update, writeFlowInvTx);
+            } else if (originalVpn != null && updatedVpn == null) {
+                //external network is associated with vpn
+                disassociateExternalNetworkFromVPN(update, originalVpn.getValue());
+                //Remove the SNAT entries
+                removeSnatEntries(original, original.getId(), writeFlowInvTx);
+            }
+            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+            return futures;
+        }, NatConstants.NAT_DJC_MAX_RETRIES);
     }
 
     private void removeSnatEntries(Networks original, Uuid networkUuid, WriteTransaction writeFlowInvTx) {
@@ -194,7 +199,7 @@ public class ExternalNetworksChangeListener
                 for (InternalToExternalPortMap ipMap : intExtPortMapList) {
                     //remove all VPN related entries
                     floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
-                            ipMap);
+                            ipMap, writeFlowInvTx);
                 }
             }
         }
@@ -286,6 +291,8 @@ public class ExternalNetworksChangeListener
             }
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
+            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (Ports port : interfaces) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -297,9 +304,11 @@ public class ExternalNetworksChangeListener
                 List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
                 for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                     floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
-                            intExtPortMap);
+                            intExtPortMap, removeFlowInvTx);
                 }
             }
+            //final submit call for removeFlowInvTx
+            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
         }
     }
 }
