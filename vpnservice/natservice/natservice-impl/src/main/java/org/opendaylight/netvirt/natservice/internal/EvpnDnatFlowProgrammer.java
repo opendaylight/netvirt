@@ -180,14 +180,18 @@ public class EvpnDnatFlowProgrammer {
                   * installing INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry with same tunnel_id
                   * again and again.
                   */
+                    WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                     if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, true)) {
-                        makeTunnelTableEntry(dpnId, finalL3Vni, instructions);
+                        makeTunnelTableEntry(dpnId, finalL3Vni, instructions, writeFlowInvTx);
                     }
                  /* Install the flow L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
                   * (DNAT reverse traffic: If the traffic is Initiated from DC-GW to FIP VM (DNAT forward traffic))
                   */
                     NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, customInstructions,
-                            mdsalManager);
+                            mdsalManager, writeFlowInvTx);
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    //final submit call for writeFlowInvTx
+                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
                 } else {
                     LOG.error("onAddFloatingIp : Error {} in rpc call to create custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
@@ -284,13 +288,17 @@ public class EvpnDnatFlowProgrammer {
                       *  If exist any floating IP then do not remove
                       *  INTERNAL_TUNNEL_TABLE (table=36) -> PDNAT_TABLE (table=25) flow entry.
                       */
+                    WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                     if (!NatUtil.isFloatingIpPresentForDpn(dataBroker, dpnId, rd, vpnName, externalIp, false)) {
                         //Remove the flow for INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25)
-                        removeTunnelTableEntry(dpnId, finalL3Vni);
+                        removeTunnelTableEntry(dpnId, finalL3Vni, removeFlowInvTx);
                     }
                     //Remove the flow for L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
-                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, mdsalManager);
-
+                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, mdsalManager,
+                            removeFlowInvTx);
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    //final submit call for writeFlowInvTx
+                    futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
                 } else {
                     LOG.error("onRemoveFloatingIp : Error {} in rpc call to remove custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
@@ -314,7 +322,8 @@ public class EvpnDnatFlowProgrammer {
         }
     }
 
-    private void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions) {
+    private void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
+                                      WriteTransaction writeFlowInvTx) {
         LOG.debug("makeTunnelTableEntry : Create terminating service table {} --> table {} flow on DpnId {} "
                 + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.PDNAT_TABLE,
                 dpnId, l3Vni);
@@ -324,12 +333,12 @@ public class EvpnDnatFlowProgrammer {
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.DNAT_FLOW_NAME), 6,
                 String.format("%s:%d", "TST Flow Entry ", l3Vni),
                 0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, customInstructions);
-        mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
+        mdsalManager.addFlowToTx(dpnId, terminatingServiceTableFlowEntity, writeFlowInvTx);
         LOG.debug("makeTunnelTableEntry : Successfully installed terminating service table flow {} on DpnId {}",
                 terminatingServiceTableFlowEntity, dpnId);
     }
 
-    private void removeTunnelTableEntry(BigInteger dpnId, long l3Vni) {
+    private void removeTunnelTableEntry(BigInteger dpnId, long l3Vni, WriteTransaction removeFlowInvTx) {
         LOG.debug("removeTunnelTableEntry : Remove terminating service table {} --> table {} flow on DpnId {} "
                 + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, NwConstants.PDNAT_TABLE,
                 dpnId, l3Vni);
@@ -339,7 +348,7 @@ public class EvpnDnatFlowProgrammer {
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.DNAT_FLOW_NAME),
                 6, String.format("%s:%d", "TST Flow Entry ", l3Vni), 0, 0,
                 COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, null);
-        mdsalManager.removeFlow(dpnId, flowEntity);
+        mdsalManager.removeFlowToTx(dpnId, flowEntity, removeFlowInvTx);
         LOG.debug("removeTunnelTableEntry : Successfully removed terminating service table flow {} on DpnId {}",
                 flowEntity, dpnId);
     }

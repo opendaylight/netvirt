@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -1743,7 +1744,7 @@ public class NatUtil {
     }
 
     public static void makePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId,
-            short tableId) {
+            short tableId, WriteTransaction writeFlowTx) {
         LOG.debug("makePreDnatToSnatTableEntry : Create Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
                 NwConstants.PDNAT_TABLE, tableId, naptDpnId);
 
@@ -1756,18 +1757,19 @@ public class NatUtil {
                 5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE,
                 matches, preDnatToSnatInstructions);
 
-        mdsalManager.installFlow(naptDpnId, preDnatToSnatTableFlowEntity);
+        mdsalManager.addFlowToTx(naptDpnId, preDnatToSnatTableFlowEntity, writeFlowTx);
         LOG.debug("makePreDnatToSnatTableEntry : Successfully installed Pre-DNAT flow {} on NAPT DpnId {} ",
                 preDnatToSnatTableFlowEntity,  naptDpnId);
     }
 
-    public static void removePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId) {
+    public static void removePreDnatToSnatTableEntry(IMdsalApiManager mdsalManager, BigInteger naptDpnId,
+                                                     WriteTransaction removeFlowInvTx) {
         LOG.debug("removePreDnatToSnatTableEntry : Remove Pre-DNAT table {} --> table {} flow on NAPT DpnId {} ",
                 NwConstants.PDNAT_TABLE, NwConstants.INBOUND_NAPT_TABLE, naptDpnId);
         String flowRef = getFlowRefPreDnatToSnat(naptDpnId, NwConstants.PDNAT_TABLE, "PreDNATToSNAT");
         Flow preDnatToSnatTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.PDNAT_TABLE,flowRef,
                 5, flowRef, 0, 0,  NwConstants.COOKIE_DNAT_TABLE, null, null);
-        mdsalManager.removeFlow(naptDpnId, preDnatToSnatTableFlowEntity);
+        mdsalManager.removeFlowToTx(naptDpnId, preDnatToSnatTableFlowEntity, removeFlowInvTx);
         LOG.debug("removePreDnatToSnatTableEntry: Successfully removed Pre-DNAT flow {} on NAPT DpnId = {}",
                 preDnatToSnatTableFlowEntity, naptDpnId);
     }
@@ -1908,5 +1910,16 @@ public class NatUtil {
             }
         }
         return false;
+    }
+
+    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
+            WriteTransaction tx) {
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore {}", e);
+        }
+        return futures;
     }
 }
