@@ -8,8 +8,10 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +19,9 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -126,6 +130,8 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
+                    WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                    WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                     LOG.debug("add : Router {} is associated with ext nw {}", routerId, networkId);
                     Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
                     Long vpnId;
@@ -142,7 +148,7 @@ public class RouterDpnChangeListener
                                 dpnId, routerId, vpnId);
                         installDefaultNatRouteForRouterExternalSubnets(dpnId,
                                 NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
-                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId);
+                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
                     } else {
                         LOG.debug("add : External BGP vpn associated to router {}", routerId);
                         vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -161,17 +167,20 @@ public class RouterDpnChangeListener
                                 dpnId, routerId, vpnId);
                         installDefaultNatRouteForRouterExternalSubnets(dpnId,
                                 NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
-                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId);
+                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId, writeFlowInvTx);
                     }
                     extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
 
                     if (router.isEnableSnat()) {
                         LOG.info("add : SNAT enabled for router {}", routerId);
-                        handleSNATForDPN(dpnId, routerId, vpnId);
+                        handleSNATForDPN(dpnId, routerId, vpnId, writeFlowInvTx, removeFlowInvTx);
                     } else {
                         LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}", routerId, dpnId);
                     }
-                }
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                    futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+                } // end of controller based SNAT
             }
         } else {
             LOG.debug("add : Router {} is not associated with External network", routerId);
@@ -201,6 +210,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
+                    WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                     LOG.debug("remove : Router {} is associated with ext nw {}", routerId, networkId);
                     Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
                     Long vpnId;
@@ -214,7 +224,7 @@ public class RouterDpnChangeListener
                         LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);
                         //Remove default entry in FIB
                         LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId);
+                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, removeFlowInvTx);
                     } else {
                         LOG.debug("remove : External vpn associated to router {}", routerId);
                         vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
@@ -230,17 +240,19 @@ public class RouterDpnChangeListener
                         LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);
                         //Remove default entry in FIB
                         LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId);
+                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId, removeFlowInvTx);
                     }
 
                     if (router.isEnableSnat()) {
                         LOG.info("remove : SNAT enabled for router {}", routerId);
-                        removeSNATFromDPN(dpnId, routerId, vpnId);
+                        removeSNATFromDPN(dpnId, routerId, vpnId, removeFlowInvTx);
                     } else {
                         LOG.info("remove : SNAT is not enabled for router {} to handle removeDPN event {}",
                                 routerId, dpnId);
                     }
-                }
+                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+                } // end of controller based SNAT
             }
         }
     }
@@ -253,7 +265,8 @@ public class RouterDpnChangeListener
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    void handleSNATForDPN(BigInteger dpnId, String routerName, Long routerVpnId) {
+    void handleSNATForDPN(BigInteger dpnId, String routerName, Long routerVpnId, WriteTransaction writeFlowInvTx,
+                          WriteTransaction removeFlowInvTx) {
        //Check if primary and secondary switch are selected, If not select the role
         //Install select group to NAPT switch
         //Install default miss entry to NAPT switch
@@ -288,7 +301,7 @@ public class RouterDpnChangeListener
                     naptSwitchHA.subnetRegisterMapping(extRouters, routerId);
                 }
 
-                naptSwitchHA.installSnatFlows(routerName, routerId, naptSwitch, routerVpnId);
+                naptSwitchHA.installSnatFlows(routerName, routerId, naptSwitch, routerVpnId, writeFlowInvTx);
 
                 // Install miss entry (table 26) pointing to table 46
                 FlowEntity flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName,
@@ -299,12 +312,12 @@ public class RouterDpnChangeListener
                     return;
                 }
                 LOG.debug("handleSNATForDPN : Successfully installed flow for dpnId {} router {}", dpnId, routerName);
-                mdsalManager.installFlow(flowEntity);
+                mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
                 //Removing primary flows from old napt switch
                 if (naptId != null && !naptId.equals(BigInteger.ZERO)) {
                     LOG.debug("handleSNATForDPN : Removing primary flows from old napt switch {} for router {}",
                             naptId, routerName);
-                    naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptId, null);
+                    naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptId, null, removeFlowInvTx);
                 }
             } else if (naptId.equals(dpnId)) {
                 LOG.debug("handleSNATForDPN : NaptSwitch {} gone down during cluster reboot came alive", naptId);
@@ -335,7 +348,7 @@ public class RouterDpnChangeListener
                 }
                 LOG.debug("handleSNATForDPN : Successfully installed flow for dpnId {} router {} group {}",
                         dpnId, routerName, groupId);
-                mdsalManager.installFlow(flowEntity);
+                mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
             }
 
         } catch (Exception ex) {
@@ -345,7 +358,7 @@ public class RouterDpnChangeListener
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    void removeSNATFromDPN(BigInteger dpnId, String routerName, long routerVpnId) {
+    void removeSNATFromDPN(BigInteger dpnId, String routerName, long routerVpnId, WriteTransaction removeFlowInvTx) {
         //irrespective of naptswitch or non-naptswitch, SNAT default miss entry need to be removed
         //remove miss entry to NAPT switch
         //if naptswitch elect new switch and install Snat flows and remove those flows in oldnaptswitch
@@ -374,7 +387,8 @@ public class RouterDpnChangeListener
         }
         try {
             boolean naptStatus =
-                naptSwitchHA.isNaptSwitchDown(routerName, dpnId, naptSwitch, routerVpnId, externalIpCache);
+                naptSwitchHA.isNaptSwitchDown(routerName, dpnId, naptSwitch, routerVpnId, externalIpCache,
+                        removeFlowInvTx);
             if (!naptStatus) {
                 LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
                     dpnId, routerName);
@@ -389,7 +403,7 @@ public class RouterDpnChangeListener
                         return;
                     }
                     LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}", flowEntity);
-                    mdsalManager.removeFlow(flowEntity);
+                    mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
 
                 } catch (Exception ex) {
                     LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
@@ -413,7 +427,7 @@ public class RouterDpnChangeListener
                 LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
                     dpnId, routerName);
             } else {
-                naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptSwitch, externalIpLabel);
+                naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, naptSwitch, externalIpLabel, removeFlowInvTx);
                 //remove table 26 flow ppointing to table46
                 FlowEntity flowEntity = null;
                 try {
@@ -426,7 +440,7 @@ public class RouterDpnChangeListener
                     }
                     LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity for router {} with "
                         + "dpnId {} in napt switch {}", routerName, dpnId, naptSwitch);
-                    mdsalManager.removeFlow(flowEntity);
+                    mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
 
                 } catch (Exception ex) {
                     LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
@@ -437,7 +451,7 @@ public class RouterDpnChangeListener
                     dpnId, routerName);
 
                 //best effort to check IntExt model
-                naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel);
+                naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, removeFlowInvTx);
             }
         } catch (Exception ex) {
             LOG.error("removeSNATFromDPN : Exception while handling naptSwitch down for router {}", routerName, ex);
