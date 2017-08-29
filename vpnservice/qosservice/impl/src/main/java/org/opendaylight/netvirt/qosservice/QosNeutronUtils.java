@@ -462,6 +462,10 @@ public class QosNeutronUtils {
     public static void setPortBandwidthLimits(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
                                               Port port, BandwidthLimitRules bwLimit,
                                               WriteTransaction writeConfigTxn) {
+        if (!QosAlertEosHandler.isQosClusterOwner()) {
+            LOG.trace("Not Qos Cluster Owner. Ignoring setting bandwidth limits");
+            return;
+        }
         LOG.trace("Setting bandwidth limits {} on Port {}", port, bwLimit);
 
         BigInteger dpId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
@@ -510,7 +514,10 @@ public class QosNeutronUtils {
     public static void setPortDscpMarking(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
                                           IMdsalApiManager mdsalUtils,
                                           Port port, DscpmarkingRules dscpMark) {
-
+        if (!QosAlertEosHandler.isQosClusterOwner()) {
+            LOG.trace("Not Qos Cluster Owner. Ignoring setting DSCP marking");
+            return;
+        }
         LOG.trace("Setting DSCP value {} on Port {}", port, dscpMark);
 
         BigInteger dpnId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
@@ -536,16 +543,20 @@ public class QosNeutronUtils {
 
     public static void unsetPortDscpMark(DataBroker dataBroker, OdlInterfaceRpcService odlInterfaceRpcService,
                                          IMdsalApiManager mdsalUtils, Port port) {
+        if (!QosAlertEosHandler.isQosClusterOwner()) {
+            LOG.trace("Not Qos Cluster Owner. Ignoring unsetting DSCP marking");
+            return;
+        }
         LOG.trace("Removing dscp marking rule from Port {}", port);
 
         BigInteger dpnId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
-        IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
 
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.info("DPN ID for port {} not found", port);
             return;
         }
+        IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
 
         //unbind service from interface
         unbindservice(dataBroker, ifName);
