@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -156,56 +157,67 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
-                    WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-                    WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-                    LOG.debug("add : Router {} is associated with ext nw {}", routerId, networkId);
-                    Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
-                    Long vpnId;
-                    if (vpnName == null) {
-                        LOG.debug("add : Internal vpn associated to router {}", routerId);
-                        vpnId = NatUtil.getVpnId(dataBroker, routerId);
-                        if (vpnId == NatConstants.INVALID_ID) {
-                            LOG.error("add : Invalid vpnId returned for routerName {}", routerId);
-                            return;
+                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                    dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                        WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                        WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                        LOG.debug("add : Router {} is associated with ext nw {}", routerId, networkId);
+                        Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
+                        Long vpnId;
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        if (vpnName == null) {
+                            LOG.debug("add : Internal vpn associated to router {}", routerId);
+                            vpnId = NatUtil.getVpnId(dataBroker, routerId);
+                            if (vpnId == NatConstants.INVALID_ID) {
+                                LOG.error("add : Invalid vpnId returned for routerName {}", routerId);
+                                writeFlowInvTx.cancel();
+                                removeFlowInvTx.cancel();
+                                return futures;
+                            }
+                            LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerId);
+                            //Install default entry in FIB to SNAT table
+                            LOG.info("add : Installing default route in FIB on dpn {} for router {} with vpn {}",
+                                    dpnId, routerId, vpnId);
+                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                                    NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                            snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
+                        } else {
+                            LOG.debug("add : External BGP vpn associated to router {}", routerId);
+                            vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                            if (vpnId == NatConstants.INVALID_ID) {
+                                LOG.error("add : Invalid vpnId returned for routerName {}", routerId);
+                                writeFlowInvTx.cancel();
+                                removeFlowInvTx.cancel();
+                                return futures;
+                            }
+                            Long routId = NatUtil.getVpnId(dataBroker, routerId);
+                            if (routId == NatConstants.INVALID_ID) {
+                                LOG.error("add : Invalid routId returned for routerName {}", routerId);
+                                writeFlowInvTx.cancel();
+                                removeFlowInvTx.cancel();
+                                return futures;
+                            }
+                            LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerId);
+                            //Install default entry in FIB to SNAT table
+                            LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
+                                    + "vpnId {}...", dpnId, routerId, vpnId);
+                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                                    NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                            snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId, writeFlowInvTx);
                         }
-                        LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerId);
-                        //Install default entry in FIB to SNAT table
-                        LOG.info("add : Installing default route in FIB on dpn {} for router {} with vpn {}",
-                                dpnId, routerId, vpnId);
-                        installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                                NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
-                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
-                    } else {
-                        LOG.debug("add : External BGP vpn associated to router {}", routerId);
-                        vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
-                        if (vpnId == NatConstants.INVALID_ID) {
-                            LOG.error("add : Invalid vpnId returned for routerName {}", routerId);
-                            return;
-                        }
-                        Long routId = NatUtil.getVpnId(dataBroker, routerId);
-                        if (routId == NatConstants.INVALID_ID) {
-                            LOG.error("add : Invalid routId returned for routerName {}", routerId);
-                            return;
-                        }
-                        LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerId);
-                        //Install default entry in FIB to SNAT table
-                        LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with vpnId {}...",
-                                dpnId, routerId, vpnId);
-                        installDefaultNatRouteForRouterExternalSubnets(dpnId,
-                                NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
-                        snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routId, writeFlowInvTx);
-                    }
-                    extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+                        extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
 
-                    if (router.isEnableSnat()) {
-                        LOG.info("add : SNAT enabled for router {}", routerId);
-                        handleSNATForDPN(dpnId, routerId, vpnId, writeFlowInvTx, removeFlowInvTx);
-                    } else {
-                        LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}", routerId, dpnId);
-                    }
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
-                    futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+                        if (router.isEnableSnat()) {
+                            LOG.info("add : SNAT enabled for router {}", routerId);
+                            handleSNATForDPN(dpnId, routerId, vpnId, writeFlowInvTx, removeFlowInvTx);
+                        } else {
+                            LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}", routerId,
+                                    dpnId);
+                        }
+                        futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                        futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+                        return futures;
+                    }, NatConstants.NAT_DJC_MAX_RETRIES);
                 } // end of controller based SNAT
             }
         } else {
@@ -236,48 +248,57 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
-                    WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-                    LOG.debug("remove : Router {} is associated with ext nw {}", routerId, networkId);
-                    Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
-                    Long vpnId;
-                    if (vpnName == null) {
-                        LOG.debug("remove : Internal vpn associated to router {}", routerId);
-                        vpnId = NatUtil.getVpnId(dataBroker, routerId);
-                        if (vpnId == NatConstants.INVALID_ID) {
-                            LOG.error("remove : Invalid vpnId returned for routerName {}", routerId);
-                            return;
+                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+                    dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                        WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+                        LOG.debug("remove : Router {} is associated with ext nw {}", routerId, networkId);
+                        Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerId);
+                        Long vpnId;
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        if (vpnName == null) {
+                            LOG.debug("remove : Internal vpn associated to router {}", routerId);
+                            vpnId = NatUtil.getVpnId(dataBroker, routerId);
+                            if (vpnId == NatConstants.INVALID_ID) {
+                                LOG.error("remove : Invalid vpnId returned for routerName {}", routerId);
+                                removeFlowInvTx.cancel();
+                                return futures;
+                            }
+                            LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);
+                            //Remove default entry in FIB
+                            LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId,
+                                    vpnName);
+                            snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, removeFlowInvTx);
+                        } else {
+                            LOG.debug("remove : External vpn associated to router {}", routerId);
+                            vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                            if (vpnId == NatConstants.INVALID_ID) {
+                                LOG.error("remove : Invalid vpnId returned for routerName {}", routerId);
+                                removeFlowInvTx.cancel();
+                                return futures;
+                            }
+                            Long routId = NatUtil.getVpnId(dataBroker, routerId);
+                            if (routId == NatConstants.INVALID_ID) {
+                                LOG.error("remove : Invalid routId returned for routerName {}", routerId);
+                                removeFlowInvTx.cancel();
+                                return futures;
+                            }
+                            LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);
+                            //Remove default entry in FIB
+                            LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId,
+                                    vpnName);
+                            snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId, removeFlowInvTx);
                         }
-                        LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);
-                        //Remove default entry in FIB
-                        LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, removeFlowInvTx);
-                    } else {
-                        LOG.debug("remove : External vpn associated to router {}", routerId);
-                        vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
-                        if (vpnId == NatConstants.INVALID_ID) {
-                            LOG.error("remove : Invalid vpnId returned for routerName {}", routerId);
-                            return;
-                        }
-                        Long routId = NatUtil.getVpnId(dataBroker, routerId);
-                        if (routId == NatConstants.INVALID_ID) {
-                            LOG.error("remove : Invalid routId returned for routerName {}", routerId);
-                            return;
-                        }
-                        LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);
-                        //Remove default entry in FIB
-                        LOG.debug("remove : Removing default route in FIB on dpn {} for vpn {} ...", dpnId, vpnName);
-                        snatDefaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, vpnId, routId, removeFlowInvTx);
-                    }
 
-                    if (router.isEnableSnat()) {
-                        LOG.info("remove : SNAT enabled for router {}", routerId);
-                        removeSNATFromDPN(dpnId, routerId, vpnId, removeFlowInvTx);
-                    } else {
-                        LOG.info("remove : SNAT is not enabled for router {} to handle removeDPN event {}",
-                                routerId, dpnId);
-                    }
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+                        if (router.isEnableSnat()) {
+                            LOG.info("remove : SNAT enabled for router {}", routerId);
+                            removeSNATFromDPN(dpnId, routerId, vpnId, removeFlowInvTx);
+                        } else {
+                            LOG.info("remove : SNAT is not enabled for router {} to handle removeDPN event {}",
+                                    routerId, dpnId);
+                        }
+                        futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+                        return futures;
+                    }, NatConstants.NAT_DJC_MAX_RETRIES);
                 } // end of controller based SNAT
             }
         }
