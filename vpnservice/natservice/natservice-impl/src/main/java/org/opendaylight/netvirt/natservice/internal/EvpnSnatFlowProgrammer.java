@@ -72,7 +72,7 @@ public class EvpnSnatFlowProgrammer {
     public void evpnAdvToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId,
                                                     final String externalIp, final String vpnName, final String rd,
                                                     final String nextHopIp, final WriteTransaction writeTx,
-                                                    final long routerId) {
+                                                    final long routerId, WriteTransaction writeFlowTx) {
      /*
       * 1) Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
       *    (FIP VM on DPN1 is responding back to external fixed IP on DPN2) {DNAT to SNAT traffic on
@@ -154,23 +154,25 @@ public class EvpnSnatFlowProgrammer {
                  /* Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
                   * (SNAT to DNAT reverse Traffic: If traffic is Initiated from NAPT to FIP VM on different Hypervisor)
                   */
-                    makeTunnelTableEntry(dpnId, finalL3Vni, customInstructions, tableId);
+                    makeTunnelTableEntry(dpnId, finalL3Vni, customInstructions, tableId, writeFlowTx);
                  /* Install the flow L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44)
                   * (SNAT reverse traffic: If the traffic is Initiated from DC-GW to VM (SNAT Reverse traffic))
                   */
-                    NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager);
+                    NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager,
+                            writeFlowTx);
 
                  /* Install the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
                   * If there is no FIP Match on table 25 (PDNAT_TABLE)
                   */
-                    NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId);
+                    NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId, writeFlowTx);
                 }
             }
         });
     }
 
     public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
-                                              final String vpnName, String extGwMacAddress) {
+                                              final String vpnName, String extGwMacAddress,
+                                              WriteTransaction removeFlowInvTx) {
      /*
       * 1) Remove the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
       *    (FIP VM on DPN1 is responding back to external fixed IP on DPN2) {DNAT to SNAT traffic on
@@ -237,18 +239,18 @@ public class EvpnSnatFlowProgrammer {
                             + "RouterId {}", externalIp, dpnId, finalL3Vni, vpnName, routerId);
 
                     //remove INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44) flow
-                    removeTunnelTableEntry(dpnId, finalL3Vni);
+                    removeTunnelTableEntry(dpnId, finalL3Vni, removeFlowInvTx);
                     //remove L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44) flow
-                    NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
+                    NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId, removeFlowInvTx);
                     //remove PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44) flow
-                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager);
+                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager, removeFlowInvTx);
                 }
             }
         });
     }
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,
-                                     short tableId) {
+                                     short tableId, WriteTransaction writeFlowTx) {
         LOG.debug("makeTunnelTableEntry : Create terminating service table {} --> table {} flow on NAPT DpnId {} "
                 + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE, tableId, dpnId, l3Vni);
         List<MatchInfo> mkMatches = new ArrayList<>();
@@ -258,12 +260,12 @@ public class EvpnSnatFlowProgrammer {
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.SNAT_FLOW_NAME), 5,
                 String.format("%s:%d", "TST Flow Entry ", l3Vni),
                 0, 0, COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, customInstructions);
-        mdsalManager.installFlow(dpnId, terminatingServiceTableFlowEntity);
+        mdsalManager.addFlowToTx(dpnId, terminatingServiceTableFlowEntity, writeFlowTx);
         LOG.debug("makeTunnelTableEntry : Successfully installed terminating service table flow {} on DpnId {}",
                 terminatingServiceTableFlowEntity, dpnId);
     }
 
-    public void removeTunnelTableEntry(BigInteger dpnId, long l3Vni) {
+    public void removeTunnelTableEntry(BigInteger dpnId, long l3Vni, WriteTransaction removeFlowInvTx) {
         LOG.debug("removeTunnelTableEntry : Remove terminating service table {} --> table {} flow on NAPT DpnId {} "
                 + "with l3Vni {} as matching parameter", NwConstants.INTERNAL_TUNNEL_TABLE,
                 NwConstants.INBOUND_NAPT_TABLE, dpnId, l3Vni);
@@ -274,7 +276,7 @@ public class EvpnSnatFlowProgrammer {
                 NatEvpnUtil.getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, l3Vni, NatConstants.SNAT_FLOW_NAME),
                 5, String.format("%s:%d", "TST Flow Entry ", l3Vni), 0, 0,
                 COOKIE_TUNNEL.add(BigInteger.valueOf(l3Vni)), mkMatches, null);
-        mdsalManager.removeFlow(dpnId, flowEntity);
+        mdsalManager.removeFlowToTx(dpnId, flowEntity, removeFlowInvTx);
         LOG.debug("removeTunnelTableEntry : Successfully removed terminating service table flow {} on DpnId {}",
                 flowEntity, dpnId);
     }
