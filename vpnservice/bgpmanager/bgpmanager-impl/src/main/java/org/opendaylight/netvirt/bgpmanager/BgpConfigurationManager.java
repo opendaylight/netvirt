@@ -148,8 +148,8 @@ public class BgpConfigurationManager {
     private static final String CONFIG_HOST = "vpnservice.bgpspeaker.host.name";
     private static final String CONFIG_PORT = "vpnservice.bgpspeaker.thrift.port";
     private static final String DEF_UPORT = "6644";
-    private static final String DEF_CHOST = "127.0.0.1";
-    private static final String DEF_CPORT = "7644";
+    private static final String DEF_CHOST = "255.255.255.255"; // Invalid Host IP
+    private static final String DEF_CPORT = "0";               // Invalid Port
     private static final String DEF_SDNC_BGP_MIP = "127.0.0.1";
     private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
     private static final String SDNC_BGP_MIP = "vpnservice.bgp.thrift.bgp.mip";
@@ -1564,6 +1564,14 @@ public class BgpConfigurationManager {
             spt = defValue;
         }
         return spt;
+    }
+
+    public static boolean isValidConfigBgpHostPort(String bgpHost, int bgpPort) {
+        if ((!bgpHost.equals(DEF_CHOST)) && (bgpPort != Integer.parseInt(DEF_CPORT))) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     public synchronized void bgpRestarted() {

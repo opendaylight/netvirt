@@ -127,6 +127,11 @@ public class BgpRouter {
         this.bgpHost = bgpHost;
         this.bgpHostPort = bgpPort;
 
+        if (!BgpConfigurationManager.isValidConfigBgpHostPort(bgpHost, bgpPort)) {
+            LOG.error("Invalid config server host: {}, port: {}", bgpHost, bgpPort);
+            return false;
+        }
+
         final int numberOfConnectRetries = 180;
         RetryOnException connectRetry = new RetryOnException(numberOfConnectRetries);
 
