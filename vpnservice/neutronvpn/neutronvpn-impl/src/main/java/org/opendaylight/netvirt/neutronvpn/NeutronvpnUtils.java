@@ -841,7 +841,7 @@ public class NeutronvpnUtils {
             } else {
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
             }
-            LOG.trace("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to "
+            LOG.info("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to "
                 + "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
         } catch (Exception e) {
             LOG.error("Failure while creating VPNPortFixedIpToPort map for vpn {} - fixedIP {}", vpnName, fixedIp,
