@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: de Prandieres Noel <prandieres@6wind.com>
+Code-Review+2: Sam Hague <shague@redhat.com>
+Submitted-by: Sam Hague <shague@redhat.com>
+Submitted-at: Tue, 29 Aug 2017 13:10:04 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/62217
+Project: netvirt
+Branch: refs/heads/master
