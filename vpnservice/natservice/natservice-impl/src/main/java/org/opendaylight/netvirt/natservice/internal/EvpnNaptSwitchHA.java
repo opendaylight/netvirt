@@ -66,7 +66,7 @@ public class EvpnNaptSwitchHA {
             return;
         }
         //Remove the L3_GW_MAC_TABLE which forwards the packet to Inbound NAPT Table (table19->44)
-        NatEvpnUtil.removeL3GwMacTableEntry(naptSwitch, vpnId, gwMacAddress, mdsalManager);
+        NatEvpnUtil.removeL3GwMacTableEntry(naptSwitch, vpnId, gwMacAddress, mdsalManager, null);
 
         //Remove the PDNAT_TABLE which forwards the packet to Inbound NAPT Table (table25->44)
         NatUtil.removePreDnatToSnatTableEntry(mdsalManager, naptSwitch);

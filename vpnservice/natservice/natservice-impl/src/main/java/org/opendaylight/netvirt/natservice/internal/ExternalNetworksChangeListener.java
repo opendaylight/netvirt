@@ -8,13 +8,17 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -175,6 +179,8 @@ public class ExternalNetworksChangeListener
             }
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
+            WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (Ports port : interfaces) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -187,9 +193,11 @@ public class ExternalNetworksChangeListener
                 for (InternalToExternalPortMap ipMap : intExtPortMapList) {
                     //remove all VPN related entries
                     floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
-                            ipMap);
+                            ipMap, writeFlowInvTx);
                 }
             }
+            //final submit call for writeFlowInvTx
+            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
         }
 
         // SNAT
@@ -278,6 +286,8 @@ public class ExternalNetworksChangeListener
             }
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
+            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (Ports port : interfaces) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -289,9 +299,11 @@ public class ExternalNetworksChangeListener
                 List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
                 for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                     floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
-                            intExtPortMap);
+                            intExtPortMap, removeFlowInvTx);
                 }
             }
+            //final submit call for removeFlowInvTx
+            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
         }
     }
 }

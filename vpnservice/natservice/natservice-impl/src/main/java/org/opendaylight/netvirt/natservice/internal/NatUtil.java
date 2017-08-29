@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
@@ -1908,5 +1909,16 @@ public class NatUtil {
             }
         }
         return false;
+    }
+
+    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
+            WriteTransaction tx) {
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore {}", e);
+        }
+        return futures;
     }
 }
