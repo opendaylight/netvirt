@@ -30,11 +30,13 @@ public class QosAlertEosHandler implements EntityOwnershipListener, AutoCloseabl
     private static EntityOwnershipListenerRegistration listenerRegistration;
     private static EntityOwnershipCandidateRegistration candidateRegistration;
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertEosHandler.class);
+    private static boolean isEosOwner;
 
     @Inject
     public QosAlertEosHandler(final EntityOwnershipService eos, final QosAlertManager qam) {
         entityOwnershipService = eos;
         qosAlertManager = qam;
+        isEosOwner = false;
     }
 
     @PostConstruct
@@ -71,8 +73,15 @@ public class QosAlertEosHandler implements EntityOwnershipListener, AutoCloseabl
         if ((entityOwnershipChange.hasOwner() && entityOwnershipChange.isOwner())
                 || (!entityOwnershipChange.hasOwner() && entityOwnershipChange.wasOwner())) {
             qosAlertManager.setQosAlertOwner(true); // continue polling until new owner is elected
+            isEosOwner = true;
         } else {
             qosAlertManager.setQosAlertOwner(false); // no longer an owner
+            isEosOwner = false;
         }
+    }
+
+    public static boolean isQosClusterOwner() {
+        LOG.trace("isQosClusterOwner: {}", isEosOwner);
+        return (isEosOwner);
     }
 }
