@@ -9,16 +9,18 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
 
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 
 public interface FloatingIPHandler {
 
     void onAddFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, String interfaceName,
-                         InternalToExternalPortMap mapping);
+                         InternalToExternalPortMap mapping, WriteTransaction writeFlowInvTx);
 
     void onRemoveFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, InternalToExternalPortMap mapping,
-                            long label);
+                            long label, WriteTransaction removeFlowInvTx);
 
-    void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label);
+    void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label,
+                           WriteTransaction removeFlowInvTx);
 }
