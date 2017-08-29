@@ -140,6 +140,8 @@ public class RouterDpnChangeListener
                         vpnId = NatUtil.getVpnId(dataBroker, routerId);
                         if (vpnId == NatConstants.INVALID_ID) {
                             LOG.error("add : Invalid vpnId returned for routerName {}", routerId);
+                            writeFlowInvTx.cancel();
+                            removeFlowInvTx.cancel();
                             return;
                         }
                         LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerId);
@@ -154,11 +156,15 @@ public class RouterDpnChangeListener
                         vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                         if (vpnId == NatConstants.INVALID_ID) {
                             LOG.error("add : Invalid vpnId returned for routerName {}", routerId);
+                            writeFlowInvTx.cancel();
+                            removeFlowInvTx.cancel();
                             return;
                         }
                         Long routId = NatUtil.getVpnId(dataBroker, routerId);
                         if (routId == NatConstants.INVALID_ID) {
                             LOG.error("add : Invalid routId returned for routerName {}", routerId);
+                            writeFlowInvTx.cancel();
+                            removeFlowInvTx.cancel();
                             return;
                         }
                         LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerId);
@@ -219,6 +225,7 @@ public class RouterDpnChangeListener
                         vpnId = NatUtil.getVpnId(dataBroker, routerId);
                         if (vpnId == NatConstants.INVALID_ID) {
                             LOG.error("remove : Invalid vpnId returned for routerName {}", routerId);
+                            removeFlowInvTx.cancel();
                             return;
                         }
                         LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);
@@ -230,11 +237,13 @@ public class RouterDpnChangeListener
                         vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                         if (vpnId == NatConstants.INVALID_ID) {
                             LOG.error("remove : Invalid vpnId returned for routerName {}", routerId);
+                            removeFlowInvTx.cancel();
                             return;
                         }
                         Long routId = NatUtil.getVpnId(dataBroker, routerId);
                         if (routId == NatConstants.INVALID_ID) {
                             LOG.error("remove : Invalid routId returned for routerName {}", routerId);
+                            removeFlowInvTx.cancel();
                             return;
                         }
                         LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerId);

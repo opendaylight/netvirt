@@ -245,24 +245,33 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             try {
                 addOrDelDefFibRouteToSNAT(routerName, true, writeFlowInvTx);
                 long segmentId = NatUtil.getVpnId(dataBroker, routerName);
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 // Allocate Primary Napt Switch for this router
                 BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, segmentId);
                 if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
                     LOG.error("add : Failed to get or allocate NAPT switch for router {}. NAPT"
                             + " flow installation will be delayed", routerName);
+                    /* If primary switch is not been selected though L3_FIB_TABLE(21) -> PSNAT_TABLE(26) flow
+                     * is required for DNAT. Hence writeFlowInvTx object submit is required.
+                     */
+                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
                     return;
                 }
 
                 handleRouterGwFlows(routers, primarySwitchId, NwConstants.ADD_FLOW);
                 if (!routers.isEnableSnat()) {
                     LOG.info("add : SNAT is disabled for external router {} ", routerName);
+                    /* If SNAT is disabled on ext-router though L3_FIB_TABLE(21) -> PSNAT_TABLE(26) flow
+                     * is required for DNAT. Hence writeFlowInvTx object submit is required.
+                     */
+                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
                     return;
                 }
                 handleEnableSnat(routers, segmentId, primarySwitchId, writeFlowInvTx);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 //final submit call for writeFlowInvTx
                 futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
             } catch (Exception ex) {
+                writeFlowInvTx.cancel();
                 LOG.error("add : Exception while Installing NAT flows on all dpns as part of router {}",
                         routerName, ex);
             }
@@ -1465,6 +1474,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             //Check if the Subnet IDs are removed during the update.
             Set<Uuid> removedSubnetIds = new HashSet<>(originalSubnetIds);
             removedSubnetIds.removeAll(updatedSubnetIds);
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (removedSubnetIds.size() != 0) {
                 LOG.debug("update : Start processing of the Subnet IDs removal during the update operation");
                 for (Uuid removedSubnetId : removedSubnetIds) {
@@ -1483,6 +1493,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         if (externalIp == null) {
                             LOG.error("update : No mapping found for router ID {} and internal IP {}",
                                     routerId, subnetAddr[0]);
+                            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
                             return;
                         }
 
@@ -1506,7 +1518,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
                 LOG.debug("update : End processing of the Subnet IDs removal during the update operation");
             }
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
             futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
         } //end of controller based SNAT
@@ -1652,6 +1663,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 if (routerId == NatConstants.INVALID_ID) {
                     LOG.error("remove : Remove external router event - Invalid routerId for routerName {}",
                             routerName);
+                    removeFlowInvTx.cancel();
                     return;
                 }
 
