@@ -469,6 +469,10 @@ public class QosNeutronUtils {
             LOG.info("DPN ID for interface {} not found", port.getUuid().getValue());
             return;
         }
+        if (!QosAlertEosHandler.isQosClusterOwner()) {
+            LOG.trace("Not Qos Cluster Owner. Ignoring setting bandwidth limits");
+            return;
+        }
 
         OvsdbBridgeRef bridgeRefEntry = getBridgeRefEntryFromOperDS(dpId, db);
         Optional<Node> bridgeNode = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL,
@@ -522,6 +526,10 @@ public class QosNeutronUtils {
             LOG.info("DPN ID for interface {} not found", port.getUuid().getValue());
             return;
         }
+        if (!QosAlertEosHandler.isQosClusterOwner()) {
+            LOG.trace("Not Qos Cluster Owner. Ignoring setting DSCP marking");
+            return;
+        }
 
         //1. OF rules
         syncFlow(db, dpnId, NwConstants.ADD_FLOW, mdsalUtils, dscpValue, ifName, ipAddress);
@@ -540,12 +548,16 @@ public class QosNeutronUtils {
 
         BigInteger dpnId = getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
         String ifName = port.getUuid().getValue();
-        IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
 
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.info("DPN ID for port {} not found", port);
             return;
         }
+        if (!QosAlertEosHandler.isQosClusterOwner()) {
+            LOG.trace("Not Qos Cluster Owner. Ignoring unsetting DSCP marking");
+            return;
+        }
+        IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
 
         //unbind service from interface
         unbindservice(dataBroker, ifName);
