@@ -38,6 +38,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.evpn.manager.NeutronEvpnManager;
 import org.opendaylight.netvirt.neutronvpn.evpn.utils.NeutronEvpnUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -518,15 +519,21 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 ipv4vpnBuilder.setRouteDistinguisher(rd);
             }
 
-            VpnInstance newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
-            isLockAcquired = NeutronvpnUtils.lock(vpnName);
-            LOG.info("Creating/Updating vpn-instance for {} ", vpnName);
+            VpnInstance newVpn = null;
+            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
+            }
+            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                newVpn = builder.setIpv6Family(ipv6vpnBuilder.build()).build();
+            }
+            isLockAcquired = NeutronUtils.lock(vpnName);
+            LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
         } catch (Exception e) {
             LOG.error("Update VPN Instance node failed for node: {} {} {} {}", vpnName, rd, irt, ert);
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(vpnName);
+                NeutronUtils.unlock(vpnName);
             }
         }
     }
@@ -540,13 +547,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 .build();
         LOG.info("removing vpnMaps node: {} ", vpnid.getValue());
         try {
-            isLockAcquired = NeutronvpnUtils.lock(vpnid.getValue());
+            isLockAcquired = NeutronUtils.lock(vpnid.getValue());
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         } catch (Exception e) {
             LOG.error("Delete vpnMaps node failed for vpn : {} ", vpnid.getValue());
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(vpnid.getValue());
+                NeutronUtils.unlock(vpnid.getValue());
             }
         }
     }
@@ -586,15 +593,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 builder.setNetworkIds(nwList);
             }
 
-            isLockAcquired = NeutronvpnUtils.lock(vpnId.getValue());
-            LOG.info("Creating/Updating vpnMaps node: {} ", vpnId.getValue());
+            isLockAcquired = NeutronUtils.lock(vpnId.getValue());
+            LOG.debug("Creating/Updating vpnMaps node: {} ", vpnId.getValue());
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier, builder.build());
             LOG.info("VPNMaps DS updated for VPN {} ", vpnId.getValue());
         } catch (Exception e) {
             LOG.error("UpdateVpnMaps failed for node: {} ", vpnId.getValue());
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(vpnId.getValue());
+                NeutronUtils.unlock(vpnId.getValue());
             }
         }
     }
@@ -615,14 +622,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 if (vpnMap.getNetworkIds() == null && routerId.equals(vpnMap.getVpnId())) {
                     try {
                         // remove entire node in case of internal VPN
-                        isLockAcquired = NeutronvpnUtils.lock(vpnId.getValue());
-                        LOG.info("removing vpnMaps node: {} ", vpnId);
+                        isLockAcquired = NeutronUtils.lock(vpnId.getValue());
+                        LOG.debug("removing vpnMaps node: {} ", vpnId);
                         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
                     } catch (Exception e) {
                         LOG.error("Deletion of vpnMaps node failed for vpn {}", vpnId.getValue());
                     } finally {
                         if (isLockAcquired) {
-                            NeutronvpnUtils.unlock(vpnId.getValue());
+                            NeutronUtils.unlock(vpnId.getValue());
                         }
                     }
                     return;
@@ -643,15 +650,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             }
 
             try {
-                isLockAcquired = NeutronvpnUtils.lock(vpnId.getValue());
-                LOG.info("clearing from vpnMaps node: {} ", vpnId.getValue());
+                isLockAcquired = NeutronUtils.lock(vpnId.getValue());
+                LOG.debug("clearing from vpnMaps node: {} ", vpnId.getValue());
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier,
                         vpnMapBuilder.build());
             } catch (Exception e) {
                 LOG.error("Clearing from vpnMaps node failed for vpn {}", vpnId.getValue());
             } finally {
                 if (isLockAcquired) {
-                    NeutronvpnUtils.unlock(vpnId.getValue());
+                    NeutronUtils.unlock(vpnId.getValue());
                 }
             }
         } else {
@@ -669,14 +676,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         new VpnInstanceKey(vpnId.getValue()))
                 .build();
         try {
-            isLockAcquired = NeutronvpnUtils.lock(vpnId.getValue());
-            LOG.info("Deleting vpnInstance {}", vpnId.getValue());
+            isLockAcquired = NeutronUtils.lock(vpnId.getValue());
+            LOG.debug("Deleting vpnInstance {}", vpnId.getValue());
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
         } catch (Exception e) {
             LOG.error("Deletion of VPNInstance node failed for VPN {}", vpnId.getValue());
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(vpnId.getValue());
+                NeutronUtils.unlock(vpnId.getValue());
             }
         }
     }
@@ -819,7 +826,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils.buildVpnInterfaceIdentifier(infName);
 
         try {
-            isLockAcquired = NeutronvpnUtils.lock(infName);
+            isLockAcquired = NeutronUtils.lock(infName);
             Optional<VpnInterface> optionalVpnInterface = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
                     .CONFIGURATION, vpnIfIdentifier);
             if (optionalVpnInterface.isPresent()) {
@@ -868,7 +875,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.error("Updation of vpninterface {} failed", infName, ex);
         } finally {
             if (isLockAcquired) {
-                NeutronvpnUtils.unlock(infName);
+                NeutronUtils.unlock(infName);
             }
         }
     }
@@ -1578,14 +1585,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
                             .setNextHopIpList(Collections.singletonList(nextHop)).setKey(new AdjacencyKey(destination))
                             .setAdjacencyType(AdjacencyType.ExtraRoute).build();
-                        isLockAcquired = NeutronvpnUtils.lock(infName);
+                        isLockAcquired = NeutronUtils.lock(infName);
                         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, path, erAdj);
                     } catch (Exception e) {
                         LOG.error("exception in adding extra route with destination: {}, next hop: {}",
                             destination, nextHop, e);
                     } finally {
                         if (isLockAcquired) {
-                            NeutronvpnUtils.unlock(infName);
+                            NeutronUtils.unlock(infName);
                         }
                     }
                 } else {
@@ -1641,7 +1648,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
 
                 try {
-                    isLockAcquired = NeutronvpnUtils.lock(infName);
+                    isLockAcquired = NeutronUtils.lock(infName);
                     if (updateNextHops) {
                         // An update must be done, not including the current next hop
                         InstanceIdentifier<VpnInterface> vpnIfIdentifier = InstanceIdentifier.builder(
@@ -1665,7 +1672,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                             destination, infName, e);
                 } finally {
                     if (isLockAcquired) {
-                        NeutronvpnUtils.unlock(infName);
+                        NeutronUtils.unlock(infName);
                     }
                 }
             } else {
