@@ -73,7 +73,7 @@ public class EvpnSnatFlowProgrammer {
                                                     final String externalIp, final String vpnName, final String rd,
                                                     final String nextHopIp, final WriteTransaction writeTx,
                                                     final long routerId, final String routerName,
-                                                    WriteTransaction writeFlowTx) {
+                                                    WriteTransaction writeFlowInvTx) {
      /*
       * 1) Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
       *    (FIP VM on DPN1 is responding back to external fixed IP on DPN2) {DNAT to SNAT traffic on
@@ -155,17 +155,17 @@ public class EvpnSnatFlowProgrammer {
                  /* Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
                   * (SNAT to DNAT reverse Traffic: If traffic is Initiated from NAPT to FIP VM on different Hypervisor)
                   */
-                    makeTunnelTableEntry(dpnId, finalL3Vni, customInstructions, tableId, writeFlowTx);
+                    makeTunnelTableEntry(dpnId, finalL3Vni, customInstructions, tableId, writeFlowInvTx);
                  /* Install the flow L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44)
                   * (SNAT reverse traffic: If the traffic is Initiated from DC-GW to VM (SNAT Reverse traffic))
                   */
                     NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager,
-                            writeFlowTx);
+                            writeFlowInvTx);
 
                  /* Install the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
                   * If there is no FIP Match on table 25 (PDNAT_TABLE)
                   */
-                    NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId, writeFlowTx);
+                    NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId, writeFlowInvTx);
                 }
             }
         });
