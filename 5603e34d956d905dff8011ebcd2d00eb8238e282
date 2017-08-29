@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_9b7b9f8b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-29T16:13:01Z",
+      "side": 1,
+      "message": ".0 is also not a valid host ip..\n\nIt would be better to check if its a proper host-ip-address instead of checking against only 255.255.255.255",
+      "revId": "5603e34d956d905dff8011ebcd2d00eb8238e282",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
