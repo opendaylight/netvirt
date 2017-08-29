@@ -41,6 +41,24 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
+
+    <dependency>
+      <!-- This is here just so that we have the respective bundles for this development debug feature
+           in netvirt's Karaf distribution, and it is easy to do "feature:install odl-mdsal-trace" on
+           test environments to find memory leaks due to non-closed transactions.  This feature is NOT
+           intended for production, and not installed as a boot feature by default.  (If we do not do
+           this, then it's quite a pain/complicated to install this feature onto a non-dev environment
+           on a test server where an ODL binary was installed e.g. from an RPM package, because as is
+           we currently cannot easily, by a simple CLI command, add additional features from new remote
+           repos.)
+       -->
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>features-mdsal-trace</artifactId>
+      <version>1.7.0-SNAPSHOT</version>
+      <classifier>features</classifier>
+      <type>xml</type>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>
