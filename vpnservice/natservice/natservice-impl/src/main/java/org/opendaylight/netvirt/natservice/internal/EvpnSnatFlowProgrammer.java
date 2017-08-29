@@ -158,7 +158,8 @@ public class EvpnSnatFlowProgrammer {
                  /* Install the flow L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44)
                   * (SNAT reverse traffic: If the traffic is Initiated from DC-GW to VM (SNAT Reverse traffic))
                   */
-                    NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager);
+                    NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, gwMacAddress, customInstructions, mdsalManager,
+                            null);
 
                  /* Install the flow PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44)
                   * If there is no FIP Match on table 25 (PDNAT_TABLE)
@@ -241,7 +242,7 @@ public class EvpnSnatFlowProgrammer {
                     //remove L3_GW_MAC_TABLE (table=19)-> INBOUND_NAPT_TABLE (table=44) flow
                     NatUtil.removePreDnatToSnatTableEntry(mdsalManager, dpnId);
                     //remove PDNAT_TABLE (table=25)-> INBOUND_NAPT_TABLE (table=44) flow
-                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager);
+                    NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager, null);
                 }
             }
         });

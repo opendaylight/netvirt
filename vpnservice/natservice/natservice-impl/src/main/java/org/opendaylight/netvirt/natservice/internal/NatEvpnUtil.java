@@ -195,7 +195,8 @@ public class NatEvpnUtil {
     }
 
     static void makeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, String macAddress,
-                                      List<Instruction> customInstructions, IMdsalApiManager mdsalManager) {
+                                      List<Instruction> customInstructions, IMdsalApiManager mdsalManager,
+                                      WriteTransaction installFlowInvTx) {
         List<MatchInfo> matchInfo = new ArrayList<>();
         matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetDestination(new MacAddress(macAddress)));
@@ -207,13 +208,13 @@ public class NatEvpnUtil {
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
                 flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, customInstructions);
 
-        mdsalManager.installFlow(dpnId, l3GwMacTableFlowEntity);
+        mdsalManager.addFlowToTx(dpnId, l3GwMacTableFlowEntity, installFlowInvTx);
         LOG.debug("makeL3GwMacTableEntry : Successfully created flow entity {} on DPN = {}",
                 l3GwMacTableFlowEntity, dpnId);
     }
 
     static void removeL3GwMacTableEntry(final BigInteger dpnId, final long vpnId, final String macAddress,
-                                        IMdsalApiManager mdsalManager) {
+                                        IMdsalApiManager mdsalManager, WriteTransaction removeFlowInvTx) {
         List<MatchInfo> matchInfo = new ArrayList<>();
         matchInfo.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID));
         matchInfo.add(new MatchEthernetSource(new MacAddress(macAddress)));
@@ -225,7 +226,7 @@ public class NatEvpnUtil {
         Flow l3GwMacTableFlowEntity = MDSALUtil.buildFlowNew(NwConstants.L3_GW_MAC_TABLE,
                 flowRef, 21, flowRef, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, matchInfo, null);
 
-        mdsalManager.removeFlow(dpnId, l3GwMacTableFlowEntity);
+        mdsalManager.removeFlowToTx(dpnId, l3GwMacTableFlowEntity, removeFlowInvTx);
         LOG.debug("removeL3GwMacTableEntry : Successfully removed flow entity {} on DPN = {}",
                 l3GwMacTableFlowEntity, dpnId);
     }
