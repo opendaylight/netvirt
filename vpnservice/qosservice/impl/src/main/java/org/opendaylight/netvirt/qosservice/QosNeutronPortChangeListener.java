@@ -12,7 +12,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosNeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, QosNeutronPortChangeListener>
-    implements AutoCloseable {
+public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Port,
+                                             QosNeutronPortChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronPortChangeListener.class);
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
@@ -46,7 +46,6 @@ public class QosNeutronPortChangeListener extends AsyncDataTreeChangeListenerBas
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
-    @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
