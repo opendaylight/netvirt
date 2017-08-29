@@ -182,6 +182,7 @@ public class ExternalNetworksChangeListener
             }
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (Ports port : interfaces) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -194,9 +195,11 @@ public class ExternalNetworksChangeListener
                 for (InternalToExternalPortMap ipMap : intExtPortMapList) {
                     //remove all VPN related entries
                     floatingIpListener.createNATFlowEntries(dpnId, portName, routerId.getValue(), network.getId(),
-                            ipMap);
+                            ipMap, writeFlowInvTx);
                 }
             }
+            //final submit call for writeFlowInvTx
+            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
         }
 
         // SNAT
@@ -286,6 +289,8 @@ public class ExternalNetworksChangeListener
             }
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
+            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (Ports port : interfaces) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -297,9 +302,11 @@ public class ExternalNetworksChangeListener
                 List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
                 for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                     floatingIpListener.removeNATFlowEntries(dpnId, portName, vpnName, routerId.getValue(),
-                            intExtPortMap);
+                            intExtPortMap, removeFlowInvTx);
                 }
             }
+            //final submit call for removeFlowInvTx
+            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
         }
     }
 }

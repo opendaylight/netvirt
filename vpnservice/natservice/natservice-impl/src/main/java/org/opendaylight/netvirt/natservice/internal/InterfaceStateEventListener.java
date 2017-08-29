@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -315,9 +316,13 @@ public class InterfaceStateEventListener
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
+        WriteTransaction installFlowInvTx = dataBroker.newWriteOnlyTransaction();
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
-            floatingIPListener.createNATFlowEntries(portName, intExtPortMap, portIid, routerId);
+            floatingIPListener.createNATFlowEntries(portName, intExtPortMap, portIid, routerId, installFlowInvTx);
         }
+        //final submit call for installFlowInvTx
+        futures.add(NatUtil.waitForTransactionToComplete(installFlowInvTx));
     }
 
     private void processInterfaceRemoved(String portName, BigInteger dpnId, String routerId) {
@@ -329,10 +334,14 @@ public class InterfaceStateEventListener
             return;
         }
         InstanceIdentifier<RouterPorts> portIid = NatUtil.buildRouterPortsIdentifier(routerId);
+        WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
             LOG.trace("processInterfaceRemoved : Removing DNAT Flow entries for dpnId {} ", dpnId);
-            floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId);
+            floatingIPListener.removeNATFlowEntries(portName, intExtPortMap, portIid, routerId, dpnId, removeFlowInvTx);
         }
+        //final submit call for removeFlowInvTx
+        futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
     }
 
     private List<InternalToExternalPortMap> getIntExtPortMapListForPortName(String portName, String routerId) {
