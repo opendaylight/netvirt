@@ -46,6 +46,8 @@ public class NatConstants {
     public static final short DEFAULT_IDLE_TIMEOUT = 0;
     public static final int SNAT_PACKET_THEADPOOL_SIZE = 25;
     public static final int SNAT_PACKET_RETRY_THEADPOOL_SIZE = 15;
+    public static final String NAT_DJC_PREFIX = "NAT-";
+    public static final int NAT_DJC_MAX_RETRIES = 3;
     // Flow Actions
     public static final int ADD_FLOW = 0;
     public static final int DEL_FLOW = 1;
