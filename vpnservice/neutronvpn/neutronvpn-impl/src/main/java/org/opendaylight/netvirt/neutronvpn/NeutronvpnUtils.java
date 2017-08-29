@@ -1257,4 +1257,50 @@ public class NeutronvpnUtils {
         return (!isEmpty(collection));
     }
 
+    /**Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of the router.
+     * @param dataBroker to get informations from data store
+     * @param routerUuid the Uuid for which find out the IP version associated
+     * @return an IpVersionChoice used by the router from its attached subnetmaps. IpVersionChoice.UNDEFINED if any
+     */
+    public static IpVersionChoice getIpVersionChoicesFromRouterUuid(DataBroker dataBroker, Uuid routerUuid) {
+        IpVersionChoice rep = IpVersionChoice.UNDEFINED;
+        if (routerUuid == null) {
+            return rep;
+        }
+        List<Subnetmap> subnetmapList = getNeutronRouterSubnetMaps(dataBroker, routerUuid);
+        if (subnetmapList.isEmpty()) {
+            return rep;
+        }
+        for (Subnetmap sn : subnetmapList) {
+            if (sn.getSubnetIp() != null) {
+                IpVersionChoice ipVers = NeutronUtils.getIpVersion(sn.getSubnetIp());
+                if (rep.choice != ipVers.choice) {
+                    rep.addVersion(ipVers);
+                }
+                if (rep.choice == rep.IPV4AND6.choice) {
+                    return rep;
+                }
+            }
+        }
+        return rep;
+    }
+
+    /**This method return the list of Subnetmap associated to the router or a empty list if any.
+     * @param broker the data broker to get information
+     * @param routerId the Uuid of router for which subnetmap is find out
+     * @return a list of Subnetmap associated to the router. it could be empty if any
+     */
+    protected static List<Subnetmap> getNeutronRouterSubnetMaps(DataBroker broker, Uuid routerId) {
+        List<Subnetmap> subnetIdList = new ArrayList<>();
+        Optional<Subnetmaps> subnetMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
+            InstanceIdentifier.builder(Subnetmaps.class).build());
+        if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
+            for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
+                if (routerId.equals(subnetmap.getRouterId())) {
+                    subnetIdList.add(subnetmap);
+                }
+            }
+        }
+        return subnetIdList;
+    }
 }
