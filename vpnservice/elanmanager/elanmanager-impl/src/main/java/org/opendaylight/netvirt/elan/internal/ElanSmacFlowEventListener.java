@@ -12,13 +12,18 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.FlowAdded;
@@ -67,7 +72,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 return;
             }
             final String srcMacAddress = flowRemoved.getMatch().getEthernetMatch()
-                .getEthernetSource().getAddress().getValue().toUpperCase();
+                    .getEthernetSource().getAddress().getValue().toUpperCase();
             int portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             if (portTag == 0) {
                 LOG.debug(String.format("Flow removed event on SMAC flow entry. But having port Tag as 0 "));
@@ -84,34 +89,43 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 LOG.error(String.format("LPort record not found for tag %d", portTag));
                 return;
             }
-            MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
-            InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-            String elanInstanceName = elanTagInfo.getName();
-            if (macEntry != null && interfaceInfo != null) {
-                WriteTransaction deleteFlowTx = broker.newWriteOnlyTransaction();
-                elanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo,
-                        macEntry, deleteFlowTx);
-                ListenableFuture<Void> result = deleteFlowTx.submit();
-                addCallBack(result, srcMacAddress);
-            }
-            InstanceIdentifier<MacEntry> macEntryIdForElanInterface = ElanUtils
-                    .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-            WriteTransaction tx = broker.newWriteOnlyTransaction();
-            Optional<MacEntry> existingInterfaceMacEntry = elanUtils.read(broker,
-                LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
-            if (existingInterfaceMacEntry.isPresent()) {
-                tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
-                MacEntry macEntryInElanInstance = elanUtils.getMacEntryForElanInstance(elanInstanceName,
-                        physAddress).orNull();
-                if (macEntryInElanInstance != null
-                        && macEntryInElanInstance.getInterface().equals(interfaceName)) {
-                    InstanceIdentifier<MacEntry> macEntryIdForElanInstance = ElanUtils
-                            .getMacEntryOperationalDataPath(elanInstanceName, physAddress);
-                    tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
+            //DataStoreJobCoordinate
+            DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+            coordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
+                List<ListenableFuture<Void>> elanFutures = new ArrayList<>();
+                MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
+                InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
+                String elanInstanceName = elanTagInfo.getName();
+                LOG.info("Deleting the Mac-Entry:{} present on ElanInstance:{}", macEntry, elanInstanceName);
+                if (macEntry != null && interfaceInfo != null) {
+                    WriteTransaction deleteFlowTx = broker.newWriteOnlyTransaction();
+                    elanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo,
+                            macEntry, deleteFlowTx);
+                    ListenableFuture<Void> result = deleteFlowTx.submit();
+                    elanFutures.add(result);
+                    addCallBack(result, srcMacAddress);
                 }
-                ListenableFuture<Void> writeResult = tx.submit();
-                addCallBack(writeResult, srcMacAddress);
-            }
+                InstanceIdentifier<MacEntry> macEntryIdForElanInterface = ElanUtils
+                        .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
+                Optional<MacEntry> existingInterfaceMacEntry = elanUtils.read(broker,
+                        LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
+                if (existingInterfaceMacEntry.isPresent()) {
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInterface);
+                    MacEntry macEntryInElanInstance = elanUtils.getMacEntryForElanInstance(elanInstanceName,
+                            physAddress).orNull();
+                    if (macEntryInElanInstance != null
+                            && macEntryInElanInstance.getInterface().equals(interfaceName)) {
+                        InstanceIdentifier<MacEntry> macEntryIdForElanInstance = ElanUtils
+                                .getMacEntryOperationalDataPath(elanInstanceName, physAddress);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
+                    }
+                    ListenableFuture<Void> writeResult = tx.submit();
+                    elanFutures.add(writeResult);
+                    addCallBack(writeResult, srcMacAddress);
+                }
+                return elanFutures;
+            }, ElanConstants.JOB_MAX_RETRIES);
         }
     }
 
