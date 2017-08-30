@@ -68,6 +68,6 @@ public class LogicalSwitchesCmd extends MergeCommand<LogicalSwitches,
 
     @Override
     public LogicalSwitches withoutUuid(LogicalSwitches data) {
-        return new LogicalSwitchesBuilder(data).setHwvtepNodeName(null).build();
+        return new LogicalSwitchesBuilder(data).setLogicalSwitchUuid(null).build();
     }
 }
