@@ -101,8 +101,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     @Override
     public boolean bindAcl(AclInterface port) {
         if (port == null) {
-            LOG.error("port cannot be null");
+            LOG.error("port is null on ACL BIND");
             return false;
+        } else {
+            if (!port.getPortSecurityEnabled() || (port.getSecurityGroups() == null)) {
+                LOG.error("port-security disabled (or) security-groups null on ACL BIND for port {}", port);
+                return false;
+            }
         }
         bindService(port);
         if (port.getDpId() != null) {
@@ -113,6 +118,15 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean unbindAcl(AclInterface port) {
+        if (port == null) {
+            LOG.error("port is null on ACL UNBIND");
+            return false;
+        } else {
+            if (!port.getPortSecurityEnabled() || (port.getSecurityGroups() == null)) {
+                LOG.error("port-security disabled (or) security-groups null on ACL UNBIND for port {}", port);
+                return false;
+            }
+        }
         BigInteger dpId = port.getDpId();
         if (dpId == null) {
             LOG.error("Unable to find DpId from ACL interface with id {}", port.getInterfaceId());
