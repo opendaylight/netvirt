@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_c791b848",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T17:30:35Z",
+      "side": 1,
+      "message": "I think we are missing this check only in the AclVpnChangeListener bind service call. Anyway it is ok to assert it.",
+      "revId": "cb7d6e853da9614df132d2893ea949ad49e30bd8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6771ec43",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-30T17:30:35Z",
+      "side": 1,
+      "message": "The null check may not be required as a vm port can have no security groups but security group enabled and so we need to bind and program the anti-spoofing rules.",
+      "revId": "cb7d6e853da9614df132d2893ea949ad49e30bd8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
