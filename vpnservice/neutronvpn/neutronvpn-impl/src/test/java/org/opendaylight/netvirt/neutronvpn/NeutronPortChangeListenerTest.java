@@ -23,12 +23,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.NotificationService;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -45,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIpsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.PortBuilder;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -66,8 +63,6 @@ public class NeutronPortChangeListenerTest {
     @Mock
     NeutronFloatingToFixedIpMappingChangeListener floatingIpMapListener;
     @Mock
-    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
-    @Mock
     WriteTransaction mockWriteTx;
     @Mock
     ReadOnlyTransaction mockReadTx;
@@ -84,11 +79,6 @@ public class NeutronPortChangeListenerTest {
 
     @Before
     public void setUp() {
-        when(dataBroker.registerDataChangeListener(any(LogicalDatastoreType.class), //
-                any(InstanceIdentifier.class), //
-                any(DataChangeListener.class), //
-                any(AsyncDataBroker.DataChangeScope.class))). //
-                thenReturn(dataChangeListenerRegistration);
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();

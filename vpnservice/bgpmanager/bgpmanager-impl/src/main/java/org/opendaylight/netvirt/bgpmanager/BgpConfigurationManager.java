@@ -47,7 +47,6 @@ import org.apache.thrift.TException;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -121,7 +120,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.osgi.framework.BundleContext;
@@ -250,8 +248,6 @@ public class BgpConfigurationManager {
         MultipathReactor.class, VrfMaxpathReactor.class
     };
 
-    private ListenerRegistration<DataChangeListener>[] registrations;
-
     final BgpConfigurationManager bgpConfigurationManager;
 
     public BgpConfigurationManager(final DataBroker dataBroker,
@@ -320,7 +316,6 @@ public class BgpConfigurationManager {
 
     private void registerCallbacks() {
         String emsg = "Failed to register listener";
-        registrations = new ListenerRegistration[REACTORS.length];
         InstanceIdentifier<?> iid = InstanceIdentifier.create(Bgp.class);
         for (Class reactor : REACTORS) {
             Object obj = createListener(reactor);

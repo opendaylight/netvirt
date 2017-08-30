@@ -7,12 +7,9 @@
  */
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Maps;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -22,7 +19,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataChangeEvent;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.Identifiable;
@@ -65,11 +61,6 @@ public class ChangeUtils {
                 .ModificationType.DELETE && input.getDataBefore() != null;
     }
 
-    public static <T extends DataObject> Map<InstanceIdentifier<T>,T> extractCreated(
-            AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes,Class<T> klazz) {
-        return extract(changes.getCreatedData(),klazz);
-    }
-
     /**
      * Extract all the instances of {@code clazz} which were created in the given set of modifications.
      *
@@ -82,11 +73,6 @@ public class ChangeUtils {
     public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractCreated(
             Collection<DataTreeModification<U>> changes, Class<T> clazz) {
         return extractCreatedOrUpdated(changes, clazz, hasNoDataBefore());
-    }
-
-    public static <T extends DataObject> Map<InstanceIdentifier<T>,T> extractUpdated(
-            AsyncDataChangeEvent<InstanceIdentifier<?>,DataObject> changes,Class<T> klazz) {
-        return extract(changes.getUpdatedData(),klazz);
     }
 
     /**
@@ -125,13 +111,6 @@ public class ChangeUtils {
         return result;
     }
 
-    public static <T extends DataObject> Map<InstanceIdentifier<T>,T> extractCreatedOrUpdated(
-            AsyncDataChangeEvent<InstanceIdentifier<?>,DataObject> changes,Class<T> klazz) {
-        Map<InstanceIdentifier<T>,T> result = extractUpdated(changes,klazz);
-        result.putAll(extractCreated(changes,klazz));
-        return result;
-    }
-
     /**
      * Extract all the instances of {@code clazz} which were created or updated in the given set of modifications.
      *
@@ -144,14 +123,6 @@ public class ChangeUtils {
     public static <T extends DataObject, U extends DataObject> Map<InstanceIdentifier<T>, T> extractCreatedOrUpdated(
             Collection<DataTreeModification<U>> changes, Class<T> clazz) {
         return extractCreatedOrUpdated(changes, clazz, matchesEverything());
-    }
-
-    public static <T extends DataObject> Map<InstanceIdentifier<T>, T> extractCreatedOrUpdatedOrRemoved(
-            AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes,
-            Class<T> klazz) {
-        Map<InstanceIdentifier<T>,T> result = extractCreatedOrUpdated(changes,klazz);
-        result.putAll(extractRemovedObjects(changes, klazz));
-        return result;
     }
 
     /**
@@ -172,11 +143,6 @@ public class ChangeUtils {
         return result;
     }
 
-    public static <T extends DataObject> Map<InstanceIdentifier<T>,T> extractOriginal(
-            AsyncDataChangeEvent<InstanceIdentifier<?>,DataObject> changes,Class<T> klazz) {
-        return extract(changes.getOriginalData(),klazz);
-    }
-
     /**
      * Extract the original instances of class {@code clazz} in the given set of modifications.
      *
@@ -192,22 +158,6 @@ public class ChangeUtils {
         for (Entry<InstanceIdentifier<T>, DataObjectModification<T>> entry :
                 extractDataObjectModifications(changes, clazz, hasDataBefore()).entrySet()) {
             result.put(entry.getKey(), entry.getValue().getDataBefore());
-        }
-        return result;
-    }
-
-    public static <T extends DataObject> Set<InstanceIdentifier<T>> extractRemoved(
-            AsyncDataChangeEvent<InstanceIdentifier<?>,DataObject> changes,Class<T> klazz) {
-        Set<InstanceIdentifier<T>> result = new HashSet<>();
-        if (changes != null && changes.getRemovedPaths() != null) {
-            for (InstanceIdentifier<?> iid : changes.getRemovedPaths()) {
-                if (iid.getTargetType().equals(klazz)) {
-                    // Actually checked above
-                    @SuppressWarnings("unchecked")
-                    InstanceIdentifier<T> iidn = (InstanceIdentifier<T>)iid;
-                    result.add(iidn);
-                }
-            }
         }
         return result;
     }
@@ -298,7 +248,7 @@ public class ChangeUtils {
             InstanceIdentifier<? extends DataObject> extendPath(
             InstanceIdentifier path,
             DataObjectModification child) {
-        Class<N> item = (Class<N>) child.getDataType();
+        Class<N> item = child.getDataType();
         if (child.getIdentifier() instanceof InstanceIdentifier.IdentifiableItem) {
             K key = (K) ((InstanceIdentifier.IdentifiableItem) child.getIdentifier()).getKey();
             KeyedInstanceIdentifier<N, K> extendedPath = path.child(item, key);
@@ -307,13 +257,6 @@ public class ChangeUtils {
             InstanceIdentifier<N> extendedPath = path.child(item);
             return extendedPath;
         }
-    }
-
-    public static <T extends DataObject> Map<InstanceIdentifier<T>, T> extractRemovedObjects(
-            AsyncDataChangeEvent<InstanceIdentifier<?>, DataObject> changes,
-            Class<T> klazz) {
-        Set<InstanceIdentifier<T>> iids = extractRemoved(changes, klazz);
-        return Maps.filterKeys(extractOriginal(changes, klazz),Predicates.in(iids));
     }
 
     /**

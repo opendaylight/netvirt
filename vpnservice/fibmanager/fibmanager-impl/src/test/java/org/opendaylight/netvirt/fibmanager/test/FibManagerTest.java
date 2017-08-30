@@ -7,22 +7,17 @@
  */
 package org.opendaylight.netvirt.fibmanager.test;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.fibmanager.VrfEntryListener;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -33,7 +28,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntryKey;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
@@ -42,8 +36,6 @@ public class FibManagerTest {
 
     @Mock
     DataBroker dataBroker;
-    @Mock
-    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock
     ReadOnlyTransaction mockReadTx;
     @Mock
@@ -55,7 +47,6 @@ public class FibManagerTest {
     @Mock
     VrfTablesKey vrfTableKey;
 
-    MockDataChangedEvent dataChangeEvent;
     VrfEntryListener fibmgr;
     private static final Long EGRESS_POINTER = 11L;
     VrfEntry vrfEntry;
@@ -80,17 +71,11 @@ public class FibManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(
-            dataBroker.registerDataChangeListener(any(LogicalDatastoreType.class),
-                any(InstanceIdentifier.class), any(DataChangeListener.class),
-                any(DataChangeScope.class))).thenReturn(dataChangeListenerRegistration);
-        dataChangeEvent = new MockDataChangedEvent();
         setupMocks();
     }
 
     @Test
     public void testAdd() {
-        dataChangeEvent.created.put(identifier, vrfEntry);
         //fibmgr.onDataChanged(dataChangeEvent);
         //Mockito.verify(mdsalManager, Mockito.times(2)).installFlow(any(FlowEntity.class));
     }
