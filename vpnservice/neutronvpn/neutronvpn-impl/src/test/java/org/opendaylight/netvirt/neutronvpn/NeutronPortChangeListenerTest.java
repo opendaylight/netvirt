@@ -147,4 +147,23 @@ public class NeutronPortChangeListenerTest {
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
 
+    @Test
+    public void addPort__DualFixedIps() throws Exception {
+        PortBuilder pb = new PortBuilder();
+        pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
+        IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
+        List<FixedIps> fixedIps = new ArrayList<>();
+        FixedIpsBuilder fibIpv4 = new FixedIpsBuilder();
+        FixedIpsBuilder fibIpv6 = new FixedIpsBuilder();
+        fibIpv4.setIpAddress(ipv4);
+        fixedIps.add(fibIpv4.build());
+        fibIpv6.setIpAddress(ipv6);
+        fixedIps.add(fibIpv6.build());
+        pb.setFixedIps(fixedIps);
+        Port port = pb.build();
+        neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
+    }
 }
