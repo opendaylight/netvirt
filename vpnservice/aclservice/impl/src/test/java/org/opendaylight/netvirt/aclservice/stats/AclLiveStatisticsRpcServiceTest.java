@@ -19,16 +19,20 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
+
+import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
+import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceModule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceTestModule;
@@ -36,6 +40,7 @@ import org.opendaylight.netvirt.aclservice.tests.IdentifiedInterfaceWithAclBuild
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.AclLiveStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.acl.live.statistics.rev161129.Direction;
@@ -73,6 +78,7 @@ public class AclLiveStatisticsRpcServiceTest {
     @Inject
     OpendaylightDirectStatisticsService odlDirectStatsService;
     SingleTransactionDataBroker singleTransactionDataBroker;
+    @Inject TestInterfaceManager testInterfaceManager;
 
     private AclLiveStatisticsService aclStatsService;
 
@@ -93,7 +99,11 @@ public class AclLiveStatisticsRpcServiceTest {
         newElan(ELAN, ELAN_TAG);
         newElanInterface(ELAN, PORT_1, true);
 
-        dataBrokerUtil.put(new IdentifiedInterfaceWithAclBuilder().interfaceName(PORT_1).portSecurity(true).build());
+        Pair<DataTreeIdentifier<Interface>, Interface> port1 = new IdentifiedInterfaceWithAclBuilder()
+                .interfaceName(PORT_1)
+                .portSecurity(true).build();
+        dataBrokerUtil.put(port1);
+        testInterfaceManager.addInterface(port1.getValue());
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
         AclServiceTestUtils.waitABit(asyncEventsWaiter);
     }

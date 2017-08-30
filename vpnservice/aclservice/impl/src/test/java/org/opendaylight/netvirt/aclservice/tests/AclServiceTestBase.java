@@ -10,24 +10,30 @@ package org.opendaylight.netvirt.aclservice.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
+
+import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -40,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -99,11 +106,18 @@ public abstract class AclServiceTestBase {
     @Inject TestIMdsalApiManager mdsalApiManager;
     @Inject AsyncEventsWaiter asyncEventsWaiter;
     @Inject JobCoordinatorEventsWaiter coordinatorEventsWaiter;
+    @Inject TestInterfaceManager testInterfaceManager;
 
     @Before
     public void beforeEachTest() throws Exception {
         singleTransactionDataBroker = new SingleTransactionDataBroker(dataBroker);
         setUpData();
+    }
+
+    private InterfaceInfo newInterfaceInfo(String testInterfaceName) {
+        InterfaceInfo interfaceInfo = new InterfaceInfo(BigInteger.valueOf(789), "port1");
+        interfaceInfo.setInterfaceName(testInterfaceName);
+        return interfaceInfo;
     }
 
     @Test
@@ -113,8 +127,12 @@ public abstract class AclServiceTestBase {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         // Given
         // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
-        dataBrokerUtil.put(
-                new IdentifiedInterfaceWithAclBuilder().interfaceName("port1").portSecurity(true).build());
+        Pair<DataTreeIdentifier<Interface>, Interface> port1 = new IdentifiedInterfaceWithAclBuilder()
+                .interfaceName(PORT_1)
+                .portSecurity(true).build();
+        testInterfaceManager.addInterfaceInfo(newInterfaceInfo("port1"));
+        testInterfaceManager.addInterface(port1.getValue());
+        dataBrokerUtil.put(port1);
 
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
@@ -513,9 +531,13 @@ public abstract class AclServiceTestBase {
     protected void newAllowedAddressPair(String portName, List<String> sgUuidList, List<AllowedAddressPairs> aapList)
             throws TransactionCommitFailedException {
         List<Uuid> sgList = sgUuidList.stream().map(Uuid::new).collect(Collectors.toList());
-
-        dataBrokerUtil.put(new IdentifiedInterfaceWithAclBuilder().interfaceName(portName)
-                .portSecurity(true).addAllNewSecurityGroups(sgList).addAllIfAllowedAddressPairs(aapList).build());
+        Pair<DataTreeIdentifier<Interface>, Interface> port = new IdentifiedInterfaceWithAclBuilder()
+                .interfaceName(portName)
+                .portSecurity(true)
+                .addAllNewSecurityGroups(sgList)
+                .addAllIfAllowedAddressPairs(aapList).build();
+        dataBrokerUtil.put(port);
+        testInterfaceManager.addInterface(port.getValue());
     }
 
     protected void newElan(String elanName, long elanId) throws TransactionCommitFailedException {
