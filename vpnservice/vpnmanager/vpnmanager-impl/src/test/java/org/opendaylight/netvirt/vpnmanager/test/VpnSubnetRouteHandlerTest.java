@@ -103,10 +103,10 @@ public class VpnSubnetRouteHandlerTest {
 
     BigInteger dpId = BigInteger.valueOf(1);
     SubnetToDpn subnetToDpn = null;
-    String subnetIp = "10.1.1.24";
+    String subnetIpv4 = "10.1.1.24";
     List<String> routeDistinguishers = Arrays.asList("100:1","100:2");
     String primaryRd = "100:1";
-    String nexthopIp = null;
+    String nexthopIpv4 = null;
     String poolName = null;
     String interfaceName = "VPN";
     Uuid subnetId = Uuid.getDefaultInstance("067e6162-3b6f-4ae2-a171-2470b63dff00");
@@ -117,14 +117,14 @@ public class VpnSubnetRouteHandlerTest {
     Long longId = null;
     PortOpDataEntry portOp = null;
     PortOpData portOpData = null;
-    SubnetOpDataEntry subnetOp = null;
+    SubnetOpDataEntry subnetOpIpv4 = null;
     org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface
         stateInterface;
     List<String> lowerLayerIfList = new ArrayList<>();
     NodeConnectorId nodeConnectorId = null;
     VpnInterfaces vpnIntfaces = null;
     VpnInstance vpnInstance = null;
-    Subnetmap subnetmap = null;
+    Subnetmap subnetmapIpv4 = null;
     DPNTEPsInfo dpntePsInfo = null;
     TunnelEndPoints tunlEndPts = null;
     IpAddress ipAddress = null;
@@ -196,9 +196,9 @@ public class VpnSubnetRouteHandlerTest {
     Optional<DPNTEPsInfo> optionalTunnelInfo;
     Optional<PortOpDataEntry> optionalPortOp;
     Optional<PortOpData> optionalPtOp;
-    Optional<Subnetmap> optionalSubnetMap;
+    Optional<Subnetmap> optionalSubnetMapIpv4;
     Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance>
-        optionalVpnInstnce;
+        optionalVpnInstance;
     Optional<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance>
         vpnInstanceOptional;
     Optional<Networks> optionalNetworks;
@@ -219,13 +219,13 @@ public class VpnSubnetRouteHandlerTest {
             RpcResultBuilder.success(allocateIdOutput).buildFuture();
 
         optionalIfState = Optional.of(stateInterface);
-        optionalSubs = Optional.of(subnetOp);
+        optionalSubs = Optional.of(subnetOpIpv4);
         optionalSubDpn = Optional.of(subnetToDpn);
         optionalTunnelInfo = Optional.of(dpntePsInfo);
         optionalPortOp = Optional.of(portOp);
         optionalPtOp = Optional.of(portOpData);
-        optionalSubnetMap = Optional.of(subnetmap);
-        optionalVpnInstnce = Optional.of(vpnInstance);
+        optionalSubnetMapIpv4 = Optional.of(subnetmapIpv4);
+        optionalVpnInstance = Optional.of(vpnInstance);
         vpnInstanceOptional = Optional.of(vpnInstnce);
         optionalNetworks = Optional.of(networks);
 
@@ -243,9 +243,9 @@ public class VpnSubnetRouteHandlerTest {
             .OPERATIONAL, portOpIdentifr);
         doReturn(Futures.immediateCheckedFuture(optionalPortOp)).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, instPortOp);
-        doReturn(Futures.immediateCheckedFuture(optionalSubnetMap)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateCheckedFuture(optionalSubnetMapIpv4)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, subMapid);
-        doReturn(Futures.immediateCheckedFuture(optionalVpnInstnce)).when(mockReadTx).read(LogicalDatastoreType
+        doReturn(Futures.immediateCheckedFuture(optionalVpnInstance)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, instVpnInstance);
         doReturn(Futures.immediateCheckedFuture(vpnInstanceOptional)).when(mockReadTx).read(LogicalDatastoreType
             .CONFIGURATION, vpnInstanceIdentifier);
@@ -258,13 +258,13 @@ public class VpnSubnetRouteHandlerTest {
 
     private void setupMocks() {
 
-        nexthopIp = "10.1.1.25";
+        nexthopIpv4 = "10.1.1.25";
         idKey = "100:1.10.1.1.24";
         poolName = "vpnservices";
         elanTag = 2L;
         longId = Long.valueOf("100");
         nodeConnectorId = buildNodeConnectorId(dpId, 2L);
-        ipAddress = IpAddressBuilder.getDefaultInstance(nexthopIp);
+        ipAddress = IpAddressBuilder.getDefaultInstance(nexthopIpv4);
         vpnIntfaces = new VpnInterfacesBuilder().setInterfaceName(interfaceName).setKey(
             new VpnInterfacesKey(interfaceName)).build();
         List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
@@ -293,12 +293,12 @@ public class VpnSubnetRouteHandlerTest {
             .setPhysAddress(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715
                 .PhysAddress.getDefaultInstance("AA:AA:AA:AA:AA:AA"));
         stateInterface = ifaceBuilder.build();
-        subnetOp = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIp)
+        subnetOpIpv4 = new SubnetOpDataEntryBuilder().setElanTag(elanTag).setNhDpnId(dpId).setSubnetCidr(subnetIpv4)
             .setSubnetId(subnetId).setKey(new SubnetOpDataEntryKey(subnetId)).setVpnName(interfaceName)
             .setVrfId(primaryRd).setSubnetToDpn(subToDpn).setRouteAdvState(TaskState.Advertised).build();
         vpnInstance = new VpnInstanceBuilder().setVpnId(elanTag).setVpnInstanceName(interfaceName)
             .setVrfId(interfaceName).setKey(new VpnInstanceKey(interfaceName)).build();
-        subnetmap = new SubnetmapBuilder().setSubnetIp(subnetIp).setId(subnetId).setNetworkId(portId).setKey(new
+        subnetmapIpv4 = new SubnetmapBuilder().setSubnetIp(subnetIpv4).setId(subnetId).setNetworkId(portId).setKey(new
             SubnetmapKey(subnetId)).setRouterId(portId).setVpnId(subnetId)
             .setTenantId(tenantId).setPortList(portList).build();
         portOpData = new PortOpDataBuilder().setPortOpDataEntry(listPortOpDataEntry).build();
@@ -322,13 +322,13 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnPortAddedToSubnet() {
 
-        vpnSubnetRouteHandler.onPortAddedToSubnet(subnetmap, portId);
+        vpnSubnetRouteHandler.onPortAddedToSubnet(subnetmapIpv4, portId);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, portOpIdentifier, portOp,
                 WriteTransaction.CREATE_MISSING_PARENTS);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
                 WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOpIpv4,
                 WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
@@ -336,12 +336,12 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnPortRemovedFromSubnet() {
 
-        vpnSubnetRouteHandler.onPortRemovedFromSubnet(subnetmap, portId);
+        vpnSubnetRouteHandler.onPortRemovedFromSubnet(subnetmapIpv4, portId);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
                 WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOpIpv4,
                 WriteTransaction.CREATE_MISSING_PARENTS);
 
     }
@@ -356,7 +356,7 @@ public class VpnSubnetRouteHandlerTest {
                 WriteTransaction.CREATE_MISSING_PARENTS);
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
                 WriteTransaction.CREATE_MISSING_PARENTS);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOpIpv4,
                 WriteTransaction.CREATE_MISSING_PARENTS);
     }
 
@@ -368,7 +368,7 @@ public class VpnSubnetRouteHandlerTest {
 
         // TODO: subnetOpDpnManager is mocked so not sure how this delete ever worked.
         //verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, dpnOpId);
-        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOp,
+        verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subnetOpIpv4,
                 WriteTransaction.CREATE_MISSING_PARENTS);
 
     }
@@ -380,7 +380,7 @@ public class VpnSubnetRouteHandlerTest {
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, subOpIdentifier);
 
-        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, true, elanTag);
+        vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapIpv4, true, elanTag);
 
         verify(mockWriteTx).put(LogicalDatastoreType.OPERATIONAL, dpnOpId, subnetToDpn,
                 WriteTransaction.CREATE_MISSING_PARENTS);
@@ -394,7 +394,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetUpdatedInVpn() {
 
-        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmap, elanTag);
+        vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapIpv4, elanTag);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
@@ -405,7 +405,7 @@ public class VpnSubnetRouteHandlerTest {
     @Test
     public void testOnSubnetDeletedFromVpn() {
 
-        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, true);
+        vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapIpv4, true);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, subOpIdentifier);

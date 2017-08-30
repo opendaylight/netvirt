@@ -37,6 +37,8 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4Family;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6Family;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6FamilyBuilder;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -63,7 +65,7 @@ public class VpnServiceTest {
     }
 
     @Test
-    public void test() {
+    public void testIPv4() {
 
         List<VpnTarget> vpnTargetList = new ArrayList<>();
 
@@ -83,6 +85,64 @@ public class VpnServiceTest {
 
         VpnInstanceBuilder builder =
             new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv4Family(ipv4Family);
+        VpnInstance instance = builder.build();
+        event.created.put(createVpnId("Vpn1"), instance);
+        //TODO: Need to enhance the test case to handle ds read/write ops
+        //vpnManager.onDataChanged(event);
+    }
+
+    @Test
+    public void testIPv6() {
+
+        List<VpnTarget> vpnTargetList = new ArrayList<>();
+
+        VpnTarget vpneRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:1")).setVrfRTValue("100:1")
+            .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
+        VpnTarget vpniRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:2")).setVrfRTValue("100:2")
+            .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
+
+        vpnTargetList.add(vpneRTarget);
+        vpnTargetList.add(vpniRTarget);
+
+        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+
+        Ipv6Family ipv6Family = new Ipv6FamilyBuilder().setRouteDistinguisher(Arrays.asList("100:1","100:2:"))
+                .setVpnTargets(vpnTargets).setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
+                            new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
+
+        VpnInstanceBuilder builder =
+            new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv6Family(ipv6Family);
+        VpnInstance instance = builder.build();
+        event.created.put(createVpnId("Vpn1"), instance);
+        //TODO: Need to enhance the test case to handle ds read/write ops
+        //vpnManager.onDataChanged(event);
+    }
+
+    @Test
+    public void testIPv4AndIPv6() {
+
+        List<VpnTarget> vpnTargetList = new ArrayList<>();
+
+        VpnTarget vpneRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:1")).setVrfRTValue("100:1")
+            .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
+        VpnTarget vpniRTarget = new VpnTargetBuilder().setKey(new VpnTargetKey("100:2")).setVrfRTValue("100:2")
+            .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
+
+        vpnTargetList.add(vpneRTarget);
+        vpnTargetList.add(vpniRTarget);
+
+        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+
+        Ipv6Family ipv6Family = new Ipv6FamilyBuilder().setRouteDistinguisher(Arrays.asList("100:1","100:2:"))
+                .setVpnTargets(vpnTargets).setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
+                            new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
+        Ipv4Family ipv4Family = new Ipv4FamilyBuilder().setRouteDistinguisher(Arrays.asList("100:1","100:2:"))
+                .setVpnTargets(vpnTargets).setApplyLabel(new ApplyLabelBuilder().setApplyLabelMode(
+                            new PerRouteBuilder().setApplyLabelPerRoute(true).build()).build()).build();
+
+        VpnInstanceBuilder builder =
+            new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1"))
+                  .setIpv6Family(ipv6Family).setIpv4Family(ipv4Family);
         VpnInstance instance = builder.build();
         event.created.put(createVpnId("Vpn1"), instance);
         //TODO: Need to enhance the test case to handle ds read/write ops
