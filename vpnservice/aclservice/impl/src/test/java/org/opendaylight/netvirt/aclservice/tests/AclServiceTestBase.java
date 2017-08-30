@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.aclservice.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,15 +26,18 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.testutils.LogCaptureRule;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceTestUtils;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
@@ -41,9 +45,20 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfaceType;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnelBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefs;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.ParentRefsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.VlanId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
@@ -90,6 +105,8 @@ public abstract class AclServiceTestBase {
     static String IP_PREFIX_4 = "10.0.0.4/32";
     static String SUBNET_IP_PREFIX_1 = "10.0.0.0/24";
     static long ELAN_TAG = 5000L;
+    public static final String INTERFACE_NAME = "23701c04-7e58-4c65-9425-78a80d49a218";
+    public static final String TRUNK_INTERFACE_NAME = "23701c04-7e58-4c65-9425-78a80d49a219";
 
     static final AllowedAddressPairs AAP_PORT_1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
     static final AllowedAddressPairs AAP_PORT_2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
@@ -102,11 +119,40 @@ public abstract class AclServiceTestBase {
     @Inject TestIMdsalApiManager mdsalApiManager;
     @Inject AsyncEventsWaiter asyncEventsWaiter;
     @Inject JobCoordinatorEventsWaiter coordinatorEventsWaiter;
+    @Inject TestInterfaceManager testInterfaceManager;
 
     @Before
     public void beforeEachTest() throws Exception {
         singleTransactionDataBroker = new SingleTransactionDataBroker(dataBroker);
         setUpData();
+    }
+
+    private InterfaceInfo newInterfaceInfo(String testInterfaceName) {
+        InterfaceInfo interfaceInfo = new InterfaceInfo(BigInteger.valueOf(789), "port1");
+        interfaceInfo.setInterfaceName(testInterfaceName);
+        return interfaceInfo;
+    }
+
+    static Interface buildInterface(String ifName, String desc, boolean enabled, Object ifType,
+                                    String parentInterface, IfL2vlan.L2vlanMode l2vlanMode) {
+        InterfaceBuilder builder = new InterfaceBuilder().setKey(new InterfaceKey(ifName)).setName(ifName)
+            .setDescription(desc).setEnabled(enabled).setType((Class<? extends InterfaceType>) ifType);
+        ParentRefs parentRefs = new ParentRefsBuilder().setParentInterface(parentInterface).build();
+        builder.addAugmentation(ParentRefs.class, parentRefs);
+        if (ifType.equals(L2vlan.class)) {
+            IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder().setL2vlanMode(l2vlanMode);
+            if (IfL2vlan.L2vlanMode.TrunkMember.equals(l2vlanMode)) {
+                ifL2vlanBuilder.setVlanId(new VlanId(100));
+            } else {
+                ifL2vlanBuilder.setVlanId(VlanId.getDefaultInstance("0"));
+            }
+            builder.addAugmentation(IfL2vlan.class, ifL2vlanBuilder.build());
+        //} else if (ifType.equals(IfTunnel.class)) {
+        //    IfTunnel tunnel = new IfTunnelBuilder().setTunnelDestination(null).setTunnelGateway(null)
+        //        .setTunnelSource(null).setTunnelInterfaceType(null).build();
+        //    builder.addAugmentation(IfTunnel.class, tunnel);
+        }
+        return builder.build();
     }
 
     @Test
@@ -116,15 +162,18 @@ public abstract class AclServiceTestBase {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         // Given
         // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
+        testInterfaceManager.addInterfaceInfo(newInterfaceInfo(PORT_1));
+        testInterfaceManager.addInterface(buildInterface(PORT_1, PORT_1, true, L2vlan.class, INTERFACE_NAME,
+            IfL2vlan.L2vlanMode.TrunkMember));
         dataBrokerUtil.put(
                 new IdentifiedInterfaceWithAclBuilder().interfaceName(PORT_1).portSecurity(true).build());
         dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
-                .interfaceName("port1")
+                .interfaceName(PORT_1)
                 .addAllIpPrefixOrAddress(Collections.singletonList(
                         new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         // When
-        putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
+        putNewStateInterface(dataBroker, PORT_1, PORT_MAC_1);
 
         AclServiceTestUtils.waitABit(asyncEventsWaiter);
 
