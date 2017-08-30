@@ -127,7 +127,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     }
 
     /**
-     * Taked the data changes and process them based on Add/Delete/Update or Subtree Modification.
+     * Takes the data changes and process them based on Add/Delete/Update or Subtree Modification.
      * @param changes - Data tree changes
      * @param updatedMacsGrouped - Updated Subtree Data
      * @param deletedMacsGrouped - Deleted Subtree Data
@@ -143,6 +143,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
                     switch (getModificationType(modification)) {
                         case WRITE:
                             if (modification.getDataBefore() == null) {
+                                LOG.debug("New global/ps node added/modified {}", modification.getDataAfter());
                                 onParentAdded(change);
                             } else {
                                 LOG.info("Unexpected write to parent before {}", modification.getDataBefore());

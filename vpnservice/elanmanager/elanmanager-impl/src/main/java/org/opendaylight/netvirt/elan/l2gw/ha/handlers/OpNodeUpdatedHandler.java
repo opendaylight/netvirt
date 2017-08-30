@@ -51,7 +51,7 @@ public class OpNodeUpdatedHandler {
                                               ReadWriteTransaction tx) throws ReadFailedException {
 
         InstanceIdentifier<Node> haPSPath = HwvtepHAUtil.convertPsPath(updatedSrcPSNode, haPath);
-        Node existingHAPSNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPSPath);
+        Node existingHAPSNode = null;//TODO HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPSPath);
 
         PhysicalSwitchAugmentation updatedSrc   = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(updatedSrcPSNode);
         PhysicalSwitchAugmentation origSrc      = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(origSrcPSNode);
@@ -75,10 +75,10 @@ public class OpNodeUpdatedHandler {
                                                   InstanceIdentifier<Node> haPath,
                                                   ReadWriteTransaction tx) throws ReadFailedException {
 
-        Node existingDstNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPath);
+        Node existingDstNode = null;//TODO HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPath);
         if (existingDstNode == null) {
             //No dst present nothing to copy
-            return;
+            //return;
         }
         HwvtepGlobalAugmentation existingData    = HwvtepHAUtil.getGlobalAugmentationOfNode(existingDstNode);
         HwvtepGlobalAugmentation updatedSrc = HwvtepHAUtil.getGlobalAugmentationOfNode(updatedSrcNode);

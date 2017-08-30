@@ -102,9 +102,9 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
                 l2GatewayDevice.getHwvtepNodeId(), segmentationId);
         NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         String dbVersion = HwvtepUtils.getDbVersion(broker,hwvtepNodeId);
-        if (SouthboundUtils.compareDbVersionToMinVersion(dbVersion, "1.6.0")) {
-            replicationMode = "source_node";
-        }
+        //if (SouthboundUtils.compareDbVersionToMinVersion(dbVersion, "1.6.0")) {
+            //replicationMode = "source_node";
+        //}
 
         LOG.trace("logical switch {} has schema version {}, replication mode set to {}", logicalSwitchName,
                 dbVersion, replicationMode);
