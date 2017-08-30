@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.aclservice.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.netvirt.aclservice.tests.StateInterfaceBuilderHelper.putNewStateInterface;
 
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,9 +26,11 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -99,11 +102,18 @@ public abstract class AclServiceTestBase {
     @Inject TestIMdsalApiManager mdsalApiManager;
     @Inject AsyncEventsWaiter asyncEventsWaiter;
     @Inject JobCoordinatorEventsWaiter coordinatorEventsWaiter;
+    @Inject TestInterfaceManager testInterfaceManager;
 
     @Before
     public void beforeEachTest() throws Exception {
         singleTransactionDataBroker = new SingleTransactionDataBroker(dataBroker);
         setUpData();
+    }
+
+    private InterfaceInfo newInterfaceInfo(String testInterfaceName) {
+        InterfaceInfo interfaceInfo = new InterfaceInfo(BigInteger.valueOf(789), "port1");
+        interfaceInfo.setInterfaceName(testInterfaceName);
+        return interfaceInfo;
     }
 
     @Test
@@ -113,6 +123,7 @@ public abstract class AclServiceTestBase {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         // Given
         // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
+        testInterfaceManager.addInterfaceInfo(newInterfaceInfo("port1"));
         dataBrokerUtil.put(
                 new IdentifiedInterfaceWithAclBuilder().interfaceName("port1").portSecurity(true).build());
 
