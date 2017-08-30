@@ -28,6 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -44,15 +45,17 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
     private final AclDataUtil aclDataUtil;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
     public AclInterfaceStateListener(AclServiceManager aclServiceManger, AclClusterUtil aclClusterUtil,
-            DataBroker dataBroker, AclDataUtil aclDataUtil) {
+            DataBroker dataBroker, AclDataUtil aclDataUtil, final IInterfaceManager interfaceManager) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.aclDataUtil = aclDataUtil;
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
@@ -105,6 +108,19 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected void add(InstanceIdentifier<Interface> key, Interface added) {
         if (!L2vlan.class.equals(added.getType())) {
+            return;
+        }
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
+        iface = interfaceManager.getInterfaceInfoFromConfigDataStore(added.getName());
+        if (iface == null) {
+            LOG.error("No interface with name {} available in interfaceConfig, servicing interfaceState ADD"
+                    + "for ACL failed", added.getName());
+            return;
+        }
+        InterfaceAcl aclInPort = iface.getAugmentation(InterfaceAcl.class);
+        if (aclInPort == null || !aclInPort.isPortSecurityEnabled()) {
+            LOG.trace("Interface {} is not an ACL Interface, ignoring ADD interfaceState event",
+                    added.getName());
             return;
         }
         AclInterface aclInterface = updateAclInterfaceCache(added);
