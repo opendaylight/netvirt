@@ -12,6 +12,7 @@ import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrExc
 
 import com.google.common.util.concurrent.Futures;
 import com.google.inject.AbstractModule;
+import java.math.BigInteger;
 import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -19,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;

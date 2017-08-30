@@ -10,6 +10,8 @@
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+  <reference id="iInterfaceManager"
+             interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
 
   <odl:rpc-service id="idManagerService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />

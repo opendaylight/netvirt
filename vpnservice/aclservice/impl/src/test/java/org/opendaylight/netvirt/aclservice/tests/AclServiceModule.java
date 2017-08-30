@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.aclservice.tests;
 
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.netvirt.aclservice.AclServiceManagerImpl;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
@@ -25,6 +27,7 @@ public class AclServiceModule extends AbstractGuiceJsr250Module {
     @Override
     protected void configureBindings() {
         bind(AclServiceManager.class).to(AclServiceManagerImpl.class);
+        bindTypesToInstance(IInterfaceManager.class, TestInterfaceManager.class, TestInterfaceManager.newInstance());
         bind(AclInterfaceStateListener.class);
         bind(AclNodeListener.class);
         bind(AclInterfaceListener.class);
