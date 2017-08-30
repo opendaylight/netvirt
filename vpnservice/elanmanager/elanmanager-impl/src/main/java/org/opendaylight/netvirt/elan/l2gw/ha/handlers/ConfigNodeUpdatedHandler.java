@@ -44,7 +44,7 @@ public class ConfigNodeUpdatedHandler {
                                           ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
 
-        Node existingNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
+        Node existingNode = null;//HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
         HwvtepGlobalAugmentation updatedGlobal = HwvtepHAUtil.getGlobalAugmentationOfNode(haUpdated);
         HwvtepGlobalAugmentation origGlobal = HwvtepHAUtil.getGlobalAugmentationOfNode(haOriginal);
         HwvtepGlobalAugmentation existingData = HwvtepHAUtil.getGlobalAugmentationOfNode(existingNode);

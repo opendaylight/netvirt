@@ -8,7 +8,9 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import com.google.common.base.Optional;
+
 import java.util.concurrent.ExecutionException;
+
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -52,5 +54,16 @@ public interface IHAEventHandler {
                                    Node haOriginal,
                                    InstanceIdentifier<Node> haChildPath,
                                    ReadWriteTransaction tx)
+            throws InterruptedException, ExecutionException, ReadFailedException;
+
+    void copyChildPSOpToHAPS(Node childPsNode,
+                             InstanceIdentifier<Node> haPath,
+                             InstanceIdentifier<Node> haPspath,
+                             ReadWriteTransaction tx)
+            throws InterruptedException, ExecutionException, ReadFailedException;
+
+    void copyHAPSConfigToChildPS(Node haPsNode,
+                                 InstanceIdentifier<Node> childPath,
+                                 ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException;
 }

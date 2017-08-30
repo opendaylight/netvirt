@@ -8,21 +8,25 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
+import org.opendaylight.netvirt.elan.l2gw.listeners.ChildListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.DataObject;
@@ -36,82 +40,136 @@ import org.slf4j.LoggerFactory;
  * When a config parent node data is updated , it is copied to all its children.
  */
 public abstract class HwvtepNodeDataListener<T extends DataObject>
-        extends AsyncDataTreeChangeListenerBase<T, HwvtepNodeDataListener<T>> implements AutoCloseable {
+        extends ChildListener<Node, T, String> implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeDataListener.class);
 
     private final DataBroker broker;
-    private final MergeCommand mergeCommand;
+    protected final MergeCommand mergeCommand;
     private final ResourceBatchingManager.ShardResource datastoreType;
     private final String dataTypeName;
+    private final int maxRetries = 10;
+    protected final Class<T> clazz;
 
     public HwvtepNodeDataListener(DataBroker broker,
                                   Class<T> clazz,
                                   Class<HwvtepNodeDataListener<T>> eventClazz,
                                   MergeCommand mergeCommand,
-                                  ResourceBatchingManager.ShardResource datastoreType) {
-        super(clazz, eventClazz);
+                                  ResourceBatchingManager.ShardResource datastoreType) throws Exception {
+        super(broker, false);
         this.broker = broker;
+        this.clazz = clazz;
         this.mergeCommand = mergeCommand;
         this.datastoreType = datastoreType;
         this.dataTypeName = getClassTypeName();
-        registerListener(this.datastoreType.getDatastoreType() , broker);
+        init();
     }
 
-    protected abstract InstanceIdentifier<T> getWildCardPath();
-
-    @Override
-    protected void add(InstanceIdentifier<T> identifier, T dataAdded) {
-        HAJobScheduler.getInstance().submitJob(() -> {
-            try {
-                boolean create = true;
-                ReadWriteTransaction tx = broker.newReadWriteTransaction();
-                if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
-                    copyToParent(identifier, dataAdded, create, tx);
-                } else {
-                    copyToChild(identifier, dataAdded, create, tx);
-                }
-            } catch (ReadFailedException e) {
-                LOG.error("Exception caught while writing ", e.getMessage());
-            }
-        });
+    public void init() throws Exception {
+        registerListener(this.datastoreType.getDatastoreType() , getParentWildCardPath());
     }
 
     @Override
-    protected void update(InstanceIdentifier<T> key, T before, T after) {
-        HAJobScheduler.getInstance().submitJob(() -> {
-            if (Objects.equals(before, after)) {
-                //incase of cluter reboots tx.put will rewrite the data and fire unnecessary updates
-                return;
-            }
-            add(key, after);
-        });
+    protected InstanceIdentifier<Node> getParentWildCardPath() {
+        return HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier()
+                .child(Node.class);
     }
 
     @Override
-    protected void remove(InstanceIdentifier<T> identifier, T dataRemoved) {
+    protected boolean proceed(final InstanceIdentifier<Node> parent) {
+        return true;
+    }
+
+    @Override
+    protected String getGroup(final InstanceIdentifier<T> childIid,
+                              final T localUcastMacs) {
+        return "NO_GROUP";
+    }
+
+    @Override
+    protected void onUpdate(final Map<String, Map<InstanceIdentifier, T>> updatedMacsGrouped,
+                            final Map<String, Map<InstanceIdentifier, T>> deletedMacsGrouped) {
         HAJobScheduler.getInstance().submitJob(() -> {
-            try {
-                boolean create = false;
-                ReadWriteTransaction tx = broker.newReadWriteTransaction();
-                if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
-                    if (isNodeConnected(identifier, tx)) {
-                        //Do not process the remove from disconnected child node
-                        copyToParent(identifier, dataRemoved, create, tx);
-                    }
-                } else {
-                    copyToChild(identifier, dataRemoved, create, tx);
-                }
-            } catch (ReadFailedException e) {
-                LOG.error("Exception caught while writing ", e.getMessage());
-            }
+            BatchedTransaction tx = new BatchedTransaction(dataBroker);
+            updatedMacsGrouped.entrySet().forEach((entry) -> {
+                entry.getValue().entrySet().forEach((entry2) -> {
+                    add(entry2.getKey(), entry2.getValue(), tx);
+                });
+            });
+            deletedMacsGrouped.entrySet().forEach((entry) -> {
+                entry.getValue().entrySet().forEach((entry2) -> {
+                    remove(entry2.getKey(), entry2.getValue(), tx);
+                });
+            });
         });
     }
 
-    protected boolean isNodeConnected(InstanceIdentifier<T> identifier, ReadWriteTransaction tx)
-            throws ReadFailedException {
-        return tx.read(LogicalDatastoreType.OPERATIONAL, identifier.firstIdentifierOf(Node.class))
-                .checkedGet().isPresent();
+    abstract Collection<DataObjectModification<? extends DataObject>> getChildMod2(
+            InstanceIdentifier<Node> parentIid,
+            DataObjectModification<Node> mod);
+
+    @Override
+    protected Map<InstanceIdentifier<T>, DataObjectModification<T>> getChildMod(
+            final InstanceIdentifier<Node> parentIid,
+            final DataObjectModification<Node> mod) {
+
+        Map<InstanceIdentifier<T>, DataObjectModification<T>> result = new HashMap<>();
+        Collection<DataObjectModification<? extends DataObject>> children = getChildMod2(parentIid, mod);
+        if (children != null) {
+            children.stream()
+                    .filter(childMod -> getModificationType(childMod) != null)
+                    .filter(childMod -> childMod.getDataType() == clazz)
+                    .forEach(childMod -> {
+                        T afterMac = (T) childMod.getDataAfter();
+                        T mac = afterMac != null ? afterMac : (T)childMod.getDataBefore();
+                        InstanceIdentifier<T> iid = getIid(parentIid, mac);
+                        result.put(iid, (DataObjectModification<T>) childMod);
+                    });
+        }
+        return result;
+    }
+
+    abstract InstanceIdentifier<T> getIid(InstanceIdentifier<Node> parentIid, T object);
+
+    @Override
+    protected void onParentAdded(final DataTreeModification<Node> modification) {
+    }
+
+    protected void onParentRemoved(InstanceIdentifier<Node> parent) {
+        LOG.trace("on parent removed {}", parent);
+    }
+
+    protected void add(InstanceIdentifier<T> identifier, T dataAdded, BatchedTransaction tx) {
+        try {
+            boolean create = true;
+            if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
+                copyToParent(identifier, dataAdded, create, tx);
+            } else {
+                copyToChild(identifier, dataAdded, create, tx);
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("Exception caught while writing ", e.getMessage());
+        }
+    }
+
+    protected void remove(InstanceIdentifier<T> identifier,
+                          T dataRemoved,
+                          BatchedTransaction tx) {
+        if (clazz == RemoteUcastMacs.class && LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
+            LOG.trace("Skipping remote ucast macs to parent");
+            return;
+        }
+        try {
+            String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+            boolean create = false;
+            if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
+                copyToParent(identifier, dataRemoved, create, tx);
+            } else {
+                copyToChild(identifier, dataRemoved, create, tx);
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("Exception caught while writing ", e.getMessage());
+        }
     }
 
     <T extends DataObject> boolean isDataUpdated(Optional<T> existingDataOptional, T newData) {
@@ -124,18 +182,13 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
         if (parent == null) {
             return;
         }
-        if (clazz == RemoteUcastMacs.class) {
-            LOG.trace("Skipping remote ucast macs to parent");
-        }
         LOG.trace("Copy child op data {} to parent {} create:{}", mergeCommand.getDescription(),
                 getNodeId(parent), create);
         data = (T) mergeCommand.transform(parent, data);
         identifier = mergeCommand.generateId(parent, data);
-        writeToMdsal(create, tx, data, identifier, false);
+        writeToMdsal(create, tx, data, identifier, false, maxRetries);
         tx.submit();
     }
-
-    Map<InstanceIdentifier<T>, ListenableFuture<Boolean>> inprogressOps = new ConcurrentHashMap<>();
 
     void copyToChild(final InstanceIdentifier<T> parentIdentifier,final T parentData,
                      final boolean create,final ReadWriteTransaction tx)
@@ -149,7 +202,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                     getNodeId(child), create);
             final T childData = (T) mergeCommand.transform(child, parentData);
             final InstanceIdentifier<T> identifier = mergeCommand.generateId(child, childData);
-            writeToMdsal(create, tx, childData, identifier, true);
+            writeToMdsal(create, tx, childData, identifier, true, maxRetries);
         }
         tx.submit();
     }
@@ -158,17 +211,43 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                               final ReadWriteTransaction tx,
                               final T data,
                               final InstanceIdentifier<T> identifier,
-                              final boolean copyToChild) throws ReadFailedException {
+                              final boolean copyToChild,
+                              final int trialNo) {
         String destination = copyToChild ? "child" : "parent";
         String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        Optional<T> existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
+        InstanceIdentifier<Node> iid = identifier.firstIdentifierOf(Node.class);
+
+        if (trialNo == 0) {
+            LOG.error("All trials exceed for tx iid {}", identifier);
+            return;
+        }
+        final int trial = trialNo - 1;
+        if (BatchedTransaction.isInProgress(datastoreType.getDatastoreType(), identifier)) {
+            if (BatchedTransaction.addCallbackIfInProgress(datastoreType.getDatastoreType(), identifier,
+                () -> writeToMdsal(create, broker.newReadWriteTransaction(), data, identifier, copyToChild, trial))) {
+                return;
+            }
+        }
+        Optional<T> existingDataOptional = null;
+        try {
+            existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
+        } catch (ReadFailedException ex) {
+            LOG.error("Failed to read data {} from {}", identifier, datastoreType.getDatastoreType());
+            return;
+        }
         if (create) {
             if (isDataUpdated(existingDataOptional, data)) {
-                ResourceBatchingManager.getInstance().put(datastoreType, identifier, data);
+                tx.put(datastoreType.getDatastoreType(), identifier, data);
+            } else {
+                LOG.info("ha copy skipped for {} destination with nodei id {} "
+                        + " dataTypeName {} " , destination, nodeId, dataTypeName);
             }
         } else {
             if (existingDataOptional.isPresent()) {
-                ResourceBatchingManager.getInstance().delete(datastoreType, identifier);
+                tx.delete(datastoreType.getDatastoreType(), identifier);
+            } else {
+                LOG.info("ha delete skipped for {} destination with nodei id {} "
+                        + " dataTypeName {} " , destination, nodeId, dataTypeName);
             }
         }
     }
@@ -179,11 +258,6 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     private String getNodeId(InstanceIdentifier<Node> iid) {
         return iid.firstKeyOf(Node.class).getNodeId().getValue();
-    }
-
-    @Override
-    protected HwvtepNodeDataListener<T> getDataTreeChangeListener() {
-        return HwvtepNodeDataListener.this;
     }
 
     protected Set<InstanceIdentifier<Node>> getChildrenForHANode(InstanceIdentifier identifier) {
