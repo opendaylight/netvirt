@@ -8,13 +8,10 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -22,6 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -44,6 +42,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
     private final MergeCommand mergeCommand;
     private final ResourceBatchingManager.ShardResource datastoreType;
     private final String dataTypeName;
+    private final int maxRetries = 10;
 
     public HwvtepNodeDataListener(DataBroker broker,
                                   Class<T> clazz,
@@ -55,6 +54,10 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
         this.mergeCommand = mergeCommand;
         this.datastoreType = datastoreType;
         this.dataTypeName = getClassTypeName();
+        init();
+    }
+
+    public void init() {
         registerListener(this.datastoreType.getDatastoreType() , broker);
     }
 
@@ -90,8 +93,13 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     @Override
     protected void remove(InstanceIdentifier<T> identifier, T dataRemoved) {
+        if (clazz == RemoteUcastMacs.class && LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
+            LOG.trace("Skipping remote ucast macs to parent");
+            return;
+        }
         HAJobScheduler.getInstance().submitJob(() -> {
             try {
+                String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
                 boolean create = false;
                 ReadWriteTransaction tx = broker.newReadWriteTransaction();
                 if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
@@ -124,18 +132,13 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
         if (parent == null) {
             return;
         }
-        if (clazz == RemoteUcastMacs.class) {
-            LOG.trace("Skipping remote ucast macs to parent");
-        }
         LOG.trace("Copy child op data {} to parent {} create:{}", mergeCommand.getDescription(),
                 getNodeId(parent), create);
         data = (T) mergeCommand.transform(parent, data);
         identifier = mergeCommand.generateId(parent, data);
-        writeToMdsal(create, tx, data, identifier, false);
+        writeToMdsal(create, tx, data, identifier, false, maxRetries);
         tx.submit();
     }
-
-    Map<InstanceIdentifier<T>, ListenableFuture<Boolean>> inprogressOps = new ConcurrentHashMap<>();
 
     void copyToChild(final InstanceIdentifier<T> parentIdentifier,final T parentData,
                      final boolean create,final ReadWriteTransaction tx)
@@ -149,7 +152,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                     getNodeId(child), create);
             final T childData = (T) mergeCommand.transform(child, parentData);
             final InstanceIdentifier<T> identifier = mergeCommand.generateId(child, childData);
-            writeToMdsal(create, tx, childData, identifier, true);
+            writeToMdsal(create, tx, childData, identifier, true, maxRetries);
         }
         tx.submit();
     }
@@ -158,17 +161,54 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                               final ReadWriteTransaction tx,
                               final T data,
                               final InstanceIdentifier<T> identifier,
-                              final boolean copyToChild) throws ReadFailedException {
+                              final boolean copyToChild,
+                              final int trialNo) {
         String destination = copyToChild ? "child" : "parent";
         String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        Optional<T> existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
+        InstanceIdentifier<Node> iid = identifier.firstIdentifierOf(Node.class);
+
+
+        if (trialNo == 0) {
+            LOG.error("All trials exceed for tx iid {}", identifier);
+            return;
+        }
+        final int trial = trialNo - 1;
+        if (BatchedTransaction.isInProgress(datastoreType.getDatastoreType(), iid)) {
+            if (BatchedTransaction.addCallbackIfInProgress(datastoreType.getDatastoreType(), iid,
+                () -> writeToMdsal(create, broker.newReadWriteTransaction(), data, identifier, copyToChild, trial))) {
+                return;
+            }
+        }
+        if (BatchedTransaction.isInProgress(datastoreType.getDatastoreType(), identifier)) {
+            if (BatchedTransaction.addCallbackIfInProgress(datastoreType.getDatastoreType(), identifier,
+                () -> writeToMdsal(create, broker.newReadWriteTransaction(), data, identifier, copyToChild, trial))) {
+                return;
+            }
+        }
+        Optional<T> existingDataOptional = null;
+        try {
+            existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
+        } catch (ReadFailedException ex) {
+            LOG.error("Failed to read data {} from {}", identifier, datastoreType.getDatastoreType());
+            return;
+        }
         if (create) {
             if (isDataUpdated(existingDataOptional, data)) {
                 ResourceBatchingManager.getInstance().put(datastoreType, identifier, data);
+                //BatchedTransaction.markUpdateInProgress(datastoreType.getDatastoreType()
+                // , identifier, ft, dataTypeName);
+            } else {
+                LOG.info("ha copy skipped for {} destination with nodei id {} "
+                        + " dataTypeName {} " , destination, nodeId, dataTypeName);
             }
         } else {
             if (existingDataOptional.isPresent()) {
                 ResourceBatchingManager.getInstance().delete(datastoreType, identifier);
+                //BatchedTransaction.markUpdateInProgress(datastoreType.getDatastoreType()
+                // , identifier, ft, dataTypeName);
+            } else {
+                LOG.info("ha delete skipped for {} destination with nodei id {} "
+                        + " dataTypeName {} " , destination, nodeId, dataTypeName);
             }
         }
     }

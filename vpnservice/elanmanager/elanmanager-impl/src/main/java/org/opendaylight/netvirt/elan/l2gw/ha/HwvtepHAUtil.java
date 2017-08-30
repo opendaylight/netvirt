@@ -36,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
@@ -44,6 +45,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.ManagersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.ManagersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.SwitchesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.SwitchesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigsKey;
@@ -285,22 +288,41 @@ public class HwvtepHAUtil {
         return null;
     }
 
-    public static InstanceIdentifier<Node> getGlobalNodePathFromPSNode(Node psNode) {
-        if (psNode == null
-                || psNode.getAugmentation(PhysicalSwitchAugmentation.class) == null
-                || psNode.getAugmentation(PhysicalSwitchAugmentation.class).getManagedBy() == null) {
-            return null;
+    public static String getPsName(Node psNode) {
+        String psNodeId = psNode.getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
         }
-        return (InstanceIdentifier<Node>)psNode
-                .getAugmentation(PhysicalSwitchAugmentation.class).getManagedBy().getValue();
+        return null;
+    }
+
+    public static String getPsName(InstanceIdentifier<Node> psNodeIid) {
+        String psNodeId = psNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) +  PHYSICALSWITCH.length());
+        }
+        return null;
+    }
+
+    public static InstanceIdentifier<Node> getGlobalNodePathFromPSNode(Node psNode) {
+        String psNodeId = psNode.getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return convertToInstanceIdentifier(psNodeId.substring(0, psNodeId.indexOf(PHYSICALSWITCH)));
+        }
+        return convertToInstanceIdentifier(psNodeId);
     }
 
     public static InstanceIdentifier<Node> convertPsPath(Node psNode, InstanceIdentifier<Node> nodePath) {
         String psNodeId = psNode.getNodeId().getValue();
-        String psName = psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
-        String haPsNodeIdVal = nodePath.firstKeyOf(Node.class).getNodeId().getValue() + PHYSICALSWITCH + psName;
-        InstanceIdentifier<Node> haPsPath = convertToInstanceIdentifier(haPsNodeIdVal);
-        return haPsPath;
+        if (psNodeId.indexOf(PHYSICALSWITCH) > 0) {
+            String psName = psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
+            String haPsNodeIdVal = nodePath.firstKeyOf(Node.class).getNodeId().getValue() + PHYSICALSWITCH + psName;
+            InstanceIdentifier<Node> haPsPath = convertToInstanceIdentifier(haPsNodeIdVal);
+            return haPsPath;
+        } else {
+            LOG.error("Failed to find ps path from node {}", psNode);
+            return null;
+        }
     }
 
     public static NodeBuilder getNodeBuilderForPath(InstanceIdentifier<Node> haPath) {
@@ -490,21 +512,23 @@ public class HwvtepHAUtil {
                                                   Node childNode,
                                                   InstanceIdentifier<Node> haNodePath,
                                                   Optional<Node> haGlobalCfg) {
-
         NodeBuilder nodeBuilder = new NodeBuilder();
         HwvtepGlobalAugmentationBuilder hwvtepGlobalBuilder = new HwvtepGlobalAugmentationBuilder();
-        hwvtepGlobalBuilder.setSwitches(buildSwitchesForHANode(childNode, haNodePath, haGlobalCfg));
+        //hwvtepGlobalBuilder.setSwitches(buildSwitchesForHANode(childNode, haNodePath, haGlobalCfg));
         hwvtepGlobalBuilder.setManagers(buildManagersForHANode(childNode, haGlobalCfg));
-
         nodeBuilder.setNodeId(haNodePath.firstKeyOf(Node.class).getNodeId());
         nodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, hwvtepGlobalBuilder.build());
         Node configHANode = nodeBuilder.build();
-        tx.merge(CONFIGURATION, haNodePath, configHANode,Boolean.TRUE);
+        tx.merge(CONFIGURATION, haNodePath, configHANode, Boolean.TRUE);
+        LOG.error("Global config node created for {}", haNodePath);
     }
 
     public static void deleteNodeIfPresent(ReadWriteTransaction tx,
                                            LogicalDatastoreType logicalDatastoreType,
                                            InstanceIdentifier<?> iid) throws ReadFailedException {
+        if (iid == null) {
+            return;
+        }
         if (tx.read(logicalDatastoreType, iid).checkedGet().isPresent()) {
             LOG.info("Deleting child node {}", getNodeIdVal(iid));
             tx.delete(logicalDatastoreType, iid);
@@ -627,5 +651,25 @@ public class HwvtepHAUtil {
             }
         }
         return true;
+    }
+
+    public static void addGlobalNodeSwitches(InstanceIdentifier<Node> haPath,
+                                             InstanceIdentifier<Node> haPsPath,
+                                             LogicalDatastoreType dsType,
+                                             ReadWriteTransaction tx) throws ReadFailedException {
+        Switches physicalSwitch = new SwitchesBuilder().setSwitchRef(new HwvtepPhysicalSwitchRef(haPsPath)).build();
+        InstanceIdentifier<Switches> switchesIid = haPath.augmentation(HwvtepGlobalAugmentation.class).child(
+                Switches.class, new SwitchesKey(physicalSwitch.getSwitchRef()));
+        tx.put(dsType, switchesIid, physicalSwitch);
+    }
+
+    public static void deleteGlobalNodeSwitches(InstanceIdentifier<Node> haPath,
+                                             InstanceIdentifier<Node> haPsPath,
+                                             LogicalDatastoreType dsType,
+                                             ReadWriteTransaction tx) throws ReadFailedException {
+        Switches physicalSwitch = new SwitchesBuilder().setSwitchRef(new HwvtepPhysicalSwitchRef(haPsPath)).build();
+        InstanceIdentifier<Switches> switchesIid = haPath.augmentation(HwvtepGlobalAugmentation.class).child(
+                Switches.class, new SwitchesKey(physicalSwitch.getSwitchRef()));
+        tx.delete(dsType, switchesIid);
     }
 }

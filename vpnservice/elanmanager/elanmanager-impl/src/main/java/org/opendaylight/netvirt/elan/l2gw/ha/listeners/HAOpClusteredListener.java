@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-
+import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -189,7 +189,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
             });
             return;
         }
-        waitingJobs.putIfAbsent(iid, ConcurrentHashMap.newKeySet());
+        waitingJobs.putIfAbsent(iid, Sets.newConcurrentHashSet());
         waitingJobs.get(iid).add(consumer);
     }
 }

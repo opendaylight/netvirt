@@ -104,4 +104,19 @@ public class HAEventHandler implements IHAEventHandler {
         configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haUpdated, haOriginal, haChildNodeId, tx);
     }
 
+    @Override
+    public void copyChildPSOpToHAPS(Node childPsNode,
+                                    InstanceIdentifier<Node> haPath,
+                                    InstanceIdentifier<Node> haPspath,
+                                    ReadWriteTransaction tx)
+            throws InterruptedException, ExecutionException, ReadFailedException {
+        nodeConnectedHandler.copyChildPSOpToHAPS(childPsNode, haPath, haPspath, tx);
+    }
+
+    public void copyHAPSConfigToChildPS(Node haPsNode,
+                                        InstanceIdentifier<Node> childPath,
+                                        ReadWriteTransaction tx)
+            throws InterruptedException, ExecutionException, ReadFailedException {
+        nodeConnectedHandler.copyHAPSConfigToChildPS(haPsNode, childPath, tx);
+    }
 }
