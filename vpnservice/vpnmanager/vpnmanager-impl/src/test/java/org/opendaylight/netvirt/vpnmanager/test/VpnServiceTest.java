@@ -7,22 +7,15 @@
  */
 package org.opendaylight.netvirt.vpnmanager.test;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.ApplyLabelBuilder;
@@ -37,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4Family;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
@@ -47,19 +39,9 @@ public class VpnServiceTest {
     DataBroker dataBroker;
     @Mock
     IBgpManager bgpManager;
-    @Mock
-    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
-    MockDataChangedEvent event;
 
     @Before
     public void setUp() throws Exception {
-        when(dataBroker.registerDataChangeListener(
-            any(LogicalDatastoreType.class),
-            any(InstanceIdentifier.class),
-            any(DataChangeListener.class),
-            any(DataChangeScope.class)))
-            .thenReturn(dataChangeListenerRegistration);
-        event = new MockDataChangedEvent();
     }
 
     @Test
@@ -84,7 +66,6 @@ public class VpnServiceTest {
         VpnInstanceBuilder builder =
             new VpnInstanceBuilder().setKey(new VpnInstanceKey("Vpn1")).setIpv4Family(ipv4Family);
         VpnInstance instance = builder.build();
-        event.created.put(createVpnId("Vpn1"), instance);
         //TODO: Need to enhance the test case to handle ds read/write ops
         //vpnManager.onDataChanged(event);
     }

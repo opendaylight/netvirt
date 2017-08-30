@@ -19,8 +19,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.natservice.internal.IPAddress;
@@ -33,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMapKey;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.powermock.api.mockito.PowerMockito;
@@ -48,8 +45,6 @@ public class NaptManagerTest {
     IdManagerService idMgr;
     @Mock
     DataBroker dataBroker;
-    @Mock
-    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
         .intext.ip.map.ip.mapping.IpMap> ipmapId = null;
     org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext
@@ -60,12 +55,6 @@ public class NaptManagerTest {
     @Before
     public void init() {
         MockitoAnnotations.initMocks(this);
-        when(dataBroker.registerDataChangeListener(
-            any(LogicalDatastoreType.class),
-            any(InstanceIdentifier.class),
-            any(DataChangeListener.class),
-            any(DataChangeScope.class)))
-            .thenReturn(dataChangeListenerRegistration);
         naptManager = new NaptManager(dataBroker, idMgr);
         when(idMgr.createIdPool(any(CreateIdPoolInput.class)))
             .thenReturn(Futures.immediateFuture(RpcResultBuilder.<Void>success().build()));

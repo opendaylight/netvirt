@@ -8,9 +8,7 @@
 package org.opendaylight.netvirt.natservice.internal.test;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -22,9 +20,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker.DataChangeScope;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -48,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
@@ -60,8 +54,6 @@ public class ExternalNetworksChangeListenerTest {
 
     @Mock
     DataBroker dataBroker;
-    @Mock
-    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
     @Mock
     IMdsalApiManager mdsalManager;
     @Mock
@@ -77,12 +69,6 @@ public class ExternalNetworksChangeListenerTest {
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
-        when(dataBroker.registerDataChangeListener(
-            any(LogicalDatastoreType.class),
-            any(InstanceIdentifier.class),
-            any(DataChangeListener.class),
-            any(DataChangeScope.class)))
-            .thenReturn(dataChangeListenerRegistration);
         extNetworks = new ExternalNetworksChangeListener(dataBroker,
             Mockito.mock(IMdsalApiManager.class),
             Mockito.mock(FloatingIPListener.class),

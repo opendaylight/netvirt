@@ -8,10 +8,8 @@
 
 package org.opendaylight.netvirt.vpnmanager.test;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
@@ -24,10 +22,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.AsyncDataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -42,7 +38,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpnKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.subnet.to.dpn.VpnInterfaces;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
@@ -67,8 +62,6 @@ public class SubnetOpDpnManagerTest {
     @Mock
     DataBroker dataBroker;
     @Mock
-    ListenerRegistration<DataChangeListener> dataChangeListenerRegistration;
-    @Mock
     ReadOnlyTransaction mockReadTx;
     @Mock
     WriteTransaction mockWriteTx;
@@ -80,12 +73,6 @@ public class SubnetOpDpnManagerTest {
 
     @Before
     public void setUp() throws Exception {
-        when(dataBroker.registerDataChangeListener(
-            any(LogicalDatastoreType.class),
-            any(InstanceIdentifier.class),
-            any(DataChangeListener.class),
-            any(AsyncDataBroker.DataChangeScope.class)))
-            .thenReturn(dataChangeListenerRegistration);
         setupMocks();
 
         subOpDpnManager = new SubnetOpDpnManager(dataBroker);
