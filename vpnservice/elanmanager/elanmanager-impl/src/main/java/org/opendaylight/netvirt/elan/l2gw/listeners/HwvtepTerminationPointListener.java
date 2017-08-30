@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -46,7 +45,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,8 +59,7 @@ public class HwvtepTerminationPointListener
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
 
-    private DataBroker broker;
-    private ListenerRegistration<DataChangeListener> lstnerRegistration;
+    private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EntityOwnershipService entityOwnershipService;
 
@@ -97,15 +94,6 @@ public class HwvtepTerminationPointListener
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void close() {
-        if (lstnerRegistration != null) {
-            try {
-                // TODO use https://git.opendaylight.org/gerrit/#/c/44145/ when merged, and remove @SuppressWarnings
-                lstnerRegistration.close();
-            } catch (final Exception e) {
-                LOG.error("Error when cleaning up DataChangeListener.", e);
-            }
-            lstnerRegistration = null;
-        }
     }
 
     @Override
