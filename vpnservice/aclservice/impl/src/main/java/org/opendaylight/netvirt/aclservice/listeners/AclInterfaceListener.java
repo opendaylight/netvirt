@@ -96,7 +96,12 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                         portAfter.getName());
                 aclInterface = addAclInterfaceToCache(interfaceId, aclInPortAfter, subnetIpPrefixes);
             }
-
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+                    .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker,
+                            portAfter.getName());
+            if (aclInterface.getLPortTag() == null && interfaceState != null) {
+                updateAclInterfaceFromInterfaceState(aclInterface, interfaceState);
+            }
             AclInterface oldAclInterface = buildAclInterfaceFromCache(aclInterface, aclInPortBefore);
             List<Uuid> deletedAclList = AclServiceUtils.getUpdatedAclList(oldAclInterface.getSecurityGroups(),
                     aclInterface.getSecurityGroups());
@@ -114,9 +119,6 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                         aclServiceManager.notify(aclInterface, null, Action.UNBIND);
                     }
                 }
-                org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-                    .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker,
-                            portAfter.getName());
                 if (interfaceState != null && interfaceState.getOperStatus().equals(
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
                             .state.Interface.OperStatus.Up)) {
@@ -157,6 +159,14 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
         }
         return aclInterface;
+    }
+
+    private void updateAclInterfaceFromInterfaceState(AclInterface aclInterface,
+            org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+                .Interface interfaceState) {
+        aclInterface.setDpId(AclServiceUtils.getDpIdFromIterfaceState(interfaceState));
+        aclInterface.setLPortTag(interfaceState.getIfIndex());
+        aclInterface.setIsMarkedForDelete(false);
     }
 
     @Override
