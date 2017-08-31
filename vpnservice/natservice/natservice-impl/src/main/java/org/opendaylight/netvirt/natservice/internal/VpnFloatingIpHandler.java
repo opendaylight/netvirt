@@ -152,20 +152,17 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     + "router {} to handle floatingIp {}", vpnName, routerId, externalIp);
             return;
         }
-        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-        if (nextHopIp == null) {
-            LOG.error("onAddFloatingIp: Unable to retrieve nextHopIp for DPN {} to handle floatingIp {}",
-                    dpnId, externalIp);
-            return;
-        }
-        LOG.debug("onAddFloatingIp: Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
-        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerId);
         if (provType == null) {
             return;
         }
-        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
-                NatConstants.ODL_VNI_POOL_NAME);
+        if (provType == ProviderTypes.GRE || provType == ProviderTypes.VXLAN) {
+            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
+                    NatConstants.ODL_VNI_POOL_NAME);
+        }
+        String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
+        LOG.debug("onAddFloatingIp: Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         if (provType == ProviderTypes.VXLAN) {
             Uuid floatingIpInterface = NatEvpnUtil.getFloatingIpInterfaceIdFromFloatingIpId(dataBroker, floatingIpId);
             evpnDnatFlowProgrammer.onAddFloatingIp(dpnId, routerId, vpnName, internalIp, externalIp, networkId,
@@ -175,6 +172,19 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             }
             return;
         }
+        /*
+         *  For external network of type GRE, it is required to use "Internet VPN VNI" for intra-DC
+         *  communication, but we still require "MPLS labels" to reach SNAT/DNAT VMs from external
+         *  entities via MPLSOverGRE.
+         *
+         *  MPLSOverGRE based external networks, the ``opendaylight-vni-ranges`` pool will be
+         *  used to carve out a unique VNI per Internet VPN (GRE-provider-type) to be used in the
+         *  datapath for traffic forwarding for ``SNAT-to-DNAT`` and ``DNAT-to-DNAT`` cases within the
+         *  DataCenter.
+         *
+         *  MPLS label will be used to advertise prefixes and in "L3_LFIB_TABLE" (table 20) taking the packet
+         *  to "INBOUND_NAPT_TABLE" (table 44) and "PDNAT_TABLE" (table 25).
+         */
         GenerateVpnLabelInput labelInput = new GenerateVpnLabelInputBuilder().setVpnName(vpnName)
             .setIpPrefix(externalIp).build();
         Future<RpcResult<GenerateVpnLabelOutput>> labelFuture = vpnService.generateVpnLabel(labelInput);
@@ -188,12 +198,17 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.debug("onAddFloatingIp : Generated label {} for prefix {}", label, externalIp);
                     FloatingIPListener.updateOperationalDS(dataBroker, routerId, interfaceName, label,
                         internalIp, externalIp);
-                    //Inform BGP
+                    /*
+                     * For external network of type VXLAN all packets going from VMs within the DC, towards the
+                     * external gateway device via the External VXLAN Tunnel,we are setting the VXLAN Tunnel ID to
+                     * the L3VNI value of VPNInstance to which the VM belongs to.
+                     */
                     long l3vni = 0;
                     if (elanService.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+                    //Inform BGP
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
                             fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
                             label, l3vni, LOG, RouteOrigin.STATIC, dpnId);
