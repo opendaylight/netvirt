@@ -22,6 +22,30 @@
       "revId": "e050ae7e95fb1caec40aee768f19c94255cc8d73",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f2475875",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-08-31T04:32:16Z",
+      "side": 1,
+      "message": "That\u0027s not an issue here. The logic here is about attaching the provider network to br-int and we provide two options. Either the value in the provider-mapping is the name of a bridge in which case it is patched to br-int or, if it is not a bridge, we assume it\u0027s an interface on the machine and we add it directly to br-int.",
+      "parentUuid": "ba1f61a0_1282ecc7",
+      "range": {
+        "startLine": 187,
+        "startChar": 12,
+        "endLine": 187,
+        "endChar": 81
+      },
+      "revId": "e050ae7e95fb1caec40aee768f19c94255cc8d73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
