@@ -257,39 +257,6 @@ public class VpnSubnetRouteHandler {
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
-
-            // update VPN instance with added subnet IpFamily type
-            VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
-            VpnTargets vpnTargets = VpnUtil.getOpVpnTargets(dataBroker, vpnInstanceOpData);
-            VpnInstance vpnInstance = VpnUtil.getVpnInstance(dataBroker, vpnName);
-
-            VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
-            IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetIp);
-            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (vpnInstance.getIpv4Family() == null)) {
-                Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
-                vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build()).build();
-            }
-            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (vpnInstance.getIpv6Family() == null)) {
-                Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
-                vpnInstanceBuilder.setIpv6Family(ipv6vpnBuilder.build()).build();
-            }
-            LOG.debug("{} onSubnetAddedToVpn: Updating Config vpn-instance: {} with the IpFamilies: {}", LOGGING_PREFIX,
-                        ipVersion.toString());
-            InstanceIdentifier<VpnInstance> vpnIdentifier = VpnUtil.getVpnInstanceIdentifier(vpnName);
-            boolean isLockAcquired = false;
-            isLockAcquired = NeutronUtils.lock(vpnName);
-            LOG.debug("{} onSubnetAddedToVpn: Creating/Updating vpn-instance {} with subnet IpFamily", LOGGING_PREFIX,
-                        vpnName);
-            try {
-                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
-                    vpnInstanceBuilder.build());
-            } catch (Exception ex) {
-                LOG.error("{} onSubnetAddedToVpn: Error configuring feature ", LOGGING_PREFIX, ex);
-            } finally {
-                if (isLockAcquired) {
-                    NeutronUtils.unlock(vpnName);
-                }
-            }
         } catch (Exception e) {
             LOG.error("{} onSubnetAddedToVpn: Unable to handle subnet {} with ip {} added to vpn {} {}", LOGGING_PREFIX,
                     subnetId.getValue(), subnetIp, vpnName, e);
@@ -396,45 +363,6 @@ public class VpnSubnetRouteHandler {
                         subnetmap.getVpnId(), ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
-            }
-
-            // Withdraw IpFamily of removed subnet from Vpn instance
-            VpnInstance vpnInstance = VpnUtil.getVpnInstance(dataBroker, vpnName);
-            if (vpnInstance == null) {
-                LOG.error("{} onSubnetDeletedFromVpn: VpnInstance is not available for vpnName {} in datastore",
-                            LOGGING_PREFIX, vpnName);
-                return;
-            }
-            IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetIp);
-            VpnInstanceBuilder vpnInstanceBuilder = null;
-            if (subnetOpDataEntriesForVpn.isEmpty()) {
-                vpnInstanceBuilder = withdrawIpFamilyFromVpnInstance(vpnInstance, ipVersion);
-            }
-            List<IpVersionChoice> ipChoices = new ArrayList<>();
-            for (SubnetOpDataEntry opData: subnetOpDataEntriesForVpn) {
-                IpVersionChoice ipChoice = NeutronUtils.getIpVersion(opData.getSubnetCidr());
-                ipChoices.add(ipChoice);
-            }
-            if (!ipChoices.contains(ipVersion)) {
-                vpnInstanceBuilder = withdrawIpFamilyFromVpnInstance(vpnInstance, ipVersion);
-            }
-            if (vpnInstanceBuilder == null) {
-                return;
-            }
-            InstanceIdentifier<VpnInstance> vpnIdentifier = VpnUtil.getVpnInstanceIdentifier(vpnName);
-            boolean isLockAcquired = false;
-            isLockAcquired = NeutronUtils.lock(vpnName);
-            LOG.debug("{} onSubnetDeletedFromVpn: Creating/Updating vpn-instance for {} with subnet IpFamily",
-                        LOGGING_PREFIX, vpnName);
-            try {
-                MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
-                    vpnInstanceBuilder.build());
-            } catch (Exception ex) {
-                LOG.error("{} onSubnetDeletedFromVpn: Error configuring feature ", LOGGING_PREFIX, ex);
-            } finally {
-                if (isLockAcquired) {
-                    NeutronUtils.unlock(vpnName);
-                }
             }
         } catch (Exception e) {
             LOG.error("{} onSubnetDeletedFromVpn: Unable to handle subnet {} with Ip {} removed from vpn {} {}",
