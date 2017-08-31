@@ -1,0 +1,191 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_bff008ff",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "convention is to make it the same length as the text",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_dfeb3c11",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_fff600f8",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": ":",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5fdf4c69",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "Are there any places of conflict - like if the user configured flows or inband on the bridge?",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9fe5443a",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "mention the provider_mappings or present an example beyond the \u003cphysnet\u003e:\u003cconnector\u003e?\n\nShould probably put the \u003c\u003e:\u003c\u003e in inline code tags.",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7fe21030",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": ":",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_dfd21c5b",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "would it be possible to add examples of these? I know a little more than the fix, but it explains more about how things work and fits this rst.",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_bfd7684a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "include config or operational so we capture the design?",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1fc954ac",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "comment to explain exists in config or change method name to reflect that or add param to indicate config or operational?\n\nGuess that could be the same for the readBridgeNode(). We really need the code to tell us what is happening when we read it.",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5fc62c9b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "like this, weird we have readBridgeNode and then getBridgeFromConfig. The namings are not consistent.. worse I can\u0027t follow which ones are taking an ovsdbNode or bridgeNode as the node.",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3fc3788a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-08-31T12:32:01Z",
+      "side": 1,
+      "message": "this would look better as a helper method. It is good this method here reads config since that is netvirt specific but then a helper to do the write.",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
