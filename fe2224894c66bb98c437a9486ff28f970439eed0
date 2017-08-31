@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_bfbda8b9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-31T14:39:29Z",
+      "side": 1,
+      "message": "why is this call necessary here.. can you place this just before addPrefixToBgp()?",
+      "revId": "fe2224894c66bb98c437a9486ff28f970439eed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5fcc6c6a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-31T14:39:29Z",
+      "side": 1,
+      "message": "why do we want to allocate a VNI pool unless we see the first FIP appearing on a VPN that is either GRE type (or) VXLAN Type?",
+      "revId": "fe2224894c66bb98c437a9486ff28f970439eed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1fe674e8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-31T14:39:29Z",
+      "side": 1,
+      "message": "can you place comments in places where we get l3vni, generate mpls labels earlier etc.  The comments can be 4 lines explaining the orchestration that  leads to that vni (or) mplslabel retrieval / generation.",
+      "revId": "fe2224894c66bb98c437a9486ff28f970439eed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
