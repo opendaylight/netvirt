@@ -30,6 +30,7 @@ Contents:
    QoS Alert <qos-alert>
    Quality of Service <qos>
    Setup Source-MAC-Address for routed packets to virtual endpoints <setup-smac-for-routed-packets-to-virt-endpoints>
+   SR-IOV Hardware Offload for OVS
    Support for TCP MD5 Signature Option configuration of Quagga BGP <qbgp-tcp-md5-signature-option>
    Support of VXLAN based L2 connectivity across Datacenters <l2vpn-over-vxlan-with-evpn-rt2>
    Support of VXLAN based connectivity across Datacenters <l3vpn-over-vxlan-with-evpn-rt5>
