@@ -223,13 +223,19 @@ public class NeutronUtils {
     }
 
     /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
-     * @param ipAddress String of an representation IP address V4 or V6
+     * @param ipAddressOrSubnet String of an representation IP address V4 or V6
      * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED if any
      */
-    public static IpVersionChoice getIpVersion(String ipAddress) {
+    public static IpVersionChoice getIpVersion(String ipAddressOrSubnet) {
         IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
+        String ipAddressOnly;
+        if (ipAddressOrSubnet.indexOf("/") == -1) {
+            ipAddressOnly = ipAddressOrSubnet;
+        } else {
+            ipAddressOnly = ipAddressOrSubnet.substring(0, ipAddressOrSubnet.indexOf("/"));
+        }
         try {
-            InetAddress address = InetAddress.getByName(ipAddress);
+            InetAddress address = InetAddress.getByName(ipAddressOnly);
             if (address instanceof Inet4Address) {
                 return IpVersionChoice.IPV4;
             }
@@ -237,7 +243,7 @@ public class NeutronUtils {
             ipchoice = IpVersionChoice.UNDEFINED;
         }
         try {
-            InetAddress address = InetAddress.getByName(ipAddress);
+            InetAddress address = InetAddress.getByName(ipAddressOnly);
             if (address instanceof Inet6Address) {
                 return IpVersionChoice.IPV6;
             }
