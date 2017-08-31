@@ -88,6 +88,24 @@
       "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_bf0be88c",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-31T14:42:01Z",
+      "side": 1,
+      "message": "Thanks...  Can I just then remove the aclInPort.isPortSecurityEnabled() check?",
+      "parentUuid": "ba1f61a0_1fa4b406",
+      "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
