@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_1282ecc7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 3316
+      },
+      "writtenOn": "2017-08-31T01:11:32Z",
+      "side": 1,
+      "message": "this logic makes me wonder what if br-int shows up first and then br-ex follows.\n\nBut it\u0027s okay for now. This patch fixes one issue.",
+      "range": {
+        "startLine": 187,
+        "startChar": 12,
+        "endLine": 187,
+        "endChar": 81
+      },
+      "revId": "e050ae7e95fb1caec40aee768f19c94255cc8d73",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
