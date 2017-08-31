@@ -1204,10 +1204,10 @@ public class NeutronvpnUtils {
             NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, path);
         if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
             for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
-                if (vpnInstance.getIpv4Family() == null) {
+                if (vpnInstance.getVpnConfig() == null) {
                     continue;
                 }
-                List<String> rds = vpnInstance.getIpv4Family().getRouteDistinguisher();
+                List<String> rds = vpnInstance.getVpnConfig().getRouteDistinguisher();
                 if (rds != null) {
                     existingRDs.addAll(rds);
                 }
@@ -1259,6 +1259,34 @@ public class NeutronvpnUtils {
 
     /**Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of the router.
      * @param dataBroker to get informations from data store
+     * @param vpnName the vpnName for which find out the IP version associated
+     * @return an IpVersionChoice used by the router from its attached subnetmaps. IpVersionChoice.UNDEFINED if any
+     */
+    public static IpVersionChoice getIpVersionChoicesFromVpnName(DataBroker dataBroker, String vpnName) {
+        IpVersionChoice rep = IpVersionChoice.UNDEFINED;
+        if (vpnName == null) {
+            return rep;
+        }
+        List<Subnetmap> subnetmapList = getNeutronVpnSubnetMaps(dataBroker, vpnName);
+        if (subnetmapList.isEmpty()) {
+            return rep;
+        }
+        for (Subnetmap sn : subnetmapList) {
+            if (sn.getSubnetIp() != null) {
+                IpVersionChoice ipVers = NeutronUtils.getIpVersion(sn.getSubnetIp());
+                if (rep.choice != ipVers.choice) {
+                    rep.addVersion(ipVers);
+                }
+                if (rep.choice == rep.IPV4AND6.choice) {
+                    return rep;
+                }
+            }
+        }
+        return rep;
+    }
+
+    /**Method to get an ipVersionChosen as IPV4 and/or IPV6 or undefined from the subnetmaps of the router.
+     * @param dataBroker to get informations from data store
      * @param routerUuid the Uuid for which find out the IP version associated
      * @return an IpVersionChoice used by the router from its attached subnetmaps. IpVersionChoice.UNDEFINED if any
      */
@@ -1283,6 +1311,25 @@ public class NeutronvpnUtils {
             }
         }
         return rep;
+    }
+
+    /**This method return the list of Subnetmap associated to the vpnName or a empty list if any.
+     * @param broker the data broker to get information
+     * @param vpnName the string of the vpnName for which subnetmap is find out
+     * @return a list of Subnetmap associated to the router. it could be empty if any
+     */
+    protected static List<Subnetmap> getNeutronVpnSubnetMaps(DataBroker broker, String vpnName) {
+        List<Subnetmap> subnetIdList = new ArrayList<>();
+        Optional<Subnetmaps> subnetMaps = read(broker, LogicalDatastoreType.CONFIGURATION,
+            InstanceIdentifier.builder(Subnetmaps.class).build());
+        if (subnetMaps.isPresent() && subnetMaps.get().getSubnetmap() != null) {
+            for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
+                if (vpnName.equals(subnetmap.getVpnId().getValue())) {
+                    subnetIdList.add(subnetmap);
+                }
+            }
+        }
+        return subnetIdList;
     }
 
     /**This method return the list of Subnetmap associated to the router or a empty list if any.
