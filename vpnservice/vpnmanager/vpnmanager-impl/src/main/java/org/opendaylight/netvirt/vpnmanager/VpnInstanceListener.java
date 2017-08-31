@@ -204,7 +204,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void addVpnInstance(VpnInstance value, WriteTransaction writeConfigTxn,
         WriteTransaction writeOperTxn) {
-        VpnAfConfig config = value.getIpv4Family();
+        VpnAfConfig config = value.getVpnConfig();
         String vpnInstanceName = value.getVpnInstanceName();
 
         long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
@@ -325,7 +325,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if rd is null, then its either a router vpn instance (or) a vlan external network vpn instance.
             if rd is non-null, then it is a bgpvpn instance
              */
-            VpnAfConfig config = vpnInstance.getIpv4Family();
+            VpnAfConfig config = vpnInstance.getVpnConfig();
             List<String> rd = config.getRouteDistinguisher();
             if ((rd == null) || addBgpVrf(voids)) {
                 notifyTask();
@@ -369,7 +369,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         // TODO Clean up the exception handling
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf(List<Void> voids) {
-            VpnAfConfig config = vpnInstance.getIpv4Family();
+            VpnAfConfig config = vpnInstance.getVpnConfig();
             List<String> rds = config.getRouteDistinguisher();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
