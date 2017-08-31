@@ -2329,6 +2329,12 @@ public class ElanUtils {
                 ingressInterfaceName, macAddress, ipAddress);
         ElanInterface elanIface = getElanInterfaceByElanInterfaceName(broker, ingressInterfaceName);
         ElanInstance elanInstance = getElanInstanceByName(broker, elanIface.getElanInstanceName());
+        if (elanInstance == null) {
+            LOG.debug("addArpResponderFlow: elanInstance is null, Failed to install arp responder flow for Interface {}"
+                      + " with MAC {} & IP {}", dpnId,
+                ingressInterfaceName, macAddress, ipAddress);
+            return;
+        }
         String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
         ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
                 ArpResponderUtil.generateCookie(lportTag, ipAddress),
