@@ -97,7 +97,7 @@ public class ShowVpn extends OsgiCommandSupport {
                 }
                 session.getConsole().println(
                         String.format("%-32s  %-10s  %-10s  %-10s", vpnInstance.getVpnInstanceName(),
-                                vpnInstance.getIpv4Family().getRouteDistinguisher(), configCount, operCount));
+                                vpnInstance.getVpnConfig().getRouteDistinguisher(), configCount, operCount));
             }
             session.getConsole().println("-----------------------------------------------------------------------");
             session.getConsole().println(
