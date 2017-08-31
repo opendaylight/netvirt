@@ -129,6 +129,7 @@ public class BgpRouter {
 
         final int numberOfConnectRetries = 180;
         RetryOnException connectRetry = new RetryOnException(numberOfConnectRetries);
+        BgpConfigurationManager.config_server_updated = false;
 
         disconnect();
         setConnectTS(System.currentTimeMillis());
