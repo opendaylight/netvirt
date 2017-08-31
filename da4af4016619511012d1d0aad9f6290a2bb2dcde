@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_8db7e139",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-31T07:08:02Z",
+      "side": 1,
+      "message": "Do we require this extra check? isOfInterest already check for this and that value is populated from config DS. Do this address any corner case?",
+      "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
