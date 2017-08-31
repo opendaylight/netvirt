@@ -134,6 +134,7 @@ public class BgpRouter {
         }
 
         final int numberOfConnectRetries = 180;
+        BgpConfigurationManager.config_server_updated = false;
         RetryOnException connectRetry = new RetryOnException(numberOfConnectRetries);
 
         disconnect();
