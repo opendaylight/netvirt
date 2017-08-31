@@ -56,6 +56,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.VpnConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -459,6 +460,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             Ipv6FamilyBuilder ipv6FamilyBuilder = new Ipv6FamilyBuilder(vpnInstance.getIpv6Family());
             updateVpnInstanceBuilder.setIpv6Family(ipv6FamilyBuilder.setRouteDistinguisher(rds).build());
         }
+        if (vpnInstance.getVpnConfig() != null) {
+            VpnConfigBuilder vpnConfigBuilder = new VpnConfigBuilder(vpnInstance.getVpnConfig());
+            updateVpnInstanceBuilder.setVpnConfig(vpnConfigBuilder.setRouteDistinguisher(rds).build());
+        }
         LOG.debug("Updating Config vpn-instance: {} with the list of RDs: {}", vpnInstanceId,rds);
         try {
             SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
@@ -466,6 +471,54 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (TransactionCommitFailedException ex) {
             LOG.warn("Error configuring feature ", ex);
         }
+    }
+
+    // TODO Clean up the exception handling
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion) {
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+            .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> optionalVpn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                vpnIdentifier);
+        LOG.debug("Updating a new vpn-instance node: {} with Network Added {}", vpnName, ipVersion);
+        if (!optionalVpn.isPresent()) {
+            return;
+        }
+        VpnInstance vpnInstance = optionalVpn.get();
+        // TODO: ipv4vpnBuilder or ipv6vpnBuilder from vpnInstance.getVpnConfig
+        // see updateVpnInstanceNode()
+        VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
+        if (vpnInstance.getVpnConfig() == null) {
+            return;
+        }
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (vpnInstance.getIpv4Family() == null)) {
+            Ipv4FamilyBuilder ipv4FamilyBuilder = new Ipv4FamilyBuilder(vpnInstance.getVpnConfig());
+            vpnInstanceBuilder.setIpv4Family(ipv4FamilyBuilder.build()).build();
+        }
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (vpnInstance.getIpv6Family() == null)) {
+            Ipv6FamilyBuilder ipv6FamilyBuilder = new Ipv6FamilyBuilder(vpnInstance.getVpnConfig());
+            vpnInstanceBuilder.setIpv6Family(ipv6FamilyBuilder.build()).build();
+        }
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
+            IpVersionChoice newIpVersion = NeutronvpnUtils.getIpVersionChoicesFromVpnName(dataBroker, vpnName);
+            if (newIpVersion.isIpVersionChosen(IpVersionChoice.IPV4AND6)) {
+                return;
+            }
+            if (newIpVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (vpnInstance.getIpv6Family() != null)) {
+                vpnInstanceBuilder.setIpv6Family(null).build();
+            }
+            if (newIpVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (vpnInstance.getIpv4Family() != null)) {
+                vpnInstanceBuilder.setIpv4Family(null).build();
+            }
+        }
+        try {
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
+                    vpnInstanceBuilder.build());
+        } catch (TransactionCommitFailedException ex) {
+            LOG.warn("Error configuring feature ", ex);
+        }
+
+        LOG.debug("updating existing vpninstance node");
     }
 
     // TODO Clean up the exception handling
@@ -523,10 +576,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
             Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
             Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
+            VpnConfigBuilder vpnConfigBuilder = new VpnConfigBuilder().setVpnTargets(vpnTargets);
 
             if (rd != null && !rd.isEmpty()) {
                 ipv4vpnBuilder.setRouteDistinguisher(rd);
                 ipv6vpnBuilder.setRouteDistinguisher(rd);
+                vpnConfigBuilder.setRouteDistinguisher(rd);
             }
 
             VpnInstance newVpn = null;
@@ -536,10 +591,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
                 newVpn = builder.setIpv6Family(ipv6vpnBuilder.build()).build();
             }
-            if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
-                // no subnets presented in router set by default support of IPv4 family
-                newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
-            }
+            newVpn = builder.setVpnConfig(vpnConfigBuilder.build()).build();
             isLockAcquired = NeutronUtils.lock(vpnName);
             LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
@@ -1123,7 +1175,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     for (VpnInstance vpn : optionalVpns.get().getVpnInstance()) {
                         // eliminating implicitly created (router and VLAN provider external network specific) VPNs
                         // from getL3VPN output
-                        if (vpn.getIpv4Family().getRouteDistinguisher() != null) {
+                        if (vpn.getVpnConfig().getRouteDistinguisher() != null) {
                             vpns.add(vpn);
                         }
                     }
@@ -1142,7 +1194,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         vpnIdentifier);
                 // eliminating implicitly created (router or VLAN provider external network specific) VPN from
                 // getL3VPN output
-                if (optionalVpn.isPresent() && optionalVpn.get().getIpv4Family().getRouteDistinguisher() != null) {
+                if (optionalVpn.isPresent() && optionalVpn.get().getVpnConfig().getRouteDistinguisher() != null) {
                     vpns.add(optionalVpn.get());
                 } else {
                     String message = String.format("GetL3VPN failed because VPN %s is not present", name);
@@ -1155,12 +1207,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 Uuid vpnId = new Uuid(vpnInstance.getVpnInstanceName());
                 // create VpnMaps id
                 L3vpnInstancesBuilder l3vpn = new L3vpnInstancesBuilder();
-                List<String> rd = vpnInstance.getIpv4Family().getRouteDistinguisher();
+                List<String> rd = vpnInstance.getVpnConfig().getRouteDistinguisher();
                 List<String> ertList = new ArrayList<>();
                 List<String> irtList = new ArrayList<>();
 
                 if (vpnInstance.getIpv4Family().getVpnTargets() != null) {
-                    List<VpnTarget> vpnTargetList = vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget();
+                    List<VpnTarget> vpnTargetList = vpnInstance.getVpnConfig().getVpnTargets().getVpnTarget();
                     for (VpnTarget vpnTarget : vpnTargetList) {
                         if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
                             ertList.add(vpnTarget.getVrfRTValue());
@@ -1293,6 +1345,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
                     NeutronEvpnUtils.Operation.ADD);
         }
+        LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
+        LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
+        String subnetIp = sn.getSubnetIp();
+        IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetIp);
+        updateVpnInstanceWithIpFamily(vpnId.getValue(), ipVersion);
         // Check if there are ports on this subnet and add corresponding vpn-interfaces
         List<Uuid> portList = sn.getPortList();
         if (portList != null) {
@@ -1364,6 +1421,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     });
                     //update subnet-vpn association
                     removeFromSubnetNode(subnet, sn.getNetworkId(), sn.getRouterId(), vpnId, portId);
+                    updateVpnInstanceWithIpFamily(vpnId.getValue(), IpVersionChoice.UNDEFINED);
                 }
             }
         } else {
