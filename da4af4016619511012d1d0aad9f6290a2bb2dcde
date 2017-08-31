@@ -52,6 +52,24 @@
       "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8d18811f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-08-31T08:46:34Z",
+      "side": 1,
+      "message": "Creating an ACLInterface for a non-neutron port creates harm since bindservice and unbindservice invocations from aclvpnchangelistener directly attempt to bind/unbind acl towards such interfaces which should not happen.\n\nIn this fix here, we have attempted to avoid accidentally creating ACLInterface for those interfaces that are not: \na. Neutron ports.\nb. Neutron ports but port-security-disabled.\n\nCan you please elaborate if this fix breaks anything?",
+      "parentUuid": "ba1f61a0_cd60b9a7",
+      "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
