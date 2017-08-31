@@ -126,6 +126,7 @@
     <argument ref="packetProcessingService" />
     <argument ref="odlInterfaceRpcService" />
     <argument ref="centralizedSwitchProvider" />
+    <argument ref="interfaceManager" />
   </bean>
   <service ref="subnetRoutePacketInHandler" odl:type="default"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener" />

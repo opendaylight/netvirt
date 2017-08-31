@@ -1162,6 +1162,24 @@ public class VpnUtil {
         return null;
     }
 
+    public static String getAssociatedExternalRouter(DataBroker dataBroker, String extIp) {
+        InstanceIdentifier<ExtRouters> extRouterInstanceIndentifier =
+                InstanceIdentifier.builder(ExtRouters.class).build();
+        Optional<ExtRouters> extRouterData = read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                extRouterInstanceIndentifier);
+        if (extRouterData.isPresent()) {
+            for (Routers routerData : extRouterData.get().getRouters()) {
+                List<ExternalIps> externalIps = routerData.getExternalIps();
+                for (ExternalIps externalIp : externalIps) {
+                    if (externalIp.getIpAddress().equals(extIp)) {
+                        return routerData.getRouterName();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
         InstanceIdentifier<Routers> routerInstanceIndentifier =
             InstanceIdentifier.builder(ExtRouters.class).child(Routers.class, new RoutersKey(routerId)).build();
