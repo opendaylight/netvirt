@@ -34,6 +34,24 @@
       "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_cd60b9a7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-31T07:49:28Z",
+      "side": 1,
+      "message": "Oh ok got it. But if a port which had initially port security disabled will fail to populate the info from interface state (AclInterface relay on both interface config and state listeners to fill the attributes required) and when port security enabled later we will lack those info.\n\nDo you think populating the aclinterface do any harm? We should be always checking the isPortsecurityenabled before programming aclservice rules. We missed that in some part of the code like the one you fixed in AclVpnChangeListener.",
+      "parentUuid": "ba1f61a0_edf65df8",
+      "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
