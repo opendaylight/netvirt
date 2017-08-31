@@ -70,6 +70,24 @@
       "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1fa4b406",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-08-31T12:05:28Z",
+      "side": 1,
+      "message": "I was worried that this could break scenario where a neutron port is created with SG disabled and was later enabled. We will not have the sufficient info to program the acl rules in aclinterface.\n\nThe null check here looks safe as this ensure that there is a neutron port and I think we should not have case where the port is created in operational first and config later. My concern is about the portsecurity enabled check\n\nIdeally port will have the isportsecurity enabled only if there is a neutron port corresponding to it. Otherwise this will value will be null hence we should not end up in calling bind if are checking for isPortSecurity enabled for non neutron ports.",
+      "parentUuid": "ba1f61a0_8d18811f",
+      "revId": "da4af4016619511012d1d0aad9f6290a2bb2dcde",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
