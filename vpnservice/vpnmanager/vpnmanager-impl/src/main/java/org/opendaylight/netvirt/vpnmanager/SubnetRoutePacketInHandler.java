@@ -22,6 +22,7 @@ import org.opendaylight.controller.liblldp.Packet;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -31,6 +32,7 @@ import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 import org.opendaylight.netvirt.vpnmanager.utilities.VpnManagerCounters;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntry;
@@ -53,14 +55,17 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     private final PacketProcessingService packetService;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final ICentralizedSwitchProvider centralizedSwitchProvider;
+    private final IInterfaceManager interfaceManager;
 
     public SubnetRoutePacketInHandler(final DataBroker dataBroker, final PacketProcessingService packetService,
             final OdlInterfaceRpcService odlInterfaceRpcService,
-            final ICentralizedSwitchProvider centralizedSwitchProvider) {
+            final ICentralizedSwitchProvider centralizedSwitchProvider,
+            final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.packetService = packetService;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.centralizedSwitchProvider = centralizedSwitchProvider;
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
@@ -142,8 +147,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     }
 
                     if (!(vpnIdsOptional.get()).isExternalVpn()) {
-                        handleInternalVpnSubnetRoutePacket(metadata, dstIp, dstIpStr, ipv4.getDestinationAddress(),
-                                vpnIdVpnInstanceName, elanTag);
+                        handleInternalVpnSubnetRoutePacket(metadata, dstIp, srcIpStr, dstIpStr,
+                                ipv4.getDestinationAddress(), vpnIdVpnInstanceName, elanTag);
                         return;
                     }
 
@@ -180,10 +185,14 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
     }
 
-    private void handleInternalVpnSubnetRoutePacket(BigInteger metadata, byte[] dstIp, String dstIpStr,
+    private void handleInternalVpnSubnetRoutePacket(BigInteger metadata, byte[] dstIp, String srcIpStr, String dstIpStr,
             int destinationAddress, String vpnIdVpnInstanceName, long elanTag)
             throws InterruptedException, ExecutionException, UnknownHostException {
         String vmVpnInterfaceName = VpnUtil.getVpnInterfaceName(odlInterfaceRpcService, metadata);
+        if (isTunnel(vmVpnInterfaceName)) {
+            handlePacketFromTunnelToExternalNetwork(vpnIdVpnInstanceName, vmVpnInterfaceName,
+                    srcIpStr, dstIp, elanTag);
+        }
         VpnInterface vmVpnInterface = VpnUtil.getVpnInterface(dataBroker, vmVpnInterfaceName);
         if (vmVpnInterface == null) {
             LOG.error("Vpn interface {} doesn't exist.", vmVpnInterfaceName);
@@ -196,7 +205,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             handlePacketToInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
         } else {
             LOG.trace("Unknown IP is in external network");
-            handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vmVpnInterface, dstIp, elanTag);
+            handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vmVpnInterface.getVpnInstanceName(),
+                    dstIp, elanTag);
         }
     }
 
@@ -247,9 +257,18 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         transmitArpPacket(targetSubnetForPacketOut.getNhDpnId(), sourceIp, sourceMac, dstIp, elanTag);
     }
 
-    private void handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, VpnInterface vmVpnInterface, byte[] dstIp,
+    private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName, String tunnelInterfaceName,
+                        String srcIpStr, byte[] dstIp, long elanTag)
+                                throws InterruptedException, ExecutionException, UnknownHostException {
+        String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);
+        if(null == routerId) {
+            LOG.debug("The ip is not associated with any external router", srcIpStr);
+        }
+        handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), routerId, dstIp, elanTag);
+    }
+
+    private void handlePacketToExternalNetwork(Uuid vpnInstanceNameUuid, String routerId, byte[] dstIp,
             long elanTag) throws UnknownHostException {
-        String routerId = vmVpnInterface.getVpnInstanceName();
         Routers externalRouter = VpnUtil.getExternalRouter(dataBroker, routerId);
         if (externalRouter == null) {
             VpnManagerCounters.subnet_route_packet_failed.inc();
@@ -323,5 +342,16 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
 
         return null;
+    }
+
+    public boolean isTunnel(String interfaceName) {
+        org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
+            .ietf.interfaces.rev140508.interfaces.Interface configIface =
+            interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
+        IfTunnel ifTunnel = configIface.getAugmentation(IfTunnel.class);
+        if (ifTunnel != null) {
+            return true;
+        }
+        return false;
     }
 }
