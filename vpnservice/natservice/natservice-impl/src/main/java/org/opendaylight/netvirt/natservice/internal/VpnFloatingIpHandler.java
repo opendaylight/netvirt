@@ -153,11 +153,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             return;
         }
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
-        if (nextHopIp == null) {
-            LOG.error("onAddFloatingIp: Unable to retrieve nextHopIp for DPN {} to handle floatingIp {}",
-                    dpnId, externalIp);
-            return;
-        }
         LOG.debug("onAddFloatingIp: Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerId);
