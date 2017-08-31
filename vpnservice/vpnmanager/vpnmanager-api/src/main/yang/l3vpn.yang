@@ -762,8 +762,12 @@ module l3vpn {
         }
       }
 
+      container vpn-config {
+        description
+          "It contains VPN information for VPN instancex";
 
-
+        uses vpn-af-config;
+      }
 
       container ipv4-family {
         description
