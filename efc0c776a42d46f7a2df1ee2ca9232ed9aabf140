@@ -1,0 +1,40 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_ed013d6b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-08-31T09:58:24Z",
+      "side": 1,
+      "message": "When NAPT switch over happens, 25-\u003e44 default flow was not removed from Old-Napt switch. Hence introduced this changes here.",
+      "parentUuid": "ba1f61a0_ade465e1",
+      "revId": "efc0c776a42d46f7a2df1ee2ca9232ed9aabf140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6ded4db7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-08-31T09:58:24Z",
+      "side": 1,
+      "message": "Have verified the CSIT karaf log and not been observed conflict modification error which is thrown by NAT module.\n\nVerified stable/nitrogen log:\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\nhttps://logs.opendaylight.org/releng/jenkins092/netvirt-csit-1node-openstack-ocata-gate-stateful-nitrogen/147/odl1_karaf.log.gz",
+      "parentUuid": "ba1f61a0_4dd32904",
+      "revId": "efc0c776a42d46f7a2df1ee2ca9232ed9aabf140",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
