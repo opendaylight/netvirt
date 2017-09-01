@@ -16,6 +16,24 @@
       "revId": "fb60ab14a764c6081bd3f3f80597e7142a2e4817",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f570dfdd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-09-01T08:31:51Z",
+      "side": 1,
+      "message": "For Intra-DC communication for GRE Provider type VNI is required. Please refer the below statement which has mentioned in the VNI Spec.\n\nFor external network of type GRE, it is required to use \"Internet VPN VNI\" for intra-DC\ncommunication, but we still require \"MPLS labels\" to reach SNAT/DNAT VMs from external entities via MPLSOverGRE.\n\nThe same above comment was mentioned in the code as well.",
+      "parentUuid": "ba1f61a0_15fdb36e",
+      "revId": "fb60ab14a764c6081bd3f3f80597e7142a2e4817",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
