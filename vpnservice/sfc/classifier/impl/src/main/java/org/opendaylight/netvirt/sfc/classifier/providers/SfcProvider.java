@@ -59,31 +59,33 @@ public class SfcProvider {
         return rsp;
     }
 
-    // This is for Logical SFFs
     public Optional<String> getFirstHopSfInterfaceFromRsp(RenderedServicePath rsp) {
-        Optional<RenderedServicePathHop> firstHop = getRspFirstHop(rsp);
-        if (!firstHop.isPresent()) {
-            LOG.warn("getFirstHopSfInterfaceFromRsp RSP [{}] cant get first hop", rsp.getName().getValue());
-            return Optional.empty();
-        }
+        return getRspFirstHop(rsp).flatMap(this::getHopSfInterface);
+    }
 
-        SfName sfName = firstHop.get().getServiceFunctionName();
+    public Optional<String> getLastHopSfInterfaceFromRsp(RenderedServicePath rsp) {
+        return getRspLastHop(rsp).flatMap(this::getHopSfInterface);
+    }
+
+    public Optional<String> getHopSfInterface(RenderedServicePathHop hop) {
+
+        LOG.trace("getHopSfInterface of hop {}", hop);
+
+        SfName sfName = hop.getServiceFunctionName();
         if (sfName == null) {
-            LOG.warn("getFirstHopSfInterfaceFromRsp RSP [{}] first hop has no SF", rsp.getName().getValue());
+            LOG.warn("getHopSfInterface hop has no SF");
             return Optional.empty();
         }
 
         Optional<ServiceFunction> sf = getServiceFunction(sfName);
         if (!sf.isPresent()) {
-            LOG.warn("getFirstHopSfInterfaceFromRsp RSP [{}] SF [{}] does not exist", rsp.getName().getValue(),
-                    sfName.getValue());
+            LOG.warn("getHopSfInterface SF [{}] does not exist", sfName.getValue());
             return Optional.empty();
         }
 
         List<SfDataPlaneLocator> sfDplList = sf.get().getSfDataPlaneLocator();
         if (sfDplList == null || sfDplList.isEmpty()) {
-            LOG.warn("getFirstHopSfInterfaceFromRsp RSP [{}] SF [{}] has no SfDpl", rsp.getName().getValue(),
-                    sfName.getValue());
+            LOG.warn("getHopSfInterface SF [{}] has no SfDpl", sfName.getValue());
             return Optional.empty();
         }
 
@@ -116,5 +118,15 @@ public class SfcProvider {
         }
 
         return Optional.ofNullable(hops.get(0));
+    }
+
+    private Optional<RenderedServicePathHop> getRspLastHop(RenderedServicePath rsp) {
+        List<RenderedServicePathHop> hops = rsp.getRenderedServicePathHop();
+        if (hops == null || hops.isEmpty()) {
+            LOG.warn("getRspLastHop RSP [{}] has no hops list", rsp.getName().getValue());
+            return Optional.empty();
+        }
+
+        return Optional.ofNullable(hops.get(hops.size() - 1));
     }
 }
