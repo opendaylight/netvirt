@@ -209,7 +209,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
                 showIt = FibHelper.isIpv6Prefix(vrfEntry.getDestPrefix());
             }
             if (!showIt && isL2vpn) {
-                if (vrfEntry.getEncapType() != null && !vrfEntry.getEncapType().equals(EncapType.Mplsgre)) {
+                if (vrfEntry.getEncapType() != null && !EncapType.Mplsgre.equals(vrfEntry.getEncapType())) {
                     LOG.debug("is l2vpn address family=> vrfEntry.getEncapType() = " + vrfEntry.getEncapType());
                     showIt = true;
                 }
