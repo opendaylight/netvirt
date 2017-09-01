@@ -49,9 +49,11 @@ public interface ClassifierEntryRenderer {
      *
      * @param nodeId the classifier node identifier.
      * @param nsp the path identifier.
+     * @param nsi the path starting index.
+     * @param nsl the path length.
      * @param firstHopIp the first SFF ip address. Null if the SFF is nodeId.
      */
-    void renderPath(NodeId nodeId, Long nsp, String firstHopIp);
+    void renderPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp);
 
     /**
      * Rended match based actions.
@@ -94,9 +96,11 @@ public interface ClassifierEntryRenderer {
      *
      * @param nodeId the classifier node identifier.
      * @param nsp the path identifier.
+     * @param nsi the path starting index.
+     * @param nsl the path length.
      * @param firstHopIp the first SFF ip address. Null if the SFF is nodeId.
      */
-    void suppressPath(NodeId nodeId, Long nsp, String firstHopIp);
+    void suppressPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp);
 
     /**
      * Supress match based actions.
