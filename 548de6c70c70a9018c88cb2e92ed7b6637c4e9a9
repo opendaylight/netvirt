@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_583c82c8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1231,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-01T09:07:37Z",
+      "side": 1,
+      "message": "fix required in L215 also for VXLAN check in this file and also in ShowFibCommand.java",
+      "revId": "548de6c70c70a9018c88cb2e92ed7b6637c4e9a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
