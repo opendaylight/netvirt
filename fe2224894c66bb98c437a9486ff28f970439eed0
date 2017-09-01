@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_f5a8dfdc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-09-01T06:42:15Z",
+      "side": 1,
+      "message": "Moved this line to before VXLAN provider type check. Since nextHopIP is required for both VXLAN and GRE provider type.",
+      "parentUuid": "ba1f61a0_bfbda8b9",
+      "revId": "fe2224894c66bb98c437a9486ff28f970439eed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_5fcc6c6a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_55b1eb45",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-09-01T06:42:15Z",
+      "side": 1,
+      "message": "Added provider type check for checking whether VXLAN or GRE. If any of the external network provider type matches then only calling validateAndCreateVxlanVniPool().",
+      "parentUuid": "ba1f61a0_5fcc6c6a",
+      "revId": "fe2224894c66bb98c437a9486ff28f970439eed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_1fe674e8",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-08-31T14:39:29Z",
       "side": 1,
       "message": "can you place comments in places where we get l3vni, generate mpls labels earlier etc.  The comments can be 4 lines explaining the orchestration that  leads to that vni (or) mplslabel retrieval / generation.",
+      "revId": "fe2224894c66bb98c437a9486ff28f970439eed0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_55d0cb1e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 6741
+      },
+      "writtenOn": "2017-09-01T06:42:15Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_1fe674e8",
       "revId": "fe2224894c66bb98c437a9486ff28f970439eed0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
