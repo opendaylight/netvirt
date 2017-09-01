@@ -123,6 +123,17 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
+        String lastHopInterface = sfcProvider.getLastHopSfInterfaceFromRsp(rsp).orElse(null);
+        if (lastHopInterface == null) {
+            LOG.error("RSP has no valid last hop interface");
+            return Collections.emptySet();
+        }
+
+        DpnIdType lastHopDpn = geniusProvider.getDpnIdFromInterfaceName(lastHopInterface).orElse(null);
+        if (lastHopDpn == null) {
+            LOG.error("RSP has no valid last hop DPN");
+            return Collections.emptySet();
+        }
 
         Map<NodeId, List<InterfaceKey>> nodeToInterfaces = new HashMap<>();
         NeutronNetwork neutronNetwork = matches.getAugmentation(NeutronNetwork.class);
@@ -165,6 +176,13 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                         nsp,
                         nsi));
             });
+
+            // To handle chain egress when origin, last SF and destination are on the same node,
+            // we need to bind to the SF interface so that SFC pipeline to classifier pipeline
+            // hand-off can happen through the dispatcher table
+            if (nodeDpn.equals(lastHopDpn)) {
+                entries.add(ClassifierEntry.buildIngressEntry(new InterfaceKey(lastHopInterface)));
+            }
 
             // Egress services must bind to egress ports. Since we dont know before-hand what
             // the egress ports will be, we will bind on all switch ports. If the packet
