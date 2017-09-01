@@ -40,6 +40,8 @@ public class OpenFlow13Provider {
     public static final BigInteger EGRESS_CLASSIFIER_FILTER_COOKIE = new BigInteger("F005BA1100000003", 16);
     public static final BigInteger EGRESS_CLASSIFIER_NEXTHOP_COOKIE = new BigInteger("F005BA1100000004", 16);
     public static final BigInteger EGRESS_CLASSIFIER_TPORTEGRESS_COOKIE = new BigInteger("F005BA1100000005", 16);
+    public static final BigInteger INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_COOKIE =
+            new BigInteger("F005BA1100000006", 16);
 
     // Priorities for each flow
     public static final int INGRESS_CLASSIFIER_FILTER_CHAIN_EGRESS_PRIORITY = 520;
@@ -47,6 +49,7 @@ public class OpenFlow13Provider {
     public static final int INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 500;
     public static final int INGRESS_CLASSIFIER_ACL_PRIORITY = 500;
     public static final int INGRESS_CLASSIFIER_ACL_NOMATCH_PRIORITY = 10;
+    public static final int INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_PRIORITY = 10;
     public static final int EGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 260;
     public static final int EGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 250;
     public static final int EGRESS_CLASSIFIER_NEXTHOP_C1C2_PRIORITY = 250;
@@ -61,6 +64,8 @@ public class OpenFlow13Provider {
     public static final String INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME = "nvsfc_ingr_class_filter_eth";
     public static final String INGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_ingr_class_filter_nonsh";
     public static final String INGRESS_CLASSIFIER_ACL_FLOW_NAME = "nvsfc_ingr_class_acl";
+    public static final String INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_FLOW_NAME =
+            "nvsfc_ingr_class_capture_sfc_tunnel";
     public static final String EGRESS_CLASSIFIER_FILTER_NSH_FLOW_NAME = "nvsfc_egr_class_filter_nsh";
     public static final String EGRESS_CLASSIFIER_FILTER_NONSH_FLOW_NAME = "nvsfc_egr_class_filter_nonsh";
     public static final String EGRESS_CLASSIFIER_NEXTHOP_C1C2_FLOW_NAME = "nvsfc_egr_class_nexthop_c1c2";
@@ -107,16 +112,43 @@ public class OpenFlow13Provider {
     }
 
     /*
+     * Ingress Classifier SFC Tunnel Traffic Capture Flow
+     *     Captures SFC traffic coming from tunnel port and redirects it
+     *     to the ingress classifier pipeline. From there, if no chain
+     *     egress actions apply, it will be sent back to SFC pipeline.
+     *     Match on SFC VNI = 0, and resubmit to ingress classifier.
+     */
+    public Flow createIngressClassifierSfcTunnelTrafficCaptureFlow(NodeId nodeId) {
+        MatchBuilder match = new MatchBuilder();
+        OpenFlow13Utils.addMatchTunId(match, SFC_TUNNEL_ID);
+
+        List<Action> actionList = new ArrayList<>();
+        actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
+                actionList.size()));
+
+        InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
+        String flowIdStr = INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_FLOW_NAME + nodeId.getValue();
+
+
+        return OpenFlow13Utils.createFlowBuilder(NwConstants.INTERNAL_TUNNEL_TABLE,
+                INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_PRIORITY,
+                INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_COOKIE,
+                INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_FLOW_NAME, flowIdStr, match, isb).build();
+    }
+
+    /*
      * Ingress Classifier Filter Vxgpe NSH flow:
      *     Only allows Non-NSH packets to proceed in the classifier
-     *     Match on NSP and resubmit to Ingress Dispatch on match
+     *     Match on NSP and resubmit to SFC (we don't resubmit to
+     *     since it is still not used for tunnel ports)
+     *
      */
     public Flow createIngressClassifierFilterVxgpeNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchVxgpeNsh(match);
 
         List<Action> actionList = new ArrayList<>();
-        actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.LPORT_DISPATCHER_TABLE,
+        actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.SFC_TRANSPORT_INGRESS_TABLE,
             actionList.size()));
 
         InstructionsBuilder isb = OpenFlow13Utils.wrapActionsIntoApplyActionsInstruction(actionList);
@@ -154,10 +186,11 @@ public class OpenFlow13Provider {
      *     Match C1 on local IP, NSP and ending NSI, restore metadata and
      *     resubmit to egress dispatcher
      */
-    public Flow createIngressClassifierFilterChainEgressFlow(NodeId nodeId, long nsp) {
+    public Flow createIngressClassifierFilterChainEgressFlow(NodeId nodeId, long nsp, short egressNsi) {
 
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchNsp(match, nsp);
+        OpenFlow13Utils.addMatchNsi(match, egressNsi);
 
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionNxMoveNsc4ToReg6Register(actionList.size()));

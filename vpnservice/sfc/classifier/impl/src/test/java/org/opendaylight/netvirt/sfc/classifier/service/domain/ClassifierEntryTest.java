@@ -55,7 +55,7 @@ public class ClassifierEntryTest {
     }
 
     private ClassifierEntry buildPathEntry() {
-        return ClassifierEntry.buildPathEntry(new NodeId("node"), 100L, "127.0.0.10");
+        return ClassifierEntry.buildPathEntry(new NodeId("node"), 100L, (short) 254, (short) 253, "127.0.0.10");
     }
 
     private ClassifierEntry buildMatchEntry() {
@@ -102,10 +102,12 @@ public class ClassifierEntryTest {
     public void renderPathEntry() throws Exception {
         NodeId nodeId = new NodeId("node");
         Long nsp = 2L;
+        short nsi = (short) 254;
+        short nsl = (short) 252;
         String firstHopIp = "127.0.0.1";
-        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, firstHopIp);
+        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, nsi, nsl, firstHopIp);
         entry.render(renderer);
-        verify(renderer).renderPath(nodeId, nsp, firstHopIp);
+        verify(renderer).renderPath(nodeId, nsp, nsi, nsl, firstHopIp);
         verifyNoMoreInteractions(renderer);
     }
 
@@ -153,10 +155,12 @@ public class ClassifierEntryTest {
     public void suppressPathEntry() throws Exception {
         NodeId nodeId = new NodeId("node");
         Long nsp = 2L;
+        short nsi = (short) 254;
+        short nsl = (short) 252;
         String firstHopIp = "127.0.0.1";
-        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, firstHopIp);
+        ClassifierEntry entry = ClassifierEntry.buildPathEntry(nodeId, nsp, nsi, nsl, firstHopIp);
         entry.suppress(renderer);
-        verify(renderer).suppressPath(nodeId, nsp, firstHopIp);
+        verify(renderer).suppressPath(nodeId, nsp, nsi, nsl, firstHopIp);
         verifyNoMoreInteractions(renderer);
     }
 
