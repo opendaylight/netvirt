@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_15fdb36e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/VpnFloatingIpHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-01T07:36:51Z",
+      "side": 1,
+      "message": "why do we need the VNI Pool for GRE type of external network?",
+      "revId": "fb60ab14a764c6081bd3f3f80597e7142a2e4817",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
