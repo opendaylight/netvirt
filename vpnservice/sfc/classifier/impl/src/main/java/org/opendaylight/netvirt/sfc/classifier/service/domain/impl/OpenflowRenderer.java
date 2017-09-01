@@ -50,6 +50,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         flows.add(this.openFlow13Provider.createIngressClassifierFilterNoNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createIngressClassifierAclNoMatchFlow(nodeId));
 
+        flows.add(this.openFlow13Provider.createIngressClassifierSfcTunnelTrafficCaptureFlow(nodeId));
+
         flows.add(this.openFlow13Provider.createEgressClassifierFilterNshFlow(nodeId));
         flows.add(this.openFlow13Provider.createEgressClassifierFilterNoNshFlow(nodeId));
 
@@ -62,7 +64,7 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void renderPath(NodeId nodeId, Long nsp, String firstHopIp) {
+    public void renderPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
 
         List<Flow> flows = new ArrayList<>();
         if (firstHopIp != null) {
@@ -80,7 +82,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
             flow = openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp);
             flows.add(flow);
         }
-        flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp));
+        short egressNsi = (short) (nsi - nsl);
+        flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp, egressNsi));
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         flows.forEach(flow -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
         tx.submit();
@@ -126,7 +129,7 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void suppressPath(NodeId nodeId, Long nsp, String firstHopIp) {
+    public void suppressPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
         List<Flow> flows = new ArrayList<>();
         if (firstHopIp != null) {
             Long port = geniusProvider.getEgressVxlanPortForNode(OpenFlow13Provider.getDpnIdFromNodeId(nodeId))
@@ -143,7 +146,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
             flow = openFlow13Provider.createEgressClassifierTransportEgressLocalFlow(nodeId, nsp);
             flows.add(flow);
         }
-        flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp));
+        short egressNsi = (short) (nsi - nsl);
+        flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp, egressNsi));
         WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
         flows.forEach(flow -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
         tx.submit();

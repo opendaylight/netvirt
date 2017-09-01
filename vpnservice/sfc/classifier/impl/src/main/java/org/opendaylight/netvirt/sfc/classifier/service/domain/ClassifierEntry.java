@@ -37,11 +37,13 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
     private final Matches matches;
     private final Long nsp;
     private final Short nsi;
+    private final Short nsl;
     private final String destinationIp;
     private final String firstHopIp;
 
     private ClassifierEntry(EntryType entryType, NodeId node, InterfaceKey interfaceKey, String connector,
-                            Matches matches, Long nsp, Short nsi, String destinationIp, String firstHopIp) {
+                            Matches matches, Long nsp, Short nsi, Short nsl, String destinationIp,
+                            String firstHopIp) {
         this.entryType = entryType;
         this.node = node;
         this.interfaceKey = interfaceKey;
@@ -49,6 +51,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
         this.matches = matches;
         this.nsp = nsp;
         this.nsi = nsi;
+        this.nsl = nsl;
         this.destinationIp = destinationIp;
         this.firstHopIp = firstHopIp;
     }
@@ -63,6 +66,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 matches,
                 nsp,
                 nsi,
+                nsl,
                 destinationIp,
                 firstHopIp);
     }
@@ -87,6 +91,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 && Objects.equals(nsp, other.nsp)
                 && Objects.equals(nsi, other.nsi)
                 && Objects.equals(destinationIp, other.destinationIp)
+                && Objects.equals(nsl, other.nsl)
                 && Objects.equals(firstHopIp, other.firstHopIp);
     }
 
@@ -100,6 +105,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 .add("matches", matches)
                 .add("nsp", nsp)
                 .add("nsi", nsi)
+                .add("nsl", nsl)
                 .add("destinationIp", destinationIp)
                 .add("firstHopIp", firstHopIp)
                 .toString();
@@ -115,7 +121,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.renderIngress(interfaceKey);
                 break;
             case PATH_ENTRY_TYPE:
-                classifierEntryRenderer.renderPath(node, nsp, firstHopIp);
+                classifierEntryRenderer.renderPath(node, nsp, nsi, nsl, firstHopIp);
                 break;
             case MATCH_ENTRY_TYPE:
                 classifierEntryRenderer.renderMatch(node, connector, matches, nsp, nsi);
@@ -137,7 +143,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 classifierEntryRenderer.suppressIngress(interfaceKey);
                 break;
             case PATH_ENTRY_TYPE:
-                classifierEntryRenderer.suppressPath(node, nsp, firstHopIp);
+                classifierEntryRenderer.suppressPath(node, nsp, nsi, nsl, firstHopIp);
                 break;
             case MATCH_ENTRY_TYPE:
                 classifierEntryRenderer.suppressMatch(node, connector, matches, nsp, nsi);
@@ -165,6 +171,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 null,
                 null,
                 null,
+                null,
                 null);
     }
 
@@ -184,6 +191,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 null,
                 null,
                 null,
+                null,
                 null);
     }
 
@@ -192,10 +200,13 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
      *
      * @param node the classifier node identifier.
      * @param nsp the path identifier.
+     * @param nsi the path starting index.
+     * @param nsl the path length.
      * @param firstHopIp the first SFF ip address. Null if the SFF is nodeId.
      * @return the {@code ClassifierEntry}.
      */
-    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, String firstHopIp) {
+    public static ClassifierEntry buildPathEntry(NodeId node, Long nsp, short nsi, short nsl,
+                                                 String firstHopIp) {
         return new ClassifierEntry(
                 EntryType.PATH_ENTRY_TYPE,
                 node,
@@ -203,7 +214,8 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 null,
                 null,
                 nsp,
-                null,
+                nsi,
+                nsl,
                 null,
                 firstHopIp);
     }
@@ -228,6 +240,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 nsp,
                 nsi,
                 null,
+                null,
                 null);
     }
 
@@ -246,6 +259,7 @@ public final class ClassifierEntry implements ClassifierRenderableEntry {
                 EntryType.EGRESS_INTERFACE_ENTRY_TYPE,
                 null,
                 interfaceKey,
+                null,
                 null,
                 null,
                 null,

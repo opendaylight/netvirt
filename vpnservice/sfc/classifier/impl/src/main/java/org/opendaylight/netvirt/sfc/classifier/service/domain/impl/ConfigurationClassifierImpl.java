@@ -111,9 +111,10 @@ public class ConfigurationClassifierImpl implements ClassifierState {
 
         Long nsp = rsp.getPathId();
         Short nsi = rsp.getStartingIndex();
+        Short nsl = rsp.getRenderedServicePathHop() == null ? null : (short) rsp.getRenderedServicePathHop().size();
 
-        if (nsp == null || nsi == null) {
-            LOG.trace("RSP has no valid NSI or NSP");
+        if (nsp == null || nsi == null || nsl == null) {
+            LOG.trace("RSP has no valid NSI or NSP or length");
             return Collections.emptySet();
         }
 
@@ -168,6 +169,8 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             entries.add(ClassifierEntry.buildPathEntry(
                     nodeId,
                     nsp,
+                    nsi,
+                    nsl,
                     nodeDpn.equals(firstHopDpn) ? null : firstHopIp));
 
             // Add entries based on ingress interface

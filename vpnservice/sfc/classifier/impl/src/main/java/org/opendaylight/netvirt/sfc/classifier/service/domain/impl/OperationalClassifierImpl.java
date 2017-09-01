@@ -42,8 +42,8 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void renderPath(NodeId nodeId, Long nsp, String firstHopIp) {
-                entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, firstHopIp));
+            public void renderPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
+                entries.add(ClassifierEntry.buildPathEntry(nodeId, nsp, nsi, nsl, firstHopIp));
             }
 
             @Override
@@ -67,8 +67,8 @@ public class OperationalClassifierImpl implements ClassifierState {
             }
 
             @Override
-            public void suppressPath(NodeId nodeId, Long nsp, String firstHopIp) {
-                entries.remove(ClassifierEntry.buildPathEntry(nodeId, nsp, firstHopIp));
+            public void suppressPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
+                entries.remove(ClassifierEntry.buildPathEntry(nodeId, nsp, nsi, nsl, firstHopIp));
             }
 
             @Override

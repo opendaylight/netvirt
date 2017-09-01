@@ -71,6 +71,7 @@ public class OpenFlow13ProviderTest {
     private static final Long OUT_PORT = 12L;
     private static final Long NSP = 6500L;
     private static final Short NSI = (short) 255;
+    private static final Short EGRESS_NSI = (short) 253;
 
     public OpenFlow13ProviderTest() {
         nodeId = new NodeId(NODE_ID_STR);
@@ -95,7 +96,7 @@ public class OpenFlow13ProviderTest {
 
         assertEquals(1, flow.getInstructions().getInstruction().size());
         checkActionResubmit(flow.getInstructions().getInstruction().get(0).getInstruction(),
-                NwConstants.LPORT_DISPATCHER_TABLE);
+                NwConstants.SFC_TRANSPORT_INGRESS_TABLE);
     }
 
     @Test
@@ -117,7 +118,7 @@ public class OpenFlow13ProviderTest {
 
     @Test
     public void createIngressClassifierFilterChainEgressFlow() {
-        Flow flow = openflowProvider.createIngressClassifierFilterChainEgressFlow(nodeId, NSP);
+        Flow flow = openflowProvider.createIngressClassifierFilterChainEgressFlow(nodeId, NSP, EGRESS_NSI);
 
         assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE);
         assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_CHAIN_EGRESS_PRIORITY);
@@ -127,6 +128,8 @@ public class OpenFlow13ProviderTest {
         assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchNsp(flow.getMatch(), NSP);
+        checkMatchNsi(flow.getMatch(), EGRESS_NSI);
+
         assertEquals(1, flow.getInstructions().getInstruction().size());
         Instruction curInstruction = flow.getInstructions().getInstruction().get(0).getInstruction();
         List<Action> actionList = checkApplyActionSize(curInstruction, 3);
@@ -324,6 +327,25 @@ public class OpenFlow13ProviderTest {
         checkActionOutport(actionList.get(1), "output:" + OUT_PORT);
     }
 
+    @Test
+    public void createIngressClassifierSfcTunnelTrafficCaptureFlow() {
+        Flow flow = openflowProvider.createIngressClassifierSfcTunnelTrafficCaptureFlow(nodeId);
+
+        assertEquals(flow.getTableId().shortValue(), NwConstants.INTERNAL_TUNNEL_TABLE);
+        assertEquals(flow.getPriority().intValue(),
+                OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_PRIORITY);
+        assertEquals(flow.getId().getValue(),
+                OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_FLOW_NAME + nodeId.getValue());
+        assertEquals(flow.getCookie().getValue(),
+                OpenFlow13Provider.INGRESS_CLASSIFIER_CAPTURE_SFC_TUNNEL_TRAFFIC_COOKIE);
+
+        checkMatchTunId(flow.getMatch(), OpenFlow13Provider.SFC_TUNNEL_ID);
+
+        assertEquals(1, flow.getInstructions().getInstruction().size());
+        checkActionResubmit(flow.getInstructions().getInstruction().get(0).getInstruction(),
+                NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE);
+    }
+
     //
     // Internal util methods to check Flow Matches
     //
@@ -349,6 +371,23 @@ public class OpenFlow13ProviderTest {
 
             if (nxAugMatch.getNxmNxTunGpeNp() != null) {
                 assertEquals(nxAugMatch.getNxmNxTunGpeNp().getValue().shortValue(), OpenFlow13Utils.TUN_GPE_NP_NSH);
+            }
+        }
+    }
+
+    private void checkMatchTunId(Match match, long value) {
+        GeneralAugMatchNodesNodeTableFlow genAug =
+                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+
+        assertNotNull(genAug);
+
+        List<ExtensionList> extensions = genAug.getExtensionList();
+        for (ExtensionList extensionList : extensions) {
+            Extension extension = extensionList.getExtension();
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+
+            if (nxAugMatch.getNxmNxTunId() != null) {
+                assertEquals(nxAugMatch.getNxmNxTunId().getValue().longValue(), value);
             }
         }
     }
@@ -439,6 +478,23 @@ public class OpenFlow13ProviderTest {
 
             if (nxAugMatch.getNxmNxNsp() != null) {
                 assertEquals(nxAugMatch.getNxmNxNsp().getValue().longValue(), nsp);
+            }
+        }
+    }
+
+    private void checkMatchNsi(Match match, short nsi) {
+        GeneralAugMatchNodesNodeTableFlow genAug =
+                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+
+        assertNotNull(genAug);
+
+        List<ExtensionList> extensions = genAug.getExtensionList();
+        for (ExtensionList extensionList : extensions) {
+            Extension extension = extensionList.getExtension();
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+
+            if (nxAugMatch.getNxmNxNsi() != null) {
+                assertEquals(nxAugMatch.getNxmNxNsi().getNsi().shortValue(), nsi);
             }
         }
     }

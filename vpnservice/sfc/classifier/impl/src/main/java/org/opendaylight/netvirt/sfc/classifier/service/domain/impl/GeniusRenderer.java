@@ -33,7 +33,7 @@ public class GeniusRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void renderPath(NodeId nodeId, Long nsp, String firstHopIp) {
+    public void renderPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
         // noop
     }
 
@@ -58,7 +58,7 @@ public class GeniusRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
-    public void suppressPath(NodeId nodeId, Long nsp, String firstHopIp) {
+    public void suppressPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
         // noop
     }
 
