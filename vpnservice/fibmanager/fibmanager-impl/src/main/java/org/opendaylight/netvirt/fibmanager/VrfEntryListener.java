@@ -80,6 +80,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.LabelRouteMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.label.route.map.LabelRouteInfo;
@@ -212,7 +213,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     //This method is temporary. Eventually Factory design pattern will be used to get
     // right VrfEntryhandle and invoke its methods.
     private void removeFibEntries(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        if (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Vxlan)) {
+        if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows to be deleted");
             EvpnVrfEntryHandler evpnVrfEntryHandler =
                     new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler, nextHopManager);
@@ -1227,7 +1228,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
             //First Cleanup LabelRouteInfo
             //TODO(KIRAN) : Move the below block when addressing iRT/eRT for L3VPN Over VxLan
-            if (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Mplsgre)) {
+            if (VrfEntry.EncapType.Mplsgre.equals(vrfEntry.getEncapType())) {
                 FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                     List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                     synchronized (label.toString().intern()) {
