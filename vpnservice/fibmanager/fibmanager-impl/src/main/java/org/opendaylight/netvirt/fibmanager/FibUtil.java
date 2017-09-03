@@ -99,9 +99,12 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class FibUtil {
+public final class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
     private static final String FLOWID_PREFIX = "L3.";
+
+    private FibUtil() {
+    }
 
     static InstanceIdentifier<Adjacency> getAdjacencyIdentifier(String vpnInterfaceName, String ipAddress) {
         return InstanceIdentifier.builder(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
@@ -169,8 +172,7 @@ public class FibUtil {
     }
 
     static String getNextHopLabelKey(String rd, String prefix) {
-        String key = rd + FibConstants.SEPARATOR + prefix;
-        return key;
+        return rd + FibConstants.SEPARATOR + prefix;
     }
 
     static Prefixes getPrefixToInterface(DataBroker broker, Long vpnId, String ipPrefix) {
@@ -323,7 +325,7 @@ public class FibUtil {
             builder.setMac(macAddress);
             return;
         }
-        //if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
+
         // TODO - validate this check
         if (l3vni != 0) {
             builder.setL3vni(l3vni);
@@ -731,10 +733,8 @@ public class FibUtil {
     }
 
     static InstanceIdentifier<Group> buildGroupInstanceIdentifier(long groupId, BigInteger dpId) {
-        InstanceIdentifier<Group> groupInstanceId = InstanceIdentifier.builder(Nodes.class)
-                .child(Node.class, new NodeKey(new NodeId("openflow:" + dpId))).augmentation(FlowCapableNode.class)
-                .child(Group.class, new GroupKey(new GroupId(groupId))).build();
-        return groupInstanceId;
+        return InstanceIdentifier.builder(Nodes.class).child(Node.class, new NodeKey(new NodeId("openflow:" + dpId)))
+                .augmentation(FlowCapableNode.class).child(Group.class, new GroupKey(new GroupId(groupId))).build();
     }
 
     static Buckets buildBuckets(List<BucketInfo> listBucketInfo) {
@@ -774,10 +774,8 @@ public class FibUtil {
     }
 
     static Node buildDpnNode(BigInteger dpnId) {
-        NodeId nodeId = new NodeId("openflow:" + dpnId);
-        Node nodeDpn = new NodeBuilder().setId(nodeId).setKey(new NodeKey(nodeId)).build();
-
-        return nodeDpn;
+        return new NodeBuilder().setId(new NodeId("openflow:" + dpnId))
+                .setKey(new NodeKey(new NodeId("openflow:" + dpnId))).build();
     }
 
     public static String getBroadcastAddressFromCidr(String cidr) {
@@ -786,10 +784,10 @@ public class FibUtil {
         int cidrPart = Integer.parseInt(ipaddressValues[1]);
         int netmask = 0;
         for (int j = 0; j < cidrPart; ++j) {
-            netmask |= (1 << 31 - j);
+            netmask |= 1 << 31 - j;
         }
-        int network = (address & netmask);
-        int broadcast = network | ~(netmask);
+        int network = address & netmask;
+        int broadcast = network | ~netmask;
         return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
     }
 }
