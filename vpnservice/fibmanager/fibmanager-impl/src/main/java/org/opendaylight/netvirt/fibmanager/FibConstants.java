@@ -14,7 +14,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 
-public class FibConstants {
+public final class FibConstants {
     static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
     static final int DEFAULT_PREFIX_LENGTH = 32;
     static final int DEFAULT_IPV6_PREFIX_LENGTH = 128;
@@ -24,7 +24,7 @@ public class FibConstants {
     static final String SEPARATOR = ".";
     static final String DEFAULT_NEXTHOP_IP = "0.0.0.0";
     public static final long INVALID_GROUP_ID = -1;
-    public static final Map<Integer,  Class<? extends NxmNxReg>> NXM_REG_MAPPING = new ConcurrentHashMap<>();
+    public static final Map<Integer, Class<? extends NxmNxReg>> NXM_REG_MAPPING = new ConcurrentHashMap<>();
 
     static {
         NXM_REG_MAPPING.put(0, NxmNxReg0.class);
