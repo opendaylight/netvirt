@@ -105,11 +105,6 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         this.mdsalManager = mdsalManager;
     }
 
-//    @PostConstruct
-//    public void init() {
-//        LOG.info("{} init", getClass().getSimpleName());
-//    }
-//
     @Override
     public void close() throws Exception {
         LOG.info("{} closed", getClass().getSimpleName());
@@ -121,7 +116,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress,
+    protected void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress,
                               final String ipPrefixAddress) {
         LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, ipAddress {}", dpId, vpnId, ipAddress);
         try {
@@ -146,7 +141,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                         FibUtil.getVpnNameFromId(dataBroker, vpnId), usedRds, vrfEntry.getDestPrefix());
                 if (vpnExtraRoutes.isEmpty()) {
                     Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
-                    // We donot want to provide an adjacencyList for an extra-route-prefix.
+                    // We don't want to provide an adjacencyList for an extra-route-prefix.
                     if (prefixInfo == null) {
                         LOG.debug("The extra route {} in rd {} for vpn {} has been removed from all the next hops",
                                 vrfEntry.getDestPrefix(), rd, vpnId);
@@ -197,7 +192,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         return adjacencyList;
     }
 
-    void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
+    protected void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
                             List<InstructionInfo> instructions, int addOrRemove, WriteTransaction tx,
                             List<SubTransaction> subTxns) {
         Boolean wrTxPresent = true;
@@ -209,7 +204,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         LOG.trace("makeConnectedRoute: vrfEntry {}", vrfEntry);
         String[] values = vrfEntry.getDestPrefix().split("/");
         String ipAddress = values[0];
-        int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
+        int prefixLength = values.length == 1 ? 0 : Integer.parseInt(values[1]);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             LOG.debug("Adding route to DPN {} for rd {} prefix {} ", dpId, rd, vrfEntry.getDestPrefix());
         } else {
@@ -278,7 +273,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
+    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
                                         List<ActionInfo> actionInfos) {
         if (vrfEntry.getMac() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
@@ -307,7 +302,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(), new MacAddress(macAddress)));
     }
 
-    void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
+    protected void addTunnelInterfaceActions(AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
                                            List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType =
                 VpnExtraRouteHelper.getTunnelType(nextHopManager.getInterfaceManager(),
@@ -449,7 +444,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
-    static InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId,
+    public static InstanceIdentifier<Routes> getVpnToExtrarouteIdentifier(String vpnName, String vrfId,
                                                                     String ipPrefix) {
         return InstanceIdentifier.builder(VpnToExtraroutes.class)
                 .child(Vpn.class, new VpnKey(vpnName)).child(ExtraRoutes.class,
@@ -473,9 +468,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
         String flowId = FibUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+        return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
-        return flowEntity;
     }
 
     public void installPingResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
@@ -521,5 +515,4 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             mdsalManager.removeFlow(flowEntity);
         }
     }
-
 }

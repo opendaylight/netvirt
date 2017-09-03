@@ -13,7 +13,6 @@ import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.Collection;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -31,31 +30,21 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 @Singleton
 public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implements AutoCloseable, IVrfEntryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceVrfEntryHandler.class);
     private final DataBroker dataBroker;
-    private final NexthopManager nexthopManager;
     private final IMdsalApiManager mdsalManager;
     private final IPv6Handler ipv6Handler;
 
     @Inject
-    public RouterInterfaceVrfEntryHandler(final DataBroker dataBroker,
-                                          final NexthopManager nexthopManager,
-                                          final IMdsalApiManager mdsalManager,
-                                          final IPv6Handler ipv6Handler) {
+    public RouterInterfaceVrfEntryHandler(final DataBroker dataBroker, final NexthopManager nexthopManager,
+            final IMdsalApiManager mdsalManager, final IPv6Handler ipv6Handler) {
         super(dataBroker, nexthopManager, mdsalManager);
         this.dataBroker = dataBroker;
-        this.nexthopManager = nexthopManager;
         this.mdsalManager = mdsalManager;
         this.ipv6Handler = ipv6Handler;
-    }
-
-    @PostConstruct
-    public void init() {
-        LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
@@ -63,33 +52,35 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
         LOG.info("{} close", getClass().getSimpleName());
     }
 
+    @Override
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
         installRouterFibEntries(vrfEntry, rd, NwConstants.ADD_FLOW, routerInt);
     }
 
+    @Override
     public void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
-        //Not used
+        // Not used
     }
 
+    @Override
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
         installRouterFibEntries(vrfEntry, rd, NwConstants.DEL_FLOW, routerInt);
     }
 
-
-    private Boolean installRouterFibEntries(VrfEntry vrfEntry, String rd,
-                                              int addOrRemove, RouterInterface routerInterface) {
+    private Boolean installRouterFibEntries(VrfEntry vrfEntry, String rd, int addOrRemove,
+            RouterInterface routerInterface) {
         final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + rd);
-        Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
-                + " has null vpnId!");
+        Preconditions.checkNotNull(vpnInstance.getVpnId(),
+                "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
         final Collection<VpnToDpnList> vpnToDpnList;
         if (vrfEntry.getParentVpnRd() != null
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
             VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
-            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
-                    vpnInstance.getVpnToDpnList();
+            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
+                    : vpnInstance.getVpnToDpnList();
         } else {
             vpnToDpnList = vpnInstance.getVpnToDpnList();
         }
@@ -103,18 +94,19 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
                     routerId, ipValue, macAddress);
             for (VpnToDpnList vpnDpn : vpnToDpnList) {
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                    installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue,
-                            new MacAddress(macAddress), addOrRemove);
+                    installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue, new MacAddress(macAddress),
+                            addOrRemove);
                 }
             }
         }
         return true;
     }
 
-    public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId,
-                                      String routerInternalIp, MacAddress routerMac, int addOrRemove) {
+    public void installRouterFibEntry(final VrfEntry vrfEntry, BigInteger dpnId, long vpnId, String routerInternalIp,
+            MacAddress routerMac, int addOrRemove) {
 
-        // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6 address families
+        // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6
+        // address families
         FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.installFlow(l3GwMacFlowEntity);
@@ -129,15 +121,15 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
         }
 
         String[] subSplit = routerInternalIp.split("/");
-        String addRemoveStr = (addOrRemove == NwConstants.ADD_FLOW) ? "ADD_FLOW" : "DELETE_FLOW";
+        String addRemoveStr = addOrRemove == NwConstants.ADD_FLOW ? "ADD_FLOW" : "DELETE_FLOW";
         LOG.trace("{}: Building Echo Flow entity for dpid:{}, router_ip:{}, vpnId:{}, subSplit:{} ", addRemoveStr,
                 dpnId, routerInternalIp, vpnId, subSplit[0]);
 
         if (isIpv4Address(subSplit[0])) {
             installPingResponderFlowEntry(dpnId, vpnId, subSplit[0], routerMac, optionalLabel.get(), addOrRemove);
         } else {
-            ipv6Handler.installPing6ResponderFlowEntry(dpnId, vpnId, routerInternalIp, routerMac,
-                    optionalLabel.get(), addOrRemove);
+            ipv6Handler.installPing6ResponderFlowEntry(dpnId, vpnId, routerInternalIp, routerMac, optionalLabel.get(),
+                    addOrRemove);
         }
         return;
     }
