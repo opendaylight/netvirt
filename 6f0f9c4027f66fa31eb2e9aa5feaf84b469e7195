@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_2ab4d1cf",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_bff008ff",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_dfeb3c11",
         "filename": "docs/user-guide/bridge-configuration.rst",
         "patchSetId": 12
@@ -30,6 +48,24 @@
       "writtenOn": "2017-08-31T12:32:01Z",
       "side": 1,
       "message": "whitespace",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8accdd6b",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_dfeb3c11",
       "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_6ac9a958",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_fff600f8",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_5fdf4c69",
         "filename": "docs/user-guide/bridge-configuration.rst",
         "patchSetId": 12
@@ -64,6 +118,24 @@
       "writtenOn": "2017-08-31T12:32:01Z",
       "side": 1,
       "message": "Are there any places of conflict - like if the user configured flows or inband on the bridge?",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8ad33d03",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_5fdf4c69",
       "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_cac25533",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_9fe5443a",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_7fe21030",
         "filename": "docs/user-guide/bridge-configuration.rst",
         "patchSetId": 12
@@ -98,6 +188,24 @@
       "writtenOn": "2017-08-31T12:32:01Z",
       "side": 1,
       "message": ":",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_aabf21a9",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_7fe21030",
       "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_0ae0edcb",
+        "filename": "docs/user-guide/bridge-configuration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_dfd21c5b",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_bfd7684a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 12
@@ -132,6 +258,24 @@
       "writtenOn": "2017-08-31T12:32:01Z",
       "side": 1,
       "message": "include config or operational so we capture the design?",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_aaa8c177",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_bfd7684a",
       "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -155,6 +299,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_0ab90dcc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Minor refactor to get rid of pointless method and renamed to clarify we\u0027re adding to config here.\n\nRe: readBridgeNode, though I agree in principle with your comment, that\u0027s in ovsdb and I\u0027m not sure it\u0027s worth refactoring just right now.",
+      "parentUuid": "ba1f61a0_1fc954ac",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_5fc62c9b",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 12
@@ -172,6 +334,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_eabd99b8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 172,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "Agree. IMHO, southbound utils sucks. I\u0027d be happy to refactor the names and method signatures to be consistent and clear. I can do it in another patch. Thing is, I\u0027m very ambivalent about the very existence of southbound utils in ovsdb (as are the ovsdb people). I think this requires a broader conversation.",
+      "parentUuid": "ba1f61a0_5fc62c9b",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_3fc3788a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
         "patchSetId": 12
@@ -183,6 +363,24 @@
       "writtenOn": "2017-08-31T12:32:01Z",
       "side": 1,
       "message": "this would look better as a helper method. It is good this method here reads config since that is netvirt specific but then a helper to do the write.",
+      "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4aaf857d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-03T08:08:24Z",
+      "side": 1,
+      "message": "I changed copyBridgeForConfig to copyBridgeToConfig and moved the mdsal write into there.",
+      "parentUuid": "ba1f61a0_3fc3788a",
       "revId": "6f0f9c4027f66fa31eb2e9aa5feaf84b469e7195",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
