@@ -112,7 +112,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         String vpnName = input.getVpnName();
         long vpnId = getVpnId(dataBroker, vpnName);
         String vpnRd = getVpnRd(dataBroker, vpnName);
-        long serviceId = input.getServiceId();
+
         String ipAddress = input.getIpAddress();
 
         LOG.info("Delete custom FIB entry - {} on dpn {} for VPN {} ", ipAddress, dpnId, vpnName);
@@ -142,7 +142,7 @@ public class FibRpcServiceImpl implements FibRpcService {
     private void removeLocalFibEntry(BigInteger dpnId, long vpnId, String ipPrefix) {
         String[] values = ipPrefix.split("/");
         String ipAddress = values[0];
-        int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
+        int prefixLength = values.length == 1 ? 0 : Integer.parseInt(values[1]);
         LOG.debug("Removing route from DPN. ip {} masklen {}", ipAddress, prefixLength);
         InetAddress destPrefix = null;
         try {
@@ -179,7 +179,7 @@ public class FibRpcServiceImpl implements FibRpcService {
                                    List<Instruction> customInstructions) {
         String[] values = ipPrefix.split("/");
         String ipAddress = values[0];
-        int prefixLength = (values.length == 1) ? 0 : Integer.parseInt(values[1]);
+        int prefixLength = values.length == 1 ? 0 : Integer.parseInt(values[1]);
         LOG.debug("Adding route to DPN. ip {} masklen {}", ipAddress, prefixLength);
         InetAddress destPrefix = null;
         try {
@@ -222,8 +222,8 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.debug("Updating VPN to DPN list for dpn : {} for VPN: {} with ip: {}",
             dpnId, vpnName, ipAddr);
         String routeDistinguisher = getVpnRd(dataBroker, vpnName);
-        String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
-        IpAddresses.IpAddressSource ipAddressSource = (ipAddressSourceEnumValue == 0)
+        String rd = routeDistinguisher == null ? vpnName : routeDistinguisher;
+        IpAddresses.IpAddressSource ipAddressSource = ipAddressSourceEnumValue == 0
                 ? IpAddresses.IpAddressSource.ExternalFixedIP : IpAddresses.IpAddressSource.FloatingIP;
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
@@ -257,7 +257,7 @@ public class FibRpcServiceImpl implements FibRpcService {
         LOG.debug("Removing association of VPN to DPN list for dpn : {} for VPN: {} with ip: {}",
             dpnId, vpnName, ipAddr);
         String routeDistinguisher = getVpnRd(dataBroker, vpnName);
-        String rd = (routeDistinguisher == null) ? vpnName : routeDistinguisher;
+        String rd = routeDistinguisher == null ? vpnName : routeDistinguisher;
         synchronized (vpnName.intern()) {
             InstanceIdentifier<VpnToDpnList> id = getVpnToDpnListIdentifier(rd, dpnId);
             Optional<VpnToDpnList> dpnInVpn = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
@@ -340,6 +340,4 @@ public class FibRpcServiceImpl implements FibRpcService {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
                 VpnInstance::getVpnId).orElse(-1L);
     }
-
-
 }

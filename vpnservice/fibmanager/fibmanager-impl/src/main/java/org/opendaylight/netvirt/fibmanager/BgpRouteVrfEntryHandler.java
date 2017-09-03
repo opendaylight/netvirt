@@ -118,7 +118,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     @Override
     public void update(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier,
                        Object original, Object update, List<SubTransaction> subTxns) {
-        if ((original instanceof VrfEntry) && (update instanceof VrfEntry)) {
+        if (original instanceof VrfEntry && update instanceof VrfEntry) {
             createFibEntries(tx, identifier, (VrfEntry) update, subTxns);
         }
     }
@@ -139,6 +139,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         }
     }
 
+    @Override
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
         actResource.setAction(ActionableResource.CREATE);
@@ -147,6 +148,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         vrfEntryBufferQ.add(actResource);
     }
 
+    @Override
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
         actResource.setAction(ActionableResource.DELETE);
@@ -155,6 +157,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         vrfEntryBufferQ.add(actResource);
     }
 
+    @Override
     public void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
         ActionableResource actResource = new ActionableResourceImpl(rd + update.getDestPrefix());
         actResource.setAction(ActionableResource.UPDATE);
@@ -383,8 +386,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     @Override
-    void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId, VrfEntry vrfEntry,
-                                           List<ActionInfo> actionInfos, String rd) {
+    protected void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId,
+            VrfEntry vrfEntry, List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType =
                 VpnExtraRouteHelper.getTunnelType(nextHopManager.getInterfaceManager(),
                         adjacencyResult.getInterfaceName());
@@ -414,7 +417,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     @Override
-    void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
+    protected void addRewriteDstMacAction(long vpnId, VrfEntry vrfEntry, Prefixes prefixInfo,
                                         List<ActionInfo> actionInfos) {
         if (vrfEntry.getGatewayMacAddress() != null) {
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),

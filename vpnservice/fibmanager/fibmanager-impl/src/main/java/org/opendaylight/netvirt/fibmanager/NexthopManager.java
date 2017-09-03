@@ -775,7 +775,7 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    long setupLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
+    protected long setupLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
             String destPrefix, List<BucketInfo> listBucketInfo, boolean addOrRemove) {
         long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
         if (groupId == FibConstants.INVALID_GROUP_ID) {
@@ -784,7 +784,7 @@ public class NexthopManager implements AutoCloseable {
         }
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                 dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
-        if (addOrRemove == true) {
+        if (addOrRemove) {
             mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
             try {
                 Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
@@ -960,7 +960,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     private List<Action> getEgressActions(String interfaceName, int actionKey) {
-        List<Action> actions = Collections.EMPTY_LIST;
+        List<Action> actions = Collections.emptyList();
         try {
             GetEgressActionsForInterfaceInputBuilder egressAction =
                     new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName).setActionKey(actionKey);
@@ -1013,7 +1013,7 @@ public class NexthopManager implements AutoCloseable {
                 mdsalApiManager.removeBucketToTx(dpnId, Long.valueOf(groupId), bucketId, configTx);
             } else {
                 Group group = MDSALUtil.buildGroup(Long.valueOf(groupId), nextHopKey, GroupTypes.GroupSelect,
-                        MDSALUtil.buildBucketLists(Collections.EMPTY_LIST));
+                        MDSALUtil.buildBucketLists(Collections.emptyList()));
                 LOG.trace("Removed LB group {} on dpn {}", group, dpnId);
                 mdsalApiManager.removeGroupToTx(dpnId, group, configTx);
                 removeNextHopPointer(nextHopKey);
@@ -1078,7 +1078,7 @@ public class NexthopManager implements AutoCloseable {
             listAction.addAll(getEgressActions(tunnelInterfaceName, actionKey++));
         } else {
             // clear off actions if there is no egress actions.
-            listAction = Collections.EMPTY_LIST;
+            listAction = Collections.emptyList();
         }
         return MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, index,
                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP);
