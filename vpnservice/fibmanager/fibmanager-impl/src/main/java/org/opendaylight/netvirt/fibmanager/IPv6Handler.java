@@ -13,7 +13,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -37,27 +36,18 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-
 
 @Singleton
 public class IPv6Handler {
-    private static final Logger LOG = LoggerFactory.getLogger(IPv6Handler.class);
-    private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
 
-
     @Inject
-    public IPv6Handler(final DataBroker dataBroker,
-                       final IMdsalApiManager mdsalManager) {
-        this.dataBroker = dataBroker;
+    public IPv6Handler(final IMdsalApiManager mdsalManager) {
         this.mdsalManager = mdsalManager;
     }
 
     public void installPing6ResponderFlowEntry(BigInteger dpnId, long vpnId, String routerInternalIp,
-                                               MacAddress routerMac, long label, int addOrRemove) {
+            MacAddress routerMac, long label, int addOrRemove) {
 
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchIpProtocol.ICMPV6);
@@ -94,5 +84,4 @@ public class IPv6Handler {
             mdsalManager.removeFlow(flowEntity);
         }
     }
-
 }
