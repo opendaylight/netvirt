@@ -34,6 +34,24 @@
       "revId": "b656dcbe45926ffbc2c8a700f41e07d307ce7d13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_73da40e9",
+        "filename": "vpnservice/aclservice/impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-04T14:26:27Z",
+      "side": 1,
+      "message": "ok thanks.",
+      "parentUuid": "ba1f61a0_d0fa0242",
+      "revId": "b656dcbe45926ffbc2c8a700f41e07d307ce7d13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
