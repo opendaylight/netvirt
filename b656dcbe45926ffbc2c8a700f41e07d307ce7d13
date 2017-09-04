@@ -52,6 +52,24 @@
       "revId": "b656dcbe45926ffbc2c8a700f41e07d307ce7d13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5940fd33",
+        "filename": "vpnservice/aclservice/impl/pom.xml",
+        "patchSetId": 10
+      },
+      "lineNbr": 107,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-09-04T17:48:43Z",
+      "side": 1,
+      "message": "erm, yeah but you\u0027ve opted to use the TestInterfaceManager impl from genius:testutils instead of the (real) interfacemanager-impl (which is good, makes your component test simpler), so ... why do you need interfacemanager-impl? Let me -1 it so that you can remove this... I\u0027ll also send you a longer reply by email as to why the test is failing.",
+      "parentUuid": "ba1f61a0_73da40e9",
+      "revId": "b656dcbe45926ffbc2c8a700f41e07d307ce7d13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
