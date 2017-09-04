@@ -35,6 +35,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
 
 class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
 
@@ -42,11 +44,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         + etherFlowIngressPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + etherFlowEgressPort1
         + fixedIngressFlowsPort2
         + etherIngressFlowsPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + etheregressFlowPort2
         + remoteFlows
@@ -56,11 +60,13 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         + tcpIngressFlowPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + tcpEgressFlowPort1
         + fixedIngressFlowsPort2
         + tcpIngressFlowPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + tcpEgressFlowPort2
         + remoteFlows
@@ -69,9 +75,11 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
     protected def udpFlows() {
         fixedIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + remoteFlows
     }
@@ -79,9 +87,11 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
     protected def icmpFlows() {
         fixedIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + remoteFlows
     }
@@ -89,6 +99,7 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
     protected def dstRangeFlows() {
         fixedIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + tcpEgressRangeFlows
     }
@@ -96,12 +107,14 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
     protected def dstAllFlows() {
         fixedIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
     }
 
     protected def icmpFlowsForTwoAclsHavingSameRules() {
         fixedIngressFlowsPort3
         + fixedEgressL2BroadcastFlowsPort3
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort3
     }
 
@@ -1149,6 +1162,27 @@ class FlowEntryObjectsStateless extends FlowEntryObjectsBase {
                 ]
                 priority = 61005
                 tableId = 211 as short
+            ],
+            new FlowEntityBuilder >> [
+                cookie = 110100480bi
+                dpnId = 123bi
+                flowId = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
+                flowName = "ACL"
+                hardTimeOut = 0
+                idleTimeOut = 0
+                instructionInfoList = #[
+                    new InstructionGotoTable(242 as short)
+                ]
+                matchInfoList = #[
+                    new MatchEthernetDestination(new MacAddress("ff:ff:ff:ff:ff:ff")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination(new Ipv4Prefix("10.0.0.255/32")),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 61010
+                sendFlowRemFlag = false
+                strictFlag = false
+                tableId = 241 as short
             ]
         ]
     }
