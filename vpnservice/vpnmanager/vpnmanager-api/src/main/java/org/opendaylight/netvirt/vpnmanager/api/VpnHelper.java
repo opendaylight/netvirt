@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.vpnmanager.api;
 
 import com.google.common.base.Optional;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -26,7 +25,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 
 public class VpnHelper {
     //FIXME: Implement caches for DS reads
