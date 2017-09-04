@@ -25,6 +25,7 @@ import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeLi
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
+import org.opendaylight.infrautils.testutils.LogCaptureRule;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.mdsal.binding.testutils.AssertDataObjects;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -49,6 +50,8 @@ public class ElanServiceTest {
     // public @Rule RunUntilFailureRule repeater = new RunUntilFailureRule(classRepeater);
 
     public @Rule LogRule logRule = new LogRule();
+    public @Rule LogCaptureRule logCaptureRule = new LogCaptureRule();
+
     public @Rule MethodRule guice = new GuiceRule(
             ElanServiceTestModule.class, TestableDataTreeChangeListenerModule.class);
 
