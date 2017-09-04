@@ -31,9 +31,10 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -1063,14 +1064,12 @@ public class NeutronvpnUtils {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                    InstanceIdentifier<T> path) {
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-        Optional<T> result = Optional.absent();
         try {
-            result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+            return SingleTransactionDataBroker.syncReadOptional(broker, datastoreType, path);
+        } catch (ReadFailedException e) {
+            // TODO Instead add throws ReadFailedException to signature, and handle or propagate everywhere
             throw new RuntimeException(e);
         }
-        return result;
     }
 
     public static Class<? extends NetworkTypeBase> getNetworkType(Network network) {
@@ -1317,7 +1316,7 @@ public class NeutronvpnUtils {
     }
 
     public static boolean isNotEmpty(Collection collection) {
-        return (!isEmpty(collection));
+        return !isEmpty(collection);
     }
 
 }
