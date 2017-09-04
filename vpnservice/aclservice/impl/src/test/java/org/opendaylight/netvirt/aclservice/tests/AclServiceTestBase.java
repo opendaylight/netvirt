@@ -28,6 +28,7 @@ import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWait
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.infrautils.testutils.LogCaptureRule;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -60,6 +61,7 @@ public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
     public @Rule LogRule logRule = new LogRule();
+    public @Rule LogCaptureRule logCaptureRule = new LogCaptureRule();
 
     // public static @ClassRule RunUntilFailureClassRule classRepeater = new RunUntilFailureClassRule();
     // public @Rule RunUntilFailureRule repeater = new RunUntilFailureRule(classRepeater);
@@ -86,6 +88,7 @@ public abstract class AclServiceTestBase {
     static String IP_PREFIX_2 = "10.0.0.2/32";
     static String IP_PREFIX_3 = "10.0.0.3/32";
     static String IP_PREFIX_4 = "10.0.0.4/32";
+    static String SUBNET_IP_PREFIX_1 = "10.0.0.0/24";
     static long ELAN_TAG = 5000L;
 
     static final AllowedAddressPairs AAP_PORT_1 = buildAap(IP_PREFIX_1, PORT_MAC_1);
@@ -114,7 +117,11 @@ public abstract class AclServiceTestBase {
         // Given
         // putNewInterface(dataBroker, "port1", true, Collections.emptyList(), Collections.emptyList());
         dataBrokerUtil.put(
-                new IdentifiedInterfaceWithAclBuilder().interfaceName("port1").portSecurity(true).build());
+                new IdentifiedInterfaceWithAclBuilder().interfaceName(PORT_1).portSecurity(true).build());
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName("port1")
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);
@@ -134,6 +141,14 @@ public abstract class AclServiceTestBase {
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
@@ -167,6 +182,14 @@ public abstract class AclServiceTestBase {
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_UNSPECIFIED,
@@ -224,6 +247,14 @@ public abstract class AclServiceTestBase {
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
@@ -260,6 +291,15 @@ public abstract class AclServiceTestBase {
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_HTTP,
@@ -295,6 +335,14 @@ public abstract class AclServiceTestBase {
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
         // Given
         prepareInterfaceWithIcmpAcl();
 
@@ -316,6 +364,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithDstPortRange - start");
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 333, 777, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
@@ -346,6 +398,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithDstAllPorts - start");
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
         // Given
         Matches matches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, 1, 65535, AclConstants.SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED,
@@ -376,6 +432,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - start");
 
         newAllowedAddressPair(PORT_3, Arrays.asList(SG_UUID_1, SG_UUID_2), Collections.singletonList(AAP_PORT_3));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_3)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
         // Given
         Matches icmpEgressMatches = newMatch(AclConstants.SOURCE_LOWER_PORT_UNSPECIFIED,
                 AclConstants.SOURCE_UPPER_PORT_UNSPECIFIED, AclConstants.DEST_LOWER_PORT_2,
@@ -414,6 +474,14 @@ public abstract class AclServiceTestBase {
     public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_2));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
         // Given
         prepareInterfaceWithIcmpAcl();
 
@@ -445,6 +513,14 @@ public abstract class AclServiceTestBase {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
                 Arrays.asList(AAP_PORT_2, buildAap(AclConstants.IPV4_ALL_NETWORK, PORT_MAC_2)));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         prepareInterfaceWithIcmpAcl();
         // When
@@ -472,6 +548,14 @@ public abstract class AclServiceTestBase {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         newAllowedAddressPair(PORT_2, Collections.singletonList(SG_UUID_1),
                 Arrays.asList(AAP_PORT_2, aapWithSameMac, aapWithDifferentMac));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_1)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName(PORT_2)
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         prepareInterfaceWithIcmpAcl();
         // When
