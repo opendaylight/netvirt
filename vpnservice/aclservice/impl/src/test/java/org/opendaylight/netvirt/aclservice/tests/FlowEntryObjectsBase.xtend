@@ -30,6 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination
 
 class FlowEntryObjectsBase {
 
@@ -178,6 +179,33 @@ class FlowEntryObjectsBase {
             ]
         ]
      }
+
+     protected def fixedIngressL3BroadcastFlows() {
+        #[
+            new FlowEntityBuilder >> [
+                cookie = 110100480bi
+                dpnId = 123bi
+                flowId = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
+                flowName = "ACL"
+                hardTimeOut = 0
+                idleTimeOut = 0
+                instructionInfoList = #[
+                    new InstructionGotoTable(242 as short)
+                ]
+                matchInfoList = #[
+                    new MatchEthernetDestination(new MacAddress("ff:ff:ff:ff:ff:ff")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination(new Ipv4Prefix("10.0.0.255/32")),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 61010
+                sendFlowRemFlag = false
+                strictFlag = false
+                tableId = 241 as short
+            ]
+        ]
+    }
+
 
      protected def fixedEgressFlowsPort1() {
         #[

@@ -12,7 +12,6 @@ import org.opendaylight.genius.mdsalutil.NwConstants
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
-import org.opendaylight.genius.mdsalutil.actions.ActionDrop
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa
@@ -32,15 +31,12 @@ import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchUdpDestinationPort
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder
-import org.opendaylight.genius.mdsalutil.MetaDataUtil
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress
-import org.opendaylight.genius.mdsalutil.NwConstants
-import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6
-import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
 
 import static extension org.opendaylight.mdsal.binding.testutils.XtendBuilderExtensions.operator_doubleGreaterThan
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
 
 class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
 
@@ -48,6 +44,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + etherEgressFlowsPort1
@@ -56,6 +53,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + etherIngressFlowsPort2
         + etherIngressFlowsPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
@@ -67,12 +65,14 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort1
         + tcpIngressFlowPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + tcpIngressFlowPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + tcpEgressFlowPort2
@@ -84,6 +84,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + udpEgressFlowsPort1
@@ -92,6 +93,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + udpIngressFlowsPort2
         + udpIngressFlowsPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + udpEgressFlowsPort2
@@ -103,12 +105,14 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort1
         + icmpIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + fixedIngressFlowsPort2
         + fixedConntrackIngressFlowsPort2
         + icmpIngressFlowsPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + icmpEgressFlowsPort2
@@ -121,6 +125,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         +fixedConntrackIngressFlowsPort1
         + udpIngressPortRangeFlows
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + tcpEgressRangeFlows
@@ -131,6 +136,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackIngressFlowsPort1
         + udpIngressAllFlows
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + tcpEgressAllFlows
@@ -160,6 +166,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
           fixedIngressFlowsPort1
         + fixedConntrackIngressFlowsPort1
         + fixedEgressL2BroadcastFlowsPort1
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort1
         + fixedConntrackEgressFlowsPort1
         + etherEgressFlowsPort1
@@ -170,6 +177,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + etherIngressFlowsPort2
         + etherIngressFlowsPort2
         + fixedEgressL2BroadcastFlowsPort2
+        + fixedIngressL3BroadcastFlows
         + fixedEgressFlowsPort2
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
@@ -2204,7 +2212,29 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 ]
                 priority = 61005
                 tableId = 211 as short
+            ],
+            new FlowEntityBuilder >> [
+                cookie = 110100480bi
+                dpnId = 123bi
+                flowId = "Ingress_v4_Broadcast_123_987_10.0.0.255_Permit"
+                flowName = "ACL"
+                hardTimeOut = 0
+                idleTimeOut = 0
+                instructionInfoList = #[
+                    new InstructionGotoTable(242 as short)
+                ]
+                matchInfoList = #[
+                    new MatchEthernetDestination(new MacAddress("ff:ff:ff:ff:ff:ff")),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination(new Ipv4Prefix("10.0.0.255/32")),
+                    new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
+                ]
+                priority = 61010
+                sendFlowRemFlag = false
+                strictFlag = false
+                tableId = 241 as short
             ]
+
         ]
     }
 }
