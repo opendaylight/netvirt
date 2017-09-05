@@ -565,7 +565,7 @@ public final class AclServiceUtils {
             }
         } else {
             IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
-            if (ipAddress.getIpv4Address() != null) {
+            if (ipAddress != null && ipAddress.getIpv4Address() != null) {
                 flowMatches.add(new MatchArpSpa(ipAddress.getIpv4Address().getValue(), "32"));
             }
         }
