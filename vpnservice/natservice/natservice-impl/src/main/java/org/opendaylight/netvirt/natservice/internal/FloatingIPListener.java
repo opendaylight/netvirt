@@ -350,7 +350,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         //Get the id using the VPN UUID (also vpn instance name)
-        return NatUtil.readVpnId(dataBroker, vpnUuid.getValue());
+        return NatUtil.getVpnId(dataBroker, vpnUuid.getValue());
     }
 
     private void processFloatingIPAdd(final InstanceIdentifier<InternalToExternalPortMap> identifier,
@@ -443,7 +443,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Create the DNAT and SNAT table entries
         createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId);
-        floatingIPHandler.onAddFloatingIp(dpnId, routerName, extNwId, interfaceName, mapping);
+        floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, extNwId, interfaceName, mapping);
     }
 
     void createNATFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, Uuid externalNetworkId,
@@ -473,7 +473,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Create the DNAT and SNAT table entries
         createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, externalNetworkId);
-        floatingIPHandler.onAddFloatingIp(dpnId, routerName, externalNetworkId, interfaceName, mapping);
+        floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, externalNetworkId, interfaceName, mapping);
     }
 
     void createNATOnlyFlowEntries(BigInteger dpnId, String routerName, String associatedVPN,
@@ -548,13 +548,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
-        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName);
+        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, extNwId);
         if (provType == null) {
             LOG.error("removeNATFlowEntries : External Network Provider Type missing");
             return;
         }
         if (provType == ProviderTypes.VXLAN) {
-            floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, NatConstants.DEFAULT_L3VNI_VALUE);
+            floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, routerId, extNwId, mapping,
+                    NatConstants.DEFAULT_L3VNI_VALUE);
             removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
             return;
         }
@@ -564,7 +565,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                     internalIp, routerId);
             return;
         }
-        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, (int) label);
+        floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, routerId, extNwId, mapping, (int) label);
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
@@ -589,7 +590,8 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId);
 
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId);
-        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName);
+        Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
+        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, externalNetworkId);
         if (provType == null) {
             LOG.error("removeNATFlowEntries : External Network Provider Type Missing");
             return;
