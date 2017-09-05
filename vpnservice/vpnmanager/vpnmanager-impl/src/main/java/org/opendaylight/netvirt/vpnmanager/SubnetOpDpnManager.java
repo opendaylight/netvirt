@@ -156,8 +156,8 @@ public class SubnetOpDpnManager {
             portOpEntry = portOpBuilder.build();
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
                 portOpEntry);
-            LOG.info("addPortOpDataEntry: Created PortOpData entry for port {} with DPNId {} intfName {}",
-                    intfName, dpnId, intfName);
+            LOG.info("addPortOpDataEntry: Created PortOpData entry for port {} with DPNId {} intfname {}",
+                     intfName, dpnId, intfName);
         } catch (TransactionCommitFailedException ex) {
             LOG.error("addPortOpDataEntry: Addition of Interface {} for SubnetToDpn on subnet {} with DPN {} failed",
                     intfName, subnetId.getValue(), dpnId, ex);
