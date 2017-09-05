@@ -23,11 +23,22 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer.VpnOpDataType;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.intfc.VpnPopulator;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6FamilyBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -169,7 +180,10 @@ public class VpnSubnetRouteHandler {
                             + " subnet {} subnetIp {} ", LOGGING_PREFIX, vpnName, subnetId.getValue(), subnetIp);
                     return;
                 }
-
+                if (isBgpVpn) {
+                    IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetIp);
+                    updateVpnInstanceWithIpFamily(vpnName, ipVersion);
+                }
                 subOpBuilder.setVrfId(primaryRd);
                 subOpBuilder.setVpnName(vpnName);
                 subOpBuilder.setSubnetToDpn(new ArrayList<>());
@@ -258,12 +272,86 @@ public class VpnSubnetRouteHandler {
         }
     }
 
+    private void updateVpnInstanceWithIpFamily(String vpnName, IpVersionChoice ipVersion) {
+        LOG.trace("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}", vpnName,
+            ipVersion.toString());
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
+                new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> opVpnInstance = VpnHelper.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (!opVpnInstance.isPresent()) {
+            LOG.error("updateVpnInstanceWithIpFamily: Can not find VpnInstance for vpnName {} in Config DS", vpnName);
+            return;
+        }
+        VpnInstance vpnInstance = opVpnInstance.get();
+        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(new ArrayList<>()).build();
+        boolean isVpnInstanceChanged = false;
+        String rd = VpnUtil.getPrimaryRd(vpnInstance);
+        if (rd != null) {
+            vpnTargets = VpnUtil.getOpVpnTargets(dataBroker, rd);
+        }
+        VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (vpnInstance.getIpv4Family() == null)) {
+            Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
+            vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build()).build();
+            isVpnInstanceChanged = true;
+        }
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (vpnInstance.getIpv6Family() == null)) {
+            Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
+            vpnInstanceBuilder.setIpv6Family(ipv6vpnBuilder.build()).build();
+            isVpnInstanceChanged = true;
+        }
+        if (isVpnInstanceChanged == false) {
+            LOG.debug("VpnInstance {} did not change with subnet IpFamily {}", vpnName, ipVersion.toString());
+            return;
+        }
+        boolean isLockAcquired = false;
+        isLockAcquired = NeutronUtils.lock(vpnName);
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
+                vpnInstanceBuilder.build());
+        if (isLockAcquired) {
+            NeutronUtils.unlock(vpnName);
+        }
+        LOG.info("updateVpnWithIpFamily: Successfully {} to Vpn {}", ipVersion.toString(), vpnName);
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
         Uuid subnetId = subnetmap.getId();
+        Uuid vpnId = subnetmap.getVpnId();
         LOG.info("{} onSubnetDeletedFromVpn: Subnet {} with ip {} being removed from vpnId {}", LOGGING_PREFIX,
                 subnetId, subnetmap.getSubnetIp(), subnetmap.getVpnId());
+        String primaryRd = null;
+        if (vpnId != null) {
+            primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnId.getValue());
+        }
+        if (isBgpVpn && subnetId != null && vpnId != null && vpnId.getValue() != null
+            && VpnUtil.isBgpVpn(vpnId.getValue(), primaryRd)) {
+            InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
+            Optional<Subnetmaps> allSubnetMaps = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                subnetMapsId);
+            if (!allSubnetMaps.isPresent()) {
+                LOG.error("{} removeSubnetFromVpn: Subnetmap entries are not available in Config DS");
+                return;
+            }
+            // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
+            List<IpVersionChoice> snIpVersions = new ArrayList<>();
+            for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
+                if (snMap.getId().equals(subnetmap.getId())) {
+                    continue;
+                }
+                if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnId)) {
+                    snIpVersions.add(NeutronUtils.getIpVersion(snMap.getSubnetIp()));
+                }
+            }
+            IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmap.getSubnetIp());
+            if (!snIpVersions.contains(ipVersion)) {
+                // no more subnet with given IpVersion for current VpnInstance
+                VpnUtil.withdrawIpFamilyFromVpnInstance(dataBroker, vpnId.getValue(), ipVersion);
+            }
+        }
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
