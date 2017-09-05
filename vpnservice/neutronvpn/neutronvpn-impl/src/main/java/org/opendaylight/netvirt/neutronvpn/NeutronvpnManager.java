@@ -1255,15 +1255,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
-        LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
+        LOG.debug("addSubnetToVpn: Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
         Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
         if (sn == null) {
-            LOG.error("subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
+            LOG.error("addSubnetToVpn: subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(),
+                vpnId.getValue());
             return;
         }
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
         if (vpnMap == null) {
-            LOG.error("No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(), subnet.getValue());
+            LOG.error("addSubnetToVpn: No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(),
+                subnet.getValue());
             return;
         }
 
@@ -1277,7 +1279,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Uuid> portList = sn.getPortList();
         if (portList != null) {
             for (final Uuid portId : portList) {
-                LOG.debug("adding vpn-interface for port {}", portId.getValue());
+                LOG.debug("addSubnetToVpn: adding vpn-interface for vpnId {}", vpnId.getValue());
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
