@@ -261,6 +261,18 @@ module odl-l3vpn {
                   default "active";
                }
            }
+           leaf ipv4-configured {
+              type boolean;
+              description
+                 "This VPN Instance handles IPv4 traffic";
+              default false;
+           }
+           leaf ipv6-configured {
+              type boolean;
+              description
+                 "This VPN Instance handles IPv6 traffic";
+              default false;
+           }
            leaf type {
               description
                  "The type of the VPN Instance.
@@ -461,7 +473,7 @@ module odl-l3vpn {
                 type  string;
                 description "UUID in string format representing the port ";
             }
-            leaf subnet-id {
+            leaf-list subnet-ids {
                 type  yang:uuid;
                 description "Back reference to obtain the subnet for a port ";
             }
