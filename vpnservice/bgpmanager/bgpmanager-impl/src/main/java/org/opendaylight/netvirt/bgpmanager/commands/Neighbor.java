@@ -33,7 +33,7 @@ public class Neighbor extends OsgiCommandSupport {
             .append(" [").append(MP).append(" md5-shared-secret]")
             .append(" [").append(MH).append(" hops]")
             .append(" [").append(US).append(" source]")
-            .append(" [").append(AF).append(" lu/evpn/vpnv6]")
+            .append(" [").append(AF).append(" lu/evpn/vpnv4/vpnv6]")
             .append(" <add|del>").toString();
 
     @Argument(index = 0, name = "add|del", description = "The desired operation",
@@ -130,9 +130,10 @@ public class Neighbor extends OsgiCommandSupport {
                     bm.addUpdateSource(nbrIp, srcIp);
                 }
                 if (addrFamily != null) {
-                    if (!addrFamily.equals("lu") && !addrFamily.equals("vpnv6")
-                        && !addrFamily.equals("evpn")) {
-                        session.getConsole().println("error: " + AF + " must be lu/evpn/vpnv6 ");
+                    if (!addrFamily.equals("lu") && !addrFamily.equals("vpnv4")
+                            && !addrFamily.equals("vpnv6")
+                            && !addrFamily.equals("evpn")) {
+                        session.getConsole().println("error: " + AF + " must be lu/evpn/vpnv4/vpnv6 ");
                         return null;
                     }
                     af_afi afi;
