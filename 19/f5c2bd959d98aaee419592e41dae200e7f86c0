@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Sam Hague <shague@redhat.com>
+Submitted-by: Sam Hague <shague@redhat.com>
+Submitted-at: Tue, 05 Sep 2017 01:47:24 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/62648
+Project: netvirt
+Branch: refs/heads/stable/carbon
