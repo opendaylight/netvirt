@@ -1255,15 +1255,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
-        LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
+        LOG.debug("addSubnetToVpn: Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
         Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
         if (sn == null) {
-            LOG.error("subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
+            LOG.error("addSubnetToVpn: subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(),
+                vpnId.getValue());
             return;
         }
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
         if (vpnMap == null) {
-            LOG.error("No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(), subnet.getValue());
+            LOG.error("addSubnetToVpn: No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(),
+                subnet.getValue());
             return;
         }
 
@@ -1277,7 +1279,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Uuid> portList = sn.getPortList();
         if (portList != null) {
             for (final Uuid portId : portList) {
-                LOG.debug("adding vpn-interface for port {}", portId.getValue());
+                LOG.debug("addSubnetToVpn: adding vpn-interface for vpnId {}", vpnId.getValue());
                 final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
@@ -1290,13 +1292,13 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
-    private void updateVpnForSubnet(Uuid oldVpnId, Uuid newVpnId, Uuid subnet, boolean isBeingAssociated) {
+    private Subnetmap updateVpnForSubnet(Uuid oldVpnId, Uuid newVpnId, Uuid subnet, boolean isBeingAssociated) {
         LOG.debug("Moving subnet {} from oldVpn {} to newVpn {} ", subnet.getValue(),
                 oldVpnId.getValue(), newVpnId.getValue());
         Subnetmap sn = updateSubnetNode(subnet, null, newVpnId);
         if (sn == null) {
             LOG.error("Updating subnet {} with newVpn {} failed", subnet.getValue(), newVpnId.getValue());
-            return;
+            return null;
         }
 
         //Update Router Interface first synchronously.
@@ -1310,7 +1312,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (TransactionCommitFailedException e) {
             LOG.error("Failed to update router interface {} in subnet {} from oldVpnId {} to newVpnId {}, returning",
                     sn.getRouterInterfacePortId().getValue(), subnet.getValue(), oldVpnId, newVpnId);
-            return;
+            return sn;
         }
 
         // Check for ports on this subnet and update association of
@@ -1331,6 +1333,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 });
             }
         }
+        return sn;
     }
 
     public InstanceIdentifier<RouterInterfaces> getRouterInterfacesId(Uuid routerId) {
@@ -1704,7 +1707,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(dataBroker, routerId);
         if (routerSubnets != null) {
             for (Uuid subnetId : routerSubnets) {
-                updateVpnForSubnet(routerId, vpnId, subnetId, true);
+                Subnetmap sn = updateVpnForSubnet(routerId, vpnId, subnetId, true);
+                if (NeutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(dataBroker, sn, vpnId)) {
+                    NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, vpnId.getValue(),
+                              NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
+                }
             }
         }
         try {
@@ -1730,11 +1737,23 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     protected void dissociateRouterFromVpn(Uuid vpnId, Uuid routerId) {
 
         List<Uuid> routerSubnets = NeutronvpnUtils.getNeutronRouterSubnetIds(dataBroker, routerId);
+        boolean vpnInstanceIpVersionsRemoved = false;
+        IpVersionChoice vpnInstanceIpVersionsToRemove = IpVersionChoice.UNDEFINED;
         if (routerSubnets != null) {
             for (Uuid subnetId : routerSubnets) {
+                Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnetId);
+                if (NeutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(dataBroker, sn, vpnId)) {
+                    vpnInstanceIpVersionsToRemove.addVersion(NeutronvpnUtils
+                        .getIpVersionFromString(sn.getSubnetIp()));
+                    vpnInstanceIpVersionsRemoved = true;
+                }
                 LOG.debug("Updating association of subnets to internal vpn {}", routerId.getValue());
                 updateVpnForSubnet(vpnId, routerId, subnetId, false);
             }
+        }
+        if (vpnInstanceIpVersionsRemoved) {
+            NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, vpnId.getValue(),
+                            vpnInstanceIpVersionsToRemove, false);
         }
         clearFromVpnMaps(vpnId, routerId, null);
         try {
@@ -1788,6 +1807,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 // check if subnet added as router interface to some router
                                 Uuid subnetVpnId = NeutronvpnUtils.getVpnForSubnet(dataBroker, subnet);
                                 if (subnetVpnId == null) {
+                                    Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnetVpnId);
+                                    if (NeutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(dataBroker, sn, vpn)) {
+                                        NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, vpn.getValue(),
+                                              NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
+                                    }
                                     addSubnetToVpn(vpn, subnet);
                                     passedNwList.add(nw);
                                 } else {
@@ -1827,9 +1851,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         List<Uuid> networkSubnets = NeutronvpnUtils.getSubnetIdsFromNetworkId(dataBroker, nw);
                         LOG.debug("Removing network subnets...");
                         if (networkSubnets != null) {
+                            boolean vpnInstanceIpVersionsRemoved = false;
+                            IpVersionChoice vpnInstanceIpVersionsToRemove = IpVersionChoice.UNDEFINED;
                             for (Uuid subnet : networkSubnets) {
+                                Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnet);
+                                if (NeutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(dataBroker, sn, vpn)) {
+                                    vpnInstanceIpVersionsToRemove.addVersion(NeutronvpnUtils
+                                         .getIpVersionFromString(sn.getSubnetIp()));
+                                    vpnInstanceIpVersionsRemoved = true;
+                                }
                                 removeSubnetFromVpn(vpn, subnet);
+
                                 passedNwList.add(nw);
+                            }
+                            if (vpnInstanceIpVersionsRemoved) {
+                                NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, vpn.getValue(),
+                                                     vpnInstanceIpVersionsToRemove, false);
                             }
                         }
                     } else {
