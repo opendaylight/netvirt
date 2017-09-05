@@ -18,6 +18,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -136,7 +137,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private void createSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
         try {
             InstanceIdentifier networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
-            Optional<NetworkMap> optionalNetworkMap = NeutronvpnUtils.read(dataBroker,
+            Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
             NetworkMapBuilder nwMapBuilder = null;
             if (optionalNetworkMap.isPresent()) {
@@ -166,7 +167,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     private void deleteSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
         try {
             InstanceIdentifier networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
-            Optional<NetworkMap> optionalNetworkMap = NeutronvpnUtils.read(dataBroker,
+            Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
             if (optionalNetworkMap.isPresent()) {
                 NetworkMapBuilder nwMapBuilder = new NetworkMapBuilder(optionalNetworkMap.get());
