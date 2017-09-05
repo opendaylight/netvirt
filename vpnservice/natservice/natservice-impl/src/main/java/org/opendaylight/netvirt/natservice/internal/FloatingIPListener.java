@@ -13,13 +13,23 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -44,9 +54,15 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -59,9 +75,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.security.jca.GetInstance;
 
 @Singleton
 public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<InternalToExternalPortMap, FloatingIPListener>
@@ -421,6 +440,60 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return getInetAddress(mapping.getInternalIp()) != null && getInetAddress(mapping.getExternalIp()) != null;
     }
 
+    private WaitForIt waitForIt = null;
+    class WaitForIt extends AsyncDataTreeChangeListenerBase<Interface, WaitForIt> {
+
+        String interfaceName;
+        final InternalToExternalPortMap mapping;
+        final InstanceIdentifier<RouterPorts> portIid;
+        final String routerName;
+
+        public WaitForIt(String interfaceName, InternalToExternalPortMap mapping, InstanceIdentifier<RouterPorts> portIid, String routerName) {
+            this.interfaceName = interfaceName;
+            this.mapping = mapping;
+            this.portIid = portIid;
+            this.routerName = routerName;
+            init();
+        }
+
+        @Override
+        public void init() {
+            LOG.info("{} init", getClass().getSimpleName());
+            registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        }
+
+        @Override
+        protected InstanceIdentifier<Interface> getWildCardPath() {
+            InterfaceKey interfaceKey = new InterfaceKey(interfaceName);
+            InstanceIdentifier<Interface> ret =  InstanceIdentifier.builder(InterfacesState.class).child(Interface.class, interfaceKey).build();
+            LOG.info("WaitForIt2 waiting for {}", ret);
+            return ret;
+        }
+
+        @Override
+        protected void remove(InstanceIdentifier<Interface> instanceIdentifier, Interface iface) {
+            LOG.info("WaitForIt2, remove???");
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<Interface> instanceIdentifier, Interface iface1, Interface iface2) {
+            LOG.info("WaitForIt2, update??? {} {}", iface1, iface2);
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<Interface> instanceIdentifier, Interface iface) {
+            LOG.info("WaitForIt2, ADD! {}", iface);
+            createNATFlowEntries(interfaceName, mapping, portIid, routerName);
+            close();
+        }
+
+        @Override
+        protected WaitForIt getDataTreeChangeListener() {
+            return this;
+        }
+    }
+
+
     void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               final InstanceIdentifier<RouterPorts> portIid, final String routerName,
                               WriteTransaction writeFlowInvTx) {
@@ -435,6 +508,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.warn("createNATFlowEntries : No DPN for interface {}. NAT flow entries for ip mapping {} will "
                 + "not be installed", interfaceName, mapping);
+            if (null == waitForIt) {
+                waitForIt = new WaitForIt(interfaceName, mapping, portIid, routerName);
+            }
             return;
         }
 
@@ -473,7 +549,20 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Create the DNAT and SNAT table entries
         createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId, writeFlowInvTx);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId, writeFlowInvTx);
-        floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, extNwId, interfaceName, mapping, writeFlowInvTx);
+        InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
+                InstanceIdentifier.builder(DpnEndpoints.class)
+                        .child(DPNTEPsInfo.class, new DPNTEPsInfoKey(dpnId)).build();
+        new Waiter(dataBroker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId, (t, v) -> {
+            onAddFloatingIpWithNewTx(interfaceName, mapping, routerName, dpnId, routerId, extNwId);
+        }
+            );
+        LOG.warn("JOSH createNATFlowEntries 5");
+    }
+
+    private void onAddFloatingIpWithNewTx(String interfaceName, InternalToExternalPortMap mapping,
+                                          String routerName, BigInteger dpnId, long routerId, Uuid extNwId) {
+        floatingIPHandler.onAddFloatingIp(
+                dpnId, routerName, routerId, extNwId, interfaceName, mapping, this.dataBroker.newWriteOnlyTransaction());
     }
 
     void createNATFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, Uuid externalNetworkId,
@@ -744,5 +833,61 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                 NwConstants.COOKIE_DNAT_TABLE, null, null);
 
         return flowEntity;
+    }
+}
+
+class Waiter<T extends DataObject> implements DataTreeChangeListener<T> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Waiter.class);
+
+    private static Set instances = new HashSet();
+
+    private BiConsumer<T, DataBroker> handler;
+    private DataBroker dataBroker;
+    private ListenerRegistration<Waiter> registration;
+    private InstanceIdentifier<T> iid;
+
+    public Waiter(DataBroker dataBroker, LogicalDatastoreType dataStore, InstanceIdentifier<T> iid, BiConsumer<T, DataBroker> handler) {
+        this.handler = handler;
+        this.dataBroker = dataBroker;
+        this.iid = iid;
+        final DataTreeIdentifier<T> treeId = new DataTreeIdentifier<>(dataStore, iid);
+        LOG.info("Waiter {} waiting on {}", hashCode(), treeId);
+        synchronized (instances) {
+            this.registration = dataBroker.registerDataTreeChangeListener(treeId, this);
+            instances.add(this);
+        }
+    }
+
+    @Override
+    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<T>> collection) {
+        for (DataTreeModification<T> change : collection) {
+            final InstanceIdentifier<T> key = change.getRootPath().getRootIdentifier();
+            final DataObjectModification<T> mod = change.getRootNode();
+
+            switch (mod.getModificationType()) {
+                case DELETE:
+                    LOG.info("Waiter {} got delete?!", hashCode());
+                    break;
+                case SUBTREE_MODIFIED:
+                    LOG.info("Waiter {} got update?!", hashCode());
+                    break;
+                case WRITE:
+                    if (mod.getDataBefore() == null) {
+                        handler.accept(mod.getDataBefore(), this.dataBroker);
+                        synchronized (instances) {
+                            this.registration.close();
+                            instances.remove(this);
+                        }
+                    } else {
+                        LOG.info("Waiter {} got a write update?!", hashCode());
+                    }
+                    break;
+                default:
+                    // FIXME: May be not a good idea to throw.
+                    throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
+            }
+        }
+
     }
 }
