@@ -20,7 +20,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 public class AclInterface {
 
     /** The port security enabled. */
-    Boolean portSecurityEnabled;
+    Boolean portSecurityEnabled = false;
 
     /** The interface id. */
     String interfaceId;
