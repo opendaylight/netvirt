@@ -32,14 +32,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.IntextIpMap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
@@ -120,17 +118,12 @@ public class ExternalNetworksChangeListener
             String routerName = routerId.toString();
 
             InstanceIdentifier<RouterToNaptSwitch> routerToNaptSwitchInstanceIdentifier =
-                    getRouterToNaptSwitchInstanceIdentifier(routerName);
+                    NatUtil.buildNaptSwitchIdentifier(routerName);
 
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, routerToNaptSwitchInstanceIdentifier);
 
             LOG.debug("remove : successful deletion of data in napt-switches container");
         }
-    }
-
-    private static InstanceIdentifier<RouterToNaptSwitch> getRouterToNaptSwitchInstanceIdentifier(String routerName) {
-        return  InstanceIdentifier.builder(NaptSwitches.class)
-                        .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
     }
 
     @Override
@@ -162,8 +155,8 @@ public class ExternalNetworksChangeListener
             }
             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
             if (natMode == NatMode.Controller) {
-                externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), networkUuid, externalIps,
-                        false, original.getVpnid().getValue(), writeFlowInvTx);
+                externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), routerId, networkUuid,
+                        externalIps, false, original.getVpnid().getValue(), writeFlowInvTx);
             }
         }
     }
@@ -250,9 +243,9 @@ public class ExternalNetworksChangeListener
                         + "vpnName {} and externalIp {}", dpnId, vpnName, externalIp);
                     if (natMode == NatMode.Controller) {
                         externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
-                                vpnName, NatUtil.getVpnId(dataBroker, routerId.getValue()), routerId.getValue(),
-                                externalIp, null /* external-router */, vpnService, fibService, bgpManager, dataBroker,
-                                LOG, writeFlowInvTx);
+                                vpnName, routerIdentifier, routerId.getValue(),
+                                externalIp, network.getId(), null /* external-router */,
+                                vpnService, fibService, bgpManager, dataBroker, writeFlowInvTx);
                     }
                 }
             } else {

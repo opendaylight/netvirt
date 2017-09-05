@@ -139,11 +139,11 @@ public class NatEvpnUtil {
         return (l3Vni != null && l3Vni != 0);
     }
 
-    static ProviderTypes getExtNwProvTypeFromRouterName(DataBroker dataBroker, String routerName) {
+    static ProviderTypes getExtNwProvTypeFromRouterName(DataBroker dataBroker, String routerName,
+            Uuid externalNetworkId) {
         ProviderTypes extNwProviderType = null;
-        Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
         if (externalNetworkId == null) {
-            LOG.error("getExtNwProvTypeFromRouterName : Could not retrieve external network UUID for router {}",
+            LOG.error("getExtNwProvTypeFromRouterName : external network UUID is not available for router {}",
                     routerName);
             return extNwProviderType;
         }
