@@ -25,8 +25,10 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -166,8 +168,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     @Override
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         final String portName = update.getUuid().getValue();
         LOG.trace("Updating Port : key: {}, original value={}, update value={}", identifier, original, update);
@@ -210,15 +210,14 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 try {
-                    Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                            .CONFIGURATION, interfaceIdentifier);
+                    Optional<Interface> optionalInf =
+                            SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                    interfaceIdentifier);
                     if (optionalInf.isPresent()) {
                         InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
-                        if (origSecurityEnabled || updatedSecurityEnabled) {
-                            InterfaceAcl infAcl = handlePortSecurityUpdated(dataBroker, original, update,
-                                    origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
-                            interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
-                        }
+                        InterfaceAcl infAcl = handlePortSecurityUpdated(dataBroker, original, update,
+                                origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
+                        interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
                         LOG.info("Of-port-interface updation for port {}", portName);
                         // Update OFPort interface for this neutron port
                         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier,
@@ -226,7 +225,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     } else {
                         LOG.error("Interface {} is not present", portName);
                     }
-                } catch (Exception e) {
+                } catch (ReadFailedException e) {
                     LOG.error("Failed to update interface {}", portName, e);
                 }
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -497,8 +496,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         return interfaceAclBuilder;
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private String createOfPortInterface(Port port, WriteTransaction wrtConfigTxn) {
         Interface inf = createInterface(port);
         String infName = inf.getName();
@@ -506,14 +503,15 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         LOG.debug("Creating OFPort Interface {}", infName);
         InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(infName);
         try {
-            Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    interfaceIdentifier);
+            Optional<Interface> optionalInf =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            interfaceIdentifier);
             if (!optionalInf.isPresent()) {
                 wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
             } else {
                 LOG.warn("Interface {} is already present", infName);
             }
-        } catch (Exception e) {
+        } catch (ReadFailedException e) {
             LOG.error("failed to create interface {}", infName, e);
         }
         return infName;
@@ -539,21 +537,20 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         return interfaceBuilder.build();
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private void deleteOfPortInterface(Port port, WriteTransaction wrtConfigTxn) {
         String name = port.getUuid().getValue();
         LOG.debug("Removing OFPort Interface {}", name);
         InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(name);
         try {
-            Optional<Interface> optionalInf = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    interfaceIdentifier);
+            Optional<Interface> optionalInf =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            interfaceIdentifier);
             if (optionalInf.isPresent()) {
                 wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier);
             } else {
                 LOG.error("Interface {} is not present", name);
             }
-        } catch (Exception e) {
+        } catch (ReadFailedException e) {
             LOG.error("Failed to delete interface {}", name, e);
         }
     }
