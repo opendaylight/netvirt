@@ -140,11 +140,138 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private boolean updateAddressFamilyToBgp(List<String> rds, List<String> ertList,
+                                     List<String> irtList, AddressFamily family,
+                                     boolean add) {
+        if (add) {
+            long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
+                try {
+                    bgpManager.addVrf(rd, irtList, ertList, family);
+                } catch (Exception e) {
+                    LOG.error("{} call: Error adding VRF rd {} family {} ", rd, family);
+                    return false;
+                }
+                return true;
+            }).count();
+            if (primaryRdAddFailed == 1) {
+                return false;
+            }
+        } else {
+            rds.parallelStream().forEach(rd -> {
+                bgpManager.deleteVrf(rd, false, family);
+            });
+        }
+        return true;
+    }
+
+    private void updateVpnInstance(InstanceIdentifier<VpnInstance> identifier,
+                VpnInstance original, VpnInstance update) {
+        if (original == null || update == null) {
+            LOG.error("updateVpnInstance: one of the VPN instances is null");
+            return;
+        }
+        VpnAfConfig config = update.getVpnConfig();
+        if (config == null) {
+            LOG.error("updateVpnInstance: {}, Ipv4Family is null", update.getVpnInstanceName());
+            return;
+        }
+        final List<String> rds = config.getRouteDistinguisher();
+        final String vpnName = update.getVpnInstanceName();
+        final String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+        if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+            LOG.error("updateVpnInstance: {}, no BGPVPN", update.getVpnInstanceName());
+            return;
+        }
+        List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
+        List<String> ertList = new ArrayList<>();
+        List<String> irtList = new ArrayList<>();
+
+        if (vpnTargetList != null) {
+            for (VpnTarget vpnTarget : vpnTargetList) {
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
+                    ertList.add(vpnTarget.getVrfRTValue());
+                }
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
+                    irtList.add(vpnTarget.getVrfRTValue());
+                }
+                if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
+                    ertList.add(vpnTarget.getVrfRTValue());
+                    irtList.add(vpnTarget.getVrfRTValue());
+                }
+            }
+        }
+        boolean vpnInstanceOperchanged = false;
+        VpnInstanceOpDataEntryBuilder builder =
+                new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd)
+                        .setVpnInstanceName(update.getVpnInstanceName());
+
+        if (update.getIpv6Family() == null && original.getIpv6Family() != null) {
+            builder.setIpv6AddressFamily(false);
+            vpnInstanceOperchanged = true;
+            updateAddressFamilyToBgp(rds, null, null, AddressFamily.IPV6, false);
+            // suppress IPv6
+            LOG.info("updateVpnInstance: {}, VRF deleting IPv6", update.getVpnInstanceName());
+        } else if (vpnTargetList != null && original.getIpv6Family() == null
+                   && update.getIpv6Family() != null) {
+            // add IPv6
+            builder.setIpv6AddressFamily(true);
+            vpnInstanceOperchanged = true;
+            LOG.info("updateVpnInstance: {}, VRF adding IPv6", update.getVpnInstanceName());
+            updateAddressFamilyToBgp(rds, irtList, ertList, AddressFamily.IPV6, true);
+        }
+        if (update.getIpv4Family() == null && original.getIpv4Family() != null) {
+            // suppress IPv4
+            builder.setIpv4AddressFamily(false);
+            vpnInstanceOperchanged = true;
+            LOG.info("updateVpnInstance: {}, VRF deleting IPv4", update.getVpnInstanceName());
+            updateAddressFamilyToBgp(rds, null, null, AddressFamily.IPV4, false);
+        } else if (vpnTargetList != null && original.getIpv4Family() == null
+                  && update.getIpv4Family() != null) {
+            // add IPv4
+            builder.setIpv4AddressFamily(true);
+            vpnInstanceOperchanged = true;
+            LOG.info("updateVpnInstance: {}, VRF adding IPv4", update.getVpnInstanceName());
+            updateAddressFamilyToBgp(rds, irtList, ertList, AddressFamily.IPV4, true);
+        }
+        if (original.getType().compareTo(VpnInstance.Type.L2) == 0
+             && update.getType().compareTo(VpnInstance.Type.L3) == 0) {
+            // suppress L2
+            updateAddressFamilyToBgp(rds, null, null, AddressFamily.L2VPN, false);
+            LOG.info("updateVpnInstance: {}, VRF deleting L2VPN", update.getVpnInstanceName());
+        } else if (vpnTargetList != null
+                   && original.getType().compareTo(VpnInstance.Type.L3) == 0
+                   && update.getType().compareTo(VpnInstance.Type.L2) == 0) {
+            // add L2
+            updateAddressFamilyToBgp(rds, irtList, ertList, AddressFamily.L2VPN, true);
+            LOG.info("updateVpnInstance: {}, VRF adding L2VPN", update.getVpnInstanceName());
+        }
+        if (vpnTargetList == null) {
+            LOG.error("updateVpnInstance: {}, vpn Target List empty", update.getVpnInstanceName());
+        }
+        if (vpnInstanceOperchanged == false) {
+            return;
+        }
+        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
+        if (writeOperTxn != null) {
+            writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
+                       id, builder.build(), true);
+        } else {
+            TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                       id, builder.build(), TransactionUtil.DEFAULT_CALLBACK);
+        }
+        LOG.info("{} updateVpnInstance: VpnInstanceOpData updated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
+                  update.getVpnInstanceName(), primaryRd);
+        return;
+    }
+
     @Override
     protected void update(InstanceIdentifier<VpnInstance> identifier,
         VpnInstance original, VpnInstance update) {
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}. Ignoring", identifier, update);
         String vpnName = update.getVpnInstanceName();
+        updateVpnInstance(identifier, original, update);
         vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(dataBroker,vpnName);
     }
 
@@ -202,7 +329,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void addVpnInstance(VpnInstance value, WriteTransaction writeConfigTxn,
         WriteTransaction writeOperTxn) {
-        VpnAfConfig config = value.getIpv4Family();
+        VpnAfConfig config = value.getVpnConfig();
         String vpnInstanceName = value.getVpnInstanceName();
 
         long vpnId = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnInstanceName);
@@ -290,6 +417,16 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
             List<String> rds = config.getRouteDistinguisher();
             builder.setRd(rds);
+            if (value.getIpv4Family() != null) {
+                builder.setIpv4AddressFamily(true);
+            } else {
+                builder.setIpv4AddressFamily(false);
+            }
+            if (value.getIpv6Family() != null) {
+                builder.setIpv6AddressFamily(true);
+            } else {
+                builder.setIpv6AddressFamily(false);
+            }
         }
         if (writeOperTxn != null) {
             writeOperTxn.merge(LogicalDatastoreType.OPERATIONAL,
@@ -323,7 +460,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if rd is null, then its either a router vpn instance (or) a vlan external network vpn instance.
             if rd is non-null, then it is a bgpvpn instance
              */
-            VpnAfConfig config = vpnInstance.getIpv4Family();
+            VpnAfConfig config = vpnInstance.getVpnConfig();
             List<String> rd = config.getRouteDistinguisher();
             if (rd == null || addBgpVrf(voids)) {
                 notifyTask();
@@ -367,7 +504,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         // TODO Clean up the exception handling
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf(List<Void> voids) {
-            VpnAfConfig config = vpnInstance.getIpv4Family();
+            VpnAfConfig config = vpnInstance.getVpnConfig();
             List<String> rds = config.getRouteDistinguisher();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
@@ -398,13 +535,19 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 try {
                     if (vpnInstance.getIpv4Family() != null) {
                         if (vpnInstance.getType() != VpnInstance.Type.L2) {
+                            log.info("{} addBgpVrf: ADDVRF IPv4 {}",
+                                  LOGGING_PREFIX_ADD, this.vpnName);
                             bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
                         } else {
+                            log.info("{} addBgpVrf: ADDVRF L2Vpn {}",
+                                  LOGGING_PREFIX_ADD, this.vpnName);
                             bgpManager.addVrf(rd, irtList, ertList, AddressFamily.L2VPN);
                         }
                     }
                     if (vpnInstance.getIpv6Family() != null) {
                         if (vpnInstance.getType() != VpnInstance.Type.L2) {
+                            log.info("{} addBgpVrf: ADDVRF IPv6 {}",
+                                  LOGGING_PREFIX_ADD, this.vpnName);
                             bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
                             // No addVRF LAYER2 for IPv6
                         }
