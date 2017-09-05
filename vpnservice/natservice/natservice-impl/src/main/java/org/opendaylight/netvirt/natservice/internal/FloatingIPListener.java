@@ -40,6 +40,9 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -391,8 +394,62 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         return getInetAddress(mapping.getInternalIp()) != null && getInetAddress(mapping.getExternalIp()) != null;
     }
 
+    private WaitForIt waitForIt = null;
+    class WaitForIt extends AsyncDataTreeChangeListenerBase<Interface, WaitForIt> {
+
+        String interfaceName;
+        final InternalToExternalPortMap mapping;
+        final InstanceIdentifier<RouterPorts> portIid;
+        final String routerName;
+
+        public WaitForIt(String interfaceName, InternalToExternalPortMap mapping, InstanceIdentifier<RouterPorts> portIid, String routerName) {
+            this.interfaceName = interfaceName;
+            this.mapping = mapping;
+            this.portIid = portIid;
+            this.routerName = routerName;
+            init();
+        }
+
+        @Override
+        public void init() {
+            LOG.info("{} init", getClass().getSimpleName());
+            registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        }
+
+        @Override
+        protected InstanceIdentifier<Interface> getWildCardPath() {
+            InterfaceKey interfaceKey = new InterfaceKey(interfaceName);
+            InstanceIdentifier<Interface> ret =  InstanceIdentifier.builder(InterfacesState.class).child(Interface.class, interfaceKey).build();
+            LOG.info("WaitForIt2 waiting for {}", ret);
+            return ret;
+        }
+
+        @Override
+        protected void remove(InstanceIdentifier<Interface> instanceIdentifier, Interface iface) {
+            LOG.info("WaitForIt2, remove???");
+        }
+
+        @Override
+        protected void update(InstanceIdentifier<Interface> instanceIdentifier, Interface iface1, Interface iface2) {
+            LOG.info("WaitForIt2, update??? {} {}", iface1, iface2);
+        }
+
+        @Override
+        protected void add(InstanceIdentifier<Interface> instanceIdentifier, Interface iface) {
+            LOG.info("WaitForIt2, ADD! {}", iface);
+            createNATFlowEntries(interfaceName, mapping, portIid, routerName);
+            //close();
+        }
+
+        @Override
+        protected WaitForIt getDataTreeChangeListener() {
+            return this;
+        }
+    }
+
     void createNATFlowEntries(String interfaceName, final InternalToExternalPortMap mapping,
                               final InstanceIdentifier<RouterPorts> portIid, final String routerName) {
+        LOG.warn("JOSH createNATFlowEntries 1");
         if (!validateIpMapping(mapping)) {
             LOG.error("createNATFlowEntries : Not a valid ip addresses in the mapping {}", mapping);
             return;
@@ -404,6 +461,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.error("createNATFlowEntries : No DPN for interface {}. NAT flow entries for ip mapping {} will "
                 + "not be installed", interfaceName, mapping);
+            if (null == waitForIt) {
+                waitForIt = new WaitForIt(interfaceName, mapping, portIid, routerName);
+            }
             return;
         }
 
@@ -440,10 +500,14 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
 
+        LOG.warn("JOSH createNATFlowEntries 2");
         //Create the DNAT and SNAT table entries
         createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId);
+        LOG.warn("JOSH createNATFlowEntries 3");
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId);
+        LOG.warn("JOSH createNATFlowEntries 4");
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, extNwId, interfaceName, mapping);
+        LOG.warn("JOSH createNATFlowEntries 5");
     }
 
     void createNATFlowEntries(BigInteger dpnId,  String interfaceName, String routerName, Uuid externalNetworkId,
