@@ -17,7 +17,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -123,8 +125,9 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         InstanceIdentifier<RouterPorts> routerPortsIdentifier = InstanceIdentifier.builder(FloatingIpInfo.class)
                 .child(RouterPorts.class, new RouterPortsKey(routerName)).build();
         try {
-            Optional<RouterPorts> optionalRouterPorts = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                    .CONFIGURATION, routerPortsIdentifier);
+            Optional<RouterPorts> optionalRouterPorts =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            routerPortsIdentifier);
             if (optionalRouterPorts.isPresent()) {
                 LOG.debug("Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
                     + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
@@ -191,8 +194,9 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder = InstanceIdentifier
                 .builder(FloatingIpInfo.class).child(RouterPorts.class, new RouterPortsKey(routerName));
         try {
-            Optional<RouterPorts> optionalRouterPorts = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                    .CONFIGURATION, routerPortsIdentifierBuilder.build());
+            Optional<RouterPorts> optionalRouterPorts =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            routerPortsIdentifierBuilder.build());
             if (optionalRouterPorts.isPresent()) {
                 RouterPorts routerPorts = optionalRouterPorts.get();
                 List<Ports> portsList = routerPorts.getPorts();
@@ -234,16 +238,15 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void dissociatefixedIPFromFloatingIP(String fixedNeutronPortName) {
         boolean isLockAcquired = false;
         InstanceIdentifier.InstanceIdentifierBuilder<FloatingIpInfo> floatingIpInfoIdentifierBuilder =
                 InstanceIdentifier.builder(FloatingIpInfo.class);
         try {
-            Optional<FloatingIpInfo> optionalFloatingIPInfo = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType
-                    .CONFIGURATION, floatingIpInfoIdentifierBuilder.build());
-            if (optionalFloatingIPInfo.isPresent() && optionalFloatingIPInfo.get() != null) {
+            Optional<FloatingIpInfo> optionalFloatingIPInfo =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            floatingIpInfoIdentifierBuilder.build());
+            if (optionalFloatingIPInfo.isPresent()) {
                 List<RouterPorts> routerPortsList = optionalFloatingIPInfo.get().getRouterPorts();
                 if (routerPortsList != null && !routerPortsList.isEmpty()) {
                     for (RouterPorts routerPorts : routerPortsList) {
@@ -271,7 +274,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 LOG.debug("FloatingIPInfo DS empty. Hence, no router present containing fixed to floating IP "
                     + "association(s)");
             }
-        } catch (Exception e) {
+        } catch (ReadFailedException e) {
             LOG.error("Failed to dissociate fixedIP from FloatingIpInfo DS for neutron port {}",
                     fixedNeutronPortName, e);
         }
