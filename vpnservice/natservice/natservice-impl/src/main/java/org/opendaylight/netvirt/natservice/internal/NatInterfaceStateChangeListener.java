@@ -112,8 +112,14 @@ public class NatInterfaceStateChangeListener
     void handleRouterInterfacesUpEvent(String routerName, String interfaceName, WriteTransaction writeOperTxn) {
         LOG.debug("handleRouterInterfacesUpEvent : Handling UP event for router interface {} in Router {}",
                 interfaceName, routerName);
-        NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, interfaceName, odlInterfaceRpcService, writeOperTxn);
-        NatUtil.addToDpnRoutersMap(dataBroker, routerName, interfaceName, odlInterfaceRpcService, writeOperTxn);
+        BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, interfaceName);
+        if (dpId.equals(BigInteger.ZERO)) {
+            LOG.warn("handleRouterInterfacesUpEvent : Could not retrieve dp id for interface {} to handle router {} "
+                    + "association model", interfaceName, routerName);
+            return;
+        }
+        NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, interfaceName, dpId, writeOperTxn);
+        NatUtil.addToDpnRoutersMap(dataBroker, routerName, interfaceName, dpId, writeOperTxn);
     }
 
     void handleRouterInterfacesDownEvent(String routerName, String interfaceName, BigInteger dpnId,

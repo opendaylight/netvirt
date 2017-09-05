@@ -14,11 +14,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 
 public interface FloatingIPHandler {
 
-    void onAddFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, String interfaceName,
+    void onAddFloatingIp(BigInteger dpnId, String routerUuid, long routerId, Uuid networkId, String interfaceName,
                          InternalToExternalPortMap mapping);
 
-    void onRemoveFloatingIp(BigInteger dpnId, String routerId, Uuid networkId, InternalToExternalPortMap mapping,
-                            long label);
+    void onRemoveFloatingIp(BigInteger dpnId, String routerUuid, long routerId, Uuid networkId,
+            InternalToExternalPortMap mapping, long label);
 
     void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label);
 }
