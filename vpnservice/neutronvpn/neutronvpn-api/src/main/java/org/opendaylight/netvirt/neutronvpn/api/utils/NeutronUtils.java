@@ -9,10 +9,6 @@
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
 import com.google.common.base.Preconditions;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,7 +22,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
@@ -220,34 +215,6 @@ public class NeutronUtils {
         } else {
             return Boolean.FALSE;
         }
-    }
-
-    /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
-     * @param ipAddress String of an representation IP address V4 or V6
-     * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED if any
-     */
-    public static IpVersionChoice getIpVersion(String ipAddress) {
-        IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
-        if (ipAddress.indexOf("/") > 0) {
-            ipAddress = ipAddress.substring(0, ipAddress.indexOf("/"));
-        }
-        try {
-            InetAddress address = InetAddress.getByName(ipAddress);
-            if (address instanceof Inet4Address) {
-                return IpVersionChoice.IPV4;
-            }
-        } catch (UnknownHostException | SecurityException e) {
-            ipchoice = IpVersionChoice.UNDEFINED;
-        }
-        try {
-            InetAddress address = InetAddress.getByName(ipAddress);
-            if (address instanceof Inet6Address) {
-                return IpVersionChoice.IPV6;
-            }
-        } catch (UnknownHostException | SecurityException e) {
-            ipchoice = IpVersionChoice.UNDEFINED;
-        }
-        return ipchoice;
     }
 
     private static long LOCK_WAIT_TIME = 10L;
