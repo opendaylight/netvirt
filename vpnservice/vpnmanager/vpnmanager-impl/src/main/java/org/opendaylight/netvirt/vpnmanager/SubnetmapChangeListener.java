@@ -14,6 +14,8 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -143,6 +145,28 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         }
         // subnet updated in VPN case
         if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
+            boolean isBgpVpn = !vpnIdOld.equals(subnetmapUpdate.getRouterId());
+            String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnIdOld.getValue());
+            if (isBgpVpn && primaryRd != null && VpnUtil.isBgpVpn(vpnIdOld.getValue(), primaryRd)) {
+                InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
+                Optional<Subnetmaps> allSubnetMaps = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    subnetMapsId);
+                // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
+                List<IpVersionChoice> snIpVersions = new ArrayList<>();
+                for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
+                    if (snMap.getId().equals(subnetmapUpdate.getId())) {
+                        continue;
+                    }
+                    if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnIdOld)) {
+                        snIpVersions.add(NeutronUtils.getIpVersion(snMap.getSubnetIp()));
+                    }
+                }
+                IpVersionChoice ipVersion = NeutronUtils.getIpVersion(subnetmapUpdate.getSubnetIp());
+                if (!snIpVersions.contains(ipVersion)) {
+                    // no more subnet with given IpVersion for current VpnInstance
+                    VpnUtil.withdrawIpFamilyFromVpnInstance(dataBroker, vpnIdOld.getValue(), ipVersion);
+                }
+            }
             vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag);
             return;
         }
