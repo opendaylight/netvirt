@@ -19,6 +19,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -95,9 +96,26 @@ public class ShowVpn extends OsgiCommandSupport {
                     operCount = instanceNameToOperInterfaceMap.get(vpnInstance.getVpnInstanceName());
                     totalOperCount = totalOperCount + operCount;
                 }
+                VpnAfConfig addrFamilly = vpnInstance.getVpnConfig();
+                if (addrFamilly == null) {
+                    session.getConsole().println(
+                        String.format("Non initialised VPN Instance %-32s",
+                             vpnInstance.getVpnInstanceName()));
+                    continue;
+                }
                 session.getConsole().println(
                         String.format("%-32s  %-10s  %-10s  %-10s", vpnInstance.getVpnInstanceName(),
-                                vpnInstance.getIpv4Family().getRouteDistinguisher(), configCount, operCount));
+                                addrFamilly.getRouteDistinguisher(), configCount, operCount));
+                if (vpnInstance.getIpv4Family() != null) {
+                    session.getConsole().println(
+                        String.format("IPv4 is configured for %-32s",
+                             vpnInstance.getVpnInstanceName()));
+                }
+                if (vpnInstance.getIpv6Family() != null) {
+                    session.getConsole().println(
+                        String.format("IPv6 is configured for %-32s",
+                             vpnInstance.getVpnInstanceName()));
+                }
             }
             session.getConsole().println("-----------------------------------------------------------------------");
             session.getConsole().println(
