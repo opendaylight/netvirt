@@ -1776,4 +1776,5 @@ public final class VpnUtil {
         }
         return isVpnPendingDelete;
     }
+
 }
