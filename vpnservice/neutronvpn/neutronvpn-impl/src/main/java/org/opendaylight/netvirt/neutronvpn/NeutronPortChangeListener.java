@@ -32,6 +32,7 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -277,6 +278,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 }
                 for (FixedIps portIP : routerPort.getFixedIps()) {
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
+                    if (NeutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(dataBroker,
+                                NeutronvpnUtils.getSubnetmap(dataBroker, portIP.getSubnetId()), vpnId)) {
+                        NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, vpnId.getValue(),
+                               NeutronvpnUtils.getIpVersionFromString(ipValue), true);
+                    }
                     nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
                     LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
                             ipValue, routerPort.getMacAddress(),
@@ -308,8 +314,15 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (vpnId == null) {
                 vpnId = routerId;
             }
+            boolean vpnInstanceIpVersionRemoved = false;
+            IpVersionChoice vpnInstanceIpVersionToRemove = IpVersionChoice.UNDEFINED;
             for (FixedIps portIP : routerPort.getFixedIps()) {
                 Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, portIP.getSubnetId());
+                // router Port have either IPv4 or IPv6, never both
+                if (NeutronvpnUtils.shouldVpnHandleIpVersionChangeToRemove(dataBroker, sn, vpnId)) {
+                    vpnInstanceIpVersionRemoved = true;
+                    vpnInstanceIpVersionToRemove = NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+                }
                 subnetMapList.add(sn);
             }
             /* Remove ping responder for router interfaces
@@ -334,6 +347,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                 NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(),
                         ipValue, null /*writeTransaction*/);
+            }
+            if (vpnInstanceIpVersionRemoved) {
+                NeutronvpnUtils.updateVpnInstanceWithIpFamily(dataBroker, vpnId.getValue(),
+                          vpnInstanceIpVersionToRemove, false);
             }
         }
     }
