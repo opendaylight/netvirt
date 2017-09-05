@@ -1292,19 +1292,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void addSubnetToVpn(final Uuid vpnId, Uuid subnet) {
-        LOG.debug("Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
+        LOG.debug("addSubnetToVpn: Adding subnet {} to vpn {}", subnet.getValue(), vpnId.getValue());
         Subnetmap sn = updateSubnetNode(subnet, null, vpnId);
         if (sn == null) {
-            LOG.error("subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
+            LOG.error("addSubnetToVpn: subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(),
+                vpnId.getValue());
             return;
         }
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
         if (vpnMap == null) {
-            LOG.error("No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(), subnet.getValue());
+            LOG.error("addSubnetToVpn: No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(),
+                subnet.getValue());
             return;
         }
 
         final VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
+        LOG.info("addSubnetToVpn: VpnInstance {}", vpnInstance.toString());
         if (isVpnOfTypeL2(vpnInstance)) {
             neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
                     NeutronEvpnUtils.Operation.ADD);
@@ -1317,8 +1320,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 VpnInterface vpnIface = VpnHelper.getVpnInterface(dataBroker, vpnInfName);
                 Port port = NeutronvpnUtils.getNeutronPort(dataBroker, portId);
                 if (port == null) {
-                    LOG.error("Cannot proceed with addSubnetToVpn for port {} in subnet {} since port is "
-                        + "absent in Neutron config DS", portId.getValue(), subnet.getValue());
+                    LOG.error("addSubnetToVpn: Cannot proceed with addSubnetToVpn for port {} in subnet {} since port "
+                        + "is absent in Neutron config DS", portId.getValue(), subnet.getValue());
                     continue;
                 }
                 final Boolean isRouterInterface = (port.getDeviceOwner()
@@ -1330,7 +1333,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     Adjacencies portAdj = createPortIpAdjacencies(vpnId, port, isRouterInterface, wrtConfigTxn);
                     if (vpnIface == null) {
-                        LOG.trace("create new VpnInterface for Port {}", vpnInfName);
+                        LOG.trace("addSubnetToVpn: create new VpnInterface for Port {}", vpnInfName);
                         writeVpnInterfaceToDs(vpnId, vpnInfName, portAdj, isRouterInterface, wrtConfigTxn);
                     } else {
                         updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
