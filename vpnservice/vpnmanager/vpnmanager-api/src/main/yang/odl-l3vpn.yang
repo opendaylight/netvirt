@@ -261,6 +261,18 @@ module odl-l3vpn {
                   default "active";
                }
            }
+           leaf ipv4-address-family {
+              type boolean;
+              description
+                 "This VPN Instance supports IPv4";
+              default false;
+           }
+           leaf ipv6-address-family {
+              type boolean;
+              description
+                 "This VPN Instance supports IPv6";
+              default false;
+           }
            leaf type {
               description
                  "The type of the VPN Instance.

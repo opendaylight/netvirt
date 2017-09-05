@@ -49,12 +49,19 @@ import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -1776,4 +1783,72 @@ public final class VpnUtil {
         }
         return isVpnPendingDelete;
     }
+
+    public static VpnTargets getOpVpnTargets(DataBroker broker, String rd) {
+        List<VpnTarget> vpnTargetList = new ArrayList<>();
+        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+        VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(broker, rd);
+        org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op
+            .data.entry.VpnTargets opVpnTargets = vpnInstanceOpData.getVpnTargets();
+        if (opVpnTargets == null) {
+            return vpnTargets;
+        }
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op
+            .data.entry.vpntargets.VpnTarget> opVpnTargetList = opVpnTargets.getVpnTarget();
+        if (opVpnTargetList == null) {
+            return vpnTargets;
+        }
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op
+                .data.entry.vpntargets.VpnTarget opVpnTarget : opVpnTargetList) {
+            VpnTargetBuilder vpnTargetsBuilder =
+                new VpnTargetBuilder().setKey(new VpnTargetKey(opVpnTarget.getKey().getVrfRTValue()))
+                    .setVrfRTType(org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af
+                        .config.vpntargets.VpnTarget.VrfRTType.forValue(opVpnTarget.getVrfRTType().getIntValue()))
+                    .setVrfRTValue(opVpnTarget.getVrfRTValue());
+            vpnTargetList.add(vpnTargetsBuilder.build());
+        }
+        return new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void withdrawIpFamilyFromVpnInstance(DataBroker dataBroker, String vpnName,
+                                      IpVersionChoice ipVersion) {
+        LOG.trace("Withdraw ipFamily {} from VpnInstance", ipVersion.toString(), vpnName);
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> optionalVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                vpnIdentifier);
+        if (!optionalVpn.isPresent()) {
+            LOG.error("withdrawIpFamily from Vpn: "
+                + "Can't find VpnInstance in DS for vpnName {}", vpnName);
+            return;
+        }
+        VpnInstance vpnInstance = optionalVpn.get();
+        org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
+            .l3vpn.rev140815.vpn.instances.VpnInstanceBuilder  vpnInstanceBuilder =
+                 new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
+                       .l3vpn.rev140815.vpn.instances.VpnInstanceBuilder(vpnInstance);
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+            LOG.info("withdrawIpFamily : vpnName {} withdrawn from IPv4 - mute", vpnName);
+            // vpnInstanceBuilder.setIpv4Family(null).build();
+        }
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+            LOG.info("withdrawIpFamilyFromVpn : vpnName {} withdrawn from IPv6", vpnName);
+            vpnInstanceBuilder.setIpv6Family(null).build();
+        }
+        boolean isLockAcquired = false;
+        isLockAcquired = NeutronUtils.lock(vpnName);
+        try {
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
+                    vpnInstanceBuilder.build());
+        } catch (Exception e) {
+            LOG.warn("withdrawIpFamilyFromVpn : Error while configuring feature: {}", e);
+        } finally {
+            if (isLockAcquired) {
+                NeutronUtils.unlock(vpnName);
+            }
+        }
+        LOG.info("withdrawIpFamilyFromVpn: Successfully {} from Vpn {}", ipVersion.toString(), vpnName);
+    }
+
 }
