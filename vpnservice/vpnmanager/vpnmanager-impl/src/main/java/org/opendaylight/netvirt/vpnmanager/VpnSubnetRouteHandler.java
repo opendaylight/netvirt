@@ -169,7 +169,6 @@ public class VpnSubnetRouteHandler {
                             + " subnet {} subnetIp {} ", LOGGING_PREFIX, vpnName, subnetId.getValue(), subnetIp);
                     return;
                 }
-
                 subOpBuilder.setVrfId(primaryRd);
                 subOpBuilder.setVpnName(vpnName);
                 subOpBuilder.setSubnetToDpn(new ArrayList<>());
