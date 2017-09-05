@@ -368,7 +368,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf(List<Void> voids) {
             VpnAfConfig config = vpnInstance.getIpv4Family();
-            List<String> rds = config.getRouteDistinguisher();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
 
@@ -393,20 +392,39 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         this.vpnName, primaryRd);
                 return false;
             }
+            Optional<VpnInstanceOpDataEntry> vpnOpValue = null;
+            try {
+                vpnOpValue = SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd));
+            } catch (ReadFailedException e) {
+                LOG.error("{} addBgpVrf: VpnInstanceOpDataEntry not found {}", LOGGING_PREFIX_ADD, this.vpnName);
+            }
+            if (!vpnOpValue.isPresent()) {
+                LOG.error("{} remove: Unable to retrieve VpnInstanceOpDataEntry for VPN {}. ", LOGGING_PREFIX_ADD,
+                        vpnName);
+            }
+            final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = (vpnOpValue == null || !vpnOpValue.isPresent())
+                          ? null : vpnOpValue.get();
+            List<String> rds = config.getRouteDistinguisher();
             //Advertise all the rds and check if primary Rd advertisement fails
             long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
                 try {
-                    if (vpnInstance.getIpv4Family() != null) {
-                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
-                        } else {
+                    if (vpnInstanceOpDataEntry != null) {
+                        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
                             bgpManager.addVrf(rd, irtList, ertList, AddressFamily.L2VPN);
-                        }
-                    }
-                    if (vpnInstance.getIpv6Family() != null) {
-                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
-                            // No addVRF LAYER2 for IPv6
+                            log.info("{} addBgpVrf: ADDVRF L2Vpn {}",
+                                  LOGGING_PREFIX_ADD, this.vpnName);
+                        } else {
+                            if (vpnInstanceOpDataEntry.isIpv4Configured()) {
+                                bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
+                                log.info("{} addBgpVrf: ADDVRF IPv4 {}",
+                                      LOGGING_PREFIX_ADD, this.vpnName);
+                            }
+                            if (vpnInstanceOpDataEntry.isIpv6Configured()) {
+                                bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
+                                log.info("{} addBgpVrf: ADDVRF IPv6 {}",
+                                      LOGGING_PREFIX_ADD, this.vpnName);
+                            }
                         }
                     }
                 } catch (Exception e) {

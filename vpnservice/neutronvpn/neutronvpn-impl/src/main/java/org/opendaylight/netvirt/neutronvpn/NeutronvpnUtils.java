@@ -12,6 +12,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
 import com.google.common.collect.Sets;
 import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,6 +33,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
@@ -69,10 +74,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
@@ -1270,7 +1280,7 @@ public class NeutronvpnUtils {
         }
         for (Subnetmap sn : subnetmapList) {
             if (sn.getSubnetIp() != null) {
-                IpVersionChoice ipVers = NeutronUtils.getIpVersion(sn.getSubnetIp());
+                IpVersionChoice ipVers = getIpVersionFromString(sn.getSubnetIp());
                 if (rep.choice != ipVers.choice) {
                     rep.addVersion(ipVers);
                 }
@@ -1300,4 +1310,180 @@ public class NeutronvpnUtils {
         }
         return subnetIdList;
     }
+
+    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+        .instance.to.vpn.id.VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
+        return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
+            .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                    .instance.to.vpn.id.VpnInstance.class,
+                new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+                    .instance.to.vpn.id.VpnInstanceKey(vpnName)).build();
+    }
+
+    /**
+     * Retrieves the VPN Route Distinguisher searching by its Vpn instance name.
+     *
+     * @param broker dataBroker service reference
+     * @param vpnName Name of the VPN
+     * @return the route-distinguisher of the VPN
+     */
+    public static String getVpnRd(DataBroker broker, String vpnName) {
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+            .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                        .VpnInstance::getVrfId).orElse(null);
+    }
+
+    /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
+     * @param ipAddress String of an representation IP address V4 or V6
+     * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED otherwise
+     */
+    public static IpVersionChoice getIpVersionFromString(String ipAddress) {
+        IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
+        if (ipAddress.indexOf("/") > 0) {
+            ipAddress = ipAddress.substring(0, ipAddress.indexOf("/"));
+        }
+        try {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            if (address instanceof Inet4Address) {
+                return IpVersionChoice.IPV4;
+            } else if (address instanceof Inet6Address) {
+                return IpVersionChoice.IPV6;
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            ipchoice = IpVersionChoice.UNDEFINED;
+        }
+        return ipchoice;
+    }
+
+    /**Get IpVersionChoice from Uuid Subnet.
+     * @param sm Subnetmap structure
+     * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED otherwise
+     */
+    public static IpVersionChoice getIpVersionFromSubnet(Subnetmap sm) {
+        if (sm != null && sm.getSubnetIp() != null) {
+            return getIpVersionFromString(sm.getSubnetIp());
+        }
+        return IpVersionChoice.UNDEFINED;
+    }
+
+    public static boolean shouldVpnHandleIpVersionChangeToAdd(DataBroker dataBroker, Subnetmap sm, Uuid vpnId) {
+        String primaryRd = getVpnRd(dataBroker, vpnId.getValue());
+        if (sm == null) {
+            return false;
+        }
+        if (primaryRd == null) {
+            LOG.error("shouldVpnHandleIpVersionChangeToAdd: Vpn Instance {} "
+                     + "Primary RD not found", vpnId.getValue());
+            return false;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("shouldVpnHandleIpVersionChangeToAdd: VpnInstance {} not found", primaryRd);
+            return true;
+        }
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
+        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            LOG.error("shouldVpnHandleIpVersionChangeToAdd: "
+                   + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", primaryRd);
+            return false;
+        }
+        IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
+        boolean isIpv4Configured = vpnInstanceOpDataEntry.isIpv4Configured();
+        boolean isVpnInstanceIpv4Changed = false;
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (isIpv4Configured == false)) {
+            isVpnInstanceIpv4Changed = true;
+        }
+        boolean isIpv6Configured = vpnInstanceOpDataEntry.isIpv6Configured();
+        boolean isVpnInstanceIpv6Changed = false;
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (isIpv6Configured == false)) {
+            isVpnInstanceIpv6Changed = true;
+        }
+        if (isVpnInstanceIpv4Changed == false && isVpnInstanceIpv6Changed == false) {
+            LOG.warn("shouldVpnHandleIpVersionChangeToAdd: VPN {} did not change with IpFamily {}",
+                   primaryRd, ipVersion.toString());
+            return false;
+        }
+        return true;
+    }
+
+    public static boolean shouldVpnHandleIpVersionChangeToRemove(DataBroker dataBroker, Subnetmap sm, Uuid vpnId) {
+        if (sm == null) {
+            return false;
+        }
+        InstanceIdentifier<Subnetmaps> subnetMapsId = InstanceIdentifier.builder(Subnetmaps.class).build();
+        Optional<Subnetmaps> allSubnetMaps = read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                subnetMapsId);
+        // calculate and store in list IpVersion for each subnetMap, belonging to current VpnInstance
+        List<IpVersionChoice> snIpVersions = new ArrayList<>();
+        for (Subnetmap snMap: allSubnetMaps.get().getSubnetmap()) {
+            if (snMap.getId().equals(sm.getId())) {
+                continue;
+            }
+            if (snMap.getVpnId() != null && snMap.getVpnId().equals(vpnId)) {
+                snIpVersions.add(getIpVersionFromString(snMap.getSubnetIp()));
+            }
+        }
+        IpVersionChoice ipVersion = NeutronvpnUtils.getIpVersionFromString(sm.getSubnetIp());
+        if (!snIpVersions.contains(ipVersion)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static void updateVpnInstanceWithIpFamily(DataBroker dataBroker, String vpnName,
+                                                  IpVersionChoice ipVersion, boolean add) {
+        String primaryRd = getVpnRd(dataBroker, vpnName);
+        if (primaryRd == null) {
+            LOG.error("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                    + "Primary RD not found", vpnName,
+                ipVersion.toString());
+            return;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                    + "VpnInstanceOpDataEntry not found", vpnName,
+                ipVersion.toString());
+            return;
+        }
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
+        if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
+            LOG.error("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
+                    + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
+                ipVersion.toString());
+            return;
+        }
+        final boolean isFinalVpnInstanceIpv6Changed = ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) ? true : false;
+        final boolean isFinalVpnInstanceIpv4Changed = ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) ? true : false;
+        final boolean finalIsIpv4Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) ? add : false;
+        final boolean finalIsIpv6Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) ? add : false;
+        DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
+        djc.enqueueJob("VPN-" + vpnName, () -> {
+            VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
+            if (isFinalVpnInstanceIpv4Changed) {
+                builder.setIpv4Configured(finalIsIpv4Configured);
+            }
+            if (isFinalVpnInstanceIpv6Changed) {
+                builder.setIpv6Configured(finalIsIpv6Configured);
+            }
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
+            LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}", add == true ? "added" : "removed",
+                     ipVersion.toString(), vpnName);
+            return Collections.singletonList(writeTxn.submit());
+        });
+        return;
+    }
+
 }
