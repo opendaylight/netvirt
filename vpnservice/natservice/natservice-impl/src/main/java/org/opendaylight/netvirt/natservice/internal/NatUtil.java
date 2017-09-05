@@ -436,7 +436,7 @@ public class NatUtil {
                 null);
     }
 
-    private static InstanceIdentifier<RouterToNaptSwitch> buildNaptSwitchIdentifier(String routerId) {
+    public static InstanceIdentifier<RouterToNaptSwitch> buildNaptSwitchIdentifier(String routerId) {
         InstanceIdentifier<RouterToNaptSwitch> rtrNaptSw = InstanceIdentifier.builder(NaptSwitches.class)
             .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerId)).build();
         return rtrNaptSw;
@@ -451,16 +451,6 @@ public class NatUtil {
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vrfId) {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
             .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(vrfId)).build();
-    }
-
-    public static long readVpnId(DataBroker broker, String vpnName) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
-            .instance.to.vpn.id.VpnInstance> id = getVpnInstanceToVpnIdIdentifier(vpnName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(
-                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                        .VpnInstance::getVpnId).orElse(
-                NatConstants.INVALID_ID);
     }
 
     public static FlowEntity buildFlowEntity(BigInteger dpnId, short tableId, BigInteger cookie, String flowId) {
@@ -529,12 +519,6 @@ public class NatUtil {
             .child(IpPortMapping.class, new IpPortMappingKey(routerId))
             .child(IntextIpProtocolType.class, new IntextIpProtocolTypeKey(protocolType))
             .child(IpPortMap.class, new IpPortMapKey(internalIpAddress + ":" + internalPort)).build();
-    }
-
-    static boolean isVpnInterfaceConfigured(DataBroker broker, String interfaceName) {
-        InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, interfaceId).isPresent();
     }
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
@@ -612,10 +596,10 @@ public class NatUtil {
                 NatConstants.INVALID_ID);
     }
 
-    public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId, Logger log) {
+    public static String getAssociatedVPN(DataBroker dataBroker, Uuid networkId) {
         Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
         if (vpnUuid == null) {
-            log.error("getAssociatedVPN : No VPN instance associated with ext network {}", networkId);
+            LOG.error("getAssociatedVPN : No VPN instance associated with ext network {}", networkId);
             return null;
         }
         return vpnUuid.getValue();
@@ -635,7 +619,7 @@ public class NatUtil {
                                       String macAddress,
                                       long label,
                                       long l3vni,
-                                      Logger log, RouteOrigin origin, BigInteger dpId) {
+                                      RouteOrigin origin, BigInteger dpId) {
         try {
             LOG.info("addPrefixToBGP : Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
@@ -949,12 +933,6 @@ public class NatUtil {
     }
 
     public static void addToNeutronRouterDpnsMap(DataBroker broker, String routerName, String interfaceName,
-            OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
-        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, interfaceName);
-        addToNeutronRouterDpnsMap(broker, routerName, interfaceName,  dpId, writeOperTxn);
-    }
-
-    public static void addToNeutronRouterDpnsMap(DataBroker broker, String routerName, String interfaceName,
             BigInteger dpId , WriteTransaction writeOperTxn) {
 
         if (dpId.equals(BigInteger.ZERO)) {
@@ -996,13 +974,6 @@ public class NatUtil {
                     getRouterId(routerName),
                     routerDpnListBuilder.build(), true);
         }
-    }
-
-
-    public static void addToDpnRoutersMap(DataBroker broker, String routerName, String interfaceName,
-            OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
-        BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, interfaceName);
-        addToDpnRoutersMap(broker, routerName, interfaceName, dpId, writeOperTxn);
     }
 
     public static void addToDpnRoutersMap(DataBroker broker, String routerName, String interfaceName,
@@ -1523,8 +1494,7 @@ public class NatUtil {
                 LogicalDatastoreType.CONFIGURATION, routerIdentifier).orNull();
     }
 
-    static void createRouterIdsConfigDS(DataBroker dataBroker, String routerName) {
-        long routerId = NatUtil.getVpnId(dataBroker, routerName);
+    static void createRouterIdsConfigDS(DataBroker dataBroker, long routerId, String routerName) {
         if (routerId == NatConstants.INVALID_ID) {
             LOG.error("createRouterIdsConfigDS : invalid routerId for routerName {}", routerName);
             return;
@@ -1568,10 +1538,15 @@ public class NatUtil {
             LOG.error("getExtGwMacAddFromRouterId : empty routerName received");
             return null;
         }
+        return getExtGwMacAddFromRouterName(broker, routerName);
+    }
+
+    static String getExtGwMacAddFromRouterName(DataBroker broker, String routerName) {
         InstanceIdentifier<Routers> id = buildRouterIdentifier(routerName);
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                 LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(Routers::getExtGwMacAddress).orElse(null);
     }
+
 
     static InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
         InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)

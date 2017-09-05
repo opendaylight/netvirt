@@ -74,7 +74,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
         installTerminatingServiceTblEntry(dpnId, routerId, elanId, addOrRemove);
         List<ExternalIps> externalIps = routers.getExternalIps();
-        String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+        String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routerName);
         createOutboundTblTrackEntry(dpnId, routerId, extGwMacAddress, addOrRemove);
         createOutboundTblEntry(dpnId, routerId, externalIps, elanId, extGwMacAddress, addOrRemove);
         installNaptPfibFlow(routers, dpnId, routerId, externalIps, routerName, addOrRemove);

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -78,8 +79,14 @@ public class NatRouterInterfaceListener
             .state.Interface interfaceState = NatUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
         if (interfaceState != null) {
-            NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
-            NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
+            BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
+            if (dpId.equals(BigInteger.ZERO)) {
+                LOG.warn("ADD : Could not retrieve dp id for interface {} to handle router {} association model",
+                        interfaceName, routerId);
+                return;
+            }
+            NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, dpId, writeOperTxn);
+            NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, dpId, writeOperTxn);
         } else {
             LOG.warn("add : Interface {} not yet operational to handle router interface add event in router {}",
                     interfaceName, routerId);
