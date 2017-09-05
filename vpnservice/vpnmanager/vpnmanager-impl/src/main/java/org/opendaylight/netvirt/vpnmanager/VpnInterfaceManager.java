@@ -1705,14 +1705,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 // This code will be hit in case of first PNF adjacency
                 adjacencies = new ArrayList<>();
             }
+            List<String> nhList = adj.getNextHopIpList();
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             L3vpnInput input = new L3vpnInput().setNextHop(adj).setVpnName(vpnName)
                     .setInterfaceName(currVpnIntf.getName()).setPrimaryRd(primaryRd).setRd(primaryRd);
             Adjacency operationalAdjacency = null;
-            if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()) {
+            if (nhList != null && !nhList.isEmpty()) {
                 RouteOrigin origin = adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
-                String nh = adj.getNextHopIpList().get(0);
+                String nh = nhList.get(0);
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
@@ -1720,7 +1721,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     if (rdToAllocate.isPresent()) {
                         input.setRd(rdToAllocate.get());
                         operationalAdjacency = populator.createOperationalAdjacency(input);
-                        int label = operationalAdjacency.getLabel().intValue();
                         addExtraRoute(vpnName, adj.getIpAddress(), nh, rdToAllocate.get(),
                                 currVpnIntf.getVpnInstanceName(), label, l3vni, origin,
                                 currVpnIntf.getName(), operationalAdjacency, encapType, writeConfigTxn);
