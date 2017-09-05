@@ -124,7 +124,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     @Override
-    public void onAddFloatingIp(final BigInteger dpnId, final String routerId,
+    public void onAddFloatingIp(final BigInteger dpnId, final String routerUuid, final long routerId,
                                 final Uuid networkId, final String interfaceName,
                                 final InternalToExternalPortMap mapping) {
         String externalIp = mapping.getExternalIp();
@@ -134,12 +134,12 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (floatingIpPortMacAddress == null) {
             LOG.error("onAddFloatingIp: Unable to retrieve floatingIp port MAC address from floatingIpId {} for "
-                    + "router {} to handle floatingIp {}", floatingIpId, routerId, externalIp);
+                    + "router {} to handle floatingIp {}", floatingIpId, routerUuid, externalIp);
             return;
         }
         Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker, subnetId);
         final String vpnName = externalSubnet.isPresent() ? subnetId.getValue() :
-            NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
+            NatUtil.getAssociatedVPN(dataBroker, networkId);
         final String subnetVpnName = externalSubnet.isPresent() ? subnetId.getValue() : null;
         if (vpnName == null) {
             LOG.error("onAddFloatingIp: No VPN is associated with ext nw {} to handle add floating ip {} configuration "
@@ -152,7 +152,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     + "router {} to handle floatingIp {}", vpnName, routerId, externalIp);
             return;
         }
-        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerId);
+        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerUuid, networkId);
         if (provType == null) {
             return;
         }
@@ -175,8 +175,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
         if (provType == ProviderTypes.VXLAN) {
             Uuid floatingIpInterface = NatEvpnUtil.getFloatingIpInterfaceIdFromFloatingIpId(dataBroker, floatingIpId);
-            evpnDnatFlowProgrammer.onAddFloatingIp(dpnId, routerId, vpnName, internalIp, externalIp, networkId,
-                    interfaceName, floatingIpInterface.getValue(), floatingIpPortMacAddress, rd, nextHopIp, writeTx);
+            evpnDnatFlowProgrammer.onAddFloatingIp(dpnId, routerUuid, routerId, vpnName, internalIp,
+                    externalIp, networkId, interfaceName, floatingIpInterface.getValue(), floatingIpPortMacAddress,
+                    rd, nextHopIp, writeTx);
             if (writeTx != null) {
                 writeTx.submit();
             }
@@ -197,7 +198,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     GenerateVpnLabelOutput output = result.getResult();
                     long label = output.getLabel();
                     LOG.debug("onAddFloatingIp : Generated label {} for prefix {}", label, externalIp);
-                    FloatingIPListener.updateOperationalDS(dataBroker, routerId, interfaceName, label,
+                    FloatingIPListener.updateOperationalDS(dataBroker, routerUuid, interfaceName, label,
                         internalIp, externalIp);
                     /*
                      * For external network of type VXLAN all packets going from VMs within the DC, towards the
@@ -212,7 +213,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     //Inform BGP
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, subnetId,
                             fibExternalIp, nextHopIp, networkId.getValue(), floatingIpPortMacAddress,
-                            label, l3vni, LOG, RouteOrigin.STATIC, dpnId);
+                            label, l3vni, RouteOrigin.STATIC, dpnId);
 
                     List<Instruction> instructions = new ArrayList<>();
                     List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -238,10 +239,10 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                             externalIp, interfaceName);
                     if (floatingIpPortMacAddress != null) {
-                        String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
+                        String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
                         vpnManager.setupSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
                                 floatingIpPortMacAddress, dpnId, writeTx, NwConstants.ADD_FLOW);
-                        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId,
+                        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerUuid,
                                 Collections.singleton(externalIp),
                             floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
                         writeTx.submit();
@@ -280,17 +281,17 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     @Override
-    public void onRemoveFloatingIp(final BigInteger dpnId, String routerId, final Uuid networkId,
+    public void onRemoveFloatingIp(final BigInteger dpnId, String routerUuid, long routerId, final Uuid networkId,
                                    InternalToExternalPortMap mapping, final long label) {
         String externalIp = mapping.getExternalIp();
         Uuid floatingIpId = mapping.getExternalId();
         Uuid subnetId = NatUtil.getFloatingIpPortSubnetIdFromFloatingIpId(dataBroker, floatingIpId);
         Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker, subnetId);
         final String vpnName = externalSubnet.isPresent() ? subnetId.getValue() :
-            NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
+            NatUtil.getAssociatedVPN(dataBroker, networkId);
         if (vpnName == null) {
             LOG.error("onRemoveFloatingIp: No VPN associated with ext nw {} to remove floating ip {} configuration "
-                    + "for router {}", networkId, externalIp, routerId);
+                    + "for router {}", networkId, externalIp, routerUuid);
             return;
         }
 
@@ -299,27 +300,27 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         String floatingIpPortMacAddress = NatUtil.getFloatingIpPortMacFromFloatingIpId(dataBroker, floatingIpId);
         if (floatingIpPortMacAddress == null) {
             LOG.error("onRemoveFloatingIp: Unable to retrieve floatingIp port MAC address from floatingIpId {} for "
-                    + "router {} to remove floatingIp {}", floatingIpId, routerId, externalIp);
+                    + "router {} to remove floatingIp {}", floatingIpId, routerUuid, externalIp);
             return;
         }
         if (floatingIpPortMacAddress != null) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-            String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId, LOG);
+            String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
             vpnManager.setupSubnetMacIntoVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
                     dpnId, writeTx, NwConstants.DEL_FLOW);
-            vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerId, Collections.singletonList(externalIp),
+            vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerUuid, Collections.singletonList(externalIp),
                 floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.DEL_FLOW);
             writeTx.submit();
         }
         removeFromFloatingIpPortInfo(floatingIpId);
-        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerId);
+        ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerUuid, networkId);
         if (provType == null) {
             return;
         }
         if (provType == ProviderTypes.VXLAN) {
             Uuid floatingIpInterface = NatEvpnUtil.getFloatingIpInterfaceIdFromFloatingIpId(dataBroker, floatingIpId);
             evpnDnatFlowProgrammer.onRemoveFloatingIp(dpnId, vpnName, externalIp, floatingIpInterface.getValue(),
-                    floatingIpPortMacAddress, routerId);
+                    floatingIpPortMacAddress, routerUuid, routerId);
             return;
         }
         cleanupFibEntries(dpnId, vpnName, externalIp, label);

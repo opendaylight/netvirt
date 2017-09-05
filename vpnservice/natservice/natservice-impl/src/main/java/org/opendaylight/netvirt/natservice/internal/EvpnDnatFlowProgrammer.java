@@ -88,7 +88,8 @@ public class EvpnDnatFlowProgrammer {
         this.idManager = idManager;
     }
 
-    public void onAddFloatingIp(final BigInteger dpnId, final String routerName, final String vpnName,
+    public void onAddFloatingIp(final BigInteger dpnId, final String routerName, final long routerId,
+                                final String vpnName,
                                 final String internalIp, final String externalIp, final Uuid networkId,
                                 final String interfaceName,
                                 final String floatingIpInterface,
@@ -109,11 +110,6 @@ public class EvpnDnatFlowProgrammer {
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.error("onAddFloatingIp : Invalid Vpn Id is found for Vpn Name {}", vpnName);
-            return;
-        }
-        long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("onAddFloatingIp : Unable to get RouterId from RouterName {}", routerName);
             return;
         }
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);
@@ -225,7 +221,7 @@ public class EvpnDnatFlowProgrammer {
 
     public void onRemoveFloatingIp(final BigInteger dpnId, final String vpnName, final String externalIp,
                                    final String floatingIpInterface, final String floatingIpPortMacAddress,
-                                   final String routerName) {
+                                   final String routerName, final long routerId) {
     /*
      *  1) Remove the flow INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25) (SNAT VM on DPN1 is
      *     responding back to FIP VM on DPN2) {SNAT to DNAT traffic on different Hypervisor}
@@ -245,11 +241,6 @@ public class EvpnDnatFlowProgrammer {
         long vpnId = NatUtil.getVpnId(dataBroker, vpnName);
         if (vpnId == NatConstants.INVALID_ID) {
             LOG.error("onRemoveFloatingIp : Invalid Vpn Id is found for Vpn Name {}", vpnName);
-            return;
-        }
-        long routerId = NatUtil.getVpnId(dataBroker, routerName);
-        if (routerId == NatConstants.INVALID_ID) {
-            LOG.error("onRemoveFloatingIp : Unable to get RouterId from RouterName {}", routerName);
             return;
         }
         long l3Vni = NatEvpnUtil.getL3Vni(dataBroker, rd);

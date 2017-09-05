@@ -72,7 +72,8 @@ public class EvpnSnatFlowProgrammer {
     public void evpnAdvToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId,
                                                     final String externalIp, final String vpnName, final String rd,
                                                     final String nextHopIp, final WriteTransaction writeTx,
-                                                    final long routerId, WriteTransaction writeFlowTx) {
+                                                    final long routerId, final String routerName,
+                                                    WriteTransaction writeFlowTx) {
      /*
       * 1) Install the flow INTERNAL_TUNNEL_TABLE (table=36)-> INBOUND_NAPT_TABLE (table=44)
       *    (FIP VM on DPN1 is responding back to external fixed IP on DPN2) {DNAT to SNAT traffic on
@@ -91,7 +92,7 @@ public class EvpnSnatFlowProgrammer {
         LOG.info("evpnAdvToBgpAndInstallFibAndTsFlows : Handling SNAT Reverse Traffic for External Fixed IP {} for "
                 + "RouterId {}", externalIp, routerId);
         // Get the External Gateway MAC Address which is Router gateway MAC address for SNAT
-        String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+        String gwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routerName);
         if (gwMacAddress == null) {
             LOG.error("evpnAdvToBgpAndInstallFibAndTsFlows : Unable to Retrieve External Gateway MAC address "
                     + "from Router ID {}", routerId);

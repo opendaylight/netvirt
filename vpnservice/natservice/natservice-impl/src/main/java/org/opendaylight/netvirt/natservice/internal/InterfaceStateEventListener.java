@@ -225,47 +225,44 @@ public class InterfaceStateEventListener
     private String getRouterIdForPort(DataBroker dataBroker, String interfaceName) {
         String vpnName = null;
         String routerName = null;
-        if (NatUtil.isVpnInterfaceConfigured(dataBroker, interfaceName)) {
-            //getVpnInterface
-            VpnInterface vpnInterface = null;
+        VpnInterface vpnInterface = null;
+        try {
+            vpnInterface = NatUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+        } catch (Exception ex) {
+            LOG.error("getRouterIdForPort : Unable to process for interface {} as it is not configured",
+                    interfaceName, ex);
+        }
+        if (vpnInterface != null) {
+            //getVpnName
             try {
-                vpnInterface = NatUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
-            } catch (Exception ex) {
-                LOG.error("getRouterIdForPort : Unable to process for interface {} as it is not configured",
-                        interfaceName, ex);
+                vpnName = vpnInterface.getVpnInstanceName();
+                LOG.debug("getRouterIdForPort: Retrieved VpnName {}", vpnName);
+            } catch (Exception e) {
+                LOG.error("getRouterIdForPort : Unable to get vpnname for vpninterface {}", vpnInterface, e);
             }
-            if (vpnInterface != null) {
-                //getVpnName
+            if (vpnName != null) {
                 try {
-                    vpnName = vpnInterface.getVpnInstanceName();
-                    LOG.debug("getRouterIdForPort: Retrieved VpnName {}", vpnName);
+                    routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
                 } catch (Exception e) {
-                    LOG.error("getRouterIdForPort : Unable to get vpnname for vpninterface {}", vpnInterface, e);
+                    LOG.error("getRouterIdForPort : Unable to get routerId for vpnName {}", vpnName, e);
                 }
-                if (vpnName != null) {
-                    try {
-                        routerName = NatUtil.getRouterIdfromVpnInstance(dataBroker, vpnName);
-                    } catch (Exception e) {
-                        LOG.error("getRouterIdForPort : Unable to get routerId for vpnName {}", vpnName, e);
-                    }
-                    if (routerName != null) {
-                        //check router is associated to external network
-                        if (NatUtil.isSnatEnabledForRouterId(dataBroker, routerName)) {
-                            LOG.debug("getRouterIdForPort : Retreived Router Id {} for vpnname {} "
-                                    + "associated to interface {}", routerName, vpnName, interfaceName);
-                            return routerName;
-                        } else {
-                            LOG.warn("getRouterIdForPort : Interface {} associated to routerId {} is not "
-                                + "associated to external network", interfaceName, routerName);
-                        }
+                if (routerName != null) {
+                    //check router is associated to external network
+                    if (NatUtil.isSnatEnabledForRouterId(dataBroker, routerName)) {
+                        LOG.debug("getRouterIdForPort : Retreived Router Id {} for vpnname {} "
+                                + "associated to interface {}", routerName, vpnName, interfaceName);
+                        return routerName;
                     } else {
-                        LOG.debug("getRouterIdForPort : Router is not associated to vpnname {} for interface {}",
-                            vpnName, interfaceName);
+                        LOG.warn("getRouterIdForPort : Interface {} associated to routerId {} is not "
+                            + "associated to external network", interfaceName, routerName);
                     }
                 } else {
-                    LOG.debug("getRouterIdForPort : vpnName not found for vpnInterface {} of port {}",
-                        vpnInterface, interfaceName);
+                    LOG.debug("getRouterIdForPort : Router is not associated to vpnname {} for interface {}",
+                        vpnName, interfaceName);
                 }
+            } else {
+                LOG.debug("getRouterIdForPort : vpnName not found for vpnInterface {} of port {}",
+                    vpnInterface, interfaceName);
             }
         } else {
             LOG.debug("getRouterIdForPort : Interface {} is not a vpninterface", interfaceName);
