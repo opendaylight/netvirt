@@ -177,14 +177,17 @@ public class Cache extends OsgiCommandSupport {
                 List<AddressFamilies> afs = nbr.getAddressFamilies();
                 if (afs != null) {
                     for (AddressFamilies af : afs) {
-                        if (af.getSafi().intValue() == 4 && af.getAfi().intValue() == 1) {
-                            ps.printf(" %s", "IPv4-Labeled-Unicast");
-                        } else if (af.getSafi().intValue() == 5 && af.getAfi().intValue() == 2) {
-                            ps.printf(" %s", "IPv6-Labeled-VPN");
-                        } else if (af.getSafi().intValue() == 6) {
-                            ps.printf(" %s", "Ethernet-VPN");
-                        } else {
-                            ps.printf(" %s", "Unknown");
+                         // Should not print "unknown" in vpnv4 case
+                        if (!(af.getSafi().intValue() == 5 && af.getAfi().intValue() == 1)) {
+                            if (af.getSafi().intValue() == 4 && af.getAfi().intValue() == 1) {
+                                ps.printf(" %s", "IPv4-Labeled-Unicast");
+                            } else if (af.getSafi().intValue() == 5 && af.getAfi().intValue() == 2) {
+                                ps.printf(" %s", "IPv6-Labeled-VPN");
+                            } else if (af.getSafi().intValue() == 6) {
+                                ps.printf(" %s", "Ethernet-VPN");
+                            }  else {
+                                ps.printf(" %s", "Unknown");
+                            }
                         }
                     }
                 }
