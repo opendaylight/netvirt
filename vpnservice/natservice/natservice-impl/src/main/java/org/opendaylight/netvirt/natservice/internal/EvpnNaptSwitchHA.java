@@ -60,7 +60,7 @@ public class EvpnNaptSwitchHA {
                     + "NAT flows", vpnName, rd);
             l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, routerId).longValue();
         }
-        String gwMacAddress = NatUtil.getExtGwMacAddFromRouterId(dataBroker, routerId);
+        String gwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routerName);
         if (gwMacAddress == null) {
             LOG.error("evpnRemoveSnatFlowsInOldNaptSwitch : Unable to Get External Gateway MAC address for "
                     + "External Router ID {} ", routerId);
