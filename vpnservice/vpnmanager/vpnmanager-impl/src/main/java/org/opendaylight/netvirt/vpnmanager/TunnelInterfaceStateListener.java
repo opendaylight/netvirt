@@ -333,9 +333,13 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     Optional<PortOpDataEntry> optionalPortOp =
                         VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
                     if (optionalPortOp.isPresent()) {
-                        Uuid subnetId = optionalPortOp.get().getSubnetId();
-                        if (!subnetList.contains(subnetId)) {
-                            subnetList.add(subnetId);
+                        List<Uuid> subnetIdList = optionalPortOp.get().getSubnetIds();
+                        if (subnetIdList != null) {
+                            for (Uuid subnetId : subnetIdList) {
+                                if (!subnetList.contains(subnetId)) {
+                                    subnetList.add(subnetId);
+                                }
+                            }
                         }
                     }
                     //Populate the map for VpnId-to-Rd

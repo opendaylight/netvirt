@@ -138,7 +138,7 @@ public class NeutronEvpnManager {
             vpns = VpnHelper.getAllVpnInstances(dataBroker);
             if (!vpns.isEmpty()) {
                 for (VpnInstance vpn : vpns) {
-                    if (vpn.getIpv4Family().getRouteDistinguisher() != null
+                    if (vpn.getVpnConfig().getRouteDistinguisher() != null
                             && vpn.getType() == VpnInstance.Type.L2) {
                         vpns.add(vpn);
                     }
@@ -151,7 +151,7 @@ public class NeutronEvpnManager {
         } else {
             String name = inputVpnId.getValue();
             VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, name);
-            if ((vpnInstance != null) && (vpnInstance.getIpv4Family().getRouteDistinguisher() != null)
+            if ((vpnInstance != null) && (vpnInstance.getVpnConfig().getRouteDistinguisher() != null)
                     && (vpnInstance.getType() == VpnInstance.Type.L2)) {
                 vpns.add(vpnInstance);
             } else {
@@ -167,8 +167,8 @@ public class NeutronEvpnManager {
             InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap
                     .class, new VpnMapKey(vpnId)).build();
             EvpnInstancesBuilder evpn = new EvpnInstancesBuilder();
-            List<String> rd = vpnInstance.getIpv4Family().getRouteDistinguisher();
-            List<VpnTarget> vpnTargetList = vpnInstance.getIpv4Family().getVpnTargets().getVpnTarget();
+            List<String> rd = vpnInstance.getVpnConfig().getRouteDistinguisher();
+            List<VpnTarget> vpnTargetList = vpnInstance.getVpnConfig().getVpnTargets().getVpnTarget();
             List<String> ertList = new ArrayList<>();
             List<String> irtList = new ArrayList<>();
             for (VpnTarget vpnTarget : vpnTargetList) {

@@ -94,7 +94,15 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 fibManager.removeVrfTable(dataBroker, primaryRd, null);
                 // Clean up VPNExtraRoutes Operational DS
                 if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                    rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV4));
+                    if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {
+                        rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN));
+                    }
+                    if (update.isIpv4AddressFamily()) {
+                        rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV4));
+                    }
+                    if (update.isIpv6AddressFamily()) {
+                        rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV6));
+                    }
                 }
                 InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
                 Optional<Vpn> optVpnToExtraroute = VpnUtil.read(dataBroker,
