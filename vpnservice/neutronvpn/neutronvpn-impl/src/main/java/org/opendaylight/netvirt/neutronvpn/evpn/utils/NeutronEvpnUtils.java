@@ -18,8 +18,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
-import org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -57,12 +57,12 @@ public class NeutronEvpnUtils {
         return VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
     }
 
-    public boolean isVpnAssociatedWithNetwork(VpnInstance vpnInstance) {
+    public boolean isVpnAssociatedWithNetwork(VpnInstance vpnInstance) throws ReadFailedException {
         String rd = vpnManager.getPrimaryRdFromVpnInstance(vpnInstance);
         InstanceIdentifier<EvpnRdToNetwork> id = InstanceIdentifier.builder(EvpnRdToNetworks.class)
                 .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
         Optional<EvpnRdToNetwork> optionalEvpnRdToNetwork =
-                NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+                SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (optionalEvpnRdToNetwork.isPresent()) {
             LOG.debug("vpn is associated with network {}", optionalEvpnRdToNetwork);
             return true;

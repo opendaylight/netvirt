@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnManager;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -182,11 +184,19 @@ public class NeutronEvpnManager {
                 }
             }
             evpn.setId(vpnId).setRouteDistinguisher(rd).setImportRT(irtList).setExportRT(ertList);
-            Optional<VpnMap> optionalVpnMap = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    vpnMapIdentifier);
-            if (optionalVpnMap.isPresent()) {
-                VpnMap vpnMap = optionalVpnMap.get();
-                evpn.setTenantId(vpnMap.getTenantId()).setName(vpnMap.getName());
+            try {
+                Optional<VpnMap> optionalVpnMap =
+                        SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                vpnMapIdentifier);
+                if (optionalVpnMap.isPresent()) {
+                    VpnMap vpnMap = optionalVpnMap.get();
+                    evpn.setTenantId(vpnMap.getTenantId()).setName(vpnMap.getName());
+                }
+            } catch (ReadFailedException e) {
+                LOG.error("Error reading the VPN map for {}", vpnMapIdentifier, e);
+                result.set(RpcResultBuilder.<GetEVPNOutput>failed().withError(RpcError.ErrorType.APPLICATION,
+                        "Error reading the VPN map for " + vpnMapIdentifier, e).build());
+                return result;
             }
             evpnList.add(evpn.build());
         }

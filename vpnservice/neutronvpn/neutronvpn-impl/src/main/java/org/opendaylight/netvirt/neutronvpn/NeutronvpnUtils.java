@@ -1059,9 +1059,9 @@ public class NeutronvpnUtils {
         return id;
     }
 
-    // TODO Clean up the exception handling
+    // TODO Remove this method entirely
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+    private static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                    InstanceIdentifier<T> path) {
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
         Optional<T> result = Optional.absent();
@@ -1263,8 +1263,7 @@ public class NeutronvpnUtils {
     public static List<String> getExistingRDs(DataBroker broker) {
         List<String> existingRDs = new ArrayList<>();
         InstanceIdentifier<VpnInstances> path = InstanceIdentifier.builder(VpnInstances.class).build();
-        Optional<VpnInstances> vpnInstancesOptional =
-            NeutronvpnUtils.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+        Optional<VpnInstances> vpnInstancesOptional = read(broker, LogicalDatastoreType.CONFIGURATION, path);
         if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
             for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
                 if (vpnInstance.getIpv4Family() == null) {
