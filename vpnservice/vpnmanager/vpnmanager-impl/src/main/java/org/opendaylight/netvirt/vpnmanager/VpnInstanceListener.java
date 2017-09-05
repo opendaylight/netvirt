@@ -41,7 +41,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
@@ -260,7 +259,9 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         VpnInstanceOpDataEntryBuilder builder =
                 new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd).setVpnId(vpnId)
-                        .setVpnInstanceName(vpnInstanceName).setVpnState(VpnInstanceOpDataEntry.VpnState.Created);
+                        .setVpnInstanceName(vpnInstanceName)
+                        .setVpnState(VpnInstanceOpDataEntry.VpnState.Created)
+                        .setIpv4Configured(false).setIpv6Configured(false);
         if (VpnUtil.isBgpVpn(vpnInstanceName, primaryRd)) {
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn
                 .instance.op.data.entry.vpntargets.VpnTarget> opVpnTargetList = new ArrayList<>();
@@ -368,55 +369,12 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         @SuppressWarnings("checkstyle:IllegalCatch")
         private boolean addBgpVrf(List<Void> voids) {
             VpnAfConfig config = vpnInstance.getIpv4Family();
-            List<String> rds = config.getRouteDistinguisher();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
             List<VpnTarget> vpnTargetList = config.getVpnTargets().getVpnTarget();
 
-            List<String> ertList = new ArrayList<>();
-            List<String> irtList = new ArrayList<>();
-
-            if (vpnTargetList != null) {
-                for (VpnTarget vpnTarget : vpnTargetList) {
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ExportExtcommunity) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.ImportExtcommunity) {
-                        irtList.add(vpnTarget.getVrfRTValue());
-                    }
-                    if (vpnTarget.getVrfRTType() == VpnTarget.VrfRTType.Both) {
-                        ertList.add(vpnTarget.getVrfRTValue());
-                        irtList.add(vpnTarget.getVrfRTValue());
-                    }
-                }
-            } else {
-                log.error("{} addBgpVrf: vpn target list is empty, cannot add BGP VPN {} VRF {}", LOGGING_PREFIX_ADD,
+            if (vpnTargetList == null) {
+                log.error("{} addBgpVrf: vpn target list is empty for vpn {} RD {}", LOGGING_PREFIX_ADD,
                         this.vpnName, primaryRd);
-                return false;
-            }
-            //Advertise all the rds and check if primary Rd advertisement fails
-            long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
-                try {
-                    if (vpnInstance.getIpv4Family() != null) {
-                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV4);
-                        } else {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.L2VPN);
-                        }
-                    }
-                    if (vpnInstance.getIpv6Family() != null) {
-                        if (vpnInstance.getType() != VpnInstance.Type.L2) {
-                            bgpManager.addVrf(rd, irtList, ertList, AddressFamily.IPV6);
-                            // No addVRF LAYER2 for IPv6
-                        }
-                    }
-                } catch (Exception e) {
-                    log.error("{} addBgpVrf: Exception when adding VRF to BGP for vpn {} rd {}", LOGGING_PREFIX_ADD,
-                            vpnName, rd, e);
-                    return rd.equals(primaryRd);
-                }
-                return false;
-            }).count();
-            if (primaryRdAddFailed == 1) {
                 return false;
             }
             vpnInterfaceManager.handleVpnsExportingRoutes(this.vpnName, primaryRd);
