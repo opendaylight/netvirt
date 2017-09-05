@@ -58,9 +58,10 @@ public class RouterToVpnListener implements NeutronvpnListener {
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
+            long routerId = NatUtil.getVpnId(dataBroker, routerName);
             LOG.debug("onRouterAssociatedToVpn : Router {} is associated with ext nw {}", routerName, extNetwork);
             handleDNATConfigurationForRouterAssociation(routerName, vpnName, extNetwork);
-            externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, vpnName);
+            externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName);
         } else {
             LOG.debug("onRouterAssociatedToVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName);
@@ -78,9 +79,10 @@ public class RouterToVpnListener implements NeutronvpnListener {
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
+            long routerId = NatUtil.getVpnId(dataBroker, routerName);
             LOG.debug("onRouterDisassociatedFromVpn : Router {} is associated with ext nw {}", routerName, extNetwork);
             handleDNATConfigurationForRouterDisassociation(routerName, vpnName, extNetwork);
-            externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, vpnName);
+            externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName);
         } else {
             LOG.debug("onRouterDisassociatedFromVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName);
