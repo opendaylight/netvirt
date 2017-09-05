@@ -118,7 +118,6 @@ public class VpnSubnetRouteHandler {
         }
         LOG.info("{} onSubnetAddedToVpn: Subnet {} with IP {} being added to vpn {}", LOGGING_PREFIX,
                 subnetId.getValue(), subnetIp, vpnName);
-
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -474,7 +473,8 @@ public class VpnSubnetRouteHandler {
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
-                PortOpDataEntry portOpEntry = subOpDpnManager.removePortOpDataEntry(portId.getValue());
+                PortOpDataEntry portOpEntry = subOpDpnManager.removePortOpDataEntry(portId.getValue(),
+                                                                               subnetmap.getId());
                 if (portOpEntry == null) {
                     return;
                 }

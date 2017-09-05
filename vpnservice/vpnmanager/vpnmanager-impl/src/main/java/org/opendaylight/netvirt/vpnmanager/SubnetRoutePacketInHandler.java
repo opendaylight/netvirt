@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
+import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.VpnManagerCounters;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -200,13 +201,15 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             return;
         }
 
-        if (vmVpnInterface.getVpnInstanceName().equals(vpnIdVpnInstanceName)) {
+        if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnIdVpnInstanceName,
+                      vmVpnInterface.getVpnInstanceNames())) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
         } else {
             LOG.trace("Unknown IP is in external network");
-            handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), vmVpnInterface.getVpnInstanceName(),
-                    dstIp, elanTag);
+            String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface);
+            handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName),
+                               vpnName, dstIp, elanTag);
         }
     }
 
@@ -303,6 +306,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         }
 
         transmitArpPacket(dpnId, externalIp.get().getIpAddress(), externalRouter.getExtGwMacAddress(), dstIp, elanTag);
+        return;
     }
 
     private static SubnetOpDataEntry getTargetSubnetForPacketOut(DataBroker broker, long elanTag, int ipAddress) {

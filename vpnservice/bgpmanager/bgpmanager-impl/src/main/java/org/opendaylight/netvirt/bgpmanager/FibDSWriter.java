@@ -20,7 +20,9 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase.EncapType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
@@ -198,6 +200,55 @@ public class FibDSWriter {
             LOG.error("Error while reading vrfEntry for rd {}, prefix {}", rd, prefix);
             return;
         }
+    }
+
+
+    public synchronized void removeVrfSubFamilyFromDS(String rd, AddressFamily addressFamily) {
+
+        if (rd == null) {
+            return;
+        }
+        LOG.debug("removeVrfSubFamilyFromDS : addressFamily {} from vrf rd {}",
+                  addressFamily, rd);
+
+        InstanceIdentifier<VrfTables> id = InstanceIdentifier.create(FibEntries.class)
+            .child(VrfTables.class, new VrfTablesKey(rd));
+        try {
+            VrfTables vrfTable = singleTxDB.syncRead(LogicalDatastoreType.CONFIGURATION, id);
+            if (vrfTable != null) {
+                List<VrfEntry> vrfEntries = vrfTable.getVrfEntry();
+                if (vrfEntries == null) {
+                    String errMsg = "removeVrfSubFamilyFromDS : VrfEntry not found for rd " + rd;
+                    LOG.error(errMsg);
+                    return;
+                }
+                for (VrfEntry vrfEntry : vrfEntries) {
+                    boolean found = false;
+                    if (vrfEntry.getEncapType() != null) {
+                        if (!vrfEntry.getEncapType().equals(EncapType.Mplsgre)
+                             && addressFamily == AddressFamily.L2VPN) {
+                            found = true;
+                        } else if (vrfEntry.getEncapType().equals(EncapType.Mplsgre)) {
+                            if (addressFamily == AddressFamily.IPV4
+                                && FibHelper.isIpv4Prefix(vrfEntry.getDestPrefix())) {
+                                found = true;
+                            } else if (addressFamily == AddressFamily.IPV6
+                                       && FibHelper.isIpv6Prefix(vrfEntry.getDestPrefix())) {
+                                found = true;
+                            }
+                        }
+                    }
+                    if (found == false) {
+                        continue;
+                    }
+                    BgpUtil.removeVrfEntry(rd, vrfEntry);
+                }
+            }
+        } catch (ReadFailedException rfe) {
+            String errMsg = "removeVrfSubFamilyFromDS : Internal Error rd " + rd;
+            LOG.error(errMsg, rfe);
+        }
+        return;
     }
 
     public synchronized void removeVrfFromDS(String rd) {
