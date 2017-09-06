@@ -109,6 +109,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -1449,7 +1453,7 @@ public class NeutronvpnUtils {
         }
         if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
             LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
-                    + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
+                            + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
                     ipVersion.toString());
             return;
         }
@@ -1469,12 +1473,12 @@ public class NeutronvpnUtils {
             }
             WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
             InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-                  .child(VpnInstanceOpDataEntry.class,
-                           new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+                    .child(VpnInstanceOpDataEntry.class,
+                            new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
             writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
             LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                     add == true ? "added" : "removed",
-                     ipVersion.toString(), vpnName);
+                    add == true ? "added" : "removed",
+                    ipVersion.toString(), vpnName);
             return Collections.singletonList(writeTxn.submit());
         });
         return;

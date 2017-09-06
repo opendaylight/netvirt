@@ -62,6 +62,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames.AssociatedSubnetType;
@@ -1848,6 +1849,13 @@ public final class VpnUtil {
             return false;
         }
         return true;
+    }
+
+    public static void unsetScheduledToRemoveForVpnInterface(DataBroker dataBroker, String interfaceName) {
+        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
+                .setScheduledForRemove(false);
+        MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build());
     }
 
 }
