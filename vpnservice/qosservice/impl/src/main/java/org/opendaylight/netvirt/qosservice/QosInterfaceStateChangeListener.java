@@ -106,7 +106,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 });
             }
         } catch (Exception e) {
-            LOG.error("Qos:Exception caught in Interface Operational State Up event", e);
+            LOG.error("Qos:Exception caught in Interface Operational State Up event {}", e);
         }
     }
 

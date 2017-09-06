@@ -45,6 +45,9 @@ public class QosAlertPortData {
     }
 
     public void updatePortStatistics(NodeConnectorStatisticsAndPortNumberMap statsData) {
+        LOG.trace("Port {} rx-packets {} tx-packets {} rx-dropped {} tx-dropped {}", port.getUuid(),
+                           statsData.getPackets().getReceived(), statsData.getPackets().getTransmitted(),
+                           statsData.getReceiveDrops(), statsData.getTransmitDrops());
         if (statsDataInit) {
             calculateAlertCondition(statsData);
         }
