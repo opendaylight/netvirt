@@ -37,6 +37,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.netvirt.vpnmanager.VpnRpcService;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -98,6 +99,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
@@ -131,6 +135,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 public class NeutronvpnUtils {
 
@@ -1317,6 +1322,25 @@ public class NeutronvpnUtils {
 
     public static boolean isNotEmpty(Collection collection) {
         return !isEmpty(collection);
+    }
+
+    static Optional<String> isVpnOperational(VpnRpcService vpnRpcService, DataBroker broker, String rd) {
+        Optional<String> existingVpnName = Optional.of(rd);
+        IsRdOfVpnInOperationalInput vpnOperationalRpcInput = new IsRdOfVpnInOperationalInputBuilder()
+                .setRd(rd).build();
+        Future<RpcResult<IsRdOfVpnInOperationalOutput>> output = vpnRpcService
+                .isRdOfVpnInOperational(vpnOperationalRpcInput);
+        try {
+            RpcResult<IsRdOfVpnInOperationalOutput> rpcResult = output.get();
+            if (rpcResult.isSuccessful()) {
+                existingVpnName = Optional.fromNullable(rpcResult.getResult().getVpnName());
+            } else {
+                LOG.error("isVpnOperational: VPN RPC call for rd {} failed.");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("isVpnOperational: Exception while checking operational status of vpn with rd {}", rd, e);
+        }
+        return existingVpnName;
     }
 
 }

@@ -28,6 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
@@ -238,6 +241,23 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         result.set(RpcResultBuilder.<Void>success().build());
 
         return result;
+    }
+
+    @Override
+    public Future<RpcResult<IsRdOfVpnInOperationalOutput>> isRdOfVpnInOperational(IsRdOfVpnInOperationalInput input) {
+        String rd = input.getRd();
+        LOG.info("isVpnOperational: for rd {}", rd);
+        SettableFuture<RpcResult<IsRdOfVpnInOperationalOutput>> futureResult = SettableFuture.create();
+        futureResult.set(RpcResultBuilder.<IsRdOfVpnInOperationalOutput>failed().build());
+        IsRdOfVpnInOperationalOutputBuilder output = new IsRdOfVpnInOperationalOutputBuilder();
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+        if (vpnInstanceOpDataEntry == null) {
+            output.setRd(null).setVpnName(null);
+        } else {
+            output.setRd(rd).setVpnName(vpnInstanceOpDataEntry.getVpnInstanceName());
+        }
+        futureResult.set(RpcResultBuilder.success(output).build());
+        return futureResult;
     }
 
 }

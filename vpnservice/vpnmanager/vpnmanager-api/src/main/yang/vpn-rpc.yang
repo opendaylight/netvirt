@@ -87,4 +87,21 @@ module vpn-rpc {
             }
         }
     }
+
+    rpc is-rd-of-vpn-in-operational {
+        description "Checks if another VPN with the same RD is already operational";
+        input {
+            leaf rd {
+                type string;
+            }
+        }
+        output {
+            leaf vpn-name {
+                type string;
+            }
+            leaf rd {
+                type string;
+            }
+        }
+    }
 }

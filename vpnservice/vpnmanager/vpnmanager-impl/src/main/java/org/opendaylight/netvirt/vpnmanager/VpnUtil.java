@@ -1785,4 +1785,10 @@ public class VpnUtil {
         return isVpnPendingDelete;
     }
 
+    static void unsetScheduledToRemoveForVpnInterface(DataBroker dataBroker, String interfaceName) {
+        VpnInterfaceBuilder builder = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
+                .setScheduledForRemove(false);
+        MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build());
+    }
 }
