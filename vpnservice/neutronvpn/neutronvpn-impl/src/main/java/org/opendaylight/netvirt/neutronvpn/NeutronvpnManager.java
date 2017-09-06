@@ -997,6 +997,19 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 warningcount++;
                 continue;
             }
+            Optional<String> operationalVpn = NeutronvpnUtils.isVpnOperational(vpnRpcService, dataBroker,
+                    vpn.getRouteDistinguisher().get(0));
+            if (operationalVpn.isPresent()) {
+                msg = String.format("Creation of L3VPN failed for VPN %s as another VPN %s with the same RD %s "
+                        + "is still available. Please retry creation of a new vpn with the same RD"
+                        + " after a couple of minutes.", vpn.getId().getValue(), operationalVpn.get(),
+                        vpn.getRouteDistinguisher().get(0));
+                LOG.error(msg);
+                error = RpcResultBuilder.newError(ErrorType.APPLICATION, "application-error", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
             if (vpn.getRouterId() != null) {
                 if (NeutronvpnUtils.getNeutronRouter(dataBroker, vpn.getRouterId()) == null) {
                     msg = String.format("Creation of L3VPN failed for VPN %s due to router not found %s",
