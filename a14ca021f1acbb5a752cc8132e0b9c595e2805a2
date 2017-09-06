@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_854a0324",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 65
+      },
+      "writtenOn": "2017-09-06T00:49:02Z",
+      "side": 1,
+      "message": "this is something that should not happen. Because in operational data store, we write ovsdb node first and then bridge, so ideally it should get both ovsdb node + bridge changes in one data change notification or it should receive ovsdb node followed by bridge add data change notification. In your testing, controller is heavily loaded (with configuration) when you reboot? If it happens in light load as well, then i think we can easily recreate it locally.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 21
+      },
+      "revId": "a14ca021f1acbb5a752cc8132e0b9c595e2805a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
