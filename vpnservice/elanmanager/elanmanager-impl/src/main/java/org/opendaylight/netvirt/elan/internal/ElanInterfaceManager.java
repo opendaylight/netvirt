@@ -308,13 +308,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (etreeInstance != null) {
             BigInteger dpnId = interfaceInfo.getDpId();
             long groupId = ElanUtils.getEtreeLeafLocalBCGId(etreeInstance.getEtreeLeafTagVal().getValue());
-            List<Bucket> listBuckets = new ArrayList<>();
-            int bucketId = 0;
-            listBuckets.add(getLocalBCGroupBucketInfo(interfaceInfo, bucketId));
-            Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
-                    MDSALUtil.buildBucketLists(listBuckets));
-            LOG.trace("deleted the localBroadCast Group:{}", group);
-            mdsalManager.removeGroupToTx(dpnId, group, deleteFlowGroupTx);
+            LOG.trace("deleted the localBroadCast Group:{}", groupId);
+            mdsalManager.removeGroup(dpnId, groupId, deleteFlowGroupTx);
         }
     }
 
@@ -323,21 +318,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
         if (etreeInstance != null) {
             long etreeTag = etreeInstance.getEtreeLeafTagVal().getValue();
-            int bucketId = 0;
-            int actionKey = 0;
-            List<Bucket> listBuckets = new ArrayList<>();
-            List<Action> listAction = new ArrayList<>();
-            listAction.add(new ActionGroup(ElanUtils.getEtreeLeafLocalBCGId(etreeTag)).buildAction(++actionKey));
-            listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
-                    MDSALUtil.WATCH_GROUP));
-            bucketId++;
-            listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo, etreeTag));
             BigInteger dpnId = interfaceInfo.getDpId();
             long groupId = ElanUtils.getEtreeLeafRemoteBCGId(etreeTag);
-            Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
-                    MDSALUtil.buildBucketLists(listBuckets));
-            LOG.trace("deleting the remoteBroadCast group:{}", group);
-            mdsalManager.removeGroupToTx(dpnId, group, deleteFlowGroupTx);
+            LOG.trace("deleting the remoteBroadCast group:{}", groupId);
+            mdsalManager.removeGroup(dpnId, groupId, deleteFlowGroupTx);
         }
     }
 
@@ -1302,35 +1286,16 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction deleteFlowGroupTx) {
         BigInteger dpnId = interfaceInfo.getDpId();
         long groupId = ElanUtils.getElanLocalBCGId(elanInfo.getElanTag());
-        List<Bucket> listBuckets = new ArrayList<>();
-        int bucketId = 0;
-        listBuckets.add(getLocalBCGroupBucketInfo(interfaceInfo, bucketId));
-        // listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, 1,
-        // interfaceInfo));
-        Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
-                MDSALUtil.buildBucketLists(listBuckets));
-        LOG.trace("deleted the localBroadCast Group:{}", group);
-        mdsalManager.removeGroupToTx(dpnId, group, deleteFlowGroupTx);
+        LOG.trace("deleted the localBroadCast Group:{}", groupId);
+        mdsalManager.removeGroup(dpnId, groupId, deleteFlowGroupTx);
     }
 
     public void removeElanBroadcastGroup(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
             WriteTransaction deleteFlowGroupTx) {
-        int bucketId = 0;
-        int actionKey = 0;
-        Long elanTag = elanInfo.getElanTag();
-        List<Bucket> listBuckets = new ArrayList<>();
-        List<Action> listAction = new ArrayList<>();
-        listAction.add(new ActionGroup(++actionKey, ElanUtils.getElanLocalBCGId(elanTag)).buildAction());
-        listBuckets.add(MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT,
-                MDSALUtil.WATCH_GROUP));
-        bucketId++;
-        listBuckets.addAll(getRemoteBCGroupBucketInfos(elanInfo, bucketId, interfaceInfo, elanTag));
         BigInteger dpnId = interfaceInfo.getDpId();
         long groupId = ElanUtils.getElanRemoteBCGId(elanInfo.getElanTag());
-        Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
-                MDSALUtil.buildBucketLists(listBuckets));
-        LOG.trace("deleting the remoteBroadCast group:{}", group);
-        mdsalManager.removeGroupToTx(dpnId, group, deleteFlowGroupTx);
+        LOG.trace("deleting the remoteBroadCast group:{}", groupId);
+        mdsalManager.removeGroup(dpnId, groupId, deleteFlowGroupTx);
     }
 
     /**
