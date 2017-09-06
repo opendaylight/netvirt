@@ -176,6 +176,10 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
             List<IpPrefixOrAddress> subnetIpPrefixes = AclServiceUtils.getSubnetIpPrefixes(dataBroker, port.getName());
             AclInterface aclInterface = addAclInterfaceToCache(port.getName(), aclInPort, subnetIpPrefixes);
+            if (aclInterface.getElanId() == null) {
+                LOG.debug("On add event, skip BIND since ElanId is not updated");
+                return;
+            }
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On add event, notify ACL service manager to bind ACL for interface: {}", port);
                 aclServiceManager.notify(aclInterface, null, Action.BIND);
@@ -185,21 +189,23 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     private AclInterface addAclInterfaceToCache(String interfaceId, InterfaceAcl aclInPort,
             List<IpPrefixOrAddress> subnetIpPrefixes) {
-        AclInterface aclInterface = buildAclInterfaceState(interfaceId, aclInPort, subnetIpPrefixes);
-        AclInterfaceCacheUtil.addAclInterfaceToCache(interfaceId, aclInterface);
-        return aclInterface;
-    }
 
-    private AclInterface buildAclInterfaceState(String interfaceId, InterfaceAcl aclInPort,
-            List<IpPrefixOrAddress> subnetIpPrefixes) {
-        AclInterface aclInterface = new AclInterface();
-        aclInterface.setInterfaceId(interfaceId);
-        aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
-        aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
-        aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
-        aclInterface.setSubnetIpPrefixes(subnetIpPrefixes);
-        aclInterface.setElanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
-        aclInterface.setVpnId(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId));
+        // check if aclInterface exists in cache, update if exists
+        AclInterface aclInterface = null;
+        synchronized (AclServiceUtils.getAclKeyForSynchronization(interfaceId).intern()) {
+            aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+            if (aclInterface == null) {
+                aclInterface = new AclInterface();
+                aclInterface.setInterfaceId(interfaceId);
+                AclInterfaceCacheUtil.addAclInterfaceToCache(interfaceId, aclInterface);
+            }
+            aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
+            aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
+            aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
+            aclInterface.setSubnetIpPrefixes(subnetIpPrefixes);
+            aclInterface.setElanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
+            aclInterface.setVpnId(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId));
+        }
         return aclInterface;
     }
 

@@ -1207,4 +1207,13 @@ public final class AclServiceUtils {
         aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
         return aclInterface;
     }
+
+    /**
+     * Returns ACL specific key for synchronization.
+     * @param key the generic key
+     * @return ACL key that can be used with synchronization
+     */
+    public static String getAclKeyForSynchronization(String key) {
+        return key + AclConstants.ACL_SYNC_KEY_EXT;
+    }
 }

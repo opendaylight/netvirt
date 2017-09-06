@@ -136,6 +136,10 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             if (aclList != null) {
                 aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
             }
+            if (aclInterface.getElanId() == null) {
+                LOG.debug("On Add event, skip ADD since ElanId is not updated");
+                return;
+            }
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On add event, notify ACL service manager to add ACL for interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
@@ -150,15 +154,18 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
 
     private AclInterface updateAclInterfaceCache(Interface dataObjectModification) {
         String interfaceId = dataObjectModification.getName();
-        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-        if (aclInterface == null) {
-            aclInterface = new AclInterface();
-            aclInterface.setInterfaceId(interfaceId);
-            AclInterfaceCacheUtil.addAclInterfaceToCache(interfaceId, aclInterface);
+        AclInterface aclInterface = null;
+        synchronized (AclServiceUtils.getAclKeyForSynchronization(interfaceId).intern()) {
+            aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+            if (aclInterface == null) {
+                aclInterface = new AclInterface();
+                aclInterface.setInterfaceId(interfaceId);
+                AclInterfaceCacheUtil.addAclInterfaceToCache(interfaceId, aclInterface);
+            }
+            aclInterface.setDpId(AclServiceUtils.getDpIdFromIterfaceState(dataObjectModification));
+            aclInterface.setLPortTag(dataObjectModification.getIfIndex());
+            aclInterface.setIsMarkedForDelete(false);
         }
-        aclInterface.setDpId(AclServiceUtils.getDpIdFromIterfaceState(dataObjectModification));
-        aclInterface.setLPortTag(dataObjectModification.getIfIndex());
-        aclInterface.setIsMarkedForDelete(false);
         return aclInterface;
     }
 }
