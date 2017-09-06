@@ -22,6 +22,30 @@
       "revId": "a14ca021f1acbb5a752cc8132e0b9c595e2805a2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b65dbb17",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 13
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-09-06T12:46:14Z",
+      "side": 1,
+      "message": "This does not happen under heavy load but it does most certainly happen :-(",
+      "parentUuid": "ba1f61a0_854a0324",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 21
+      },
+      "revId": "a14ca021f1acbb5a752cc8132e0b9c595e2805a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
