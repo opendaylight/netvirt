@@ -8,13 +8,19 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -31,6 +37,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.A
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GetExistingOperationalVpnInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GetExistingOperationalVpnOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GetExistingOperationalVpnOutputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
@@ -243,4 +252,29 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         return result;
     }
 
+    @Override
+    public Future<RpcResult<GetExistingOperationalVpnOutput>> getExistingOperationalVpn(
+        GetExistingOperationalVpnInput input) {
+        String rd = input.getRd();
+        LOG.debug("isVpnOperational: for rd {}", rd);
+        SettableFuture<RpcResult<GetExistingOperationalVpnOutput>> futureResult = SettableFuture.create();
+        ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction();
+        Futures.addCallback(tx.read(LogicalDatastoreType.OPERATIONAL, VpnUtil.getVpnInstanceOpDataIdentifier(rd)),
+                new FutureCallback<Optional<VpnInstanceOpDataEntry>>() {
+                    @Override
+                    public void onSuccess(@Nullable Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional) {
+                        GetExistingOperationalVpnOutputBuilder output = new GetExistingOperationalVpnOutputBuilder();
+                        if (vpnInstanceOpDataEntryOptional.isPresent()) {
+                            output.setVpnName(vpnInstanceOpDataEntryOptional.get().getVpnInstanceName());
+                        }
+                        futureResult.set(RpcResultBuilder.success(output).build());
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        futureResult.set(RpcResultBuilder.<GetExistingOperationalVpnOutput>failed().build());
+                    }
+                }, MoreExecutors.directExecutor());
+        return futureResult;
+    }
 }

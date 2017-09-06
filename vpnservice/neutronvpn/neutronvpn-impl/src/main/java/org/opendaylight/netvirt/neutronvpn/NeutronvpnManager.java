@@ -144,6 +144,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GetExistingOperationalVpnInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GetExistingOperationalVpnInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GetExistingOperationalVpnOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
@@ -1216,6 +1219,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
+            Optional<String> operationalVpn = getExistingOperationalVpn(vpn.getRouteDistinguisher().get(0));
+            if (operationalVpn.isPresent()) {
+                msg = String.format("Creation of L3VPN failed for VPN %s as another VPN %s with the same RD %s "
+                        + "is still available. Please retry creation of a new vpn with the same RD"
+                        + " after a couple of minutes.", vpn.getId().getValue(), operationalVpn.get(),
+                        vpn.getRouteDistinguisher().get(0));
+                LOG.error(msg);
+                error = RpcResultBuilder.newError(ErrorType.APPLICATION, "application-error", msg);
                 errorList.add(error);
                 warningcount++;
                 continue;
@@ -3073,7 +3088,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         // Create and add Networks object for this External Network to the ExternalNetworks list
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
-            .child(Networks.class, new NetworksKey(extNetId)).build();
+                .child(Networks.class, new NetworksKey(extNetId)).build();
 
         try {
             Optional<Networks> optionalNets =
@@ -3099,5 +3114,25 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Removing VPN-ID from externalnetworks {} failed", extNetId.getValue(), ex);
         }
+    }
+
+    private Optional<String> getExistingOperationalVpn(String rd) {
+        Optional<String> existingVpnName = Optional.of(rd);
+        GetExistingOperationalVpnInput vpnOperationalRpcInput = new GetExistingOperationalVpnInputBuilder()
+                .setRd(rd).build();
+        Future<RpcResult<GetExistingOperationalVpnOutput>> output = vpnRpcService
+                .getExistingOperationalVpn(vpnOperationalRpcInput);
+        try {
+            RpcResult<GetExistingOperationalVpnOutput> rpcResult = output.get();
+            if (rpcResult.isSuccessful()) {
+                existingVpnName = Optional.fromNullable(rpcResult.getResult().getVpnName());
+            } else {
+                LOG.error("getExistingOperationalVpn: VPN RPC call for rd {} failed.");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("getExistingOperationalVpn: Exception while checking operational status of vpn with rd {}",
+                    rd, e);
+        }
+        return existingVpnName;
     }
 }
