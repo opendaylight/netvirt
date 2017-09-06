@@ -775,8 +775,8 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    protected long setupLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId,
-            String destPrefix, List<BucketInfo> listBucketInfo, boolean addOrRemove) {
+    protected long addLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId, String destPrefix,
+            List<BucketInfo> listBucketInfo) {
         long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
         if (groupId == FibConstants.INVALID_GROUP_ID) {
             LOG.error("Unable to allocate/retrieve groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
@@ -784,17 +784,23 @@ public class NexthopManager implements AutoCloseable {
         }
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                 dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
-        if (addOrRemove) {
-            mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
-            try {
-                Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
-            } catch (InterruptedException e1) {
-                LOG.warn("Thread got interrupted while programming LB group {}", groupEntity);
-                Thread.currentThread().interrupt();
-            }
-        } else {
-            mdsalApiManager.removeGroup(groupEntity);
+        mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+        try {
+            Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
+        } catch (InterruptedException e1) {
+            LOG.warn("Thread got interrupted while programming LB group {}", groupEntity);
+            Thread.currentThread().interrupt();
         }
+        return groupId;
+    }
+
+    protected long deleteLoadBalancingNextHop(Long parentVpnId, BigInteger dpnId, String destPrefix) {
+        long groupId = createNextHopPointer(getNextHopKey(parentVpnId, destPrefix));
+        if (groupId == FibConstants.INVALID_GROUP_ID) {
+            LOG.error("Unable to allocate/retrieve groupId for vpnId {} , prefix {}", parentVpnId, destPrefix);
+            return groupId;
+        }
+        mdsalApiManager.removeGroup(dpnId, groupId);
         return groupId;
     }
 
@@ -807,7 +813,7 @@ public class NexthopManager implements AutoCloseable {
             clonedVpnExtraRoutes.remove(routes);
         }
         listBucketInfo.addAll(getBucketsForRemoteNexthop(vpnId, dpnId, vrfEntry, rd, clonedVpnExtraRoutes));
-        return setupLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo, true);
+        return addLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix(), listBucketInfo);
     }
 
     private List<BucketInfo> getBucketsForLocalNexthop(Long vpnId, BigInteger dpnId,
@@ -1012,10 +1018,8 @@ public class NexthopManager implements AutoCloseable {
             if (noOfDcGws > 1) {
                 mdsalApiManager.removeBucketToTx(dpnId, Long.valueOf(groupId), bucketId, configTx);
             } else {
-                Group group = MDSALUtil.buildGroup(Long.valueOf(groupId), nextHopKey, GroupTypes.GroupSelect,
-                        MDSALUtil.buildBucketLists(Collections.emptyList()));
-                LOG.trace("Removed LB group {} on dpn {}", group, dpnId);
-                mdsalApiManager.removeGroupToTx(dpnId, group, configTx);
+                LOG.trace("Removed LB group {} on dpn {}", groupId, dpnId);
+                mdsalApiManager.removeGroup(dpnId, groupId, configTx);
                 removeNextHopPointer(nextHopKey);
             }
             // When the DC-GW is removed from configuration.
