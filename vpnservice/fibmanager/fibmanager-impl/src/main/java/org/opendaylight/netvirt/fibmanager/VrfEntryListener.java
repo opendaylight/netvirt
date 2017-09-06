@@ -988,9 +988,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         LOG.trace("Deleting ECMP group for prefix {}, dpn {}", vrfEntry.getDestPrefix(), dpnId);
-                        nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
-                                vrfEntry.getDestPrefix(), /*listBucketInfo*/ Collections.emptyList(),
-                                /*remove*/ false);
+                        nextHopManager.deleteLoadBalancingNextHop(vpnId, dpnId, vrfEntry.getDestPrefix());
                         returnLocalDpnId.add(dpnId);
                     }
                 } else {
