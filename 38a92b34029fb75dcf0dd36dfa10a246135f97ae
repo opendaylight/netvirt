@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_b793f659",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T19:41:12Z",
+      "side": 1,
+      "message": "NAT External network should not be in ELAN related logic, you might want to move this line out to 175\n\nAlso we need to remove NAT external network if orig network is external and update network is not, ie\n\nif (origExternal}\n  nvpnNatManager.removeExternalNetwork(original);\n} else if (updateExternal) {\n  nvpnNatManager.addExternalNetwork(update);\n}",
+      "revId": "38a92b34029fb75dcf0dd36dfa10a246135f97ae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
