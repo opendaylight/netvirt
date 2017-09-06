@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_f7a44e4c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T22:57:02Z",
+      "side": 1,
+      "message": "I am not sure what to be cleaned here.\nThe issue here is ERROR log entry at line 255 appeared in the karaf.log for a valid scenerio: setting an external network as gw to router with no internal interfaces.\nFor this scenario the primaryNAPtSwitchId is null because the router has not attached to any internal subnets.\n\nIf the router is attached to subnets, there should not be any problem selecting the primary NAPT switch.\n\nI removed this ERROR log because there is a WARN message if the primaryNAPtSwitchId is null:\n\nselectNewNAPTSwitch : Delaying NAPT switch selection due to no dpns scenario for router 05d69954-41c2-4196-a69e-7043bf40d160",
+      "parentUuid": "ba1f61a0_2be1b3d0",
+      "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_8bac1fa2",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 2
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_376a66ee",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 483,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T22:57:02Z",
+      "side": 1,
+      "message": "Ok",
+      "parentUuid": "ba1f61a0_8bac1fa2",
+      "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_b1db50ec",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
         "patchSetId": 2
@@ -65,6 +101,24 @@
       "writtenOn": "2017-08-17T16:47:27Z",
       "side": 1,
       "message": "i could see the below methods invoked in handleDisableSnat even though primarynaptswitchId is null...\n\nMay be we need to move that down after if (naptSwitchDpnId \u003d\u003d null || ...) check there.",
+      "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d7782ac6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1643,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T22:57:02Z",
+      "side": 1,
+      "message": "Do you mean moving handleDisableSnat out of the the if (primarySwitchId \u003d\u003d null ||  ) else block?\n\nThe method handleEnableSnat is invoked only if the primarySwitchId is valid. Therefore the counterpart method handleDisableSnat should be invoked only if the primarySwitchId is valid as well.",
+      "parentUuid": "ba1f61a0_b1db50ec",
       "revId": "3c3d1509a7a19d830ba8c4bb2b5e20962aeb17ef",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

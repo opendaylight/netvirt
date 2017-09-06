@@ -16,6 +16,24 @@
       "revId": "64fddf7a002709d6057529551521e4229ca47e5c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_57655a1c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 337,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-06T22:57:02Z",
+      "side": 0,
+      "message": "I removed this log because there is already a WARN message if the primaryNAPtSwitchId is null:\nselectNewNAPTSwitch : Delaying NAPT switch selection due to no dpns scenario for router 05d69954-41c2-4196-a69e-7043bf40d160",
+      "parentUuid": "ba1f61a0_d171a445",
+      "revId": "64fddf7a002709d6057529551521e4229ca47e5c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
