@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -114,7 +116,10 @@ public class InterfaceStateChangeListener
                                             vpnInterface.getName(), e);
                                     return null;
                                 }
-                                futures.add(writeConfigTxn.submit());
+                                ListenableFuture<Void> configFuture = writeConfigTxn.submit();
+                                futures.add(configFuture);
+                                Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(interfaceName, true,
+                                        "Config"));
                                 futures.add(writeInvTxn.submit());
                             } else {
                                 LOG.error("add: Ignoring addition of vpnInterface {}, as vpnInstance {}"
@@ -177,7 +182,10 @@ public class InterfaceStateChangeListener
                                         + " future for removeVpnInterface {}", vpnInterface.getName(), e);
                                 return null;
                             }
-                            futures.add(writeConfigTxn.submit());
+                            ListenableFuture<Void> configFuture = writeConfigTxn.submit();
+                            futures.add(configFuture);
+                            Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(interfaceName, false,
+                                    "Config"));
                             futures.add(writeInvTxn.submit());
                         } else {
                             LOG.debug("Interface {} is not a vpninterface, ignoring.", interfaceName);
@@ -281,6 +289,40 @@ public class InterfaceStateChangeListener
             }
         } catch (Exception e) {
             LOG.error("Exception observed in handling updation of VPN Interface {}. ", update.getName(), e);
+        }
+    }
+
+    private class PostVpnInterfaceThreadWorker implements FutureCallback<Void> {
+        String interfaceName;
+        boolean add;
+        String txnDestination;
+
+        PostVpnInterfaceThreadWorker(String interfaceName, boolean add, String transactionDest) {
+            this.interfaceName = interfaceName;
+            this.add = add;
+            this.txnDestination = transactionDest;
+        }
+
+        @Override
+        public void onSuccess(Void voidObj) {
+            if (add) {
+                LOG.debug("InterfaceStateChangeListener: Vpn Interface {} stored into destination {} successfully",
+                        interfaceName, txnDestination);
+            } else {
+                LOG.info("InterfaceStateChangeListener:  VrfEntries for {} removed successfully", interfaceName);
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            if (add) {
+                LOG.error("InterfaceStateChangeListener: Vpn Interface {} failed to store into destination {}"
+                        + " with exception: {}", interfaceName, txnDestination, throwable);
+            } else {
+                LOG.error("InterfaceStateChangeListener: VrfEntries for {} removal failed with exception: {}",
+                        interfaceName, throwable);
+                VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
+            }
         }
     }
 }
