@@ -46,6 +46,30 @@
       "revId": "8f82f79603968deefd1e9b80443588c646075381",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d6ef8fe7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-06T13:32:25Z",
+      "side": 1,
+      "message": "Using \"addOrRemove\" like this is really bad, but fixing it goes beyond the scope of this patch (I\u0027ve got patches for genius and netvirt in the works to fix it). I think David\u0027s change is good.",
+      "parentUuid": "ba1f61a0_009d610b",
+      "range": {
+        "startLine": 787,
+        "startChar": 9,
+        "endLine": 787,
+        "endChar": 26
+      },
+      "revId": "8f82f79603968deefd1e9b80443588c646075381",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
