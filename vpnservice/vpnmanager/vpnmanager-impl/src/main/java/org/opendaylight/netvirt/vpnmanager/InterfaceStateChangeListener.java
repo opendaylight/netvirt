@@ -8,6 +8,8 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -82,55 +84,65 @@ public class InterfaceStateChangeListener
                                 intrf.getName());
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(), () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
-                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
-                        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
-                            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
-                                final String interfaceName = intrf.getName();
-                                LOG.info("Detected interface add event for interface {}", interfaceName);
+                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
+                        ListenableFuture<Void> configFuture
+                            = txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
+                                ListenableFuture<Void> operFuture
+                                    = txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
+                                        final String interfaceName = intrf.getName();
+                                        LOG.info("Detected interface add event for interface {}", interfaceName);
 
-                                final VpnInterface vpnIf =
-                                        VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
-                                if (vpnIf != null) {
-                                    for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                        vpnIf.getVpnInstanceNames()) {
-                                        String vpnName = vpnInterfaceVpnInstance.getVpnName();
-                                        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
-                                        if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
-                                            LOG.debug("VPN Interface Name {}", vpnIf);
-                                        } else {
-                                            LOG.info("add: Ignoring addition of vpnInterface {}, as vpnInstance {}"
-                                                + " with primaryRd {} is already marked for deletion", interfaceName,
-                                                vpnName, primaryRd);
-                                            return;
+                                        final VpnInterface vpnIf =
+                                                VpnUtil.getConfiguredVpnInterface(dataBroker, interfaceName);
+                                        if (vpnIf != null) {
+                                            for (VpnInstanceNames vpnInterfaceVpnInstance :
+                                                    vpnIf.getVpnInstanceNames()) {
+                                                String vpnName = vpnInterfaceVpnInstance.getVpnName();
+                                                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+                                                if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+                                                    LOG.debug("VPN Interface Name {}", vpnIf);
+                                                } else {
+                                                    LOG.info("add: Ignoring addition of vpnInterface {}, as"
+                                                            + " vpnInstance {} with primaryRd {} is already marked for"
+                                                            + " deletion", interfaceName, vpnName, primaryRd);
+                                                    return;
+                                                }
+                                            }
+                                            BigInteger intfDpnId = BigInteger.ZERO;
+                                            try {
+                                                intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
+                                            } catch (Exception e) {
+                                                LOG.error("Unable to retrieve dpnId for interface {}. "
+                                                        + "Process vpn interface add failed",intrf.getName(), e);
+                                                return;
+                                            }
+                                            final BigInteger dpnId = intfDpnId;
+                                            final int ifIndex = intrf.getIfIndex();
+                                            for (VpnInstanceNames vpnInterfaceVpnInstance
+                                                    : vpnIf.getVpnInstanceNames()) {
+                                                String vpnName = vpnInterfaceVpnInstance.getVpnName();
+                                                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+                                                if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
+                                                    LOG.error("VPN Interface add event - intfName {} onto vpnName {} "
+                                                                    + "running oper-driven, VpnInstance not ready,"
+                                                            + " holding on", vpnIf.getName(), vpnName);
+                                                    continue;
+                                                }
+                                                LOG.info("VPN Interface add event - intfName {} onto vpnName {}"
+                                                        + " running oper-driven", vpnIf.getName(), vpnName);
+                                                vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnIf, primaryRd,
+                                                        ifIndex, false, writeConfigTxn, writeOperTxn, writeInvTxn,
+                                                        intrf, vpnName);
+                                            }
                                         }
-                                    }
-                                    BigInteger intfDpnId = BigInteger.ZERO;
-                                    try {
-                                        intfDpnId = InterfaceUtils.getDpIdFromInterface(intrf);
-                                    } catch (Exception e) {
-                                        LOG.error("Unable to retrieve dpnId for interface {}. "
-                                                + "Process vpn interface add failed",intrf.getName(), e);
-                                        return;
-                                    }
-                                    final BigInteger dpnId = intfDpnId;
-                                    final int ifIndex = intrf.getIfIndex();
-                                    for (VpnInstanceNames vpnInterfaceVpnInstance : vpnIf.getVpnInstanceNames()) {
-                                        String vpnName = vpnInterfaceVpnInstance.getVpnName();
-                                        String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
-                                        if (!vpnInterfaceManager.isVpnInstanceReady(vpnName)) {
-                                            LOG.error("VPN Interface add event - intfName {} onto vpnName {} "
-                                                            + "running oper-driven, VpnInstance not ready, holding on",
-                                                vpnIf.getName(), vpnName);
-                                            continue;
-                                        }
-                                        LOG.info("VPN Interface add event - intfName {} onto vpnName {} running "
-                                                + "oper-driven", vpnIf.getName(), vpnName);
-                                        vpnInterfaceManager.processVpnInterfaceUp(dpnId, vpnIf, primaryRd, ifIndex,
-                                                    false, writeConfigTxn, writeOperTxn, writeInvTxn, intrf, vpnName);
-                                    }
-                                }
-                            }));
-                        }));
+                                    });
+                                futures.add(operFuture);
+                                operFuture.get(); //Synchronous submit of operTxn
+                            });
+                        futures.add(configFuture);
+                        //TODO: Allow immediateFailedFuture from writeCfgTxn to cancel writeInvTxn as well.
+                        Futures.addCallback(configFuture, new PostVpnInterfaceThreadWorker(intrf.getName(), true,
+                                "Operational"));
                     }));
                     return futures;
                 });
@@ -159,42 +171,45 @@ public class InterfaceStateChangeListener
                 final BigInteger inputDpId = dpId;
                 jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
-                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
-                        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
-                            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
-                                VpnInterface cfgVpnInterface =
-                                    VpnUtil.getConfiguredVpnInterface(dataBroker, ifName);
-                                if (cfgVpnInterface == null) {
-                                    LOG.debug("Interface {} is not a vpninterface, ignoring.", ifName);
-                                    return;
-                                }
-                                for (VpnInstanceNames vpnInterfaceVpnInstance :
-                                    cfgVpnInterface.getVpnInstanceNames()) {
-                                    String vpnName = vpnInterfaceVpnInstance.getVpnName();
-                                    Optional<VpnInterfaceOpDataEntry> optVpnInterface =
-                                            VpnUtil.getVpnInterfaceOpDataEntry(dataBroker, ifName, vpnName);
-                                    if (!optVpnInterface.isPresent()) {
-                                        LOG.debug("Interface {} vpn {} is not a vpninterface, or deletion triggered"
-                                               + " by northbound agent. ignoring.",
-                                               ifName, vpnName);
-                                        continue;
+                    ListenableFuture<Void> future = txRunner
+                        .callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
+                            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
+                                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
+                                    VpnInterface cfgVpnInterface =
+                                            VpnUtil.getConfiguredVpnInterface(dataBroker, ifName);
+                                    if (cfgVpnInterface == null) {
+                                        LOG.debug("Interface {} is not a vpninterface, ignoring.", ifName);
+                                        return;
                                     }
-                                    final VpnInterfaceOpDataEntry vpnInterface = optVpnInterface.get();
-                                    String gwMac = intrf.getPhysAddress() != null ? intrf.getPhysAddress().getValue()
-                                            : vpnInterface.getGatewayMacAddress();
-                                    BigInteger dpnId = inputDpId;
-                                    if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                                        dpnId = vpnInterface.getDpnId();
+                                    for (VpnInstanceNames vpnInterfaceVpnInstance :
+                                            cfgVpnInterface.getVpnInstanceNames()) {
+                                        String vpnName = vpnInterfaceVpnInstance.getVpnName();
+                                        Optional<VpnInterfaceOpDataEntry> optVpnInterface =
+                                                VpnUtil.getVpnInterfaceOpDataEntry(dataBroker, ifName, vpnName);
+                                        if (!optVpnInterface.isPresent()) {
+                                            LOG.debug("Interface {} vpn {} is not a vpninterface, or deletion"
+                                                    + " triggered by northbound agent. ignoring.", ifName, vpnName);
+                                            continue;
+                                        }
+                                        final VpnInterfaceOpDataEntry vpnInterface = optVpnInterface.get();
+                                        String gwMac = intrf.getPhysAddress() != null ? intrf.getPhysAddress()
+                                                .getValue() : vpnInterface.getGatewayMacAddress();
+                                        BigInteger dpnId = inputDpId;
+                                        if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
+                                            dpnId = vpnInterface.getDpnId();
+                                        }
+                                        final int ifIndex = intrf.getIfIndex();
+                                        LOG.info("VPN Interface remove event - intfName {} onto vpnName {}"
+                                                + " running oper-driver", vpnInterface.getName(), vpnName);
+                                        vpnInterfaceManager.processVpnInterfaceDown(dpnId, ifName, ifIndex, gwMac,
+                                                vpnInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
                                     }
-                                    final int ifIndex = intrf.getIfIndex();
-                                    LOG.info("VPN Interface remove event - intfName {} onto vpnName {}"
-                                               + " running oper-driver", vpnInterface.getName(), vpnName);
-                                    vpnInterfaceManager.processVpnInterfaceDown(dpnId, ifName, ifIndex, gwMac,
-                                            vpnInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
-                                }
+                                }));
                             }));
-                        }));
-                    }));
+                        });
+                    futures.add(future);
+                    Futures.addCallback(future, new PostVpnInterfaceThreadWorker(intrf.getName(), false,
+                            "Operational"));
                     return futures;
                 });
             }
@@ -293,6 +308,40 @@ public class InterfaceStateChangeListener
             }
         } catch (Exception e) {
             LOG.error("Exception observed in handling updation of VPN Interface {}. ", update.getName(), e);
+        }
+    }
+
+    private class PostVpnInterfaceThreadWorker implements FutureCallback<Void> {
+        private final String interfaceName;
+        private final boolean add;
+        private final String txnDestination;
+
+        PostVpnInterfaceThreadWorker(String interfaceName, boolean add, String transactionDest) {
+            this.interfaceName = interfaceName;
+            this.add = add;
+            this.txnDestination = transactionDest;
+        }
+
+        @Override
+        public void onSuccess(Void voidObj) {
+            if (add) {
+                LOG.debug("InterfaceStateChangeListener: VrfEntries for {} stored into destination {} successfully",
+                        interfaceName, txnDestination);
+            } else {
+                LOG.debug("InterfaceStateChangeListener:  VrfEntries for {} removed successfully", interfaceName);
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            if (add) {
+                LOG.error("InterfaceStateChangeListener: VrfEntries for {} failed to store into destination {}"
+                        + " with exception: {}", interfaceName, txnDestination, throwable);
+            } else {
+                LOG.error("InterfaceStateChangeListener: VrfEntries for {} removal failed with exception: {}",
+                        interfaceName, throwable);
+                VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
+            }
         }
     }
 }

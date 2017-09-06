@@ -242,5 +242,4 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         return result;
     }
-
 }
