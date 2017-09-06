@@ -23,17 +23,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosAlertEosHandler implements EntityOwnershipListener, AutoCloseable {
+public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
 
     private static EntityOwnershipService entityOwnershipService;
     private static QosAlertManager qosAlertManager;
     private static EntityOwnershipListenerRegistration listenerRegistration;
     private static EntityOwnershipCandidateRegistration candidateRegistration;
-    private static final Logger LOG = LoggerFactory.getLogger(QosAlertEosHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(QosEosHandler.class);
     private static boolean isEosOwner;
 
     @Inject
-    public QosAlertEosHandler(final EntityOwnershipService eos, final QosAlertManager qam) {
+    public QosEosHandler(final EntityOwnershipService eos, final QosAlertManager qam) {
         entityOwnershipService = eos;
         qosAlertManager = qam;
         isEosOwner = false;
@@ -61,7 +61,7 @@ public class QosAlertEosHandler implements EntityOwnershipListener, AutoCloseabl
             candidateRegistration = entityOwnershipService.registerCandidate(instanceEntity);
         } catch (CandidateAlreadyRegisteredException e) {
             LOG.warn("qosalert instance entity {} was already "
-                    + "registered for ownership", instanceEntity, e);
+                    + "registered for ownership", instanceEntity);
         }
         LOG.trace("entity ownership registeration successful");
     }
