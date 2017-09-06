@@ -134,6 +134,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.AddStaticRouteOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.IsRdOfVpnInOperationalOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.RemoveStaticRouteInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
@@ -1069,6 +1072,19 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
+            Optional<String> operationalVpn = isVpnOperational(vpnRpcService, dataBroker,
+                    vpn.getRouteDistinguisher().get(0));
+            if (operationalVpn.isPresent()) {
+                msg = String.format("Creation of L3VPN failed for VPN %s as another VPN %s with the same RD %s "
+                        + "is still available. Please retry creation of a new vpn with the same RD"
+                        + " after a couple of minutes.", vpn.getId().getValue(), operationalVpn.get(),
+                        vpn.getRouteDistinguisher().get(0));
+                LOG.error(msg);
+                error = RpcResultBuilder.newError(ErrorType.APPLICATION, "application-error", msg);
                 errorList.add(error);
                 warningcount++;
                 continue;
@@ -2683,5 +2699,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     @Override
     public Future<RpcResult<DeleteEVPNOutput>> deleteEVPN(DeleteEVPNInput input) {
         return neutronEvpnManager.deleteEVPN(input);
+    }
+
+    private Optional<String> isVpnOperational(VpnRpcService vpnRpcService, DataBroker broker, String rd) {
+        Optional<String> existingVpnName = Optional.of(rd);
+        IsRdOfVpnInOperationalInput vpnOperationalRpcInput = new IsRdOfVpnInOperationalInputBuilder()
+                .setRd(rd).build();
+        Future<RpcResult<IsRdOfVpnInOperationalOutput>> output = vpnRpcService
+                .isRdOfVpnInOperational(vpnOperationalRpcInput);
+        try {
+            RpcResult<IsRdOfVpnInOperationalOutput> rpcResult = output.get();
+            if (rpcResult.isSuccessful()) {
+                existingVpnName = Optional.fromNullable(rpcResult.getResult().getVpnName());
+            } else {
+                LOG.error("isVpnOperational: VPN RPC call for rd {} failed.");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("isVpnOperational: Exception while checking operational status of vpn with rd {}", rd, e);
+        }
+        return existingVpnName;
     }
 }
