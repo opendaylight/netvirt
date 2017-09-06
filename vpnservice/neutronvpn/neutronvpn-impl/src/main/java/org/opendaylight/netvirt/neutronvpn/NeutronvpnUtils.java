@@ -1377,14 +1377,18 @@ public class NeutronvpnUtils {
                      + "Primary RD not found", vpnName);
             return null;
         }
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnOpDataIdentifier(primaryRd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional = read(LogicalDatastoreType.OPERATIONAL, id);
         if (!vpnInstanceOpDataEntryOptional.isPresent()) {
             LOG.error("getVpnInstanceOpDataEntryFromVpnId: VpnInstance {} not found", primaryRd);
             return null;
         }
         return vpnInstanceOpDataEntryOptional.get();
+    }
+
+    protected InstanceIdentifier<VpnInstanceOpDataEntry> getVpnOpDataIdentifier(String primaryRd) {
+        return InstanceIdentifier.builder(VpnInstanceOpData.class)
+                .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
     }
 
     public boolean shouldVpnHandleIpVersionChangeToAdd(Subnetmap sm, Uuid vpnId) {
@@ -1456,7 +1460,7 @@ public class NeutronvpnUtils {
         }
         if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
             LOG.debug("updateVpnInstanceWithIpFamily: Update VpnInstance {} with ipFamily {}."
-                    + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
+                            + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnName,
                     ipVersion.toString());
             return;
         }
@@ -1476,12 +1480,12 @@ public class NeutronvpnUtils {
             }
             WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
             InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-                  .child(VpnInstanceOpDataEntry.class,
-                           new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
+                    .child(VpnInstanceOpDataEntry.class,
+                            new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
             writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
             LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                     add == true ? "added" : "removed",
-                     ipVersion.toString(), vpnName);
+                    add == true ? "added" : "removed",
+                    ipVersion.toString(), vpnName);
             return Collections.singletonList(writeTxn.submit());
         });
         return;

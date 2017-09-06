@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.neutronvpn;
 
 import static java.util.Collections.singletonList;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
 
 import com.google.common.base.Optional;
@@ -1216,6 +1217,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
                 LOG.warn(msg);
                 error = RpcResultBuilder.newWarning(ErrorType.PROTOCOL, "invalid-input", msg);
+                errorList.add(error);
+                warningcount++;
+                continue;
+            }
+            Optional<String> operationalVpn = getExistingOperationalVpn(vpn.getRouteDistinguisher().get(0));
+            if (operationalVpn.isPresent()) {
+                msg = String.format("Creation of L3VPN failed for VPN %s as another VPN %s with the same RD %s "
+                        + "is still available. Please retry creation of a new vpn with the same RD"
+                        + " after a couple of minutes.", vpn.getId().getValue(), operationalVpn.get(),
+                        vpn.getRouteDistinguisher().get(0));
+                LOG.error(msg);
+                error = RpcResultBuilder.newError(ErrorType.APPLICATION, "application-error", msg);
                 errorList.add(error);
                 warningcount++;
                 continue;
@@ -3073,7 +3086,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
         // Create and add Networks object for this External Network to the ExternalNetworks list
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
-            .child(Networks.class, new NetworksKey(extNetId)).build();
+                .child(Networks.class, new NetworksKey(extNetId)).build();
 
         try {
             Optional<Networks> optionalNets =
@@ -3099,5 +3112,26 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Removing VPN-ID from externalnetworks {} failed", extNetId.getValue(), ex);
         }
+    }
+
+    private Optional<String> getExistingOperationalVpn(String primaryRd) {
+        Optional<String> existingVpnName = Optional.of(primaryRd);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataOptional;
+        try {
+            vpnInstanceOpDataOptional = SingleTransactionDataBroker
+                    .syncReadOptional(dataBroker, OPERATIONAL, neutronvpnUtils.getVpnOpDataIdentifier(primaryRd));
+        } catch (ReadFailedException e) {
+            LOG.error("getExistingOperationalVpn: Exception while checking operational status of vpn with rd {}",
+                    primaryRd, e);
+            /*Read failed. We don't know if a VPN exists or not.
+            * Return primaryRd to halt caller execution, to be safe.*/
+            return existingVpnName;
+        }
+        if (vpnInstanceOpDataOptional.isPresent()) {
+            existingVpnName = Optional.of(vpnInstanceOpDataOptional.get().getVpnInstanceName());
+        } else {
+            existingVpnName = Optional.absent();
+        }
+        return existingVpnName;
     }
 }
