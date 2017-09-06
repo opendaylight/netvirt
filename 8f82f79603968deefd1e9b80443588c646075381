@@ -22,6 +22,30 @@
       "revId": "8f82f79603968deefd1e9b80443588c646075381",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_009d610b",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 787,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-06T09:13:58Z",
+      "side": 1,
+      "message": "It improves readibility and avoid the typical error addOrRemove \u003d true.",
+      "parentUuid": "ba1f61a0_60d09dc9",
+      "range": {
+        "startLine": 787,
+        "startChar": 9,
+        "endLine": 787,
+        "endChar": 26
+      },
+      "revId": "8f82f79603968deefd1e9b80443588c646075381",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
