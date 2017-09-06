@@ -385,6 +385,7 @@ public class DhcpExternalTunnelManager {
             }
             if (setOfTunnelIpElanNamePairs == null || setOfTunnelIpElanNamePairs.isEmpty()) {
                 LOG.trace("No tunnelIpElanName to handle for dpn {}. Returning", dpnId);
+                tx.cancel();
                 return;
             }
             for (Pair<IpAddress, String> pair : setOfTunnelIpElanNamePairs) {
@@ -516,6 +517,7 @@ public class DhcpExternalTunnelManager {
                         if (!checkL2GatewayConnection(tunnelElanPair)) {
                             LOG.trace("Couldn't find device for given tunnelIpElanPair {} in L2GwConnCache",
                                     tunnelElanPair);
+                            tx.cancel();
                             return;
                         }
                         List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
