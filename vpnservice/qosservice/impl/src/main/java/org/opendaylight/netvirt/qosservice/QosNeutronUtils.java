@@ -462,7 +462,7 @@ public class QosNeutronUtils {
     public static void setPortBandwidthLimits(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
                                               Port port, BandwidthLimitRules bwLimit,
                                               WriteTransaction writeConfigTxn) {
-        if (!QosAlertEosHandler.isQosClusterOwner()) {
+        if (!QosEosHandler.isQosClusterOwner()) {
             LOG.trace("Not Qos Cluster Owner. Ignoring setting bandwidth limits");
             return;
         }
@@ -506,7 +506,7 @@ public class QosNeutronUtils {
                         .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Failure while setting BwLimitRule{} to port{}", bwLimit, port, e);
+            LOG.error("Failure while setting BwLimitRule{} to port{} exception {}", bwLimit, port, e);
         }
 
     }
@@ -514,7 +514,7 @@ public class QosNeutronUtils {
     public static void setPortDscpMarking(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
                                           IMdsalApiManager mdsalUtils,
                                           Port port, DscpmarkingRules dscpMark) {
-        if (!QosAlertEosHandler.isQosClusterOwner()) {
+        if (!QosEosHandler.isQosClusterOwner()) {
             LOG.trace("Not Qos Cluster Owner. Ignoring setting DSCP marking");
             return;
         }
@@ -543,7 +543,7 @@ public class QosNeutronUtils {
 
     public static void unsetPortDscpMark(DataBroker dataBroker, OdlInterfaceRpcService odlInterfaceRpcService,
                                          IMdsalApiManager mdsalUtils, Port port) {
-        if (!QosAlertEosHandler.isQosClusterOwner()) {
+        if (!QosEosHandler.isQosClusterOwner()) {
             LOG.trace("Not Qos Cluster Owner. Ignoring unsetting DSCP marking");
             return;
         }
@@ -602,7 +602,7 @@ public class QosNeutronUtils {
                 LOG.error("Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
+            LOG.error("Exception when getting dpn for interface {} exception {}", ifName,  e);
         }
         return nodeId;
     }
@@ -805,7 +805,7 @@ public class QosNeutronUtils {
                 return portResult.getResult().getPortno().toString();
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting port for interface", e);
+            LOG.warn("Exception when getting port for interface {}", e);
         }
         return null;
     }
