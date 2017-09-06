@@ -924,10 +924,14 @@ public final class AclServiceUtils {
      * @return the integer
      */
     public Integer releaseAndRemoveFlowPriorityFromCache(String poolName, String key) {
-        AclServiceUtils.releaseId(this.idManager, poolName, key);
         Integer flowPriority = this.aclDataUtil.removeAclFlowPriority(key);
         if (flowPriority == null) {
             flowPriority = AclConstants.PROTO_MATCH_PRIORITY;
+        } else {
+            /*Do not call ReleaseId, for a key which is not yet Added. which implies trying to delete a flow before,
+            adding it. Scenario happens in Race condition when we start processing InterfaceStateUpdate, before
+            Interface Add event is processed completely and flows are added.*/
+            AclServiceUtils.releaseId(this.idManager, poolName, key);
         }
         return flowPriority;
     }
@@ -1205,5 +1209,14 @@ public final class AclServiceUtils {
         aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
         aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
         return aclInterface;
+    }
+
+    /**
+     * Returns ACL specific key for synchronization.
+     * @param key the generic key
+     * @return ACL key that can be used with synchronization
+     */
+    public static String getAclKeyForSynchronization(String key) {
+        return key + AclConstants.ACL_SYNC_KEY_EXT;
     }
 }
