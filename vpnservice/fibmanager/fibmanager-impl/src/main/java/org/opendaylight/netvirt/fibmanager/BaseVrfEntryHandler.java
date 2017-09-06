@@ -423,8 +423,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         if (localDpnId != null && localDpnId != BigInteger.ZERO) {
             // localDpnId is not known when clean up happens for last vm for a vpn on a dpn
             if (extraRouteOptional.isPresent()) {
-                nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
-                        Collections.emptyList() /*listBucketInfo*/ , false);
+                nextHopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
             }
             makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
             LOG.debug("Successfully delete FIB entry: vrfEntry={}, vpnId={}", vrfEntry.getDestPrefix(), vpnId);
@@ -434,8 +433,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         // below two reads are kept as is, until best way is found to identify dpnID
         VpnNexthop localNextHopInfo = nextHopManager.getVpnNexthop(vpnId, vrfEntry.getDestPrefix());
         if (extraRouteOptional.isPresent()) {
-            nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
-                    Collections.emptyList() /*listBucketInfo*/ , false);
+            nextHopManager.deleteLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix());
         } else {
             checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, null);
         }
