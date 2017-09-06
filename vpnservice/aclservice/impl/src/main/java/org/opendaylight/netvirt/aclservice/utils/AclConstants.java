@@ -113,6 +113,7 @@ public final class AclConstants {
     public static final int TRACKED_CT_STATE_MASK = 0x20;
 
     public static final String ACL_ID_POOL_NAME = "ACL-ID-POOL";
+    public static final String ACL_SYNC_KEY_EXT = "-acl";
 
     enum PacketHandlingType {
         PERMIT,
