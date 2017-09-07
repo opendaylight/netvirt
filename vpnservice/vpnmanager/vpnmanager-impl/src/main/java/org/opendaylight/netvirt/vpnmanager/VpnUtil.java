@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -30,7 +29,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
@@ -182,10 +180,13 @@ import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFai
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnUtil {
+public final class VpnUtil {
     private static final Logger LOG = LoggerFactory.getLogger(VpnUtil.class);
     private static final int DEFAULT_PREFIX_LENGTH = 32;
     private static final String PREFIX_SEPARATOR = "/";
+
+    private VpnUtil() {
+    }
 
     static InstanceIdentifier<VpnInterface> getVpnInterfaceIdentifier(String vpnInterfaceName) {
         return InstanceIdentifier.builder(VpnInterfaces.class)
@@ -373,10 +374,8 @@ public class VpnUtil {
         if (rpcResult == null) {
             return null;
         }
-
         interfaceFromIfIndexOutput = rpcResult.getResult();
-        String interfaceName = interfaceFromIfIndexOutput.getInterfaceName();
-        return interfaceName;
+        return interfaceFromIfIndexOutput.getInterfaceName();
     }
 
     static AllocatedRdsBuilder getRdsBuilder(String nexthop, String rd) {
@@ -390,8 +389,7 @@ public class VpnUtil {
     public static InstanceIdentifier<IdPool> getPoolId(String poolName) {
         InstanceIdentifier.InstanceIdentifierBuilder<IdPool> idBuilder =
             InstanceIdentifier.builder(IdPools.class).child(IdPool.class, new IdPoolKey(poolName));
-        InstanceIdentifier<IdPool> id = idBuilder.build();
-        return id;
+        return idBuilder.build();
     }
 
     static InstanceIdentifier<VpnInterfaces> getVpnInterfacesIdentifier() {
@@ -829,9 +827,9 @@ public class VpnUtil {
         InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+
         try {
-            futures.get();
+            tx.submit().get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("syncWrite: Error writing to datastore (path, data) : ({}, {})", path, data);
             throw new RuntimeException(e.getMessage());
@@ -842,9 +840,9 @@ public class VpnUtil {
         InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+
         try {
-            futures.get();
+            tx.submit().get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("syncUpdate: Error writing to datastore (path, data) : ({}, {})", path, data);
             throw new RuntimeException(e.getMessage());
@@ -1089,22 +1087,18 @@ public class VpnUtil {
     }
 
     static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
-        InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
+        return InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
                 NetworkMapKey(networkId)).build();
-        return id;
     }
 
     static InstanceIdentifier<SubnetOpDataEntry> buildSubnetOpDataEntryInstanceIdentifier(Uuid subnetId) {
-        InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
+        return InstanceIdentifier.builder(SubnetOpData.class)
                 .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(subnetId)).build();
-        return subOpIdentifier;
     }
 
     static InstanceIdentifier<VpnPortipToPort> buildVpnPortipToPortIdentifier(String vpnName, String fixedIp) {
-        InstanceIdentifier<VpnPortipToPort> id =
-            InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class,
+        return InstanceIdentifier.builder(NeutronVpnPortipPortData.class).child(VpnPortipToPort.class,
                 new VpnPortipToPortKey(fixedIp, vpnName)).build();
-        return id;
     }
 
     public static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
@@ -1181,9 +1175,7 @@ public class VpnUtil {
     }
 
     static InstanceIdentifier<Routers> buildRouterIdentifier(String routerId) {
-        InstanceIdentifier<Routers> routerInstanceIndentifier =
-            InstanceIdentifier.builder(ExtRouters.class).child(Routers.class, new RoutersKey(routerId)).build();
-        return routerInstanceIndentifier;
+        return InstanceIdentifier.builder(ExtRouters.class).child(Routers.class, new RoutersKey(routerId)).build();
     }
 
     static Networks getExternalNetwork(DataBroker dataBroker, Uuid networkId) {
@@ -1279,9 +1271,9 @@ public class VpnUtil {
         }
 
         String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
-            flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
-        return flowEntity;
+
+        return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
+                flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
     }
 
     private static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
@@ -1744,13 +1736,13 @@ public class VpnUtil {
 
     public static boolean isEligibleForBgp(String rd, String vpnName, BigInteger dpnId, String networkName) {
         if (rd != null) {
-            if ((vpnName != null) && (rd.equals(vpnName))) {
+            if (vpnName != null && rd.equals(vpnName)) {
                 return false;
             }
-            if ((dpnId != null) && (rd.equals(dpnId.toString()))) {
+            if (dpnId != null && rd.equals(dpnId.toString())) {
                 return false;
             }
-            if ((networkName != null) && (rd.equals(networkName))) {
+            if (networkName != null && rd.equals(networkName)) {
                 return false;
             }
             return true;
@@ -1784,5 +1776,4 @@ public class VpnUtil {
         }
         return isVpnPendingDelete;
     }
-
 }

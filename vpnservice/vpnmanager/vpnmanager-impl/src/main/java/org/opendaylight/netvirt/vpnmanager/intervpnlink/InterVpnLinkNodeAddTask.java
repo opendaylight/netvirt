@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.vpnmanager.VpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -78,21 +76,21 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
 
     private boolean shouldConfigureLinkIntoDpn(InterVpnLinkState interVpnLinkState, int numberOfDpns) {
 
-        if ((interVpnLinkState.getFirstEndpointState().getDpId() == null
-                 || interVpnLinkState.getFirstEndpointState().getDpId().isEmpty())
-            || (interVpnLinkState.getSecondEndpointState().getDpId() == null
-                    || interVpnLinkState.getSecondEndpointState().getDpId().isEmpty())) {
+        if (interVpnLinkState.getFirstEndpointState().getDpId() == null
+                 || interVpnLinkState.getFirstEndpointState().getDpId().isEmpty()
+            || interVpnLinkState.getSecondEndpointState().getDpId() == null
+                    || interVpnLinkState.getSecondEndpointState().getDpId().isEmpty()) {
             return true;
         } else if (!interVpnLinkState.getFirstEndpointState().getDpId().contains(dpnId)
             && !interVpnLinkState.getSecondEndpointState().getDpId().contains(dpnId)
-            && (interVpnLinkState.getFirstEndpointState().getDpId().size() < numberOfDpns)) {
+            && interVpnLinkState.getFirstEndpointState().getDpId().size() < numberOfDpns) {
             return true;
         } else {
             return false;
         }
     }
 
-    private CheckedFuture<Void, TransactionCommitFailedException>
+    private ListenableFuture<Void>
         updateInterVpnLinkState(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
                                 List<BigInteger> secondDpnList, int numberOfDpns) {
 
@@ -157,5 +155,4 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
                     secondDpnList);
         }
     }
-
 }
