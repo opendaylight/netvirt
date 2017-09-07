@@ -46,6 +46,30 @@
       "revId": "dbc004d2cda61c807f949ad5c074d8843def8b16",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_9daed37f",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-07T12:30:08Z",
+      "side": 1,
+      "message": "When SG is later enabled for the port, the interfaceState will already exist for that port when the update() call comes into NeutronPortChangeListener.  \n\nSo can\u0027t we create the ACLInterface in the cache during that lifecycle inside NeutronPortChangeListener?\n\nCreating ACLInterface for non-neutron ports is incorrect and can lead to lot of downstream ACL problems in ODL.",
+      "parentUuid": "ba1f61a0_7d5b1ff6",
+      "range": {
+        "startLine": 122,
+        "startChar": 8,
+        "endLine": 122,
+        "endChar": 32
+      },
+      "revId": "dbc004d2cda61c807f949ad5c074d8843def8b16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
