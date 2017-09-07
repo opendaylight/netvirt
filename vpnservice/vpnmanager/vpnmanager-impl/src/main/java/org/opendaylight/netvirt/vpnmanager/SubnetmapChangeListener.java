@@ -156,6 +156,8 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                 if (!isBgpVpn) {
                     return;
                 }
+                // should be removed from internet VPN too
+                vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true, false);
                 vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true, true);
                 return;
             }

@@ -267,6 +267,12 @@ public class VpnSubnetRouteHandler {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn , boolean isExternalVpn) {
         Uuid subnetId = subnetmap.getId();
+        Uuid vpnId = null;
+        if (isExternalVpn) {
+            vpnId = subnetmap.getVpnId();
+        } else if (subnetmap.getInternetVpnId() != null) {
+            vpnId = subnetmap.getInternetVpnId();
+        }
         LOG.info("{} onSubnetDeletedFromVpn: Subnet {} with ip {} being removed from vpnId {}", LOGGING_PREFIX,
                 subnetId, subnetmap.getSubnetIp(), subnetmap.getVpnId());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
@@ -275,14 +281,14 @@ public class VpnSubnetRouteHandler {
             try {
                 InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier =
                     InstanceIdentifier.builder(SubnetOpData.class).child(SubnetOpDataEntry.class,
-                         new SubnetOpDataEntryKey(subnetId, subnetmap.getVpnId().getValue())).build();
+                         new SubnetOpDataEntryKey(subnetId, vpnId.getValue())).build();
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL,
                         subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
                     LOG.error("{} onSubnetDeletedFromVpn: SubnetOpDataEntry for subnet {} subnetIp {} vpn {}"
                             + " not available in datastore", LOGGING_PREFIX, subnetId.getValue(),
-                            subnetId.getValue(), subnetmap.getVpnId());
+                            subnetId.getValue(), vpnId.getValue());
                     return;
                 }
                 LOG.trace("{} onSubnetDeletedFromVpn: Removing the SubnetOpDataEntry node for subnet {} subnetIp {}"
@@ -298,11 +304,16 @@ public class VpnSubnetRouteHandler {
                     InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
                         new SubnetmapKey(subnetId)).build();
                 Optional<Subnetmap> sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
-                if (!sm.isPresent()) {
+                if (isExternalVpn == false) {
+                    sm = null;
+                } else {
+                    sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
+                }
+                if (sm != null  && !sm.isPresent()) {
                     LOG.error("{} onSubnetDeletedFromVpn: Stale ports removal: Unable to retrieve subnetmap entry"
                             + " for subnet {} subnetIp {} vpnName {}", LOGGING_PREFIX, subnetId.getValue(),
                             optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName());
-                } else {
+                } else if (sm != null) {
                     Subnetmap subMap = sm.get();
                     List<Uuid> portList = subMap.getPortList();
                     if (portList != null) {
@@ -318,8 +329,10 @@ public class VpnSubnetRouteHandler {
                             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
                         }
                     }
+                } else {
+                    LOG.error("{} onSubnetDeletedFromVpn: Internet VPN suppressed. Noneed to remove PortList",
+                              LOGGING_PREFIX);
                 }
-
                 SubnetOpDataEntryBuilder subOpBuilder = new SubnetOpDataEntryBuilder(optionalSubs.get());
                 String rd = subOpBuilder.getVrfId();
                 String subnetIp = subOpBuilder.getSubnetCidr();
@@ -334,13 +347,13 @@ public class VpnSubnetRouteHandler {
             } catch (Exception ex) {
                 LOG.error("{} onSubnetDeletedFromVpn: Removal of SubnetOpDataEntry for subnet {} subnetIp {}"
                         + " vpnId {} failed {}", LOGGING_PREFIX, subnetId.getValue(), subnetmap.getSubnetIp(),
-                        subnetmap.getVpnId(), ex);
+                        vpnId, ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (Exception e) {
             LOG.error("{} onSubnetDeletedFromVpn: Unable to handle subnet {} with Ip {} removed from vpn {} {}",
-                    LOGGING_PREFIX, subnetId.getValue(), subnetmap.getSubnetIp(), subnetmap.getVpnId(), e);
+                    LOGGING_PREFIX, subnetId.getValue(), subnetmap.getSubnetIp(), vpnId, e);
         }
     }
 
