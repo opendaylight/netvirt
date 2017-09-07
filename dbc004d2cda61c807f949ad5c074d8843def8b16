@@ -22,6 +22,30 @@
       "revId": "dbc004d2cda61c807f949ad5c074d8843def8b16",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7d5b1ff6",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceStateListener.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-09-07T11:42:06Z",
+      "side": 1,
+      "message": "Good catch Shashi, filtering based on the InterfaceAcl augmentation may not work for us. If want to avoid port other than vm ports we may need to check for other option like device owner or a more appropriate if there is any.\n\nBut I am also leaning towards having the isportsecurity enabled check in the right places to avoid binding for interfaces not of acl interest.",
+      "parentUuid": "ba1f61a0_fa66f5b9",
+      "range": {
+        "startLine": 122,
+        "startChar": 8,
+        "endLine": 122,
+        "endChar": 32
+      },
+      "revId": "dbc004d2cda61c807f949ad5c074d8843def8b16",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
