@@ -154,7 +154,6 @@ public class SubnetOpDpnManager {
                 portOpBuilder.setDpnId(dpnId);
             }
             portOpEntry = portOpBuilder.build();
-            LOG.trace("Creating PortOpData entry for port {} with DPNId {}", intfName, dpnId);
             SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
                 portOpEntry);
             LOG.info("addPortOpDataEntry: Created PortOpData entry for port {} with DPNId {} intfName {}",
@@ -213,7 +212,7 @@ public class SubnetOpDpnManager {
         Optional<PortOpDataEntry> optionalPortOp =
             VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
-            LOG.error("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
+            LOG.info("removePortOpDataEntry: Cannot delete, portOp for port {} is not available in datastore",
                     intfName);
             return null;
         } else {
@@ -232,7 +231,6 @@ public class SubnetOpDpnManager {
         Optional<PortOpDataEntry> optionalPortOp =
             VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
         if (!optionalPortOp.isPresent()) {
-            LOG.error("getPortOpDataEntry: Cannot get, portOp for port {} is not available in datastore", intfName);
             return null;
         }
         return optionalPortOp.get();
