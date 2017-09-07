@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
@@ -158,6 +159,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final IVpnManager vpnManager;
     private final NeutronEvpnManager neutronEvpnManager;
     private final NeutronEvpnUtils neutronEvpnUtils;
+    private static ConcurrentHashMap<Uuid, Uuid> unprocessedPortsMap = new ConcurrentHashMap<>();
 
     @Inject
     public NeutronvpnManager(
@@ -208,21 +210,32 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         try {
             InstanceIdentifier<Subnetmap> subnetMapIdentifier = NeutronvpnUtils.buildSubnetMapIdentifier(subnetId);
             synchronized (subnetId.getValue().intern()) {
+                LOG.info("createSubnetmapNode: subnet ID {}", subnetId.toString());
                 Optional<Subnetmap> sn = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, subnetMapIdentifier);
                 if (sn.isPresent()) {
-                    LOG.error("subnetmap node for subnet ID {} already exists, returning", subnetId.getValue());
+                    LOG.error("createSubnetmapNode: Subnetmap node for subnet ID {} already exists, returning",
+                        subnetId.getValue());
                     return;
                 }
                 SubnetmapBuilder subnetmapBuilder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId))
                         .setId(subnetId).setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId)
                         .setNetworkType(networkType).setSegmentationId(segmentationId);
-                LOG.debug("Adding a new subnet node in Subnetmaps DS for subnet {}", subnetId.getValue());
+                LOG.debug("createSubnetmapNode: Adding a new subnet node in Subnetmaps DS for subnet {}",
+                    subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         subnetMapIdentifier, subnetmapBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Creating subnetmap node failed for subnet {}", subnetId.getValue());
+            LOG.error("createSubnetmapNode: Creating subnetmap node failed for subnet {}", subnetId.getValue());
+        }
+        // check if there are ports to update for already created Subnetmap node
+        LOG.debug("createSubnetmapNode: Update created Subnetmap for subnet {} with ports", subnetId.getValue());
+        for (Map.Entry<Uuid, Uuid> entry : unprocessedPortsMap.entrySet()) {
+            if (entry.getValue().getValue().equals(subnetId.getValue())) {
+                updateSubnetmapNodeWithPorts(subnetId, entry.getKey(), null);
+                unprocessedPortsMap.remove(entry.getKey());
+            }
         }
     }
 
@@ -302,6 +315,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         Subnetmap subnetmap = null;
         InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
                 new SubnetmapKey(subnetId)).build();
+        LOG.info("updateSubnetmapNodeWithPorts : subnetId {}, subnetMapId {}", subnetId.toString(), id.toString());
         try {
             synchronized (subnetId.getValue().intern()) {
                 Optional<Subnetmap> sn = NeutronvpnUtils.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
@@ -314,8 +328,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         }
                         portList.add(portId);
                         builder.setPortList(portList);
-                        LOG.debug("Updating existing subnetmap node {} with port {}", subnetId.getValue(),
-                                portId.getValue());
+                        LOG.debug("updateSubnetmapNodeWithPorts: Updating existing subnetmap node {} with port {}",
+                            subnetId.getValue(), portId.getValue());
                     }
                     if (null != directPortId) {
                         List<Uuid> directPortList = builder.getDirectPortList();
@@ -331,7 +345,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id,
                             subnetmap);
                 } else {
-                    LOG.error("Trying to update non-existing subnetmap node {} ", subnetId.getValue());
+                    LOG.info("updateSubnetmapNodeWithPorts: Subnetmap node is not ready {}, put port {} in unprocessed "
+                        + "cache ", subnetId.getValue(), portId.getValue());
+                    unprocessedPortsMap.put(portId, subnetId);
                 }
             }
         } catch (Exception e) {
