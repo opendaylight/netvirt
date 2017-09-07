@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -17,13 +16,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -155,7 +152,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 LOG.debug("createOrUpdateVpnToDpnList: Creating vpn footprint for vpn {} vpnId {} interface {}"
                         + " on dpn {}", vpnName, vpnId, intfName, dpnId);
             }
-            CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+            ListenableFuture<Void> futures = writeTxn.submit();
             try {
                 futures.get();
             } catch (InterruptedException | ExecutionException e) {
@@ -167,7 +164,7 @@ public class VpnFootprintService implements IVpnFootprintService {
         LOG.info("createOrUpdateVpnToDpnList: Created/Updated vpn footprint for vpn {} vpnId {} interfacName{}"
                 + " on dpn {}", vpnName, vpnId, intfName, dpnId);
         /*
-         * Informing the Fib only after writeTxn is submitted successfuly.
+         * Informing the FIB only after writeTxn is submitted successfully.
          */
         if (newDpnOnVpn) {
             fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd, new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd,
@@ -216,7 +213,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnToDpnListBuilder.build(), true);
                 newDpnOnVpn = Boolean.TRUE;
             }
-            CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+            ListenableFuture<Void> futures = writeTxn.submit();
             try {
                 futures.get();
             } catch (InterruptedException | ExecutionException e) {
@@ -277,7 +274,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     LOG.debug("removeOrUpdateVpnToDpnList: Updating vpn footprint for vpn {} vpnId {} interface {},"
                             + " on dpn {}", vpnName, vpnName, intfName, dpnId);
                 }
-                CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+                ListenableFuture<Void> futures = writeTxn.submit();
                 try {
                     futures.get();
                 } catch (InterruptedException | ExecutionException e) {
@@ -338,7 +335,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                     writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(IpAddresses.class,
                             new IpAddressesKey(ipAddressSourceValuePair.getValue())));
                 }
-                CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+                ListenableFuture<Void> futures = writeTxn.submit();
                 try {
                     futures.get();
                 } catch (InterruptedException | ExecutionException e) {
