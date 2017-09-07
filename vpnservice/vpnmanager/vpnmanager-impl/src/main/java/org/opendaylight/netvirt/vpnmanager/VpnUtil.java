@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -30,7 +29,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
@@ -829,7 +827,7 @@ public class VpnUtil {
         InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        ListenableFuture<Void> futures = tx.submit();
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -842,7 +840,7 @@ public class VpnUtil {
         InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        ListenableFuture<Void> futures = tx.submit();
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
@@ -1744,13 +1742,13 @@ public class VpnUtil {
 
     public static boolean isEligibleForBgp(String rd, String vpnName, BigInteger dpnId, String networkName) {
         if (rd != null) {
-            if ((vpnName != null) && (rd.equals(vpnName))) {
+            if (vpnName != null && rd.equals(vpnName)) {
                 return false;
             }
-            if ((dpnId != null) && (rd.equals(dpnId.toString()))) {
+            if (dpnId != null && rd.equals(dpnId.toString())) {
                 return false;
             }
-            if ((networkName != null) && (rd.equals(networkName))) {
+            if (networkName != null && rd.equals(networkName)) {
                 return false;
             }
             return true;

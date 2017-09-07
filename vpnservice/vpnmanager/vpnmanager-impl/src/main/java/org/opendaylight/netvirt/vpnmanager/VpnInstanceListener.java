@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -24,7 +23,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -184,7 +182,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
             WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
             addVpnInstance(vpnInstance, writeConfigTxn, writeOperTxn);
-            CheckedFuture<Void, TransactionCommitFailedException> checkFutures = writeOperTxn.submit();
+            ListenableFuture<Void> checkFutures = writeOperTxn.submit();
             try {
                 checkFutures.get();
             } catch (InterruptedException | ExecutionException e) {
@@ -327,7 +325,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
              */
             VpnAfConfig config = vpnInstance.getIpv4Family();
             List<String> rd = config.getRouteDistinguisher();
-            if ((rd == null) || addBgpVrf(voids)) {
+            if (rd == null || addBgpVrf(voids)) {
                 notifyTask();
                 vpnInterfaceManager.vpnInstanceIsReady(vpnName);
             }
@@ -398,7 +396,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             //Advertise all the rds and check if primary Rd advertisement fails
             long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
                 try {
-                    LayerType layerType = (vpnInstance.getType() == VpnInstance.Type.L2) ? LayerType.LAYER2 :
+                    LayerType layerType = vpnInstance.getType() == VpnInstance.Type.L2 ? LayerType.LAYER2 :
                             LayerType.LAYER3;
                     bgpManager.addVrf(rd, irtList, ertList, layerType);
                 } catch (Exception e) {

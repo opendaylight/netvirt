@@ -8,15 +8,14 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -29,10 +28,12 @@ public class TransactionUtil {
     }
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
+        @Override
         public void onSuccess(Void result) {
             LOG.debug("onSuccess: Success in Datastore operation");
         }
 
+        @Override
         public void onFailure(Throwable error) {
             LOG.error("onFailure: Error in Datastore operation", error);
         }
@@ -69,7 +70,7 @@ public class TransactionUtil {
         T data, FutureCallback<Void> callback) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        ListenableFuture<Void> futures = tx.submit();
         try {
             futures.get();
         } catch (InterruptedException | ExecutionException e) {
