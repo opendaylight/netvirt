@@ -8,16 +8,13 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -110,11 +107,9 @@ public class TunnelEndPointChangeListener
                                 vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName, primaryRd,
                                         vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn,
                                         interfaceState);
-                                List<CheckedFuture<Void, TransactionCommitFailedException>> checkedFutures =
-                                        Arrays.asList(writeOperTxn.submit(),
-                                                writeConfigTxn.submit(),
-                                                writeInvTxn.submit());
-                                futures.addAll(checkedFutures);
+                                futures.add(writeOperTxn.submit());
+                                futures.add(writeConfigTxn.submit());
+                                futures.add(writeInvTxn.submit());
                                 LOG.trace("add: Handled TEP {} add for VPN instance {} VPN interface {}",
                                         tep.getInterfaceName(), vpnName, vpnInterfaceName);
                                 return futures;
