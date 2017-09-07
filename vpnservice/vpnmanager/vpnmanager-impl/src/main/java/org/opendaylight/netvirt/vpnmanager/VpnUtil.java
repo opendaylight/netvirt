@@ -32,6 +32,7 @@ import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipS
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -51,6 +52,8 @@ import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -1815,4 +1818,44 @@ public class VpnUtil {
         }
         return new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
     }
+
+    public static void withdrawIpFamilyFromVpnInstance(DataBroker dataBroker, String vpnName,
+                                      IpVersionChoice ipVersion) {
+        LOG.info("Withdraw ipFamily {} from VpnInstance", ipVersion.toString(), vpnName);
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        Optional<VpnInstance> optionalVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                vpnIdentifier);
+        if (!optionalVpn.isPresent()) {
+            LOG.error("Can't find VpnInstance in DS for vpnName {}", vpnName);
+            return;
+        }
+        VpnInstance vpnInstance = optionalVpn.get();
+        org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
+            .l3vpn.rev140815.vpn.instances.VpnInstanceBuilder  vpnInstanceBuilder =
+                 new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
+                       .l3vpn.rev140815.vpn.instances.VpnInstanceBuilder(vpnInstance);
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+            LOG.error("withdrawIpFamily : vpnName {} withdrawn from IPv4", vpnName);
+            // vpnInstanceBuilder.setIpv4Family(null).build();
+        }
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+            LOG.error("withdrawIpFamily : vpnName {} withdrawn from IPv6", vpnName);
+            vpnInstanceBuilder.setIpv6Family(null).build();
+        }
+        boolean isLockAcquired = false;
+        isLockAcquired = NeutronUtils.lock(vpnName);
+        try {
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
+                    vpnInstanceBuilder.build());
+        } catch (TransactionCommitFailedException ex) {
+            LOG.warn("Error while configuring feature: {}", ex);
+        } finally {
+            if (isLockAcquired) {
+                NeutronUtils.unlock(vpnName);
+            }
+        }
+        LOG.debug("Successfully withdrawed VpnInstance IpFamily {} from VpnInstance", ipVersion.toString(), vpnName);
+    }
+
 }
