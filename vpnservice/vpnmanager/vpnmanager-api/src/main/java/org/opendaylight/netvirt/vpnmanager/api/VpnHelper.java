@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -126,6 +127,18 @@ public class VpnHelper {
 
     public static VpnInstanceNames getVpnInterfaceVpnInstanceNames(String vpnName, AssociatedSubnetType subnetType) {
         return new VpnInstanceNamesBuilder().setVpnName(vpnName).setAssociatedSubnetType(subnetType).build();
+    }
+
+    public static void removeVpnInterfaceVpnInstanceNamesFromList(String vpnName,
+                               List<VpnInstanceNames> vpnInstanceList) {
+        Iterator<VpnInstanceNames> vpnInstancesIter = vpnInstanceList.iterator();
+        while (vpnInstancesIter.hasNext()) {
+            VpnInstanceNames  vpnInstances = vpnInstancesIter.next();
+            if (vpnInstances.getVpnName().equals(vpnName)) {
+                vpnInstancesIter.remove();
+                return;
+            }
+        }
     }
 
     public static boolean vpnInterfaceVpnInstanceNamesContainsVpnName(String vpnName,
