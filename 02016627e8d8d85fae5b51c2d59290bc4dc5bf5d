@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_b1965b4a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-09-08T18:06:48Z",
+      "side": 1,
+      "message": "The ExternalNetwork is created regardless of whether it is flat/vlan, so we have to do this instead:\n\nif (origExternal) {\n  \n  if (origIsFlatOrVlanNetwork \u0026\u0026 !updateIsFlatOrVlanNetwork) {         \n    nvpnManager.removeExternalVpnInterfaces\n                         (original.getUuid());\n    nvpnManager.removeVpn(original.getUuid());\n  }\n  nvpnNatManager.removeExternalNetwork(original);\n}",
+      "range": {
+        "startLine": 160,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 13
+      },
+      "revId": "02016627e8d8d85fae5b51c2d59290bc4dc5bf5d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
