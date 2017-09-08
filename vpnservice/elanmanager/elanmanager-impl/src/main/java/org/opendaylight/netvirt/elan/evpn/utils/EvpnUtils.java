@@ -15,7 +15,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -36,6 +37,9 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
+
+@Singleton
 public class EvpnUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(EvpnUtils.class);
@@ -52,6 +56,7 @@ public class EvpnUtils {
     private volatile IBgpManager bgpManager;
     private volatile IVpnManager vpnManager;
 
+    @Inject
     public EvpnUtils(DataBroker broker, IInterfaceManager interfaceManager,
                      ElanUtils elanUtils, ItmRpcService itmRpcService) {
         this.broker = broker;
@@ -174,7 +179,7 @@ public class EvpnUtils {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void advertisePrefix(ElanInstance elanInfo, String rd,
+    public void advertisePrefix(ElanInstance elanInfo, String rd,
                                  String macAddress, String prefix, String interfaceName, BigInteger dpnId) {
         if (rd == null) {
             LOG.debug("advertisePrefix : rd is NULL for elanInfo {}, macAddress {}", elanInfo, macAddress);
