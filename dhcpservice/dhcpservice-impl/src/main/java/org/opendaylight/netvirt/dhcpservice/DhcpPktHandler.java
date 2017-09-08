@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -260,8 +261,15 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 dhcpInfo.setGatewayIp(subnet.getGatewayIp().getIpv4Address().getValue());
             }
             if (clientIp != null && serverIp != null) {
+                List<HostRoutes> subnetHostRoutes = new ArrayList<>(subnet.getHostRoutes().size());
+                for (HostRoutes hostRoute : subnet.getHostRoutes()) {
+                  if (String.valueOf(hostRoute.getNexthop().getValue()).equals(clientIp)) {
+                    continue;
+                  }
+                  subnetHostRoutes.add(hostRoute);
+                }
                 dhcpInfo.setClientIp(clientIp).setServerIp(serverIp)
-                        .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnet.getHostRoutes())
+                        .setCidr(String.valueOf(subnet.getCidr().getValue())).setHostRoutes(subnetHostRoutes)
                         .setDnsServersIpAddrs(dnsServers);
             }
         }
