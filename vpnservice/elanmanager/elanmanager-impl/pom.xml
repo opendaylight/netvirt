@@ -102,7 +102,13 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
-    <dependency>
+  <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-impl</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+  </dependency>
+      <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
       <scope>test</scope>
@@ -155,11 +161,38 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.opendaylight.genius</groupId>
+          <artifactId>itm-impl</artifactId>
+          <version>${genius.version}</version>
+          <scope>test</scope>
+      </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>testutils</artifactId>
       <version>${genius.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>teststubs</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin</groupId>
+      <artifactId>openflowplugin-extension-nicira</artifactId>
+      <version>${openflowplugin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-flow-service</artifactId>
+      <version>${openflowplugin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-flow-base</artifactId>
+      <version>${openflowplugin.version}</version>
     </dependency>
   </dependencies>
 
