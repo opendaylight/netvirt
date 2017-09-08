@@ -234,7 +234,8 @@ public class ElanUtils {
     }
 
     public final Boolean isOpenStackVniSemanticsEnforced() {
-        return elanConfig.isOpenstackVniSemanticsEnforced();
+        return elanConfig.isOpenstackVniSemanticsEnforced() != null
+                ? elanConfig.isOpenstackVniSemanticsEnforced() : false;
     }
 
     public static void addElanInstanceIntoCache(String elanInstanceName, ElanInstance elanInstance) {
