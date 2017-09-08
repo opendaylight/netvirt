@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.daexim.DataImportBootReady;
 import org.opendaylight.genius.idmanager.IdManager;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.interfacemanager.rpcservice.InterfaceManagerRpcService;
@@ -69,6 +70,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(EvpnUtils.class).toInstance(Mockito.mock(EvpnUtils.class));
         bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
+        bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
     }
 
 }
