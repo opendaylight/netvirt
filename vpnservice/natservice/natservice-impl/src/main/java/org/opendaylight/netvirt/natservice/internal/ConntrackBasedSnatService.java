@@ -52,9 +52,6 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     protected final int snatCtStateMask = 0x40;
     protected final int dnatCtState = 0x80;
     protected final int dnatCtStateMask = 0x80;
-    protected final int loadStart = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
-    protected final int loadEnd = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
-            .METADATA_MASK_SH_FLAG.intValue());
     private static final Logger LOG = LoggerFactory.getLogger(ConntrackBasedSnatService.class);
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
@@ -287,16 +284,5 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         flowRef = flowRef + "INBOUND";
         syncFlow(dpnId, NwConstants.NAPT_PFIB_TABLE, flowRef, NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
-    }
-
-    private int mostSignificantBit(int value) {
-        int mask = 1 << 31;
-        for (int bitIndex = 31; bitIndex >= 0; bitIndex--) {
-            if ((value & mask) != 0) {
-                return bitIndex;
-            }
-            mask >>>= 1;
-        }
-        return -1;
     }
 }
