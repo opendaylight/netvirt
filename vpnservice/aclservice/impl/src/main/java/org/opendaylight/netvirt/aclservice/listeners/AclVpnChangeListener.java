@@ -66,24 +66,35 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
 
     @Override
     public void onAddInterfaceToDpnOnVpnEvent(AddInterfaceToDpnOnVpnEvent notification) {
+        LOG.info("onAddInterfaceToDpnOnVpnEvent_ref_80318nuske start method, notification: {}", notification);
         AddInterfaceEventData data = notification.getAddInterfaceEventData();
-        LOG.trace("Processing vpn interface {} addition", data.getInterfaceName());
+        LOG.info("ref_31756enuqm Processing vpn interface {} addition", data.getInterfaceName());
         Long vpnId = data.getVpnId();
+        LOG.info("onAddInterfaceToDpnOnVpnEvent_ref_39184enusj vpnId: {}", vpnId);
 
-        AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
-            (prevAclInterface, builder) -> {
-                if (prevAclInterface.isPortSecurityEnabled() && !prevAclInterface.getVpnId().contains(vpnId)) {
-                    List<Long> list = new ArrayList<>();
-                    if (prevAclInterface.getVpnId() != null) {
-                        list.addAll(prevAclInterface.getVpnId());
+        AclInterface aclInterface = null;
+        if (data.getInterfaceName() != null) {
+            aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
+                (prevAclInterface, builder) -> {
+                    LOG.info("onAddInterfaceToDpnOnVpnEvent_ref_23753nugac in lambda: prevAclInterface: {} builder {}",
+                            prevAclInterface, builder);
+                    if (prevAclInterface != null && prevAclInterface.isPortSecurityEnabled()
+                            && (prevAclInterface.getVpnId() == null || !prevAclInterface.getVpnId().contains(vpnId))) {
+                        List<Long> list = new ArrayList<>();
+                        if (vpnId != null) {
+                            list.add(vpnId);
+                        }
+                        if (prevAclInterface.getVpnId() != null) {
+                            list.addAll(prevAclInterface.getVpnId());
+                        }
+                        builder.vpnId(list);
+                        return true;
+                    } else {
+                        LOG.info("onAddInterfaceToDpnOnVpnEvent_ref_34528lxdgu in lambda: else way from if");
                     }
-                    list.add(vpnId);
-                    builder.vpnId(list);
-                    return true;
-                }
-
-                return false;
-            });
+                    return false;
+                });
+        }
 
         if (aclInterface != null) {
             aclServiceManager.notify(aclInterface, null, Action.BIND);
