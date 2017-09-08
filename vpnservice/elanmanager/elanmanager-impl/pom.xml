@@ -102,7 +102,13 @@
       <scope>test</scope>
       <type>test-jar</type>
     </dependency>
-    <dependency>
+  <dependency>
+      <groupId>org.opendaylight.genius</groupId>
+      <artifactId>mdsalutil-impl</artifactId>
+      <version>${genius.version}</version>
+      <scope>test</scope>
+  </dependency>
+      <dependency>
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>sal-binding-broker-impl</artifactId>
       <scope>test</scope>
@@ -155,11 +161,32 @@
       <version>${project.version}</version>
       <scope>test</scope>
     </dependency>
+      <dependency>
+          <groupId>org.opendaylight.genius</groupId>
+          <artifactId>itm-impl</artifactId>
+          <version>${genius.version}</version>
+          <scope>test</scope>
+      </dependency>
     <dependency>
       <groupId>org.opendaylight.genius</groupId>
       <artifactId>testutils</artifactId>
       <version>${genius.version}</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin</groupId>
+      <artifactId>openflowplugin-extension-nicira</artifactId>
+      <version>${openflowplugin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-flow-service</artifactId>
+      <version>${openflowplugin.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.openflowplugin.model</groupId>
+      <artifactId>model-flow-base</artifactId>
+      <version>${openflowplugin.version}</version>
     </dependency>
   </dependencies>
 
@@ -203,9 +230,24 @@
           </execution>
         </executions>
       </plugin>
+      
       <plugin>
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
+<!--
+          <executions>
+          <execution>
+          <id>test-compile</id>
+          <phase>validate</phase>
+              <goals>
+                  <goal>compile</goal>
+                  <goal>xtend-install-debug-info</goal>
+                  <goal>testCompile</goal>
+                  <goal>xtend-test-install-debug-info</goal>
+              </goals>
+          </execution>
+          </executions>
+          -->
       </plugin>
     </plugins>
   </build>
