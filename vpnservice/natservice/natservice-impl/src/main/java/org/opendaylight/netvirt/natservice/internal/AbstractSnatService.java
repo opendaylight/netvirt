@@ -26,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadMetadata;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -34,6 +35,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -66,6 +68,9 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final OdlInterfaceRpcService interfaceManager;
     private final IVpnManager vpnManager;
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
+    protected final int loadStart = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
+    protected final int loadEnd = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
+            .METADATA_MASK_SH_FLAG.intValue());
 
     public AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
             final ItmRpcService itmManager,
@@ -144,14 +149,23 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         }
         String externalIp = externalIps.get(0).getIpAddress();
         installInboundFibEntry(dpnId, externalIp, routerName, routerId, addOrRemove);
+        installInboundTerminatingServiceTblEntry(dpnId, routerId, externalIp, addOrRemove);
     }
 
     protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
             BigInteger dpnId, int addOrRemove) {
         String routerName = routers.getRouterName();
         Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+        List<ExternalIps> externalIps = routers.getExternalIps();
+        if (externalIps.isEmpty()) {
+            LOG.error("AbstractSnatService: installSnatCommonEntriesForNaptSwitch no externalIP present"
+                    + " for routerId {}",
+                    routerId);
+            return;
+        }
+        String externalIp = externalIps.get(0).getIpAddress();
         installDefaultFibRouteForSNAT(dpnId, routerId, addOrRemove);
-        installSnatMissEntry(dpnId, routerId, routerName, primarySwitchId, addOrRemove);
+        installSnatMissEntry(dpnId, routerId, routerName, primarySwitchId, externalIp, addOrRemove);
     }
 
     protected abstract void installSnatSpecificEntriesForNaptSwitch(Routers routers, BigInteger dpnId,
@@ -203,7 +217,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     protected void installSnatMissEntry(BigInteger dpnId, Long routerId, String routerName, BigInteger primarySwitchId,
-            int addOrRemove) {
+            String externalIp, int addOrRemove) {
         LOG.debug("installSnatMissEntry : Installing SNAT miss entry in switch {}", dpnId);
         List<ActionInfo> listActionInfoPrimary = new ArrayList<>();
         String ifNamePrimary = getTunnelInterfaceName(dpnId, primarySwitchId);
@@ -239,6 +253,59 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String flowRef = getFlowRef(dpnId, NwConstants.PSNAT_TABLE, routerId);
         syncFlow(dpnId, NwConstants.PSNAT_TABLE, flowRef,  NatConstants.DEFAULT_PSNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+        //Install the FIB entry for traffic destined to SNAT IP in Non-NAPT switch.
+        matches = new ArrayList<>();
+        actionsInfo = new ArrayList<>();
+        matches.add(new MatchEthernetType(0x0800L));
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            Long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
+            if (extSubnetId == NatConstants.INVALID_ID) {
+                LOG.error("installSnatMissEntry : external subnet id is invalid.");
+                return;
+            }
+            actionsInfo.add(new ActionSetFieldTunnelId(BigInteger.valueOf(extSubnetId)));
+            matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(extSubnetId),
+                    MetaDataUtil.METADATA_MASK_VRFID));
+        }
+        matches.add(new MatchIpv4Destination(externalIp, "32"));
+        LOG.debug("installSnatMissEntry : Setting the tunnel to the list of action infos {}", actionsInfo);
+        actionsInfo.add(new ActionGroup(groupId));
+        instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actionsInfo));
+        flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, routerId);
+        flowRef = flowRef + "inboundmiss" + externalIp;
+        syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef,  NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
+                NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+    }
+
+    protected void installInboundTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, String externalIp,
+            int addOrRemove) {
+        //Install the tunnel table entry in NAPT switch for inbound traffic to SNAP IP from a non a NAPT switch.
+        LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
+                + "for switch {}, routerId {}", dpnId, routerId);
+        List<MatchInfo> matches = new ArrayList<>();
+        matches.add(MatchEthernetType.IPV4);
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            String routerName = NatUtil.getRouterName(dataBroker, routerId);
+            long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);
+            if (extSubnetId == NatConstants.INVALID_ID) {
+                LOG.error("installInboundTerminatingServiceTblEntry : external subnet id is invalid.");
+                return;
+            }
+            matches.add(new MatchTunnelId(BigInteger.valueOf(extSubnetId)));
+            ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
+                    .getVpnIdMetadata(extSubnetId), loadStart, loadEnd);
+            actionsInfos.add(actionLoadMeta);
+        }
+        actionsInfos.add(new ActionNxResubmit(NwConstants.INBOUND_NAPT_TABLE));
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        String flowRef = getFlowRef(dpnId, NwConstants.INTERNAL_TUNNEL_TABLE, routerId.longValue());
+        flowRef = flowRef + "INBOUND";
+        syncFlow(dpnId,  NwConstants.INTERNAL_TUNNEL_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
+                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
+
     }
 
     protected void installDefaultFibRouteForSNAT(BigInteger dpnId, Long extNetId, int addOrRemove) {
@@ -347,5 +414,16 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                     + "between {} and {}", srcDpId, dstDpId);
         }
         return null;
+    }
+
+    private int mostSignificantBit(int value) {
+        int mask = 1 << 31;
+        for (int bitIndex = 31; bitIndex >= 0; bitIndex--) {
+            if ((value & mask) != 0) {
+                return bitIndex;
+            }
+            mask >>>= 1;
+        }
+        return -1;
     }
 }
