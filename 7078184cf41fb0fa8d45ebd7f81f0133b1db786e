@@ -71,6 +71,75 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_31842b5d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T17:15:19Z",
+      "side": 1,
+      "message": "the same, you need at first verify, maybe IPv6Family config already has ertList and irtList",
+      "range": {
+        "startLine": 394,
+        "startChar": 3,
+        "endLine": 395,
+        "endChar": 49
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_11892775",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T17:15:19Z",
+      "side": 1,
+      "message": "and here you will add new irt, ert to existed lists, not always to new",
+      "range": {
+        "startLine": 400,
+        "startChar": 20,
+        "endLine": 400,
+        "endChar": 59
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f1bbb30c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 431,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T17:15:19Z",
+      "side": 1,
+      "message": "I would change an order of these conditions, more precise (vpnTargetList !\u003d null\n                   \u0026\u0026 original.getType().compareTo(Type.L3) \u003d\u003d 0\n                   \u0026\u0026 update.getType().compareTo(Type.L2) \u003d\u003d 0)\n\ngoes first.\n\nIt seems me more sane",
+      "range": {
+        "startLine": 420,
+        "startChar": 1,
+        "endLine": 431,
+        "endChar": 9
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_b13bfbcf",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 1
@@ -87,6 +156,98 @@
         "startChar": 74,
         "endLine": 185,
         "endChar": 82
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_113e478c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T17:15:19Z",
+      "side": 1,
+      "message": "We update VPNinstance in Config DS, but what will happened with VpnInstanceOpDataEntry.\n\nI think, that at first VpnInstanceOpDataEntry should be updated, but I\u0027m not sure.",
+      "range": {
+        "startLine": 286,
+        "startChar": 8,
+        "endLine": 286,
+        "endChar": 20
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_51443f1a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T17:15:19Z",
+      "side": 1,
+      "message": "We should implement lock and unlock at vpnmanager level. neutronvpn top-layer uses vpnmanager. Hence vpnmanager can not use neutronvpn.",
+      "range": {
+        "startLine": 295,
+        "startChar": 25,
+        "endLine": 295,
+        "endChar": 38
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f15293dc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T17:15:19Z",
+      "side": 1,
+      "message": "should be called in appropriate method: onSubnetAdded",
+      "range": {
+        "startLine": 309,
+        "startChar": 17,
+        "endLine": 309,
+        "endChar": 46
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3160aba4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T17:15:19Z",
+      "side": 1,
+      "message": "I\u0027m not sure that we can operate with VpnInstance, It seems that at this layer you should update VpnInstanceOpDataEntry and these changes will be populated to Config DS automatically",
+      "range": {
+        "startLine": 319,
+        "startChar": 8,
+        "endLine": 319,
+        "endChar": 31
       },
       "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
