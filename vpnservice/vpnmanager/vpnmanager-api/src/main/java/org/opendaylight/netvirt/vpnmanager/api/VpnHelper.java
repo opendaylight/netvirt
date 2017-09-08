@@ -124,6 +124,17 @@ public class VpnHelper {
         return new VpnInstanceNamesBuilder().setVpnName(vpnName).setAssociatedSubnetType(subnetType).build();
     }
 
+    public static void removeVpnInterfaceVpnInstanceNamesFromList(String vpnName,
+                               List<VpnInstanceNames> vpnInstanceList) {
+        for (VpnInstanceNames vpnInstance : vpnInstanceList) {
+            if (vpnInstance.getVpnName().equals(vpnName)) {
+                vpnInstanceList.remove(vpnInstance);
+                return;
+            }
+        }
+        return;
+    }
+
     public static boolean vpnInterfaceVpnInstanceNamesContainsVpnName(String vpnName,
                                                           List<VpnInstanceNames> vpnInstanceList) {
         for (VpnInstanceNames vpnInstance : vpnInstanceList) {
