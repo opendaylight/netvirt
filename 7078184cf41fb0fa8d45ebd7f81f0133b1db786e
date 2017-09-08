@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "ba1f61a0_71a34300",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T16:47:36Z",
+      "side": 1,
+      "message": "Maybe, it will be better to simplify code here and utilize good old lists and for() structure.\n\nparallelStream() - you need to be really sure, that it works as expected",
+      "range": {
+        "startLine": 354,
+        "startChar": 2,
+        "endLine": 354,
+        "endChar": 18
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_715503f9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 1
@@ -18,6 +41,29 @@
         "startChar": 2,
         "endLine": 384,
         "endChar": 19
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_91ad17ec",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2017-09-08T16:47:36Z",
+      "side": 1,
+      "message": "Here you obtain RD list from config, which was taken from IPv4Family() ! \n\nImagine, that we have only IPv6 infrastructure, i.e. VPN Instance has IPv4Family config by default with empty RDs list (which was inherited from corresponded internal VPN)  and IPv6Family config with not-empty ! RDs list. \n\nI think, we need to keep this not-empty ! RDs list from IPv6 Family config.  \n\nThat\u0027s why it is better to get configs from both IPFamilies and then merge its RD lists.",
+      "range": {
+        "startLine": 386,
+        "startChar": 33,
+        "endLine": 386,
+        "endChar": 64
       },
       "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
