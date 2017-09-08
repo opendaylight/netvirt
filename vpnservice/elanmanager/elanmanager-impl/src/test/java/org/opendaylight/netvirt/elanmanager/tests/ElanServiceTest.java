@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -65,10 +66,12 @@ public class ElanServiceTest {
         singleTxdataBroker = new SingleTransactionDataBroker(dataBroker);
     }
 
+    @Ignore
     @Test public void elanServiceTestModule() {
         // Intentionally empty; the goal is just to first test the ElanServiceTestModule
     }
 
+    @Ignore
     @Test public void createElanInstance() throws Exception {
         // Given
         // When
@@ -81,6 +84,7 @@ public class ElanServiceTest {
         assertNotNull(elanService.getElanInstance(TEST_ELAN_NAME));
     }
 
+    @Ignore
     @Test public void addElanInterface() throws Exception {
         // Given
         elanService.createElanInstance(TEST_ELAN_NAME, 12345, "...");
