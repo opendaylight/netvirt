@@ -477,6 +477,11 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     oldVpnId = (subnetMapOld != null) ? subnetMapOld.getVpnId() : null;
                 }
             }
+	    // get old list of VpnId
+	    // get new list of VpnId
+	    // if one of the old is not in the new list, then suppress interface, and recreate with new
+	    // if at least one vpn id in new list, call createvpninterface
+	    // createVpnInterface must have a list of vpnids as parameter
             Uuid newVpnId = null;
             for (Uuid snId: updateSnMapsIds) {
                 Subnetmap subnetMapNew = nvpnManager.updateSubnetmapNodeWithPorts(snId, portupdate.getUuid(), null);
