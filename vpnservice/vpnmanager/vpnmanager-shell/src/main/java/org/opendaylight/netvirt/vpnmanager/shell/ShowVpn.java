@@ -98,7 +98,6 @@ public class ShowVpn extends OsgiCommandSupport {
                 }
                 VpnAfConfig addrFamilly = vpnInstance.getIpv4Family() != null ? vpnInstance.getIpv4Family() :
                     vpnInstance.getIpv6Family();
-
                 session.getConsole().println(
                         String.format("%-32s  %-10s  %-10s  %-10s", vpnInstance.getVpnInstanceName(),
                                 addrFamilly.getRouteDistinguisher(), configCount, operCount));
