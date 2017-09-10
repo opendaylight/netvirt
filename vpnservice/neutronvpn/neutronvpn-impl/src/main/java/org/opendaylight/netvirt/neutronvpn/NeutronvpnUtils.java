@@ -327,6 +327,29 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    public static Uuid getNetworkIdFromSubnetId(DataBroker broker, Uuid subnetId) {
+        InstanceIdentifier<NetworkMaps> id = InstanceIdentifier.builder(NetworkMaps.class).build();
+        List<NetworkMap> networkMapList = new ArrayList<>();
+        Optional<NetworkMaps> optionalNetworkMaps = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (subnetId == null) {
+            LOG.debug("getNetworkIdFromFromSubnetId: subnet null");
+        }
+        if (optionalNetworkMaps.isPresent()) {
+            networkMapList = optionalNetworkMaps.get().getNetworkMap();
+            for (NetworkMap networkMap : networkMapList) {
+                List<Uuid> subnetIdList = networkMap.getSubnetIdList();
+                for (Uuid snId : subnetIdList) {
+                    if (snId.getValue().matches(subnetId.getValue())) {
+                        LOG.debug("getNetworkIdFromFromSubnetId: subnet {} returned network {}",
+                            subnetId.getValue(), networkMap.getNetworkId().getValue());
+                        return networkMap.getNetworkId();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     protected static List<Uuid> getPortIdsFromSubnetId(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier id = buildSubnetMapIdentifier(subnetId);
         Optional<Subnetmap> optionalSubnetmap = read(broker, LogicalDatastoreType.CONFIGURATION, id);
