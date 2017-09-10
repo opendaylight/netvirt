@@ -12,6 +12,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 import java.math.BigInteger;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -157,8 +158,15 @@ public class FibHelper {
         if (prefix == null || prefix.length() < 7) {
             return rep;
         }
-        String ip = getIpFromPrefix(prefix);
-        return NWUtil.isIpv4Address(ip);
+        try {
+            String ip = getIpFromPrefix(prefix);
+            java.net.Inet4Address ipVersOk = (Inet4Address) java.net.Inet4Address.getByName(ip);
+            rep = true;
+        } catch (SecurityException | UnknownHostException | ClassCastException e) {
+            rep = false;
+            return rep;
+        }
+        return rep;
     }
 
     /** get true if this prefix is an IPv6 version, false otherwise.
