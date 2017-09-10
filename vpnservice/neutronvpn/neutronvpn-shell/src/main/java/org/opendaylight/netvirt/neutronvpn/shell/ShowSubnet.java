@@ -93,12 +93,14 @@ public class ShowSubnet extends OsgiCommandSupport {
             Subnetmap data = sn.get();
             System.out.println("Fetching subnetopdataentry for given subnetId\n");
             System.out.println("------------------------------------------------------------------------------");
+            String getRouterInterfacePortId = (data.getRouterInterfacePortId() != null
+                       ? data.getRouterInterfacePortId().getValue() : "null");
             System.out.println("Key: " + data.getKey() + "\n" + "VpnId: " + data.getVpnId() + "\n"
                     + "DirectPortList: " + data.getDirectPortList() + "\n" + "NetworkId: " + data.getNetworkId()
                     + "\n" + "Network-type: " + data.getNetworkType() + "\n" + "Network-segmentation-Id: "
                     + data.getSegmentationId() + "\n" + "PortList: " + data.getPortList() + "\n"
                     + "RouterInterfaceFixedIp: " + data.getRouterInterfaceFixedIp() + "\n"
-                    + "RouterInterfacePortId: " + data.getRouterInterfacePortId().getValue() + "\n"
+                    + "RouterInterfacePortId: " + getRouterInterfacePortId + "\n"
                     + "RouterIntfMacAddress: " + data.getRouterIntfMacAddress() + "\n" + "SubnetIp: "
                     + data.getSubnetIp() + "\n" + "TenantId: " + data.getTenantId() + "\n");
             System.out.println("------------------------------------------------------------------------------");
