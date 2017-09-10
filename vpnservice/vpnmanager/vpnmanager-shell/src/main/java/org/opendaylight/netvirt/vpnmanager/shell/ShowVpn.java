@@ -96,12 +96,26 @@ public class ShowVpn extends OsgiCommandSupport {
                     operCount = instanceNameToOperInterfaceMap.get(vpnInstance.getVpnInstanceName());
                     totalOperCount = totalOperCount + operCount;
                 }
-                VpnAfConfig addrFamilly = vpnInstance.getIpv4Family() != null ? vpnInstance.getIpv4Family() :
-                    vpnInstance.getIpv6Family();
-
+                VpnAfConfig addrFamilly = vpnInstance.getVpnConfig();
+                if (addrFamilly == null) {
+                    session.getConsole().println(
+                        String.format("Non initialised VPN Instance %-32s",
+                             vpnInstance.getVpnInstanceName()));
+                    continue;
+                }
                 session.getConsole().println(
                         String.format("%-32s  %-10s  %-10s  %-10s", vpnInstance.getVpnInstanceName(),
                                 addrFamilly.getRouteDistinguisher(), configCount, operCount));
+                if (vpnInstance.getIpv4Family() != null) {
+                    session.getConsole().println(
+                        String.format("IPv4 is configured for %-32s",
+                             vpnInstance.getVpnInstanceName()));
+                }
+                if (vpnInstance.getIpv6Family() != null) {
+                    session.getConsole().println(
+                        String.format("IPv6 is configured for %-32s",
+                             vpnInstance.getVpnInstanceName()));
+                }
             }
             session.getConsole().println("-----------------------------------------------------------------------");
             session.getConsole().println(

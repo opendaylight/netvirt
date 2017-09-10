@@ -765,6 +765,13 @@ module l3vpn {
 
 
 
+      container vpn-config {
+        description
+          "The Common VPN configuration for both IPv4 and IPv6 families.";
+
+        uses vpn-af-config;
+      }
+
       container ipv4-family {
         description
           "The IPv4 address family is enabled for the VPN instance.";
