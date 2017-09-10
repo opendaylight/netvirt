@@ -333,7 +333,7 @@ public final class VpnUtil {
     }
 
     public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
+        VpnAfConfig vpnConfig = vpnInstance.getVpnConfig();
         LOG.trace("vpnConfig {}", vpnConfig);
         return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
                 vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
@@ -1840,12 +1840,12 @@ public final class VpnUtil {
                 .VpnInstanceBuilder(vpnInstance);
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (vpnInstance.getIpv4Family() == null)) {
             Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
-            vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build()).build();
+            vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build());
             isVpnInstanceChanged = true;
         }
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (vpnInstance.getIpv6Family() == null)) {
             Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
-            vpnInstanceBuilder.setIpv6Family(ipv6vpnBuilder.build()).build();
+            vpnInstanceBuilder.setIpv6Family(ipv6vpnBuilder.build());
             isVpnInstanceChanged = true;
         }
         if (isVpnInstanceChanged == false) {
@@ -1853,11 +1853,11 @@ public final class VpnUtil {
             return;
         }
         boolean isLockAcquired = false;
+        VpnInstance newVpn = vpnInstanceBuilder.build();
         isLockAcquired = NeutronUtils.lock(vpnName);
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
-                vpnInstanceBuilder.build());
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
         if (isLockAcquired) {
             NeutronUtils.unlock(vpnName);
         }
@@ -1883,8 +1883,8 @@ public final class VpnUtil {
                  new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
                        .l3vpn.rev140815.vpn.instances.VpnInstanceBuilder(vpnInstance);
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-            LOG.info("withdrawIpFamily : vpnName {} withdrawn from IPv4 - mute", vpnName);
-            // vpnInstanceBuilder.setIpv4Family(null).build();
+            LOG.info("withdrawIpFamily : vpnName {} withdrawn from IPv4", vpnName);
+            vpnInstanceBuilder.setIpv4Family(null).build();
         }
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
             LOG.info("withdrawIpFamilyFromVpn : vpnName {} withdrawn from IPv6", vpnName);
