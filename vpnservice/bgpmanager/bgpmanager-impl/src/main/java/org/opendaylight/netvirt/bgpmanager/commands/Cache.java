@@ -242,7 +242,15 @@ public class Cache extends OsgiCommandSupport {
                 int safi = multipath.getSafi().intValue();
                 Boolean enabled = multipath.isMultipathEnabled();
                 if (enabled) {
-                    ps.printf("\t%-16s  %s\n\n", AFSTR, afi == 1 && safi == 5 ? "vpnv4" : "Unknown");
+                    if (afi == 1 && safi == 5) {
+                        ps.printf("\t%-16s  %s\n\n", AFSTR, "vpnv4");
+                    } else if (afi == 2 && safi == 5) {
+                        ps.printf("\t%-16s  %s\n\n", AFSTR, "vpnv6");
+                    } else if (afi == 3 && safi == 6) {
+                        ps.printf("\t%-16s  %s\n\n", AFSTR, "evpn");
+                    } else {
+                        ps.printf("\t%-16s  %s\n\n", AFSTR, "Unknown");
+                    }
                     if (vrfm != null) {
                         ps.printf("\t%-16s  %s\n", RDSTR, MPSTR);
                         for (VrfMaxpath vrfMaxpath : vrfm) {
