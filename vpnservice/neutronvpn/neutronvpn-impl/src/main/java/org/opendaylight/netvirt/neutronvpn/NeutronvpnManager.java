@@ -553,17 +553,16 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 ipv6vpnBuilder.setRouteDistinguisher(rd);
             }
 
-            VpnInstance newVpn = null;
             if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-                newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
+                builder.setIpv4Family(ipv4vpnBuilder.build());
             }
             if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
-                newVpn = builder.setIpv6Family(ipv6vpnBuilder.build()).build();
+                builder.setIpv6Family(ipv6vpnBuilder.build());
             }
             if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
-                // no subnets presented in router set by default support of IPv4 family
-                newVpn = builder.setIpv4Family(ipv4vpnBuilder.build()).build();
+                builder.setIpv4Family(ipv4vpnBuilder.build());
             }
+            VpnInstance newVpn = builder.build();
             isLockAcquired = NeutronUtils.lock(vpnName);
             LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
