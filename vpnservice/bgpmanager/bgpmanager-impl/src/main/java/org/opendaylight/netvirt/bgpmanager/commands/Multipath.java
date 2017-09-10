@@ -40,7 +40,7 @@ public class Multipath extends OsgiCommandSupport {
 
     @Option(name = AF, aliases = {"-f"},
             description = "Address family",
-            required = true, multiValued = false)
+            required = false, multiValued = false)
 
     String addrFamily;
 
@@ -60,18 +60,28 @@ public class Multipath extends OsgiCommandSupport {
 
         BgpManager bm = Commands.getBgpManager();
 
-        af_afi afi = null;
-        af_safi safi = null;
+        af_afi afi = af_afi.findByValue(1);
+        af_safi safi = af_safi.findByValue(5);
 
         if (addrFamily != null) {
-            if (!addrFamily.equals("lu"))  {
-                session.getConsole().println("error: " + AF + " must be lu");
+            if (!addrFamily.equals("lu") && !addrFamily.equals("vpnv6")
+                 && !addrFamily.equals("evpn")) {
+                session.getConsole().println("error: " + AF + " must be lu/evpn/vpnv6 ");
                 return null;
             }
-
-            // for WP 3 Qbgp, only IP/MPLS_VPN supported
-            afi = af_afi.AFI_IP;
-            safi = af_safi.SAFI_MPLS_VPN;
+            if (addrFamily.equals("vpnv6")) {
+                afi = af_afi.findByValue(2);
+                safi = af_safi.findByValue(5);
+            } else if (addrFamily.equals("evpn")) {
+                afi = af_afi.findByValue(3);
+                safi = af_safi.findByValue(6);
+            } else if (addrFamily.equals("lu")) {
+                afi = af_afi.findByValue(1);
+                safi = af_safi.findByValue(4);
+            } else { // vpnv4
+                afi = af_afi.findByValue(1);
+                safi = af_safi.findByValue(5);
+            }
         }
 
         if (maxpath != null) {
