@@ -103,12 +103,11 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
       public void deleteVrf(String rd, boolean removeFibTable, AddressFamily addressFamily) {
         boolean ret = false;
-        ret = bcm.delVrf(rd, addressFamily);
-        if (!ret && removeFibTable) {
-            LOG.info("can not delete rd {} from RIB. not empty", rd);
-        } else if (ret && removeFibTable) {
+        if (removeFibTable) {
             fibDSWriter.removeVrfFromDS(rd);
-        } else {
+        }
+        ret = bcm.delVrf(rd, addressFamily);
+        if (ret == false  || removeFibTable == false) {
             LOG.debug("on void deleteVrf rd {} not delete from RIB. because ret is {} or removeFibTable is {}",
                     rd, ret, removeFibTable);
         }
