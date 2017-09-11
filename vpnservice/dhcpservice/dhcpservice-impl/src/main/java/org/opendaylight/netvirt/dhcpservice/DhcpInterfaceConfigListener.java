@@ -8,10 +8,7 @@
 
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -62,7 +59,6 @@ public class DhcpInterfaceConfigListener
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
         dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(del.getName()), () -> {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             IfTunnel tunnelInterface = del.getAugmentation(IfTunnel.class);
             IfL2vlan vlanInterface = del.getAugmentation(IfL2vlan.class);
             String interfaceName = del.getName();
@@ -74,17 +70,16 @@ public class DhcpInterfaceConfigListener
                         LOG.trace("Calling handleTunnelStateDown for tunnelIp {} and interface {}",
                                 tunnelIp, interfaceName);
                     }
-                    dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp,
-                            interfce.getDatapathNodeIdentifier(), futures);
-                    return futures;
+                    return dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp,
+                            interfce.getDatapathNodeIdentifier());
                 }
             }
             if (vlanInterface != null) {
                 WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
                 DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
-                futures.add(unbindTx.submit());
+                return Collections.singletonList(unbindTx.submit());
             }
-            return futures;
+            return Collections.emptyList();
         }, DhcpMConstants.RETRY_COUNT);
     }
 
@@ -96,11 +91,10 @@ public class DhcpInterfaceConfigListener
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
         dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(add.getName()), () -> {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             String interfaceName = add.getName();
             IfL2vlan vlanInterface = add.getAugmentation(IfL2vlan.class);
             if (vlanInterface == null) {
-                return futures;
+                return Collections.emptyList();
             }
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
@@ -110,9 +104,9 @@ public class DhcpInterfaceConfigListener
                     LOG.debug("Binding DHCP service for interface {}", interfaceName);
                 }
                 DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
-                futures.add(bindServiceTx.submit());
+                return Collections.singletonList(bindServiceTx.submit());
             }
-            return futures;
+            return Collections.emptyList();
         }, DhcpMConstants.RETRY_COUNT);
     }
 
