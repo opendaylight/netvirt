@@ -22,12 +22,12 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceRemoveWorkerOnElanInterface.class);
 
-    private String interfaceName;
-    private ElanInstance elanInfo;
-    private InterfaceInfo interfaceInfo;
-    private boolean isInterfaceStateRemoved;
-    private ElanInterfaceManager dataChangeListener;
-    private boolean isLastElanInterface;
+    private final String interfaceName;
+    private final ElanInstance elanInfo;
+    private final InterfaceInfo interfaceInfo;
+    private final boolean isInterfaceStateRemoved;
+    private final ElanInterfaceManager dataChangeListener;
+    private final boolean isLastElanInterface;
 
     public InterfaceRemoveWorkerOnElanInterface(String interfaceName, ElanInstance elanInfo,
             InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved, ElanInterfaceManager dataChangeListener,
@@ -52,8 +52,8 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
-            dataChangeListener.removeEntriesForElanInterface(futures, elanInfo, interfaceInfo, interfaceName,
-                    isInterfaceStateRemoved, isLastElanInterface);
+            futures.addAll(dataChangeListener.removeEntriesForElanInterface(elanInfo, interfaceInfo, interfaceName,
+                    isInterfaceStateRemoved, isLastElanInterface));
         } catch (RuntimeException e) {
             LOG.error("Error while processing for interface {} and elan {}", interfaceName, elanInfo, e);
             ElanUtils.addToListenableFutureIfTxException(e, futures);
