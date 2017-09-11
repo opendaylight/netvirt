@@ -2608,6 +2608,7 @@ public class BgpConfigurationManager {
 
     public boolean delVrf(String rd, AddressFamily addressFamily) {
         if (addressFamily == null) {
+            LOG.error("delVrf: vrf {}, addressFamily invalid", rd);
             return false;
         }
         AddressFamiliesVrfBuilder adfBuilder = new AddressFamiliesVrfBuilder();
@@ -2623,7 +2624,7 @@ public class BgpConfigurationManager {
         }
         Vrfs vrfOriginal = BgpUtil.getVrfFromRd(rd);
         if (vrfOriginal == null) {
-            LOG.debug("delVrf is calling but any vrf with this rd {] is existing. step aborded", rd);
+            LOG.error("delVrf: no vrf with existing rd {}. step aborted", rd);
             return false;
         }
 
@@ -2656,15 +2657,13 @@ public class BgpConfigurationManager {
                 SingleTransactionDataBroker.syncWrite(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, iid, vrfOriginal);
             } catch (TransactionCommitFailedException e) {
-                LOG.error("Error updating VRF to datastore", e);
+                LOG.error("delVrf: Error updating VRF to datastore", e);
                 throw new RuntimeException(e);
             }
         }
-        if (adfListOriginal.isEmpty()) {
-            delete(iidFinal);
-            return true;
-        }
-        return false;
+        // delete vrf with relevant afi and safi
+        delete(iidFinal);
+        return true;
     }
 
     public void setMultipathStatus(af_afi afi, af_safi safi, boolean enable) {
