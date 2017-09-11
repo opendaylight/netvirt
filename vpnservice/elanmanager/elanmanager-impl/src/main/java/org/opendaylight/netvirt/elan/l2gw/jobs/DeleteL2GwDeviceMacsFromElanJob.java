@@ -10,10 +10,10 @@ package org.opendaylight.netvirt.elan.l2gw.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -39,9 +39,6 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(DeleteL2GwDeviceMacsFromElanJob.class);
 
-    /** The broker. */
-    private final DataBroker broker;
-
     /** The elan name. */
     private final String elanName;
 
@@ -54,8 +51,6 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
     /**
      * Instantiates a new delete l2 gw device macs from elan job.
      *
-     * @param broker
-     *            the broker
      * @param elanName
      *            the elan name
      * @param l2GwDevice
@@ -63,9 +58,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
      * @param macAddresses
      *            the mac addresses
      */
-    public DeleteL2GwDeviceMacsFromElanJob(DataBroker broker, String elanName, L2GatewayDevice l2GwDevice,
-            List<MacAddress> macAddresses) {
-        this.broker = broker;
+    public DeleteL2GwDeviceMacsFromElanJob(String elanName, L2GatewayDevice l2GwDevice, List<MacAddress> macAddresses) {
         this.elanName = elanName;
         this.l2GwDevice = l2GwDevice;
         this.macAddresses = macAddresses;
@@ -100,7 +93,6 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
 
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(this.elanName);
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
             if (!otherDevice.getHwvtepNodeId().equals(this.l2GwDevice.getHwvtepNodeId())
                     && !ElanL2GatewayUtils.areMLAGDevices(this.l2GwDevice, otherDevice)) {
@@ -110,7 +102,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
                 // TODO: why to create a new arraylist for uninstallFuture?
             }
         }
-        return futures;
+        return Collections.emptyList();
     }
 
     /**

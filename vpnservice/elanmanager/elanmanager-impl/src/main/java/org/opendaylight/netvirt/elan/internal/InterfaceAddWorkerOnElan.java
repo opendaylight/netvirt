@@ -23,15 +23,14 @@ public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceAddWorkerOnElan.class);
 
-    private String key;
-    private ElanInterface elanInterface;
-    private ElanInstance elanInstance;
-    private InterfaceInfo interfaceInfo;
-    private ElanInterfaceManager dataChangeListener;
+    private final String key;
+    private final ElanInterface elanInterface;
+    private final ElanInstance elanInstance;
+    private final InterfaceInfo interfaceInfo;
+    private final ElanInterfaceManager dataChangeListener;
 
     public InterfaceAddWorkerOnElan(String key, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
                                     ElanInstance elanInstance, ElanInterfaceManager dataChangeListener) {
-        super();
         this.key = key;
         this.elanInterface = elanInterface;
         this.interfaceInfo = interfaceInfo;
@@ -51,7 +50,7 @@ public class InterfaceAddWorkerOnElan implements Callable<List<ListenableFuture<
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
-            dataChangeListener.addElanInterface(futures, elanInterface, interfaceInfo, elanInstance);
+            futures.addAll(dataChangeListener.addElanInterface(elanInterface, interfaceInfo, elanInstance));
         } catch (RuntimeException e) {
             LOG.error("Error while processing key {} for elan interface {} ", key, elanInterface, e);
             ElanUtils.addToListenableFutureIfTxException(e, futures);

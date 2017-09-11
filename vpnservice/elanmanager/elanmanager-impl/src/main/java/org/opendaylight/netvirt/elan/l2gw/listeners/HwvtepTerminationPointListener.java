@@ -91,11 +91,6 @@ public class HwvtepTerminationPointListener
     }
 
     @Override
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public void close() {
-    }
-
-    @Override
     protected void removed(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
         LOG.trace("physical locator removed {}", identifier);
         teps.remove(identifier);
@@ -167,10 +162,9 @@ public class HwvtepTerminationPointListener
                     String newPortId = portAdded.getTpId().getValue();
                     NodeId hwvtepNodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
                     List<VlanBindings> vlanBindings = getVlanBindings(l2GwConns, hwvtepNodeId, psName, newPortId);
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(hwvtepNodeId, psName,
-                            newPortId, vlanBindings));
-                    return futures;
+                    return Collections.singletonList(
+                            elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(hwvtepNodeId, psName, newPortId,
+                                    vlanBindings));
                 }
             } else {
                 LOG.error("{} details are not present in L2Gateway Cache", psName);
@@ -185,11 +179,10 @@ public class HwvtepTerminationPointListener
                                                            HwvtepPhysicalPortAugmentation portAugmentation,
                                                            TerminationPoint portDeleted,
                                                            NodeId psNodeId) throws ReadFailedException {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
         final ReadWriteTransaction tx = broker.newReadWriteTransaction();
         final SettableFuture settableFuture = SettableFuture.create();
-        futures.add(settableFuture);
+        List<ListenableFuture<Void>> futures = Collections.singletonList(settableFuture);
         Futures.addCallback(
                 tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid), new SettableFutureCallback(settableFuture) {
                     @Override

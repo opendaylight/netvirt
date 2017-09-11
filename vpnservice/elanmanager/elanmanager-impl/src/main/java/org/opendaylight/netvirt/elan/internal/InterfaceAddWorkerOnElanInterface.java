@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
@@ -19,17 +18,16 @@ import org.slf4j.LoggerFactory;
 
 public class InterfaceAddWorkerOnElanInterface implements Callable<List<ListenableFuture<Void>>> {
 
-    private String key;
-    private ElanInterface elanInterface;
-    private ElanInstance elanInstance;
-    private InterfaceInfo interfaceInfo;
-    private ElanInterfaceManager dataChangeListener;
-    private boolean isFirstInterfaceInDpn;
+    private final String key;
+    private final ElanInterface elanInterface;
+    private final ElanInstance elanInstance;
+    private final InterfaceInfo interfaceInfo;
+    private final ElanInterfaceManager dataChangeListener;
+    private final boolean isFirstInterfaceInDpn;
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceAddWorkerOnElanInterface.class);
 
     public InterfaceAddWorkerOnElanInterface(String key, ElanInterface elanInterface, InterfaceInfo interfaceInfo,
             ElanInstance elanInstance, boolean isFirstInterfaceInDpn, ElanInterfaceManager dataChangeListener) {
-        super();
         this.key = key;
         this.elanInterface = elanInterface;
         this.interfaceInfo = interfaceInfo;
@@ -49,10 +47,8 @@ public class InterfaceAddWorkerOnElanInterface implements Callable<List<Listenab
     public List<ListenableFuture<Void>> call() throws Exception {
         LOG.info("Handling elan interface {} add for elan {} ", elanInterface.getName(),
                 elanInstance.getElanInstanceName());
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
-        dataChangeListener.setupEntriesForElanInterface(futures, elanInstance, elanInterface, interfaceInfo,
+        return dataChangeListener.setupEntriesForElanInterface(elanInstance, elanInterface, interfaceInfo,
                 isFirstInterfaceInDpn);
-        return futures;
     }
 
 }

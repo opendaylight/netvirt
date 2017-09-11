@@ -352,7 +352,6 @@ public class ElanL2GatewayUtils {
             String jobKey = elan.getElanInstanceName() + ":" + macToBeAdded;
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "install l2gw macs in dmac table",
                 () -> {
-                    List<ListenableFuture<Void>> fts = new ArrayList<>();
                     if (doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                         for (DpnInterfaces elanDpn : elanDpns) {
                             elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(elanDpn.getDpId(),
@@ -363,7 +362,7 @@ public class ElanL2GatewayUtils {
                         LOG.trace("Skipping install of dmac flows for mac {} as it is not found in cache",
                                 macToBeAdded);
                     }
-                    return fts;
+                    return Collections.emptyList();
                 });
         }
         final IpAddress extL2GwDeviceTepIp = extL2GwDevice.getTunnelIp();
@@ -373,15 +372,15 @@ public class ElanL2GatewayUtils {
         String jobKey = "hwvtep:" + elan.getElanInstanceName() + ":" + macToBeAdded;
         ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "install remote ucast macs in l2gw device",
             () -> {
-                List<ListenableFuture<Void>> fts = new ArrayList<>();
                 if (!doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                     LOG.trace(
                             "Skipping install of remote ucast macs {} in l2gw device as it is not found in cache",
                             macToBeAdded);
-                    return fts;
+                    return Collections.emptyList();
                 }
                 ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
                         .getInvolvedL2GwDevices(elanInstanceName);
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
                     if (!otherDevice.getHwvtepNodeId().equals(extDeviceNodeId)
                             && !areMLAGDevices(extL2GwDevice, otherDevice)) {
@@ -407,10 +406,10 @@ public class ElanL2GatewayUtils {
                                         logicalSwitchName, hwvtepId), error);
                             }
                         });
-                        fts.add(ft);
+                        futures.add(ft);
                     }
                 }
-                return fts;
+                return futures;
             });
     }
 
@@ -454,20 +453,20 @@ public class ElanL2GatewayUtils {
                 String jobKey = elanName + ":" + mac.getValue();
                 ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "delete l2gw macs from dmac table",
                     () -> {
-                        List<ListenableFuture<Void>> fts = new ArrayList<>();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
                         for (DpnInterfaces elanDpn : elanDpns) {
                             BigInteger dpnId = elanDpn.getDpId();
                             // This delete operation has been batched using resource batch manager.
-                            fts.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
+                            futures.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
                                     l2GwDevice.getHwvtepNodeId(), mac.getValue().toLowerCase()));
                         }
-                        return fts;
+                        return futures;
                     });
             }
         }
 
         //Batched job
-        DeleteL2GwDeviceMacsFromElanJob job = new DeleteL2GwDeviceMacsFromElanJob(broker, elanName, l2GwDevice,
+        DeleteL2GwDeviceMacsFromElanJob job = new DeleteL2GwDeviceMacsFromElanJob(elanName, l2GwDevice,
                 macAddresses);
         ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, job.getJobKey(),
                 "delete remote ucast macs in l2gw devices", job);
@@ -501,13 +500,9 @@ public class ElanL2GatewayUtils {
                 for (final MacAddress mac : localMacs) {
                     String jobKey = elanName + ":" + mac.getValue();
                     ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey,
-                            "delete l2gw macs from dmac table", () -> {
-                            List<ListenableFuture<Void>> futures = new ArrayList<>();
-
-                            futures.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elanTag, dpnId,
-                                    l2GwDevice.getHwvtepNodeId(), mac.getValue()));
-                            return futures;
-                        });
+                            "delete l2gw macs from dmac table",
+                        () -> elanDmacUtils.deleteDmacFlowsToExternalMac(elanTag, dpnId,
+                                l2GwDevice.getHwvtepNodeId(), mac.getValue()));
                 }
             }
         }
@@ -956,16 +951,15 @@ public class ElanL2GatewayUtils {
         LOG.info("Deleting L2GatewayDevice [{}] UcastLocalMacs from elan [{}]", l2GatewayDevice.getHwvtepNodeId(),
                 elanName);
 
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         ElanInstance elan = ElanUtils.getElanInstanceByName(broker, elanName);
         if (elan == null) {
             LOG.error("Could not find Elan by name: {}", elanName);
-            return futures;
+            return Collections.emptyList();
         }
 
         List<MacAddress> localMacs = getL2GwDeviceLocalMacs(l2GatewayDevice);
         unInstallL2GwUcastMacFromElan(elan, l2GatewayDevice, localMacs);
-        return futures;
+        return Collections.emptyList();
     }
 
     public static void createItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
