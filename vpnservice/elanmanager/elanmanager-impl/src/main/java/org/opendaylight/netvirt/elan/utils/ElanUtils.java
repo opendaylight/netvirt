@@ -1546,7 +1546,7 @@ public class ElanUtils {
      * Install SMAC and DMAC flows.
      */
     public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName,
-            String macAddress, String elanName, WriteTransaction tx, WriteTransaction flowWritetx, int macTimeOut)
+            String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx, int macTimeOut)
             throws ElanException {
         LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and "
             + "ElanForwardingTables DS", macAddress, interfaceName);
@@ -1557,12 +1557,12 @@ public class ElanUtils {
                 .setIsStaticAddress(false).build();
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils
                 .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-        tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
+        interfaceTx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, macEntry);
         InstanceIdentifier<MacEntry> elanMacEntryId = ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-        tx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
+        interfaceTx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
         setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut, macAddress, true,
-                flowWritetx);
+                flowTx);
     }
 
     /**
@@ -1570,18 +1570,18 @@ public class ElanUtils {
      * Remove SMAC and DMAC flows.
      */
     public void deleteMacEntryFromDsAndRemoveFlows(IInterfaceManager interfaceManager, String interfaceName,
-            String macAddress, String elanName, WriteTransaction tx, WriteTransaction deleteFlowTx) {
+            String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx) {
         LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
                 + "and ElanForwardingTables DS", macAddress, interfaceName);
         PhysAddress physAddress = new PhysAddress(macAddress);
         MacEntry macEntry = getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         if (macEntry != null && interfaceInfo != null) {
-            deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanName), interfaceInfo, macEntry, deleteFlowTx);
+            deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanName), interfaceInfo, macEntry, flowTx);
         }
-        tx.delete(LogicalDatastoreType.OPERATIONAL,
+        interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
-        tx.delete(LogicalDatastoreType.OPERATIONAL,
+        interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress));
     }
 
@@ -1612,7 +1612,7 @@ public class ElanUtils {
         return elanMacKey.intern();
     }
 
-
+    // TODO This should return a collection of futures
     public static void addToListenableFutureIfTxException(RuntimeException exception,
             List<ListenableFuture<Void>> futures) {
         Throwable cause = exception.getCause();
