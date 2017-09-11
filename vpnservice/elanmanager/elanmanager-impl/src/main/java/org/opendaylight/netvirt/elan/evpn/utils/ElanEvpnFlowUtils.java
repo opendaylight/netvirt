@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.elan.evpn.utils;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -40,14 +41,14 @@ public class ElanEvpnFlowUtils {
     }
 
     public Flow evpnBuildDmacFlowForExternalRemoteMac(EvpnDmacFlow evpnDmacFlow) {
-        List<MatchInfo> mkMatches = elanUtils.buildMatchesForElanTagShFlagAndDstMac(evpnDmacFlow.getElanTag(), false,
+        List<MatchInfo> mkMatches = ElanUtils.buildMatchesForElanTagShFlagAndDstMac(evpnDmacFlow.getElanTag(), false,
                 evpnDmacFlow.getDstMacAddress());
         List<Instruction> mkInstructions = new ArrayList<>();
         List<Action> actions = elanUtils.getExternalTunnelItmEgressAction(evpnDmacFlow.getDpId(),
                 evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getVni());
         mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
-                elanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, evpnDmacFlow.getDpId(),
+                ElanUtils.getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, evpnDmacFlow.getDpId(),
                         evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress(), evpnDmacFlow.getElanTag(), false),
                 20, evpnDmacFlow.getElanName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(evpnDmacFlow.getElanTag())), mkMatches,
@@ -58,49 +59,50 @@ public class ElanEvpnFlowUtils {
 
     public List<ListenableFuture<Void>> evpnDeleteDmacFlowsToExternalMac(EvpnDmacFlow evpnDmacFlow) {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        synchronized (elanUtils.getElanMacDPNKey(evpnDmacFlow.getElanTag(), evpnDmacFlow.getDstMacAddress(),
+        synchronized (ElanUtils.getElanMacDPNKey(evpnDmacFlow.getElanTag(), evpnDmacFlow.getDstMacAddress(),
                 evpnDmacFlow.getDpId())) {
-            evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(evpnDmacFlow.getElanTag(), evpnDmacFlow.dpId,
-                    evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress(), futures);
-            evpnDeleteEtreeDmacFlowsToExternalMac(evpnDmacFlow.getElanTag(), evpnDmacFlow.getDpId(),
-                    evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress(), futures);
+            futures.addAll(
+                    evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(evpnDmacFlow.getElanTag(), evpnDmacFlow.dpId,
+                            evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress()));
+            futures.addAll(evpnDeleteEtreeDmacFlowsToExternalMac(evpnDmacFlow.getElanTag(), evpnDmacFlow.getDpId(),
+                    evpnDmacFlow.getNexthopIP(), evpnDmacFlow.getDstMacAddress()));
         }
         return futures;
     }
 
-    private void evpnDeleteEtreeDmacFlowsToExternalMac(long elanTag, BigInteger dpId, String nexthopIp,
-                                                       String macToRemove, List<ListenableFuture<Void>> futures) {
+    private List<ListenableFuture<Void>> evpnDeleteEtreeDmacFlowsToExternalMac(long elanTag, BigInteger dpId,
+            String nexthopIp, String macToRemove) {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         EtreeLeafTagName etreeLeafTag = elanUtils.getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
-            evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(etreeLeafTag.getEtreeLeafTag().getValue(), dpId,
-                    nexthopIp, macToRemove, futures);
-            evpnRemoveTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue(), dpId, nexthopIp, macToRemove, futures);
+            futures.addAll(
+                    evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(etreeLeafTag.getEtreeLeafTag().getValue(), dpId,
+                            nexthopIp, macToRemove));
+            futures.addAll(
+                    evpnRemoveTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue(), dpId, nexthopIp, macToRemove));
         }
+        return futures;
     }
 
     static String evpnGetKnownDynamicmacFlowRef(short elanDmacTable, BigInteger dpId, String nexthopIp,
                                                 String dstMacAddress, long elanTag, boolean shFlag) {
-        return new StringBuffer().append(elanDmacTable).append(elanTag).append(dpId).append(nexthopIp)
-                .append(dstMacAddress).append(shFlag).toString();
-/*        return new java.lang.StringBuilder().append('[').append(elanDmacTable).append(elanTag).append(dpId)
-                .append(nexthopIp).append(dstMacAddress).append(shFlag).append(']').toString();*/
+        return String.valueOf(elanDmacTable) + elanTag + dpId + nexthopIp + dstMacAddress + shFlag;
     }
 
-    private void evpnRemoveTheDropFlow(long elanTag, BigInteger dpId, String nexthopIp, String macToRemove,
-                                       List<ListenableFuture<Void>> futures) {
+    private List<ListenableFuture<Void>> evpnRemoveTheDropFlow(long elanTag, BigInteger dpId, String nexthopIp,
+            String macToRemove) {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, true);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        futures.add(mdsalManager.removeFlow(dpId, flowToRemove));
+        return Collections.singletonList(mdsalManager.removeFlow(dpId, flowToRemove));
     }
 
-    private void evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(long elanTag, BigInteger dpId, String nexthopIp,
-                                                                    String macToRemove,
-                                                                    List<ListenableFuture<Void>> futures) {
+    private List<ListenableFuture<Void>> evpnRemoveFlowThatSendsThePacketOnAnExternalTunnel(long elanTag,
+            BigInteger dpId, String nexthopIp, String macToRemove) {
         String flowId = ElanEvpnFlowUtils.evpnGetKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, nexthopIp,
                 macToRemove, elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
-        futures.add(mdsalManager.removeFlow(dpId, flowToRemove));
+        return Collections.singletonList(mdsalManager.removeFlow(dpId, flowToRemove));
     }
 
     public static class EvpnDmacFlowBuilder {
