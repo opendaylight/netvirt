@@ -11,7 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -40,12 +40,12 @@ import org.slf4j.LoggerFactory;
 public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceRemoveJob.class);
-    DhcpManager dhcpManager;
-    DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    DataBroker dataBroker;
-    Interface interfaceDel;
-    BigInteger dpnId;
-    IInterfaceManager interfaceManager;
+    private final DhcpManager dhcpManager;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DataBroker dataBroker;
+    private final Interface interfaceDel;
+    private final BigInteger dpnId;
+    private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -75,7 +75,6 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         String interfaceName = interfaceDel.getName();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
@@ -85,9 +84,9 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
                 IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
                 List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
                 if (dpns.contains(dpnId)) {
-                    dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, dpnId, futures);
+                    return dhcpExternalTunnelManager.handleTunnelStateDown(tunnelIp, dpnId);
                 }
-                return futures;
+                return Collections.emptyList();
             }
         }
         Port port = dhcpManager.getNeutronPort(interfaceName);
@@ -103,15 +102,14 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
                 elanService.removeArpResponderFlow(arpInput);
             }
         }
-        unInstallDhcpEntries(interfaceDel.getName(), dpnId, futures);
-        return futures;
+        return unInstallDhcpEntries(interfaceDel.getName(), dpnId);
     }
 
-    private void unInstallDhcpEntries(String interfaceName, BigInteger dpId, List<ListenableFuture<Void>> futures) {
+    private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, BigInteger dpId) {
         String vmMacAddress = getAndRemoveVmMacAddress(interfaceName);
         WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
         dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, flowTx);
-        futures.add(flowTx.submit());
+        return Collections.singletonList(flowTx.submit());
     }
 
     private String getAndRemoveVmMacAddress(String interfaceName) {

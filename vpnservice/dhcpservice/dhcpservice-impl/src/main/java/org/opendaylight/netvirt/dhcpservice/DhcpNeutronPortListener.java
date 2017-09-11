@@ -7,9 +7,8 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -90,7 +89,6 @@ public class DhcpNeutronPortListener
             DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob(getJobKey(del), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
                         .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
                 processArpResponderForElanDpns(del, arpInput -> {
@@ -98,8 +96,7 @@ public class DhcpNeutronPortListener
                             arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(), arpInput.getDpId());
                     elanService.removeArpResponderFlow(arpInput);
                 });
-                futures.add(wrtConfigTxn.submit());
-                return futures;
+                return Collections.singletonList(wrtConfigTxn.submit());
             });
         }
         if (isVnicTypeDirectOrMacVtap(del)) {
@@ -149,7 +146,6 @@ public class DhcpNeutronPortListener
             DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob(getJobKey(add), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
                 DhcpServiceUtils.createSubnetDhcpPortData(add, (subnetDhcpPortIdfr, subnetToDhcpport) -> wrtConfigTxn
                         .put(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr, subnetToDhcpport));
                 processArpResponderForElanDpns(add, arpInput -> {
@@ -160,8 +156,7 @@ public class DhcpNeutronPortListener
                             arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha()));
                     elanService.addArpResponderFlow(builder.buildForInstallFlow());
                 });
-                futures.add(wrtConfigTxn.submit());
-                return futures;
+                return Collections.singletonList(wrtConfigTxn.submit());
             });
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
