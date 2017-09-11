@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_0a045016",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelEndPointChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-11T11:03:29Z",
+      "side": 1,
+      "message": "Nitpicking I know, but this could be\n\n    futures.add(writeOperTxn.submit());\n    futures.add(writeConfigTxn.submit());\n    futures.add(writeInvTxn.submit());\n\nwhich is shorter, easier to read and avoids creating a new container instance.",
+      "revId": "eab9472c7d0433f7670547f1c8c43112d1fdc834",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
