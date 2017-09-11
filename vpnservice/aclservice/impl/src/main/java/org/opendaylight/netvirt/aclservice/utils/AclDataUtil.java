@@ -23,7 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 
 
 @Singleton
-public class AclDataUtil {
+public class AclDataUtil implements org.opendaylight.netvirt.aclservice.api.utils.AclDataUtil {
 
     private final ConcurrentMap<Uuid, ConcurrentMap<String, AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
     private final Map<Uuid, Set<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
@@ -160,4 +160,20 @@ public class AclDataUtil {
         return aclInterfaceMap.values().stream().anyMatch(map -> map.values().stream()
                 .anyMatch(aclInterface -> aclInterface.getDpId().equals(dpnId)));
     }
+
+    public Map<Uuid, List<AclInterface>> getAclInterfaceMap() {
+
+        return aclInterfaceMap;
+    }
+
+    public Map<Uuid, List<Uuid>> getRemoteAclIdMap() {
+
+        return remoteAclIdMap;
+    }
+
+    public Map<String, Integer> getAclFlowPriorityMap() {
+
+        return aclFlowPriorityMap;
+    }
+
 }
