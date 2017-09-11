@@ -8,11 +8,11 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
@@ -97,7 +97,7 @@ public class ElanClusterUtils {
                                                                   final Function<Optional<T>, Void> function) {
         DataStoreJobCoordinator.getInstance().enqueueJob(jobKey, () -> {
             SettableFuture settableFuture = SettableFuture.create();
-            List<ListenableFuture<Void>> futures = Lists.newArrayList(settableFuture);
+            List<ListenableFuture<Void>> futures = Collections.singletonList(settableFuture);
 
             ReadWriteTransaction tx = broker.newReadWriteTransaction();
 

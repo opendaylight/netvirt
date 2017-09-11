@@ -10,7 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.jobs;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -65,7 +65,6 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
         String elanInstanceName = elanInstance.getElanInstanceName();
         LOG.debug("running assosiate l2gw connection job for {} {} ", elanInstanceName, hwvtepNodeId);
@@ -77,8 +76,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         if (createLogicalSwitch) {
             LOG.info("creating logical switch {} for {} ", elanInstanceName, hwvtepNodeId);
 
-            ListenableFuture<Void> lsCreateFuture = createLogicalSwitch(l2GatewayDevice, elanInstance);
-            futures.add(lsCreateFuture);
+            return Collections.singletonList(createLogicalSwitch(l2GatewayDevice, elanInstance));
         } else {
             createLogicalSwitch(l2GatewayDevice, elanInstance);
             String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanInstanceName);
@@ -90,8 +88,6 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
                             l2GatewayDevice, defaultVlan);
             return logicalSwitchAddedJob.call();
         }
-
-        return futures;
     }
 
     private ListenableFuture<Void> createLogicalSwitch(L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance) {
