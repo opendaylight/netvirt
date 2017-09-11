@@ -9,10 +9,10 @@ package org.opendaylight.netvirt.elan.l2gw.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -66,9 +66,8 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
     public List<ListenableFuture<Void>> call() throws Exception {
         if (cancelled) {
             LOG.info("Delete logical switch job cancelled ");
-            return null;
+            return Collections.emptyList();
         }
-        ReadWriteTransaction transaction = broker.newReadWriteTransaction();
         LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));

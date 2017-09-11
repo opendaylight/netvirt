@@ -7,10 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collections;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -84,9 +81,7 @@ public class ElanInterfaceConfigListener
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
             LOG.debug("unbinding elan service on interface {} for its config removal", interfaceName);
             elanInterfaceManager.unbindService(interfaceName, writeConfigTxn);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(writeConfigTxn.submit());
-            return futures;
+            return Collections.singletonList(writeConfigTxn.submit());
         }, ElanConstants.JOB_MAX_RETRIES);
     }
 
