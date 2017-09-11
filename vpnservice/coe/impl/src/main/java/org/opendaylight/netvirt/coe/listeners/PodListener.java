@@ -9,8 +9,8 @@
 package org.opendaylight.netvirt.coe.listeners;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
@@ -137,9 +137,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             String portInterfaceName = CoeUtils.createOfPortInterface(podInterface, wrtConfigTxn, dataBroker);
             LOG.debug("Creating ELAN Interface for pod {}", podInterfaceName);
             CoeUtils.createElanInterface(podInterface, portInterfaceName, wrtConfigTxn);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(wrtConfigTxn.submit());
-            return futures;
+            return Collections.singletonList(wrtConfigTxn.submit());
         }
     }
 }
