@@ -19,11 +19,12 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.api.utils.IAclDataUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 
 @Singleton
-public class AclDataUtil {
+public class AclDataUtil implements IAclDataUtil{
 
     private final Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
     private final Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
@@ -201,4 +202,20 @@ public class AclDataUtil {
         }
         return false;
     }
+
+    public Map<Uuid, List<AclInterface>> getAclInterfaceMap(){
+
+        return aclInterfaceMap;
+    }
+
+    public Map<Uuid, List<Uuid>> getRemoteAclIdMap(){
+
+        return remoteAclIdMap;
+    }
+
+    public Map<String, Integer> getAclFlowPriorityMap(){
+
+        return aclFlowPriorityMap;
+    }
+
 }
