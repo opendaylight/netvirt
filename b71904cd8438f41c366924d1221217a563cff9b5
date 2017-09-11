@@ -16,6 +16,24 @@
       "revId": "b71904cd8438f41c366924d1221217a563cff9b5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_26222c52",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-09-11T18:03:19Z",
+      "side": 1,
+      "message": "Well, https://git.opendaylight.org/gerrit/#/c/61769/ HAS de facto added this as a newdependency, to genius idmanager.  Having said that, you\u0027re right anyway: This project (elanmanager-impl) normally should just transitively inherit that, from its (\u003cscope\u003etest) dependency to idmanager-impl, and it shouldn\u0027t be required to repeat this here... Faseela, could you try if this won\u0027t also just work without this explicit add here?  The dependency will of course still be there (inherited), but implicit instead of explicit, which is better.",
+      "parentUuid": "ba1f61a0_250ce5ec",
+      "revId": "b71904cd8438f41c366924d1221217a563cff9b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
