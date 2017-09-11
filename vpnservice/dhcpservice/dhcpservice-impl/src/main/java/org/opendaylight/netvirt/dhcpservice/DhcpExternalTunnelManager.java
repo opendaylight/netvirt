@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -496,18 +497,17 @@ public class DhcpExternalTunnelManager {
                 vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
     }
 
-    public void handleTunnelStateDown(IpAddress tunnelIp, BigInteger interfaceDpn,
-                                      List<ListenableFuture<Void>> futures) {
+    public List<ListenableFuture<Void>> handleTunnelStateDown(IpAddress tunnelIp, BigInteger interfaceDpn) {
         LOG.trace("In handleTunnelStateDown tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         if (interfaceDpn == null) {
-            return;
+            return Collections.emptyList();
         }
         try {
             synchronized (getTunnelIpDpnKey(tunnelIp, interfaceDpn)) {
                 Set<Pair<IpAddress, String>> tunnelElanPairSet =
                         designatedDpnsToTunnelIpElanNameCache.get(interfaceDpn);
                 if (tunnelElanPairSet == null || tunnelElanPairSet.isEmpty()) {
-                    return;
+                    return Collections.emptyList();
                 }
                 WriteTransaction tx = broker.newWriteOnlyTransaction();
                 for (Pair<IpAddress, String> tunnelElanPair : tunnelElanPairSet) {
@@ -516,7 +516,8 @@ public class DhcpExternalTunnelManager {
                         if (!checkL2GatewayConnection(tunnelElanPair)) {
                             LOG.trace("Couldn't find device for given tunnelIpElanPair {} in L2GwConnCache",
                                     tunnelElanPair);
-                            return;
+                            tx.cancel();
+                            return Collections.emptyList();
                         }
                         List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
                         dpns.remove(interfaceDpn);
@@ -524,11 +525,12 @@ public class DhcpExternalTunnelManager {
                         updateCacheAndInstallNewFlows(interfaceDpn, dpns, tunnelElanPair, tx);
                     }
                 }
-                futures.add(tx.submit());
+                return Collections.singletonList(tx.submit());
             }
         } catch (ExecutionException e) {
             LOG.error("Error in handleTunnelStateDown {}", e.getMessage());
             LOG.trace("Exception details {}", e);
+            return Collections.emptyList();
         }
     }
 
@@ -760,7 +762,7 @@ public class DhcpExternalTunnelManager {
         return tunnelInterface.getOperStatus() == OperStatus.Up;
     }
 
-    public void handleTunnelStateUp(IpAddress tunnelIp, BigInteger interfaceDpn, List<ListenableFuture<Void>> futures) {
+    public List<ListenableFuture<Void>> handleTunnelStateUp(IpAddress tunnelIp, BigInteger interfaceDpn) {
         LOG.trace("In handleTunnelStateUp tunnelIp {}, interfaceDpn {}", tunnelIp, interfaceDpn);
         synchronized (getTunnelIpDpnKey(tunnelIp, interfaceDpn)) {
             Set<Pair<IpAddress, String>> tunnelIpElanPair =
@@ -768,7 +770,7 @@ public class DhcpExternalTunnelManager {
             List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
             if (tunnelIpElanPair == null || tunnelIpElanPair.isEmpty()) {
                 LOG.trace("There are no undesignated DPNs");
-                return;
+                return Collections.emptyList();
             }
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             for (Pair<IpAddress, String> pair : tunnelIpElanPair) {
@@ -784,7 +786,7 @@ public class DhcpExternalTunnelManager {
                     }
                 }
             }
-            futures.add(tx.submit());
+            return Collections.singletonList(tx.submit());
         }
     }
 
