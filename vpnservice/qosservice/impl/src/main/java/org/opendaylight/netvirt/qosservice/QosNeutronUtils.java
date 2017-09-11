@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -153,7 +154,7 @@ public class QosNeutronUtils {
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<NetworkMap> networkMapId = InstanceIdentifier.builder(NetworkMaps.class)
                 .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
-        Optional<NetworkMap> optionalNetworkMap = read(broker, LogicalDatastoreType.CONFIGURATION, networkMapId);
+        Optional<NetworkMap> optionalNetworkMap = read(LogicalDatastoreType.CONFIGURATION, networkMapId,broker);
         return optionalNetworkMap.isPresent() ? optionalNetworkMap.get().getSubnetIdList() : null;
     }
 
@@ -161,7 +162,7 @@ public class QosNeutronUtils {
         InstanceIdentifier<Subnetmap> subnetMapId = InstanceIdentifier
                 .builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        Optional<Subnetmap> optionalSubnetmap = read(broker, LogicalDatastoreType.CONFIGURATION, subnetMapId);
+        Optional<Subnetmap> optionalSubnetmap = read(LogicalDatastoreType.CONFIGURATION, subnetMapId,broker);
         return optionalSubnetmap.isPresent() ? optionalSubnetmap.get().getPortList() : null;
     }
 
@@ -897,37 +898,15 @@ public class QosNeutronUtils {
         return (qosPolicy);
     }
 
-
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
-
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        try {
-            return tx.read(datastoreType, path).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
                                                            InstanceIdentifier<T> path, DataBroker broker) {
 
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(datastoreType, path).checkedGet();
+        } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
-
-        return result;
     }
-
 }
