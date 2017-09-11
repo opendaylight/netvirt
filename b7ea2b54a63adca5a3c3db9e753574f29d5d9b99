@@ -287,6 +287,78 @@
       "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_25898575",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-11T12:01:33Z",
+      "side": 1,
+      "message": "Added work items",
+      "parentUuid": "ba1f61a0_634f006c",
+      "range": {
+        "startLine": 412,
+        "startChar": 0,
+        "endLine": 412,
+        "endChar": 10
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_058e0179",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-11T12:01:33Z",
+      "side": 1,
+      "message": "As I understand, spec itself is a developer guide.",
+      "parentUuid": "ba1f61a0_233228f2",
+      "range": {
+        "startLine": 448,
+        "startChar": 0,
+        "endLine": 448,
+        "endChar": 20
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e58acd62",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-11T12:01:33Z",
+      "side": 1,
+      "message": "ODL release plan could be un-related here. \nI will update references if I find any.",
+      "parentUuid": "ba1f61a0_032f2489",
+      "range": {
+        "startLine": 452,
+        "startChar": 0,
+        "endLine": 452,
+        "endChar": 10
+      },
+      "revId": "b7ea2b54a63adca5a3c3db9e753574f29d5d9b99",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
