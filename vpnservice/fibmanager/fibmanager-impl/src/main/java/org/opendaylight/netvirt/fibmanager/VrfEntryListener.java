@@ -1021,6 +1021,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
 
         } else {
+            LOG.info("Obtained prefix to interace for rd {} prefix {}", rd, vrfEntry.getDestPrefix());
             String localNextHopIP = localNextHopInfo.getIpAddress();
             BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
                 vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
@@ -1037,6 +1038,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                                 boolean isExtraroute, final Long parentVpnId) {
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
+            if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
+                LOG.info("checkDeleteLocalFibEntry: NAT Prefix {} with vpnId {} rd {}. Skip local dpn {}"
+                        + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
+                return dpnId;
+            }
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob(FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId,
                     vrfEntry.getDestPrefix()), () -> {
@@ -1137,7 +1143,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
          - prefix to interface entry
          - vpn interface op DS
      */
-        LOG.debug("Cleanup of prefix {} in VPN {}", vrfEntry.getDestPrefix(), vpnId);
+        LOG.info("Cleanup of prefix {} in VPN {}", vrfEntry.getDestPrefix(), vpnId);
         Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
         Routes extraRoute = null;
         if (prefixInfo == null) {
@@ -1191,8 +1197,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return; //Don't have any info for this prefix (shouldn't happen); need to return
         }
 
-        if (Boolean.TRUE.equals(prefixInfo.isNatPrefix())) {
-            LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip FIB processing",
+        if (Boolean.TRUE.equals(prefixInfo.isNatPrefix())
+                && !rd.equals(prefixInfo.getSubnetId().getValue()/*PNF*/)) {
+            LOG.info("NAT Prefix {} with vpnId {} rd {}. Skip FIB processing",
                     vrfEntry.getDestPrefix(), vpnId, rd);
             return;
         }
@@ -1227,7 +1234,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
             //First Cleanup LabelRouteInfo
             //TODO(KIRAN) : Move the below block when addressing iRT/eRT for L3VPN Over VxLan
-            if (vrfEntry.getEncapType().equals(VrfEntry.EncapType.Mplsgre)) {
+            LOG.info("cleanupVpnInterfaceWorker: rd {} prefix {}", rd, prefixInfo.getIpAddress());
+            if (VrfEntry.EncapType.Mplsgre.equals(vrfEntry.getEncapType())) {
                 FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                     List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
                     synchronized (label.toString().intern()) {
@@ -1256,15 +1264,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             String ifName = prefixInfo.getVpnInterfaceName();
             Optional<VpnInterface> optvpnInterface = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 FibUtil.getVpnInterfaceIdentifier(ifName));
+            LOG.info("Obtained interface {} for rd {} prefix {}", ifName, rd, prefixInfo.getIpAddress());
             if (optvpnInterface.isPresent()) {
                 long associatedVpnId = FibUtil.getVpnId(dataBroker, optvpnInterface.get().getVpnInstanceName());
-                if (vpnId != associatedVpnId) {
-                    LOG.warn("Prefixes {} are associated with different vpn instance with id : {} rather than {}",
+                if (vpnId != associatedVpnId && Boolean.FALSE.equals(prefixInfo.isNatPrefix()/*PNF*/)) {
+                    LOG.error("Prefixes {} are associated with different vpn instance with id : {} rather than {}",
                         vrfEntry.getDestPrefix(), associatedVpnId, vpnId);
                     LOG.warn("Not proceeding with Cleanup op data for prefix {}", vrfEntry.getDestPrefix());
                     return null;
                 } else {
-                    LOG.debug("Processing cleanup of prefix {} associated with vpn {}",
+                    LOG.info("Processing cleanup of prefix {} associated with vpn {}",
                         vrfEntry.getDestPrefix(), associatedVpnId);
                 }
             }
