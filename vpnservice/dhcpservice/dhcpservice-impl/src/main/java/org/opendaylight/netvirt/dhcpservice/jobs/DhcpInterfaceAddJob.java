@@ -47,12 +47,12 @@ import org.slf4j.LoggerFactory;
 public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceAddJob.class);
-    DhcpManager dhcpManager;
-    DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    DataBroker dataBroker;
+    private final DhcpManager dhcpManager;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DataBroker dataBroker;
     private final Interface interfaceAdd;
-    BigInteger dpnId;
-    IInterfaceManager interfaceManager;
+    private final BigInteger dpnId;
+    private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -81,7 +81,6 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         String interfaceName = interfaceAdd.getName();
         LOG.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpnId);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
@@ -92,9 +91,9 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
                 IpAddress tunnelIp = tunnelInterface.getTunnelDestination();
                 List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(dataBroker);
                 if (dpns.contains(dpnId)) {
-                    dhcpExternalTunnelManager.handleTunnelStateUp(tunnelIp, dpnId, futures);
+                    return dhcpExternalTunnelManager.handleTunnelStateUp(tunnelIp, dpnId);
                 }
-                return futures;
+                return Collections.emptyList();
             }
         }
         if (!dpnId.equals(DhcpMConstants.INVALID_DPID)) {
@@ -104,8 +103,9 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
                 LOG.debug("DHCP is not enabled for port {}", port.getName());
                 return Collections.emptyList();
             }
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
             LOG.info("DhcpInterfaceEventListener add isEnableDhcp:{}", subnet.isEnableDhcp());
-            installDhcpEntries(interfaceAdd.getName(), dpnId, futures);
+            futures.addAll(installDhcpEntries(interfaceAdd.getName(), dpnId));
             LOG.trace("Checking ElanDpnInterface {} for dpn {} ", interfaceName, dpnId);
             String subnetId = subnet.getUuid().getValue();
             java.util.Optional<SubnetToDhcpPort> subnetToDhcp = DhcpServiceUtils
@@ -121,15 +121,16 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName,
                     subnetToDhcp.get().getPortFixedip(), subnetToDhcp.get().getPortMacaddress()));
             elanService.addArpResponderFlow(builder.buildForInstallFlow());
+            return futures;
         }
-        return futures;
+        return Collections.emptyList();
     }
 
-    private void installDhcpEntries(String interfaceName, BigInteger dpId, List<ListenableFuture<Void>> futures) {
+    private List<ListenableFuture<Void>> installDhcpEntries(String interfaceName, BigInteger dpId) {
         String vmMacAddress = getAndUpdateVmMacAddress(interfaceName);
         WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
         dhcpManager.installDhcpEntries(dpId, vmMacAddress, flowTx);
-        futures.add(flowTx.submit());
+        return Collections.singletonList(flowTx.submit());
     }
 
     private String getAndUpdateVmMacAddress(String interfaceName) {

@@ -52,8 +52,8 @@ public class DhcpAllocationPoolListener
         for (BigInteger dpnId : elanDpnInterfacesByName.keySet()) {
             for (String interfaceName : elanDpnInterfacesByName.get(dpnId)) {
                 LOG.debug("Install Dhcp Entries for dpId: {} interface : {}", dpnId, interfaceName);
-                DhcpAllocationPoolAddJob job = new DhcpAllocationPoolAddJob(dhcpAllocationPoolManager, dataBroker,
-                        interfaceName, dpnId);
+                DhcpAllocationPoolAddJob job = new DhcpAllocationPoolAddJob(dataBroker,
+                        interfaceName);
                 dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job,
                         DhcpMConstants.RETRY_COUNT);
             }
@@ -78,8 +78,8 @@ public class DhcpAllocationPoolListener
         Map<BigInteger, List<String>> elanDpnInterfacesByName = getDpnInterfacesByNetwork(networkId);
         for (BigInteger dpnId : elanDpnInterfacesByName.keySet()) {
             for (String interfaceName : elanDpnInterfacesByName.get(dpnId)) {
-                DhcpAllocationPoolRemoveJob job = new DhcpAllocationPoolRemoveJob(dhcpAllocationPoolManager, dataBroker,
-                        interfaceName, dpnId);
+                DhcpAllocationPoolRemoveJob job = new DhcpAllocationPoolRemoveJob(dataBroker,
+                        interfaceName);
                 dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job,
                         DhcpMConstants.RETRY_COUNT);
             }
