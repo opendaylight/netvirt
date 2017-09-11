@@ -201,4 +201,17 @@ public class AclDataUtil {
         }
         return false;
     }
+
+    public Map<Uuid, List<AclInterface>> getAclInterfaceMap(){
+        return aclInterfaceMap;
+    }
+
+    public Map<Uuid, List<Uuid>> getRemoteAclIdMap(){
+        return remoteAclIdMap;
+    }
+
+    public Map<String, Integer> getAclFlowPriorityMap(){
+        return aclFlowPriorityMap;
+    }
+
 }
