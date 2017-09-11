@@ -17,7 +17,6 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -90,7 +89,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -153,7 +151,8 @@ public class QosNeutronUtils {
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<NetworkMap> networkMapId = InstanceIdentifier.builder(NetworkMaps.class)
                 .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
-        Optional<NetworkMap> optionalNetworkMap = read(broker, LogicalDatastoreType.CONFIGURATION, networkMapId);
+        Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
+                networkMapId,broker);
         return optionalNetworkMap.isPresent() ? optionalNetworkMap.get().getSubnetIdList() : null;
     }
 
@@ -161,7 +160,8 @@ public class QosNeutronUtils {
         InstanceIdentifier<Subnetmap> subnetMapId = InstanceIdentifier
                 .builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
-        Optional<Subnetmap> optionalSubnetmap = read(broker, LogicalDatastoreType.CONFIGURATION, subnetMapId);
+        Optional<Subnetmap> optionalSubnetmap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
+                subnetMapId,broker);
         return optionalSubnetmap.isPresent() ? optionalSubnetmap.get().getPortList() : null;
     }
 
@@ -618,8 +618,8 @@ public class QosNeutronUtils {
 
     private static BridgeEntry getBridgeEntryFromConfigDS(InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier,
                                                           DataBroker dataBroker) {
-        Optional<BridgeEntry> bridgeEntryOptional =
-                read(LogicalDatastoreType.CONFIGURATION, bridgeEntryInstanceIdentifier, dataBroker);
+        Optional<BridgeEntry> bridgeEntryOptional = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
+                bridgeEntryInstanceIdentifier, dataBroker);
         if (!bridgeEntryOptional.isPresent()) {
             return null;
         }
@@ -628,8 +628,8 @@ public class QosNeutronUtils {
 
     private static BridgeRefEntry getBridgeRefEntryFromOperDS(InstanceIdentifier<BridgeRefEntry> dpnBridgeEntryIid,
                                                               DataBroker dataBroker) {
-        Optional<BridgeRefEntry> bridgeRefEntryOptional =
-                read(LogicalDatastoreType.OPERATIONAL, dpnBridgeEntryIid, dataBroker);
+        Optional<BridgeRefEntry> bridgeRefEntryOptional = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL,
+                dpnBridgeEntryIid, dataBroker);
         if (!bridgeRefEntryOptional.isPresent()) {
             return null;
         }
@@ -895,39 +895,6 @@ public class QosNeutronUtils {
         }
 
         return (qosPolicy);
-    }
-
-
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
-
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        try {
-            return tx.read(datastoreType, path).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
-                                                           InstanceIdentifier<T> path, DataBroker broker) {
-
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
-        return result;
     }
 
 }
