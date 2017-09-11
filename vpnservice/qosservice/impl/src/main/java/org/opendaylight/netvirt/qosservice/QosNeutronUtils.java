@@ -907,8 +907,8 @@ public class QosNeutronUtils {
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
 
         try {
-            return tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+            return tx.read(datastoreType, path).checkedGet();
+        } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -918,16 +918,12 @@ public class QosNeutronUtils {
     private static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
                                                            InstanceIdentifier<T> path, DataBroker broker) {
 
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()){
+            return tx.read(datastoreType, path).checkedGet();
+        } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
 
-        return result;
     }
 
 }
