@@ -39,4 +39,11 @@ public final class AclInterfaceCacheUtil {
     }
 
     private AclInterfaceCacheUtil() { }
+
+    public static ConcurrentMap<String, AclInterface> getAclInterfaceCache() {
+
+        return cachedMap;
+
+    }
+
 }
