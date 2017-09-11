@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -385,21 +385,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             List<InstructionInfo> instructions, int addOrRemove) {
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob(flowName, () -> {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (addOrRemove == NwConstants.DEL_FLOW) {
                 FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                         idleTimeOut, hardTimeOut, cookie, matches, null);
                 LOG.trace("Removing Acl Flow DpnId {}, flowId {}", dpId, flowId);
 
-                futures.add(mdsalManager.removeFlow(dpId, flowEntity));
+                return Collections.singletonList(mdsalManager.removeFlow(dpId, flowEntity));
 
             } else {
                 FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                         idleTimeOut, hardTimeOut, cookie, matches, instructions);
                 LOG.trace("Installing DpnId {}, flowId {}", dpId, flowId);
-                futures.add(mdsalManager.installFlow(dpId, flowEntity));
+                return Collections.singletonList(mdsalManager.installFlow(dpId, flowEntity));
             }
-            return futures;
         });
     }
 
