@@ -8,7 +8,7 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -95,19 +95,15 @@ public class ElanLearntVpnVipToPortListener extends
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-            WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
             if (elanInterface == null) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
-                return futures;
+                return Collections.emptyList();
             }
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
             elanUtils.addMacEntryToDsAndSetupFlows(interfaceManager, interfaceName, macAddress,
-                    elanInterface.getElanInstanceName(), tx, flowWritetx, ElanConstants.STATIC_MAC_TIMEOUT);
-            futures.add(tx.submit());
-            futures.add(flowWritetx.submit());
-            return futures;
+                    elanInterface.getElanInstanceName(), tx, ElanConstants.STATIC_MAC_TIMEOUT);
+            return Collections.singletonList(tx.submit());
         }
     }
 
@@ -122,19 +118,15 @@ public class ElanLearntVpnVipToPortListener extends
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            WriteTransaction deleteFlowTx = broker.newWriteOnlyTransaction();
-            WriteTransaction tx = broker.newWriteOnlyTransaction();
             ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
             if (elanInterface == null) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for delete event", interfaceName);
-                return futures;
+                return Collections.emptyList();
             }
+            WriteTransaction tx = broker.newWriteOnlyTransaction();
             elanUtils.deleteMacEntryFromDsAndRemoveFlows(interfaceManager, interfaceName, macAddress,
-                    elanInterface.getElanInstanceName(), tx, deleteFlowTx);
-            futures.add(tx.submit());
-            futures.add(deleteFlowTx.submit());
-            return futures;
+                    elanInterface.getElanInstanceName(), tx);
+            return Collections.singletonList(tx.submit());
         }
     }
 

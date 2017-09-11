@@ -1601,7 +1601,6 @@ public class ElanUtils {
     public List<ListenableFuture<Void>> installDmacFlowsToExternalRemoteMac(BigInteger dpnId,
             String extDeviceNodeId, Long elanTag, Long vni, String macAddress, String displayName,
             String interfaceName) throws ElanException {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         synchronized (getElanMacDPNKey(elanTag, macAddress, dpnId)) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress,
                     displayName);
@@ -1611,25 +1610,24 @@ public class ElanUtils {
             ResourceBatchingManager.getInstance().put(ShardResource.CONFIG_TOPOLOGY, getFlowIid(dropFlow, dpnId),
                     dropFlow);
             installEtreeDmacFlowsToExternalRemoteMac(dpnId, extDeviceNodeId, elanTag, vni, macAddress, displayName,
-                    interfaceName, futures);
+                    interfaceName);
         }
-        return futures;
+        return Collections.emptyList();
     }
 
     private void installEtreeDmacFlowsToExternalRemoteMac(BigInteger dpnId, String extDeviceNodeId, Long elanTag,
-            Long vni, String macAddress, String displayName, String interfaceName,
-            List<ListenableFuture<Void>> futures) throws ElanException {
+            Long vni, String macAddress, String displayName, String interfaceName) throws ElanException {
         EtreeLeafTagName etreeLeafTag = getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
-            buildEtreeDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId, elanTag, macAddress, futures,
+            buildEtreeDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId, macAddress,
                     etreeLeafTag);
             buildEtreeDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId, vni, macAddress, displayName, interfaceName,
-                    futures, etreeLeafTag);
+                    etreeLeafTag);
         }
     }
 
     private void buildEtreeDmacFlowForExternalRemoteMac(BigInteger dpnId, String extDeviceNodeId, Long vni,
-            String macAddress, String displayName, String interfaceName, List<ListenableFuture<Void>> futures,
+            String macAddress, String displayName, String interfaceName,
             EtreeLeafTagName etreeLeafTag) throws ElanException {
         boolean isRoot = false;
         if (interfaceName == null) {
@@ -1650,7 +1648,7 @@ public class ElanUtils {
     }
 
     private void buildEtreeDmacFlowDropIfPacketComingFromTunnel(BigInteger dpnId, String extDeviceNodeId,
-            Long elanTag, String macAddress, List<ListenableFuture<Void>> futures, EtreeLeafTagName etreeLeafTag) {
+            String macAddress, EtreeLeafTagName etreeLeafTag) {
         if (etreeLeafTag != null) {
             Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,
                     etreeLeafTag.getEtreeLeafTag().getValue(), macAddress);
@@ -1794,31 +1792,29 @@ public class ElanUtils {
      */
     public List<ListenableFuture<Void>> deleteDmacFlowsToExternalMac(long elanTag, BigInteger dpId,
             String extDeviceNodeId, String macToRemove) {
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         synchronized (getElanMacDPNKey(elanTag, macToRemove, dpId)) {
             // Removing the flows that sends the packet on an external tunnel
-            removeFlowThatSendsThePacketOnAnExternalTunnel(elanTag, dpId, extDeviceNodeId, macToRemove, futures);
+            removeFlowThatSendsThePacketOnAnExternalTunnel(elanTag, dpId, extDeviceNodeId, macToRemove);
 
             // And now removing the drop flow
-            removeTheDropFlow(elanTag, dpId, extDeviceNodeId, macToRemove, futures);
+            removeTheDropFlow(elanTag, dpId, extDeviceNodeId, macToRemove);
 
-            deleteEtreeDmacFlowsToExternalMac(elanTag, dpId, extDeviceNodeId, macToRemove, futures);
+            deleteEtreeDmacFlowsToExternalMac(elanTag, dpId, extDeviceNodeId, macToRemove);
         }
-        return futures;
+        return Collections.emptyList();
     }
 
     private void deleteEtreeDmacFlowsToExternalMac(long elanTag, BigInteger dpId, String extDeviceNodeId,
-            String macToRemove, List<ListenableFuture<Void>> futures) {
+            String macToRemove) {
         EtreeLeafTagName etreeLeafTag = getEtreeLeafTagByElanTag(elanTag);
         if (etreeLeafTag != null) {
             removeFlowThatSendsThePacketOnAnExternalTunnel(etreeLeafTag.getEtreeLeafTag().getValue(), dpId,
-                    extDeviceNodeId, macToRemove, futures);
-            removeTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue(), dpId, extDeviceNodeId, macToRemove, futures);
+                    extDeviceNodeId, macToRemove);
+            removeTheDropFlow(etreeLeafTag.getEtreeLeafTag().getValue(), dpId, extDeviceNodeId, macToRemove);
         }
     }
 
-    private void removeTheDropFlow(long elanTag, BigInteger dpId, String extDeviceNodeId, String macToRemove,
-            List<ListenableFuture<Void>> futures) {
+    private void removeTheDropFlow(long elanTag, BigInteger dpId, String extDeviceNodeId, String macToRemove) {
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
                 elanTag, true);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
@@ -1826,7 +1822,7 @@ public class ElanUtils {
     }
 
     private void removeFlowThatSendsThePacketOnAnExternalTunnel(long elanTag, BigInteger dpId,
-            String extDeviceNodeId, String macToRemove, List<ListenableFuture<Void>> futures) {
+            String extDeviceNodeId, String macToRemove) {
         String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, extDeviceNodeId, macToRemove,
                 elanTag, false);
         Flow flowToRemove = new FlowBuilder().setId(new FlowId(flowId)).setTableId(NwConstants.ELAN_DMAC_TABLE).build();
@@ -2023,7 +2019,7 @@ public class ElanUtils {
      * Install SMAC and DMAC flows.
      */
     public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName,
-            String macAddress, String elanName, WriteTransaction tx, WriteTransaction flowWritetx, int macTimeOut)
+            String macAddress, String elanName, WriteTransaction tx, int macTimeOut)
             throws ElanException {
         LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and "
             + "ElanForwardingTables DS", macAddress, interfaceName);
@@ -2039,7 +2035,7 @@ public class ElanUtils {
         tx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, macEntry);
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
         setupMacFlows(elanInstance, interfaceManager.getInterfaceInfo(interfaceName), macTimeOut, macAddress, true,
-                flowWritetx);
+                tx);
     }
 
     /**
@@ -2047,14 +2043,14 @@ public class ElanUtils {
      * Remove SMAC and DMAC flows.
      */
     public void deleteMacEntryFromDsAndRemoveFlows(IInterfaceManager interfaceManager, String interfaceName,
-            String macAddress, String elanName, WriteTransaction tx, WriteTransaction deleteFlowTx) {
+            String macAddress, String elanName, WriteTransaction tx) {
         LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
                 + "and ElanForwardingTables DS", macAddress, interfaceName);
         PhysAddress physAddress = new PhysAddress(macAddress);
         MacEntry macEntry = getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         if (macEntry != null && interfaceInfo != null) {
-            deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanName), interfaceInfo, macEntry, deleteFlowTx);
+            deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanName), interfaceInfo, macEntry, tx);
         }
         tx.delete(LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
@@ -2089,7 +2085,7 @@ public class ElanUtils {
         return elanMacKey.intern();
     }
 
-
+    // TODO This should return a collection of futures
     public static void addToListenableFutureIfTxException(RuntimeException exception,
             List<ListenableFuture<Void>> futures) {
         Throwable cause = exception.getCause();
