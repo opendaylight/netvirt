@@ -133,6 +133,7 @@ public final class AclServiceUtils {
         this.aclDataUtil = aclDataUtil;
         this.config = config;
         this.idManager = idManager;
+        Commands.setAclDataUtil(aclDataUtil);
     }
 
     /**
