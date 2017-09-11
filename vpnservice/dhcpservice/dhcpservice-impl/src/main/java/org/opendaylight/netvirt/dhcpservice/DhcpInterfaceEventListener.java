@@ -109,7 +109,7 @@ public class DhcpInterfaceEventListener
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         String interfaceName = update.getName();
-        DhcpInterfaceUpdateJob job = new DhcpInterfaceUpdateJob(dhcpManager, dhcpExternalTunnelManager, dataBroker,
+        DhcpInterfaceUpdateJob job = new DhcpInterfaceUpdateJob(dhcpExternalTunnelManager, dataBroker,
                 interfaceName, dpnId, update.getOperStatus(), interfaceManager);
         dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
