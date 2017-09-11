@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -905,10 +906,9 @@ public class QosNeutronUtils {
                                                           InstanceIdentifier<T> path) {
 
         ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
         try {
-            return tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+            return tx.read(datastoreType, path).checkedGet();
+        } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -918,16 +918,10 @@ public class QosNeutronUtils {
     private static <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType,
                                                            InstanceIdentifier<T> path, DataBroker broker) {
 
-        ReadOnlyTransaction tx = broker.newReadOnlyTransaction();
-
-        Optional<T> result = Optional.absent();
-        try {
-            result = tx.read(datastoreType, path).get();
-        } catch (Exception e) {
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()){
+            return tx.read(datastoreType, path).checkedGet();
+        } catch (ReadFailedException e) {
             throw new RuntimeException(e);
         }
-
-        return result;
     }
-
 }
