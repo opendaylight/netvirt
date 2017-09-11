@@ -1260,11 +1260,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         if (adjacencies.isPresent()) {
             List<Adjacency> nextHops = adjacencies.get().getAdjacency();
             if (!nextHops.isEmpty()) {
-                LOG.info("removeAdjacenciesFromVpn: NextHops for interface {} on dpn {} for vpn {} are ",
+                LOG.info("removeAdjacenciesFromVpn: NextHops for interface {} on dpn {} for vpn {} are {}",
                         interfaceName, dpnId, vpnName, nextHops);
                 for (Adjacency nextHop : nextHops) {
-                    String rd = nextHop.getVrfId();
-                    List<String> nhList = new ArrayList<>();
+                    String rd = nextHop.isPhysNetworkFunc() ? nextHop.getSubnetId().getValue() : nextHop.getVrfId();
+                    List<String> nhList = Collections.EMPTY_LIST;
                     if (nextHop.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
                         // This is either an extra-route (or) a learned IP via subnet-route
                         String nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
@@ -1278,7 +1278,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     } else {
                         // This is a primary adjacency
-                        nhList = nextHop.getNextHopIpList();
+                        nhList = nextHop.getNextHopIpList() != null ? nextHop.getNextHopIpList()
+                                : Collections.EMPTY_LIST;
                         final Uuid subnetId = nextHop.getSubnetId();
                         if (nextHop.getSubnetGatewayMacAddress() == null) {
                             // A valid mac-address was not available for this subnet-gateway-ip
@@ -1323,6 +1324,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             }
                         }
                     } else {
+                        LOG.info("removeAdjacenciesFromVpn: Removing PNF FIB entry rd {} prefix {}", primaryRd,
+                                nextHop.getIpAddress());
                         primaryRd = nextHop.isPhysNetworkFunc() ? nextHop.getSubnetId().getValue() : primaryRd;
                         fibManager.removeFibEntry(dataBroker, primaryRd, nextHop.getIpAddress(), writeConfigTxn);
                     }
