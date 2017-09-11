@@ -293,7 +293,7 @@ public class L2GatewayConnectionUtils {
                     createLogicalSwitch = false;
                 }
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
-                        elanL2GatewayUtils, elanUtils, elanL2GatewayMulticastUtils, l2GatewayDevice, elanInstance,
+                        elanL2GatewayUtils, elanL2GatewayMulticastUtils, l2GatewayDevice, elanInstance,
                         l2Device, defaultVlan, createLogicalSwitch);
 
                 ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, associateHwvtepToElanJob.getJobKey() ,
