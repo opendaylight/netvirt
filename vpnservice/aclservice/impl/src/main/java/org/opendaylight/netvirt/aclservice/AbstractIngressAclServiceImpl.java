@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,9 +144,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
 
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeTxn.submit());
-                return futures;
+                return Collections.singletonList(writeTxn.submit());
             });
     }
 
