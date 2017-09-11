@@ -1,0 +1,13 @@
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           odl:use-default-for-reference-types="true">
+    <reference id="aclDataUtilRef" interface="org.opendaylight.netvirt.aclservice.api.utils.IAclDataUtil" />
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+    <command>
+      <action class="org.opendaylight.netvirt.aclservice.shell.DisplayAclDataCaches">
+          <property name="aclDataUtil" ref="aclDataUtilRef"/>
+      </action>
+    </command>
+  </command-bundle>
+
+</blueprint>
