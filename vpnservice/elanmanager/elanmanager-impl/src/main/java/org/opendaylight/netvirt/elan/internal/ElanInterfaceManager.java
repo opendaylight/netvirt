@@ -215,12 +215,14 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         boolean isLastInterfaceOnDpn = false;
         BigInteger dpId = null;
         long elanTag = elanInfo.getElanTag();
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        WriteTransaction deleteFlowGroupTx = broker.newWriteOnlyTransaction();
-        Elan elanState = removeElanStateForInterface(elanInfo, interfaceName, tx);
+        // We use two transaction so we don't suffer on multiple shards (interfaces and flows)
+        WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
+        Elan elanState = removeElanStateForInterface(elanInfo, interfaceName, interfaceTx);
         if (elanState == null) {
+            interfaceTx.cancel();
             return;
         }
+        WriteTransaction flowTx = broker.newWriteOnlyTransaction();
         List<String> elanInterfaces = elanState.getElanInterfaces();
         if (elanInterfaces.isEmpty()) {
             isLastElanInterface = true;
@@ -228,7 +230,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (interfaceInfo != null) {
             dpId = interfaceInfo.getDpId();
             DpnInterfaces dpnInterfaces = removeElanDpnInterfaceFromOperationalDataStore(elanName, dpId,
-                    interfaceName, elanTag, tx);
+                    interfaceName, elanTag, interfaceTx);
             /*
              * If there are not elan ports, remove the unknown dmac, terminating
              * service table flows, remote/local bc group
@@ -240,11 +242,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (!elanUtils.isOpenStackVniSemanticsEnforced()) {
                     removeDefaultTermFlow(dpId, elanInfo.getElanTag());
                 }
-                removeUnknownDmacFlow(dpId, elanInfo, deleteFlowGroupTx, elanInfo.getElanTag());
-                removeEtreeUnknownDmacFlow(dpId, elanInfo, deleteFlowGroupTx);
-                removeElanBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
-                removeLocalBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
-                removeEtreeBroadcastGrups(elanInfo, interfaceInfo, deleteFlowGroupTx);
+                removeUnknownDmacFlow(dpId, elanInfo, flowTx, elanInfo.getElanTag());
+                removeEtreeUnknownDmacFlow(dpId, elanInfo, flowTx);
+                removeElanBroadcastGroup(elanInfo, interfaceInfo, flowTx);
+                removeLocalBroadcastGroup(elanInfo, interfaceInfo, flowTx);
+                removeEtreeBroadcastGrups(elanInfo, interfaceInfo, flowTx);
                 if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
                     if (elanUtils.isOpenStackVniSemanticsEnforced()) {
                         elanUtils.removeTerminatingServiceAction(dpId, elanInfo.getSegmentationId().intValue());
@@ -256,8 +258,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 setupLocalBroadcastGroups(elanInfo, dpnInterfaces, interfaceInfo);
             }
         }
-        futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
+        futures.add(ElanUtils.waitForTransactionToComplete(interfaceTx));
+        futures.add(ElanUtils.waitForTransactionToComplete(flowTx));
 
         if (isLastInterfaceOnDpn && dpId != null && isVxlanNetworkOrVxlanSegment(elanInfo)) {
             setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
