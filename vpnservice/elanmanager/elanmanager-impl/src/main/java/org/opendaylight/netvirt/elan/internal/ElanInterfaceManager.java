@@ -216,9 +216,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         BigInteger dpId = null;
         long elanTag = elanInfo.getElanTag();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
-        WriteTransaction deleteFlowGroupTx = broker.newWriteOnlyTransaction();
         Elan elanState = removeElanStateForInterface(elanInfo, interfaceName, tx);
         if (elanState == null) {
+            tx.cancel();
             return;
         }
         List<String> elanInterfaces = elanState.getElanInterfaces();
@@ -240,11 +240,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (!elanUtils.isOpenStackVniSemanticsEnforced()) {
                     removeDefaultTermFlow(dpId, elanInfo.getElanTag());
                 }
-                removeUnknownDmacFlow(dpId, elanInfo, deleteFlowGroupTx, elanInfo.getElanTag());
-                removeEtreeUnknownDmacFlow(dpId, elanInfo, deleteFlowGroupTx);
-                removeElanBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
-                removeLocalBroadcastGroup(elanInfo, interfaceInfo, deleteFlowGroupTx);
-                removeEtreeBroadcastGrups(elanInfo, interfaceInfo, deleteFlowGroupTx);
+                removeUnknownDmacFlow(dpId, elanInfo, tx, elanInfo.getElanTag());
+                removeEtreeUnknownDmacFlow(dpId, elanInfo, tx);
+                removeElanBroadcastGroup(elanInfo, interfaceInfo, tx);
+                removeLocalBroadcastGroup(elanInfo, interfaceInfo, tx);
+                removeEtreeBroadcastGrups(elanInfo, interfaceInfo, tx);
                 if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
                     if (elanUtils.isOpenStackVniSemanticsEnforced()) {
                         elanUtils.removeTerminatingServiceAction(dpId, elanInfo.getSegmentationId().intValue());
@@ -257,7 +257,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
         }
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        futures.add(ElanUtils.waitForTransactionToComplete(deleteFlowGroupTx));
 
         if (isLastInterfaceOnDpn && dpId != null && isVxlanNetworkOrVxlanSegment(elanInfo)) {
             setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
