@@ -41,14 +41,13 @@ import org.slf4j.LoggerFactory;
 
 public class CoeUtils {
     private static final Logger LOG = LoggerFactory.getLogger(CoeUtils.class);
-    public static final ImmutableBiMap<Class<? extends NetworkAttributes.NetworkType>, Class<? extends SegmentTypeBase>>
+    public static final ImmutableBiMap<NetworkAttributes.NetworkType, Class<? extends SegmentTypeBase>>
             NETWORK_MAP =
-            new ImmutableBiMap.Builder<Class<? extends NetworkAttributes.NetworkType>,
-                    Class<? extends SegmentTypeBase>>()
-                    .put(NetworkAttributes.NetworkType.FLAT.getClass(), SegmentTypeFlat.class)
-                    .put(NetworkAttributes.NetworkType.GRE.getClass(), SegmentTypeGre.class)
-                    .put(NetworkAttributes.NetworkType.VLAN.getClass(), SegmentTypeVlan.class)
-                    .put(NetworkAttributes.NetworkType.VXLAN.getClass(), SegmentTypeVxlan.class)
+            new ImmutableBiMap.Builder<NetworkAttributes.NetworkType, Class<? extends SegmentTypeBase>>()
+                    .put(NetworkAttributes.NetworkType.FLAT, SegmentTypeFlat.class)
+                    .put(NetworkAttributes.NetworkType.GRE, SegmentTypeGre.class)
+                    .put(NetworkAttributes.NetworkType.VLAN, SegmentTypeVlan.class)
+                    .put(NetworkAttributes.NetworkType.VXLAN, SegmentTypeVxlan.class)
                     .build();
 
     public static InstanceIdentifier<Interface> buildVlanInterfaceIdentifier(String interfaceName) {
