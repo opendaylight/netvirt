@@ -34,6 +34,24 @@
       "revId": "b71904cd8438f41c366924d1221217a563cff9b5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_0971fb75",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-09-12T06:12:41Z",
+      "side": 1,
+      "message": "Yes, removing this works for me locally..",
+      "parentUuid": "ba1f61a0_26222c52",
+      "revId": "b71904cd8438f41c366924d1221217a563cff9b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
