@@ -101,6 +101,13 @@ public class CoeUtils {
         LOG.debug("Creating new ELAN Interface {}", elanInterface);
     }
 
+    public static void deleteElanInterface(String elanInterfaceName, WriteTransaction wrtConfigTxn) {
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
+                .class, new ElanInterfaceKey(elanInterfaceName)).build();
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+        LOG.debug("Deleting ELAN Interface {}", elanInterfaceName);
+    }
+
     public static String createOfPortInterface(org.opendaylight.yang.gen.v1.urn.opendaylight.coe
                                                        .northbound.pod.rev170611.pod_attributes.Interface podInterface,
                                                WriteTransaction wrtConfigTxn, DataBroker dataBroker) {
@@ -117,6 +124,12 @@ public class CoeUtils {
             LOG.warn("Interface {} is already present", infName);
         }
         return infName;
+    }
+
+    public static void deleteOfPortInterface(String infName, WriteTransaction wrtConfigTxn) {
+        LOG.debug("Deleting OFPort Interface {}", infName);
+        InstanceIdentifier interfaceIdentifier = CoeUtils.buildVlanInterfaceIdentifier(infName);
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier);
     }
 
     static InstanceIdentifier<ElanInstance> createElanInstanceIdentifier(String elanInstanceName) {

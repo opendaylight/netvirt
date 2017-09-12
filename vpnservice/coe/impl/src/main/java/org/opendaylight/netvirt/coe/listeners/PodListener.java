@@ -9,8 +9,8 @@
 package org.opendaylight.netvirt.coe.listeners;
 
 import com.google.common.util.concurrent.ListenableFuture;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
@@ -107,16 +107,25 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         // TODO use infrautils caching mechanism to add this info to cache.
 
         String podInterfaceName = podInterface.getUid().getValue();
-        jobCoordinator.enqueueJob(podInterfaceName, new RendererConfigAddWorker(podInterfaceName, podInterface));
+        jobCoordinator.enqueueJob(network, new RendererConfigAddWorker(podInterfaceName, podInterface));
 
     }
 
     private void update(Pods podsOld, Pods podsNew) {
-        // TODO
+        // DO Nothing
     }
 
     private void delete(Pods podsOld) {
-         // TODO
+        Interface podInterface = podsOld.getInterface().get(0);
+
+        String network = podInterface.getNetworkId().getValue();
+        if (network == null) {
+            LOG.warn("pod {} deletion without a valid network id {}", podInterface.getUid().getValue(), network);
+            return;
+        }
+
+        String podInterfaceName = podInterface.getUid().getValue();
+        jobCoordinator.enqueueJob(network, new RendererConfigRemoveWorker(podInterfaceName));
     }
 
     private class RendererConfigAddWorker implements Callable<List<ListenableFuture<Void>>> {
@@ -134,12 +143,31 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(podInterface, wrtConfigTxn, dataBroker);
             LOG.info("interface creation for pod {}", podInterfaceName);
-            String portInterfaceName = CoeUtils.createOfPortInterface(podInterface, wrtConfigTxn, dataBroker);
+            CoeUtils.createOfPortInterface(podInterface, wrtConfigTxn, dataBroker);
             LOG.debug("Creating ELAN Interface for pod {}", podInterfaceName);
-            CoeUtils.createElanInterface(podInterface, portInterfaceName, wrtConfigTxn);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(wrtConfigTxn.submit());
-            return futures;
+            CoeUtils.createElanInterface(podInterface, podInterfaceName, wrtConfigTxn);
+            return Collections.singletonList(wrtConfigTxn.submit());
+        }
+    }
+
+    private class RendererConfigRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
+        String podInterfaceName;
+
+        RendererConfigRemoveWorker(String podInterfaceName) {
+            this.podInterfaceName = podInterfaceName;
+        }
+
+        @Override
+        public List<ListenableFuture<Void>> call() {
+            LOG.trace("Deleting Pod : {}", podInterfaceName);
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+            LOG.debug("Deleting ELAN Interface for pod {}", podInterfaceName);
+            CoeUtils.deleteElanInterface(podInterfaceName, wrtConfigTxn);
+            LOG.info("interface deletion for pod {}", podInterfaceName);
+            CoeUtils.deleteOfPortInterface(podInterfaceName, wrtConfigTxn);
+            // TODO delete elan-instance if this is the last pod in the network
+            // TODO use infrautils cache to maintain this mapping and to decide on elan-instance deletion
+            return Collections.singletonList(wrtConfigTxn.submit());
         }
     }
 }
