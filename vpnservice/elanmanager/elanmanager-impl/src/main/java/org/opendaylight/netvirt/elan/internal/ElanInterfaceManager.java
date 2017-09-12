@@ -882,15 +882,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction writeFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
-                ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "group"), 9, elanInfo.getElanInstanceName(), 0,
+                0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 ElanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         mdsalManager.addFlowToTx(interfaceInfo.getDpId(), flow, writeFlowGroupTx);
 
         Flow flowEntry = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, 1000 + ifTag), 10, elanInfo.getElanInstanceName(), 0,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "drop"), 10, elanInfo.getElanInstanceName(), 0,
                 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
 
@@ -901,15 +901,15 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction deleteFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
-                ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "group"), 9, elanInfo.getElanInstanceName(), 0,
+                0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 ElanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
 
         mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), flow, deleteFlowGroupTx);
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, 1000 + ifTag), 10, elanInfo.getElanInstanceName(), 0,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag, "drop"), 10, elanInfo.getElanInstanceName(), 0,
                 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
 
@@ -1555,6 +1555,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private String getFlowRef(long tableId, long elanTag) {
         return String.valueOf(tableId) + elanTag;
+    }
+
+    private String getFlowRef(long tableId, long elanTag, String flowName) {
+        return new StringBuffer().append(tableId).append(NwConstants.FLOWID_SEPARATOR).append(elanTag)
+                .append(NwConstants.FLOWID_SEPARATOR).append(flowName).toString();
     }
 
     private String getUnknownDmacFlowRef(long tableId, long elanTag, boolean shFlag) {
