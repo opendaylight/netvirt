@@ -1,0 +1,28 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_0c7629d7",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 905,
+      "author": {
+        "id": 6822
+      },
+      "writtenOn": "2017-09-12T11:20:57Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_8cce992c",
+      "range": {
+        "startLine": 905,
+        "startChar": 0,
+        "endLine": 905,
+        "endChar": 112
+      },
+      "revId": "f23210eed5d3d48bf19dd4091bc6528b69d7ca42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
