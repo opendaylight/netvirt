@@ -46,6 +46,23 @@
       "revId": "a14ca021f1acbb5a752cc8132e0b9c595e2805a2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_5af0cf90",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-09-12T18:03:45Z",
+      "side": 1,
+      "message": "do we have to read this again? Won\u0027t this be available in the incoming event under BridgeAugmentation?",
+      "revId": "a14ca021f1acbb5a752cc8132e0b9c595e2805a2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
