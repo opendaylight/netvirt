@@ -860,7 +860,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction writeFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, (Integer.MAX_VALUE + ifTag * 2L)),
+                9, elanInfo.getElanInstanceName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 elanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
@@ -868,7 +869,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         mdsalManager.addFlowToTx(interfaceInfo.getDpId(), flow, writeFlowGroupTx);
 
         Flow flowEntry = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, 1000 + ifTag), 10, elanInfo.getElanInstanceName(), 0,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, (Integer.MAX_VALUE + ifTag * 2L + 1)),
+                10, elanInfo.getElanInstanceName(), 0,
                 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
 
@@ -879,7 +881,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction deleteFlowGroupTx) {
         int ifTag = interfaceInfo.getInterfaceTag();
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, (Integer.MAX_VALUE + ifTag * 2L)),
+                9, elanInfo.getElanInstanceName(), 0, 0,
                 ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 elanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
                 elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
@@ -887,11 +890,28 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), flow, deleteFlowGroupTx);
 
         Flow flowEntity = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
-                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, 1000 + ifTag), 10, elanInfo.getElanInstanceName(), 0,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, (Integer.MAX_VALUE + ifTag * 2L + 1)),
+                10, elanInfo.getElanInstanceName(), 0,
                 0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
                 getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
 
         mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), flowEntity, deleteFlowGroupTx);
+
+        // Delete also flows built with old logic.
+        Flow oldFlow = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, ifTag), 9, elanInfo.getElanInstanceName(), 0, 0,
+                ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
+                elanUtils.getTunnelIdMatchForFilterEqualsLPortTag(ifTag),
+                elanUtils.getInstructionsInPortForOutGroup(interfaceInfo.getInterfaceName()));
+
+        mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), oldFlow, deleteFlowGroupTx);
+
+        Flow oldFlowEntity = MDSALUtil.buildFlowNew(NwConstants.ELAN_FILTER_EQUALS_TABLE,
+                getFlowRef(NwConstants.ELAN_FILTER_EQUALS_TABLE, 1000 + ifTag), 10, elanInfo.getElanInstanceName(), 0,
+                0, ElanConstants.COOKIE_ELAN_FILTER_EQUALS.add(BigInteger.valueOf(ifTag)),
+                getMatchesForFilterEqualsLPortTag(ifTag), MDSALUtil.buildInstructionsDrop());
+
+        mdsalManager.removeFlowToTx(interfaceInfo.getDpId(), oldFlowEntity, deleteFlowGroupTx);
     }
 
     private List<Bucket> getRemoteBCGroupBucketInfos(ElanInstance elanInfo, int bucketKeyStart,
