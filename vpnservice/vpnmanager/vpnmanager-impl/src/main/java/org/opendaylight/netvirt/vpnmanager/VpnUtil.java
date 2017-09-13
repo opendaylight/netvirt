@@ -330,7 +330,7 @@ public class VpnUtil {
     }
 
     public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
+        VpnAfConfig vpnConfig = vpnInstance.getVpnConfig();
         LOG.trace("vpnConfig {}", vpnConfig);
         return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
                 vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
@@ -1819,8 +1819,8 @@ public class VpnUtil {
                  new org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang
                        .l3vpn.rev140815.vpn.instances.VpnInstanceBuilder(vpnInstance);
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
-            LOG.info("withdrawIpFamily : vpnName {} withdrawn from IPv4 - mute", vpnName);
-            // vpnInstanceBuilder.setIpv4Family(null).build();
+            LOG.info("withdrawIpFamily : vpnName {} withdrawn from IPv4", vpnName);
+            vpnInstanceBuilder.setIpv4Family(null).build();
         }
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
             LOG.info("withdrawIpFamilyFromVpn : vpnName {} withdrawn from IPv6", vpnName);
