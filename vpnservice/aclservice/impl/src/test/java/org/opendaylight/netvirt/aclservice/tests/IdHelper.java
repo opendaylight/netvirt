@@ -25,8 +25,10 @@ public final class IdHelper {
         idCacheMap.put("UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 1001);
         idCacheMap.put("TCP_DESTINATION_1_0Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1002);
         idCacheMap.put("ETHERnullEgress98785cc3048-abc3-43cc-89b3-377341426ac6", 1003);
+        idCacheMap.put("ETHERnullEgress987_FlowAfterRuleDeleted", 1003);
         idCacheMap.put("ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 1004);
         idCacheMap.put("ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 1005);
+        idCacheMap.put("ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress987_FlowAfterRuleDeleted", 1005);
         idCacheMap.put("UDP_DESTINATION_80_65535Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1006);
         idCacheMap.put("UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 1007);
         idCacheMap.put("UDP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 1008);
@@ -49,6 +51,7 @@ public final class IdHelper {
         idCacheMap.put("TCP_DESTINATION_384_65408Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1025);
         idCacheMap.put("TCP_DESTINATION_768_65528Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 1026);
         idCacheMap.put("ETHERnull_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 61010);
+        idCacheMap.put("ETHERnull_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Ingress987_FlowAfterRuleDeleted", 61010);
         idCacheMap.put("UDP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 61010);
         idCacheMap.put("ICMP_V4_DESTINATION_23__remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 61010);
         idCacheMap.put("TCP_DESTINATION_80_65535_remoteACL_id_85cc3048-abc3-43cc-89b3-377341426ac5Egress98785cc3048-abc3-43cc-89b3-377341426ac6", 61010);
