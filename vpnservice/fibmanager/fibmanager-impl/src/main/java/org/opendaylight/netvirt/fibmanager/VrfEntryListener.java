@@ -336,7 +336,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
         if (subnetRoute != null) {
             final long elanTag = subnetRoute.getElantag();
-            LOG.trace("SUBNETROUTE: createFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"
+            LOG.info("SUBNETROUTE: createFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"
                     + " with elantag {}", rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -358,6 +358,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         final List<BigInteger> localDpnIdList = createLocalFibEntry(vpnInstance.getVpnId(), rd, vrfEntry);
+        LOG.info("createFibEntries: local DPN list {} ", localDpnIdList);
         if (!localDpnIdList.isEmpty()) {
             if (vpnToDpnList != null) {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
@@ -368,9 +369,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                                 try {
                                     if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
+                                        LOG.info("createFibEntries: BGP Remote FIB entries invoked on DPN {} with "
+                                                        + "VrfEntry {} and VpnInstance {}", vpnDpn.getDpnId(), vrfEntry,
+                                                vpnInstance);
                                         bgpRouteVrfEntryHandler.createRemoteFibEntry(vpnDpn.getDpnId(),
                                                 vpnId, vrfTableKey.getRouteDistinguisher(), vrfEntry, tx, txnObjects);
                                     } else {
+                                        LOG.info("createFibEntries: Remote FIB entries invoked on DPN {} with "
+                                                        + "VrfEntry {} and VpnInstance {}", vpnDpn.getDpnId(), vrfEntry,
+                                                vpnInstance);
                                         createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
                                                 vrfTableKey.getRouteDistinguisher(), vrfEntry, tx);
                                     }
@@ -679,6 +686,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         String localNextHopIP = vrfEntry.getDestPrefix();
         Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, localNextHopIP);
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        LOG.info("createLocalFibEntry : localNextHopInfo {}", localNextHopInfo);
         if (localNextHopInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
             List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
@@ -752,6 +760,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         } else {
             BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId,
                     rd, vrfEntry, vpnId, /*routes*/ null, /*vpnExtraRoutes*/ null);
+            LOG.info("createLocalFibEntry: Local Dpn Id {}", dpnId);
             returnLocalDpnId.add(dpnId);
         }
         return returnLocalDpnId;
@@ -767,8 +776,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             long localGroupId;
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
-                LOG.debug("NAT Prefix {} with vpnId {} rd {}. Skip local dpn {} FIB processing",
-                        vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
+                LOG.info("checkCreateLocalFibEntry: NAT Prefix {} with vpnId {} rd {}. Skip local dpn {}"
+                        + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
                 return dpnId;
             }
             String jobKey = FibUtil.getCreateLocalNextHopJobKey(vpnId, dpnId, vrfEntry.getDestPrefix());
@@ -1119,13 +1128,16 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             baseVrfEntryHandler.makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions,
                     NwConstants.ADD_FLOW, tx, null);
         } else {
+            LOG.info("createRemoteFibEntry: Invoking remote fib entry on DPN {} ,VrfEntry {}, VpnId {} and "
+                    + "Adjacency {}", remoteDpnId, vrfEntry, vpnId, adjacencyResults);
             baseVrfEntryHandler.programRemoteFib(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults, null);
         }
 
         if (!wrTxPresent) {
             tx.submit();
         }
-        LOG.debug("Successfully added FIB entry for prefix {} in vpnId {}", vrfEntry.getDestPrefix(), vpnId);
+        LOG.info("Successfully added FIB entry for prefix {} in vpnId {} on remote DPN {}", vrfEntry.getDestPrefix(),
+                vpnId, remoteDpnId);
     }
 
     void cleanUpOpDataForFib(Long vpnId, String primaryRd, final VrfEntry vrfEntry) {
@@ -1546,12 +1558,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         boolean shouldCreateRemoteFibEntry = shouldCreateFibEntryForVrfAndVpnIdOnDpn(vpnId,
                                 vrfEntry, dpnId);
                         if (shouldCreateRemoteFibEntry) {
-                            LOG.trace("Will create remote FIB entry for vrfEntry {} on DPN {}",
+                            LOG.info("Will create remote FIB entry for vrfEntry {} on DPN {}",
                                     vrfEntry, dpnId);
                             if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
+                                LOG.info("populateFibOnNewDpn: BGP Remote FIB entries invoked on DPN {} with "
+                                                + "VrfEntry {} and VpnInstance {}", dpnId, vrfEntry,
+                                        vpnInstance);
                                 bgpRouteVrfEntryHandler.createRemoteFibEntry(dpnId, vpnId,
                                         vrfTable.get().getRouteDistinguisher(), vrfEntry, tx, txnObjects);
                             } else {
+                                LOG.info("populateFibOnNewDpn: Remote FIB entries invoked on DPN {} with "
+                                                + "VrfEntry {} and VpnInstance {}", dpnId, vrfEntry,
+                                        vpnInstance);
                                 createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getRouteDistinguisher(),
                                         vrfEntry, tx);
                             }
@@ -1632,6 +1650,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
                     if (action == true) {
                         LOG.trace("manageRemoteRouteOnDPN updated(add)  vrfEntry :: {}", modVrfEntry);
+                        LOG.info("manageRemoteRouteOnDPN: Remote FIB entries invoked on DPN {} with "
+                                        + "VrfEntry {} and VpnInstance {}", localDpnId, modVrfEntry,
+                                vpnInstance);
                         createRemoteFibEntry(localDpnId, vpnId, vrfTablesKey.getRouteDistinguisher(),
                                 modVrfEntry, writeTransaction);
                     } else {
@@ -1863,7 +1884,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (prefix != null) {
             BigInteger prefixDpnId = prefix.getDpnId();
             if (prefixDpnId == dpnId) {
-                LOG.trace("Should not create remote FIB entry for vrfEntry {} on DPN {}",
+                LOG.info("Should not create remote FIB entry for vrfEntry {} on DPN {}",
                         vrfEntry, dpnId);
                 return false;
             }
