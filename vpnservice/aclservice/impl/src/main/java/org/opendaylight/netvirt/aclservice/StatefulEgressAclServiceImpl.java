@@ -18,6 +18,7 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
@@ -72,21 +73,28 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     @Override
     protected String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace, String portId,
             Map<String, List<MatchInfoBase>> flowMap, String flowName) {
-        List<MatchInfoBase> matches = flowMap.get(flowName);
-        flowName += "Egress" + lportTag + ace.getKey().getRuleName();
-        matches.add(buildLPortTagMatch(lportTag));
-        matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
         Long elanId = AclServiceUtils.getElanIdFromAclInterface(portId);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions;
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
         if (packetHandling instanceof Permit) {
-            actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
+            List<NxCtAction> ctActionsList = new ArrayList<>();
+            NxCtAction nxCtMarkSetAction = new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_EST_STATE);
+            ctActionsList.add(nxCtMarkSetAction);
+
+            ActionNxConntrack actionNxConntrack = new ActionNxConntrack(2, 1, 0, elanId.intValue(),
+                    (short) 255, ctActionsList);
+            actionsInfos.add(actionNxConntrack);
             instructions = getDispatcherTableResubmitInstructions(actionsInfos);
         } else {
             instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
         }
+        List<MatchInfoBase> matches = flowMap.get(flowName);
+        matches.add(buildLPortTagMatch(lportTag));
+        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
+        final String clearCtMarkFlowName = flowName + "Egress" + lportTag + "_FlowAfterRuleDeleted";
+        flowName += "Egress" + lportTag + ace.getKey().getRuleName();
         String poolName = AclServiceUtils.getAclPoolName(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, packetHandling);
         // For flows related remote ACL, unique flow priority is used for
         // each flow to avoid overlapping flows
@@ -94,6 +102,11 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
 
         syncFlow(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
             AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+
+        syncFlowForApplyChangeForExistingTraffic(dpId, priority, matches, getEgressAclFilterTable(),
+            clearCtMarkFlowName, ace, NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE,
+            elanId, addOrRemove);
+
         return flowName;
     }
 
@@ -188,7 +201,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     private void programEgressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
         LOG.debug("Applying Egress ConnTrack Drop Rules on DpId {}, lportTag {}", dpId, lportTag);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",
-                AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
+                AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, addOrRemove);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",
                 AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, addOrRemove);
     }
