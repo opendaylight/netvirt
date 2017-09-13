@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn.shell;
 
 import java.util.ArrayList;
@@ -38,6 +37,7 @@ import org.slf4j.LoggerFactory;
 public class ConfigureL3VpnCommand extends OsgiCommandSupport {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigureL3VpnCommand.class);
+
     private INeutronVpnManager neutronVpnManager;
     private RpcProviderRegistry rpcProviderRegistry;
     private NeutronvpnService neutronvpnService;
@@ -81,7 +81,6 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-
         if (rpcProviderRegistry != null) {
             neutronvpnService = rpcProviderRegistry.getRpcService(NeutronvpnService.class);
             if (neutronvpnService != null) {
@@ -111,10 +110,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         return null;
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public void createL3VpnCLI() {
-
+    private void createL3VpnCLI() throws InterruptedException, ExecutionException {
         if (vid == null) {
             session.getConsole().println("Please supply a valid VPN ID");
             session.getConsole().println(getHelp("create"));
@@ -142,7 +138,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         Uuid vuuid = new Uuid(vid);
 
         RpcResult<CreateL3VPNOutput> createL3VpnRpcResult = null;
-        try {
+        {
             ArrayList<String> rdList = new ArrayList<>(Arrays.asList(rd.split(",")));
             ArrayList<String> irtList = new ArrayList<>(Arrays.asList(irt.split(",")));
             ArrayList<String> ertList = new ArrayList<>(Arrays.asList(ert.split(",")));
@@ -166,10 +162,6 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                 session.getConsole().println("Error populating createL3VPN : " + result.get().getErrors());
                 session.getConsole().println(getHelp("create"));
             }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("error populating createL3VPN for VPN ID {}", vid, e);
-            session.getConsole().println("Error populating createL3VPN : " + e.getMessage());
-            session.getConsole().println(getHelp("create"));
         }
 
         /**
@@ -177,7 +169,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
          * association of network(s) to VPN is being intended.
          */
         if (createL3VpnRpcResult.isSuccessful()) {
-            try {
+            {
                 List<Uuid> networkIdList = new ArrayList<>();
 
                 if (sid != null) {
@@ -207,18 +199,11 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
                         }
                     }
                 }
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("error while adding subnet(s) to VPN {}", vid, e);
-                session.getConsole().println("Error while adding subnet(s) to VPN: " + e.getMessage());
-                session.getConsole().println(getHelp("create"));
             }
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public void deleteL3VpnCLI() {
-
+    private void deleteL3VpnCLI() throws InterruptedException, ExecutionException {
         if (vid == null) {
             session.getConsole().println("Please supply a valid VPN ID");
             session.getConsole().println(getHelp("delete"));
@@ -229,47 +214,35 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         // disassociation of network(s) (removal of subnet(s)) from VPN to be followed by deletion of VPN
         RpcResult<DissociateNetworksOutput> dissociateNetworksRpcResult = null;
         List<Uuid> networkIdList = null;
-        try {
-            networkIdList = neutronVpnManager.getNetworksForVpn(vpnId);
+        networkIdList = neutronVpnManager.getNetworksForVpn(vpnId);
 
-            if (networkIdList != null && !networkIdList.isEmpty()) {
-                Future<RpcResult<DissociateNetworksOutput>> result =
-                        neutronvpnService.dissociateNetworks(new DissociateNetworksInputBuilder()
-                                .setVpnId(vpnId).setNetworkId(networkIdList).build());
-                dissociateNetworksRpcResult = result.get();
-                if (dissociateNetworksRpcResult.isSuccessful()) {
-                    session.getConsole().println("Subnet(s) removed from VPN successfully");
-                    LOG.trace("dissociateNetworks: {}", result);
-                } else {
-                    session.getConsole().println("Error while removing subnet(s) from VPN: "
-                            + result.get().getErrors());
-                    session.getConsole().println(getHelp("delete"));
-                }
+        if (networkIdList != null && !networkIdList.isEmpty()) {
+            Future<RpcResult<DissociateNetworksOutput>> result =
+                    neutronvpnService.dissociateNetworks(new DissociateNetworksInputBuilder()
+                            .setVpnId(vpnId).setNetworkId(networkIdList).build());
+            dissociateNetworksRpcResult = result.get();
+            if (dissociateNetworksRpcResult.isSuccessful()) {
+                session.getConsole().println("Subnet(s) removed from VPN successfully");
+                LOG.trace("dissociateNetworks: {}", result);
+            } else {
+                session.getConsole().println("Error while removing subnet(s) from VPN: "
+                        + result.get().getErrors());
+                session.getConsole().println(getHelp("delete"));
             }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("error while adding removing subnet(s) from VPN {}", vid, e);
-            session.getConsole().println("Error while removing subnet(s) from VPN: " + e.getMessage());
-            session.getConsole().println(getHelp("delete"));
         }
 
         if (networkIdList == null || networkIdList.isEmpty() || dissociateNetworksRpcResult.isSuccessful()) {
-            try {
-                List<Uuid> vpnIdList = new ArrayList<>();
-                vpnIdList.add(vpnId);
+            List<Uuid> vpnIdList = new ArrayList<>();
+            vpnIdList.add(vpnId);
 
-                Future<RpcResult<DeleteL3VPNOutput>> result =
-                        neutronvpnService.deleteL3VPN(new DeleteL3VPNInputBuilder().setId(vpnIdList).build());
-                RpcResult<DeleteL3VPNOutput> rpcResult = result.get();
-                if (rpcResult.isSuccessful()) {
-                    session.getConsole().println("L3VPN deleted successfully");
-                    LOG.trace("deletel3vpn: {}", result);
-                } else {
-                    session.getConsole().println("Error populating deleteL3VPN : " + result.get().getErrors());
-                    session.getConsole().println(getHelp("delete"));
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                LOG.error("error populating deleteL3VPN for VPN ID {}", vid, e);
-                session.getConsole().println("Error populating deleteL3VPN : " + e.getMessage());
+            Future<RpcResult<DeleteL3VPNOutput>> result =
+                    neutronvpnService.deleteL3VPN(new DeleteL3VPNInputBuilder().setId(vpnIdList).build());
+            RpcResult<DeleteL3VPNOutput> rpcResult = result.get();
+            if (rpcResult.isSuccessful()) {
+                session.getConsole().println("L3VPN deleted successfully");
+                LOG.trace("deletel3vpn: {}", result);
+            } else {
+                session.getConsole().println("Error populating deleteL3VPN : " + result.get().getErrors());
                 session.getConsole().println(getHelp("delete"));
             }
         } else {
