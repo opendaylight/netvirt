@@ -1828,7 +1828,7 @@ public class NatUtil {
 
     @Nonnull
     public static List<String> getListOfRdsFromVpnInstance(VpnInstance vpnInstance) {
-        VpnAfConfig vpnConfig = vpnInstance.getIpv4Family();
+        VpnAfConfig vpnConfig = vpnInstance.getVpnConfig();
         return vpnConfig.getRouteDistinguisher() != null ? new ArrayList<>(
                 vpnConfig.getRouteDistinguisher()) : new ArrayList<>();
     }
