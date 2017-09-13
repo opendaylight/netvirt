@@ -80,7 +80,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     @Override
     public boolean applyAcl(AclInterface port) {
         if (port == null) {
-            LOG.error("port cannot be null");
+            LOG.error("port is null on ACL BIN");
             return false;
         }
         if (port.getSecurityGroups() == null) {
@@ -101,7 +101,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     @Override
     public boolean bindAcl(AclInterface port) {
         if (port == null) {
-            LOG.error("port is null on ACL BIND");
+            LOG.error("port cannot be null");
             return false;
         }
         bindService(port);

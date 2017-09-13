@@ -100,7 +100,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         List<MatchInfoBase> matches = flowMap.get(flowName);
         flowName += "Ingress" + lportTag + ace.getKey().getRuleName();
         matches.add(buildLPortTagMatch(lportTag));
-        matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
+        matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
 
         Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -120,6 +120,14 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
 
         syncFlow(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE, flowName, priority, "ACL", 0, 0,
             AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        String deleteFlowName = flowName + "ACL_Reflection";
+        if (addOrRemove == NwConstants.DEL_FLOW) {
+            syncFlow(dpId, NwConstants.EGRESS_ACL_REFLECTION_TABLE, deleteFlowName, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        } else {
+            syncFlow(dpId, NwConstants.EGRESS_ACL_REFLECTION_TABLE, deleteFlowName, priority, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        }
         return flowName;
     }
 
@@ -214,9 +222,9 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
     private void programIngressConntrackDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
         LOG.debug("Applying Egress ConnTrack Drop Rules on DpId {}, lportTag {}", dpId, lportTag);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "Tracked_New",
-                AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK, addOrRemove);
+                AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, addOrRemove);
         programConntrackDropRule(dpId, lportTag, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "Tracked_Invalid",
-                AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, addOrRemove);
+                AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK, addOrRemove);
     }
 
     /**
