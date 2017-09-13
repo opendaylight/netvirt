@@ -35,6 +35,8 @@ import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
@@ -643,5 +645,25 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(poolName, flowName);
         }
         return priority;
+    }
+
+    /**
+     * Gets the idle time out based on the protocol.
+     *
+     * @param ace
+     *            the ace
+     * @return the idle time out
+     */
+    protected int getIdleTimoutByProtocol(Ace ace) {
+        int idleTimout = 30;
+        Matches matches = ace.getMatches();
+        AceIp acl = (AceIp) matches.getAceType();
+        Short protocol = acl.getProtocol();
+        if (acl.getProtocol() == NwConstants.IP_PROT_TCP) {
+            idleTimout = this.aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout();
+        } else if (acl.getProtocol() == NwConstants.IP_PROT_UDP) {
+            idleTimout = this.aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout();
+        }
+        return idleTimout;
     }
 }
