@@ -201,14 +201,14 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             tx = dataBroker.newWriteOnlyTransaction();
         }
 
-        LOG.trace("makeConnectedRoute: vrfEntry {}", vrfEntry);
+        LOG.info("makeConnectedRoute: vrfEntry {} and DPN {} ", vrfEntry, dpId);
         String[] values = vrfEntry.getDestPrefix().split("/");
         String ipAddress = values[0];
         int prefixLength = values.length == 1 ? 0 : Integer.parseInt(values[1]);
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            LOG.debug("Adding route to DPN {} for rd {} prefix {} ", dpId, rd, vrfEntry.getDestPrefix());
+            LOG.info("Adding route to DPN {} for rd {} prefix {} ", dpId, rd, vrfEntry.getDestPrefix());
         } else {
-            LOG.debug("Removing route from DPN {} for rd {} prefix {}", dpId, rd, vrfEntry.getDestPrefix());
+            LOG.info("Removing route from DPN {} for rd {} prefix {}", dpId, rd, vrfEntry.getDestPrefix());
         }
         InetAddress destPrefix;
         try {
