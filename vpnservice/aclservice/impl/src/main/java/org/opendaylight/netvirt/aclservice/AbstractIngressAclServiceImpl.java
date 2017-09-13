@@ -255,7 +255,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 new InstructionWriteMetadata(AclServiceUtils.getAclIdMetadata(aclId),
                         MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
         instructions.add(writeMetatdata);
-        instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
+        instructions.add(new InstructionGotoTable(getIngressAclReflectionAclTable()));
 
         Long serviceTag = vpnId != null ? vpnId : elanTag;
         String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + serviceTag;
@@ -270,6 +270,10 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
     protected short getIngressAclRemoteAclTable() {
         return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+    }
+
+    protected short getIngressAclReflectionAclTable() {
+        return NwConstants.EGRESS_ACL_REFLECTION_TABLE;
     }
 
     protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
@@ -418,7 +422,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                         instructions, addOrRemove);
             }
         } else {
-            LOG.warn("IP Broadcast CIDRs are missing for port {}", port.getInterfaceId());
+            LOG.error("IP Broadcast CIDRs are missing for port {}", port.getInterfaceId());
         }
     }
 
