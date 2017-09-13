@@ -28,7 +28,6 @@ public class ShowVpnConfigCommand extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-
         Uuid vuuid = null;
         if (vid != null) {
             vuuid = new Uuid(vid);
