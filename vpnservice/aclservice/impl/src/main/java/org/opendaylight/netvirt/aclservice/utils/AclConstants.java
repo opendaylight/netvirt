@@ -55,11 +55,17 @@ public interface AclConstants {
     int TRACKED_REL_CT_STATE = 0x24;
     int TRACKED_NEW_CT_STATE = 0x21;
     int TRACKED_INV_CT_STATE = 0x30;
+    int TRACKED_RPL_CT_STATE = 0x20;
 
     int TRACKED_EST_CT_STATE_MASK = 0x37;
     int TRACKED_REL_CT_STATE_MASK = 0x37;
     int TRACKED_NEW_CT_STATE_MASK = 0x21;
     int TRACKED_INV_CT_STATE_MASK = 0x30;
+    int TRACKED_RPL_CT_STATE_MASK = 0x28;
+
+    int CT_MARK_NEW_STATE = 0x0;
+    int CT_MARK_EST_STATE = 0x1;
+    int CT_MARK_EST_STATE_MASK = 0x1;
 
     String IPV4_ALL_NETWORK = "0.0.0.0/0";
     String IPV6_ALL_NETWORK = "::/0";
@@ -86,6 +92,8 @@ public interface AclConstants {
     String SECURITY_GROUP_TCP_FIN_HARD_TO_KEY = "security-group-tcp-fin-hard-timeout";
     String SECURITY_GROUP_UDP_IDLE_TO_KEY = "security-group-udp-idle-timeout";
     String SECURITY_GROUP_UDP_HARD_TO_KEY = "security-group-udp-hard-timeout";
+
+    int SECURITY_GROUP_ICMP_IDLE_TIME_OUT = 30;
 
     String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
     long ACL_FLOW_PRIORITY_LOW_POOL_START = 1000L;
