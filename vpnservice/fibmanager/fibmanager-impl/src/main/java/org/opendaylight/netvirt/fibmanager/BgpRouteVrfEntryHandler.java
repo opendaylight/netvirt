@@ -186,6 +186,9 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         if (vpnToDpnList != null) {
             for (VpnToDpnList vpnDpn : vpnToDpnList) {
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                    LOG.info("createFibEntries: Remote FIB entries invoked on DPN {} with "
+                                    + "VrfEntry {} and VpnInstance {}", vpnDpn.getDpnId(), vrfEntry,
+                            vpnInstance);
                     createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey.getRouteDistinguisher(),
                             vrfEntry, writeTx, subTxns);
                 }
