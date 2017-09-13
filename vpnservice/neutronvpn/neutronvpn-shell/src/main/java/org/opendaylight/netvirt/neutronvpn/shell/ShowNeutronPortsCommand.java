@@ -14,6 +14,7 @@ import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 
 @Command(scope = "vpnservice", name = "neutron-ports-show", description = "Displays neutron ports")
 public class ShowNeutronPortsCommand extends OsgiCommandSupport {
+
     private INeutronVpnManager neutronVpnManager;
 
     public void setNeutronVpnManager(INeutronVpnManager neutronVpnManager) {
