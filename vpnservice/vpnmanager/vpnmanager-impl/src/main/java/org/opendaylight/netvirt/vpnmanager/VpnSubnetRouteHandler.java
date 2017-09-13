@@ -292,24 +292,24 @@ public class VpnSubnetRouteHandler {
         VpnInstanceBuilder vpnInstanceBuilder = new VpnInstanceBuilder(vpnInstance);
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && (vpnInstance.getIpv4Family() == null)) {
             Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
-            vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build()).build();
+            vpnInstanceBuilder.setIpv4Family(ipv4vpnBuilder.build());
             isVpnInstanceChanged = true;
         }
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && (vpnInstance.getIpv6Family() == null)) {
             Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
-            vpnInstanceBuilder.setIpv6Family(ipv6vpnBuilder.build()).build();
+            vpnInstanceBuilder.setIpv6Family(ipv6vpnBuilder.build());
             isVpnInstanceChanged = true;
         }
         if (isVpnInstanceChanged == false) {
             LOG.debug("VpnInstance {} did not change with subnet IpFamily {}", vpnName, ipVersion.toString());
             return;
         }
+        VpnInstance newVpn = vpnInstanceBuilder.build();
         boolean isLockAcquired = false;
         isLockAcquired = NeutronUtils.lock(vpnName);
         InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
                 .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
-        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier,
-                vpnInstanceBuilder.build());
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
         if (isLockAcquired) {
             NeutronUtils.unlock(vpnName);
         }
