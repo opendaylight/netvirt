@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_ef146eea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "this is the method used to refresh rds.\nso i reuse the method that works.\nusing for, i am not sure it will work.",
+      "parentUuid": "ba1f61a0_71a34300",
+      "range": {
+        "startLine": 354,
+        "startChar": 2,
+        "endLine": 354,
+        "endChar": 18
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_715503f9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-08T16:24:33Z",
       "side": 1,
       "message": "It seems that we need to check here presence of IPv6 as well.\nWe can not have VPN without  Ipv4Family, because we set it by default. But it could be empty.",
+      "range": {
+        "startLine": 381,
+        "startChar": 2,
+        "endLine": 384,
+        "endChar": 19
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4f2e5a44",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "The goal is to retrieve vpn settings.\nNo. default in neutron vpn creates a vpn instance with ipv4family.\nassuming that, and that vpn settings are the same across ipv4/ipv6,.., i dont need to do more.",
+      "parentUuid": "ba1f61a0_715503f9",
       "range": {
         "startLine": 381,
         "startChar": 2,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_2f3326ac",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 386,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "function updatewithRD in neutron ensures that the same vpn settings are refreshed everywhere.",
+      "parentUuid": "ba1f61a0_91ad17ec",
+      "range": {
+        "startLine": 386,
+        "startChar": 33,
+        "endLine": 386,
+        "endChar": 64
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_31842b5d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2017-09-08T17:15:19Z",
       "side": 1,
       "message": "the same, you need at first verify, maybe IPv6Family config already has ertList and irtList",
+      "range": {
+        "startLine": 394,
+        "startChar": 3,
+        "endLine": 395,
+        "endChar": 49
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8f24d260",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "ditto",
+      "parentUuid": "ba1f61a0_31842b5d",
       "range": {
         "startLine": 394,
         "startChar": 3,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_6f299e36",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 400,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "as mentioned.",
+      "parentUuid": "ba1f61a0_11892775",
+      "range": {
+        "startLine": 400,
+        "startChar": 20,
+        "endLine": 400,
+        "endChar": 59
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_f1bbb30c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 1
@@ -133,6 +253,29 @@
         "startChar": 1,
         "endLine": 431,
         "endChar": 9
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4fd5ba1a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 718,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "i will remove those error messages and conver it to log.info",
+      "range": {
+        "startLine": 718,
+        "startChar": 30,
+        "endLine": 718,
+        "endChar": 45
       },
       "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -186,6 +329,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_cf21aa4e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "If you update vpn config DS, vpn oper DS will be upadted automatically.\non top of that, i did not find the same vpn intormation in both config and oper DS.\nso i would keep it like that",
+      "parentUuid": "ba1f61a0_113e478c",
+      "range": {
+        "startLine": 286,
+        "startChar": 8,
+        "endLine": 286,
+        "endChar": 20
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_51443f1a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 1
@@ -197,6 +364,30 @@
       "writtenOn": "2017-09-08T17:15:19Z",
       "side": 1,
       "message": "We should implement lock and unlock at vpnmanager level. neutronvpn top-layer uses vpnmanager. Hence vpnmanager can not use neutronvpn.",
+      "range": {
+        "startLine": 295,
+        "startChar": 25,
+        "endLine": 295,
+        "endChar": 38
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_af1ef609",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "i would tend to think that if we can make it work without that vpnmanager enhancement, it will be ok at first.\nbut ok to do it subsequently.",
+      "parentUuid": "ba1f61a0_51443f1a",
       "range": {
         "startLine": 295,
         "startChar": 25,
@@ -243,6 +434,30 @@
       "writtenOn": "2017-09-08T17:15:19Z",
       "side": 1,
       "message": "I\u0027m not sure that we can operate with VpnInstance, It seems that at this layer you should update VpnInstanceOpDataEntry and these changes will be populated to Config DS automatically",
+      "range": {
+        "startLine": 319,
+        "startChar": 8,
+        "endLine": 319,
+        "endChar": 31
+      },
+      "revId": "7078184cf41fb0fa8d45ebd7f81f0133b1db786e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_0f18e21c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-13T12:24:42Z",
+      "side": 1,
+      "message": "see comment above",
+      "parentUuid": "ba1f61a0_3160aba4",
       "range": {
         "startLine": 319,
         "startChar": 8,
