@@ -1201,10 +1201,10 @@ public class NeutronvpnUtils {
         Optional<VpnInstances> vpnInstancesOptional = read(broker, LogicalDatastoreType.CONFIGURATION, path);
         if (vpnInstancesOptional.isPresent() && vpnInstancesOptional.get().getVpnInstance() != null) {
             for (VpnInstance vpnInstance : vpnInstancesOptional.get().getVpnInstance()) {
-                if (vpnInstance.getIpv4Family() == null) {
+                if (vpnInstance.getVpnConfig() == null) {
                     continue;
                 }
-                List<String> rds = vpnInstance.getIpv4Family().getRouteDistinguisher();
+                List<String> rds = vpnInstance.getVpnConfig().getRouteDistinguisher();
                 if (rds != null) {
                     existingRDs.addAll(rds);
                 }
