@@ -1,0 +1,8 @@
+Code-Review+2: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Code-Review+1: Michael Vorburger <vorburger@redhat.com>
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Submitted-by: Stephen Kitt <skitt@redhat.com>
+Submitted-at: Wed, 13 Sep 2017 13:55:49 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/63097
+Project: netvirt
+Branch: refs/heads/master
