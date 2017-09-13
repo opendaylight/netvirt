@@ -12,12 +12,21 @@ import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.function.BiConsumer;
 
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -32,9 +41,12 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -177,6 +189,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
     }
 
+    Waiter2<VpnInstanceOpDataEntry> waiter = null;
     void addOrDelDefaultFibRouteToSNATForSubnet(Subnets subnet, String networkId, int flowAction, long vpnId) {
         String subnetId = subnet.getId().getValue();
         InstanceIdentifier<VpnInstanceOpDataEntry> networkVpnInstanceIdentifier =
@@ -203,11 +216,66 @@ public class SNATDefaultRouteProgrammer {
             } else {
                 LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Will not add/remove default NAT flow for subnet {} "
                         + "no dpn set for vpn instance {}", subnetId, networkVpnInstanceOp.get());
+                if (waiter == null) {
+                    waiter = new Waiter2<VpnInstanceOpDataEntry>(dataBroker, LogicalDatastoreType.OPERATIONAL, networkVpnInstanceIdentifier,
+                            (t, u) -> {
+                                addOrDelDefaultFibRouteToSNATForSubnet(subnet, networkId, flowAction, vpnId);
+                            });
+                }
             }
         } else {
             LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Cannot create/remove default FIB route to SNAT flow "
                     + "for subnet {} vpn-instance-op-data entry for network {} does not exist",
                 subnetId, networkId);
         }
+    }
+}
+
+class Waiter2<T extends DataObject> implements DataTreeChangeListener<T> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Waiter.class);
+
+    private static Set instances = new HashSet();
+
+    private BiConsumer<T, DataBroker> handler;
+    private DataBroker dataBroker;
+    private ListenerRegistration<Waiter2> registration;
+    private InstanceIdentifier<T> iid;
+
+    public Waiter2(DataBroker dataBroker, LogicalDatastoreType dataStore, InstanceIdentifier<T> iid, BiConsumer<T, DataBroker> handler) {
+        this.handler = handler;
+        this.dataBroker = dataBroker;
+        this.iid = iid;
+        final DataTreeIdentifier<T> treeId = new DataTreeIdentifier<>(dataStore, iid);
+        LOG.info("Waiter {} waiting on {}", hashCode(), treeId);
+        synchronized (instances) {
+            this.registration = dataBroker.registerDataTreeChangeListener(treeId, this);
+            instances.add(this);
+        }
+    }
+
+    @Override
+    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<T>> collection) {
+        for (DataTreeModification<T> change : collection) {
+            final InstanceIdentifier<T> key = change.getRootPath().getRootIdentifier();
+            final DataObjectModification<T> mod = change.getRootNode();
+
+            switch (mod.getModificationType()) {
+                case DELETE:
+                    LOG.info("Waiter {} got delete?!", hashCode());
+                    break;
+                case SUBTREE_MODIFIED:
+                    LOG.info("Waiter {} got update?!", hashCode());
+                    handler.accept(mod.getDataAfter(), this.dataBroker);
+                    break;
+                case WRITE:
+                    LOG.info("Waiter {} got a write update?!", hashCode());
+                    break;
+                default:
+                    // FIXME: May be not a good idea to throw.
+                    throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
+            }
+        }
+
     }
 }
