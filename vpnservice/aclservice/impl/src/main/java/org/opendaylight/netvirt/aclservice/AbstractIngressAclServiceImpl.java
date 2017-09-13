@@ -255,7 +255,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                 new InstructionWriteMetadata(AclServiceUtils.getAclIdMetadata(aclId),
                         MetaDataUtil.METADATA_MASK_REMOTE_ACL_ID);
         instructions.add(writeMetatdata);
-        instructions.add(new InstructionGotoTable(getIngressAclFilterTable()));
+        instructions.add(new InstructionGotoTable(getStatefulIngressAclApplyOnExistingTrafficTable()));
 
         Long serviceTag = vpnId != null ? vpnId : elanTag;
         String flowNameAdded = "Acl_Filter_Ingress_" + new String(ip.getIpAddress().getValue()) + "_" + serviceTag;
@@ -270,6 +270,10 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
     protected short getIngressAclRemoteAclTable() {
         return NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE;
+    }
+
+    protected short getStatefulIngressAclApplyOnExistingTrafficTable() {
+        return NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE;
     }
 
     protected abstract String syncSpecificAclFlow(BigInteger dpId, int lportTag, int addOrRemove, Ace ace,
