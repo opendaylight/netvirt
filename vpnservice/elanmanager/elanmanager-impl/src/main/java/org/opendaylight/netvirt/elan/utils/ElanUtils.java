@@ -299,8 +299,6 @@ public class ElanUtils {
     /**
      * Uses the IdManager to retrieve a brand new ElanTag.
      *
-     * @param idManager
-     *            the id manager
      * @param idKey
      *            the id key
      * @return the integer
@@ -1247,7 +1245,8 @@ public class ElanUtils {
                 .setKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
         long etreeLeafTag = -1;
         if (isEtreeInstance(elanInstanceAdded)) {
-            etreeLeafTag = retrieveNewElanTag(idManager, elanInstanceName + ElanConstants.LEAVES_POSTFIX);
+            etreeLeafTag = retrieveNewElanTag(idManager,elanInstanceName + ElanConstants
+                    .LEAVES_POSTFIX);
             EtreeLeafTagName etreeLeafTagName = new EtreeLeafTagNameBuilder()
                     .setEtreeLeafTag(new EtreeLeafTag(etreeLeafTag)).build();
             elanTagNameBuilder.addAugmentation(EtreeLeafTagName.class, etreeLeafTagName);
