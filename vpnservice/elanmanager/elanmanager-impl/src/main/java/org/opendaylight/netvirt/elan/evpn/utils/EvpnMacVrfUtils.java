@@ -20,6 +20,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -39,6 +40,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evp
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.retrieveNewElanTag;
 
 @Singleton
 public class EvpnMacVrfUtils {
@@ -71,7 +74,7 @@ public class EvpnMacVrfUtils {
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanName);
         Long elanTag = elanInstance.getElanTag();
         if (elanTag == null || elanTag == 0L) {
-            elanTag = elanUtils.retrieveNewElanTag(idManager, elanName);
+            elanTag = retrieveNewElanTag(idManager, elanName);
         }
         return elanTag;
     }

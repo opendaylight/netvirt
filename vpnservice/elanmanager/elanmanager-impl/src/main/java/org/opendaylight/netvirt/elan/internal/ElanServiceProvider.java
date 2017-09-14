@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
 import javax.inject.Inject;
@@ -827,6 +828,18 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     public void removeArpResponderFlow(ArpResponderInput arpResponderInput) {
         elanUtils.removeArpResponderFlow(arpResponderInput.getDpId(), arpResponderInput.getInterfaceName(),
                 arpResponderInput.getSpa(), arpResponderInput.getLportTag());
+    }
+
+    /**
+     * Uses the IdManager to retrieve a brand new ElanTag.
+     *
+     * @param idKey
+     *            the id key
+     * @return the integer
+     */
+    @Override
+    public Long retrieveNewElanTag(String idKey) {
+        return elanUtils.retrieveNewElanTag(idManager, idKey);
     }
 
 }
