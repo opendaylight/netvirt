@@ -296,34 +296,6 @@ public class ElanUtils {
         return elanInterfaceLocalCache.get(interfaceName);
     }
 
-    /**
-     * Uses the IdManager to retrieve a brand new ElanTag.
-     *
-     * @param idManager
-     *            the id manager
-     * @param idKey
-     *            the id key
-     * @return the integer
-     */
-    public static Long retrieveNewElanTag(IdManagerService idManager, String idKey) {
-
-        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(ElanConstants.ELAN_ID_POOL_NAME)
-                .setIdKey(idKey).build();
-
-        try {
-            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
-            RpcResult<AllocateIdOutput> rpcResult = result.get();
-            if (rpcResult.isSuccessful()) {
-                return rpcResult.getResult().getIdValue();
-            } else {
-                LOG.warn("RPC Call to Allocate Id returned with Errors {}", rpcResult.getErrors());
-            }
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when Allocating Id", e);
-        }
-        return 0L;
-    }
-
     public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
         ReleaseIdInput releaseIdInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         idManager.releaseId(releaseIdInput);
@@ -1247,7 +1219,8 @@ public class ElanUtils {
                 .setKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
         long etreeLeafTag = -1;
         if (isEtreeInstance(elanInstanceAdded)) {
-            etreeLeafTag = retrieveNewElanTag(idManager, elanInstanceName + ElanConstants.LEAVES_POSTFIX);
+            etreeLeafTag = retrieveNewElanTag(idManager,elanInstanceName + ElanConstants
+                    .LEAVES_POSTFIX);
             EtreeLeafTagName etreeLeafTagName = new EtreeLeafTagNameBuilder()
                     .setEtreeLeafTag(new EtreeLeafTag(etreeLeafTag)).build();
             elanTagNameBuilder.addAugmentation(EtreeLeafTagName.class, etreeLeafTagName);
@@ -2345,6 +2318,32 @@ public class ElanUtils {
         LOG.info("Removing the ARP responder flow on DPN {} of Interface {} with IP {}", dpnId, ingressInterfaceName,
                 ipAddress);
         ArpResponderUtil.removeFlow(mdsalManager, dpnId, ArpResponderUtil.getFlowId(lportTag, ipAddress));
+    }
+
+    /**
+     * Uses the IdManager to retrieve a brand new ElanTag.
+     *
+     * @param idKey
+     *            the id key
+     * @return the integer
+     */
+    public static Long retrieveNewElanTag(IdManagerService idManager, String idKey) {
+
+        AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(ElanConstants.ELAN_ID_POOL_NAME)
+                .setIdKey(idKey).build();
+
+        try {
+            Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
+            RpcResult<AllocateIdOutput> rpcResult = result.get();
+            if (rpcResult.isSuccessful()) {
+                return rpcResult.getResult().getIdValue();
+            } else {
+                LOG.warn("RPC Call to Allocate Id returned with Errors {}", rpcResult.getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when Allocating Id", e);
+        }
+        return 0L;
     }
 }
 
