@@ -95,4 +95,6 @@ public interface IElanService extends IEtreeService {
      */
     void removeArpResponderFlow(ArpResponderInput arpResponderInput);
 
+    Long retrieveNewElanTag(String idKey);
+
 }
