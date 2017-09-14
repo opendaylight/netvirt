@@ -148,7 +148,6 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         Class<? extends SegmentTypeBase> updateSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(update);
         String updateSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(update);
         String updatePhysicalNetwork = NeutronvpnUtils.getPhysicalNetworkName(update);
-        Boolean updateExternal = NeutronvpnUtils.getIsExternal(update);
 
         if (!Objects.equals(origSegmentType, updateSegmentType)
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
@@ -163,7 +162,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             if (elanInstance != null) {
                 elanService.deleteExternalElanNetwork(elanInstance);
                 elanInstance = updateElanInstance(elanInstanceName, updateSegmentType, updateSegmentationId,
-                        updatePhysicalNetwork, buildSegments(update), updateExternal);
+                        updatePhysicalNetwork, update);
                 elanService.updateExternalElanNetwork(elanInstance);
             }
 
@@ -208,17 +207,19 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         Class<? extends SegmentTypeBase> segmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(input);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(input);
         String physicalNetworkName = NeutronvpnUtils.getPhysicalNetworkName(input);
-        Boolean isExternal = NeutronvpnUtils.getIsExternal(input);
-        ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId,
-                                                       physicalNetworkName, buildSegments(input), isExternal);
+        long elanTag = elanService.retrieveNewElanTag(elanInstanceName);
+        ElanInstance elanInstance = createElanInstanceBuilder(elanInstanceName, segmentType, segmentationId,
+                physicalNetworkName, input).setElanTag(elanTag).build();
         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
-        LOG.debug("ELANInstance {} created", elanInstanceName);
+        LOG.debug("ELANInstance {} created with elan tag {} and segmentation ID {}", elanInstanceName, elanTag,
+                segmentationId);
         return elanInstance;
     }
 
-    private ElanInstance createElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
-                                            String segmentationId, String physicalNetworkName,
-                                            List<ElanSegments> segments, Boolean isExternal) {
+    private ElanInstanceBuilder createElanInstanceBuilder(String elanInstanceName, Class<? extends SegmentTypeBase>
+            segmentType, String segmentationId, String physicalNetworkName, Network network) {
+        Boolean isExternal = NeutronvpnUtils.getIsExternal(network);
+        List<ElanSegments> segments = buildSegments(network);
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName);
         if (segmentType != null) {
             elanInstanceBuilder.setSegmentType(segmentType);
@@ -234,7 +235,7 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         }
         elanInstanceBuilder.setExternal(isExternal);
         elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
-        return elanInstanceBuilder.build();
+        return elanInstanceBuilder;
     }
 
     private void deleteElanInstance(String elanInstanceName) {
@@ -244,10 +245,10 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
     }
 
     private ElanInstance updateElanInstance(String elanInstanceName, Class<? extends SegmentTypeBase> segmentType,
-            String segmentationId, String physicalNetworkName, List<ElanSegments> segments, Boolean isExternal) {
+                                            String segmentationId, String physicalNetworkName, Network network) {
 
-        ElanInstance elanInstance = createElanInstance(elanInstanceName, segmentType, segmentationId,
-                physicalNetworkName, segments, isExternal);
+        ElanInstance elanInstance = createElanInstanceBuilder(elanInstanceName, segmentType, segmentationId,
+                physicalNetworkName, network).build();
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         return elanInstance;
