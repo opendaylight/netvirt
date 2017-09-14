@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_3d0efc8d",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/TunnelStateVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-09-14T14:08:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "da2a55be_8ba7124f",
+      "revId": "3f2ffcf6c3636d432ce664fb8e82a737db5d515e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "da2a55be_66af75e4",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/TunnelStateVrfEntryHandler.java",
         "patchSetId": 2
@@ -64,6 +82,24 @@
       "writtenOn": "2017-07-13T10:02:03Z",
       "side": 1,
       "message": "The only functional difference between this function and the following function is that in one of them getConsumerForCreatingRemoteFib is called and in the other getConsumerForDeletingRemoteFib is called. I find it somewhat ironic that two functions that leverage SO many functional concepts differ on just this one little thing. Couldn\u0027t this be made into a single function and the consumer passed in as a parameter?",
+      "revId": "3f2ffcf6c3636d432ce664fb8e82a737db5d515e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_7d27d412",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/TunnelStateVrfEntryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-09-14T14:08:01Z",
+      "side": 1,
+      "message": "Yes it can be done.",
+      "parentUuid": "da2a55be_66af75e4",
       "revId": "3f2ffcf6c3636d432ce664fb8e82a737db5d515e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
