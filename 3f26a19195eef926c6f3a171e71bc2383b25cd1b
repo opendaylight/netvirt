@@ -34,6 +34,24 @@
       "revId": "3f26a19195eef926c6f3a171e71bc2383b25cd1b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_21720b11",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-09-14T13:14:25Z",
+      "side": 0,
+      "message": "Oh sorry I had not noticed line 209, so it\u0027s useles.. fine for me then.",
+      "parentUuid": "ba1f61a0_c60d05ea",
+      "revId": "3f26a19195eef926c6f3a171e71bc2383b25cd1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
