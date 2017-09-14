@@ -304,6 +304,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         subnetId.getValue());
                     return;
                 }
+                if (sn.get().getNetworkId() == null) {
+                    builder.setNetworkId(NeutronvpnUtils.getNetworkIdFromSubnetId(dataBroker, subnetId));
+                }
                 builder.setRouterId(routerId);
                 builder.setRouterInterfacePortId(routerInterfacePortId);
                 builder.setRouterIntfMacAddress(routerIntfMacAddress);
