@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_dc6674ec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-14T13:59:53Z",
+      "side": 1,
+      "message": "if originalIsFlatOrVlan and !updateIsFlatOrVlan should result in removal of the interface.\n\nOnly by checking if origIsFlatOrVlan, how do we come to a decision that the update is not external type?",
+      "revId": "792b447e16e757531ea5ed63d0f99b09418e00e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_3c6070ce",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 180,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-14T13:59:53Z",
+      "side": 1,
+      "message": "ditto comment here.",
+      "revId": "792b447e16e757531ea5ed63d0f99b09418e00e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
