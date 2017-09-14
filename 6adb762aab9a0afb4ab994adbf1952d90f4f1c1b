@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_666539b4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2123,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-14T08:10:06Z",
+      "side": 1,
+      "message": "I can’t remove the TODO and @SuppressWarnings, see lines 2155 and 2158. But yes, this should be redone properly, I’ll rebase on top of your patch once it gets merged.",
+      "parentUuid": "ba1f61a0_f0a1df94",
+      "revId": "6adb762aab9a0afb4ab994adbf1952d90f4f1c1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_902d0301",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_e6700974",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 399,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-14T08:10:06Z",
+      "side": 1,
+      "message": "Not particularly, but it involves changing the MDSALUtil.syncWrite() IIRC. I didn’t want to embark on that in this commit (I’m trying to keep commits as simple as possible because it’s hard enough to get refactoring commits merged as it is).",
+      "parentUuid": "ba1f61a0_902d0301",
+      "revId": "6adb762aab9a0afb4ab994adbf1952d90f4f1c1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_70320f60",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-13T18:03:37Z",
       "side": 1,
       "message": "Is there any usage of this left here after you\u0027re done?  I would fear nobody will ever read this TODO, and new code will start using it again, so if it\u0027s possible at all, how about removing it right here as part of this change already?",
+      "revId": "6adb762aab9a0afb4ab994adbf1952d90f4f1c1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2667c1b8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1063,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-14T08:10:06Z",
+      "side": 1,
+      "message": "See the commit message.",
+      "parentUuid": "ba1f61a0_70320f60",
       "revId": "6adb762aab9a0afb4ab994adbf1952d90f4f1c1b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

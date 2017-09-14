@@ -16,6 +16,24 @@
       "revId": "3f26a19195eef926c6f3a171e71bc2383b25cd1b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c60d05ea",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 219,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-09-14T08:10:06Z",
+      "side": 0,
+      "message": "See line 209, but yes, I’ll move it into a separate change.",
+      "parentUuid": "ba1f61a0_10a593a1",
+      "revId": "3f26a19195eef926c6f3a171e71bc2383b25cd1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
