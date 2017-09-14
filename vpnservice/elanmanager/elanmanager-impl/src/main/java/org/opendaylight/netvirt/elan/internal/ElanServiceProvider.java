@@ -829,4 +829,16 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 arpResponderInput.getSpa(), arpResponderInput.getLportTag());
     }
 
+    /**
+     * Uses the IdManager to retrieve a brand new ElanTag.
+     *
+     * @param idKey
+     *            the id key
+     * @return the integer
+     */
+    @Override
+    public Long retrieveNewElanTag(String idKey) {
+        return elanUtils.retrieveNewElanTag(idManager, idKey);
+    }
+
 }
