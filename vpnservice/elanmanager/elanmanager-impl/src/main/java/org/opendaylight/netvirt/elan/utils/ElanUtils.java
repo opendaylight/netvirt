@@ -1247,7 +1247,8 @@ public class ElanUtils {
                 .setKey(new ElanTagNameKey(elanTag)).setName(elanInstanceName);
         long etreeLeafTag = -1;
         if (isEtreeInstance(elanInstanceAdded)) {
-            etreeLeafTag = retrieveNewElanTag(idManager, elanInstanceName + ElanConstants.LEAVES_POSTFIX);
+            etreeLeafTag = retrieveNewElanTag(idManager,elanInstanceName + ElanConstants
+                    .LEAVES_POSTFIX);
             EtreeLeafTagName etreeLeafTagName = new EtreeLeafTagNameBuilder()
                     .setEtreeLeafTag(new EtreeLeafTag(etreeLeafTag)).build();
             elanTagNameBuilder.addAugmentation(EtreeLeafTagName.class, etreeLeafTagName);
