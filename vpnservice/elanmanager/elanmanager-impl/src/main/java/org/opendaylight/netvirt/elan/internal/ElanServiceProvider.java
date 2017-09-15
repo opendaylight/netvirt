@@ -730,7 +730,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             // trunk interface may have been created by other vlan network
             Interface trunkInterface = interfaceManager.getInterfaceInfoFromConfigDataStore(trunkName);
             if (trunkInterface == null) {
-                interfaceManager.createVLANInterface(trunkName, parentRef, null, null, null,
+                interfaceManager.createVLANInterface(trunkName, parentRef, null, null,
                         IfL2vlan.L2vlanMode.Trunk, true);
             }
             if (ElanUtils.isFlat(elanInstance)) {
@@ -738,7 +738,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             } else if (ElanUtils.isVlan(elanInstance)) {
                 Long segmentationId = elanInstance.getSegmentationId();
                 interfaceName = parentRef + IfmConstants.OF_URI_SEPARATOR + segmentationId;
-                interfaceManager.createVLANInterface(interfaceName, trunkName, null, segmentationId.intValue(), null,
+                interfaceManager.createVLANInterface(interfaceName, trunkName, segmentationId.intValue(), null,
                         IfL2vlan.L2vlanMode.TrunkMember, true);
             }
         } catch (InterfaceAlreadyExistsException e) {

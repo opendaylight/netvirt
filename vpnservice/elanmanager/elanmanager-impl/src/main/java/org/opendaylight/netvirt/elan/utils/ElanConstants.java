@@ -24,7 +24,6 @@ public class ElanConstants {
     public static final int STATIC_MAC_TIMEOUT = 0;
     public static final int ELAN_TAG_LENGTH = 16;
     public static final int INTERFACE_TAG_LENGTH = 20;
-    public static final long DELAY_TIME_IN_MILLISECOND = 5000;
     public static final BigInteger INVALID_DPN = BigInteger.valueOf(-1);
     public static final BigInteger COOKIE_ELAN_BASE_SMAC = new BigInteger("8500000", 16);
     public static final BigInteger COOKIE_ELAN_LEARNED_SMAC = new BigInteger("8600000", 16);
