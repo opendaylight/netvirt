@@ -48,7 +48,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     @Override
     protected void add(InstanceIdentifier<Router> identifier, Router input) {
         LOG.info("Add Router notification handler is invoked {}.", input.getUuid());
-        ifMgr.addRouter(input.getUuid(), input.getName(), input.getTenantId(), input.isAdminStateUp());
+        ifMgr.addRouter(input.getUuid(), input.getName(), input.getTenantId());
     }
 
     @Override
