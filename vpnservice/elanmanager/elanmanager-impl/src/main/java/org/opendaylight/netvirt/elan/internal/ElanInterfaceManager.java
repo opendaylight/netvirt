@@ -1041,8 +1041,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                             MDSALUtil.buildBucketLists(remoteListBucketInfo));
                     LOG.trace("Installing remote bc group {} on dpnId {}", group, dpnInterface.getDpId());
-                    mdsalManager.syncInstallGroup(dpnInterface.getDpId(), group,
-                            ElanConstants.DELAY_TIME_IN_MILLISECOND);
+                    mdsalManager.syncInstallGroup(dpnInterface.getDpId(), group);
                 }
             }
             try {
@@ -1149,7 +1148,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
         LOG.trace("Installing the remote BroadCast Group:{}", group);
-        mdsalManager.syncInstallGroup(dpnId, group, ElanConstants.DELAY_TIME_IN_MILLISECOND);
+        mdsalManager.syncInstallGroup(dpnId, group);
     }
 
     public void setupLeavesEtreeBroadcastGroups(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId) {
@@ -1171,8 +1170,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                     MDSALUtil.buildBucketLists(listBucket));
             LOG.trace("Installing the remote BroadCast Group:{}", group);
-            mdsalManager.syncInstallGroup(dpnId, group,
-                    ElanConstants.DELAY_TIME_IN_MILLISECOND);
+            mdsalManager.syncInstallGroup(dpnId, group);
         }
     }
 
@@ -1219,8 +1217,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                 MDSALUtil.buildBucketLists(listBucket));
         LOG.trace("installing the localBroadCast Group:{}", group);
-        mdsalManager.syncInstallGroup(interfaceInfo.getDpId(), group,
-                ElanConstants.DELAY_TIME_IN_MILLISECOND);
+        mdsalManager.syncInstallGroup(interfaceInfo.getDpId(), group);
     }
 
     private void setupLeavesLocalBroadcastGroups(ElanInstance elanInfo, DpnInterfaces newDpnInterface,
@@ -1259,8 +1256,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             Group group = MDSALUtil.buildGroup(groupId, elanInfo.getElanInstanceName(), GroupTypes.GroupAll,
                     MDSALUtil.buildBucketLists(listBucket));
             LOG.trace("installing the localBroadCast Group:{}", group);
-            mdsalManager.syncInstallGroup(interfaceInfo.getDpId(), group,
-                    ElanConstants.DELAY_TIME_IN_MILLISECOND);
+            mdsalManager.syncInstallGroup(interfaceInfo.getDpId(), group);
         }
     }
 
