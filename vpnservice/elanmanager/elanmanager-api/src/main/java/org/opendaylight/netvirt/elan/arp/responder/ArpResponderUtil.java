@@ -98,7 +98,7 @@ public final class ArpResponderUtil {
             List<BucketInfo> buckets) {
         LOG.trace("Installing group flow on dpn {}", dpnId);
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupdId, groupName, GroupTypes.GroupAll, buckets);
-        mdSalManager.syncInstallGroup(groupEntity, WAIT_TIME_FOR_SYNC_INSTALL);
+        mdSalManager.syncInstallGroup(groupEntity);
         try {
             Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
         } catch (InterruptedException e1) {

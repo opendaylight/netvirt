@@ -437,7 +437,7 @@ public class NaptEventHandler {
                     (System.currentTimeMillis() - startTime));
         } else {
             long startTime = System.currentTimeMillis();
-            mdsalManager.syncInstallFlow(snatFlowEntity, 1);
+            mdsalManager.syncInstallFlow(snatFlowEntity);
             LOG.trace("buildAndInstallNatFlowsOptionalRpc : Time Elapsed while installing table-{} "
                     + "flow on DPN:{} for snat packet({},{}): {}ms", tableId, dpnId,
                     actualSourceAddress.getIpAddress(),actualSourceAddress.getPortNumber(),
