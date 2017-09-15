@@ -353,7 +353,7 @@ public class BgpConfigurationManager {
     }
 
     public static boolean ignoreClusterDcnEventForFollower() {
-        return !EntityOwnerUtils.amIEntityOwner(BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME);
+        return !EntityOwnerUtils.amIEntityOwner(BGP_ENTITY_TYPE_FOR_OWNERSHIP);
     }
 
     public Bgp get() {
