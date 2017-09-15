@@ -754,7 +754,7 @@ public class NaptSwitchHA {
                     groupId, dpnId, routerName);
             groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
                 GroupTypes.GroupAll, bucketInfo);
-            mdsalManager.syncInstallGroup(groupEntity, 0);
+            mdsalManager.syncInstallGroup(groupEntity);
             LOG.debug("installSnatGroupEntry : installed the SNAT to NAPT GroupEntity:{}", groupEntity);
         } catch (Exception ex) {
             LOG.error("installSnatGroupEntry : Failed to install group for groupEntity {}", groupEntity, ex);
