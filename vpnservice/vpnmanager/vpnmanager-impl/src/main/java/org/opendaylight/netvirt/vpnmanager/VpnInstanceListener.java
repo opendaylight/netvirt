@@ -159,7 +159,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             }
         } else {
             rds.parallelStream().forEach(rd -> {
-                bgpManager.deleteVrf(rd, false, family);
+                bgpManager.deleteVrf(rd, true, family);
             });
         }
         return true;
