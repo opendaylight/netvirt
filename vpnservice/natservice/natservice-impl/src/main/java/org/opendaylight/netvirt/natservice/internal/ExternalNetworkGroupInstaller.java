@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class ExternalNetworkGroupInstaller {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworkGroupInstaller.class);
-    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final IElanService elanService;
@@ -160,7 +159,7 @@ public class ExternalNetworkGroupInstaller {
             String macAddress, BigInteger dpnId) {
         GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface, dpnId);
         if (groupEntity != null) {
-            mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+            mdsalManager.syncInstallGroup(groupEntity);
         }
     }
 

@@ -65,7 +65,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
-import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
@@ -1261,19 +1260,9 @@ public class ElanUtils {
         return read(broker, LogicalDatastoreType.CONFIGURATION, node).isPresent();
     }
 
-    public static ServicesInfo getServiceInfo(String elanInstanceName, long elanTag, String interfaceName) {
-        int priority = ElanConstants.ELAN_SERVICE_PRIORITY;
-        int instructionKey = 0;
-        List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(ElanHelper.getElanMetadataLabel(elanTag),
-                MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE, ++instructionKey));
-
-        short serviceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
-        ServicesInfo serviceInfo = InterfaceServiceUtil.buildServiceInfo(
-                String.format("%s.%s", elanInstanceName, interfaceName), serviceIndex, priority,
-                NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
-        return serviceInfo;
+    public static ServicesInfo getServiceInfo(String elanInstanceName, String interfaceName) {
+        return InterfaceServiceUtil.buildServiceInfo(elanInstanceName + "." + interfaceName,
+                ElanConstants.ELAN_SERVICE_PRIORITY);
     }
 
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
