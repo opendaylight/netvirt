@@ -312,10 +312,10 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             // Egress services must bind to egress ports. Since we dont know before-hand what
             // the egress ports will be, we will bind on all switch ports. If the packet
             // doesnt have NSH, it will be returned to the the egress dispatcher table.
-            List<String> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
+            List<Interfaces> interfaceUuidStrList = geniusProvider.getInterfacesFromNode(nodeId);
             interfaceUuidStrList.forEach(interfaceUuidStr -> {
-                InterfaceKey interfaceKey = new InterfaceKey(interfaceUuidStr);
-                Optional<String> remoteIp = geniusProvider.getRemoteIpAddress(interfaceUuidStr);
+                InterfaceKey interfaceKey = new InterfaceKey(interfaceUuidStr.getInterfaceName());
+                Optional<String> remoteIp = geniusProvider.getRemoteIpAddress(interfaceUuidStr.getInterfaceName());
                 entries.add(ClassifierEntry.buildEgressEntry(interfaceKey, remoteIp.orElse(nodeIp)));
             });
         });
