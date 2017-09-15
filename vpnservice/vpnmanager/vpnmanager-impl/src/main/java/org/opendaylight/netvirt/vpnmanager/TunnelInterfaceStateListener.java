@@ -35,6 +35,7 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.get.dpn._interface.list.output.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeExternal;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeHwvtep;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
@@ -264,8 +266,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
             // Get the list of VpnInterfaces from Intf Mgr for a SrcDPN on which TEP is added/deleted
             Future<RpcResult<GetDpnInterfaceListOutput>> result;
-            List<String> srcDpninterfacelist = new ArrayList<>();
-            List<String> destDpninterfacelist = new ArrayList<>();
+            List<Interfaces> srcDpninterfacelist = new ArrayList<>();
+            List<Interfaces> destDpninterfacelist = new ArrayList<>();
             try {
                 result =
                     intfRpcService.getDpnInterfaceList(new GetDpnInterfaceListInputBuilder().setDpid(srcDpnId).build());
@@ -275,7 +277,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                             + " destTepIP {} returned with Errors {}", srcDpnId, srcTepIp, destTepIp,
                             rpcResult.getErrors());
                 } else {
-                    srcDpninterfacelist = rpcResult.getResult().getInterfacesList();
+                    srcDpninterfacelist = rpcResult.getResult().getInterfaces();
                 }
             } catch (Exception e) {
                 LOG.error("handleTunnelEventForDPN: Exception {} when querying for GetDpnInterfaceList for srcDpnid {}"
@@ -294,7 +296,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                                 + " srcTepIP {} destTepIp {} returned with Errors {}", remoteDpnId, srcTepIp,
                                 destTepIp, rpcResult.getErrors());
                     } else {
-                        destDpninterfacelist = rpcResult.getResult().getInterfacesList();
+                        destDpninterfacelist = rpcResult.getResult().getInterfaces();
                     }
                 } catch (Exception e) {
                     LOG.error("handleTunnelEventForDPN: Exception {} when querying for GetDpnInterfaceList"
@@ -307,13 +309,19 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
              * Iterate over the list of VpnInterface for a SrcDpn on which TEP is added or deleted and read the adj.
              * Update the adjacencies with the updated nexthop.
              */
-            Iterator<String> interfacelistIter = srcDpninterfacelist.iterator();
+            Iterator<Interfaces> interfacelistIter = srcDpninterfacelist.iterator();
+            Interfaces interfaces = null;
             String intfName = null;
             List<Uuid> subnetList = new ArrayList<>();
             Map<Long, String> vpnIdRdMap = new HashMap<>();
 
             while (interfacelistIter.hasNext()) {
-                intfName = interfacelistIter.next();
+                interfaces = interfacelistIter.next();
+                if (!L2vlan.class.equals(interfaces.getInterfaceType())) {
+                    LOG.info("handleTunnelEventForDPN: Interface {} not of type L2Vlan", interfaces.getInterfaceName());
+                    return;
+                }
+                intfName = interfaces.getInterfaceName();
                 final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
 
@@ -351,7 +359,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
              */
             interfacelistIter = destDpninterfacelist.iterator();
             while (interfacelistIter.hasNext()) {
-                intfName = interfacelistIter.next();
+                interfaces = interfacelistIter.next();
+                if (!L2vlan.class.equals(interfaces.getInterfaceType())) {
+                    LOG.info("handleTunnelEventForDPN: Interface {} not of type L2Vlan", interfaces.getInterfaceName());
+                    return;
+                }
+                intfName = interfaces.getInterfaceName();
                 final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
                     Adjacencies adjacencies = vpnInterface.getAugmentation(Adjacencies.class);
