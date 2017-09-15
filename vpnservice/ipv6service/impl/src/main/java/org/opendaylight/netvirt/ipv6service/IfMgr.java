@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -55,35 +56,23 @@ import org.slf4j.LoggerFactory;
 public class IfMgr {
     static final Logger LOG = LoggerFactory.getLogger(IfMgr.class);
 
-    private HashMap<Uuid, VirtualRouter> vrouters;
-    private HashMap<Uuid, VirtualNetwork> vnetworks;
-    private HashMap<Uuid, VirtualSubnet> vsubnets;
-    private HashMap<Uuid, VirtualPort> vintfs;
-    private HashMap<Uuid, VirtualPort> vrouterv6IntfMap;
-    private HashMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs;
-    private HashMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs;
+    private final Map<Uuid, VirtualRouter> vrouters = new HashMap<>();
+    private final Map<Uuid, VirtualNetwork> vnetworks = new HashMap<>();
+    private final Map<Uuid, VirtualSubnet> vsubnets = new HashMap<>();
+    private final Map<Uuid, VirtualPort> vintfs = new HashMap<>();
+    private final Map<Uuid, VirtualPort> vrouterv6IntfMap = new HashMap<>();
+    private final Map<Uuid, List<VirtualPort>> unprocessedRouterIntfs = new HashMap<>();
+    private final Map<Uuid, List<VirtualPort>> unprocessedSubnetIntfs = new HashMap<>();
     private OdlInterfaceRpcService interfaceManagerRpc;
     private IElanService elanProvider;
     private IMdsalApiManager mdsalUtil;
-    private Ipv6ServiceUtils ipv6ServiceUtils;
+    private final Ipv6ServiceUtils ipv6ServiceUtils = new Ipv6ServiceUtils();
     private DataBroker dataBroker;
 
     private static IfMgr ifMgr;
     private Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
 
     private IfMgr() {
-        init();
-    }
-
-    void init() {
-        this.vrouters = new HashMap<>();
-        this.vnetworks = new HashMap<>();
-        this.vsubnets = new HashMap<>();
-        this.vintfs = new HashMap<>();
-        this.vrouterv6IntfMap = new HashMap<>();
-        this.unprocessedRouterIntfs = new HashMap<>();
-        this.unprocessedSubnetIntfs = new HashMap<>();
-        this.ipv6ServiceUtils = new Ipv6ServiceUtils();
         LOG.info("IfMgr is enabled");
     }
 
@@ -121,42 +110,35 @@ public class IfMgr {
      * @param rtrUuid router uuid
      * @param rtrName router name
      * @param tenantId tenant id
-     * @param isAdminStateUp admin up
      */
-    public void addRouter(Uuid rtrUuid, String rtrName, Uuid tenantId, Boolean isAdminStateUp) {
+    public void addRouter(Uuid rtrUuid, String rtrName, Uuid tenantId) {
 
         VirtualRouter rtr = new VirtualRouter();
-        if (rtr != null) {
-            rtr.setTenantID(tenantId)
-                    .setRouterUUID(rtrUuid)
-                    .setName(rtrName);
-            vrouters.put(rtrUuid, rtr);
 
-            List<VirtualPort> intfList = unprocessedRouterIntfs.get(rtrUuid);
+        rtr.setTenantID(tenantId)
+                .setRouterUUID(rtrUuid)
+                .setName(rtrName);
+        vrouters.put(rtrUuid, rtr);
 
-            if (intfList == null) {
-                LOG.info("No unprocessed interfaces for the router {}", rtrUuid);
-                return;
-            }
+        List<VirtualPort> intfList = unprocessedRouterIntfs.get(rtrUuid);
 
-            for (VirtualPort intf : intfList) {
-                if (intf != null) {
-                    intf.setRouter(rtr);
-                    rtr.addInterface(intf);
-
-                    for (VirtualSubnet snet : intf.getSubnets()) {
-                        rtr.addSubnet(snet);
-                    }
-                }
-            }
-
-            removeUnprocessed(unprocessedRouterIntfs, rtrUuid);
-
-        } else {
-            LOG.error("Create router failed for :{}", rtrUuid);
+        if (intfList == null) {
+            LOG.info("No unprocessed interfaces for the router {}", rtrUuid);
+            return;
         }
 
-        return;
+        for (VirtualPort intf : intfList) {
+            if (intf != null) {
+                intf.setRouter(rtr);
+                rtr.addInterface(intf);
+
+                for (VirtualSubnet snet : intf.getSubnets()) {
+                    rtr.addSubnet(snet);
+                }
+            }
+        }
+
+        removeUnprocessed(unprocessedRouterIntfs, rtrUuid);
     }
 
     /**
@@ -171,11 +153,9 @@ public class IfMgr {
             rtr.removeSelf();
             vrouters.remove(rtrUuid);
             removeUnprocessed(unprocessedRouterIntfs, rtrUuid);
-            rtr = null;
         } else {
             LOG.error("Delete router failed for :{}", rtrUuid);
         }
-        return;
     }
 
     /**
@@ -183,7 +163,6 @@ public class IfMgr {
      *
      * @param snetId subnet id
      * @param name subnet name
-     * @param networkId network id
      * @param tenantId tenant id
      * @param gatewayIp gateway ip address
      * @param ipVersion IP Version "IPv4 or IPv6"
@@ -191,7 +170,7 @@ public class IfMgr {
      * @param ipV6AddressMode Address Mode of IPv6 Subnet
      * @param ipV6RaMode RA Mode of IPv6 Subnet.
      */
-    public void addSubnet(Uuid snetId, String name, Uuid networkId, Uuid tenantId,
+    public void addSubnet(Uuid snetId, String name, Uuid tenantId,
                           IpAddress gatewayIp, String ipVersion, IpPrefix subnetCidr,
                           String ipV6AddressMode, String ipV6RaMode) {
 
@@ -204,41 +183,35 @@ public class IfMgr {
         }
 
         VirtualSubnet snet = new VirtualSubnet();
-        if (snet != null) {
-            snet.setTenantID(tenantId)
-                    .setSubnetUUID(snetId)
-                    .setName(name)
-                    .setGatewayIp(gatewayIp)
-                    .setIPVersion(ipVersion)
-                    .setSubnetCidr(subnetCidr)
-                    .setIpv6AddressMode(ipV6AddressMode)
-                    .setIpv6RAMode(ipV6RaMode);
+        snet.setTenantID(tenantId)
+                .setSubnetUUID(snetId)
+                .setName(name)
+                .setGatewayIp(gatewayIp)
+                .setIPVersion(ipVersion)
+                .setSubnetCidr(subnetCidr)
+                .setIpv6AddressMode(ipV6AddressMode)
+                .setIpv6RAMode(ipV6RaMode);
 
-            vsubnets.put(snetId, snet);
+        vsubnets.put(snetId, snet);
 
-            List<VirtualPort> intfList = unprocessedSubnetIntfs.get(snetId);
-            if (intfList == null) {
-                LOG.info("No unprocessed interfaces for the subnet {}", snetId);
-                return;
-            }
-            for (VirtualPort intf : intfList) {
-                if (intf != null) {
-                    intf.setSubnet(snetId, snet);
-                    snet.addInterface(intf);
+        List<VirtualPort> intfList = unprocessedSubnetIntfs.get(snetId);
+        if (intfList == null) {
+            LOG.info("No unprocessed interfaces for the subnet {}", snetId);
+            return;
+        }
+        for (VirtualPort intf : intfList) {
+            if (intf != null) {
+                intf.setSubnet(snetId, snet);
+                snet.addInterface(intf);
 
-                    VirtualRouter rtr = intf.getRouter();
-                    if (rtr != null) {
-                        rtr.addSubnet(snet);
-                    }
+                VirtualRouter rtr = intf.getRouter();
+                if (rtr != null) {
+                    rtr.addSubnet(snet);
                 }
             }
-
-            removeUnprocessed(unprocessedSubnetIntfs, snetId);
-
-        } else {
-            LOG.error("Create subnet failed for :{}", snetId);
         }
-        return;
+
+        removeUnprocessed(unprocessedSubnetIntfs, snetId);
     }
 
     /**
@@ -253,9 +226,7 @@ public class IfMgr {
             snet.removeSelf();
             vsubnets.remove(snetId);
             removeUnprocessed(unprocessedSubnetIntfs, snetId);
-            snet = null;
         }
-        return;
     }
 
     public void addRouterIntf(Uuid portId, Uuid rtrId, Uuid snetId,
@@ -272,12 +243,7 @@ public class IfMgr {
         boolean newIntf = false;
         if (intf == null) {
             intf = new VirtualPort();
-            if (intf != null) {
-                vintfs.put(portId, intf);
-            } else {
-                LOG.error("Create rtr intf failed for :{}", portId);
-                return;
-            }
+            vintfs.put(portId, intf);
             intf.setIntfUUID(portId)
                     .setSubnetInfo(snetId, fixedIp)
                     .setNetworkID(networkId)
@@ -321,7 +287,6 @@ public class IfMgr {
             LOG.debug("start the periodic RA Timer for routerIntf {}", portId);
             transmitUnsolicitedRA(intf);
         }
-        return;
     }
 
     public void updateRouterIntf(Uuid portId, Uuid rtrId, List<FixedIps> fixedIpsList) {
@@ -384,7 +349,6 @@ public class IfMgr {
             // Some v6 subnets are disassociated from the routerPort, remove the corresponding NS Flows.
             programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.DEL_FLOW);
         }
-        return;
     }
 
     public void addHostIntf(Uuid portId, Uuid snetId, Uuid networkId,
@@ -399,12 +363,7 @@ public class IfMgr {
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             intf = new VirtualPort();
-            if (intf != null) {
-                vintfs.put(portId, intf);
-            } else {
-                LOG.error("Create host intf failed for :{}", portId);
-                return;
-            }
+            vintfs.put(portId, intf);
             intf.setIntfUUID(portId)
                     .setSubnetInfo(snetId, fixedIp)
                     .setNetworkID(networkId)
@@ -430,7 +389,6 @@ public class IfMgr {
         } else {
             addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
         }
-        return;
     }
 
     public void clearAnyExistingSubnetInfo(Uuid portId) {
@@ -463,7 +421,6 @@ public class IfMgr {
             ipv6ServiceUtils.unbindIpv6Service(dataBroker, portId.getValue());
             intf.setServiceBindingStatus(Boolean.FALSE);
         }
-        return;
     }
 
     public void updateDpnInfo(Uuid portId, BigInteger dpId, Long ofPort) {
@@ -473,15 +430,13 @@ public class IfMgr {
         if (intf != null) {
             intf.setDpId(dpId.toString())
                     .setOfPort(ofPort);
-        }
 
-        // Update the network <--> List[dpnIds, List<ports>] cache.
-        VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
-        if (null != vnet) {
-            vnet.updateDpnPortInfo(dpId, ofPort, Ipv6Constants.ADD_ENTRY);
+            // Update the network <--> List[dpnIds, List<ports>] cache.
+            VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
+            if (null != vnet) {
+                vnet.updateDpnPortInfo(dpId, ofPort, Ipv6Constants.ADD_ENTRY);
+            }
         }
-
-        return;
     }
 
     public void updateInterfaceDpidOfPortInfo(Uuid portId) {
@@ -509,7 +464,6 @@ public class IfMgr {
             if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
                 LOG.info("In removePort for router interface, portId {}", portId);
                 MacAddress ifaceMac = MacAddress.getDefaultInstance(intf.getMacAddress());
-                Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
                 vrouterv6IntfMap.remove(intf.getNetworkID(), intf);
                 /* Router port is deleted. Remove the corresponding icmpv6 punt flows on all
                 the dpnIds which were hosting the VMs on the network.
@@ -530,40 +484,24 @@ public class IfMgr {
                 // Remove the portId from the (network <--> List[dpnIds, List <ports>]) cache.
                 VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
                 if (null != vnet) {
-                    BigInteger dpId = ipv6ServiceUtils.getDataPathId(intf.getDpId());
+                    BigInteger dpId = Ipv6ServiceUtils.getDataPathId(intf.getDpId());
                     vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6Constants.DEL_ENTRY);
                 }
             }
             vintfs.remove(portId);
-            intf = null;
         }
-        return;
     }
 
     public void deleteInterface(Uuid interfaceUuid, String dpId) {
         // Nothing to do for now
-        return;
     }
 
-    public void addUnprocessed(HashMap<Uuid, List<VirtualPort>> unprocessed, Uuid id, VirtualPort intf) {
-
-        List<VirtualPort> intfList = unprocessed.get(id);
-
-        if (intfList == null) {
-            intfList = new ArrayList();
-            intfList.add(intf);
-            unprocessed.put(id, intfList);
-        } else {
-            intfList.add(intf);
-        }
-        return;
+    public void addUnprocessed(Map<Uuid, List<VirtualPort>> unprocessed, Uuid id, VirtualPort intf) {
+        unprocessed.computeIfAbsent(id, key -> new ArrayList<>()).add(intf);
     }
 
-    public void removeUnprocessed(HashMap<Uuid, List<VirtualPort>> unprocessed, Uuid id) {
-
-        List<VirtualPort> intfList = unprocessed.get(id);
-        intfList = null;
-        return;
+    public void removeUnprocessed(Map<Uuid, List<VirtualPort>> unprocessed, Uuid id) {
+        unprocessed.remove(id);
     }
 
     public VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
@@ -653,7 +591,7 @@ public class IfMgr {
     public String getInterfaceNameFromTag(long portTag) {
         String interfaceName = null;
         GetInterfaceFromIfIndexInput input = new GetInterfaceFromIfIndexInputBuilder()
-                .setIfIndex(new Integer((int)portTag)).build();
+                .setIfIndex((int) portTag).build();
         Future<RpcResult<GetInterfaceFromIfIndexOutput>> futureOutput =
                 interfaceManagerRpc.getInterfaceFromIfIndex(input);
         try {
@@ -706,10 +644,9 @@ public class IfMgr {
     public void removeNetwork(Uuid networkId) {
         // Delete the network and the corresponding dpnIds<-->List(ports) cache.
         VirtualNetwork net = vnetworks.get(networkId);
-        if (null == net) {
+        if (null != net) {
             net.removeSelf();
             vnetworks.remove(networkId);
-            net = null;
         }
     }
 

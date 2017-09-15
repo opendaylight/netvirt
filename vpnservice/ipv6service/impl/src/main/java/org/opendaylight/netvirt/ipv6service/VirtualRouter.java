@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import java.util.HashMap;
+import java.util.Map;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,21 +19,15 @@ public class VirtualRouter  {
     private Uuid routerUUID;
     private Uuid tenantID;
     private String name;
-    private HashMap<Uuid, VirtualSubnet> subnets;
-    private HashMap<Uuid, VirtualPort>   interfaces;
+    private Map<Uuid, VirtualSubnet> subnets = new HashMap<>();
+    private Map<Uuid, VirtualPort>   interfaces = new HashMap<>();
 
     /**
      * Logger instance.
      */
     static final Logger LOG = LoggerFactory.getLogger(VirtualRouter.class);
 
-    void init() {
-        this.subnets    = new HashMap<>();
-        this.interfaces = new HashMap<>();
-    }
-
     public VirtualRouter() {
-        init();
     }
 
     public Uuid getRouterUUID() {
