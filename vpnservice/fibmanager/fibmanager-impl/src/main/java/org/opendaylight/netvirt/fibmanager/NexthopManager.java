@@ -137,7 +137,6 @@ public class NexthopManager implements AutoCloseable {
     private final IElanService elanService;
     private final SalGroupService salGroupService;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
-    private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
     private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
 
@@ -387,7 +386,7 @@ public class NexthopManager implements AutoCloseable {
                     installGroupOnDpn(groupId, dpnId, ipAddress, listBucketInfo, getNextHopKey(vpnId, ipAddress),
                             GroupTypes.GroupAll);
                     // install Group
-                    mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+                    mdsalApiManager.syncInstallGroup(groupEntity);
                     // update MD-SAL DS
                     addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
 
@@ -785,7 +784,7 @@ public class NexthopManager implements AutoCloseable {
         GroupEntity groupEntity = MDSALUtil.buildGroupEntity(
                 dpnId, groupId, destPrefix, GroupTypes.GroupSelect, listBucketInfo);
         if (addOrRemove) {
-            mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
+            mdsalApiManager.syncInstallGroup(groupEntity);
             try {
                 Thread.sleep(WAIT_TIME_FOR_SYNC_INSTALL);
             } catch (InterruptedException e1) {

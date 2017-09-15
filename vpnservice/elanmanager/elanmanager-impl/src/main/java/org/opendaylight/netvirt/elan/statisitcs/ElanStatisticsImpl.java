@@ -64,10 +64,8 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
                     String.format("Interface %s is not a ELAN interface", interfaceName));
         }
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
-        long elanTag = elanInfo.getElanTag();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-        ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, elanTag, interfaceName);
+        ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, interfaceName);
         //FIXME [ELANBE] Get this API Later
         short tableId = 0;
 //        try {
