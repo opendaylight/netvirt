@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_b73919f4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1199,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-15T09:12:57Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be || ?\n\nFurther, when will the PNF adjacency be removed from Operational VPN Datastore if we return early?",
+      "revId": "c315990482096321a283f595805ed8af345a22cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
