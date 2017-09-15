@@ -42,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetNodeconnectorIdFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetNodeconnectorIdFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.get.dpn._interface.list.output.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -288,7 +289,7 @@ public class GeniusProvider {
         return Optional.empty();
     }
 
-    public List<String> getInterfacesFromNode(NodeId nodeId) {
+    public List<Interfaces> getInterfacesFromNode(NodeId nodeId) {
         // getPortsOnBridge() only returns Tunnel ports, so instead using getDpnInterfaceList.
         GetDpnInterfaceListInputBuilder inputBuilder = new GetDpnInterfaceListInputBuilder();
         inputBuilder.setDpid(BigInteger.valueOf(Long.parseLong(nodeId.getValue().split(":")[1])));
@@ -303,7 +304,7 @@ public class GeniusProvider {
                 return Collections.emptyList();
             }
             LOG.debug("getInterfacesFromNode({}) succeeded: {}", input, output);
-            return output.getResult().getInterfacesList();
+            return output.getResult().getInterfaces();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("getInterfacesFromNode failed to retrieve target interface name: ", e);
         }
