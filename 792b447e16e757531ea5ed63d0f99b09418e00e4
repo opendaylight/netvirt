@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_32bc1706",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 4030
+      },
+      "writtenOn": "2017-09-15T12:17:31Z",
+      "side": 1,
+      "message": "thanks for your comments vivek,\nI\u0027ve added that check to get whether it is external type or not",
+      "parentUuid": "ba1f61a0_dc6674ec",
+      "revId": "792b447e16e757531ea5ed63d0f99b09418e00e4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_3c6070ce",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
         "patchSetId": 5
