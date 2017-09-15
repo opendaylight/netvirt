@@ -45,7 +45,7 @@ public class AclClusterUtilImpl implements AclClusterUtil {
 
     @Override
     public boolean isEntityOwner() {
-        return EntityOwnerUtils.amIEntityOwner(ACL_ENTITY_TYPE_FOR_OWNERSHIP, ACL_ENTITY_NAME);
+        return EntityOwnerUtils.amIEntityOwner(ACL_ENTITY_TYPE_FOR_OWNERSHIP);
     }
 
     @PreDestroy
