@@ -23,7 +23,6 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.ElanStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.GetElanInterfaceStatisticsInput;
@@ -64,10 +63,8 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
                     String.format("Interface %s is not a ELAN interface", interfaceName));
         }
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
-        long elanTag = elanInfo.getElanTag();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-        ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, elanTag, interfaceName);
+        ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, interfaceName);
         //FIXME [ELANBE] Get this API Later
         short tableId = 0;
 //        try {
