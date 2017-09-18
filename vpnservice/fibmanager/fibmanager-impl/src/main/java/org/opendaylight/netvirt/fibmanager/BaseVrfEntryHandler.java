@@ -332,7 +332,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, adjacencyResult.getPrefix());
             }
             // Internet VPN VNI will be used as tun_id for NAT use-cases
-            if (prefixInfo.isNatPrefix()) {
+            if (Prefixes.PrefixCue.Nat.equals(prefixInfo.getPrefixCue())) {
                 if (vrfEntry.getL3vni() != null && vrfEntry.getL3vni() != 0) {
                     tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
                 }
