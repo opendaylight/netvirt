@@ -35,7 +35,7 @@ public class StaticMacDelete  extends OsgiCommandSupport {
     protected Object doExecute() throws Exception {
         LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
                 + staticMacAddress + "\t");
-        elanProvider.deleteStaticMacAddress(elanName, interfaceName, staticMacAddress);
+        elanProvider.deleteStaticMacAddress(interfaceName, staticMacAddress);
         return null;
     }
 }

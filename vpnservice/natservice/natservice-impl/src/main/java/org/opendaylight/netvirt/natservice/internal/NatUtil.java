@@ -635,7 +635,8 @@ public class NatUtil {
                                       String macAddress,
                                       long label,
                                       long l3vni,
-                                      Logger log, RouteOrigin origin, BigInteger dpId) {
+                                      RouteOrigin origin,
+                                      BigInteger dpId) {
         try {
             LOG.info("addPrefixToBGP : Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
@@ -1681,7 +1682,7 @@ public class NatUtil {
 
     protected static long getExternalSubnetVpnIdForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
             Routers router) {
-        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIpAddress, router);
+        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIpAddress, router);
         if (externalSubnetId != null) {
             return NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
         }
@@ -1689,8 +1690,7 @@ public class NatUtil {
         return NatConstants.INVALID_ID;
     }
 
-    protected static Uuid getExternalSubnetForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
-            Routers router) {
+    protected static Uuid getExternalSubnetForRouterExternalIp(String externalIpAddress, Routers router) {
         externalIpAddress = validateAndAddNetworkMask(externalIpAddress);
         List<ExternalIps> externalIps = router.getExternalIps();
         for (ExternalIps extIp : externalIps) {
