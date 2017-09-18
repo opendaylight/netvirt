@@ -1,0 +1,52 @@
+<!--    * Copyright (c) 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+        *
+        * This program and the accompanying materials are made available under the
+        * terms of the Eclipse Public License v1.0 which accompanies this distribution,
+        * and is available at http://www.eclipse.org/legal/epl-v10.html
+-->
+
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+    <reference id="stfwService" interface="org.opendaylight.netvirt.stfw.api.IStfwService" availability="optional" />
+    <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.CreateNeutronNetwork">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.DeleteNeutronNetwork">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.CreateOvsSwitches">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.DeleteOvsSwitches">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.DumpSwitch">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.CreateVm">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.DeleteVm">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+        <command>
+            <action class="org.opendaylight.netvirt.stfw.shell.DisplayDebugInfo">
+                <argument ref="stfwService" />
+            </action>
+        </command>
+    </command-bundle>
+</blueprint>

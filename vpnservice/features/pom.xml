@@ -28,6 +28,7 @@
         <module>odl-netvirt-impl</module>
         <module>odl-netvirt-openstack</module>
         <module>odl-netvirt-sfc</module>
+        <module>odl-netvirt-stfw</module>
         <module>odl-netvirt-ui</module>
     </modules>
 
