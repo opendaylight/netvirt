@@ -125,7 +125,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 return Optional.fromJavaUtil(uuid.toJavaUtil().map(neutronVpnManager::getNeutronPort));
             }
             LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
-            QosNeutronUtils.removeStaleFlowEntry(dataBroker,mdsalUtils,odlInterfaceRpcService,intrf);
+            QosNeutronUtils.removeStaleFlowEntry(mdsalUtils, intrf);
         }
         return Optional.absent();
     }
@@ -143,7 +143,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 QosAlertManager.removeFromQosAlertCache(new NodeConnectorId(lowerLayerIf));
                 QosPortExtension removeQos = port.getAugmentation(QosPortExtension.class);
                 if (removeQos != null) {
-                    QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
+                    QosNeutronUtils.handleNeutronPortRemove(dataBroker,
                             mdsalUtils, port, removeQos.getQosPolicyId(), intrf);
                     QosNeutronUtils.removeFromQosPortsCache(removeQos.getQosPolicyId(), port);
                 } else {
@@ -151,7 +151,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                     if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
                         Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
                         if (networkQosUuid != null) {
-                            QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
+                            QosNeutronUtils.handleNeutronPortRemove(dataBroker,
                                     mdsalUtils, port, networkQosUuid, intrf);
                         }
                     }

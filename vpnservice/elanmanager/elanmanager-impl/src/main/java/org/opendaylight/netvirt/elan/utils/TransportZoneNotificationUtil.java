@@ -27,7 +27,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -77,7 +76,7 @@ public class TransportZoneNotificationUtil {
     private final ElanConfig elanConfig;
     private final ElanBridgeManager elanBridgeManager;
 
-    public TransportZoneNotificationUtil(final DataBroker dbx, final IInterfaceManager interfaceManager,
+    public TransportZoneNotificationUtil(final DataBroker dbx,
             final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager) {
         this.dataBroker = dbx;
         this.mdsalUtils = new MdsalUtils(dbx);

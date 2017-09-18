@@ -134,7 +134,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         if (isGreTunnel(del)) {
             programDcGwLoadBalancingGroup(del, NwConstants.DEL_FLOW);
         }
-        handleTunnelEventForDPN(del, UpdateRouteAction.WITHDRAW_ROUTE, TunnelAction.TUNNEL_EP_DELETE);
+        handleTunnelEventForDPN(del, TunnelAction.TUNNEL_EP_DELETE);
     }
 
     @Override
@@ -165,7 +165,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         }
         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
         if (tunOpStatus == TunnelOperStatus.Up) {
-            handleTunnelEventForDPN(update, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
+            handleTunnelEventForDPN(update, TunnelAction.TUNNEL_EP_ADD);
         } else {
             vpnInstanceOpData.stream().filter(opData -> {
                 if (opData.getVpnToDpnList() == null) {
@@ -213,13 +213,12 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         LOG.info("add: ITM Tunnel ,type {} ,added between src: {} and dest: {}",
             fibManager.getTransportTypeStr(add.getTransportType().toString()),
             add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
-        handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
+        handleTunnelEventForDPN(add, TunnelAction.TUNNEL_EP_ADD);
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, UpdateRouteAction action,
-        TunnelAction tunnelAction) {
+    private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, TunnelAction tunnelAction) {
         final BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
         final String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
         String destTepIp = String.valueOf(stateTunnelList.getDstInfo().getTepIp().getValue());
@@ -437,27 +436,15 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-
             if (tunnelAction == TunnelAction.TUNNEL_EP_ADD) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface,
-                                                            stateTunnelList,
-                                                            writeConfigTxn,
-                                                            writeOperTxn);
+                vpnInterfaceManager.updateVpnInterfaceOnTepAdd(vpnInterface, stateTunnelList);
             }
 
             if ((tunnelAction == TunnelAction.TUNNEL_EP_DELETE) && isTepDeletedOnDpn) {
-                vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface,
-                                                                stateTunnelList,
-                                                                writeConfigTxn,
-                                                                writeOperTxn);
+                vpnInterfaceManager.updateVpnInterfaceOnTepDelete(vpnInterface, stateTunnelList);
             }
 
-            futures.add(writeOperTxn.submit());
-            futures.add(writeConfigTxn.submit());
-            return futures;
+            return Collections.emptyList();
         }
     }
 

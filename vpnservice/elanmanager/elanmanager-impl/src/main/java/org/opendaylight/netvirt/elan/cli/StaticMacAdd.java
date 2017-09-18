@@ -35,7 +35,7 @@ public class StaticMacAdd extends OsgiCommandSupport {
     protected Object doExecute() throws Exception {
         LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
                 + staticMacAddress + "\t");
-        elanProvider.addStaticMacAddress(elanName, interfaceName, staticMacAddress);
+        elanProvider.addStaticMacAddress(interfaceName, staticMacAddress);
         return null;
     }
 }

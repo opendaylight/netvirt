@@ -100,8 +100,7 @@ public class BgpUtil {
         resBatchingManager.registerBatchableResource("BGP-RESOURCES", bgpResourcesBufferQ, resourceHandler);
     }
 
-    static <T extends DataObject> void update(DataBroker broker, final LogicalDatastoreType datastoreType,
-                                              final InstanceIdentifier<T> path, final T data) {
+    static <T extends DataObject> void update(final InstanceIdentifier<T> path, final T data) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.UPDATE);
         actResource.setInstanceIdentifier(path);
@@ -109,8 +108,7 @@ public class BgpUtil {
         bgpResourcesBufferQ.add(actResource);
     }
 
-    public static <T extends DataObject> void write(DataBroker broker, final LogicalDatastoreType datastoreType,
-                                                    final InstanceIdentifier<T> path, final T data) {
+    public static <T extends DataObject> void write(final InstanceIdentifier<T> path, final T data) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.CREATE);
         actResource.setInstanceIdentifier(path);
@@ -118,8 +116,7 @@ public class BgpUtil {
         bgpResourcesBufferQ.add(actResource);
     }
 
-    static <T extends DataObject> void delete(DataBroker broker, final LogicalDatastoreType datastoreType,
-                                              final InstanceIdentifier<T> path) {
+    static <T extends DataObject> void delete(final InstanceIdentifier<T> path) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.DELETE);
         actResource.setInstanceIdentifier(path);
@@ -212,7 +209,7 @@ public class BgpUtil {
         ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
         externalTepsBuilder.setKey(externalTepsKey);
         externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
-        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build());
+        BgpUtil.update(externalTepsId, externalTepsBuilder.build());
     }
 
     public static void deleteTepFromElanInstance(DataBroker broker, String rd, String tepIp) {
@@ -227,7 +224,7 @@ public class BgpUtil {
         }
         LOG.debug("Deleting tepIp {} from elan {}", tepIp, elanName);
         InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId);
+        BgpUtil.delete(externalTepsId);
     }
 
     private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {

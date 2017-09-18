@@ -44,7 +44,7 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         List<String> nexthop = Collections.singletonList("100.100.100.100");
         int label = 1234;
 
-        bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, nexthop,
+        bgpFibWriter.addFibEntryToDS(rd,  /*macAddress*/ prefix, nexthop,
                 VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.LOCAL);
         //assertEquals(1, fibManager.getDataChgCount());
         assertEquals(1, 1);
@@ -57,7 +57,7 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
         String prefix = "10.10.10.10/32";
         int label = 1234;
         try {
-            bgpFibWriter.addFibEntryToDS(rd, null /*macAddress*/, prefix, null,
+            bgpFibWriter.addFibEntryToDS(rd,  /*macAddress*/ prefix, null,
                     VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, RouteOrigin.CONNECTED);
             assertEquals(1,0); //The code is not launching NullPointerException
         } catch (NullPointerException e) {
