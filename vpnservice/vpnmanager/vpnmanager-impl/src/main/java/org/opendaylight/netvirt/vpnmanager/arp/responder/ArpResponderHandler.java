@@ -69,22 +69,16 @@ public class ArpResponderHandler {
      *            dpn Id on which ARP responder flow to be added
      * @param lportTag
      *            lport tag of the interface
-     * @param vpnName
-     *            vpnname of the interface
-     * @param vpnId
-     *            vpn id that interface belongs to
      * @param interfaceName
      *            interface to which ARP responder flow to be added
-     * @param subnetId
-     *            subnet Id of the interface
      * @param gatewayIp
      *            gateway ip of the interface
      * @param mac
      *            mac address
      */
 
-    public void addArpResponderFlow(BigInteger dpnId, int lportTag, String vpnName, long vpnId, String interfaceName,
-            Uuid subnetId, String gatewayIp, String mac) {
+    public void addArpResponderFlow(BigInteger dpnId, int lportTag, String interfaceName,
+            String gatewayIp, String mac) {
 
         LOG.trace("Creating the ARP Responder flow for VPN Interface {}", interfaceName);
         ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
@@ -104,15 +98,10 @@ public class ArpResponderHandler {
      *            lport tag of the interface
      * @param ifName
      *            interface to which ARP responder flow to be removed
-     * @param vpnName
-     *            vpnname of the interface
-     * @param vpnId
-     *            vpn id that interface belongs to
-     *
      * @param subnetUuid
      *            subnet Id of the interface
      */
-    public void removeArpResponderFlow(BigInteger dpId, int lportTag, String ifName, String vpnName, long vpnId,
+    public void removeArpResponderFlow(BigInteger dpId, int lportTag, String ifName,
             Uuid subnetUuid) {
         Optional<String> gwIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetUuid);
         if (gwIp.isPresent()) {

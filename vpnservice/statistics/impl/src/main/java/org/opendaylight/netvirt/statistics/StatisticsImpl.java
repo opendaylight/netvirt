@@ -556,9 +556,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<MatchInfoBase> matches = CountersServiceUtils.getCounterFlowMatch(ecr, lportTag,
                 ElementCountersDirection.valueOf(counterRequest.getTrafficDirection()));
         Match match = MDSALUtil.buildMatches(matches);
-        CounterResultDataStructure counterResultDS = counterRetriever.getSwitchFlowCountersDirect(dpId, match,
-                CountersServiceUtils.getTableId(ecr.getDirection()));
-        return counterResultDS;
+        return counterRetriever.getSwitchFlowCountersDirect(dpId, match);
     }
 
     private void initializeCountrsConfigDataSrore() {

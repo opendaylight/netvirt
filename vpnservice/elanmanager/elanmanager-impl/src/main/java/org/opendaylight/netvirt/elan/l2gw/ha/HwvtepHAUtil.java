@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
@@ -220,18 +219,6 @@ public class HwvtepHAUtil {
             return true;
         }
         return false;
-    }
-
-    public static void mergeManagedByNode(Node psNode,
-                                          PhysicalSwitchAugmentationBuilder builder,
-                                          InstanceIdentifier<Node> haNodePath,
-                                          InstanceIdentifier<Node> haPsPath, NodeId haPSNodeId) {
-        PhysicalSwitchAugmentation psAugmentation = psNode.getAugmentation(PhysicalSwitchAugmentation.class);
-        builder.setManagedBy(new HwvtepGlobalRef(haNodePath));
-        builder.setHwvtepNodeName(psAugmentation.getHwvtepNodeName());
-        builder.setHwvtepNodeDescription(psAugmentation.getHwvtepNodeDescription());
-        builder.setTunnelIps(psAugmentation.getTunnelIps());
-        builder.setPhysicalSwitchUuid(getUUid(psAugmentation.getHwvtepNodeName().getValue()));
     }
 
     public static Node getOriginal(DataObjectModification<Node> mod) {

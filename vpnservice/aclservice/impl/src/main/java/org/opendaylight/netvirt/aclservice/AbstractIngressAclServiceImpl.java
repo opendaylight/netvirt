@@ -150,15 +150,13 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
 
     /**
      * Program conntrack rules.
-     *
-     * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
+     *  @param dpid the dpid
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param addOrRemove add or remove the flow
      */
     @Override
-    protected abstract void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+    protected abstract void programSpecificFixedRules(BigInteger dpid,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove);
 
     @Override
@@ -169,10 +167,8 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
-            ingressAclDhcpAllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
-                    AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
-            ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
-                    AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
+            ingressAclDhcpAllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+            ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
 
             programArpRule(dpid, lportTag, addOrRemove);
@@ -206,14 +202,14 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace : aceList) {
-                programAceRule(port, addOrRemove, acl.getAclName(), ace, null);
+                programAceRule(port, addOrRemove, ace, null);
             }
         }
         return true;
     }
 
     @Override
-    protected void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
+    protected void programAceRule(AclInterface port, int addOrRemove, Ace ace,
             List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionIngress.class)) {
@@ -242,12 +238,12 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
     }
 
     @Override
-    protected void updateRemoteAclTableForPort(AclInterface port, Uuid acl, int addOrRemove,
+    protected void updateRemoteAclTableForPort(AclInterface port, int addOrRemove,
             AllowedAddressPairs ip, BigInteger aclId, BigInteger dpId) {
         Long elanTag = port.getElanId();
         Long vpnId = port.getVpnId();
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(elanTag, ip, dataBroker, vpnId));
+        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(elanTag, ip, vpnId));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 
@@ -283,10 +279,9 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      * @param dhcpMacAddress the DHCP server mac address
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
-     * @param protoPortMatchPriority the priority
      */
     protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
-            int addOrRemove, int protoPortMatchPriority) {
+            int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, ServiceModeIngress.class);
 
@@ -306,10 +301,9 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
      * @param dhcpMacAddress the DHCP server mac address
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
-     * @param protoPortMatchPriority the priority
      */
     protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
-            int addOrRemove, Integer protoPortMatchPriority) {
+            int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, ServiceModeIngress.class);
 

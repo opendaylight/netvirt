@@ -1098,7 +1098,7 @@ public final class AclServiceUtils {
     }
 
     public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(long elanTag, AllowedAddressPairs ip,
-            DataBroker dataBroker, Long vpnId) {
+            Long vpnId) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         MatchMetadata metadatMatch = null;
         if (vpnId == null) {
@@ -1140,7 +1140,7 @@ public final class AclServiceUtils {
     }
 
     public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Long elanTag, AllowedAddressPairs ip,
-            DataBroker dataBroker, Long vpnId) {
+            Long vpnId) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         MatchMetadata metadatMatch = null;
         if (vpnId == null) {

@@ -82,7 +82,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
     }
 
     @Override
-    public List<L2gatewayConnection> getAssociatedL2GwConnections(DataBroker broker, Set<Uuid> l2GatewayIds) {
+    public List<L2gatewayConnection> getAssociatedL2GwConnections(Set<Uuid> l2GatewayIds) {
         return L2GatewayConnectionUtils.getAssociatedL2GwConnections(dataBroker, l2GatewayIds);
     }
 
