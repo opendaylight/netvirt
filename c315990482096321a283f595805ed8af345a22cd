@@ -16,6 +16,24 @@
       "revId": "c315990482096321a283f595805ed8af345a22cd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e3c2b4e7",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1199,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-09-18T06:52:10Z",
+      "side": 1,
+      "message": "Both NAT and PNF adjacencies have isNatPrefix\u003dtrue. But, we should return only for NAT entries. Hence, \u0026\u0026 is correct here.\nFor PNF use case, we wont return early here. This is taken care of the \"!rd.equals(prefixInfo.getSubnetId().getValue()\". This ensures that for PNF, the processing continues and the VPN datastore is cleaned.",
+      "parentUuid": "ba1f61a0_b73919f4",
+      "revId": "c315990482096321a283f595805ed8af345a22cd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
