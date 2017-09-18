@@ -81,7 +81,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             if (input.getIpv6RaMode() != null) {
                 ipv6RaMode = DHCPV6_MAP.get(input.getIpv6RaMode());
             }
-            ifMgr.addSubnet(input.getUuid(), input.getName(), input.getNetworkId(),
+            ifMgr.addSubnet(input.getUuid(), input.getName(),
                     input.getTenantId(), input.getGatewayIp(), IPV_MAP.get(input.getIpVersion()),
                     input.getCidr(), ipv6AddrMode, ipv6RaMode);
         }

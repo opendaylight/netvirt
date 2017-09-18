@@ -669,7 +669,7 @@ public class ElanL2GatewayUtils {
 
         List<RemoteUcastMacs> lstL2GatewayDevicesMacs = getOtherDevicesMacs(elanName, l2GatewayDevice, hwVtepNodeId,
                 logicalSwitchName);
-        List<RemoteUcastMacs> lstElanMacTableEntries = getElanMacTableEntriesMacs(elanName, l2GatewayDevice,
+        List<RemoteUcastMacs> lstElanMacTableEntries = getElanMacTableEntriesMacs(elanName,
                 hwVtepNodeId, logicalSwitchName);
 
         List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>(lstL2GatewayDevicesMacs);
@@ -747,8 +747,6 @@ public class ElanL2GatewayUtils {
      *
      * @param elanName
      *            the elan name
-     * @param l2GatewayDeviceToBeConfigured
-     *            the l2 gateway device to be configured
      * @param hwVtepNodeId
      *            the hw vtep node id
      * @param logicalSwitchName
@@ -756,7 +754,7 @@ public class ElanL2GatewayUtils {
      * @return the elan mac table entries as remote ucast macs
      */
     public List<RemoteUcastMacs> getElanMacTableEntriesMacs(String elanName,
-            L2GatewayDevice l2GatewayDeviceToBeConfigured, NodeId hwVtepNodeId, String logicalSwitchName) {
+            NodeId hwVtepNodeId, String logicalSwitchName) {
         List<RemoteUcastMacs> lstRemoteUcastMacs = new ArrayList<>();
 
         MacTable macTable = elanUtils.getElanMacTable(elanName);
@@ -990,13 +988,11 @@ public class ElanL2GatewayUtils {
     /**
      * Gets the l2 gateway connection job key.
      *
-     * @param nodeId
-     *            the node id
      * @param logicalSwitchName
      *            the logical switch name
      * @return the l2 gateway connection job key
      */
-    public static String getL2GatewayConnectionJobKey(String nodeId, String logicalSwitchName) {
+    public static String getL2GatewayConnectionJobKey(String logicalSwitchName) {
         return logicalSwitchName;
     }
 

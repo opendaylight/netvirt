@@ -121,9 +121,8 @@ public class IfMgr {
      * @param rtrUuid router uuid
      * @param rtrName router name
      * @param tenantId tenant id
-     * @param isAdminStateUp admin up
      */
-    public void addRouter(Uuid rtrUuid, String rtrName, Uuid tenantId, Boolean isAdminStateUp) {
+    public void addRouter(Uuid rtrUuid, String rtrName, Uuid tenantId) {
 
         VirtualRouter rtr = new VirtualRouter();
         if (rtr != null) {
@@ -183,7 +182,6 @@ public class IfMgr {
      *
      * @param snetId subnet id
      * @param name subnet name
-     * @param networkId network id
      * @param tenantId tenant id
      * @param gatewayIp gateway ip address
      * @param ipVersion IP Version "IPv4 or IPv6"
@@ -191,7 +189,7 @@ public class IfMgr {
      * @param ipV6AddressMode Address Mode of IPv6 Subnet
      * @param ipV6RaMode RA Mode of IPv6 Subnet.
      */
-    public void addSubnet(Uuid snetId, String name, Uuid networkId, Uuid tenantId,
+    public void addSubnet(Uuid snetId, String name, Uuid tenantId,
                           IpAddress gatewayIp, String ipVersion, IpPrefix subnetCidr,
                           String ipV6AddressMode, String ipV6RaMode) {
 

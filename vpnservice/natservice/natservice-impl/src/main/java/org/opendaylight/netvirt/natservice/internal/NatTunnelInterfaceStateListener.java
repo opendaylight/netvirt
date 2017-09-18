@@ -453,7 +453,7 @@ public class NatTunnelInterfaceStateListener
         for (RoutersList router : routersList) {
             LOG.debug("handleTepDelForAllRtrs :  TEP DEL : DNAT -> Withdrawing routes for router {} ",
                     router.getRouter());
-            hndlTepDelForDnatInEachRtr(router, srcDpnId, writeFlowInvTx);
+            hndlTepDelForDnatInEachRtr(router, srcDpnId);
             LOG.debug("handleTepDelForAllRtrs :  TEP DEL : SNAT -> Withdrawing and Advertising routes for router {} ",
                 router.getRouter());
             hndlTepDelForSnatInEachRtr(router, srcDpnId, tunnelType, srcTepIp, destTepIp, tunnelName, writeFlowInvTx);
@@ -550,7 +550,7 @@ public class NatTunnelInterfaceStateListener
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> Install the group which forward packet to the tunnel port "
                 + "for the NAPT switch {} and the flow 26 which forwards to group", primaryDpnId);
-            externalRouterListner.handleSwitches(srcDpnId, routerName, primaryDpnId, writeFlowInvTx);
+            externalRouterListner.handleSwitches(srcDpnId, routerName, primaryDpnId);
         } else {
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> External BGP VPN (Private BGP) associated to router {}",
                     routerId);
@@ -710,10 +710,10 @@ public class NatTunnelInterfaceStateListener
                     if (elanManager.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
                     }
-                    Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
+                    Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIp,
                             router);
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
-                            fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni, LOG,
+                            fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni,
                             RouteOrigin.STATIC, srcDpnId);
                     serviceId = label;
                 }
@@ -861,7 +861,7 @@ public class NatTunnelInterfaceStateListener
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, vpnName, rd, null,
-                            fibExternalIp, nextHopIp, null, null, label, l3vni, LOG, RouteOrigin.STATIC,
+                            fibExternalIp, nextHopIp, null, null, label, l3vni, RouteOrigin.STATIC,
                             fipCfgdDpnId);
                     serviceId = label;
                 }
@@ -1005,8 +1005,7 @@ public class NatTunnelInterfaceStateListener
         }
     }
 
-    private void hndlTepDelForDnatInEachRtr(RoutersList router, BigInteger tepDeletedDpnId,
-                                            WriteTransaction writeFlowInvTx) {
+    private void hndlTepDelForDnatInEachRtr(RoutersList router, BigInteger tepDeletedDpnId) {
         //DNAT : Withdraw the routes from the BGP
         String routerName = router.getRouter();
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
