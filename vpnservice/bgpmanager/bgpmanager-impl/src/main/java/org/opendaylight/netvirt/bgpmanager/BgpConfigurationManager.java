@@ -1777,8 +1777,6 @@ public class BgpConfigurationManager {
                            prefix,
                            plen,
                            nexthop,
-                           update.getEthtag(),
-                           update.getEsi(),
                            update.getMacaddress(),
                            label,
                            l2label,
@@ -1830,8 +1828,6 @@ public class BgpConfigurationManager {
                                          String prefix,
                                          int plen,
                                          String nextHop,
-                                         int ethtag,
-                                         String esi,
                                          String macaddress,
                                          int label,
                                          int l2label,
@@ -1895,7 +1891,7 @@ public class BgpConfigurationManager {
                     rd, prefix, nextHop, label, afi);
             // TODO: modify addFibEntryToDS signature
             List<String> nextHopList = Collections.singletonList(nextHop);
-            fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, nextHopList, encapType, label, l3vni,
+            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, nextHopList, encapType, label, l3vni,
                                         routermac, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
             String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
@@ -2357,15 +2353,15 @@ public class BgpConfigurationManager {
     }
 
     private <T extends DataObject> void update(InstanceIdentifier<T> iid, T dto) {
-        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
+        BgpUtil.update(iid, dto);
     }
 
     private <T extends DataObject> void asyncWrite(InstanceIdentifier<T> iid, T dto) {
-        BgpUtil.write(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
+        BgpUtil.write(iid, dto);
     }
 
     private <T extends DataObject> void delete(InstanceIdentifier<T> iid) {
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
+        BgpUtil.delete(iid);
     }
 
     public void startConfig(String bgpHost, int thriftPort) {

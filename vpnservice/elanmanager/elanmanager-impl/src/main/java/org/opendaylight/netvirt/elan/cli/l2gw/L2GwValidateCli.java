@@ -396,7 +396,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
 
                 isValid = verfiyLogicalSwitch(logicalSwitchName, nodeIid);
                 if (isValid) {
-                    isValid = verifyMcastMac(logicalSwitchName, l2GatewayDevice, nodeIid);
+                    isValid = verifyMcastMac(logicalSwitchName, nodeIid);
                     verifyVlanBindings(nodeIid, logicalSwitchName, device, l2gatewayConnection.getSegmentId());
                     L2GatewayDevice elanL2gatewayDevice = ElanL2GwCacheUtils
                             .getL2GatewayDeviceFromCache(logicalSwitchName, nodeId.getValue());
@@ -457,7 +457,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     }
 
     private boolean verifyMcastMac(String logicalSwitchName,
-                                   L2GatewayDevice l2GatewayDevice,
                                    InstanceIdentifier<Node> nodeIid) {
         ElanInstance elanInstance = elanInstanceMap.get(logicalSwitchName);
         NodeId nodeId = nodeIid.firstKeyOf(Node.class).getNodeId();

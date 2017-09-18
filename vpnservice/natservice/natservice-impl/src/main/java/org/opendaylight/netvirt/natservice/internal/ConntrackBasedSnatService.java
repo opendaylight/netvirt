@@ -81,7 +81,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
         //Install Inbound NAT entries
         Long extNetId = NatUtil.getVpnId(dataBroker, routers.getNetworkId().getValue());
-        installInboundEntry(dpnId, routerId, extNetId, externalIps, elanId, addOrRemove);
+        installInboundEntry(dpnId, routerId, externalIps, elanId, addOrRemove);
         installNaptPfibEntry(dpnId, routerId, addOrRemove);
 
     }
@@ -227,7 +227,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
     }
 
-    protected void installInboundEntry(BigInteger dpnId, long routerId, Long extNetId, List<ExternalIps> externalIps,
+    protected void installInboundEntry(BigInteger dpnId, long routerId, List<ExternalIps> externalIps,
             int elanId, int addOrRemove) {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();

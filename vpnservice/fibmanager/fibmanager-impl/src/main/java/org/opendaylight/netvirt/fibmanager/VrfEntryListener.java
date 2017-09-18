@@ -1800,7 +1800,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         WriteTransaction writeCfgTxn = dataBroker.newWriteOnlyTransaction();
                         vrfTable.get().getVrfEntry().stream()
                             .filter(vrfEntry -> RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP)
-                            .forEach(bgpRouteVrfEntryHandler.getConsumerForDeletingRemoteFib(dpnId, vpnId, rd,
+                            .forEach(bgpRouteVrfEntryHandler.getConsumerForDeletingRemoteFib(dpnId, vpnId,
                                 remoteNextHopIp, vrfTable, writeCfgTxn, txnObjects));
                         futures.add(writeCfgTxn.submit());
                     }

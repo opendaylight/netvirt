@@ -325,12 +325,12 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void deleteEtreeInterface(String elanInstanceName, String interfaceName) {
-        deleteElanInterface(elanInstanceName, interfaceName);
+        deleteElanInterface(interfaceName);
         LOG.debug("deleting the Etree Interface {}", interfaceName);
     }
 
     @Override
-    public void deleteElanInterface(String elanInstanceName, String interfaceName) {
+    public void deleteElanInterface(String interfaceName) {
         ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (existingElanInterface != null) {
             ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
@@ -340,7 +340,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) {
+    public void addStaticMacAddress(String interfaceName, String macAddress) {
         ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         PhysAddress updateStaticMacAddress = new PhysAddress(macAddress);
         if (existingElanInterface != null) {
@@ -357,7 +357,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress)
+    public void deleteStaticMacAddress(String interfaceName, String macAddress)
             throws MacNotFoundException {
         ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
         if (existingElanInterface != null) {
@@ -404,7 +404,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
                 for (MacEntry macEntry : macEntries) {
                     try {
-                        deleteStaticMacAddress(elanInstanceName, elanInterface, macEntry.getMacAddress().getValue());
+                        deleteStaticMacAddress(elanInterface, macEntry.getMacAddress().getValue());
                     } catch (MacNotFoundException e) {
                         LOG.error("Mac Not Found Exception {}", e);
                     }
@@ -520,7 +520,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
         Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
         if (memberIntf != null) {
-            deleteElanInterface(elanInstance.getElanInstanceName(), intfName);
+            deleteElanInterface(intfName);
             deleteIetfInterface(intfName);
             LOG.debug("delete vlan prv intf {} in elan {}, dpID {}", intfName,
                     elanInstance.getElanInstanceName(), dpnId);
@@ -545,7 +545,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 if (shouldDeleteTrunk(trunkInterfaceName, elanInterface)) {
                     deleteIetfInterface(trunkInterfaceName);
                 }
-                deleteElanInterface(elanInstanceName, elanInterface);
+                deleteElanInterface(elanInterface);
             }
         }
     }

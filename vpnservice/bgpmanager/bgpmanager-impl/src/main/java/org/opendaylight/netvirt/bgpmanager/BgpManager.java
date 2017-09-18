@@ -123,7 +123,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
                           String gatewayMac, RouteOrigin origin)
             throws Exception {
-        fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
+        fibDSWriter.addFibEntryToDS(rd, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, gatewayMac, origin);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, 0 /*l2vni*/, gatewayMac);
@@ -229,7 +229,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
-    public synchronized void sendNotificationEvent(String pfx, int code, int subcode) {
+    public synchronized void sendNotificationEvent(int code, int subcode) {
         BgpAlarmErrorCodes errorSubCode;
         if (code != BgpConstants.BGP_NOTIFY_CEASE_CODE) {
             // CEASE Notifications alone have to be reported to the CBA.

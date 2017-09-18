@@ -273,7 +273,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     }
 
-    private void createDNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long routerId, long vpnId,
+    private void createDNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long routerId,
                                     long associatedVpnId, WriteTransaction writeFlowInvTx) {
         FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         if (preFlowEntity == null) {
@@ -471,7 +471,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId, writeFlowInvTx);
+        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, writeFlowInvTx);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId, writeFlowInvTx);
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, extNwId, interfaceName, mapping, writeFlowInvTx);
     }
@@ -501,7 +501,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId, writeFlowInvTx);
+        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId, writeFlowInvTx);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, externalNetworkId, writeFlowInvTx);
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, routerId, externalNetworkId, interfaceName, mapping,
                 writeFlowInvTx);
@@ -590,7 +590,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (provType == ProviderTypes.VXLAN) {
             floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, routerId, extNwId, mapping,
                     NatConstants.DEFAULT_L3VNI_VALUE, removeFlowInvTx);
-            removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+            removeOperationalDS(routerName, interfaceName, internalIp);
             return;
         }
         long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
@@ -601,7 +601,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
         floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, routerId, extNwId, mapping, (int) label,
                 removeFlowInvTx);
-        removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+        removeOperationalDS(routerName, interfaceName, internalIp);
     }
 
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName,
@@ -633,7 +633,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (provType == ProviderTypes.VXLAN) {
             floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE,
                     removeFlowInvTx, provType);
-            removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+            removeOperationalDS(routerName, interfaceName, internalIp);
             return;
         }
         long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
@@ -643,7 +643,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, removeFlowInvTx, provType);
-        removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+        removeOperationalDS(routerName, interfaceName, internalIp);
     }
 
     protected long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
@@ -682,7 +682,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
     }
 
-    void removeOperationalDS(String routerId, String interfaceName, String internalIp, String externalIp) {
+    void removeOperationalDS(String routerId, String interfaceName, String internalIp) {
         LOG.info("removeOperationalDS : Remove operational DS for floating ip config: {}", internalIp);
         InstanceIdentifier<InternalToExternalPortMap> intExtPortMapId = NatUtil.getIntExtPortMapIdentifier(routerId,
                 interfaceName, internalIp);

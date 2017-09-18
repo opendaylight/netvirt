@@ -216,7 +216,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                     interfaceIdentifier);
                     if (optionalInf.isPresent()) {
                         InterfaceBuilder interfaceBuilder = new InterfaceBuilder(optionalInf.get());
-                        InterfaceAcl infAcl = handlePortSecurityUpdated(dataBroker, original, update,
+                        InterfaceAcl infAcl = handlePortSecurityUpdated(original, update,
                                 origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
                         interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
                         LOG.info("update: Of-port-interface updation for port {}", portName);
@@ -487,10 +487,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         });
     }
 
-    private static InterfaceAclBuilder handlePortSecurityUpdated(DataBroker dataBroker, Port portOriginal,
+    private static InterfaceAclBuilder handlePortSecurityUpdated(Port portOriginal,
             Port portUpdated, boolean origSecurityEnabled, boolean updatedSecurityEnabled,
             InterfaceBuilder interfaceBuilder) {
-        String interfaceName = portUpdated.getUuid().getValue();
         InterfaceAclBuilder interfaceAclBuilder = null;
         if (origSecurityEnabled != updatedSecurityEnabled) {
             interfaceAclBuilder = new InterfaceAclBuilder();

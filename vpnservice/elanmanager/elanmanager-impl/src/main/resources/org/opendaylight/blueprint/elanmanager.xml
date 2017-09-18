@@ -333,7 +333,6 @@
   <bean id="transportZoneNotificationUtil"
     class="org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil">
     <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
     <argument ref="elanService" />
     <argument ref="elanConfig" />
     <argument ref="elanBridgeManager" />
@@ -343,7 +342,6 @@
     class="org.opendaylight.netvirt.elan.internal.ElanDpnToTransportZoneListener"
     init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
     <argument ref="transportZoneNotificationUtil" />
   </bean>
@@ -352,7 +350,6 @@
     class="org.opendaylight.netvirt.elan.internal.VpnDpnToTransportZoneListener"
     init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
     <argument ref="elanConfig" />
     <argument ref="transportZoneNotificationUtil" />
   </bean>

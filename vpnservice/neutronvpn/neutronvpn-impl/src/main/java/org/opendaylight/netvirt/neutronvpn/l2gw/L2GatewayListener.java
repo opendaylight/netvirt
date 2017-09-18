@@ -121,7 +121,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     protected void update(InstanceIdentifier<L2gateway> identifier, L2gateway original, L2gateway update) {
         LOG.trace("Updating L2gateway : key: {}, original value={}, update value={}", identifier, original, update);
         List<L2gatewayConnection> connections = l2gwService.getAssociatedL2GwConnections(
-                dataBroker, Sets.newHashSet(update.getUuid()));
+                Sets.newHashSet(update.getUuid()));
         if (connections == null) {
             LOG.warn("There are no connections associated with l2 gateway uuid {} name {}",
                     update.getUuid(), update.getName());

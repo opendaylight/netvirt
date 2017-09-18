@@ -26,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 @Command(scope = "odl", name = "configure-bgp", description = "")
 public class ConfigureBgpCli extends OsgiCommandSupport {
     private static BgpManager bgpManager;
-    private static BgpConfigurationManager bgpConfigurationManager;
 
     private static final long AS_MIN = 0;
     private static final long AS_MAX = 4294967295L;//2^32-1
@@ -371,12 +370,12 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     protected void addRoute() throws Exception {
-        bgpConfigurationManager.onUpdatePushRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
-                0, nexthop, 0, null, mac, l3vni, l2vni, null, null);
+        BgpConfigurationManager.onUpdatePushRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
+                0, nexthop, mac, l3vni, l2vni, null, null);
     }
 
     protected void deleteRoute() throws Exception {
-        bgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
+        BgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
                 0, nexthop, mac);
     }
 
