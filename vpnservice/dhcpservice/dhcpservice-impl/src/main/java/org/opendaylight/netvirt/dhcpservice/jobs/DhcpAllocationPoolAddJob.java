@@ -55,11 +55,11 @@ public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        installDhcpEntries(interfaceName, dpnId, futures);
+        installDhcpEntries(interfaceName, futures);
         return futures;
     }
 
-    private void installDhcpEntries(String interfaceName, BigInteger dpId, List<ListenableFuture<Void>> futures) {
+    private void installDhcpEntries(String interfaceName, List<ListenableFuture<Void>> futures) {
         WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
         DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
         futures.add(bindServiceTx.submit());

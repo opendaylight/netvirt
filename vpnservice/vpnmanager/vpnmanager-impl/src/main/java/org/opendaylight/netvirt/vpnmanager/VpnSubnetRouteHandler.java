@@ -824,7 +824,7 @@ public class VpnSubnetRouteHandler {
                 .setSubnetIp(subnetIp).setNextHopIp(nextHopIp).setL3vni(l3vni).setLabel(label).setElanTag(elanTag)
                 .setDpnId(nhDpnId).setEncapType(encapType).setNetworkName(networkName).setPrimaryRd(rd);
         if (!isBgpVpn) {
-            vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
+            vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
             return true;
         }
         Preconditions.checkNotNull(nextHopIp, LOGGING_PREFIX + "NextHopIp cannot be null or empty!");
@@ -832,7 +832,7 @@ public class VpnSubnetRouteHandler {
                 .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
                 .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId,
                         Prefixes.PrefixCue.SubnetRoute));
-        vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
+        vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist

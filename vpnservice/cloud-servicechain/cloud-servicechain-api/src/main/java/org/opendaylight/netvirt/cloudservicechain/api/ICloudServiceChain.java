@@ -67,13 +67,10 @@ public interface ICloudServiceChain {
      *     retrieve the VNI and the elanTag.
      * @param scfTag ServiceChainForwarding Tag
      * @param elanLportTag LPortTag of the Elan Pseudo Port
-     * @param isLastServiceChain Only considered in removal operations. States
-     *     if there are no more ServiceChains using the ElanPseudoPort as
-     *     ingress port.
      * @param addOrRemove States if the flows must be added or removed
      */
     void programElanScfPipeline(String elanName, short tableId, long scfTag, int elanLportTag,
-                                boolean isLastServiceChain, int addOrRemove);
+                                int addOrRemove);
 
     // TODO: To be removed when sdnc is changed so that it calls the following API instead:
     void programElanScfPipeline(String elanName, short tableId, int scfTag, int elanLportTag, int addOrRemove);

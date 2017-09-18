@@ -37,10 +37,9 @@ public interface IVpnLinkService {
      * @param label            Label of the route in the original VPN
      * @param forcedOrigin     By default, origin for leaked routes is INTERVPN, however it is possible to
      *                         provide a different origin if desired.
-     * @param addOrRemove states if the routes must be leaked or withdrawn
      */
     void leakRoute(InterVpnLinkDataComposite interVpnLink, String srcVpnUuid, String dstVpnUuid,
-                   String prefix, Long label, RouteOrigin forcedOrigin, int addOrRemove);
+                   String prefix, Long label, RouteOrigin forcedOrigin);
 
     /**
      * Similar to leakRouteIfNeeded but the only requisite to be met is that

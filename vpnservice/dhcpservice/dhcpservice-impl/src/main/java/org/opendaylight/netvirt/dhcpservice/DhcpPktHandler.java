@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -186,7 +184,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         if (port != null) {
             dhcpInfo = handleDhcpNeutronPacket(msgType, port, subnet, serverIp);
         } else if (config.isDhcpDynamicAllocationPoolEnabled()) {
-            dhcpInfo = handleDhcpAllocationPoolPacket(msgType, dhcpPkt, interfaceName, macAddress);
+            dhcpInfo = handleDhcpAllocationPoolPacket(msgType, interfaceName, macAddress);
         }
         DHCP reply = null;
         if (dhcpInfo != null) {
@@ -212,7 +210,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
 
-    private DhcpInfo handleDhcpAllocationPoolPacket(byte msgType, DHCP dhcpPkt, String interfaceName,
+    private DhcpInfo handleDhcpAllocationPoolPacket(byte msgType, String interfaceName,
             String macAddress) {
         String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
         AllocationPool pool = (networkId != null) ? dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId)

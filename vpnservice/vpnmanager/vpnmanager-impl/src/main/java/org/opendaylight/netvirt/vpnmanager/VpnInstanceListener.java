@@ -224,7 +224,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         } else {
             TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnInstanceName),
-                vpnInstanceToVpnId, TransactionUtil.DEFAULT_CALLBACK);
+                vpnInstanceToVpnId);
         }
 
         VpnIds vpnIdToVpnInstance = VpnUtil.getVpnIdToVpnInstance(vpnId, value.getVpnInstanceName(),
@@ -237,7 +237,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         } else {
             TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 VpnUtil.getVpnIdToVpnInstanceIdentifier(vpnId),
-                vpnIdToVpnInstance, TransactionUtil.DEFAULT_CALLBACK);
+                vpnIdToVpnInstance);
         }
 
         try {
@@ -298,7 +298,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         } else {
             TransactionUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd),
-                builder.build(), TransactionUtil.DEFAULT_CALLBACK);
+                builder.build());
         }
         LOG.info("{} addVpnInstance: VpnInstanceOpData populated successfully for vpn {} rd {}", LOGGING_PREFIX_ADD,
                 vpnInstanceName, primaryRd);
@@ -325,7 +325,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
              */
             VpnAfConfig config = vpnInstance.getIpv4Family();
             List<String> rd = config.getRouteDistinguisher();
-            if (rd == null || addBgpVrf(voids)) {
+            if (rd == null || addBgpVrf()) {
                 notifyTask();
                 vpnInterfaceManager.vpnInstanceIsReady(vpnName);
             }
@@ -366,7 +366,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         // TODO Clean up the exception handling
         @SuppressWarnings("checkstyle:IllegalCatch")
-        private boolean addBgpVrf(List<Void> voids) {
+        private boolean addBgpVrf() {
             VpnAfConfig config = vpnInstance.getIpv4Family();
             List<String> rds = config.getRouteDistinguisher();
             String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);

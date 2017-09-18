@@ -291,8 +291,8 @@ public class QosNeutronUtils {
         });
     }
 
-    public static void handleNeutronPortRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
-                                               IMdsalApiManager mdsalUtils, Port port, Uuid qosUuid, Interface intrf) {
+    public static void handleNeutronPortRemove(DataBroker db,
+            IMdsalApiManager mdsalUtils, Port port, Uuid qosUuid, Interface intrf) {
         LOG.trace("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid(), qosUuid);
         QosPolicy qosPolicy = QosNeutronUtils.qosPolicyMap.get(qosUuid);
 
@@ -302,7 +302,7 @@ public class QosNeutronUtils {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
                     && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                unsetPortDscpMark(db, odlInterfaceRpcService, mdsalUtils, port, intrf);
+                unsetPortDscpMark(db, mdsalUtils, port, intrf);
             }
             futures.add(wrtConfigTxn.submit());
             return futures;
@@ -565,7 +565,7 @@ public class QosNeutronUtils {
         qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
-    public static void unsetPortDscpMark(DataBroker dataBroker, OdlInterfaceRpcService odlInterfaceRpcService,
+    public static void unsetPortDscpMark(DataBroker dataBroker,
                                          IMdsalApiManager mdsalUtils, Port port, Interface intrf) {
         LOG.trace("Removing dscp marking rule from Port {}", port);
 
@@ -578,7 +578,7 @@ public class QosNeutronUtils {
         }
         IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
         unbindservice(dataBroker, ifName);
-        syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress, intrf);
+        syncFlow(dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress, intrf);
     }
 
     private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
@@ -666,8 +666,7 @@ public class QosNeutronUtils {
         return bridgeEntryIdBuilder.build();
     }
 
-    public  static  void removeStaleFlowEntry(DataBroker db, IMdsalApiManager mdsalUtils,
-                                                OdlInterfaceRpcService odlInterfaceRpcService, Interface intrf) {
+    public  static  void removeStaleFlowEntry(IMdsalApiManager mdsalUtils, Interface intrf) {
         List<MatchInfo> matches = new ArrayList<>();
 
         BigInteger dpnId = getDpIdFromInterface(intrf);
@@ -685,10 +684,10 @@ public class QosNeutronUtils {
                                  IMdsalApiManager mdsalUtils, Short dscpValue,
                                  String ifName, IpAddress ipAddress) {
         Interface ifState = getInterfaceStateFromOperDS(ifName, db);
-        syncFlow(db, dpnId, addOrRemove, mdsalUtils, dscpValue, ifName, ipAddress, ifState);
+        syncFlow(dpnId, addOrRemove, mdsalUtils, dscpValue, ifName, ipAddress, ifState);
     }
 
-    private static void syncFlow(DataBroker db, BigInteger dpnId, int addOrRemove,
+    private static void syncFlow(BigInteger dpnId, int addOrRemove,
                                  IMdsalApiManager mdsalUtils, Short dscpValue,
                                  String ifName, IpAddress ipAddress, Interface ifState) {
         List<MatchInfo> matches = new ArrayList<>();
@@ -810,7 +809,7 @@ public class QosNeutronUtils {
         return null;
     }
 
-    public static boolean portHasQosPolicy(INeutronVpnManager neutronVpnManager, Port port) {
+    public static boolean portHasQosPolicy(Port port) {
         Uuid qosUuid = null;
         boolean isQosPolicy = false;
 
