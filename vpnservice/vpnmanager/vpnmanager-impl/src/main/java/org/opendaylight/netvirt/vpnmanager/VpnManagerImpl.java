@@ -63,7 +63,6 @@ public class VpnManagerImpl implements IVpnManager {
                           final VpnInstanceListener vpnInstanceListener,
                           final VpnInterfaceManager vpnInterfaceManager,
                           final IMdsalApiManager mdsalManager,
-                          final VpnFootprintService vpnFootprintService,
                           final IElanService elanService,
                           final IInterfaceManager interfaceManager,
                           final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
@@ -128,7 +127,7 @@ public class VpnManagerImpl implements IVpnManager {
         VpnInstanceOpDataEntry vpnOpEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
         Boolean isVxlan = VpnUtil.isL3VpnOverVxLan(vpnOpEntry.getL3vni());
         VrfEntry.EncapType encapType = VpnUtil.getEncapType(isVxlan);
-        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, label, vpnOpEntry.getL3vni(),
+        vpnInterfaceManager.addExtraRoute(vpnName, destination, nextHop, rd, routerID, vpnOpEntry.getL3vni(),
                 origin,/*intfName*/ null, null /*Adjacency*/, encapType, null);
     }
 
@@ -262,10 +261,10 @@ public class VpnManagerImpl implements IVpnManager {
 
         for (String fixedIp : fixedIps) {
             if (addOrRemove == NwConstants.ADD_FLOW) {
-                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
-                        fixedIp, writeTx);
+                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
+                        fixedIp);
             } else {
-                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, writeTx,extInterfaceName);
+                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, extInterfaceName);
             }
         }
 
@@ -292,7 +291,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void installArpResponderFlowsToExternalNetworkIp(String macAddress, BigInteger dpnId,
-            String extInterfaceName, int lportTag, long vpnId, String fixedIp, WriteTransaction writeTx) {
+            String extInterfaceName, int lportTag, String fixedIp) {
         // reset the split-horizon bit to allow traffic to be sent back to the
         // provider port
         List<Instruction> instructions = new ArrayList<>();
@@ -307,7 +306,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void removeArpResponderFlowsToExternalNetworkIp(BigInteger dpnId, Integer lportTag, String fixedIp,
-            WriteTransaction writeTx,String extInterfaceName) {
+            String extInterfaceName) {
         ArpResponderInput arpInput = new ArpReponderInputBuilder().setDpId(dpnId).setInterfaceName(extInterfaceName)
                 .setSpa(fixedIp).setLportTag(lportTag).buildForRemoveFlow();
         elanService.removeArpResponderFlow(arpInput);

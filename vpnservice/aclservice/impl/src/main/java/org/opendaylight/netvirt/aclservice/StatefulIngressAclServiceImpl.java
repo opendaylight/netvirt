@@ -83,15 +83,14 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      * Program conntrack rules.
      *
      * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param addOrRemove add or remove the flow
      */
     @Override
-    protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+    protected void programSpecificFixedRules(BigInteger dpid,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
-        programIngressAclFixedConntrackRule(dpid, lportTag, allowedAddresses, portId, action, addOrRemove);
+        programIngressAclFixedConntrackRule(dpid, lportTag, allowedAddresses, portId, addOrRemove);
     }
 
     @Override
@@ -129,16 +128,12 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      *
      * @param dpId the dpId
      * @param allowedAddresses the allowed addresses
-     * @param priority the priority of the flow
      * @param flowId the flowId
-     * @param conntrackState the conntrack state of the packets thats should be
-     *        send
-     * @param conntrackMask the conntrack mask
      * @param portId the portId
      * @param addOrRemove whether to add or remove the flow
      */
     private void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
-            Integer priority, String flowId, String portId, int addOrRemove) {
+            String flowId, String portId, int addOrRemove) {
         for (AllowedAddressPairs allowedAddress : allowedAddresses) {
             IpPrefixOrAddress attachIp = allowedAddress.getIpAddress();
             MacAddress attachMac = allowedAddress.getMacAddress();
@@ -172,8 +167,8 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
      * @param write whether to add or remove the flow.
      */
     private void programIngressAclFixedConntrackRule(BigInteger dpid, int lportTag,
-            List<AllowedAddressPairs> allowedAddresses, String portId, Action action, int write) {
-        programConntrackRecircRules(dpid, allowedAddresses, AclConstants.CT_STATE_UNTRACKED_PRIORITY,
+            List<AllowedAddressPairs> allowedAddresses, String portId, int write) {
+        programConntrackRecircRules(dpid, allowedAddresses,
             "Recirc",portId, write);
         programIngressConntrackDropRules(dpid, lportTag, write);
         LOG.info("programEgressAclFixedConntrackRule :  default connection tracking rule are {} on DpId {}"

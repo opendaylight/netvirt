@@ -38,7 +38,7 @@ public class LearnIngressAclServiceImpl extends AbstractIngressAclServiceImpl {
     }
 
     @Override
-    protected void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+    protected void programSpecificFixedRules(BigInteger dpid,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove) {
 
     }

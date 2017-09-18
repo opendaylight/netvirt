@@ -194,7 +194,6 @@
     <argument ref="vpnInstanceListener" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="mdsalUtils" />
-    <argument ref="vpnFootprintService" />
     <argument ref="elanService" />
     <argument ref="interfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
