@@ -146,7 +146,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         } else if (update.getElanTag() == null) {
             // update the elan-Instance with new properties
             WriteTransaction tx = broker.newWriteOnlyTransaction();
-            ElanUtils.updateOperationalDataStore(broker, idManager,
+            ElanUtils.updateOperationalDataStore(idManager,
                     update, new ArrayList<>(), tx);
             ElanUtils.waitForTransactionToComplete(tx);
             return;
@@ -170,7 +170,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         if (elanInfo == null) {
             WriteTransaction tx = broker.newWriteOnlyTransaction();
-            ElanUtils.updateOperationalDataStore(broker, idManager,
+            ElanUtils.updateOperationalDataStore(idManager,
                 elanInstanceAdded, new ArrayList<>(), tx);
             ElanUtils.waitForTransactionToComplete(tx);
         }

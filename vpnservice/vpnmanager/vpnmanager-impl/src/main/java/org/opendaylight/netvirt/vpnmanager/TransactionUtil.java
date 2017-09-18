@@ -62,7 +62,7 @@ public class TransactionUtil {
     }
 
     public static <T extends DataObject> void syncWrite(DataBroker dataBroker, LogicalDatastoreType datastoreType,
-            InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
+            InstanceIdentifier<T> path, T data) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
         try {

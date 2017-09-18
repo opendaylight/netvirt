@@ -371,7 +371,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     public Consumer<? super VrfEntry> getConsumerForDeletingRemoteFib(
-            final BigInteger dpnId, final long vpnId, final String rd,
+            final BigInteger dpnId, final long vpnId,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
             WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
         return vrfEntry -> vrfEntry.getRoutePaths().stream()

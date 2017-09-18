@@ -34,11 +34,11 @@ public interface IElanService extends IEtreeService {
     void updateElanInterface(String elanInstanceName, String interfaceName, List<String> updatedStaticMacAddresses,
             String newDescription);
 
-    void deleteElanInterface(String elanInstanceName, String interfaceName);
+    void deleteElanInterface(String interfaceName);
 
-    void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress);
+    void addStaticMacAddress(String interfaceName, String macAddress);
 
-    void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress)
+    void deleteStaticMacAddress(String interfaceName, String macAddress)
             throws MacNotFoundException;
 
     Collection<MacEntry> getElanMacTable(String elanInstanceName);

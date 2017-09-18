@@ -51,7 +51,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
+    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn) {
         if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
             LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getPrimaryRd());
             addSubnetRouteFibEntry(input);

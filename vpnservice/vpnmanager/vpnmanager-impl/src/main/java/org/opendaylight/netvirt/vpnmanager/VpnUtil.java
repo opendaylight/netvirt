@@ -1312,7 +1312,7 @@ public final class VpnUtil {
     }
 
     static Optional<IpAddress> getGatewayIpAddressFromInterface(String srcInterface,
-            INeutronVpnManager neutronVpnService, DataBroker dataBroker) {
+            INeutronVpnManager neutronVpnService) {
         Optional<IpAddress> gatewayIp = Optional.absent();
         if (neutronVpnService != null) {
             //TODO(Gobinath): Need to fix this as assuming port will belong to only one Subnet would be incorrect"
@@ -1330,7 +1330,7 @@ public final class VpnUtil {
     }
 
     static Optional<String> getGWMacAddressFromInterface(MacEntry macEntry, IpAddress gatewayIp,
-        DataBroker dataBroker, OdlInterfaceRpcService interfaceRpc) {
+            DataBroker dataBroker) {
         Optional<String> gatewayMac = Optional.absent();
         long vpnId = getVpnId(dataBroker, macEntry.getVpnName());
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn
@@ -1406,7 +1406,6 @@ public final class VpnUtil {
     }
 
     public static Optional<VpnPortipToPort> getRouterInterfaceForVpnInterface(DataBroker dataBroker,
-                                                                              String interfaceName,
                                                                               String vpnName,
                                                                               Uuid subnetUuid) {
         Optional<VpnPortipToPort> gwPortOptional = Optional.absent();
@@ -1512,7 +1511,7 @@ public final class VpnUtil {
 
     static java.util.Optional<String> allocateRdForExtraRouteAndUpdateUsedRdsMap(
             DataBroker dataBroker, long vpnId, @Nullable Long parentVpnId, String prefix, String vpnName,
-            String nextHop, BigInteger dpnId, WriteTransaction writeOperTxn) {
+            String nextHop, BigInteger dpnId) {
         //Check if rd is already allocated for this extraroute behind the same VM. If yes, reuse it.
         //This is particularly useful during reboot scenarios.
         java.util.Optional<String> allocatedRd = VpnExtraRouteHelper

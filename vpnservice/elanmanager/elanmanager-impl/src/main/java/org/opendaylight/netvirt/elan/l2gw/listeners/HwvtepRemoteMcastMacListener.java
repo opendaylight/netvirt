@@ -149,7 +149,7 @@ public class HwvtepRemoteMcastMacListener
     @SuppressWarnings("checkstyle:IllegalCatch") // TODO remove when using AutoCloseables
     void runTask() {
         try {
-            String jobKey = ElanL2GatewayUtils.getL2GatewayConnectionJobKey(nodeId.getValue(), nodeId.getValue());
+            String jobKey = ElanL2GatewayUtils.getL2GatewayConnectionJobKey(nodeId.getValue());
             dataStoreJobCoordinator.enqueueJob(jobKey, taskToRun,
                     SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         } finally {
