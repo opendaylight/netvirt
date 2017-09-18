@@ -829,7 +829,8 @@ public class VpnSubnetRouteHandler {
         Preconditions.checkNotNull(nextHopIp, LOGGING_PREFIX + "NextHopIp cannot be null or empty!");
         VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, VpnUtil
                 .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
-                .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId, true /*isNatPrefix*/));
+                .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId,
+                        Prefixes.PrefixCue.SubnetRoute));
         vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
