@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_54b414f1",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 28
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-18T17:07:42Z",
+      "side": 1,
+      "message": "factorisation is used to avoid introduce additional lock mechanisms.\nas the function that write subnetopdataentry are reused to either write subnetopdataentry of external or of internet, then there is no need to introduce additional locks.\n\nexample: onsubnetadded/removedtovpn are being added an extra parameter to signify we work on ipv6 external or ipv6 internet.",
+      "parentUuid": "ba1f61a0_31d4801f",
+      "range": {
+        "startLine": 351,
+        "startChar": 0,
+        "endLine": 363,
+        "endChar": 71
+      },
+      "revId": "6a89b90f7e65eb492544ded333620495b5b61eda",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_b1e7d011",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 28
