@@ -1207,8 +1207,8 @@ public class BgpConfigurationManager {
                     List<AddressFamiliesVrf> vrfAddrFamilyList = vrfs.getAddressFamiliesVrf();
                     for (AddressFamiliesVrf vrfAddrFamily : vrfAddrFamilyList) {
                         /*add to br the new vrfs arguments*/
-                        br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(), vrfs.getExportRts(),
-                                vrfAddrFamily.getAfi(), vrfAddrFamily.getSafi());
+                        br.addVrf(BgpUtil.getLayerType(vrfAddrFamily), rd, vrfs.getImportRts(), vrfs.getExportRts()
+                        );
                     }
                     /*add to br the vrfs contained in mapNewAdFamily*/
                     List<AddressFamiliesVrf> vrfAddrFamilyListFromMap = mapNewAdFamily.get(rd);
@@ -1221,8 +1221,8 @@ public class BgpConfigurationManager {
                             mapNewAdFamily.remove(rd);
                         } else  if (adf != null) {
 
-                            br.addVrf(BgpUtil.getLayerType(adf), rd, vrfs.getImportRts(), vrfs.getExportRts(),
-                                    adf.getAfi(), adf.getSafi());
+                            br.addVrf(BgpUtil.getLayerType(adf), rd, vrfs.getImportRts(), vrfs.getExportRts()
+                            );
                             // remove AddressFamiliesVrf which was already added to BGP
                             vrfAddrFamilyListFromMap.remove(adf);
                             if (vrfAddrFamilyListFromMap.isEmpty()) {
@@ -1329,7 +1329,7 @@ public class BgpConfigurationManager {
                     try {
                         LOG.debug("call addVRf rd {} afi {} safi {}", rd, adfvrf.getAfi(), adfvrf.getSafi());
                         br.addVrf(BgpUtil.getLayerType(adfvrf), rd, newval.getImportRts(),
-                                newval.getExportRts(), adfvrf.getAfi(), adfvrf.getSafi());
+                                newval.getExportRts());
                     } catch (TException | BgpRouterException e) {
                         LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
                     }
@@ -1731,8 +1731,6 @@ public class BgpConfigurationManager {
                            prefix,
                            plen,
                            nexthop,
-                           update.getEthtag(),
-                           update.getEsi(),
                            update.getMacaddress(),
                            label,
                            l2label,
@@ -1780,7 +1778,7 @@ public class BgpConfigurationManager {
      */
 
     public void onUpdatePushRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
-            int ethtag, String esi, String macaddress, int label, int l2label, String routermac, af_afi afi) {
+                                  String macaddress, int label, int l2label, String routermac, af_afi afi) {
         boolean addroute = false;
         boolean macupdate = false;
         long l3vni = 0L;
@@ -1838,7 +1836,7 @@ public class BgpConfigurationManager {
                     rd, prefix, nextHop, label, afi);
             // TODO: modify addFibEntryToDS signature
             List<String> nextHopList = Collections.singletonList(nextHop);
-            fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, nextHopList, encapType, label, l3vni,
+            fibDSWriter.addFibEntryToDS(rd, prefix + "/" + plen, nextHopList, encapType, label, l3vni,
                                         routermac, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
             String vpnName = bgpUtil.getVpnNameFromRd(rd);
@@ -2191,7 +2189,7 @@ public class BgpConfigurationManager {
             for (AddressFamiliesVrf adf : vrf.getAddressFamiliesVrf()) {
                 try {
                     br.addVrf(BgpUtil.getLayerType(adf), vrf.getRd(), vrf.getImportRts(),
-                            vrf.getExportRts(), adf.getAfi(), adf.getSafi());
+                            vrf.getExportRts());
                 } catch (TException | BgpRouterException e) {
                     LOG.error("Replay:addVrf() received exception", e);
                 }
@@ -2282,11 +2280,11 @@ public class BgpConfigurationManager {
     }
 
     private <T extends DataObject> void update(InstanceIdentifier<T> iid, T dto) {
-        bgpUtil.update(LogicalDatastoreType.CONFIGURATION, iid, dto);
+        bgpUtil.update(iid, dto);
     }
 
     private <T extends DataObject> void delete(InstanceIdentifier<T> iid) {
-        bgpUtil.delete(LogicalDatastoreType.CONFIGURATION, iid);
+        bgpUtil.delete(iid);
     }
 
     public void startConfig(String bgpHost, int thriftPort) {

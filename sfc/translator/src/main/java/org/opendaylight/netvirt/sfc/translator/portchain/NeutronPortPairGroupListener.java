@@ -31,11 +31,10 @@ public class NeutronPortPairGroupListener extends DelegatingDataTreeListener<Por
     /**
      * Method removes PortPairGroup which is identified by InstanceIdentifier.
      *
-     * @param path - the whole path to PortPairGroup
      * @param deletedPortPairGroup        - PortPairGroup for removing
      */
     @Override
-    public void remove(InstanceIdentifier<PortPairGroup> path, PortPairGroup deletedPortPairGroup) {
+    public void remove(PortPairGroup deletedPortPairGroup) {
         //NO-OP
     }
 
@@ -43,14 +42,10 @@ public class NeutronPortPairGroupListener extends DelegatingDataTreeListener<Por
      * Method updates the original PortPairGroup to the update PortPairGroup.
      * Both are identified by same InstanceIdentifier.
      *
-     * @param path - the whole path to PortPairGroup
-     * @param originalPortPairGroup   - original PortPairGroup (for update)
      * @param updatePortPairGroup     - changed PortPairGroup (contain updates)
      */
     @Override
-    public void update(InstanceIdentifier<PortPairGroup> path,
-                       PortPairGroup originalPortPairGroup,
-                       PortPairGroup updatePortPairGroup) {
+    public void update(PortPairGroup updatePortPairGroup) {
         //NO-OP
     }
 
@@ -58,11 +53,10 @@ public class NeutronPortPairGroupListener extends DelegatingDataTreeListener<Por
      * Method adds the PortPairGroup which is identified by InstanceIdentifier
      * to device.
      *
-     * @param path - the whole path to new PortPairGroup
      * @param newPortPairGroup        - new PortPairGroup
      */
     @Override
-    public void add(InstanceIdentifier<PortPairGroup> path, PortPairGroup newPortPairGroup) {
+    public void add(PortPairGroup newPortPairGroup) {
         //NO-OP
     }
 }

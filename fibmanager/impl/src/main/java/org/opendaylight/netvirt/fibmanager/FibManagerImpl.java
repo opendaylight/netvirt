@@ -15,7 +15,6 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -121,40 +120,40 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void addOrUpdateFibEntry(DataBroker broker, String rd, String macAddress, String prefix,
-                                    List<String> nextHopList, VrfEntry.EncapType encapType, long label,
-                                    long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
-                                    WriteTransaction writeConfigTxn) {
+    public void addOrUpdateFibEntry(String rd, String macAddress, String prefix,
+            List<String> nextHopList, VrfEntry.EncapType encapType, long label,
+            long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
+            WriteTransaction writeConfigTxn) {
         fibUtil.addOrUpdateFibEntry(rd, macAddress, prefix, nextHopList , encapType, label, l3vni, gwMacAddress,
                 parentVpnRd, origin, writeConfigTxn);
     }
 
     @Override
-    public void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
-                                              RouterInterface routerInterface, long label,
-                                              WriteTransaction writeConfigTxn) {
+    public void addFibEntryForRouterInterface(String rd, String prefix,
+            RouterInterface routerInterface, long label,
+            WriteTransaction writeConfigTxn) {
         fibUtil.addFibEntryForRouterInterface(rd, prefix, routerInterface, label, writeConfigTxn);
     }
 
     @Override
-    public void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix,
-                                       String nextHopToRemove, WriteTransaction writeConfigTxn) {
+    public void removeOrUpdateFibEntry(String rd, String prefix,
+            String nextHopToRemove, WriteTransaction writeConfigTxn) {
         fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopToRemove, writeConfigTxn);
     }
 
     @Override
-    public void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {
+    public void removeFibEntry(String rd, String prefix, WriteTransaction writeConfigTxn) {
         fibUtil.removeFibEntry(rd, prefix, writeConfigTxn);
     }
 
     @Override
-    public void updateRoutePathForFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
-                               long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
+    public void updateRoutePathForFibEntry(String rd, String prefix, String nextHop,
+            long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
         fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
     }
 
     @Override
-    public void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
+    public void removeVrfTable(String rd, WriteTransaction writeConfigTxn) {
         fibUtil.removeVrfTable(rd, writeConfigTxn);
     }
 

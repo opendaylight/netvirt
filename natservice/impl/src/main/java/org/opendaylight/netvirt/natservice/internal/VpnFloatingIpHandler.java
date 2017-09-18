@@ -313,7 +313,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             vpnManager.removeSubnetMacFromVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
                     dpnId, tx);
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerUuid, Collections.singletonList(externalIp),
-                    floatingIpPortMacAddress, dpnId, networkId, tx);
+                    floatingIpPortMacAddress, dpnId, networkId);
         }), LOG, "onRemoveFloatingIp");
 
         removeFromFloatingIpPortInfo(floatingIpId);
@@ -324,7 +324,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         if (provType == ProviderTypes.VXLAN) {
             Uuid floatingIpInterface = NatEvpnUtil.getFloatingIpInterfaceIdFromFloatingIpId(dataBroker, floatingIpId);
             evpnDnatFlowProgrammer.onRemoveFloatingIp(dpnId, vpnName, externalIp, floatingIpInterface.getValue(),
-                    floatingIpPortMacAddress, routerUuid, routerId, removeFlowInvTx);
+                    floatingIpPortMacAddress, routerId, removeFlowInvTx);
             return;
         }
         cleanupFibEntries(dpnId, vpnName, externalIp, label, removeFlowInvTx, provType);
@@ -336,7 +336,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         //Remove Prefix from BGP
         String rd = NatUtil.getVpnRd(dataBroker, vpnName);
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
+        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
 
         //Remove custom FIB routes
 

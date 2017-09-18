@@ -128,7 +128,7 @@ public class CentralizedSwitchChangeListener
                     subnetVpnName.getValue(), writeTx);
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
                     VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
-                    extGwMacAddress, primarySwitchId, extNetworkId, writeTx);
+                    extGwMacAddress, primarySwitchId, extNetworkId);
         }
     }
 }

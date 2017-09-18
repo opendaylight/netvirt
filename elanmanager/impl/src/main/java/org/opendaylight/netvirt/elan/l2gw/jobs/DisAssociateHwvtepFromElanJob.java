@@ -85,7 +85,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
 
             LOG.info("delete mcast mac for {} {}", elanName, strHwvtepNodeId);
             futures.addAll(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceDelete(this.elanName,
-                    elanInstanceSupplier.get(), l2GatewayDevice));
+                    l2GatewayDevice));
 
             LOG.info("delete local ucast macs {} {}", elanName, strHwvtepNodeId);
             elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, elanName);

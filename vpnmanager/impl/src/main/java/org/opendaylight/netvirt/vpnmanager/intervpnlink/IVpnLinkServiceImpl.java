@@ -120,7 +120,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             String key = dstVpnRd + VpnConstants.SEPARATOR + prefix;
             long leakedLabel = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME, key);
             String leakedNexthop = interVpnLink.getEndpointIpAddr(vpnName);
-            fibManager.addOrUpdateFibEntry(dataBroker, dstVpnRd, null /*macAddress*/, prefix,
+            fibManager.addOrUpdateFibEntry(dstVpnRd, null /*macAddress*/, prefix,
                                            Collections.singletonList(leakedNexthop), VrfEntry.EncapType.Mplsgre,
                                            (int) leakedLabel, 0 /*l3vni*/, null /*gatewayMacAddress*/,
                                            null /*parentVpnRd*/, RouteOrigin.INTERVPN, null /*writeConfigTxn*/);
@@ -138,7 +138,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             }
         } else {
             LOG.debug("Removing leaked route to {} from VPN {}", prefix, dstVpnName);
-            fibManager.removeFibEntry(dataBroker, dstVpnRd, prefix, null /*writeConfigTxn*/);
+            fibManager.removeFibEntry(dstVpnRd, prefix, null /*writeConfigTxn*/);
             bgpManager.withdrawPrefix(dstVpnRd, prefix);
         }
     }
@@ -147,7 +147,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void leakRoute(InterVpnLinkDataComposite interVpnLink, String srcVpnUuid, String dstVpnUuid,
-                          String prefix, Long label, RouteOrigin forcedOrigin, int addOrRemove) {
+                          String prefix, Long label, RouteOrigin forcedOrigin) {
         String ivpnLinkName = interVpnLink.getInterVpnLinkName();
         // The source VPN must participate in the InterVpnLink
         Preconditions.checkArgument(interVpnLink.isVpnLinked(srcVpnUuid),
@@ -265,11 +265,11 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
         if (! originsToConsider.isEmpty()) {
             // 1st Endpoint ==> 2nd endpoint
-            leakRoutes(ivpnLink, vpn1Uuid, vpn2Uuid, originsToConsider, NwConstants.ADD_FLOW);
+            leakRoutes(ivpnLink, vpn1Uuid, vpn2Uuid, originsToConsider);
 
 
             // 2nd Endpoint ==> 1st endpoint
-            leakRoutes(ivpnLink, vpn2Uuid, vpn1Uuid, originsToConsider, NwConstants.ADD_FLOW);
+            leakRoutes(ivpnLink, vpn2Uuid, vpn1Uuid, originsToConsider);
         }
 
         // Static routes in Vpn1 pointing to Vpn2's endpoint
@@ -306,7 +306,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                       vpnLink.getInterVpnLinkName(), vpn1Rd, vrfEntry.getDestPrefix());
                         } else {
                             leakRoute(vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(), label,
-                                      RouteOrigin.value(vrfEntry.getOrigin()), NwConstants.ADD_FLOW);
+                                      RouteOrigin.value(vrfEntry.getOrigin()));
                         }
                     });
 
@@ -314,7 +314,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     }
 
     private void leakRoutes(InterVpnLinkDataComposite vpnLink, String srcVpnUuid, String dstVpnUuid,
-                            List<RouteOrigin> originsToConsider, int addOrRemove) {
+                            List<RouteOrigin> originsToConsider) {
         String srcVpnRd = VpnUtil.getVpnRd(dataBroker, srcVpnUuid);
         String dstVpnRd = VpnUtil.getVpnRd(dataBroker, dstVpnUuid);
         List<VrfEntry> srcVpnRemoteVrfEntries = VpnUtil.getVrfEntriesByOrigin(dataBroker, srcVpnRd, originsToConsider);
@@ -327,8 +327,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                         vpnLink.getInterVpnLinkName(), dstVpnRd, vrfEntry.getDestPrefix());
                 continue;
             }
-            leakRoute(vpnLink, srcVpnUuid, dstVpnUuid, vrfEntry.getDestPrefix(), label, null /*NotForcedOrigin*/,
-                      addOrRemove);
+            leakRoute(vpnLink, srcVpnUuid, dstVpnUuid, vrfEntry.getDestPrefix(), label, null /*NotForcedOrigin*/);
         }
     }
 

@@ -31,7 +31,6 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
-import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
@@ -64,7 +63,6 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionUtils.class);
 
     private final DataBroker broker;
-    private final ElanInstanceManager elanInstanceManager;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanClusterUtils elanClusterUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
@@ -75,13 +73,12 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final HAOpClusteredListener haOpClusteredListener;
 
     @Inject
-    public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
+    public L2GatewayConnectionUtils(DataBroker dataBroker,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
             JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
             L2GatewayCache l2GatewayCache, HAOpClusteredListener haOpClusteredListener,
             ElanInstanceCache elanInstanceCache) {
         this.broker = dataBroker;
-        this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
