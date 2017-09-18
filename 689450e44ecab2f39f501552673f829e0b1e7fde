@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_e631225b",
+        "filename": "vpnservice/aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-09-18T10:38:49Z",
+      "side": 1,
+      "message": "what is the difference with using this method over the previous?",
+      "revId": "689450e44ecab2f39f501552673f829e0b1e7fde",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
