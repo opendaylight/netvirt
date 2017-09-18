@@ -645,8 +645,8 @@ public class NatUtil {
                 return;
             }
 
-            addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId, subnetId,
-                    /*isNatPrefix*/ true);
+            addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId,
+                    subnetId, Prefixes.PrefixCue.Nat);
             fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
@@ -665,16 +665,17 @@ public class NatUtil {
     }
 
     static void addPrefixToInterface(DataBroker broker, long vpnId, String interfaceName, String ipPrefix,
-                                     BigInteger dpId, Uuid subnetId, boolean isNatPrefix) {
+                                     BigInteger dpId, Uuid subnetId, Prefixes.PrefixCue prefixCue) {
         InstanceIdentifier<Prefixes> prefixId = InstanceIdentifier.builder(PrefixToInterface.class)
                 .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface
                         .VpnIds.class, new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix
                         .to._interface.VpnIdsKey(vpnId))
                 .child(Prefixes.class, new PrefixesKey(ipPrefix)).build();
-        Prefixes prefix = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix).setVpnInterfaceName(interfaceName)
-                    .setNatPrefix(isNatPrefix).setSubnetId(subnetId).build();
+        PrefixesBuilder prefixBuilder = new PrefixesBuilder().setDpnId(dpId).setIpAddress(ipPrefix);
+        prefixBuilder.setVpnInterfaceName(interfaceName).setSubnetId(subnetId).setPrefixCue(prefixCue);
         try {
-            SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId, prefix);
+            SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, prefixId,
+                    prefixBuilder.build());
         } catch (TransactionCommitFailedException e) {
             LOG.error("addPrefixToInterface : Failed to write prefxi-to-interface for {} vpn-id {} DPN {}",
                     ipPrefix, vpnId, dpId, e);
