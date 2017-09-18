@@ -80,17 +80,12 @@ public final class AclConstants {
     public static final int ICMPV6_TYPE_NA = 136;
     public static final int ICMPV6_TYPE_MLD2_REPORT = 143;
 
-    public static final BigInteger METADATA_MASK_LEARN_FLAG = new BigInteger("FFFFFFFFFFFFFFFE", 16);
-
     public static final String SECURITY_GROUP_TCP_IDLE_TO_KEY = "security-group-tcp-idle-timeout";
     public static final String SECURITY_GROUP_TCP_HARD_TO_KEY = "security-group-tcp-hard-timeout";
     public static final String SECURITY_GROUP_TCP_FIN_IDLE_TO_KEY = "security-group-tcp-fin-idle-timeout";
     public static final String SECURITY_GROUP_TCP_FIN_HARD_TO_KEY = "security-group-tcp-fin-hard-timeout";
     public static final String SECURITY_GROUP_UDP_IDLE_TO_KEY = "security-group-udp-idle-timeout";
     public static final String SECURITY_GROUP_UDP_HARD_TO_KEY = "security-group-udp-hard-timeout";
-
-    public static final int LEARN_MATCH_REG_VALUE = 1;
-    public static final int LEARN_DELETE_LEARNED_FLAG_VALUE = 2;
 
     public static final String ACL_FLOW_PRIORITY_POOL_NAME = "acl.flow.priorities.pool";
     public static final long ACL_FLOW_PRIORITY_LOW_POOL_START = 1000L;

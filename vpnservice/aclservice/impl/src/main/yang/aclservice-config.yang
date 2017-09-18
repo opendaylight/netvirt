@@ -16,7 +16,6 @@ module aclservice-config {
         leaf security-group-mode {
             type enumeration {
                 enum "stateful";
-                enum "learn";
             }
             default "stateful";
         }

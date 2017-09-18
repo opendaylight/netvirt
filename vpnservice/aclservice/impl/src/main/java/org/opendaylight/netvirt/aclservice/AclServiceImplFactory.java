@@ -62,20 +62,12 @@ public class AclServiceImplFactory extends AbstractLifecycle {
 
     public AbstractIngressAclServiceImpl createIngressAclServiceImpl() {
         LOG.info("creating ingress acl service using mode {}", securityGroupMode);
-        if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
-            return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
-        } else {
-            return new LearnIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
-        }
+        return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
     public AbstractEgressAclServiceImpl createEgressAclServiceImpl() {
         LOG.info("creating egress acl service using mode {}", securityGroupMode);
-        if (securityGroupMode == null || securityGroupMode == SecurityGroupMode.Stateful) {
-            return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
-        } else {
-            return new LearnEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
-        }
+        return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
 }
