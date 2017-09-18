@@ -473,7 +473,7 @@ public class NatTunnelInterfaceStateListener
             Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
             ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
                     routerName, externalNetworkId);
-            hndlTepDelForDnatInEachRtr(router, routerId, srcDpnId, extNwProvType, writeFlowInvTx);
+            hndlTepDelForDnatInEachRtr(router, routerId, srcDpnId, extNwProvType);
             LOG.debug("handleTepDelForAllRtrs :  TEP DEL : SNAT -> Withdrawing and Advertising routes for router {} ",
                 router.getRouter());
             hndlTepDelForSnatInEachRtr(router, routerId, srcDpnId, tunnelType, srcTepIp, destTepIp,
@@ -571,7 +571,7 @@ public class NatTunnelInterfaceStateListener
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> Install the group which forward packet to the tunnel port "
                 + "for the NAPT switch {} and the flow 26 which forwards to group", primaryDpnId);
-            externalRouterListner.handleSwitches(srcDpnId, routerName, routerId, primaryDpnId, writeFlowInvTx);
+            externalRouterListner.handleSwitches(srcDpnId, routerName, routerId, primaryDpnId);
         } else {
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> External BGP VPN (Private BGP) associated to router {}",
                     routerId);
@@ -729,7 +729,7 @@ public class NatTunnelInterfaceStateListener
                     if (elanManager.isOpenStackVniSemanticsEnforced()) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
                     }
-                    Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
+                    Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIp,
                             router);
                     NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
                             fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni,
@@ -1010,7 +1010,7 @@ public class NatTunnelInterfaceStateListener
     }
 
     private void hndlTepDelForDnatInEachRtr(RoutersList router, long routerId, BigInteger tepDeletedDpnId,
-            ProviderTypes extNwProvType, WriteTransaction writeFlowInvTx) {
+            ProviderTypes extNwProvType) {
         //DNAT : Withdraw the routes from the BGP
         String routerName = router.getRouter();
 

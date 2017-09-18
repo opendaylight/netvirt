@@ -40,7 +40,7 @@ public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
         AlivenessMonitorUtils.startArpMonitoring(macEntry, arpMonitorProfileId,
-            alivenessManager, databroker, interfaceRpc, neutronVpnService,
+            alivenessManager, databroker, neutronVpnService,
             interfaceManager);
         return null;
     }

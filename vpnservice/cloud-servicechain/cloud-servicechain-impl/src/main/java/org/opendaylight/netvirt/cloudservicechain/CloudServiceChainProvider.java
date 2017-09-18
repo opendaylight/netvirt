@@ -54,7 +54,7 @@ public class CloudServiceChainProvider implements ICloudServiceChain {
 
     @Override
     public void programElanScfPipeline(String elanName, short tableId, long scfTag, int elanLportTag,
-                                       boolean isLastServiceChain, int addOrRemove) {
+                                       int addOrRemove) {
         LOG.info("ELAN Service chaining :programElanScfPipeline [Started] {} {} {} {} {}",
                  elanName, tableId, scfTag, elanLportTag, addOrRemove);
         elanServiceChainHandler.programElanScfPipeline(elanName, tableId, scfTag, elanLportTag, addOrRemove);

@@ -12,7 +12,6 @@ import java.math.BigInteger;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
@@ -31,7 +30,7 @@ public class ElanDpnToTransportZoneListener
     private final DataBroker dbx;
     private final Boolean useTransportZone;
 
-    public ElanDpnToTransportZoneListener(final DataBroker dbx, final IInterfaceManager interfaceManager,
+    public ElanDpnToTransportZoneListener(final DataBroker dbx,
             final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
         useTransportZone = elanConfig.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;

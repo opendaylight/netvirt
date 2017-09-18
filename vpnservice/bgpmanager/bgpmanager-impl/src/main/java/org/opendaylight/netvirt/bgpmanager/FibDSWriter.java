@@ -45,9 +45,9 @@ public class FibDSWriter {
         this.singleTxDB = new SingleTransactionDataBroker(dataBroker);
     }
 
-    public synchronized void addFibEntryToDS(String rd, String macAddress, String prefix, List<String> nextHopList,
-                                             VrfEntry.EncapType encapType, int label, long l3vni,
-                                             String gatewayMacAddress, RouteOrigin origin) {
+    public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
+            VrfEntry.EncapType encapType, int label, long l3vni,
+            String gatewayMacAddress, RouteOrigin origin) {
         if (rd == null || rd.isEmpty()) {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
@@ -69,9 +69,9 @@ public class FibDSWriter {
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
         VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setOrigin(origin.getValue());
-        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress,
+        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni,
                 gatewayMacAddress, nextHopList);
-        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
+        BgpUtil.update(vrfEntryId, vrfEntryBuilder.build());
     }
 
     public void addMacEntryToDS(String rd, String macAddress, String prefix,
@@ -91,7 +91,7 @@ public class FibDSWriter {
         }
 
         MacVrfEntryBuilder macEntryBuilder = new MacVrfEntryBuilder().setOrigin(origin.getValue());
-        buildVpnEncapSpecificInfo(macEntryBuilder, encapType, l2vni, macAddress,
+        buildVpnEncapSpecificInfo(macEntryBuilder, encapType, l2vni,
                 gatewayMacAddress, nextHopList);
         macEntryBuilder.setMac(macAddress);
         macEntryBuilder.setDestPrefix(prefix);
@@ -99,11 +99,11 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class)
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
-        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, macEntryId, macEntryBuilder.build());
+        BgpUtil.update(macEntryId, macEntryBuilder.build());
     }
 
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder,
-            VrfEntry.EncapType encapType, long label, long l3vni, String macAddress,
+            VrfEntry.EncapType encapType, long label, long l3vni,
             String gatewayMac, List<String> nextHopList) {
         if (!encapType.equals(VrfEntry.EncapType.Mplsgre)) {
             builder.setL3vni(l3vni);
@@ -118,7 +118,7 @@ public class FibDSWriter {
     }
 
     private static void buildVpnEncapSpecificInfo(MacVrfEntryBuilder builder,
-                                                  VrfEntry.EncapType encapType, long l2vni, String macAddress,
+                                                  VrfEntry.EncapType encapType, long l2vni,
                                                   String gatewayMac, List<String> nextHopList) {
         builder.setEncapType(encapType);
         builder.setGatewayMacAddress(gatewayMac);
@@ -141,7 +141,7 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
                         VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        BgpUtil.delete(vrfEntryId);
 
     }
 
@@ -157,7 +157,7 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
                         MacVrfEntry.class, new MacVrfEntryKey(macAddress));
         InstanceIdentifier<MacVrfEntry> macEntryId = idBuilder.build();
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, macEntryId);
+        BgpUtil.delete(macEntryId);
 
     }
 
@@ -180,7 +180,7 @@ public class FibDSWriter {
                     existingVrfEntry.toJavaUtil().map(VrfEntry::getRoutePaths).orElse(Collections.emptyList());
             if (routePaths.size() == 1) {
                 if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
-                    BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    BgpUtil.delete(vrfEntryId);
                 }
             } else {
                 routePaths.stream()
@@ -190,8 +190,7 @@ public class FibDSWriter {
                     .ifPresent(nh -> {
                         InstanceIdentifier<RoutePaths> routePathId =
                                 FibHelper.buildRoutePathId(rd, prefix, nextHop);
-                        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                                routePathId);
+                        BgpUtil.delete(routePathId);
                     });
             }
         } catch (ReadFailedException e) {
@@ -207,7 +206,7 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
+        BgpUtil.delete(vrfTableId);
 
     }
 }

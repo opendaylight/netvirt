@@ -390,7 +390,7 @@ public class DhcpExternalTunnelManager {
                 return;
             }
             for (Pair<IpAddress, String> pair : setOfTunnelIpElanNamePairs) {
-                updateCacheAndInstallNewFlows(dpnId, listOfDpns, pair, tx);
+                updateCacheAndInstallNewFlows(listOfDpns, pair, tx);
             }
             DhcpServiceUtils.submitTransaction(tx);
         } catch (ExecutionException e) {
@@ -398,8 +398,8 @@ public class DhcpExternalTunnelManager {
         }
     }
 
-    public void updateCacheAndInstallNewFlows(BigInteger dpnId,
-            List<BigInteger> listOfDpns, Pair<IpAddress, String> pair, WriteTransaction tx)
+    public void updateCacheAndInstallNewFlows(List<BigInteger> listOfDpns, Pair<IpAddress, String> pair,
+            WriteTransaction tx)
             throws ExecutionException {
         BigInteger newDesignatedDpn = chooseDpn(pair.getLeft(), pair.getRight(), listOfDpns);
         if (newDesignatedDpn.equals(DhcpMConstants.INVALID_DPID)) {
@@ -444,7 +444,7 @@ public class DhcpExternalTunnelManager {
                 elanDpnAvailableFlag = false;
             }
             int size = 0;
-            L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
+            L2GatewayDevice device = getDeviceFromTunnelIp(tunnelIp);
             if (device == null) {
                 LOG.trace("Could not find any device for elanInstanceName {} and tunnelIp {}",
                         elanInstanceName, tunnelIp);
@@ -523,7 +523,7 @@ public class DhcpExternalTunnelManager {
                         List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
                         dpns.remove(interfaceDpn);
                         changeExistingFlowToDrop(tunnelElanPair, interfaceDpn, tx);
-                        updateCacheAndInstallNewFlows(interfaceDpn, dpns, tunnelElanPair, tx);
+                        updateCacheAndInstallNewFlows(dpns, tunnelElanPair, tx);
                     }
                 }
                 return Collections.singletonList(tx.submit());
@@ -699,7 +699,7 @@ public class DhcpExternalTunnelManager {
                 if (isOwner) {
                     DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(elanInstanceName), () -> {
                         LOG.info("Installing remote McastMac");
-                        L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
+                        L2GatewayDevice device = getDeviceFromTunnelIp(tunnelIp);
                         if (device == null) {
                             LOG.error("Unable to get L2Device for tunnelIp {} and elanInstanceName {}", tunnelIp,
                                 elanInstanceName);
@@ -736,7 +736,7 @@ public class DhcpExternalTunnelManager {
         });
     }
 
-    private L2GatewayDevice getDeviceFromTunnelIp(String elanInstanceName, IpAddress tunnelIp) {
+    private L2GatewayDevice getDeviceFromTunnelIp(IpAddress tunnelIp) {
         ConcurrentMap<String, L2GatewayDevice> devices = L2GatewayCacheUtils.getCache();
         LOG.trace("In getDeviceFromTunnelIp devices {}", devices);
         for (L2GatewayDevice device : devices.values()) {

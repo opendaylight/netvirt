@@ -6,19 +6,4 @@
   <reference id="dataBroker"
              interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
 
-  <reference id="iBgpManager"
-             interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" />
-
-  <reference id="iElanService"
-             interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
-
-  <reference id="iFibManager"
-             interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
-
-  <reference id="iNeutronVpnManager"
-             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
-
-  <reference id="iVpnManager"
-             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
-
 </blueprint>

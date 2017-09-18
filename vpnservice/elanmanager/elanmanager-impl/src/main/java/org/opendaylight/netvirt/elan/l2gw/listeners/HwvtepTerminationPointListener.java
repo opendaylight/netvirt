@@ -100,7 +100,7 @@ public class HwvtepTerminationPointListener
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
                     "Handling Physical port delete", () ->
-                            handlePortDeleted(identifier, portAugmentation, del, nodeId));
+                            handlePortDeleted(identifier));
             return;
         }
     }
@@ -118,7 +118,7 @@ public class HwvtepTerminationPointListener
         if (portAugmentation != null) {
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
             ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
-                    "handling Physical Switch add", () -> handlePortAdded(portAugmentation, add, nodeId));
+                    "handling Physical Switch add", () -> handlePortAdded(add, nodeId));
             return;
         }
 
@@ -149,8 +149,7 @@ public class HwvtepTerminationPointListener
         return this;
     }
 
-    private List<ListenableFuture<Void>> handlePortAdded(HwvtepPhysicalPortAugmentation portAugmentation,
-                                                         TerminationPoint portAdded, NodeId psNodeId) {
+    private List<ListenableFuture<Void>> handlePortAdded(TerminationPoint portAdded, NodeId psNodeId) {
         Node psNode = HwvtepUtils.getHwVtepNode(broker, LogicalDatastoreType.OPERATIONAL, psNodeId);
         if (psNode != null) {
             String psName = psNode.getAugmentation(PhysicalSwitchAugmentation.class).getHwvtepNodeName().getValue();
@@ -175,10 +174,8 @@ public class HwvtepTerminationPointListener
         return Collections.emptyList();
     }
 
-    private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier,
-                                                           HwvtepPhysicalPortAugmentation portAugmentation,
-                                                           TerminationPoint portDeleted,
-                                                           NodeId psNodeId) throws ReadFailedException {
+    private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier)
+            throws ReadFailedException {
         InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
         final ReadWriteTransaction tx = broker.newReadWriteTransaction();
         final SettableFuture settableFuture = SettableFuture.create();

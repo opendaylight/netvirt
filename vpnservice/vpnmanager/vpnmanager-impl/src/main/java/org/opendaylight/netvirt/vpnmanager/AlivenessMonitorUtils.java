@@ -40,7 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.Profile;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.profile.create.input.ProfileBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.monitor.start.input.ConfigBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,9 +51,9 @@ public class AlivenessMonitorUtils {
     private static Map<Long, MacEntry> alivenessCache = new ConcurrentHashMap<>();
 
     public static void startArpMonitoring(MacEntry macEntry, Long arpMonitorProfileId,
-        AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
-        OdlInterfaceRpcService interfaceRpc, INeutronVpnManager neutronVpnService,
-        IInterfaceManager interfaceManager) {
+            AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
+            INeutronVpnManager neutronVpnService,
+            IInterfaceManager interfaceManager) {
         if (interfaceManager.isExternalInterface(macEntry.getInterfaceName())) {
             LOG.debug("ARP monitoring is currently not supported through external interfaces,"
                     + "skipping ARP monitoring from interface {} for IP {} (last known MAC {})",
@@ -61,14 +61,14 @@ public class AlivenessMonitorUtils {
             return;
         }
         Optional<IpAddress> gatewayIpOptional =
-            VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService, dataBroker);
+            VpnUtil.getGatewayIpAddressFromInterface(macEntry.getInterfaceName(), neutronVpnService);
         if (!gatewayIpOptional.isPresent()) {
             LOG.error("Error while retrieving GatewayIp for interface{}", macEntry.getInterfaceName());
             return;
         }
         final IpAddress gatewayIp = gatewayIpOptional.get();
         Optional<String> gatewayMacOptional = VpnUtil.getGWMacAddressFromInterface(macEntry,
-            gatewayIp, dataBroker, interfaceRpc);
+            gatewayIp, dataBroker);
         if (!gatewayMacOptional.isPresent()) {
             LOG.error("Error while retrieving GatewayMac for interface{}", macEntry.getInterfaceName());
             return;
