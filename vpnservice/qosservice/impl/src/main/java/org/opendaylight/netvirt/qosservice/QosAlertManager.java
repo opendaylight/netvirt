@@ -246,7 +246,7 @@ public final class QosAlertManager implements Runnable {
                     for (Uuid portId : portIds) {
                         Port port = neutronVpnManager.getNeutronPort(portId);
                         if (port != null) {
-                            if (!QosNeutronUtils.portHasQosPolicy(neutronVpnManager, port)) {
+                            if (!QosNeutronUtils.portHasQosPolicy(port)) {
                                 LOG.trace("Adding network {} port {} in cache", network.getUuid(), port.getUuid());
                                 addToQosAlertCache(port);
                             }
@@ -322,7 +322,7 @@ public final class QosAlertManager implements Runnable {
                     for (Uuid portId : portIds) {
                         Port port = neutronVpnManager.getNeutronPort(portId);
                         if (port != null) {
-                            if (!QosNeutronUtils.portHasQosPolicy(neutronVpnManager, port)) {
+                            if (!QosNeutronUtils.portHasQosPolicy(port)) {
                                 LOG.trace("Removing network {} port {} from cache", network.getUuid(), port.getUuid());
                                 removeFromQosAlertCache(port);
                             }

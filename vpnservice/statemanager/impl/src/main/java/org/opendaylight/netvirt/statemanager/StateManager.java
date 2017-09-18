@@ -16,11 +16,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -37,9 +32,7 @@ public class StateManager implements IStateManager {
     private final DataBroker dataBroker;
 
     @Inject
-    public StateManager(final DataBroker databroker, final IBgpManager bgpManager, final IElanService elanService,
-                        final IFibManager fibManager, final INeutronVpnManager neutronVpnManager,
-                        final IVpnManager vpnManager) {
+    public StateManager(final DataBroker databroker) {
         this.dataBroker = databroker;
     }
 

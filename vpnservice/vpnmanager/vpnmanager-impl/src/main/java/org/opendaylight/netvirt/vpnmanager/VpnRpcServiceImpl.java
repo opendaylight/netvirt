@@ -175,7 +175,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             }
         } else {
             vpnInterfaceMgr.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
-                    label.intValue(), vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
+                    vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
                             null /*Adjacency*/, encapType, null);
         }
 

@@ -202,14 +202,14 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
             AccessListEntries accessListEntries = acl.getAccessListEntries();
             List<Ace> aceList = accessListEntries.getAce();
             for (Ace ace: aceList) {
-                programAceRule(port, addOrRemove, acl.getAclName(), ace, null);
+                programAceRule(port, addOrRemove, ace, null);
             }
         }
         return true;
     }
 
     @Override
-    protected void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
+    protected void programAceRule(AclInterface port, int addOrRemove, Ace ace,
             List<AllowedAddressPairs> syncAllowedAddresses) {
         SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
         if (!aceAttr.getDirection().equals(DirectionEgress.class)) {
@@ -239,12 +239,12 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     }
 
     @Override
-    protected void updateRemoteAclTableForPort(AclInterface port, Uuid acl, int addOrRemove,
+    protected void updateRemoteAclTableForPort(AclInterface port, int addOrRemove,
             AllowedAddressPairs ip, BigInteger aclId, BigInteger dpId) {
         Long elanTag = port.getElanId();
         Long vpnId = port.getVpnId();
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(elanTag, ip, dataBroker, vpnId));
+        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(elanTag, ip, vpnId));
 
         List<InstructionInfo> instructions = new ArrayList<>();
 

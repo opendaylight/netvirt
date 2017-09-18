@@ -162,11 +162,11 @@ public class CountersServiceUtils {
     }
 
     public static Flow createFlowOnTable(Match match, int priority, short tableId) {
-        return createFlowOnTable(match, priority, tableId, null, false, null);
+        return createFlowOnTable(match, priority, tableId, null, null);
     }
 
     public static Flow createFlowOnTable(Match match, int priority, short tableId, BigInteger cookie,
-            boolean isCreateFlowIdFromMatch, Integer timeout) {
+            Integer timeout) {
         FlowBuilder fb = new FlowBuilder();
         if (match != null) {
             fb.setMatch(match);

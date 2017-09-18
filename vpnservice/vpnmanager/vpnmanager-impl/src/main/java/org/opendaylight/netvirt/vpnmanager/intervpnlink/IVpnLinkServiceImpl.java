@@ -146,7 +146,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void leakRoute(InterVpnLinkDataComposite interVpnLink, String srcVpnUuid, String dstVpnUuid,
-                          String prefix, Long label, RouteOrigin forcedOrigin, int addOrRemove) {
+                          String prefix, Long label, RouteOrigin forcedOrigin) {
         String ivpnLinkName = interVpnLink.getInterVpnLinkName();
         // The source VPN must participate in the InterVpnLink
         Preconditions.checkArgument(interVpnLink.isVpnLinked(srcVpnUuid),
@@ -305,7 +305,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                       vpnLink.getInterVpnLinkName(), vpn1Rd, vrfEntry.getDestPrefix());
                         } else {
                             leakRoute(vpnLink, vpn2Uuid, vpn1Uuid, vrfEntry.getDestPrefix(), label,
-                                      RouteOrigin.value(vrfEntry.getOrigin()), NwConstants.ADD_FLOW);
+                                      RouteOrigin.value(vrfEntry.getOrigin()));
                         }
                     });
 
@@ -326,8 +326,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                         vpnLink.getInterVpnLinkName(), dstVpnRd, vrfEntry.getDestPrefix());
                 continue;
             }
-            leakRoute(vpnLink, srcVpnUuid, dstVpnUuid, vrfEntry.getDestPrefix(), label, null /*NotForcedOrigin*/,
-                      addOrRemove);
+            leakRoute(vpnLink, srcVpnUuid, dstVpnUuid, vrfEntry.getDestPrefix(), label, null /*NotForcedOrigin*/);
         }
     }
 
