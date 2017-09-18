@@ -88,9 +88,26 @@ module odl-l3vpn {
               leaf subnet-id {
                   type yang:uuid;
               }
-              leaf nat-prefix {
-                  type boolean;
-                  default false;
+              leaf prefix-cue {
+                  type enumeration {
+                      enum none {
+                          value "0";
+                          description "Nothing special";
+                      }
+                      enum nat {
+                          value "1";
+                          description "NAT prefix";
+                      }
+                      enum phys-net-func {
+                          value "2";
+                          description "Physical Network Function(PNF) prefix";
+                      }
+                      enum subnet-route {
+                          value "3";
+                          description "Subnet Route prefix";
+                      }
+                  }
+                  default "none";
               }
            }
         }

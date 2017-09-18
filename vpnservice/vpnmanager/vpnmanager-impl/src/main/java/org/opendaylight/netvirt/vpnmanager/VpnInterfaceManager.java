@@ -659,7 +659,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             String rd = primaryRd;
             if (nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
-                boolean isNatPrefix = nextHop.isPhysNetworkFunc() ? true : false;
+                Prefixes.PrefixCue prefixCue = (nextHop.isPhysNetworkFunc())
+                        ? Prefixes.PrefixCue.PhysNetFunc : Prefixes.PrefixCue.None;
                 LOG.debug("processVpnInterfaceAdjacencies: Adding prefix {} to interface {} with nextHops {} on dpn {}"
                         + " for vpn {}", prefix, interfaceName, nhList, dpnId, vpnName);
                 writeOperTxn.merge(
@@ -667,7 +668,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     VpnUtil.getPrefixToInterfaceIdentifier(
                         VpnUtil.getVpnId(dataBroker, vpnName), prefix),
                     VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(),
-                            isNatPrefix), true);
+                            prefixCue), true);
                 final Uuid subnetId = nextHop.getSubnetId();
                 final Optional<String> gatewayIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
                 if (gatewayIp.isPresent()) {
@@ -1757,7 +1758,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         VpnUtil.getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker,
                                 adj.getSubnetId().getValue()), prefix),
                         VpnUtil.getPrefixToInterface(BigInteger.ZERO, currVpnIntf.getName(), prefix,
-                                adj.getSubnetId(), true /* isNatPrefix */), true);
+                                adj.getSubnetId(), Prefixes.PrefixCue.PhysNetFunc), true);
 
                 fibManager.addOrUpdateFibEntry(dataBroker, adj.getSubnetId().getValue(), adj.getMacAddress(),
                         adj.getIpAddress(), Collections.EMPTY_LIST, null /* EncapType */, 0 /* label */, 0 /*l3vni*/,

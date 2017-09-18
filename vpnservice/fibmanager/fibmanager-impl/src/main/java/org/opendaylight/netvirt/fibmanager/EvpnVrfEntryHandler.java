@@ -96,7 +96,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                 vrfEntry.getDestPrefix());
         List<BigInteger> localDpnId = new ArrayList<>();
         boolean isNatPrefix = false;
-        if (Boolean.TRUE.equals(localNextHopInfo.isNatPrefix())) {
+        if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
             LOG.info("NAT Prefix {} with vpnId {} rd {}. Skip local dpn {} FIB processing",
                     vrfEntry.getDestPrefix(), vpnId, rd, localNextHopInfo.getDpnId());
             localDpnId.add(localNextHopInfo.getDpnId());
