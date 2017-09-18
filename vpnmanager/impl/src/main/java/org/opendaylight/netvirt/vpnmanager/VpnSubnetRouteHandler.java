@@ -832,7 +832,7 @@ public class VpnSubnetRouteHandler {
                 .setSubnetIp(subnetIp).setNextHopIp(nextHopIp).setL3vni(l3vni).setLabel(label).setElanTag(elanTag)
                 .setDpnId(nhDpnId).setEncapType(encapType).setNetworkName(networkName).setPrimaryRd(rd);
         if (!isBgpVpn) {
-            vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
+            vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
             return true;
         }
         Preconditions.checkNotNull(nextHopIp, LOGGING_PREFIX + "NextHopIp cannot be null or empty!");
@@ -840,7 +840,7 @@ public class VpnSubnetRouteHandler {
                 .getPrefixToInterfaceIdentifier(VpnUtil.getVpnId(dataBroker, vpnName), subnetIp), VpnUtil
                 .getPrefixToInterface(nhDpnId, subnetId.getValue(), subnetIp, subnetId,
                         Prefixes.PrefixCue.SubnetRoute));
-        vpnPopulator.populateFib(input, null /*writeCfgTxn*/, null /*writeOperTxn*/);
+        vpnPopulator.populateFib(input, null /*writeCfgTxn*/);
         try {
             // BGP manager will handle withdraw and advertise internally if prefix
             // already exist
@@ -883,11 +883,11 @@ public class VpnSubnetRouteHandler {
     }
 
     public void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName) {
-        fibManager.removeFibEntry(dataBroker, rd, prefix, null);
+        fibManager.removeFibEntry(rd, prefix, null);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
         for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
             String importingRd = vpnInstance.getVrfId();
-            fibManager.removeFibEntry(dataBroker, importingRd, prefix, null);
+            fibManager.removeFibEntry(importingRd, prefix, null);
             LOG.info("SUBNETROUTE: deleteSubnetRouteFibEntryFromDS: Deleted imported subnet route rd {} prefix {}"
                     + " from vpn {} importingRd {}", rd, prefix, vpnInstance.getVpnInstanceName(), importingRd);
         }

@@ -137,7 +137,7 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
             int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, aap, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, aap));
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
         String flowNameAdded = "Acl_Filter_Egress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;

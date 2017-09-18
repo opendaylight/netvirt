@@ -623,7 +623,8 @@ public final class NatUtil {
                                       String macAddress,
                                       long label,
                                       long l3vni,
-                                      RouteOrigin origin, BigInteger dpId) {
+                                      RouteOrigin origin,
+                                      BigInteger dpId) {
         try {
             LOG.info("addPrefixToBGP : Adding Fib entry rd {} prefix {} nextHop {} label {}", rd,
                     prefix, nextHopIp, label);
@@ -635,7 +636,7 @@ public final class NatUtil {
 
             addPrefixToInterface(broker, getVpnId(broker, vpnName), null /*interfaceName*/,prefix, dpId,
                     subnetId, Prefixes.PrefixCue.Nat);
-            fibManager.addOrUpdateFibEntry(broker, rd, macAddress, prefix,
+            fibManager.addOrUpdateFibEntry(rd, macAddress, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Mplsgre, (int)label, l3vni /*l3vni*/,
                     null /*gatewayMacAddress*/, parentVpnRd, origin, null /*writeTxn*/);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
@@ -754,11 +755,11 @@ public final class NatUtil {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public static void removePrefixFromBGP(DataBroker broker, IBgpManager bgpManager, IFibManager fibManager,
+    public static void removePrefixFromBGP(IBgpManager bgpManager, IFibManager fibManager,
                                            String rd, String prefix, String vpnName, Logger log) {
         try {
             LOG.debug("removePrefixFromBGP: Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibManager.removeFibEntry(broker, rd, prefix, null);
+            fibManager.removeFibEntry(rd, prefix, null);
             if (rd != null && !rd.equalsIgnoreCase(vpnName)) {
                 bgpManager.withdrawPrefix(rd, prefix);
             }
@@ -1662,7 +1663,7 @@ public final class NatUtil {
 
     protected static long getExternalSubnetVpnIdForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
             Routers router) {
-        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIpAddress, router);
+        Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIpAddress, router);
         if (externalSubnetId != null) {
             return NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
         }
@@ -1670,8 +1671,7 @@ public final class NatUtil {
         return NatConstants.INVALID_ID;
     }
 
-    protected static Uuid getExternalSubnetForRouterExternalIp(DataBroker dataBroker, String externalIpAddress,
-            Routers router) {
+    protected static Uuid getExternalSubnetForRouterExternalIp(String externalIpAddress, Routers router) {
         externalIpAddress = validateAndAddNetworkMask(externalIpAddress);
         List<ExternalIps> externalIps = router.getExternalIps();
         for (ExternalIps extIp : externalIps) {
@@ -1917,7 +1917,7 @@ public final class NatUtil {
                     router.getNetworkId(), subnetVpnName.getValue(), writeTx);
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
                     router.getExtGwMacAddress(), primarySwitchId,
-                    router.getNetworkId(), writeTx);
+                    router.getNetworkId());
         }
         writeTx.submit();
     }

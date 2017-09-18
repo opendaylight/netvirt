@@ -105,7 +105,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
                                ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
-                               ElanInterfaceManager elanInterfaceManager,
                                ElanUtils elanUtils,
                                EntityOwnershipService entityOwnershipService,
                                SouthboundUtils southboundUtils, ElanInstanceCache elanInstanceCache,
@@ -330,13 +329,13 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void deleteEtreeInterface(String elanInstanceName, String interfaceName) {
-        deleteElanInterface(elanInstanceName, interfaceName);
+    public void deleteEtreeInterface(String interfaceName) {
+        deleteElanInterface(interfaceName);
         LOG.debug("deleting the Etree Interface {}", interfaceName);
     }
 
     @Override
-    public void deleteElanInterface(String elanInstanceName, String interfaceName) {
+    public void deleteElanInterface(String interfaceName) {
         Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
         if (existingElanInterface.isPresent()) {
             ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
@@ -346,7 +345,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) {
+    public void addStaticMacAddress(String interfaceName, String macAddress) {
         Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
         if (existingElanInterface.isPresent()) {
             StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
@@ -359,7 +358,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) {
+    public void deleteStaticMacAddress(String interfaceName, String macAddress) {
         Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
         if (existingElanInterface.isPresent()) {
             InstanceIdentifier<StaticMacEntries> staticMacEntriesIdentifier =
@@ -404,7 +403,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             if (elanInterfaceMac.getMacEntry() != null && elanInterfaceMac.getMacEntry().size() > 0) {
                 List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
                 for (MacEntry macEntry : macEntries) {
-                    deleteStaticMacAddress(elanInstanceName, elanInterface, macEntry.getMacAddress().getValue());
+                    deleteStaticMacAddress(elanInterface, macEntry.getMacAddress().getValue());
                 }
             }
         }
@@ -510,7 +509,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         String intfName = providerIntfName + IfmConstants.OF_URI_SEPARATOR + elanInstance.getSegmentationId();
         Interface memberIntf = interfaceManager.getInterfaceInfoFromConfigDataStore(intfName);
         if (memberIntf != null) {
-            deleteElanInterface(elanInstance.getElanInstanceName(), intfName);
+            deleteElanInterface(intfName);
             deleteIetfInterface(intfName);
             LOG.debug("delete vlan prv intf {} in elan {}, dpID {}", intfName,
                     elanInstance.getElanInstanceName(), dpnId);
@@ -535,7 +534,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                 if (shouldDeleteTrunk(trunkInterfaceName, elanInterface)) {
                     deleteIetfInterface(trunkInterfaceName);
                 }
-                deleteElanInterface(elanInstanceName, elanInterface);
+                deleteElanInterface(elanInterface);
             }
         }
     }

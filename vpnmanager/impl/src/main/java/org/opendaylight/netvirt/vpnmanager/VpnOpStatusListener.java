@@ -101,7 +101,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 VpnUtil.removeVpnInstanceToVpnId(dataBroker, vpnName, writeTxn);
                 LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", primaryRd, vpnName);
                 // Clean up FIB Entries Config DS
-                fibManager.removeVrfTable(dataBroker, primaryRd, null);
+                fibManager.removeVrfTable(primaryRd, null);
                 // Clean up VPNExtraRoutes Operational DS
                 if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                     if (update.getType() == VpnInstanceOpDataEntry.Type.L2) {

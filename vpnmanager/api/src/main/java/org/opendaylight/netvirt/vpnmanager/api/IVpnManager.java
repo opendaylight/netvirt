@@ -28,7 +28,7 @@ public interface IVpnManager {
             String rd, String routerID, int label, RouteOrigin origin);
 
     void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
-            int label, Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
+            Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
             VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn);
 
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID);
@@ -74,13 +74,13 @@ public interface IVpnManager {
             BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx);
 
     void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String routerGwMac,
-            BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx);
+            BigInteger dpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx);
 
     void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx);
+            BigInteger dpnId, Uuid extNetworkId);
 
     void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps,
-            BigInteger dpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx);
+            BigInteger dpnId, String extInterfaceName, int lportTag);
 
     void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag);
 

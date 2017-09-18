@@ -30,13 +30,11 @@ public class OpNodeUpdatedHandler {
      * Copy HA ps node update to HA child ps node of operational data tree.
      *
      * @param updatedSrcPSNode Updated HA child ps node
-     * @param origSrcPSNode Original HA ps node
      * @param haPath HA node path
      * @param mod the data object modification
      * @param tx Transaction
      */
     public void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
-                                              Node origSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
                                               DataObjectModification<Node> mod,
                                               ReadWriteTransaction tx) {
@@ -51,15 +49,11 @@ public class OpNodeUpdatedHandler {
     /**
      * Copy updated data from HA node to child node of operational data tree.
      *
-     * @param updatedSrcNode Updated HA child node
-     * @param origSrcNode Original HA node
      * @param haPath HA node path
      * @param mod the data object modification
      * @param tx Transaction
      */
-    public void copyChildGlobalOpUpdateToHAParent(Node updatedSrcNode,
-                                                  Node origSrcNode,
-                                                  InstanceIdentifier<Node> haPath,
+    public void copyChildGlobalOpUpdateToHAParent(InstanceIdentifier<Node> haPath,
                                                   DataObjectModification<Node> mod,
                                                   ReadWriteTransaction tx) {
 

@@ -20,7 +20,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.infrautils.counters.api.OccurenceCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsOutput;
@@ -52,10 +51,10 @@ public class CounterRetriever {
     private final Counters counters = new Counters();
 
     @Inject
-    public CounterRetriever(final RpcProviderRegistry rpcProviderRegistry,
-            final StatisticsConfig statisticsConfig, final OpendaylightDirectStatisticsService odlDirectStatsService) {
+    public CounterRetriever(final StatisticsConfig statisticsConfig,
+            final OpendaylightDirectStatisticsService odlDirectStatsService) {
         this.odlDirectStatsService = odlDirectStatsService;
-        this.nodeResultTimeout = statisticsConfig.getNodeCounterResultTimeout();
+        nodeResultTimeout = statisticsConfig.getNodeCounterResultTimeout();
     }
 
     @PreDestroy
@@ -195,7 +194,7 @@ public class CounterRetriever {
         return crds;
     }
 
-    public CounterResultDataStructure getSwitchFlowCountersDirect(BigInteger dpId, Match match, short tableId) {
+    public CounterResultDataStructure getSwitchFlowCountersDirect(BigInteger dpId, Match match) {
         NodeRef nodeRef = new NodeRef(InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).toInstance());
         GetFlowStatisticsInputBuilder gfsib = new GetFlowStatisticsInputBuilder();
