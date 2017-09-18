@@ -180,7 +180,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
             return;//TODO handle unha case
         }
 
-        HAOpClusteredListener.addToHACacheIfBecameHAChild(childPath, updatedChildNode, originalChildNode, tx);
+        HAOpClusteredListener.addToHACacheIfBecameHAChild(childPath, updatedChildNode, originalChildNode);
         boolean becameHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
         if (becameHAChild) {
             hwvtepHACache.updateConnectedNodeStatus(childPath);

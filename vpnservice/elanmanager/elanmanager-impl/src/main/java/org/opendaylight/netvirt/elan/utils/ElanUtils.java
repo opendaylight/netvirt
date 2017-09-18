@@ -664,7 +664,7 @@ public class ElanUtils {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                 writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
-                broker, writeFlowGroupTx);
+                writeFlowGroupTx);
         }
     }
 
@@ -846,7 +846,7 @@ public class ElanUtils {
 
     private void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
                                     boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager,
-                                    DataBroker broker, WriteTransaction writeFlowGroupTx)
+                                    WriteTransaction writeFlowGroupTx)
                                     throws ElanException {
         BigInteger dpId = interfaceInfo.getDpId();
         String ifName = interfaceInfo.getInterfaceName();
@@ -1175,8 +1175,6 @@ public class ElanUtils {
      * Updates the Elan information in the Operational DS. It also updates the
      * ElanInstance in the Config DS by setting the adquired elanTag.
      *
-     * @param broker
-     *            the broker
      * @param idManager
      *            the id manager
      * @param elanInstanceAdded
@@ -1186,7 +1184,7 @@ public class ElanUtils {
      * @param tx
      *            transaction
      */
-    public static void updateOperationalDataStore(DataBroker broker, IdManagerService idManager,
+    public static void updateOperationalDataStore(IdManagerService idManager,
             ElanInstance elanInstanceAdded, List<String> elanInterfaces, WriteTransaction tx) {
         String elanInstanceName = elanInstanceAdded.getElanInstanceName();
         Long elanTag = elanInstanceAdded.getElanTag();
@@ -1214,7 +1212,7 @@ public class ElanUtils {
             EtreeLeafTagName etreeLeafTagName = new EtreeLeafTagNameBuilder()
                     .setEtreeLeafTag(new EtreeLeafTag(etreeLeafTag)).build();
             elanTagNameBuilder.addAugmentation(EtreeLeafTagName.class, etreeLeafTagName);
-            addTheLeafTagAsElanTag(broker, elanInstanceName, etreeLeafTag, tx);
+            addTheLeafTagAsElanTag(elanInstanceName, etreeLeafTag, tx);
         }
         ElanTagName elanTagName = elanTagNameBuilder.build();
 
@@ -1240,8 +1238,7 @@ public class ElanUtils {
                 elanInstanceWithTag, true);
     }
 
-    private static void addTheLeafTagAsElanTag(DataBroker broker, String elanInstanceName, long etreeLeafTag,
-            WriteTransaction tx) {
+    private static void addTheLeafTagAsElanTag(String elanInstanceName, long etreeLeafTag, WriteTransaction tx) {
         ElanTagName etreeTagAsElanTag = new ElanTagNameBuilder().setElanTag(etreeLeafTag)
                 .setKey(new ElanTagNameKey(etreeLeafTag)).setName(elanInstanceName).build();
         tx.put(LogicalDatastoreType.OPERATIONAL,
@@ -1737,7 +1734,7 @@ public class ElanUtils {
         return macTable.getMacEntry();
     }
 
-    public boolean isTunnelInLogicalGroup(String interfaceName, DataBroker broker) {
+    public boolean isTunnelInLogicalGroup(String interfaceName) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.Interface configIface =
             interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
