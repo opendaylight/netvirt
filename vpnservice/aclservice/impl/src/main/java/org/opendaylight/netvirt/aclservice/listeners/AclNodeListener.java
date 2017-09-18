@@ -28,7 +28,6 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.NxMatchInfo;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
@@ -36,7 +35,6 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
-import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -48,7 +46,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.DefaultBehavior;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg5;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,9 +156,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
             addStatefulIngressDefaultFlows(dpnId);
             addStatefulEgressDefaultFlows(dpnId);
             addConntrackDummyLookup(dpnId, NwConstants.ADD_FLOW);
-        } else if (securityGroupMode == SecurityGroupMode.Learn) {
-            addLearnIngressAclTableMissFlow(dpnId);
-            addLearnEgressAclTableMissFlow(dpnId);
         } else {
             LOG.error("Invalid security group mode ({}) obtained from AclserviceConfig.", securityGroupMode);
         }
@@ -202,19 +196,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         LOG.debug("Added Egress ACL Table Miss Flows for dpn {}", dpId);
     }
 
-    private void addEgressAclTableAllowFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        List<InstructionInfo> allowAllInstructions = new ArrayList<>();
-        allowAllInstructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE));
-
-        FlowEntity nextTblFlowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE), 0, "Egress ACL Table allow all Flow",
-                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, allowAllInstructions);
-        mdsalManager.installFlow(nextTblFlowEntity);
-
-        LOG.debug("Added Egress ACL Table Allow all Flows for dpn {}", dpId);
-    }
-
     /**
      * Adds the egress acl table miss flow.
      *
@@ -231,23 +212,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         mdsalManager.installFlow(flowEntity);
 
         LOG.debug("Added Egress ACL Remote Table Miss Flows for dpn {}", dpId);
-    }
-
-    private void addEgressAclFilterTableAllowFlow(BigInteger dpId) {
-        short dispatcherTableId =  NwConstants.EGRESS_LPORT_DISPATCHER_TABLE;
-
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<InstructionInfo> instructions = new ArrayList<>();
-        actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_FILTER_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_ACL_FILTER_TABLE), 0, "Egress ACL Filter Table allow all Flow",
-                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, instructions);
-        mdsalManager.installFlow(flowEntity);
-
-        LOG.debug("Added Egress ACL Filter Table allow all Flows for dpn {}", dpId);
     }
 
     private void addStatefulEgressDropFlows(BigInteger dpId) {
@@ -278,141 +242,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                         "Egress ACL Table IPv6 Drop Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, ipv6DropMatches,
                         dropInstructions);
         mdsalManager.installFlow(antiSpoofingIpv6DropFlowEntity);
-    }
-
-    private void addLearnEgressAclTableMissFlow(BigInteger dpId) {
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LEARN_TABLE));
-        actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_ACL_TABLE,
-                "RESUB-" + getTableMissFlowId(NwConstants.EGRESS_ACL_TABLE),
-                AclConstants.PROTO_MATCH_PRIORITY, "Egress resubmit ACL Table Block", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, Collections.emptyList(), instructions);
-        mdsalManager.installFlow(doubleResubmitTable);
-
-        addLearnEgressAclRemoteAclTableMissFlow(dpId);
-
-        instructions = config.getDefaultBehavior() == DefaultBehavior.Deny
-                ? AclServiceOFFlowBuilder.getDropInstructionInfo()
-                : AclServiceOFFlowBuilder.getResubmitInstructionInfo(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE);
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE,
-                "LEARN-" + getTableMissFlowId(NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE), 0,
-                "Egress Learn2 ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, Collections.emptyList(), instructions);
-        mdsalManager.installFlow(flowEntity);
-
-        List<NxMatchInfo> nxMkMatches = new ArrayList<>();
-        nxMkMatches.add(new NxMatchRegister(NxmNxReg5.class, AclConstants.LEARN_MATCH_REG_VALUE));
-
-        actionsInfos = new ArrayList<>();
-        instructions = new ArrayList<>();
-        actionsInfos.add(new ActionNxResubmit(NwConstants.EGRESS_LPORT_DISPATCHER_TABLE));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE,
-                "LEARN2-REG-" + getTableMissFlowId(NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE),
-                AclConstants.PROTO_MATCH_PRIORITY, "Egress Learn2 ACL Table match reg Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, nxMkMatches, instructions);
-        mdsalManager.installFlow(flowEntity);
-        LOG.debug("Added Learn Egress ACL Table Miss Flows for dpn {}", dpId);
-    }
-
-    /**
-     * Adds the egress acl table miss flow.
-     *
-     * @param dpId the dp id
-     */
-    private void addLearnEgressAclRemoteAclTableMissFlow(BigInteger dpId) {
-        List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionGotoTable(NwConstants.EGRESS_LEARN_ACL_FILTER_TABLE));
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE,
-                getTableMissFlowId(NwConstants.EGRESS_LEARN_ACL_REMOTE_ACL_TABLE), 0,
-                "Egress ACL Remote Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, Collections.emptyList(),
-                mkInstructions);
-        mdsalManager.installFlow(flowEntity);
-
-        LOG.debug("Added Learn Egress ACL Remote Table Miss Flows for dpn {}", dpId);
-    }
-
-    private void addLearnIngressAclTableMissFlow(BigInteger dpId) {
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
-        actionsInfos.add(new ActionNxResubmit(NwConstants.INGRESS_LEARN_TABLE));
-        actionsInfos.add(new ActionNxResubmit(NwConstants.INGRESS_LEARN_ACL_REMOTE_ACL_TABLE));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        FlowEntity doubleResubmitTable = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_TABLE,
-                "RESUB-" + getTableMissFlowId(NwConstants.INGRESS_ACL_TABLE),
-                AclConstants.PROTO_MATCH_PRIORITY, "Ingress resubmit ACL Table Block", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, Collections.emptyList(), instructions);
-        mdsalManager.installFlow(doubleResubmitTable);
-
-        addLearnIngressAclRemoteAclTableMissFlow(dpId);
-
-        instructions = config.getDefaultBehavior() == DefaultBehavior.Deny
-                ? AclServiceOFFlowBuilder.getDropInstructionInfo()
-                : AclServiceOFFlowBuilder.getResubmitInstructionInfo(NwConstants.LPORT_DISPATCHER_TABLE);
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN_ACL_FILTER_TABLE,
-                "LEARN-" + getTableMissFlowId(NwConstants.INGRESS_LEARN_ACL_FILTER_TABLE), 0,
-                "Ingress Learn2 ACL Table Miss Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, Collections.emptyList(), instructions);
-        mdsalManager.installFlow(flowEntity);
-
-        List<NxMatchInfo> nxMkMatches = new ArrayList<>();
-        nxMkMatches.add(new NxMatchRegister(NxmNxReg5.class, AclConstants.LEARN_MATCH_REG_VALUE));
-
-        actionsInfos = new ArrayList<>();
-        instructions = new ArrayList<>();
-        actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
-        instructions.add(new InstructionApplyActions(actionsInfos));
-
-        flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN_ACL_FILTER_TABLE,
-                "LEARN2-REG-" + getTableMissFlowId(NwConstants.INGRESS_LEARN_ACL_FILTER_TABLE),
-                AclConstants.PROTO_MATCH_PRIORITY, "Egress Learn2 ACL Table match reg Flow", 0, 0,
-                AclConstants.COOKIE_ACL_BASE, nxMkMatches, instructions);
-        mdsalManager.installFlow(flowEntity);
-        LOG.debug("Added Learn ACL Table Miss Flows for dpn {}", dpId);
-    }
-
-    /**
-     * Adds the ingress acl table miss flow.
-     *
-     * @param dpId the dp id
-     */
-    private void addLearnIngressAclRemoteAclTableMissFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        List<InstructionInfo> mkInstructions = new ArrayList<>();
-        mkInstructions.add(new InstructionGotoTable(NwConstants.INGRESS_LEARN_ACL_FILTER_TABLE));
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_LEARN_ACL_REMOTE_ACL_TABLE,
-                getTableMissFlowId(NwConstants.INGRESS_LEARN_ACL_REMOTE_ACL_TABLE), 0,
-                "Ingress ACL Remote Table Miss Flow", 0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, mkInstructions);
-        mdsalManager.installFlow(flowEntity);
-
-        LOG.debug("Added Learn Ingress ACL Table Miss Flows for dpn {}", dpId);
-    }
-
-    private void addIngressAclFilterTableAllowFlow(BigInteger dpId) {
-        List<MatchInfo> mkMatches = new ArrayList<>();
-        short dispatcherTableId = NwConstants.LPORT_DISPATCHER_TABLE;
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-        List<InstructionInfo> dispatcherInstructions = new ArrayList<>();
-        actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
-        dispatcherInstructions.add(new InstructionApplyActions(actionsInfos));
-
-        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.INGRESS_ACL_FILTER_TABLE,
-                getTableMissFlowId(NwConstants.INGRESS_ACL_FILTER_TABLE), 0, "Ingress ACL Filter Table allow all Flow",
-                0, 0, AclConstants.COOKIE_ACL_BASE, mkMatches, dispatcherInstructions);
-        mdsalManager.installFlow(flowEntity);
-
-        LOG.debug("Added Ingress ACL Filter Table allow all Flows for dpn {}", dpId);
     }
 
     private void addStatefulIngressDefaultFlows(BigInteger dpId) {
