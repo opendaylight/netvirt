@@ -57,7 +57,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn, WriteTransaction writeOperTxn) {
+    public void populateFib(L3vpnInput input, WriteTransaction writeConfigTxn) {
         if (input.getRouteOrigin() == RouteOrigin.CONNECTED) {
             LOG.info("populateFib : Found SubnetRoute for subnet {} rd {}", input.getSubnetIp(), input.getPrimaryRd());
             addSubnetRouteFibEntry(input);
@@ -89,7 +89,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             for (VpnInstanceOpDataEntry vpn : vpnsToImportRoute) {
                 String vpnRd = vpn.getVrfId();
                 if (vpnRd != null) {
-                    fibManager.addOrUpdateFibEntry(broker, vpnRd, null /*macAddress*/,
+                    fibManager.addOrUpdateFibEntry(vpnRd, null /*macAddress*/,
                             nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                             0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, RouteOrigin.SELF_IMPORTED,
                             writeConfigTxn);
@@ -100,7 +100,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
             }
         } else {
             // ### add FIB route directly
-            fibManager.addOrUpdateFibEntry(broker, vpnName, null /*macAddress*/,
+            fibManager.addOrUpdateFibEntry(vpnName, null /*macAddress*/,
                     nextHopIpAddress, Arrays.asList(nextHopIp), encapType, (int) label,
                     0 /*l3vni*/, input.getGatewayMac(), null /*parentVpnRd*/, input.getRouteOrigin(), writeConfigTxn);
             LOG.info("populateFib: Added internal FIB entry for prefix {} nexthop {} label {}"

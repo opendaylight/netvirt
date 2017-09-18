@@ -124,7 +124,7 @@ public class UnderlayNetworkDpnListener
         addedTunnelInterfaces.removeAll(origTunnelInterfaces);
 
         populatePolicyGroupBucketsToDpn(underlayNetwork, profiles, removedTunnelInterfaces, dpId, NwConstants.DEL_FLOW);
-        populatePolicyGroupsToDpn(underlayNetwork, profiles, addedTunnelInterfaces, dpId, NwConstants.ADD_FLOW);
+        populatePolicyGroupsToDpn(profiles, addedTunnelInterfaces, dpId, NwConstants.ADD_FLOW);
         populatePolicyGroupBucketsToDpn(underlayNetwork, profiles, addedTunnelInterfaces, dpId, NwConstants.ADD_FLOW);
     }
 
@@ -140,13 +140,13 @@ public class UnderlayNetworkDpnListener
             return;
         }
 
-        populatePolicyGroupsToDpn(underlayNetwork, profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
+        populatePolicyGroupsToDpn(profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
         populatePolicyGroupBucketsToDpn(underlayNetwork, profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
-        populatePolicyAclRulesToDpn(underlayNetwork, dpId, profiles, NwConstants.ADD_FLOW);
+        populatePolicyAclRulesToDpn(dpId, profiles, NwConstants.ADD_FLOW);
         populatePolicyRoutesToDpn(profiles, tunnelInterfaces, dpId, NwConstants.ADD_FLOW);
     }
 
-    private void populatePolicyGroupsToDpn(String underlayNetwork, List<PolicyProfile> profiles,
+    private void populatePolicyGroupsToDpn(List<PolicyProfile> profiles,
             List<TunnelInterface> tunnelInterfaces, BigInteger dpId, int addOrRemove) {
         profiles.forEach(profile -> {
             String policyClassifier = profile.getPolicyClassifier();
@@ -176,7 +176,7 @@ public class UnderlayNetworkDpnListener
         });
     }
 
-    private void populatePolicyAclRulesToDpn(String underlayNetwork, BigInteger dpId, List<PolicyProfile> profiles,
+    private void populatePolicyAclRulesToDpn(BigInteger dpId, List<PolicyProfile> profiles,
             int addOrRemove) {
         profiles.forEach(profile -> {
             String policyClassifier = profile.getPolicyClassifier();

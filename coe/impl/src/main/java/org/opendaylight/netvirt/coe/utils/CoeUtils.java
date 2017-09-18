@@ -95,9 +95,7 @@ public final class CoeUtils {
         return elanInstanceBuilder.build();
     }
 
-    public static void createElanInterface(org.opendaylight.yang.gen.v1.urn.opendaylight.coe
-                                                   .northbound.pod.rev170611.pod_attributes.Interface podInterface,
-                                           String elanInterfaceName, String elanInstanceName,
+    public static void createElanInterface(String elanInterfaceName, String elanInstanceName,
                                            WriteTransaction wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
@@ -116,8 +114,6 @@ public final class CoeUtils {
     }
 
     public static String createOfPortInterface(String interfaceName,
-                                               org.opendaylight.yang.gen.v1.urn.opendaylight.coe
-                                                       .northbound.pod.rev170611.pod_attributes.Interface podInterface,
                                                WriteTransaction wrtConfigTxn) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface inf =
                 buildInterface(interfaceName);

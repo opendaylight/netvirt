@@ -65,11 +65,10 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
     /**
      * Method removes PortChain which is identified by InstanceIdentifier.
      *
-     * @param path - the whole path to PortChain
      * @param deletedPortChain        - PortChain for removing
      */
     @Override
-    public void remove(InstanceIdentifier<PortChain> path, PortChain deletedPortChain) {
+    public void remove(PortChain deletedPortChain) {
         if (this.rspService != null) {
             DeleteRenderedPathInput deleteRenderedPathInput =
                     PortChainTranslator.buildDeleteRenderedServicePathInput(PortChainTranslator
@@ -87,12 +86,10 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      * Method updates the original PortChain to the update PortChain.
      * Both are identified by same InstanceIdentifier.
      *
-     * @param path - the whole path to PortChain
-     * @param originalPortChain   - original PortChain (for update)
      * @param updatePortChain     - changed PortChain (contain updates)
      */
     @Override
-    public void update(InstanceIdentifier<PortChain> path, PortChain originalPortChain, PortChain updatePortChain) {
+    public void update(PortChain updatePortChain) {
         //TODO: Add support for chain update
     }
 
@@ -100,11 +97,10 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
      * Method adds the PortChain which is identified by InstanceIdentifier
      * to device.
      *
-     * @param path - the whole path to new PortChain
      * @param newPortChain        - new PortChain
      */
     @Override
-    public void add(final InstanceIdentifier<PortChain> path, final PortChain newPortChain) {
+    public void add(final PortChain newPortChain) {
         processPortChain(newPortChain);
     }
 

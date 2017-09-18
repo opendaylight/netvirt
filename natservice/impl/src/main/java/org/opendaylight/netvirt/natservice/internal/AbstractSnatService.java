@@ -147,8 +147,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         if (addOrRemove == NwConstants.ADD_FLOW) {
             extSubnetId = NatUtil.getExternalSubnetVpnId(dataBroker,externalSubnetId);
         }
-        installInboundFibEntry(dpnId, externalIp, routerName, routerId, extSubnetId, addOrRemove);
-        installInboundTerminatingServiceTblEntry(dpnId, routerId, routerName, externalIp, extSubnetId, addOrRemove);
+        installInboundFibEntry(dpnId, externalIp, routerId, extSubnetId, addOrRemove);
+        installInboundTerminatingServiceTblEntry(dpnId, routerId, extSubnetId, addOrRemove);
     }
 
     protected void installSnatCommonEntriesForNonNaptSwitch(Routers routers, BigInteger primarySwitchId,
@@ -179,7 +179,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected abstract void installSnatSpecificEntriesForNonNaptSwitch(Routers routers, BigInteger dpnId,
             int addOrRemove);
 
-    protected void installInboundFibEntry(BigInteger dpnId, String externalIp, String routerName, Long routerId,
+    protected void installInboundFibEntry(BigInteger dpnId, String externalIp, Long routerId,
             long extSubnetId, int addOrRemove) {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
@@ -265,8 +265,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
     }
 
-    protected void installInboundTerminatingServiceTblEntry(BigInteger dpnId, Long  routerId, String routerName,
-            String externalIp,  long extSubnetId, int addOrRemove) {
+    protected void installInboundTerminatingServiceTblEntry(BigInteger dpnId, Long routerId,
+            long extSubnetId, int addOrRemove) {
         //Install the tunnel table entry in NAPT switch for inbound traffic to SNAP IP from a non a NAPT switch.
         LOG.info("installInboundTerminatingServiceTblEntry : creating entry for Terminating Service Table "
                 + "for switch {}, routerId {}", dpnId, routerId);

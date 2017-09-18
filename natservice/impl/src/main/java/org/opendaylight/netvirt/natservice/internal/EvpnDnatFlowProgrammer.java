@@ -252,7 +252,7 @@ public class EvpnDnatFlowProgrammer {
 
     public void onRemoveFloatingIp(final BigInteger dpnId, final String vpnName, final String externalIp,
                                    final String floatingIpInterface, final String floatingIpPortMacAddress,
-                                   final String routerName, final long routerId, WriteTransaction removeFlowInvTx) {
+                                   final long routerId, WriteTransaction removeFlowInvTx) {
     /*
      *  1) Remove the flow INTERNAL_TUNNEL_TABLE (table=36)-> PDNAT_TABLE (table=25) (SNAT VM on DPN1 is
      *     responding back to FIP VM on DPN2) {SNAT to DNAT traffic on different Hypervisor}
@@ -284,7 +284,7 @@ public class EvpnDnatFlowProgrammer {
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
 
         //Remove Prefix from BGP
-        NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
+        NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, fibExternalIp, vpnName, LOG);
 
         //Remove custom FIB routes flow for L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
         RemoveFibEntryInput input = new RemoveFibEntryInputBuilder().setVpnName(vpnName)

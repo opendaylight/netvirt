@@ -59,51 +59,44 @@ public class HAEventHandler implements IHAEventHandler {
     }
 
     @Override
-    public void copyChildGlobalOpUpdateToHAParent(Node updatedSrcNode,
-                                                  Node origSrcNode,
-                                                  InstanceIdentifier<Node> haPath,
+    public void copyChildGlobalOpUpdateToHAParent(InstanceIdentifier<Node> haPath,
                                                   DataObjectModification<Node> mod,
                                                   ReadWriteTransaction tx) {
         if (haPath == null) {
             return;
         }
-        opNodeUpdatedHandler.copyChildGlobalOpUpdateToHAParent(updatedSrcNode, origSrcNode, haPath, mod, tx);
+        opNodeUpdatedHandler.copyChildGlobalOpUpdateToHAParent(haPath, mod, tx);
     }
 
     @Override
     public void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
-                                              Node origSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
                                               DataObjectModification<Node> mod,
                                               ReadWriteTransaction tx) {
         if (haPath == null) {
             return;
         }
-        opNodeUpdatedHandler.copyChildPsOpUpdateToHAParent(updatedSrcPSNode, origSrcPSNode, haPath, mod, tx);
+        opNodeUpdatedHandler.copyChildPsOpUpdateToHAParent(updatedSrcPSNode, haPath, mod, tx);
     }
 
     @Override
-    public void copyHAPSUpdateToChild(Node haUpdated,
-                                      Node haOriginal,
-                                      InstanceIdentifier<Node> haChildNodeId,
+    public void copyHAPSUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
                                       ReadWriteTransaction tx) {
         if (haChildNodeId == null) {
             return;
         }
-        configNodeUpdatedHandler.copyHAPSUpdateToChild(haUpdated, haOriginal, haChildNodeId, mod, tx);
+        configNodeUpdatedHandler.copyHAPSUpdateToChild(haChildNodeId, mod, tx);
     }
 
     @Override
-    public void copyHAGlobalUpdateToChild(Node haUpdated,
-                                          Node haOriginal,
-                                          InstanceIdentifier<Node> haChildNodeId,
+    public void copyHAGlobalUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
                                           ReadWriteTransaction tx) {
         if (haChildNodeId == null) {
             return;
         }
-        configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haUpdated, haOriginal, haChildNodeId, mod, tx);
+        configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haChildNodeId, mod, tx);
     }
 
 }

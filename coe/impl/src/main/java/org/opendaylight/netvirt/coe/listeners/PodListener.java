@@ -97,13 +97,13 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                 remove(podsBefore, podInterfaceBefore);
                 break;
             case SUBTREE_MODIFIED:
-                update(pods, podsBefore, podInterfaceBefore, podInterfaceAfter);
+                update(pods, podsBefore, podInterfaceAfter);
                 break;
             case WRITE:
                 if (podInterfaceBefore == null) {
                     add(pods, podInterfaceAfter);
                 } else {
-                    update(pods, podsBefore, podInterfaceBefore, podInterfaceAfter);
+                    update(pods, podsBefore, podInterfaceAfter);
                 }
                 break;
             default:
@@ -123,7 +123,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         jobCoordinator.enqueueJob(pods.getName(), new PodConfigAddWorker(txRunner, pods, podInterface));
     }
 
-    private void update(Pods podsAfter, Pods podsBefore, Interface podInterfaceBefore, Interface podInterfaceAfter) {
+    private void update(Pods podsAfter, Pods podsBefore, Interface podInterfaceAfter) {
         LOG.trace("Pod updated before :{}, after :{}",podsBefore, podsAfter);
         if (!Objects.equals(podsAfter.getNetworkNS(), podsBefore.getNetworkNS())
                 || !Objects.equals(podsAfter.getHostIpAddress(), podsBefore.getHostIpAddress())) {
@@ -168,9 +168,9 @@ public class PodListener implements DataTreeChangeListener<Pods> {
                 ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
                         pods.getNetworkNS(), nodeIp, podInterface, tx);
                 LOG.info("interface creation for pod {}", interfaceName);
-                String portInterfaceName = CoeUtils.createOfPortInterface(interfaceName, podInterface, tx);
+                String portInterfaceName = CoeUtils.createOfPortInterface(interfaceName, tx);
                 LOG.debug("Creating ELAN Interface for pod {}", interfaceName);
-                CoeUtils.createElanInterface(podInterface, portInterfaceName,
+                CoeUtils.createElanInterface(portInterfaceName,
                         elanInstance.getElanInstanceName(), tx);
             }));
         }

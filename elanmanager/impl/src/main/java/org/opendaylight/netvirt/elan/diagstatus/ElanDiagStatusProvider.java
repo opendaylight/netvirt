@@ -14,7 +14,6 @@ import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.diagstatus.ServiceDescriptor;
 import org.opendaylight.infrautils.diagstatus.ServiceState;
 import org.opendaylight.infrautils.diagstatus.ServiceStatusProvider;
-import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.ops4j.pax.cdi.api.OsgiServiceProvider;
 import org.slf4j.Logger;
@@ -33,8 +32,7 @@ public class ElanDiagStatusProvider implements ServiceStatusProvider {
     private volatile ServiceDescriptor serviceDescriptor;
 
     @Inject
-    public ElanDiagStatusProvider(final ElanServiceProvider elanServiceProvider,
-                                  final DiagStatusService diagStatusService) {
+    public ElanDiagStatusProvider(final DiagStatusService diagStatusService) {
         this.diagStatusService = diagStatusService;
         diagStatusService.register(ElanConstants.ELAN_SERVICE_NAME);
         serviceDescriptor = new ServiceDescriptor(ElanConstants.ELAN_SERVICE_NAME, ServiceState.OPERATIONAL,

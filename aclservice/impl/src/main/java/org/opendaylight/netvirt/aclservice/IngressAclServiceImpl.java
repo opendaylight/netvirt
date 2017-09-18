@@ -127,8 +127,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
-            ingressAclDhcpAllowServerTraffic(dpid, lportTag, addOrRemove, AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
-            ingressAclDhcpv6AllowServerTraffic(dpid, lportTag, addOrRemove, AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
+            ingressAclDhcpAllowServerTraffic(dpid, lportTag, addOrRemove);
+            ingressAclDhcpv6AllowServerTraffic(dpid, lportTag, addOrRemove);
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
 
             programArpRule(dpid, lportTag, addOrRemove);
@@ -162,7 +162,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
             int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(aclTag, aap, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(aclTag, aap));
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
         String flowNameAdded = "Acl_Filter_Ingress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;
@@ -178,10 +178,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param dpId the dpid
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
-     * @param protoPortMatchPriority the priority
      */
-    protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, int lportTag, int addOrRemove,
-            int protoPortMatchPriority) {
+    protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
@@ -198,10 +196,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * @param dpId the dpid
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
-     * @param protoPortMatchPriority the priority
      */
-    protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, int lportTag, int addOrRemove,
-            Integer protoPortMatchPriority) {
+    protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();

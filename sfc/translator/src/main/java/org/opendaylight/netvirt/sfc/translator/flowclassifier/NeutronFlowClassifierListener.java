@@ -38,11 +38,10 @@ public class NeutronFlowClassifierListener extends DelegatingDataTreeListener<Sf
     /**
      * Method removes Acl respective to SfcFlowClassifier which is identified by InstanceIdentifier.
      *
-     * @param path - the whole path to SfcFlowClassifier
      * @param deletedSfcFlowClassifier        - SfcFlowClassifier for removing
      */
     @Override
-    public void remove(InstanceIdentifier<SfcFlowClassifier> path, SfcFlowClassifier deletedSfcFlowClassifier) {
+    public void remove(SfcFlowClassifier deletedSfcFlowClassifier) {
         Acl aclFlowClassifier = FlowClassifierTranslator.buildAcl(deletedSfcFlowClassifier);
         sfcMdsalHelper.removeAclFlowClassifier(aclFlowClassifier);
     }
@@ -51,14 +50,10 @@ public class NeutronFlowClassifierListener extends DelegatingDataTreeListener<Sf
      * Method updates the original SfcFlowClassifier to the update SfcFlowClassifier.
      * Both are identified by same InstanceIdentifier.
      *
-     * @param path - the whole path to SfcFlowClassifier
-     * @param originalSfcFlowClassifier   - original SfcFlowClassifier (for update)
      * @param updatedSfcFlowClassifier     - changed SfcFlowClassifier (contain updates)
      */
     @Override
-    public void update(InstanceIdentifier<SfcFlowClassifier> path,
-                       SfcFlowClassifier originalSfcFlowClassifier,
-                       SfcFlowClassifier updatedSfcFlowClassifier) {
+    public void update(SfcFlowClassifier updatedSfcFlowClassifier) {
 
         Acl aclFlowClassifier = FlowClassifierTranslator.buildAcl(updatedSfcFlowClassifier);
         sfcMdsalHelper.updateAclFlowClassifier(aclFlowClassifier);
@@ -68,11 +63,10 @@ public class NeutronFlowClassifierListener extends DelegatingDataTreeListener<Sf
      * Method adds the SfcFlowClassifier which is identified by InstanceIdentifier
      * to device.
      *
-     * @param path - the whole path to new SfcFlowClassifier
      * @param sfcFlowClassifier        - new SfcFlowClassifier
      */
     @Override
-    public void add(InstanceIdentifier<SfcFlowClassifier> path, SfcFlowClassifier sfcFlowClassifier) {
+    public void add(SfcFlowClassifier sfcFlowClassifier) {
         // Respective ACL classifier will be written in data store, once the chain is created.
     }
 
