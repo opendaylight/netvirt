@@ -269,7 +269,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
     }
 
-    private void createDNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long routerId, long vpnId,
+    private void createDNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long routerId,
                                     long associatedVpnId) {
         FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
         if (preFlowEntity == null) {
@@ -441,7 +441,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
 
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId);
+        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId);
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, extNwId, interfaceName, mapping);
     }
@@ -471,7 +471,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         //Create the DNAT and SNAT table entries
-        createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId);
+        createDNATTblEntry(dpnId, mapping, routerId, associatedVpnId);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, externalNetworkId);
         floatingIPHandler.onAddFloatingIp(dpnId, routerName, externalNetworkId, interfaceName, mapping);
     }
@@ -555,7 +555,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
         if (provType == ProviderTypes.VXLAN) {
             floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, NatConstants.DEFAULT_L3VNI_VALUE);
-            removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+            removeOperationalDS(routerName, interfaceName, internalIp);
             return;
         }
         long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
@@ -565,7 +565,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         floatingIPHandler.onRemoveFloatingIp(dpnId, routerName, extNwId, mapping, (int) label);
-        removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+        removeOperationalDS(routerName, interfaceName, internalIp);
     }
 
     void removeNATFlowEntries(BigInteger dpnId, String interfaceName, String vpnName, String routerName,
@@ -596,7 +596,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
         if (provType == ProviderTypes.VXLAN) {
             floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE);
-            removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+            removeOperationalDS(routerName, interfaceName, internalIp);
             return;
         }
         long label = getOperationalIpMapping(routerName, interfaceName, internalIp);
@@ -606,7 +606,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label);
-        removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
+        removeOperationalDS(routerName, interfaceName, internalIp);
     }
 
     protected long getOperationalIpMapping(String routerId, String interfaceName, String internalIp) {
@@ -648,7 +648,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
     }
 
-    void removeOperationalDS(String routerId, String interfaceName, String internalIp, String externalIp) {
+    void removeOperationalDS(String routerId, String interfaceName, String internalIp) {
         LOG.info("removeOperationalDS : Remove operational DS for floating ip config: {}", internalIp);
         InstanceIdentifier<InternalToExternalPortMap> intExtPortMapId = NatUtil.getIntExtPortMapIdentifier(routerId,
                 interfaceName, internalIp);

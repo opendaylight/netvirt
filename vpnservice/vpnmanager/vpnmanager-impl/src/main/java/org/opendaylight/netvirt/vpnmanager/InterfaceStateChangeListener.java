@@ -168,7 +168,7 @@ public class InterfaceStateChangeListener
                             LOG.info("VPN Interface remove event - intfName {} onto vpnName {} running oper-driven",
                                     vpnInterface.getName(), vpnInterface.getVpnInstanceName());
                             vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, intrf,
-                                    vpnInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                    vpnInterface, false, writeConfigTxn, writeInvTxn);
                             ListenableFuture<Void> operFuture = writeOperTxn.submit();
                             try {
                                 operFuture.get();
@@ -254,7 +254,7 @@ public class InterfaceStateChangeListener
                                 if (optVpnInterface.isPresent()) {
                                     VpnInterface vpnOpInterface = optVpnInterface.get();
                                     vpnInterfaceManager.processVpnInterfaceDown(dpnId, interfaceName, ifIndex, update,
-                                            vpnOpInterface, true, writeConfigTxn, writeOperTxn,
+                                            vpnOpInterface, true, writeConfigTxn,
                                             writeInvTxn);
                                 } else {
                                     LOG.error("InterfaceStateChangeListener Update DOWN - vpnInterface {}"
