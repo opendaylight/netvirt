@@ -99,7 +99,7 @@ public class HwvtepTerminationPointListener
         if (portAugmentation != null) {
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
             elanClusterUtils.runOnlyInOwnerNode(HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
-                () -> handlePortAdded(portAugmentation, add, nodeId));
+                () -> handlePortAdded(add, nodeId));
             return;
         }
 
@@ -118,8 +118,7 @@ public class HwvtepTerminationPointListener
         return this;
     }
 
-    private List<ListenableFuture<Void>> handlePortAdded(HwvtepPhysicalPortAugmentation portAugmentation,
-                                                         TerminationPoint portAdded, NodeId psNodeId) {
+    private List<ListenableFuture<Void>> handlePortAdded(TerminationPoint portAdded, NodeId psNodeId) {
         Node psNode = HwvtepUtils.getHwVtepNode(broker, LogicalDatastoreType.OPERATIONAL, psNodeId);
         if (psNode != null) {
             String psName = psNode.getAugmentation(PhysicalSwitchAugmentation.class).getHwvtepNodeName().getValue();

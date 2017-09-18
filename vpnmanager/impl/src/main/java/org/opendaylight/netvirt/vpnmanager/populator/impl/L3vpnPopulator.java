@@ -63,8 +63,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
     }
 
     @Override
-    public void populateFib(L3vpnInput input, WriteTransaction writeCfgTxn,
-                            WriteTransaction writeOperTxn) {}
+    public void populateFib(L3vpnInput input, WriteTransaction writeCfgTxn) {}
 
     public void addSubnetRouteFibEntry(L3vpnInput input) {
         String rd = input.getRd();
@@ -199,7 +198,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             List<String> nextHopList = Collections.singletonList(nextHopIp);
             LOG.info("ADD: addPrefixToBGP: Adding Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
-            fibManager.addOrUpdateFibEntry(broker, primaryRd, macAddress, prefix, nextHopList,
+            fibManager.addOrUpdateFibEntry(primaryRd, macAddress, prefix, nextHopList,
                     encapType, (int)label, l3vni, gatewayMac, null /*parentVpnRd*/, origin, writeConfigTxn);
             LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);

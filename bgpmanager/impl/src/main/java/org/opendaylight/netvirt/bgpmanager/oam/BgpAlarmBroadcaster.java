@@ -59,7 +59,7 @@ public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport
     }
 
     @Override
-    public void sendBgpAlarmInfo(String pfx, int code, int subcode) {
+    public void sendBgpAlarmInfo(String pfx, int subcode) {
         BgpAlarmErrorCodes userAlarm = BgpAlarmErrorCodes.checkErrorSubcode(subcode);
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add(userAlarm.getAlarmType());

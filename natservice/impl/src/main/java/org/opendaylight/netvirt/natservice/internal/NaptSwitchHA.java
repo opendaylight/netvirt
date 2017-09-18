@@ -43,7 +43,6 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
@@ -61,7 +60,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -82,7 +80,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -114,9 +111,6 @@ public class NaptSwitchHA {
                         final OdlInterfaceRpcService interfaceManager,
                         final IdManagerService idManager,
                         final NAPTSwitchSelector naptSwitchSelector,
-                        final IBgpManager bgpManager,
-                        final VpnRpcService vpnService,
-                        final FibRpcService fibService,
                         final IFibManager fibManager,
                         final EvpnNaptSwitchHA evpnNaptSwitchHA,
                         final IElanService elanManager,
@@ -449,7 +443,7 @@ public class NaptSwitchHA {
                             String rd = NatUtil.getVpnRd(dataBroker, vpnName);
                             for (String externalIp : externalIpsCache) {
                                 LOG.debug("isNaptSwitchDown : Removing Fib entry rd {} prefix {}", rd, externalIp);
-                                fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
+                                fibManager.removeFibEntry(rd, externalIp, null);
                             }
                         }
                     } else {
@@ -1056,7 +1050,7 @@ public class NaptSwitchHA {
         Optional<VrfEntry> ent = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         if (ent.isPresent()) {
             LOG.debug("removeFibEntry : Removing Fib entry rd {} prefix {}", rd, prefix);
-            fibManager.removeFibEntry(dataBroker, rd, prefix, null);
+            fibManager.removeFibEntry(rd, prefix, null);
         }
     }
 

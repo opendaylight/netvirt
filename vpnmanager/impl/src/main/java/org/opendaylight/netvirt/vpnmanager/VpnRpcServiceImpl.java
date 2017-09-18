@@ -178,7 +178,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             }
         } else {
             vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
-                    label.intValue(), vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
+                    vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
                             null /*Adjacency*/, encapType, null);
         }
 
@@ -232,7 +232,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
 
         Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
-            fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, /*writeTx*/ null);
+            fibManager.removeOrUpdateFibEntry(vpnRd, destination, nexthop, /*writeTx*/ null);
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
             vpnManager.delExtraRoute(vpnInstanceName, destination,

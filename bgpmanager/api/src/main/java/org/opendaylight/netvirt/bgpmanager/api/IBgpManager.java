@@ -76,7 +76,7 @@ public interface IBgpManager {
 
     String getDCGwIP();
 
-    void sendNotificationEvent(String pfx, int code, int subcode);
+    void sendNotificationEvent(int code, int subcode);
 
     void setQbgprestartTS(long qbgprestartTS);
 
