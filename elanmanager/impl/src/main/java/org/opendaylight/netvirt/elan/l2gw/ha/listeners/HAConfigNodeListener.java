@@ -61,16 +61,15 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     }
 
     @Override
-    void onPsNodeUpdate(InstanceIdentifier<Node> key,
-                        Node haPSUpdated,
-                        Node haPSOriginal,
-                        DataObjectModification<Node> mod,
-                        ReadWriteTransaction tx) throws InterruptedException, ExecutionException, ReadFailedException {
+    void onPsNodeUpdate(Node haPSUpdated,
+            Node haPSOriginal,
+            DataObjectModification<Node> mod,
+            ReadWriteTransaction tx) throws InterruptedException, ExecutionException, ReadFailedException {
         //copy the ps node data to children
         String psId = haPSUpdated.getNodeId().getValue();
         Set<InstanceIdentifier<Node>> childSwitchIds = HwvtepHAUtil.getPSChildrenIdsForHAPSNode(psId);
         for (InstanceIdentifier<Node> childSwitchId : childSwitchIds) {
-            haEventHandler.copyHAPSUpdateToChild(haPSUpdated, haPSOriginal, childSwitchId, mod, tx);
+            haEventHandler.copyHAPSUpdateToChild(childSwitchId, mod, tx);
         }
     }
 
@@ -83,7 +82,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
             throws InterruptedException, ExecutionException, ReadFailedException {
         Set<InstanceIdentifier<Node>> childNodeIds = hwvtepHACache.getChildrenForHANode(key);
         for (InstanceIdentifier<Node> haChildNodeId : childNodeIds) {
-            haEventHandler.copyHAGlobalUpdateToChild(haUpdated, haOriginal, haChildNodeId, mod, tx);
+            haEventHandler.copyHAGlobalUpdateToChild(haChildNodeId, mod, tx);
         }
     }
 

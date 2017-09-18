@@ -372,7 +372,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
     protected void addRoute() throws Exception {
         bgpConfigurationManager.onUpdatePushRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
-                0, nexthop, 0, null, mac, l3vni, l2vni, null, null);
+                0, nexthop, mac, l3vni, l2vni, null, null);
     }
 
     protected void deleteRoute() throws Exception {

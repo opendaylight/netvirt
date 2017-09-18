@@ -1104,8 +1104,6 @@ public class ElanUtils {
      * Updates the Elan information in the Operational DS. It also updates the
      * ElanInstance in the Config DS by setting the adquired elanTag.
      *
-     * @param broker
-     *            the broker
      * @param idManager
      *            the id manager
      * @param elanInstanceAdded
@@ -1117,7 +1115,7 @@ public class ElanUtils {
      *
      * @return the updated ELAN instance.
      */
-    public static ElanInstance updateOperationalDataStore(DataBroker broker, IdManagerService idManager,
+    public static ElanInstance updateOperationalDataStore(IdManagerService idManager,
             ElanInstance elanInstanceAdded, List<String> elanInterfaces, WriteTransaction tx) {
         String elanInstanceName = elanInstanceAdded.getElanInstanceName();
         Long elanTag = elanInstanceAdded.getElanTag();
@@ -1145,7 +1143,7 @@ public class ElanUtils {
             EtreeLeafTagName etreeLeafTagName = new EtreeLeafTagNameBuilder()
                     .setEtreeLeafTag(new EtreeLeafTag(etreeLeafTag)).build();
             elanTagNameBuilder.addAugmentation(EtreeLeafTagName.class, etreeLeafTagName);
-            addTheLeafTagAsElanTag(broker, elanInstanceName, etreeLeafTag, tx);
+            addTheLeafTagAsElanTag(elanInstanceName, etreeLeafTag, tx);
         }
         ElanTagName elanTagName = elanTagNameBuilder.build();
 
@@ -1172,8 +1170,7 @@ public class ElanUtils {
         return elanInstanceWithTag;
     }
 
-    private static void addTheLeafTagAsElanTag(DataBroker broker, String elanInstanceName, long etreeLeafTag,
-            WriteTransaction tx) {
+    private static void addTheLeafTagAsElanTag(String elanInstanceName, long etreeLeafTag, WriteTransaction tx) {
         ElanTagName etreeTagAsElanTag = new ElanTagNameBuilder().setElanTag(etreeLeafTag)
                 .setKey(new ElanTagNameKey(etreeLeafTag)).setName(elanInstanceName).build();
         tx.put(LogicalDatastoreType.OPERATIONAL,

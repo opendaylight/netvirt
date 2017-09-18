@@ -85,7 +85,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         } catch (ReadFailedException e) {
             LOG.error("Failed to read nodes {} , {} ", childGlobalPath, haNodePath);
         }
-        readAndCopyChildPsOpToParent(childGlobalPath, childNode, haNodePath, tx);
+        readAndCopyChildPsOpToParent(childNode, tx);
     }
 
     //Update on global node has been taken care by HAListeners as per perf improvement
@@ -100,11 +100,11 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
             InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childGlobalPath);
             LOG.debug("Copy oper update from child {} to parent {}", childGlobalPath, haPath);
-            haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, mod, tx);
+            haEventHandler.copyChildGlobalOpUpdateToHAParent(haPath, mod, tx);
             return;//TODO handle unha case
         }
 
-        HAOpClusteredListener.addToHACacheIfBecameHAChild(childGlobalPath, updatedChildNode, originalChildNode, tx);
+        HAOpClusteredListener.addToHACacheIfBecameHAChild(childGlobalPath, updatedChildNode, originalChildNode);
         if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
             return;
         }
@@ -164,17 +164,16 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     }
 
     @Override
-    void onPsNodeUpdate(InstanceIdentifier<Node> childPsPath,
-                        Node updatedChildPSNode,
-                        Node originalChildPSNode,
-                        DataObjectModification<Node> mod,
-                        ReadWriteTransaction tx) throws ReadFailedException {
+    void onPsNodeUpdate(Node updatedChildPSNode,
+            Node originalChildPSNode,
+            DataObjectModification<Node> mod,
+            ReadWriteTransaction tx) throws ReadFailedException {
         InstanceIdentifier<Node> childGlobalPath = HwvtepHAUtil.getGlobalNodePathFromPSNode(updatedChildPSNode);
         if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
             return;
         }
         InstanceIdentifier<Node> haGlobalPath = hwvtepHACache.getParent(childGlobalPath);
-        haEventHandler.copyChildPsOpUpdateToHAParent(updatedChildPSNode, originalChildPSNode, haGlobalPath, mod, tx);
+        haEventHandler.copyChildPsOpUpdateToHAParent(updatedChildPSNode, haGlobalPath, mod, tx);
     }
 
     @Override
@@ -205,10 +204,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         }
     }
 
-    private void readAndCopyChildPsOpToParent(InstanceIdentifier<Node> childGlobalPath,
-                                              Node childNode,
-                                              InstanceIdentifier<Node> haNodePath,
-                                              ReadWriteTransaction tx) {
+    private void readAndCopyChildPsOpToParent(Node childNode, ReadWriteTransaction tx) {
         String childGlobalNodeId = childNode.getNodeId().getValue();
         List<InstanceIdentifier> childPsIids = new ArrayList<>();
         HwvtepGlobalAugmentation hwvtepGlobalAugmentation = childNode.getAugmentation(HwvtepGlobalAugmentation.class);

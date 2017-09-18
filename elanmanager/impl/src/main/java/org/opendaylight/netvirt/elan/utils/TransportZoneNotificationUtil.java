@@ -29,7 +29,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -83,7 +82,7 @@ public class TransportZoneNotificationUtil {
     private final ElanInstanceCache elanInstanceCache;
 
     @Inject
-    public TransportZoneNotificationUtil(final DataBroker dbx, final IInterfaceManager interfaceManager,
+    public TransportZoneNotificationUtil(final DataBroker dbx,
             final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager,
             final ElanInstanceCache elanInstanceCache) {
         this.dataBroker = dbx;
@@ -198,23 +197,17 @@ public class TransportZoneNotificationUtil {
         if (localIps != null && !localIps.isEmpty()) {
             LOG.debug("Will use local_ips for transport zone delete for dpn {} and zone name prefix {}", dpnId,
                     zoneNamePrefix);
-            for (Entry<String, String> entry : localIps.entrySet()) {
-                String localIp = entry.getKey();
-                String underlayNetworkName = entry.getValue();
+            for (String underlayNetworkName : localIps.values()) {
                 String zoneName = getTzNameForUnderlayNetwork(zoneNamePrefix, underlayNetworkName);
-                deleteTransportZone(zoneName, dpnId, localIp);
+                deleteTransportZone(zoneName, dpnId, null);
             }
         } else {
-            deleteTransportZone(zoneNamePrefix, dpnId, getDpnLocalIp(dpnId));
+            deleteTransportZone(zoneNamePrefix, dpnId, null);
         }
     }
 
-    private void deleteTransportZone(String zoneName, BigInteger dpnId, String localIp) {
-        deleteTransportZone(zoneName, dpnId, localIp, null);
-    }
-
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void deleteTransportZone(String zoneName, BigInteger dpnId, String localIp, WriteTransaction tx) {
+    private void deleteTransportZone(String zoneName, BigInteger dpnId, WriteTransaction tx) {
         InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
                 .child(TransportZone.class, new TransportZoneKey(zoneName));
 

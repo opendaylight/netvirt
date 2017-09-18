@@ -363,7 +363,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         Uuid routerId = update.getUuid();
 
         // Remove the router to the ExtRouters list
-        removeExternalRouter(origExtNetId, update);
+        removeExternalRouter(update);
 
         //Remove router entry from floating-ip-info list
         removeRouterFromFloatingIpInfo(update, dataBroker);
@@ -484,7 +484,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void removeExternalRouter(Uuid extNetId, Router update) {
+    private void removeExternalRouter(Router update) {
         Uuid routerId = update.getUuid();
 
         InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);

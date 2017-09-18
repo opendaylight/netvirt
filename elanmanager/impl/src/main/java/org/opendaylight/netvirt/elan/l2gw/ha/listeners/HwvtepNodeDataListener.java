@@ -133,7 +133,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                 getNodeId(parent), create);
         data = (T) mergeCommand.transform(parent, data);
         identifier = mergeCommand.generateId(parent, data);
-        writeToMdsal(create, tx, data, identifier, false);
+        writeToMdsal(create, tx, data, identifier);
         tx.submit();
     }
 
@@ -152,7 +152,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                     getNodeId(child), create);
             final T childData = (T) mergeCommand.transform(child, parentData);
             final InstanceIdentifier<T> identifier = mergeCommand.generateId(child, childData);
-            writeToMdsal(create, tx, childData, identifier, true);
+            writeToMdsal(create, tx, childData, identifier);
         }
         tx.submit();
     }
@@ -160,8 +160,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
     private void writeToMdsal(final boolean create,
                               final ReadWriteTransaction tx,
                               final T data,
-                              final InstanceIdentifier<T> identifier,
-                              final boolean copyToChild) throws ReadFailedException {
+                              final InstanceIdentifier<T> identifier) throws ReadFailedException {
         Optional<T> existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
         if (create) {
             if (isDataUpdated(existingDataOptional, data)) {

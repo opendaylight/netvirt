@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.Random;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -84,14 +83,13 @@ public class ElanBridgeManager implements IElanBridgeManager {
 
     /**
      * Construct a new ElanBridgeManager.
-     * @param dataBroker DataBroker
      * @param elanConfig the elan configuration
      * @param interfaceManager InterfaceManager
      * @param southboundUtils southboutUtils
      * @param mdsalUtils mdsalUtils
      */
     @Inject
-    public ElanBridgeManager(DataBroker dataBroker, ElanConfig elanConfig, IInterfaceManager interfaceManager,
+    public ElanBridgeManager(ElanConfig elanConfig, IInterfaceManager interfaceManager,
             SouthboundUtils southboundUtils, MdsalUtils mdsalUtils) {
         //TODO: ClusterAware!!!??
         this.mdsalUtils = mdsalUtils;

@@ -145,7 +145,7 @@ public class ArpMonitoringHandler
                         value.getCreationTime());
                 jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
-                                interfaceRpc, neutronVpnService, interfaceManager));
+                                neutronVpnService, interfaceManager));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }

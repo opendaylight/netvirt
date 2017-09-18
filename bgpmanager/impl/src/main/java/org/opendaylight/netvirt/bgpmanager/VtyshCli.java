@@ -96,7 +96,7 @@ public class VtyshCli extends OsgiCommandSupport {
         switch (handlerModule) {
             case BGPD:
                 try {
-                    handleCommand(firstArg, cmd);
+                    handleCommand(cmd);
                 } catch (IOException ioe) {
                     session.getConsole().println("IOException thrown.");
                 }
@@ -115,7 +115,7 @@ public class VtyshCli extends OsgiCommandSupport {
         return serverName;
     }
 
-    public void handleCommand(String arg, String command) throws IOException {
+    public void handleCommand(String command) throws IOException {
         char[] cbuf = new char[10];
         Socket socket;
         PrintWriter outToSocket;

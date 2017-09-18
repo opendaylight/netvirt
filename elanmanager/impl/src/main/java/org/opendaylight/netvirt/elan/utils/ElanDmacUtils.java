@@ -330,7 +330,7 @@ public class ElanDmacUtils {
     }
 
     private ListenableFuture<Void> buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
-            BigInteger dpnId, String extDeviceNodeId, Long elanTag, String macAddress,EtreeLeafTagName etreeLeafTag) {
+            BigInteger dpnId, String extDeviceNodeId, String macAddress, EtreeLeafTagName etreeLeafTag) {
         if (etreeLeafTag != null) {
             Flow dropFlow = buildDmacFlowDropIfPacketComingFromTunnel(dpnId, extDeviceNodeId,
                     etreeLeafTag.getEtreeLeafTag().getValue(), macAddress);
@@ -366,7 +366,7 @@ public class ElanDmacUtils {
         if (etreeLeafTag != null) {
             return Lists.newArrayList(
                 buildEtreeDmacFlowDropIfPacketComingFromTunnelwithBatch(
-                        dpnId, extDeviceNodeId, elanTag, macAddress, etreeLeafTag),
+                        dpnId, extDeviceNodeId, macAddress, etreeLeafTag),
                 buildEtreeDmacFlowForExternalRemoteMacWithBatch(
                         dpnId, extDeviceNodeId, vni, macAddress, displayName, interfaceName, etreeLeafTag));
         }

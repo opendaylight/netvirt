@@ -188,7 +188,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         if (interfacePort != null) {
             dhcpInfo = handleDhcpNeutronPacket(msgType, interfacePort, subnet, serverIp);
         } else if (config.isDhcpDynamicAllocationPoolEnabled()) {
-            dhcpInfo = handleDhcpAllocationPoolPacket(msgType, dhcpPkt, interfaceName, macAddress);
+            dhcpInfo = handleDhcpAllocationPoolPacket(msgType, interfaceName, macAddress);
         }
         DHCP reply = null;
         if (dhcpInfo != null) {
@@ -214,8 +214,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     }
 
 
-    private DhcpInfo handleDhcpAllocationPoolPacket(byte msgType, DHCP dhcpPkt, String interfaceName,
-            String macAddress) {
+    private DhcpInfo handleDhcpAllocationPoolPacket(byte msgType, String interfaceName, String macAddress) {
         String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
         AllocationPool pool = networkId != null ? dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId)
                 : null;

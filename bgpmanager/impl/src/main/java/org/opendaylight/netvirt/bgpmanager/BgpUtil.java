@@ -121,8 +121,7 @@ public class BgpUtil implements AutoCloseable {
         return retValue;
     }
 
-    public <T extends DataObject> void update(final LogicalDatastoreType datastoreType,
-            final InstanceIdentifier<T> path, final T data) {
+    public <T extends DataObject> void update(final InstanceIdentifier<T> path, final T data) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.UPDATE);
         actResource.setInstanceIdentifier(path);
@@ -130,8 +129,7 @@ public class BgpUtil implements AutoCloseable {
         bgpResourcesBufferQ.add(actResource);
     }
 
-    public <T extends DataObject> void write(final LogicalDatastoreType datastoreType, final InstanceIdentifier<T> path,
-            final T data) {
+    public <T extends DataObject> void write(final InstanceIdentifier<T> path, final T data) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.CREATE);
         actResource.setInstanceIdentifier(path);
@@ -139,8 +137,7 @@ public class BgpUtil implements AutoCloseable {
         bgpResourcesBufferQ.add(actResource);
     }
 
-    public <T extends DataObject> void delete(final LogicalDatastoreType datastoreType,
-            final InstanceIdentifier<T> path) {
+    public <T extends DataObject> void delete(final InstanceIdentifier<T> path) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.DELETE);
         actResource.setInstanceIdentifier(path);
@@ -225,7 +222,7 @@ public class BgpUtil implements AutoCloseable {
         ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
         externalTepsBuilder.setKey(externalTepsKey);
         externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
-        update(LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build());
+        update(externalTepsId, externalTepsBuilder.build());
     }
 
     public void deleteTepFromElanInstance(String rd, String tepIp) {
@@ -240,7 +237,7 @@ public class BgpUtil implements AutoCloseable {
         }
         LOG.debug("Deleting tepIp {} from elan {}", tepIp, elanName);
         InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
-        delete(LogicalDatastoreType.CONFIGURATION, externalTepsId);
+        delete(externalTepsId);
     }
 
     private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
@@ -290,6 +287,6 @@ public class BgpUtil implements AutoCloseable {
                    InstanceIdentifier.builder(FibEntries.class)
                    .child(VrfTables.class, new VrfTablesKey(rd))
                    .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix())).build();
-        delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        delete(vrfEntryId);
     }
 }

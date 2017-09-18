@@ -30,7 +30,6 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -71,7 +70,6 @@ public class StaleVlanBindingsCleaner {
 
 
     private final DataBroker broker;
-    private final ElanUtils elanUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final Scheduler scheduler;
     private final ElanConfig elanConfig;
@@ -81,14 +79,12 @@ public class StaleVlanBindingsCleaner {
 
     @Inject
     public StaleVlanBindingsCleaner(final DataBroker broker,
-                                    final ElanUtils elanUtils,
                                     final ElanL2GatewayUtils elanL2GatewayUtils,
                                     final Scheduler scheduler,
                                     final ElanConfig elanConfig,
                                     final L2GatewayCache l2GatewayCache,
                                     final ElanInstanceCache elanInstanceCache) {
         this.broker = broker;
-        this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.scheduler = scheduler;
         this.elanConfig = elanConfig;

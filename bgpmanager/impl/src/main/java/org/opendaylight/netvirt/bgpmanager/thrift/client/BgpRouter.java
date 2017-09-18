@@ -399,8 +399,8 @@ public final class BgpRouter {
         dispatch(bop);
     }
 
-    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts,
-            long afi, long safi) throws TException, BgpRouterException {
+    public synchronized void addVrf(LayerType layerType, String rd, List<String> irts, List<String> erts)
+            throws TException, BgpRouterException {
         bop.thriftLayerType = layerType == LayerType.LAYER2 ? layer_type.LAYER_2 : layer_type.LAYER_3;
         bop.type = Optype.VRF;
         bop.add = true;

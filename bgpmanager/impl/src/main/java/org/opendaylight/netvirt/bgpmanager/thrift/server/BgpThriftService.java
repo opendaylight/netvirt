@@ -153,8 +153,6 @@ public class BgpThriftService {
                         prefix,
                         plen,
                         nexthop,
-                        ethtag,
-                        esi,
                         macaddress,
                         l3label,
                         l2label,
@@ -205,7 +203,7 @@ public class BgpThriftService {
         @Override
         public void onNotificationSendEvent(String prefix, byte errCode,
                 byte errSubcode) {
-            bgpManager.sendNotificationEvent(prefix, errCode, errSubcode);
+            bgpManager.sendNotificationEvent((int) errCode, (int) errSubcode);
         }
     }
 

@@ -1025,8 +1025,7 @@ public final class AclServiceUtils {
         deleteIdPool(AclConstants.ACL_TAG_POOL_NAME);
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(Integer aclTag, AllowedAddressPairs aap,
-            DataBroker dataBroker) {
+    public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(Integer aclTag, AllowedAddressPairs aap) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.add(buildRemoteAclTagMetadataMatch(aclTag));
         if (aap.getIpAddress().getIpAddress() != null) {
@@ -1059,8 +1058,7 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Integer aclTag, AllowedAddressPairs aap,
-            DataBroker dataBroker) {
+    public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Integer aclTag, AllowedAddressPairs aap) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.add(buildRemoteAclTagMetadataMatch(aclTag));
 

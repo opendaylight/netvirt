@@ -479,7 +479,7 @@ public class NatTunnelInterfaceStateListener
             if (extNwProvType == null) {
                 return false;
             }
-            hndlTepDelForDnatInEachRtr(router, routerId, srcDpnId, extNwProvType, writeFlowInvTx);
+            hndlTepDelForDnatInEachRtr(router, routerId, srcDpnId, extNwProvType);
             LOG.debug("handleTepDelForAllRtrs :  TEP DEL : SNAT -> Withdrawing and Advertising routes for router {} ",
                 router.getRouter());
             hndlTepDelForSnatInEachRtr(router, routerId, srcDpnId, tunnelType, srcTepIp, destTepIp,
@@ -577,7 +577,7 @@ public class NatTunnelInterfaceStateListener
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> Install the group which forward packet to the tunnel port "
                 + "for the NAPT switch {} and the flow 26 which forwards to group", primaryDpnId);
-            externalRouterListner.handleSwitches(srcDpnId, routerName, routerId, primaryDpnId, writeFlowInvTx);
+            externalRouterListner.handleSwitches(srcDpnId, routerName, routerId, primaryDpnId);
         } else {
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> External BGP VPN (Private BGP) associated to router {}",
                     routerId);
@@ -674,7 +674,7 @@ public class NatTunnelInterfaceStateListener
         for (String externalIp : externalIps) {
             String rd = NatUtil.getVpnRd(dataBroker, externalVpnName);
             LOG.debug("hndlTepAddOnNaptSwitch : Removing Fib entry rd {} prefix {}", rd, externalIp);
-            fibManager.removeFibEntry(dataBroker, rd, externalIp, null);
+            fibManager.removeFibEntry(rd, externalIp, null);
         }
 
         /*
@@ -735,8 +735,7 @@ public class NatTunnelInterfaceStateListener
                 if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
                     l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
                 }
-                Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
-                        router);
+                Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(externalIp, router);
                 NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
                         fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni,
                         RouteOrigin.STATIC, srcDpnId);
@@ -1016,7 +1015,7 @@ public class NatTunnelInterfaceStateListener
     }
 
     private void hndlTepDelForDnatInEachRtr(RoutersList router, long routerId, BigInteger tepDeletedDpnId,
-            ProviderTypes extNwProvType, WriteTransaction writeFlowInvTx) {
+            ProviderTypes extNwProvType) {
         //DNAT : Withdraw the routes from the BGP
         String routerName = router.getRouter();
 
@@ -1078,7 +1077,7 @@ public class NatTunnelInterfaceStateListener
                 LOG.debug("hndlTepDelForDnatInEachRtr : DNAT -> Withdrawing the FIB route to the floating IP {} "
                     + "configured for the port: {}",
                     externalIp, interfaceName);
-                NatUtil.removePrefixFromBGP(dataBroker, bgpManager, fibManager, rd, externalIp, vpnName, LOG);
+                NatUtil.removePrefixFromBGP(bgpManager, fibManager, rd, externalIp, vpnName, LOG);
                 long serviceId = 0;
                 if (extNwProvType == ProviderTypes.VXLAN) {
                     serviceId = l3Vni;

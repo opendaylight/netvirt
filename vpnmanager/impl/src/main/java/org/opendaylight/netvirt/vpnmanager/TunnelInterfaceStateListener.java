@@ -135,7 +135,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         if (isGreTunnel(del)) {
             programDcGwLoadBalancingGroup(del, NwConstants.DEL_FLOW);
         }
-        handleTunnelEventForDPN(del, UpdateRouteAction.WITHDRAW_ROUTE, TunnelAction.TUNNEL_EP_DELETE);
+        handleTunnelEventForDPN(del, TunnelAction.TUNNEL_EP_DELETE);
     }
 
     @Override
@@ -166,7 +166,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         }
         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
         if (tunOpStatus == TunnelOperStatus.Up) {
-            handleTunnelEventForDPN(update, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
+            handleTunnelEventForDPN(update, TunnelAction.TUNNEL_EP_ADD);
         } else {
             vpnInstanceOpData.stream().filter(opData -> {
                 if (opData.getVpnToDpnList() == null) {
@@ -185,7 +185,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                     List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
                     routePaths.forEach(routePath -> {
                         if (routePath.getNexthopAddress().equals(srcTepIp)) {
-                            fibManager.updateRoutePathForFibEntry(dataBroker, opData.getVrfId(),
+                            fibManager.updateRoutePathForFibEntry(opData.getVrfId(),
                                     destPrefix.getDestPrefix(), srcTepIp, routePath.getLabel(),
                                     false, writeConfigTxn);
                         }
@@ -214,7 +214,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         LOG.info("add: ITM Tunnel ,type {} ,added between src: {} and dest: {}",
                 fibManager.getTransportTypeStr(add.getTransportType().toString()),
                 add.getSrcInfo().getTepDeviceId(), add.getDstInfo().getTepDeviceId());
-        handleTunnelEventForDPN(add, UpdateRouteAction.ADVERTISE_ROUTE, TunnelAction.TUNNEL_EP_ADD);
+        handleTunnelEventForDPN(add, TunnelAction.TUNNEL_EP_ADD);
     }
 
     public enum TunnelEventProcessingMethod {
@@ -233,8 +233,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void handleTunnelEventForDPN(StateTunnelList stateTunnelList, UpdateRouteAction action,
-                                         TunnelAction tunnelAction) {
+    private void handleTunnelEventForDPN(StateTunnelList stateTunnelList,
+            TunnelAction tunnelAction) {
         final BigInteger srcDpnId = new BigInteger(stateTunnelList.getSrcInfo().getTepDeviceId());
         final String srcTepIp = String.valueOf(stateTunnelList.getSrcInfo().getTepIp().getValue());
         String destTepIp = String.valueOf(stateTunnelList.getDstInfo().getTepIp().getValue());
@@ -340,7 +340,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 if (vpnInterface != null && !vpnInterface.isScheduledForRemove()) {
                     listVpnName.addAll(VpnHelper
                         .getVpnInterfaceVpnInstanceNamesString(vpnInterface.getVpnInstanceNames()));
-                    handleTunnelEventForDPNVpn(stateTunnelList, action, vpnIdRdMap,
+                    handleTunnelEventForDPNVpn(stateTunnelList, vpnIdRdMap,
                             tunnelAction, isTepDeletedOnDpn,
                             subnetList, TunnelEventProcessingMethod.POPULATESUBNETS,
                             vpnInterface);
@@ -361,7 +361,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 VpnInterface vpnInterface =
                         VpnUtil.getConfiguredVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
-                    handleTunnelEventForDPNVpn(stateTunnelList, action, vpnIdRdMap,
+                    handleTunnelEventForDPNVpn(stateTunnelList, vpnIdRdMap,
                             tunnelAction, isTepDeletedOnDpn,
                             subnetList, TunnelEventProcessingMethod.MANAGEREMOTEROUTES,
                             vpnInterface);
@@ -402,7 +402,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private void handleTunnelEventForDPNVpn(StateTunnelList stateTunnelList, UpdateRouteAction action,
+    private void handleTunnelEventForDPNVpn(StateTunnelList stateTunnelList,
                                             Map<Long, String> vpnIdRdMap, TunnelAction tunnelAction,
                                             boolean isTepDeletedOnDpn, List<Uuid> subnetList,
                                             TunnelEventProcessingMethod method,

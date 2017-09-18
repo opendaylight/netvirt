@@ -7,11 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
-import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.PSAugmentationMerger;
@@ -30,21 +27,13 @@ public class ConfigNodeUpdatedHandler {
     /**
      * Copy updated data from HA node to child node of config data tree.
      *
-     * @param haUpdated HA node updated
-     * @param haOriginal HA node original
      * @param haChildNodeId HA child node which needs to be updated
      * @param mod the data object modification
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
-    public void copyHAGlobalUpdateToChild(Node haUpdated,
-                                          Node haOriginal,
-                                          InstanceIdentifier<Node> haChildNodeId,
+    public void copyHAGlobalUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
-                                          ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                          ReadWriteTransaction tx) {
         globalAugmentationMerger.mergeConfigUpdate(haChildNodeId,
                 mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);
         globalNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx);
@@ -53,21 +42,13 @@ public class ConfigNodeUpdatedHandler {
     /**
      * Copy HA ps node update to HA child ps node of config data tree.
      *
-     * @param haUpdated HA node updated
-     * @param haOriginal HA node original
      * @param haChildNodeId HA child node which needs to be updated
      * @param mod the data object modification
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
-    public void copyHAPSUpdateToChild(Node haUpdated,
-                                      Node haOriginal,
-                                      InstanceIdentifier<Node> haChildNodeId,
+    public void copyHAPSUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
-                                      ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                      ReadWriteTransaction tx) {
 
         psAugmentationMerger.mergeConfigUpdate(haChildNodeId,
                 mod.getModifiedAugmentation(PhysicalSwitchAugmentation.class), tx);

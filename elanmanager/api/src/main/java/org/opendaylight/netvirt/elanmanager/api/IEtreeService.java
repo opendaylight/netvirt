@@ -13,7 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev16061
 
 public interface IEtreeService {
 
-    void deleteEtreeInterface(String elanInstanceName, String interfaceName);
+    void deleteEtreeInterface(String interfaceName);
 
     boolean deleteEtreeInstance(String elanInstanceName);
 

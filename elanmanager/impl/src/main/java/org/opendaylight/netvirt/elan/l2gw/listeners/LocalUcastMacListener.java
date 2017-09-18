@@ -101,8 +101,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     }
 
     @Override
-    protected String getGroup(final InstanceIdentifier<LocalUcastMacs> childIid,
-                              final LocalUcastMacs localUcastMacs) {
+    protected String getGroup(final LocalUcastMacs localUcastMacs) {
         return getElanName(localUcastMacs);
     }
 

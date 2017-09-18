@@ -192,7 +192,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             throws InterruptedException, ExecutionException, UnknownHostException {
         String vmVpnInterfaceName = VpnUtil.getVpnInterfaceName(odlInterfaceRpcService, metadata);
         if (isTunnel(vmVpnInterfaceName)) {
-            handlePacketFromTunnelToExternalNetwork(vpnIdVpnInstanceName, vmVpnInterfaceName,
+            handlePacketFromTunnelToExternalNetwork(vpnIdVpnInstanceName,
                     srcIpStr, dstIp, elanTag);
         }
         VpnInterface vmVpnInterface = VpnUtil.getVpnInterface(dataBroker, vmVpnInterfaceName);
@@ -272,7 +272,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         transmitArpPacket(targetSubnetForPacketOut.getNhDpnId(), sourceIp, sourceMac, dstIp, elanTag);
     }
 
-    private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName, String tunnelInterfaceName,
+    private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName,
                         String srcIpStr, byte[] dstIp, long elanTag)
                                 throws InterruptedException, ExecutionException, UnknownHostException {
         String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);

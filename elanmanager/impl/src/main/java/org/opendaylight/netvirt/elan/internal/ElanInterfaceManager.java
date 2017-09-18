@@ -557,8 +557,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             List<String> elanInterfaces = new ArrayList<>();
             elanInterfaces.add(interfaceName);
-            elanInstance = ElanUtils.updateOperationalDataStore(broker, idManager,
-                    elanInstance, elanInterfaces, tx);
+            elanInstance = ElanUtils.updateOperationalDataStore(idManager, elanInstance, elanInterfaces, tx);
             tx.submit();
         }
 
@@ -646,8 +645,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (elanInfo == null) {
             List<String> elanInterfaces = new ArrayList<>();
             elanInterfaces.add(interfaceName);
-            ElanUtils.updateOperationalDataStore(broker, idManager,
-                    elanInstance, elanInterfaces, tx);
+            ElanUtils.updateOperationalDataStore(idManager, elanInstance, elanInterfaces, tx);
         } else {
             createElanStateList(elanInstanceName, interfaceName, tx);
         }
@@ -691,8 +689,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         createElanInterfaceTablesList(interfaceName, tx);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         futures.add(ElanUtils.waitForTransactionToComplete(tx));
-        installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces,
-                isFirstInterfaceInDpn, null);
+        installEntriesForFirstInterfaceonDpn(elanInstance, interfaceInfo, dpnInterfaces, isFirstInterfaceInDpn);
 
         // add the vlan provider interface to remote BC group for the elan
         // for internal vlan networks
@@ -844,7 +841,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     public void installEntriesForFirstInterfaceonDpn(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
-            DpnInterfaces dpnInterfaces, boolean isFirstInterfaceInDpn, WriteTransaction tx) {
+            DpnInterfaces dpnInterfaces, boolean isFirstInterfaceInDpn) {
         if (!isOperational(interfaceInfo)) {
             return;
         }

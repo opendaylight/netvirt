@@ -88,7 +88,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
                     onGlobalNodeUpdate(key, updated, original, mod, tx);
                 } else {
-                    onPsNodeUpdate(key, updated, original, mod, tx);
+                    onPsNodeUpdate(updated, original, mod, tx);
                 }
             }
         }
@@ -181,7 +181,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     }
 
-    void onPsNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original,
+    void onPsNodeUpdate(Node updated, Node original,
                         DataObjectModification<Node> mod, ReadWriteTransaction tx)
             throws ReadFailedException, InterruptedException, ExecutionException {
 
