@@ -161,7 +161,7 @@ public class ExternalNetworksChangeListener
             Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker,routerId);
             if (natMode == NatMode.Controller) {
                 externalRouterListener.handleDisableSnatInternetVpn(routerUuid.getValue(), routerId, networkUuid,
-                        externalIps, false, original.getVpnid().getValue(), writeFlowInvTx);
+                        externalIps, original.getVpnid().getValue(), writeFlowInvTx);
             }
         }
     }

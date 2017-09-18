@@ -373,29 +373,10 @@ public class InterVpnLinkUtil {
      * @param prefix Prefix of the route
      * @param label Label of the route in the original VPN
      */
-    public static void leakRoute(DataBroker broker, IBgpManager bgpManager, InterVpnLink interVpnLink,
-        String srcVpnUuid, String dstVpnUuid, String prefix, Long label) {
-        leakRoute(broker, bgpManager, interVpnLink, srcVpnUuid, dstVpnUuid, prefix, label, RouteOrigin.INTERVPN);
-    }
-
-    /**
-     * Leaks a route from one VPN to another.
-     *
-     * @param broker dataBroker service reference
-     * @param bgpManager Used to advertise routes to the BGP Router
-     * @param interVpnLink Reference to the object that holds the info about the link between the 2 VPNs
-     * @param srcVpnUuid UUID of the VPN that has the route that is going to be leaked to the other VPN
-     * @param dstVpnUuid UUID of the VPN that is going to receive the route
-     * @param prefix Prefix of the route
-     * @param label Label of the route in the original VPN
-     * @param forcedOrigin By default, origin for leaked routes should be INTERVPN, however it is possible to provide
-     *     a different origin if desired.
-     */
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static void leakRoute(DataBroker broker, IBgpManager bgpManager, InterVpnLink interVpnLink,
-        String srcVpnUuid, String dstVpnUuid, String prefix, Long label,
-        RouteOrigin forcedOrigin) {
+        String srcVpnUuid, String dstVpnUuid, String prefix, Long label) {
         Preconditions.checkNotNull(interVpnLink);
 
         // The source VPN must participate in the InterVpnLink

@@ -218,7 +218,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                     }
                     List<Ace> remoteAceList = AclServiceUtils.getAceWithRemoteAclId(dataBroker, port, remoteAclId);
                     for (Ace ace : remoteAceList) {
-                        programAceRule(port, action, aclName, ace, syncAllowedAddresses);
+                        programAceRule(port, action, ace, syncAllowedAddresses);
                     }
                 }
             }
@@ -233,7 +233,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         List<Uuid> aclUuidList = port.getSecurityGroups();
         String portId = port.getInterfaceId();
         programGeneralFixedRules(port, "", allowedAddresses, action, addOrRemove);
-        programSpecificFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
+        programSpecificFixedRules(dpId, allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
             programAclRules(port, aclUuidList, addOrRemove);
         }
@@ -258,7 +258,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled() || port.getDpId() == null) {
             return false;
         }
-        programAceRule(port, NwConstants.ADD_FLOW, aclName, ace, null);
+        programAceRule(port, NwConstants.ADD_FLOW, ace, null);
         updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
         return true;
     }
@@ -268,7 +268,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled() || port.getDpId() == null) {
             return false;
         }
-        programAceRule(port, NwConstants.DEL_FLOW, aclName, ace, null);
+        programAceRule(port, NwConstants.DEL_FLOW, ace, null);
         updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
         return true;
     }
@@ -314,14 +314,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * Program the default specific rules.
      *
      * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param portId the port id
      * @param action add/modify/remove action
      * @param addOrRemove addorRemove
      */
-    protected abstract void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+    protected abstract void programSpecificFixedRules(BigInteger dpid,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove);
 
     /**
@@ -339,11 +338,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      *
      * @param port acl interface
      * @param addOrRemove whether to delete or add flow
-     * @param aclName the acl name
      * @param ace rule to be program
      * @param syncAllowedAddresses the allowed addresses
      */
-    protected abstract void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
+    protected abstract void programAceRule(AclInterface port, int addOrRemove, Ace ace,
             List<AllowedAddressPairs> syncAllowedAddresses);
 
     /**
@@ -442,7 +440,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         continue;
                     }
                     for (BigInteger dpId : dpns) {
-                        updateRemoteAclTableForPort(port, acl, addOrRemove, ip, aclId, dpId);
+                        updateRemoteAclTableForPort(port, addOrRemove, ip, aclId, dpId);
                     }
                 }
                 syncRemoteAclTableFromOtherDpns(port, acl, aclId, addOrRemove);
@@ -453,7 +451,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         } else if (port.getSecurityGroups() != null && port.getSecurityGroups().size() > 1) {
             updateRemoteAclTableForMultipleAcls(port, addOrRemove, port.getInterfaceId());
         }
-        syncRemoteAclTable(port, addOrRemove, port.getInterfaceId(), isAclDeleted);
+        syncRemoteAclTable(port, isAclDeleted);
     }
 
     private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid acl, BigInteger aclId, int addOrRemove) {
@@ -476,14 +474,14 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         continue;
                     }
                     for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
-                        updateRemoteAclTableForPort(aclInterface, acl, addOrRemove, ip, aclId, port.getDpId());
+                        updateRemoteAclTableForPort(aclInterface, addOrRemove, ip, aclId, port.getDpId());
                     }
                 }
             }
         }
     }
 
-    private void syncRemoteAclTable(AclInterface port, int addOrRemove, String ignorePort, boolean isAclDeleted) {
+    private void syncRemoteAclTable(AclInterface port, boolean isAclDeleted) {
         for (Uuid aclUuid : port.getSecurityGroups()) {
             if (aclDataUtil.getRemoteAcl(aclUuid) == null) {
                 continue;
@@ -522,7 +520,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
                             continue;
                         }
-                        updateRemoteAclTableForPort(aclInterface, aclUuid, addRremove, ip,
+                        updateRemoteAclTableForPort(aclInterface, addRremove, ip,
                                 aclServiceUtils.buildAclId(aclUuid), aclInterface.getDpId());
                     }
                 }
@@ -567,7 +565,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                                 continue;
                             }
                             for (BigInteger dpnId : dpns) {
-                                updateRemoteAclTableForPort(port, aceAttr.getRemoteGroupId(), addOrRemove, ip, aclId,
+                                updateRemoteAclTableForPort(port, addOrRemove, ip, aclId,
                                         dpnId);
                             }
                         }
@@ -578,7 +576,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
     }
 
-    protected abstract void updateRemoteAclTableForPort(AclInterface port, Uuid acl, int addOrRemove,
+    protected abstract void updateRemoteAclTableForPort(AclInterface port, int addOrRemove,
             AllowedAddressPairs ip, BigInteger aclId, BigInteger dpId);
 
     protected String getOperAsString(int flowOper) {
