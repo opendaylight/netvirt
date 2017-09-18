@@ -84,11 +84,10 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
 
     /**
      * Group of data for bulk child update cases.
-     * @param childIid - Subtree Node iid
      * @param child - Subtree Node data
      * @return - Group value
      */
-    protected abstract G getGroup(InstanceIdentifier<C> childIid, C child);
+    protected abstract G getGroup(C child);
 
     /**
      * Process the added/updated/Deleted subtree data.
@@ -190,12 +189,12 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
             switch (modificationType) {
                 case WRITE:
                 case SUBTREE_MODIFIED:
-                    group = getGroup(childIid, dataAfter);
+                    group = getGroup(dataAfter);
                     updatedMacsGrouped.computeIfAbsent(group, (grp) -> new ConcurrentHashMap<>());
                     updatedMacsGrouped.get(group).put(childIid, dataAfter);
                     break;
                 case DELETE:
-                    group = getGroup(childIid, dataBefore);
+                    group = getGroup(dataBefore);
                     deletedMacsGrouped.computeIfAbsent(group, (grp) -> new ConcurrentHashMap<>());
                     deletedMacsGrouped.get(group).put(childIid, dataBefore);
                     break;

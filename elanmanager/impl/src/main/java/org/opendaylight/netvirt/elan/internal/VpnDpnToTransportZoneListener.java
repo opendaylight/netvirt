@@ -14,7 +14,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
@@ -34,7 +33,7 @@ public class VpnDpnToTransportZoneListener
     private final Boolean useTransportZone;
 
     @Inject
-    public VpnDpnToTransportZoneListener(final DataBroker dbx, final IInterfaceManager interfaceManager,
+    public VpnDpnToTransportZoneListener(final DataBroker dbx,
             final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
         useTransportZone = elanConfig.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;

@@ -27,15 +27,11 @@ public class ConfigNodeUpdatedHandler {
     /**
      * Copy updated data from HA node to child node of config data tree.
      *
-     * @param haUpdated HA node updated
-     * @param haOriginal HA node original
      * @param haChildNodeId HA child node which needs to be updated
      * @param mod the data object modification
      * @param tx Transaction
      */
-    public void copyHAGlobalUpdateToChild(Node haUpdated,
-                                          Node haOriginal,
-                                          InstanceIdentifier<Node> haChildNodeId,
+    public void copyHAGlobalUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
                                           ReadWriteTransaction tx) {
         globalAugmentationMerger.mergeConfigUpdate(haChildNodeId,
@@ -46,15 +42,11 @@ public class ConfigNodeUpdatedHandler {
     /**
      * Copy HA ps node update to HA child ps node of config data tree.
      *
-     * @param haUpdated HA node updated
-     * @param haOriginal HA node original
      * @param haChildNodeId HA child node which needs to be updated
      * @param mod the data object modification
      * @param tx Transaction
      */
-    public void copyHAPSUpdateToChild(Node haUpdated,
-                                      Node haOriginal,
-                                      InstanceIdentifier<Node> haChildNodeId,
+    public void copyHAPSUpdateToChild(InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
                                       ReadWriteTransaction tx) {
 

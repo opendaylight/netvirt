@@ -107,7 +107,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
                             DataObjectModification<Node> mod,
                             ReadWriteTransaction tx) {
         boolean wasHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
-        addToHACacheIfBecameHAChild(childPath, updatedChildNode, beforeChildNode, tx);
+        addToHACacheIfBecameHAChild(childPath, updatedChildNode, beforeChildNode);
         boolean isHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
 
 
@@ -133,12 +133,10 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
      * @param childPath HA child path which got converted to HA node
      * @param updatedChildNode updated Child node
      * @param beforeChildNode non-ha node before updated to HA node
-     * @param tx Transaction
      */
     public static void addToHACacheIfBecameHAChild(InstanceIdentifier<Node> childPath,
                                                    Node updatedChildNode,
-                                                   Node beforeChildNode,
-                                                   ReadWriteTransaction tx) {
+                                                   Node beforeChildNode) {
         HwvtepGlobalAugmentation updatedAugmentaion = updatedChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
         HwvtepGlobalAugmentation beforeAugmentaion = null;
         if (beforeChildNode != null) {

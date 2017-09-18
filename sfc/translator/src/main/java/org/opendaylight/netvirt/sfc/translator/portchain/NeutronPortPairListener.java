@@ -43,11 +43,10 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
     /**
      * Method removes PortPair which is identified by InstanceIdentifier.
      *
-     * @param path - the whole path to PortPair
      * @param deletedPortPair        - PortPair for removing
      */
     @Override
-    public void remove(InstanceIdentifier<PortPair> path, PortPair deletedPortPair) {
+    public void remove(PortPair deletedPortPair) {
         LOG.info("Received remove port pair event {}", deletedPortPair);
 
         ServiceFunctionKey sfKey = PortPairTranslator.getSFKey(deletedPortPair);
@@ -67,12 +66,10 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
      * Method updates the original PortPair to the update PortPair.
      * Both are identified by same InstanceIdentifier.
      *
-     * @param path - the whole path to PortPair
-     * @param originalPortPair   - original PortPair (for update)
      * @param updatePortPair     - changed PortPair (contain updates)
      */
     @Override
-    public void update(InstanceIdentifier<PortPair> path, PortPair originalPortPair, PortPair updatePortPair) {
+    public void update(PortPair updatePortPair) {
         //NO-OP
     }
 
@@ -80,11 +77,10 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
      * Method adds the PortPair which is identified by InstanceIdentifier
      * to device.
      *
-     * @param path - the whole path to new PortPair
      * @param newPortPair        - new PortPair
      */
     @Override
-    public void add(InstanceIdentifier<PortPair> path, PortPair newPortPair) {
+    public void add(PortPair newPortPair) {
         //NO-OP
         // Port Pair data written in neutron data store will be used
         // When user will create port chain.

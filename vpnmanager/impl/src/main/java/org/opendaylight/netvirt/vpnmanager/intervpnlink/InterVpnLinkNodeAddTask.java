@@ -70,8 +70,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
                         && shouldConfigureLinkIntoDpn(i.getInterVpnLinkState(), numberOfDpns))
             .forEach(i -> {
                 installLPortDispatcherTable(i.getInterVpnLinkState(), firstDpnList, secondDpnList);
-                result.add(updateInterVpnLinkState(i.getInterVpnLinkState(), firstDpnList, secondDpnList,
-                                                   numberOfDpns));
+                result.add(updateInterVpnLinkState(i.getInterVpnLinkState(), firstDpnList, secondDpnList));
             });
 
         return result;
@@ -95,7 +94,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
 
     private ListenableFuture<Void>
         updateInterVpnLinkState(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
-                                List<BigInteger> secondDpnList, int numberOfDpns) {
+                                List<BigInteger> secondDpnList) {
 
         FirstEndpointState firstEndPointState =
             new FirstEndpointStateBuilder(interVpnLinkState.getFirstEndpointState()).setDpId(firstDpnList).build();

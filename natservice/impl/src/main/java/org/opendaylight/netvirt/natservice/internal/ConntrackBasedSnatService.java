@@ -89,11 +89,10 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
             extSubnetId = NatUtil.getExternalSubnetVpnId(getDataBroker(),externalSubnetId);
         }
         createOutboundTblEntry(dpnId, routerId, externalIp, elanId, extGwMacAddress, addOrRemove);
-        installNaptPfibFlow(routers, dpnId, routerId, routerName, extSubnetId, addOrRemove);
+        installNaptPfibFlow(routers, dpnId, routerId, extSubnetId, addOrRemove);
 
         //Install Inbound NAT entries
-        Long extNetId = NatUtil.getVpnId(getDataBroker(), routers.getNetworkId().getValue());
-        installInboundEntry(dpnId, routerId, routerName, extNetId, externalIp, elanId, extSubnetId, addOrRemove);
+        installInboundEntry(dpnId, routerId, externalIp, elanId, extSubnetId, addOrRemove);
         installNaptPfibEntry(dpnId, routerId, addOrRemove);
 
     }
@@ -203,7 +202,7 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
     }
 
     protected void installNaptPfibFlow(Routers routers, BigInteger dpnId, long routerId,
-            String routerName, long extSubnetId, int addOrRemove) {
+            long extSubnetId, int addOrRemove) {
         Long extNetId = NatUtil.getVpnId(getDataBroker(), routers.getNetworkId().getValue());
         LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
         List<MatchInfoBase> matches = new ArrayList<>();
@@ -230,8 +229,8 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
                 flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
     }
 
-    protected void installInboundEntry(BigInteger dpnId, long routerId, String routerName, Long extNetId,
-            String externalIp, int elanId, long extSubnetId, int addOrRemove) {
+    protected void installInboundEntry(BigInteger dpnId, long routerId, String externalIp, int elanId, long extSubnetId,
+            int addOrRemove) {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
