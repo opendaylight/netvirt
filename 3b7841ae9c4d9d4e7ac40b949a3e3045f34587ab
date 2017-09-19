@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_67b409f2",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-19T15:39:53Z",
+      "side": 1,
+      "message": "I think the case may appear when a subnet update.\nthe fact is that in neutronvpn layer, when updating a subnet, the associate subnetmap is first removed, then updated.\n\nI have had it only once.\nSo, if you think this fix is not the appropriate one, we can bypass it.",
+      "parentUuid": "ba1f61a0_6757e902",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 37
+      },
+      "revId": "3b7841ae9c4d9d4e7ac40b949a3e3045f34587ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_07542dfd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 1
@@ -36,6 +60,24 @@
       "writtenOn": "2017-09-19T13:31:47Z",
       "side": 1,
       "message": "We are iterating over many loops in this API. I see that we have a similar API in this class (i.e., getNetworkForSubnet). Can you reuse it instead of adding a new one?",
+      "revId": "3b7841ae9c4d9d4e7ac40b949a3e3045f34587ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_07c1cd53",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-19T15:39:53Z",
+      "side": 1,
+      "message": "the getNetworkForSubnet() feature relies on subnetmap()\nAnd I encountered only once a case where subnetmap-\u003enetworkId was empty.",
+      "parentUuid": "ba1f61a0_07542dfd",
       "revId": "3b7841ae9c4d9d4e7ac40b949a3e3045f34587ab",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
