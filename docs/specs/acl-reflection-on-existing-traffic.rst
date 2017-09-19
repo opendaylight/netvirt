@@ -5,7 +5,7 @@
 ACL - Reflecting the ACL changes on existing traffic
 ===========================================================
 ACL patches:
-https://git.opendaylight.org/gerrit/#/q/topic:acl_reflection_on_existing_traffic
+https://git.opendaylight.org/gerrit/#/q/topic:acl-reflection-on-existing-traffic
 
 This spec describes the new implementation for applying ACL changes on existing traffic.
 
