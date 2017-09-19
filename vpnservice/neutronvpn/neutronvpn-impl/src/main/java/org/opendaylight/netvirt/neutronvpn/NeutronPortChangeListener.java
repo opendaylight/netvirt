@@ -114,7 +114,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return;
         }
         NeutronvpnUtils.addToPortCache(input);
-
         String portStatus = NeutronUtils.PORT_STATUS_DOWN;
         if (!Strings.isNullOrEmpty(input.getDeviceOwner()) && !Strings.isNullOrEmpty(input.getDeviceId())) {
             if (input.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
@@ -133,7 +132,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
             handleNeutronPortCreated(input);
         }
-
         NeutronUtils.createPortStatus(input.getUuid().getValue(), portStatus, dataBroker);
     }
 
