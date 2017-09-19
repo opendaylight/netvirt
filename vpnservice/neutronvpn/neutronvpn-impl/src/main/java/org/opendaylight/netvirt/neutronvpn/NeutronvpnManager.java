@@ -2025,40 +2025,48 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.debug("associateRouter {}", input);
         StringBuilder returnMsg = new StringBuilder();
         Uuid vpnId = input.getVpnId();
-        Uuid routerId = input.getRouterId();
+        List<Uuid> routerIds = input.getRouterIds();
+        String routerIdsString = "";
         try {
-            VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
-            Router rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
-            if (vpnMap != null) {
-                if (rtr != null) {
-                    Uuid extVpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
-                    if (vpnMap.getRouterIds() != null && !vpnMap.getRouterIds().isEmpty()) {
-                        returnMsg.append("vpn ").append(vpnId.getValue()).append(" already associated to router ")
-                                .append(routerId.getValue());
-                    } else if (extVpnId != null) {
-                        returnMsg.append("router ").append(routerId.getValue()).append(" already associated to "
-                            + "another VPN ").append(extVpnId.getValue());
+            if (routerIds == null || routerIds.isEmpty() || vpnId == null) {
+                throw new Exception("Error in try to associate any router with a vpnId : " + vpnId);
+            }
+            for (Uuid routerId : routerIds) {
+                routerIdsString += routerId.getValue() + ", ";
+                VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
+                Router rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
+                if (vpnMap != null) {
+                    if (rtr != null) {
+                        Uuid extVpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
+                        if (vpnMap.getRouterIds() != null && vpnMap.getRouterIds().size() > 1) {
+                            returnMsg.append("vpn ").append(vpnId.getValue())
+                                    .append(" already associated to two routers ")
+                                    .append(routerId.getValue());
+                        } else if (extVpnId != null) {
+                            returnMsg.append("router ").append(routerId.getValue()).append(" already associated to "
+                                + "another VPN ").append(extVpnId.getValue());
+                        } else {
+                            associateRouterToVpn(vpnId, routerId);
+                        }
                     } else {
-                        associateRouterToVpn(vpnId, routerId);
+                        returnMsg.append("router not found : ").append(routerId.getValue());
                     }
                 } else {
-                    returnMsg.append("router not found : ").append(routerId.getValue());
+                    returnMsg.append("VPN not found : ").append(vpnId.getValue());
                 }
-            } else {
-                returnMsg.append("VPN not found : ").append(vpnId.getValue());
-            }
-            if (returnMsg.length() != 0) {
-                String message = String.format("associate router to vpn %s failed due to %s", routerId.getValue(),
-                        returnMsg);
-                LOG.error(message);
-                result.set(RpcResultBuilder.<Void>failed().withWarning(ErrorType.PROTOCOL, "invalid-value", message)
-                        .build());
-            } else {
-                result.set(RpcResultBuilder.<Void>success().build());
+                if (returnMsg.length() != 0) {
+                    String message = String.format("associate router to vpn %s failed due to %s", routerId.getValue(),
+                            returnMsg);
+                    LOG.error(message);
+                    result.set(RpcResultBuilder.<Void>failed().withWarning(ErrorType.PROTOCOL, "invalid-value", message)
+                            .build());
+                } else {
+                    result.set(RpcResultBuilder.<Void>success().build());
+                }
             }
         } catch (Exception ex) {
-            String message = String.format("associate router %s to vpn %s failed due to %s", routerId.getValue(),
-                    vpnId.getValue(), ex.getMessage());
+            String message = String.format("associate routers %s to vpn %s failed due to %s", routerIdsString,
+                    vpnId, ex.getMessage());
             LOG.error(message, ex);
             result.set(RpcResultBuilder.<Void>failed().withError(ErrorType.APPLICATION, message).build());
         }
@@ -2172,34 +2180,41 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         LOG.debug("dissociateRouter {}", input);
         StringBuilder returnMsg = new StringBuilder();
         Uuid vpnId = input.getVpnId();
-        Uuid routerId = input.getRouterId();
+        List<Uuid> routerIdList = input.getRouterIds();
+        String routerIdsString = "";
         try {
+            if (routerIdList == null || routerIdList.isEmpty() || vpnId == null) {
+                throw new Exception("Error in try to dissociate any router with a vpnId : " + vpnId);
+            }
             if (NeutronvpnUtils.getVpnMap(dataBroker, vpnId) != null) {
-                if (routerId != null) {
-                    Router rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
-                    if (rtr != null) {
-                        Uuid routerVpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
-                        if (vpnId.equals(routerVpnId)) {
-                            dissociateRouterFromVpn(vpnId, routerId);
-                        } else {
-                            if (routerVpnId == null) {
-                                returnMsg.append("input router ").append(routerId.getValue())
-                                    .append(" not associated to any vpn yet");
+                for (Uuid routerId : routerIdList) {
+                    if (routerId != null) {
+                        routerIdsString += routerId.getValue() + ", ";
+                        Router rtr = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
+                        if (rtr != null) {
+                            Uuid routerVpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
+                            if (vpnId.equals(routerVpnId)) {
+                                dissociateRouterFromVpn(vpnId, routerId);
                             } else {
-                                returnMsg.append("input router ").append(routerId.getValue())
-                                    .append(" associated to vpn ")
-                                    .append(routerVpnId.getValue()).append("instead of the vpn given as input");
+                                if (routerVpnId == null) {
+                                    returnMsg.append("input router ").append(routerId.getValue())
+                                        .append(" not associated to any vpn yet");
+                                } else {
+                                    returnMsg.append("input router ").append(routerId.getValue())
+                                        .append(" associated to vpn ")
+                                        .append(routerVpnId.getValue()).append("instead of the vpn given as input");
+                                }
                             }
+                        } else {
+                            returnMsg.append("router not found : ").append(routerId.getValue());
                         }
-                    } else {
-                        returnMsg.append("router not found : ").append(routerId.getValue());
                     }
                 }
             } else {
                 returnMsg.append("VPN not found : ").append(vpnId.getValue());
             }
             if (returnMsg.length() != 0) {
-                String message = String.format("dissociate router %s to vpn %s failed due to %s", routerId.getValue(),
+                String message = String.format("dissociate router %s to vpn %s failed due to %s", routerIdsString,
                         vpnId.getValue(), returnMsg);
                 LOG.error(message);
                 String errorResponse = String.format("ErrorType: PROTOCOL, ErrorTag: invalid-value, ErrorMessage: "
@@ -2210,8 +2225,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 result.set(RpcResultBuilder.<Void>success().build());
             }
         } catch (Exception ex) {
-            String message = String.format("disssociate router %s to vpn %s failed due to %s", routerId.getValue(),
-                    vpnId.getValue(), ex.getMessage());
+            String message = String.format("disssociate router %s to vpn %s failed due to %s", routerIdsString,
+                    vpnId, ex.getMessage());
             LOG.error(message, ex);
             result.set(RpcResultBuilder.<Void>failed().withError(ErrorType.APPLICATION, message).build());
         }
