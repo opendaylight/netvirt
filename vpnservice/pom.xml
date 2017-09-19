@@ -33,7 +33,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>aclservice</module>
     <module>ipv6service</module>
     <module>qosservice</module>
-    <module>federation-plugin</module>
     <module>policyservice</module>
     <module>distribution/karaf</module>
     <module>features</module>
