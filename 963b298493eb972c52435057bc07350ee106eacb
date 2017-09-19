@@ -1,0 +1,395 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_fa0a5188",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "\"/128\" does not seem to be related to Globally Unique address. Please either remove it or clarify it.",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 17
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1a676527",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "In Config3, router is a dual-stack right (i.e., subnet C and F)? \nAm I missing something?",
+      "range": {
+        "startLine": 127,
+        "startChar": 55,
+        "endLine": 127,
+        "endChar": 75
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_baa4594b",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "I hope \"Subnet D\" is IPv4?",
+      "range": {
+        "startLine": 139,
+        "startChar": 51,
+        "endLine": 139,
+        "endChar": 59
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ba529932",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "Can you use a different network name instead of \"N\" here. Since the same network seems to be having other subnets shown in config1 (i.e., line 141)",
+      "range": {
+        "startLine": 150,
+        "startChar": 16,
+        "endLine": 150,
+        "endChar": 25
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_da578d24",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "Just trying to understand the implementation: Is this an admin ONLY operation? What will happen if the user simply chooses some random IPv6 CIDR for the tenant subnet?\n\nWill such traffic still go upto the DCGW and then get dropped or is the \"Internet VPN\" creation and association to external-network done ONLY by admin?",
+      "range": {
+        "startLine": 214,
+        "startChar": 45,
+        "endLine": 215,
+        "endChar": 22
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_fa1ed16e",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "In Line 270, you have used GATEWAY_NET. Please use the same name even here.",
+      "range": {
+        "startLine": 241,
+        "startChar": 48,
+        "endLine": 241,
+        "endChar": 59
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1a35a5f7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "Should this be Private or Public IPv4 subnet?",
+      "range": {
+        "startLine": 242,
+        "startChar": 41,
+        "endLine": 242,
+        "endChar": 58
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_fa37f1fc",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "nit: s/illustration/illustrated",
+      "range": {
+        "startLine": 244,
+        "startChar": 42,
+        "endLine": 244,
+        "endChar": 54
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_1a1c8577",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "In step (1) (i.e., Line 257) you have used router4 and in this line its router5. This could lead to confusion. So, you can probably use \u003crouter\u003e instead of showing router4 or router5.",
+      "range": {
+        "startLine": 270,
+        "startChar": 32,
+        "endLine": 270,
+        "endChar": 39
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b5174a44",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "Can you please use the same names as used in the examples below. i.e., external-l3vpn-id",
+      "range": {
+        "startLine": 297,
+        "startChar": 95,
+        "endLine": 297,
+        "endChar": 110
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_55208e9a",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "As mentioned above, what would happen if the user randomly chooses some IPv6 subnet CIDR instead of obtaining it from the cloud administrator?",
+      "range": {
+        "startLine": 320,
+        "startChar": 2,
+        "endLine": 320,
+        "endChar": 77
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b52e2a8a",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "Is this a router or a network?",
+      "range": {
+        "startLine": 330,
+        "startChar": 59,
+        "endLine": 330,
+        "endChar": 65
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f57a6286",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "nit: typo - will",
+      "range": {
+        "startLine": 362,
+        "startChar": 22,
+        "endLine": 362,
+        "endChar": 25
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_159f36b6",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "Sorry, did not understand this statement. Please clarify.",
+      "range": {
+        "startLine": 367,
+        "startChar": 0,
+        "endLine": 367,
+        "endChar": 35
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_35a87ada",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "I hope this should be \"vpn-id\u003dexternal-l3vpn-id\"?",
+      "range": {
+        "startLine": 404,
+        "startChar": 29,
+        "endLine": 404,
+        "endChar": 55
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d5b8fe2b",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "l3vpn-id? Is it internetvpn-id or external-l3vpn-id?",
+      "range": {
+        "startLine": 405,
+        "startChar": 53,
+        "endLine": 405,
+        "endChar": 61
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d58f5e73",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T09:24:07Z",
+      "side": 1,
+      "message": "You just moved this piece down right? Its giving an impression that its changed because of -/+",
+      "range": {
+        "startLine": 439,
+        "startChar": 1,
+        "endLine": 442,
+        "endChar": 17
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
