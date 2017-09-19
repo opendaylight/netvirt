@@ -1869,8 +1869,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     if (NeutronvpnUtils.getIsExternal(network)) {
                         nvpnNatManager.addExternalNetworkToVpn(network, vpn);
                         List<Subnetmap> smList = NeutronvpnUtils.getSubnetMapsforNetworkRoute(dataBroker, network);
-                        for (Subnetmap sm : smList) {
-                            updateSubnetNode(sm.getId(), sm.getRouterId(), sm.getVpnId(), vpnId/*externalvpnId*/);
+                        if (smList != null && !smList.isEmpty()) {
+                            for (Subnetmap sm : smList) {
+                                updateSubnetNode(sm.getId(), sm.getRouterId(), sm.getVpnId(), vpnId/*externalvpnId*/);
+                            }
                         }
                     }
                 }

@@ -1404,9 +1404,44 @@ public class NeutronvpnUtils {
      * @return a list of Subnetmap of the router (which the network is associated)
      */
     public static List<Subnetmap> getSubnetMapsforNetworkRoute(DataBroker dataBroker, Network network) {
-        Uuid vpnUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, network.getUuid());
-        Uuid routerUuid = getRouterforVpn(dataBroker, vpnUuid);
-        List<Subnetmap> subList = getNeutronRouterSubnetMaps(dataBroker, routerUuid);
+        Uuid vpnUuid = null;
+        List<Subnetmap> subList = new ArrayList<>();
+        LOG.info("getSubnetMapsforNetworkRoute for network {}", network.getUuid());
+        vpnUuid = NeutronvpnUtils.getVpnForNetwork(dataBroker, network.getUuid());
+        if (vpnUuid != null) {
+            Uuid routerUuid = getRouterforVpn(dataBroker, vpnUuid);
+            subList = getNeutronRouterSubnetMaps(dataBroker, routerUuid);
+        } else {
+            InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
+            Optional<Subnetmaps> optionalSubnetmaps = read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                           subnetmapsid);
+            if (!optionalSubnetmaps.isPresent()) {
+                LOG.error("getSubnetMapsforNetworkRoute: no subnetmaps");
+                return null;
+            }
+            List<Subnetmap> subnetmapList = optionalSubnetmaps.get().getSubnetmap();
+            Uuid routerId = null;
+            for (Subnetmap subnetmap : subnetmapList) {
+                if (subnetmap.getRouterId() != null) {
+                    Uuid externalNetworkUuid = NeutronvpnUtils
+                        .getExternalNetworkUuidAttachedFromRouterUuid(dataBroker, subnetmap.getRouterId());
+                    if (externalNetworkUuid != null && externalNetworkUuid.getValue()
+                         .matches(network.getUuid().getValue())) {
+                        routerId = subnetmap.getRouterId();
+                        break;
+                    }
+                }
+            }
+            if (routerId == null) {
+                LOG.error("getSubnetMapsforNetworkRoute: no subnet in routers using {}", network.getUuid());
+                return null;
+            }
+            for (Subnetmap subnetmap : subnetmapList) {
+                if (subnetmap.getRouterId().getValue().matches(routerId.getValue())) {
+                    subList.add(subnetmap);
+                }
+            }
+        }
         return subList;
     }
 
