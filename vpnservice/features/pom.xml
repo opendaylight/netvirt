@@ -15,7 +15,7 @@
         <relativePath/>
     </parent>
     <groupId>org.opendaylight.netvirt</groupId>
-    <artifactId>vpnservice-features-aggregator</artifactId>
+    <artifactId>features</artifactId>
     <version>0.4.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
