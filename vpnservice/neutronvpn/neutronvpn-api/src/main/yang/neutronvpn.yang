@@ -301,10 +301,10 @@ module neutronvpn {
                 mandatory "true";
                 description "vpn-id";
             }
-            leaf router-id {
+            leaf-list router-ids {
                 type    yang:uuid;
-                mandatory "true";
-                description "vpn-id";
+                min-elements "1";
+                description "list of router-id which will be associate with the vpn-id";
             }
         }
     }
@@ -317,10 +317,10 @@ module neutronvpn {
                 mandatory "true";
                 description "vpn-id";
             }
-            leaf router-id {
+            leaf-list router-ids {
                 type    yang:uuid;
-                mandatory "true";
-                description "router-id";
+                min-elements "1";
+                description "list of router-id which will be dissociate to the vpn-id";
             }
         }
     }
