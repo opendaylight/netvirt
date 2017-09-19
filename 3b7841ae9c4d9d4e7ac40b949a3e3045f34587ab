@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_e79e3962",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T16:04:59Z",
+      "side": 1,
+      "message": "Lets give this patch some time for others to take a look and we can decide based on that.",
+      "parentUuid": "ba1f61a0_67b409f2",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 37
+      },
+      "revId": "3b7841ae9c4d9d4e7ac40b949a3e3045f34587ab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_07542dfd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 1
