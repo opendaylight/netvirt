@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_f569c2f9",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 647,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-19T13:00:06Z",
+      "side": 1,
+      "message": "Good catch Stephen, thanks.",
+      "revId": "435183043e8d7498d247cd3c7701ce4b8b166c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
