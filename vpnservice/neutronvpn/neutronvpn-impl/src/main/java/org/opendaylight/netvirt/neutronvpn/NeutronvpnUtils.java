@@ -213,7 +213,7 @@ public class NeutronvpnUtils {
                 }
             }
         }
-        LOG.error("getVpnForNetwork: Failed for network {} as no VPN present in VPNMaps DS", network.getValue());
+        LOG.debug("getVpnForNetwork: Failed for network {} as no VPN present in VPNMaps DS", network.getValue());
         return null;
     }
 
@@ -259,7 +259,7 @@ public class NeutronvpnUtils {
                 }
             }
         }
-        LOG.error("getVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId.getValue());
+        LOG.debug("getVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId.getValue());
         return null;
     }
 

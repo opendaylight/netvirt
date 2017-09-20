@@ -24,7 +24,7 @@ public final class AclInterfaceCacheUtil {
     public static synchronized void removeAclInterfaceFromCache(String interfaceId) {
         AclInterface aclInterface = cachedMap.get(interfaceId);
         if (aclInterface == null) {
-            LOG.warn("AclInterface object not found in cache for interface {}", interfaceId);
+            LOG.debug("AclInterface object not found in cache for interface {}", interfaceId);
             return;
         }
         if (aclInterface.isMarkedForDelete()) {
