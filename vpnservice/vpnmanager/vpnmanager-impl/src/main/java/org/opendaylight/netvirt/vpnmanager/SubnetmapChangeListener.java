@@ -67,6 +67,10 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
             // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
             Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId());
+            if (network == null) {
+                LOG.info("update: vpnId {}, networkId: {}, subnetId: {}: network was not found",
+                    vpnId.getValue(), subnetmap.getNetworkId().getValue(), subnetId.getValue());
+            }
             if (VpnUtil.getIsExternal(network)) {
                 return;
             }
@@ -104,6 +108,10 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
         // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
         Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
+        if (network == null) {
+            LOG.info("update: vpnIdNew: {}, vpnIdOld: {}, networkId: {}, subnetId: {}: network was not found",
+                vpnIdNew.getValue(), vpnIdOld.getValue(), elanInstanceName, subnetId.getValue());
+        }
         if (VpnUtil.getIsExternal(network)) {
             return;
         }
