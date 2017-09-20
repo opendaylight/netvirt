@@ -1,0 +1,441 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_c0eb1bda",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Netvirt",
+      "range": {
+        "startLine": 10,
+        "startChar": 44,
+        "endLine": 10,
+        "endChar": 51
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a0ea67d8",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "typo",
+      "range": {
+        "startLine": 14,
+        "startChar": 37,
+        "endLine": 14,
+        "endChar": 48
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_20be77d5",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Netvirt",
+      "range": {
+        "startLine": 15,
+        "startChar": 24,
+        "endLine": 15,
+        "endChar": 31
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_60b4eff1",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Description",
+      "range": {
+        "startLine": 18,
+        "startChar": 8,
+        "endLine": 18,
+        "endChar": 19
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_40b72bf5",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Netvirt",
+      "range": {
+        "startLine": 21,
+        "startChar": 8,
+        "endLine": 21,
+        "endChar": 15
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_80cc838a",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Netvirt",
+      "range": {
+        "startLine": 22,
+        "startChar": 68,
+        "endLine": 22,
+        "endChar": 75
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e0c73f62",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Netvirt",
+      "range": {
+        "startLine": 23,
+        "startChar": 68,
+        "endLine": 23,
+        "endChar": 75
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_00a8938b",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "missing \"of\"?",
+      "range": {
+        "startLine": 33,
+        "startChar": 2,
+        "endLine": 33,
+        "endChar": 23
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_8093e359",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "capitalize",
+      "range": {
+        "startLine": 35,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 14
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_208cb735",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Netvirt",
+      "range": {
+        "startLine": 55,
+        "startChar": 43,
+        "endLine": 55,
+        "endChar": 50
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_60822f01",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Neutron",
+      "range": {
+        "startLine": 64,
+        "startChar": 84,
+        "endLine": 64,
+        "endChar": 91
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_40856b05",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Kubernetes",
+      "range": {
+        "startLine": 72,
+        "startChar": 25,
+        "endLine": 72,
+        "endChar": 35
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_20931751",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "N",
+      "range": {
+        "startLine": 92,
+        "startChar": 46,
+        "endLine": 92,
+        "endChar": 53
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c0703b42",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "K",
+      "range": {
+        "startLine": 92,
+        "startChar": 20,
+        "endLine": 92,
+        "endChar": 30
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_0096d33e",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "Changes",
+      "range": {
+        "startLine": 120,
+        "startChar": 9,
+        "endLine": 120,
+        "endChar": 16
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_60998f6d",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "White space",
+      "range": {
+        "startLine": 134,
+        "startChar": 0,
+        "endLine": 134,
+        "endChar": 3
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_409c4b5d",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "White space",
+      "range": {
+        "startLine": 143,
+        "startChar": 43,
+        "endLine": 143,
+        "endChar": 45
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_a0a6e7ab",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "delete .",
+      "range": {
+        "startLine": 189,
+        "startChar": 48,
+        "endLine": 189,
+        "endChar": 49
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_80a12396",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 5861
+      },
+      "writtenOn": "2017-09-20T08:48:28Z",
+      "side": 1,
+      "message": "What is Kuryr-kubernetes?",
+      "range": {
+        "startLine": 214,
+        "startChar": 50,
+        "endLine": 214,
+        "endChar": 65
+      },
+      "revId": "4fd3d433b31a99c42cd4a22ac525717db1f1006f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
