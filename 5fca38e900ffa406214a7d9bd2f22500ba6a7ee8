@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_4c5ac42a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-09-20T20:05:21Z",
+      "side": 1,
+      "message": "how often does this get hit? Maybe just remove this log if we really don\u0027t care about these other types.",
+      "revId": "5fca38e900ffa406214a7d9bd2f22500ba6a7ee8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ac44204a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 364,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-09-20T20:05:21Z",
+      "side": 1,
+      "message": "same comment",
+      "revId": "5fca38e900ffa406214a7d9bd2f22500ba6a7ee8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
