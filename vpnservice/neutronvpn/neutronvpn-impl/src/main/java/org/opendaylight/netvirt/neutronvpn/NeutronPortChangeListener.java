@@ -170,6 +170,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         final String portName = update.getUuid().getValue();
+        LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, update.getNetworkId());
         LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
@@ -356,7 +357,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortCreated(final Port port) {
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
-        // do not check that neutron network includes only 2 different ethertype subnets (IPv4 and IPv6)
         final List<FixedIps> portIpAddrsList = port.getFixedIps();
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
@@ -379,13 +379,13 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
             LOG.debug("Creating ELAN Interface for port {}", portName);
             createElanInterface(port, portInterfaceName, wrtConfigTxn);
-            List<Subnetmap> subnetMapList = new ArrayList<>();
-            Uuid vpnId = null; // vpnId is the same for all neutron-port subnets
+            Uuid vpnId = null;
             for (FixedIps ip: portIpAddrsList) {
                 Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), portId, null);
                 if (subnetMap != null && subnetMap.getVpnId() != null) {
+                    // can't use NeutronvpnUtils.getVpnForNetwork to optimise here, because it gives BGPVPN id
+                    // obtained subnetMaps belongs to one network => vpnId must be the same for each port Ip
                     vpnId = subnetMap.getVpnId();
-                    subnetMapList.add(subnetMap);
                 }
             }
             if (vpnId != null) {
@@ -416,13 +416,13 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
                 return futures;
             }
-            Uuid vpnId = null; // vpnId is the same for all neutron-port subnets
-            List<Subnetmap> subnetMapList = new ArrayList<>();
+            Uuid vpnId = null;
             for (FixedIps ip: portIpsList) {
                 Subnetmap subnetMap = nvpnManager.removePortsFromSubnetmapNode(ip.getSubnetId(), portId, null);
                 if (subnetMap != null && subnetMap.getVpnId() != null) {
+                    // can't use NeutronvpnUtils.getVpnForNetwork to optimise here, because it gives BGPVPN id
+                    // obtained subnetMaps belongs to one network => vpnId must be the same for each port Ip
                     vpnId = subnetMap.getVpnId();
-                    subnetMapList.add(subnetMap);
                 }
             }
             if (vpnId != null) {
