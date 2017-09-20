@@ -9,10 +9,12 @@ package org.opendaylight.netvirt.aclservice.tests.infra;
 
 import javax.inject.Inject;
 import org.eclipse.xtext.xbase.lib.Pair;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -31,23 +33,22 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 public class DataBrokerPairsUtil {
     // TODO use, when merged, pending https://git.opendaylight.org/gerrit/#/c/46534/ (and https://git.opendaylight.org/gerrit/#/c/46479/)
 
-    private final WriteTransaction tx;
+    private final SingleTransactionDataBroker singleTxDB;
 
     @Inject
-    public DataBrokerPairsUtil(WriteTransaction tx) {
+    public DataBrokerPairsUtil(DataBroker db) {
         super();
-        this.tx = tx;
+        this.singleTxDB = new SingleTransactionDataBroker(db);
     }
 
     public <T extends DataObject> void put(LogicalDatastoreType type, Pair<InstanceIdentifier<T>, T> pair)
             throws TransactionCommitFailedException {
-        tx.put(type, pair.getKey(), pair.getValue(), WriteTransaction.CREATE_MISSING_PARENTS);
+        singleTxDB.syncWrite(type, pair.getKey(), pair.getValue());
     }
 
     public <T extends DataObject> void put(Pair<DataTreeIdentifier<T>, T> pair)
             throws TransactionCommitFailedException {
-        tx.put(pair.getKey().getDatastoreType(), pair.getKey().getRootIdentifier(), pair.getValue(),
-                WriteTransaction.CREATE_MISSING_PARENTS);
+        singleTxDB.syncWrite(pair.getKey().getDatastoreType(), pair.getKey().getRootIdentifier(), pair.getValue());
     }
 
     public <T extends DataObject> void put(DataTreeIdentifierDataObjectPairBuilder<T> builder)
