@@ -15,14 +15,12 @@ import com.google.inject.AbstractModule;
 import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
-import org.opendaylight.netvirt.aclservice.tests.infra.SynchronousEachOperationNewWriteTransaction;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
@@ -65,8 +63,6 @@ public class AclServiceTestModule extends AbstractModule {
         TestIMdsalApiManager singleton = TestIMdsalApiManager.newInstance();
         bind(IMdsalApiManager.class).toInstance(singleton);
         bind(TestIMdsalApiManager.class).toInstance(singleton);
-
-        bind(WriteTransaction.class).to(SynchronousEachOperationNewWriteTransaction.class);
 
         bind(IdManagerService.class).toInstance(Mockito.mock(TestIdManagerService.class, realOrException()));
         bind(OpendaylightDirectStatisticsService.class)
