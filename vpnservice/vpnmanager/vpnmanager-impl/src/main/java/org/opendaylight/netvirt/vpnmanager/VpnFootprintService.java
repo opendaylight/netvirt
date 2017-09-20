@@ -307,7 +307,7 @@ public class VpnFootprintService implements IVpnFootprintService {
             }
             List<IpAddresses> ipAddresses = dpnInVpn.getIpAddresses();
             if (ipAddresses == null) {
-                LOG.error("Could not find ipAddresses for DpnInVpn map for VPN=[name={} rd={} id={}] and dpnId={}",
+                LOG.info("Could not find ipAddresses for DpnInVpn map for VPN=[name={} rd={} id={}] and dpnId={}",
                         vpnName, rd, id, dpnId);
                 return;
             }
