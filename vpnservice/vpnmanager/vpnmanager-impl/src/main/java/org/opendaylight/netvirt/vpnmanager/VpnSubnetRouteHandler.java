@@ -552,7 +552,7 @@ public class VpnSubnetRouteHandler {
                 Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                     subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
-                    LOG.error("{} onInterfaceUp: SubnetOpDataEntry for subnet {} is not available."
+                    LOG.trace("{} onInterfaceUp: SubnetOpDataEntry for subnet {} is not available."
                             + " Ignoring interfaceUp for port{}", LOGGING_PREFIX, subnetId.getValue(), intfName);
                     return;
                 }

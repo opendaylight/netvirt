@@ -630,7 +630,7 @@ public class NatUtil {
                 }
             }
         }
-        LOG.error("getVpnForRouter : VPN not found for routerID:{}", routerId);
+        LOG.debug("getVpnForRouter : VPN not found for routerID:{}", routerId);
         return null;
     }
 
@@ -1144,7 +1144,7 @@ public class NatUtil {
                                                WriteTransaction writeOperTxn) {
         BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {}"
+            LOG.debug("removeFromNeutronRouterDpnsMap : Could not retrieve dp id for interface {} to handle router {}"
                     + " dissociation model", vpnInterfaceName, routerName);
             return;
         }
@@ -1189,8 +1189,9 @@ public class NatUtil {
                                         OdlInterfaceRpcService ifaceMgrRpcService, WriteTransaction writeOperTxn) {
         BigInteger dpId = getDpnForInterface(ifaceMgrRpcService, vpnInterfaceName);
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("removeFromDpnRoutersMap : removeFromDpnRoutersMap() : Could not retrieve DPN ID for interface {} "
-                    + "to handle router {} dissociation model", vpnInterfaceName, routerName);
+            LOG.debug("removeFromDpnRoutersMap : removeFromDpnRoutersMap() : "
+                + "Could not retrieve DPN ID for interface {} to handle router {} dissociation model",
+                vpnInterfaceName, routerName);
             return;
         }
         removeFromDpnRoutersMap(broker, routerName, vpnInterfaceName, dpId, ifaceMgrRpcService, writeOperTxn);
@@ -1274,7 +1275,7 @@ public class NatUtil {
                 continue;
             }
             if (!vmInterfaceName.equalsIgnoreCase(vpnInterfaceName)) {
-                LOG.error("removeFromDpnRoutersMap : Router {} is present in the DPN {} through the other interface {} "
+                LOG.info("removeFromDpnRoutersMap : Router {} is present in the DPN {} through the other interface {} "
                     + "Hence DPN router model WOULD NOT be cleared", routerName, curDpnId, vmInterfaceName);
                 return;
             }
@@ -1314,7 +1315,7 @@ public class NatUtil {
             if (dpIdResult.isSuccessful()) {
                 nodeId = dpIdResult.getResult().getDpid();
             } else {
-                LOG.error("removeFromDpnRoutersMap : Could not retrieve DPN Id for interface {}", ifName);
+                LOG.debug("removeFromDpnRoutersMap : Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             LOG.error("removeFromDpnRoutersMap : Exception when getting dpn for interface {}", ifName, e);
