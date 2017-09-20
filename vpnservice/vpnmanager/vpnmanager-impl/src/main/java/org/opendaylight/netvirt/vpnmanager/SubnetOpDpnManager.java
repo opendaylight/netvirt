@@ -174,7 +174,7 @@ public class SubnetOpDpnManager {
                 subOpIdentifier.child(SubnetToDpn.class, new SubnetToDpnKey(dpnId));
             Optional<SubnetToDpn> optionalSubDpn = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, dpnOpId);
             if (!optionalSubDpn.isPresent()) {
-                LOG.error("removeInterfaceFromDpn: Cannot delete, SubnetToDpn for intf {} subnet {} DPN {}"
+                LOG.debug("removeInterfaceFromDpn: Cannot delete, SubnetToDpn for intf {} subnet {} DPN {}"
                         + " not available in datastore", intfName, subnetId.getValue(), dpnId);
                 return false;
             }

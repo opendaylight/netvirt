@@ -443,7 +443,7 @@ public class IfMgr {
     public void updateHostIntf(Uuid portId, Boolean portIncludesV6Address) {
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
-            LOG.warn("Update Host interface failed. Could not get Host interface details {}", portId);
+            LOG.debug("Update Host interface failed. Could not get Host interface details {}", portId);
             return;
         }
 

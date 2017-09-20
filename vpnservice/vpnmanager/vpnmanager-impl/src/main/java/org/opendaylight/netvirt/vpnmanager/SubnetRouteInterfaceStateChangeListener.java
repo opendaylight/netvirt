@@ -80,7 +80,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                 if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                     subnetId = getSubnetId(intrf);
                     if (subnetId == null) {
-                        LOG.error("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
+                        LOG.trace("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
                                 intrf.getName());
                         return;
                     }
@@ -120,7 +120,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                 LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
                 subnetId = getSubnetId(intrf);
                 if (subnetId == null) {
-                    LOG.error("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
+                    LOG.trace("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
                             intrf.getName());
                     return;
                 }
@@ -172,7 +172,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                     original, update);
                 subnetId = getSubnetId(update);
                 if (subnetId == null) {
-                    LOG.error("SubnetRouteInterfaceListener update: Port {} doesnt exist in configDS",
+                    LOG.trace("SubnetRouteInterfaceListener update: Port {} doesnt exist in configDS",
                             update.getName());
                     return;
                 }

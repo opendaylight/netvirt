@@ -1208,7 +1208,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
              */
             BigInteger dpnId = getPrimaryNaptSwitch(routerName, routerId);
             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                LOG.error("update : Failed to get or allocate NAPT switch for router {} during Update()",
+                LOG.info("update : Failed to get or allocate NAPT switch for router {} during Update()",
                         routerName);
                 return;
             }

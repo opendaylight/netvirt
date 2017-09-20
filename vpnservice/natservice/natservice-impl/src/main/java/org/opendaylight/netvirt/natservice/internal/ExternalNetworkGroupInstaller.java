@@ -62,7 +62,7 @@ public class ExternalNetworkGroupInstaller {
         }
 
         if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
-            LOG.error("installExtNetGroupEntries : Subnet id {} is not an IPv4 subnet, hence skipping.",
+            LOG.debug("installExtNetGroupEntries : Subnet id {} is not an IPv4 subnet, hence skipping.",
                     subnetMap.getId());
             return;
         }
@@ -86,7 +86,7 @@ public class ExternalNetworkGroupInstaller {
         }
 
         if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
-            LOG.warn("installExtNetGroupEntries : Subnet-id {} is not an IPv4 subnet, hence skipping.",
+            LOG.debug("installExtNetGroupEntries : Subnet-id {} is not an IPv4 subnet, hence skipping.",
                     subnetMap.getId());
             return;
         }
@@ -171,7 +171,7 @@ public class ExternalNetworkGroupInstaller {
 
         Collection<String> extInterfaces = elanService.getExternalElanInterfaces(networkId.getValue());
         if (extInterfaces == null || extInterfaces.isEmpty()) {
-            LOG.error("removeExtNetGroupEntries : No external ELAN interfaces attached to network {} subnet {}",
+            LOG.debug("removeExtNetGroupEntries : No external ELAN interfaces attached to network {} subnet {}",
                     networkId, subnetName);
             return;
         }
@@ -192,8 +192,8 @@ public class ExternalNetworkGroupInstaller {
                                                long groupId, String extInterface) {
         BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
         if (BigInteger.ZERO.equals(dpId)) {
-            LOG.error("buildExtNetGroupEntity: No DPN for interface {}. NAT ext-net flow will not be installed "
-                    + "for subnet {}", extInterface, subnetName);
+            LOG.info("buildExtNetGroupEntity: No DPN for interface {}. NAT ext-net flow will not be installed "
+                + "for subnet {}", extInterface, subnetName);
             return null;
         }
 
