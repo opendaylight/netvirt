@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_f1570f24",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 872,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-09-20T19:08:01Z",
+      "side": 1,
+      "message": "so this is where the real problem is right - the fact that 1000 is added to the ifTag? If so, something more readable might be to match these flowRefs to what we do in other parts of the code where the flowRefs are fields concatenated together. Do something like: tableId:ifTag:group and tableId:ifTag:drop. We should probably look at standardizing the flowRefs across all the different modules but that should be covered in a different gerrit.\n\nIf we do go with this design, then simply add a \"flowName\" string to the getFlowRef and append it.\n\nFibUtil:\nstatic String getFlowRef(BigInteger dpnId, short tableId, long label, int priority) {\n        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + label\n                + NwConstants.FLOWID_SEPARATOR + priority;\n    }\n\nNatUtil:\npublic static String getFlowRef(BigInteger dpnId, short tableId, long routerID, String ip) {\n        return NatConstants.NAPT_FLOWID_PREFIX + dpnId + NatConstants.FLOWID_SEPARATOR + tableId + NatConstants\n                .FLOWID_SEPARATOR + routerID + NatConstants.FLOWID_SEPARATOR + ip;\n    }",
+      "revId": "6a53615d321a188c7a549846250025ceffa8b053",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
