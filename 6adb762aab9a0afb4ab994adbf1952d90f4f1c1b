@@ -121,6 +121,24 @@
       "revId": "6adb762aab9a0afb4ab994adbf1952d90f4f1c1b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_767cb572",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/manager/NeutronEvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-09-20T14:26:14Z",
+      "side": 1,
+      "message": "Actually.. hang on.  I\u0027m not sure if this is the right thing to do here - should the exception.. (a) go into the Future to fail that (as is here), or should (b) the Future succeed and this should go into the RpcResult?  If it\u0027s (a) then this is right and https://git.opendaylight.org/gerrit/#/c/53998/ is wrong.  If it\u0027s (b) then c/53998 is right and this is wrong.  Either way, it would be worth to clarify and unify.  Especially because in https://git.opendaylight.org/gerrit/#/c/63174/ there is a 3rd occurence of the same pattern coming up...",
+      "parentUuid": "ba1f61a0_d033fb5f",
+      "revId": "6adb762aab9a0afb4ab994adbf1952d90f4f1c1b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
