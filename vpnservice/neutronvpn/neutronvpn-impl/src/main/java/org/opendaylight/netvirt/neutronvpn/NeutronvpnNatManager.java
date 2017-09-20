@@ -565,7 +565,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (optionalRouters.isPresent()) {
                 builder = new RoutersBuilder(optionalRouters.get());
             } else {
-                LOG.error("No Routers element found for router {}", routerId.getValue());
+                LOG.debug("No Routers element found for router {}", routerId.getValue());
                 return;
             }
             List<Uuid> subList = NeutronvpnUtils.getNeutronRouterSubnetIds(broker, routerId);

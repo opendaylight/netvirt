@@ -831,7 +831,7 @@ public class ElanUtils {
                     .getEgressActionsForInterface(getEgressActionInput);
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
+                LOG.debug("RPC Call to Get egress actions for interface {} returned with Errors {}", ifName,
                         rpcResult.getErrors());
             } else {
                 List<Action> actions = rpcResult.getResult().getAction();
