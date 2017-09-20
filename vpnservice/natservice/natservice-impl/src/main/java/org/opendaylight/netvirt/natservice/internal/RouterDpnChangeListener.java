@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -35,10 +36,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -122,6 +127,27 @@ public class RouterDpnChangeListener
                     if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
                         LOG.warn("add : NAPT switch is not selected.");
                         return;
+                    }
+                    //If it is a router port skip the notify.
+                    for (Uuid subnetUuid :router.getSubnetIds()) {
+                        try {
+                            Optional<Subnetmap> subnetMapEntry =
+                                    SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                            LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
+                            if (subnetMapEntry.isPresent()) {
+                                String routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId().getValue();
+                                List<RouterInterfaces> routerInterfaces = dpnInfo.getRouterInterfaces();
+                                for (RouterInterfaces routerInterface : routerInterfaces) {
+                                    if (routerPortUuid.equals(routerInterface.getInterface())) {
+                                        return;
+                                    }
+                                }
+                            }
+                        } catch (ReadFailedException e) {
+                            LOG.warn("add : The subnet map entry is not present.");
+                            return;
+                        }
+
                     }
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
@@ -461,5 +487,10 @@ public class RouterDpnChangeListener
                 LOG.debug("installDefaultNatRouteForRouterExternalSubnets : No vpnID for subnet {} found", subnetId);
             }
         }
+    }
+
+    private InstanceIdentifier<Subnetmap> getSubnetMapIdentifier(Uuid subnetId) {
+        return InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
+                new SubnetmapKey(subnetId)).build();
     }
 }
