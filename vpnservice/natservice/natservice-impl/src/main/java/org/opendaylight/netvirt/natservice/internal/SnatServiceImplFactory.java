@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -35,6 +36,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final NAPTSwitchSelector naptSwitchSelector;
     private NatMode natMode;
     private final IVpnManager vpnManager;
+    private final INeutronVpnManager nvpnManager;
 
     @Inject
     public SnatServiceImplFactory(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -44,7 +46,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             final NaptManager naptManager,
             final NAPTSwitchSelector naptSwitchSelector,
             final IVpnManager vpnManager,
-            final NatserviceConfig config) {
+            final NatserviceConfig config,
+            final INeutronVpnManager nvpnManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -56,6 +59,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         if (config != null) {
             this.natMode = config.getNatMode();
         }
+        this.nvpnManager = nvpnManager;
     }
 
     @Override
@@ -71,6 +75,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     public AbstractSnatService createSnatServiceImpl() {
 
         if (natMode == NatMode.Conntrack) {
+            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
+                    NatConstants.ODL_VNI_POOL_NAME);
             return new ConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager, idManager,
                 naptManager, naptSwitchSelector, vpnManager);
         }
