@@ -60,6 +60,7 @@ public class Multipath extends OsgiCommandSupport {
 
         af_afi afi = null;
         af_safi safi = null;
+        int imaxpath = maxpath == null ? -1 : Integer.parseInt(maxpath);
 
         if (addrFamily != null) {
             if (!addrFamily.equals("lu"))  {
@@ -70,6 +71,11 @@ public class Multipath extends OsgiCommandSupport {
             // for WP 3 Qbgp, only IP/MPLS_VPN supported
             afi = af_afi.AFI_IP;
             safi = af_safi.SAFI_MPLS_VPN;
+        }
+
+        if (imaxpath < 1 && imaxpath > 64) {
+            session.getConsole().println("error: " + MAXPATH + " must be between 1 and 64");
+            return null;
         }
 
         if (multipathEnable != null) {
