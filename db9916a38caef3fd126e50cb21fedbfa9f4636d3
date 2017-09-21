@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_f5d378d2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 117
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-21T11:03:55Z",
+      "side": 1,
+      "message": "Philipee, we are getting some new NPE in Line 98, because you are trying to config VPNInstance while that will never be available in the big if() condition [1st line] within this method.\n\nSince you need type information for deletion of VRF, can you please fetch that information from input operational vpnInstance itself.  If that info is not available there, please make odl-l3vpn.yang change to add the info you need (which looks to be getIpv4Family() and getType()) to the VpnInstancOpData container and use that here to do deleteVrf.",
+      "revId": "db9916a38caef3fd126e50cb21fedbfa9f4636d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
