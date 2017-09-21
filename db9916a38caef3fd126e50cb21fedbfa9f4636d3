@@ -16,6 +16,24 @@
       "revId": "db9916a38caef3fd126e50cb21fedbfa9f4636d3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_f8a7ef08",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 117
+      },
+      "lineNbr": 110,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-21T12:10:07Z",
+      "side": 1,
+      "message": "Hi Vivek,\nwith 57978 code, ipv4Family is always configured.\neven if router has no ipv4 subnet.\n\nHowever, that behaviour will change ( see commits 63210), since a yang model change will add some generic vpn-config to vpn instance from config DS.\n\n\nNow, about yang model change for vpn instance from oper DS: could you confirm this change is necessary ? What I want to do is the following: dynamically update the VpnInstance config ( ipv4-config, ipv6-config), if the router has IPv4 subnets, or ipv6 subnets.\nAs you can see, I am relying on changing config DS.\n\nIf i have to change oper DS, I can do that. however, for config DS vpn instance, is it a configuration parameter ?\nmeaning that if you don\u0027t configure ipv6-family, you don\u0027t have any ipv6 on oper DS ?",
+      "parentUuid": "ba1f61a0_f5d378d2",
+      "revId": "db9916a38caef3fd126e50cb21fedbfa9f4636d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
