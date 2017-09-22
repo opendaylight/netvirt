@@ -16,6 +16,24 @@
       "revId": "6a53615d321a188c7a549846250025ceffa8b053",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_ac953934",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 872,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-22T04:19:59Z",
+      "side": 1,
+      "message": "Manu,\n\nCan you please let us know why we add 1000 to the ifTag value?",
+      "parentUuid": "ba1f61a0_52b37a97",
+      "revId": "6a53615d321a188c7a549846250025ceffa8b053",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
