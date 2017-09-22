@@ -137,4 +137,106 @@ public class NeutronPortChangeListenerTest {
         neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
     }
 
+    @Test
+    public void removePort__NoFixedIps() throws Exception {
+        PortBuilder pb = new PortBuilder();
+        pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        List<FixedIps> fixedIps = new ArrayList<>();
+        pb.setFixedIps(fixedIps);
+        Port port = pb.build();
+        neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
+        neutronPortChangeListener.remove(InstanceIdentifier.create(Port.class), port);
+    }
+
+    @Test
+    public void removePort__Ipv4FixedIps() throws Exception {
+        PortBuilder pb = new PortBuilder();
+        pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
+        FixedIpsBuilder fib = new FixedIpsBuilder();
+        fib.setIpAddress(ipv4);
+        List<FixedIps> fixedIps = new ArrayList<>();
+        fixedIps.add(fib.build());
+        pb.setFixedIps(fixedIps);
+        Port port = pb.build();
+        neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
+        neutronPortChangeListener.remove(InstanceIdentifier.create(Port.class), port);
+    }
+
+    @Test
+    public void removePort__Ipv6FixedIps() throws Exception {
+        PortBuilder pb = new PortBuilder();
+        pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
+        FixedIpsBuilder fib = new FixedIpsBuilder();
+        fib.setIpAddress(ipv6);
+        List<FixedIps> fixedIps = new ArrayList<>();
+        fixedIps.add(fib.build());
+        pb.setFixedIps(fixedIps);
+        Port port = pb.build();
+        neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
+        neutronPortChangeListener.remove(InstanceIdentifier.create(Port.class), port);
+    }
+
+    @Test
+    public void updatePort__Ipv4FixedIps() throws Exception {
+        PortBuilder pb = new PortBuilder();
+        pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        IpAddress ipv4 = new IpAddress(new Ipv4Address("2.2.2.2"));
+        FixedIpsBuilder fib = new FixedIpsBuilder();
+        fib.setIpAddress(ipv4);
+        List<FixedIps> fixedIps = new ArrayList<>();
+        fixedIps.add(fib.build());
+        pb.setFixedIps(fixedIps);
+        Port port1 = pb.build();
+        neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port1);
+        PortBuilder pb1 = new PortBuilder();
+        pb1.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb1.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb1.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        IpAddress ip4 = new IpAddress(new Ipv4Address("4.4.4.4"));
+        FixedIpsBuilder fibuilder = new FixedIpsBuilder();
+        fibuilder.setIpAddress(ip4);
+        List<FixedIps> fixedIp = new ArrayList<>();
+        fixedIp.add(fibuilder.build());
+        pb1.setFixedIps(fixedIp);
+        Port port2 = pb1.build();
+        neutronPortChangeListener.update(InstanceIdentifier.create(Port.class), port1, port2);
+    }
+
+    @Test
+    public void updatePort__Ipv6FixedIps() throws Exception {
+        PortBuilder pb = new PortBuilder();
+        pb.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        IpAddress ipv6 = new IpAddress(new Ipv6Address("1::1"));
+        FixedIpsBuilder fib = new FixedIpsBuilder();
+        fib.setIpAddress(ipv6);
+        List<FixedIps> fixedIps = new ArrayList<>();
+        fixedIps.add(fib.build());
+        pb.setFixedIps(fixedIps);
+        Port port = pb.build();
+        neutronPortChangeListener.add(InstanceIdentifier.create(Port.class), port);
+        PortBuilder pb1 = new PortBuilder();
+        pb1.setUuid(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb1.setNetworkId(new Uuid("12345678-1234-1234-1234-123456789012"));
+        pb1.setMacAddress(new MacAddress("AA:BB:CC:DD:EE:FF"));
+        IpAddress ip6 = new IpAddress(new Ipv6Address("2::2"));
+        FixedIpsBuilder fib1 = new FixedIpsBuilder();
+        fib1.setIpAddress(ip6);
+        List<FixedIps> fixedIp = new ArrayList<>();
+        fixedIp.add(fib1.build());
+        pb1.setFixedIps(fixedIp);
+        Port port1 = pb.build();
+        neutronPortChangeListener.update(InstanceIdentifier.create(Port.class), port, port1);
+    }
 }
