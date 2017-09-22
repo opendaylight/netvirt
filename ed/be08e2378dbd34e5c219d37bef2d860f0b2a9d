@@ -1,0 +1,8 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+1: Philippe Guibert <philippe.guibert@6wind.com>
+Code-Review+2: Sam Hague <shague@redhat.com>
+Submitted-by: Vivekanandan Narasimhan <n.vivekanandan@ericsson.com>
+Submitted-at: Fri, 22 Sep 2017 04:22:46 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/63218
+Project: netvirt
+Branch: refs/heads/master
