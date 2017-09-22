@@ -34,6 +34,30 @@
       "revId": "6a53615d321a188c7a549846250025ceffa8b053",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_cc4d0d9c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 900,
+      "author": {
+        "id": 7423
+      },
+      "writtenOn": "2017-09-22T08:17:34Z",
+      "side": 1,
+      "message": "We take version upgrade into account. If we apply new logic when the flow created by current logic is remaining, it will remain without being deleted. We need this logic to delete it.",
+      "parentUuid": "ba1f61a0_f2b8ae76",
+      "range": {
+        "startLine": 900,
+        "startChar": 9,
+        "endLine": 900,
+        "endChar": 17
+      },
+      "revId": "6a53615d321a188c7a549846250025ceffa8b053",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
