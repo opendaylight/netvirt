@@ -90,7 +90,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
             String routerId = routerInterface.getUuid();
             String macAddress = routerInterface.getMacAddress();
             String ipValue = routerInterface.getIpAddress();
-            LOG.trace("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
+            LOG.info("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
                     routerId, ipValue, macAddress);
             for (VpnToDpnList vpnDpn : vpnToDpnList) {
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
