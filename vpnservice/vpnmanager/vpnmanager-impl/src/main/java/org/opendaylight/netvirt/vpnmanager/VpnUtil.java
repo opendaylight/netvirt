@@ -1270,6 +1270,7 @@ public final class VpnUtil {
             mkInstructions.add(new InstructionWriteMetadata(subnetIdMetaData, MetaDataUtil.METADATA_MASK_VRFID));
         }
 
+        LOG.info("buildL3vpnGatewayFlow:  dpId {} vpnId {} gwMacAddress {}", dpId, vpnId, gwMacAddress);
         String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
 
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
