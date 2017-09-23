@@ -11,8 +11,11 @@ package org.opendaylight.netvirt.dhcpservice;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -36,23 +39,29 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
+import org.opendaylight.genius.mdsalutil.matches.MatchArpTpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
+import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
+import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -70,6 +79,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.networkmaps.NetworkMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.IpVersionV4;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -78,6 +92,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.InterfaceNameMacAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.SubnetDhcpPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddress;
@@ -144,6 +161,14 @@ public final class DhcpServiceUtils {
                 .append(vmMacAddress).toString();
     }
 
+    private static String getDhcpArpFlowRef(BigInteger dpId, long tableId, long lportTag, String ipAddress) {
+        return new StringBuffer().append(DhcpMConstants.FLOWID_PREFIX)
+                .append(dpId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(tableId).append(NwConstants.FLOWID_SEPARATOR)
+                .append(lportTag).append(NwConstants.FLOWID_SEPARATOR)
+                .append(ipAddress).toString();
+    }
+
     public static void setupDhcpDropAction(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
                                            IMdsalApiManager mdsalUtil, WriteTransaction tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
@@ -174,6 +199,26 @@ public final class DhcpServiceUtils {
         }
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void setupDhcpArpRequest(BigInteger dpId, short tableId, BigInteger vni, String dhcpIpAddress,
+                                           int lportTag, Long elanTag, boolean add, IMdsalApiManager mdsalUtil) {
+        List<MatchInfo> matches = getDhcpArpMatch(vni, dhcpIpAddress);
+        if (add) {
+            Flow flow = MDSALUtil.buildFlowNew(tableId, getDhcpArpFlowRef(dpId, tableId, lportTag, dhcpIpAddress),
+                    DhcpMConstants.DEFAULT_DHCP_ARP_FLOW_PRIORITY, "DHCPArp", 0, 0,
+                    generateDhcpArpCookie(lportTag, dhcpIpAddress), matches, null);
+            LOG.trace("Removing DHCP ARP Flow DpId {}, DHCP Port IpAddress {}", dpId, dhcpIpAddress);
+            mdsalUtil.removeFlow(dpId, flow);
+        } else {
+            Flow flow = MDSALUtil.buildFlowNew(tableId, getDhcpArpFlowRef(dpId, tableId, lportTag, dhcpIpAddress),
+                    DhcpMConstants.DEFAULT_DHCP_ARP_FLOW_PRIORITY, "DHCPArp", 0, 0,
+                    generateDhcpArpCookie(lportTag, dhcpIpAddress), matches,
+                    getDhcpArpInstructions(elanTag, lportTag));
+            LOG.trace("Adding DHCP ARP Flow DpId {}, DHCPPort IpAddress {}", dpId, dhcpIpAddress);
+            mdsalUtil.installFlow(dpId, flow);
+        }
+    }
+
     public static List<MatchInfo> getDhcpMatch() {
         List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
@@ -189,7 +234,32 @@ public final class DhcpServiceUtils {
         return matches;
     }
 
-    @Nonnull
+    private static List<MatchInfo> getDhcpArpMatch(BigInteger vni, String ipAddress) {
+        return Arrays.asList(MatchEthernetType.ARP, MatchArpOp.REQUEST, new MatchTunnelId(vni),
+                new MatchArpTpa(ipAddress, "32"));
+    }
+
+    private static List<Instruction> getDhcpArpInstructions(Long elanTag, int lportTag) {
+        List<Instruction> mkInstructions = new ArrayList<>();
+        int instructionKey = 0;
+        mkInstructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(
+                ElanHelper.getElanMetadataLabel(elanTag, lportTag), ElanHelper.getElanMetadataMask(),
+                ++instructionKey));
+        mkInstructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ARP_RESPONDER_TABLE,
+                ++instructionKey));
+        return mkInstructions;
+    }
+
+    private static BigInteger generateDhcpArpCookie(int lportTag, String ipAddress) {
+        try {
+            BigInteger cookie = NwConstants.TUNNEL_TABLE_COOKIE.add(BigInteger.valueOf(255))
+                    .add(BigInteger.valueOf(NWUtil.convertInetAddressToLong(InetAddress.getByName(ipAddress))));
+            return cookie.add(BigInteger.valueOf(lportTag));
+        } catch (UnknownHostException e) {
+            return NwConstants.TUNNEL_TABLE_COOKIE.add(BigInteger.valueOf(lportTag));
+        }
+    }
+
     public static List<BigInteger> getListOfDpns(DataBroker broker) {
         return extractDpnsFromNodes(MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
                 InstanceIdentifier.builder(Nodes.class).build()));
@@ -455,4 +525,34 @@ public final class DhcpServiceUtils {
         return null;
     }
 
+    public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
+        InstanceIdentifier id = buildNetworkMapIdentifier(networkId);
+        Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (optionalNetworkMap.isPresent()) {
+            return optionalNetworkMap.get().getSubnetIdList();
+        }
+        return null;
+    }
+
+    static InstanceIdentifier<NetworkMap> buildNetworkMapIdentifier(Uuid networkId) {
+        InstanceIdentifier<NetworkMap> id = InstanceIdentifier.builder(NetworkMaps.class).child(NetworkMap.class, new
+                NetworkMapKey(networkId)).build();
+        return id;
+    }
+
+    public static boolean isIpv4Subnet(DataBroker broker, Uuid subnetUuid) {
+        final SubnetKey subnetkey = new SubnetKey(subnetUuid);
+        final InstanceIdentifier<Subnet> subnetidentifier = InstanceIdentifier.create(Neutron.class)
+                .child(Subnets.class).child(Subnet.class, subnetkey);
+        final Optional<Subnet> subnet = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, subnetidentifier);
+        if (subnet.isPresent()) {
+            Class<? extends IpVersionBase> ipVersionBase = subnet.get().getIpVersion();
+            if (ipVersionBase.equals(IpVersionV4.class)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
+
