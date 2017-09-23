@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -58,11 +57,11 @@ public class DhcpNeutronPortListener
 
     @Inject
     public DhcpNeutronPortListener(DataBroker db, DhcpExternalTunnelManager dhcpExternalTunnelManager,
-            @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
+            IElanService elanService, IInterfaceManager interfaceManager,
             DhcpserviceConfig config, final JobCoordinator jobCoordinator, DhcpManager dhcpManager) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
-        this.elanService = ielanService;
+        this.elanService = elanService;
         this.interfaceManager = interfaceManager;
         this.broker = db;
         this.config = config;
@@ -95,6 +94,11 @@ public class DhcpNeutronPortListener
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
             jobCoordinator.enqueueJob(getJobKey(del), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(del);
+                if (ip4Address.isPresent()) {
+                    dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(del.getNetworkId().getValue(),
+                            false, ip4Address.get(), del.getMacAddress().getValue());
+                }
                 DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
                         .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
                 processArpResponderForElanDpns(del, arpInput -> {
@@ -194,6 +198,11 @@ public class DhcpNeutronPortListener
                 });
                 return Collections.singletonList(wrtConfigTxn.submit());
             });
+            java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(add);
+            if (ip4Address.isPresent()) {
+                dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(add.getNetworkId().getValue(),
+                        true, ip4Address.get(), add.getMacAddress().getValue());
+            }
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
