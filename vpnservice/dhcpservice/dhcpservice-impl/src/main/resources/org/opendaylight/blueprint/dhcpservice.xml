@@ -14,7 +14,7 @@
     interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
   <reference id="iInterfaceManager"
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
-  <reference id="elanService"
+  <reference id="ielanService"
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
 
   <odl:rpc-service id="odlInterfaceRpcService"
