@@ -63,11 +63,12 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     private final BigInteger dpnId;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
+    private final Port port;
 
     public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                   DataBroker dataBroker,
                                   Interface interfaceDel, BigInteger dpnId, IInterfaceManager interfaceManager,
-                                  IElanService elanService) {
+                                  IElanService elanService, Port port) {
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
@@ -76,6 +77,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
+        this.port = port;
     }
 
     @Override
@@ -98,7 +100,6 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         // Support for VM migration use cases.
         futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
             tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)));
-        Port port = dhcpManager.getNeutronPort(interfaceName);
         java.util.Optional<String> subnetId = DhcpServiceUtils.getNeutronSubnetId(port);
         if (subnetId.isPresent()) {
             java.util.Optional<SubnetToDhcpPort> subnetToDhcp = DhcpServiceUtils.getSubnetDhcpPortData(dataBroker,

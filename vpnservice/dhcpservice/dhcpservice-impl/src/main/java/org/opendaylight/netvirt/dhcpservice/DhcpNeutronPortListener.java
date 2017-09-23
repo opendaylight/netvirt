@@ -98,14 +98,17 @@ public class DhcpNeutronPortListener
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
             jobCoordinator.enqueueJob(getJobKey(del),
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(del);
+                    if (ip4Address.isPresent()) {
+                        dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(del.getNetworkId().getValue(),
+                                false, ip4Address.get(), del.getMacAddress().getValue());
+                    }
                     DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> tx
                             .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
                     processArpResponderForElanDpns(del, arpInput -> {
-                        LOG.trace(
-                                "Removing ARP RESPONDER Flows  for dhcp port {} with ipaddress {} with mac {} on dpn "
-                                        + "{}",
-                                arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(),
-                                arpInput.getDpId());
+                        LOG.trace("Removing ARPResponder Flows  for dhcp port {} with ipaddress {} with mac {} "
+                                        + " on dpn {}. ",arpInput.getInterfaceName(), arpInput.getSpa(),
+                                        arpInput.getSha(), arpInput.getDpId());
                         elanService.removeArpResponderFlow(arpInput);
                     });
                 })));
@@ -196,6 +199,11 @@ public class DhcpNeutronPortListener
                         elanService.addArpResponderFlow(builder.buildForInstallFlow());
                     });
                 })));
+            java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(add);
+            if (ip4Address.isPresent()) {
+                dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(add.getNetworkId().getValue(),
+                        true, ip4Address.get(), add.getMacAddress().getValue());
+            }
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
