@@ -824,6 +824,13 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
+    public void addExternalTunnelArpResponderFlow(ArpResponderInput arpResponderInput, String elanInstanceName) {
+        elanUtils.addExternalTunnelArpResponderFlow(arpResponderInput.getDpId(), arpResponderInput.getSpa(),
+                arpResponderInput.getSha(), arpResponderInput.getLportTag(),
+                arpResponderInput.getInstructions(), elanInstanceName);
+    }
+
+    @Override
     public void removeArpResponderFlow(ArpResponderInput arpResponderInput) {
         elanUtils.removeArpResponderFlow(arpResponderInput.getDpId(), arpResponderInput.getInterfaceName(),
                 arpResponderInput.getSpa(), arpResponderInput.getLportTag());
