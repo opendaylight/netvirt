@@ -87,6 +87,17 @@ public interface IElanService extends IEtreeService {
     void addArpResponderFlow(ArpResponderInput arpResponderInput);
 
     /**
+     * Add ARP Responder Flow on the given dpn for the SR-IOV VMs ingress interface.
+     *
+     * @param arpResponderInput
+     *            ArpResponder Input parameters
+     * @see ArpResponderInput
+     * @param elanInstanceName
+     *           The elanInstance  corresponding to the interface
+     */
+    void addExternalTunnelArpResponderFlow(ArpResponderInput arpResponderInput, String elanInstanceName);
+
+    /**
      * Remove ARP Responder flow from the given dpn for the ingress interface.
      *
      * @param arpResponderInput
