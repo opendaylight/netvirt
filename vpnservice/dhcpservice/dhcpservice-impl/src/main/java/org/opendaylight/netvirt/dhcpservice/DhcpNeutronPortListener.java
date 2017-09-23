@@ -21,6 +21,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
@@ -89,6 +90,11 @@ public class DhcpNeutronPortListener
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
             jobCoordinator.enqueueJob(getJobKey(del), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(del);
+                if (ip4Address.isPresent()) {
+                    dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(del.getNetworkId().getValue(),
+                            NwConstants.DEL_FLOW, ip4Address.get(), del.getMacAddress().getValue());
+                }
                 DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
                         .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
                 processArpResponderForElanDpns(del, arpInput -> {
@@ -157,6 +163,11 @@ public class DhcpNeutronPortListener
                 });
                 return Collections.singletonList(wrtConfigTxn.submit());
             });
+            java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(add);
+            if (ip4Address.isPresent()) {
+                dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(add.getNetworkId().getValue(),
+                        NwConstants.ADD_FLOW, ip4Address.get(), add.getMacAddress().getValue());
+            }
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
