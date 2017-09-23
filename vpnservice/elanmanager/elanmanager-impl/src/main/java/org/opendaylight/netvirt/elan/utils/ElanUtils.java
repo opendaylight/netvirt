@@ -1793,6 +1793,18 @@ public class ElanUtils {
         LOG.info("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
     }
 
+    public void addExternalTunnelArpResponderFlow(BigInteger dpnId, String ipAddress, String macAddress,
+                        int lportTag, List<Instruction> instructions, String elanInstanceName) {
+        LOG.trace("Installing the ExternalTunnel ARP responder flow on DPN {} for ElanInstance {} with MAC {} & IP {}",
+                dpnId, elanInstanceName, macAddress, ipAddress);
+        ElanInstance elanInstance = getElanInstanceByName(broker, elanInstanceName);
+        String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
+        ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                ArpResponderUtil.generateCookie(lportTag, ipAddress),
+                ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress), instructions);
+        LOG.trace("Installed the ExternalTunnel ARP Responder flow for ElanInstance {}", elanInstanceName);
+    }
+
     public void removeArpResponderFlow(BigInteger dpnId, String ingressInterfaceName, String ipAddress,
             int lportTag) {
         LOG.info("Removing the ARP responder flow on DPN {} of Interface {} with IP {}", dpnId, ingressInterfaceName,
