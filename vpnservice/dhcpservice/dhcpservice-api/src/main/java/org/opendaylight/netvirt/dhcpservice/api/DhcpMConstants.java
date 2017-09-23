@@ -13,11 +13,14 @@ import java.math.BigInteger;
 public interface DhcpMConstants {
 
     long DHCP_TABLE_MAX_ENTRY = 10000;
+    
+    public static final int DEFAULT_DHCP_FLOW_PRIORITY = 50;
 
-    int DEFAULT_DHCP_FLOW_PRIORITY = 50;
-    int DEFAULT_DHCP_ALLOCATION_POOL_FLOW_PRIORITY = DEFAULT_DHCP_FLOW_PRIORITY - 1;
-    int ARP_FLOW_PRIORITY = 50;
-    short DEFAULT_FLOW_PRIORITY = 100;
+    public static final int DEFAULT_DHCP_ALLOCATION_POOL_FLOW_PRIORITY = DEFAULT_DHCP_FLOW_PRIORITY - 1;
+
+    public static final int DEFAULT_DHCP_ARP_FLOW_PRIORITY = 10;
+    public static final int ARP_FLOW_PRIORITY = 50;
+    public static final short DEFAULT_FLOW_PRIORITY = 100;
 
     BigInteger COOKIE_DHCP_BASE = new BigInteger("6800000", 16);
     BigInteger METADATA_ALL_CLEAR_MASK = new BigInteger("0000000000000000", 16);
