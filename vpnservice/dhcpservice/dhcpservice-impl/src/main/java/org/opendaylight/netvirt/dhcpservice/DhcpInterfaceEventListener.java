@@ -74,15 +74,16 @@ public class DhcpInterfaceEventListener
             return;
         }
         String interfaceName = del.getName();
-        Port port = dhcpManager.getNeutronPort(interfaceName);
+        Port port = DhcpServiceUtils.getPortFromPortCache(interfaceName);
         if (NeutronConstants.IS_DHCP_PORT.test(port)) {
             return;
         }
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceRemoveJob job = new DhcpInterfaceRemoveJob(dhcpManager, dhcpExternalTunnelManager,
-                dataBroker, del, dpnId, interfaceManager, elanService);
+                dataBroker, del, dpnId, interfaceManager, elanService, port);
         jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
+        DhcpServiceUtils.removeFromPortCache(interfaceName);
     }
 
     @Override
@@ -130,7 +131,7 @@ public class DhcpInterfaceEventListener
         if (NeutronConstants.IS_DHCP_PORT.test(port)) {
             return;
         }
-
+        DhcpServiceUtils.addToPortCache(interfaceName, port);
         NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker,
