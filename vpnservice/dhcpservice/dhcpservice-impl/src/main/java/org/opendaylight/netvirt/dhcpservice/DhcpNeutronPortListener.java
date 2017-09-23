@@ -15,7 +15,6 @@ import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -52,11 +51,11 @@ public class DhcpNeutronPortListener
 
     @Inject
     public DhcpNeutronPortListener(DataBroker db, DhcpExternalTunnelManager dhcpExternalTunnelManager,
-            @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
+            final IElanService elanService, IInterfaceManager interfaceManager,
             DhcpserviceConfig config) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
-        this.elanService = ielanService;
+        this.elanService = elanService;
         this.interfaceManager = interfaceManager;
         this.broker = db;
         this.config = config;
@@ -89,6 +88,11 @@ public class DhcpNeutronPortListener
             DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob(getJobKey(del), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(del);
+                if (ip4Address.isPresent()) {
+                    dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(del.getNetworkId().getValue(),
+                            false, ip4Address.get(), del.getMacAddress().getValue());
+                }
                 DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
                         .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
                 processArpResponderForElanDpns(del, arpInput -> {
@@ -158,6 +162,11 @@ public class DhcpNeutronPortListener
                 });
                 return Collections.singletonList(wrtConfigTxn.submit());
             });
+            java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(add);
+            if (ip4Address.isPresent()) {
+                dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(add.getNetworkId().getValue(),
+                        true, ip4Address.get(), add.getMacAddress().getValue());
+            }
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;

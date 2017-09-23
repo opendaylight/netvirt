@@ -14,7 +14,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -56,20 +55,22 @@ public class DhcpManager {
     private String dhcpOptDefDomainName;
     private DhcpInterfaceEventListener dhcpInterfaceEventListener;
     private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
+    private DhcpPortCache dhcpPortCache;
 
     @Inject
     public DhcpManager(final IMdsalApiManager mdsalApiManager,
             final INeutronVpnManager neutronVpnManager,
             final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager,
-            final @Named("elanService") IElanService ielanService) {
+            final IElanService elanService, final DhcpPortCache dhcpPortCache) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
         this.config = config;
         this.broker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.interfaceManager = interfaceManager;
-        this.elanService = ielanService;
+        this.elanService = elanService;
+        this.dhcpPortCache = dhcpPortCache;
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
@@ -78,7 +79,7 @@ public class DhcpManager {
         LOG.trace("Netvirt DHCP Manager Init .... {}",config.isControllerDhcpEnabled());
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager,
-                    interfaceManager, elanService);
+                    interfaceManager, elanService, dhcpPortCache);
             dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this);
             LOG.info("DHCP Service initialized");
         }
