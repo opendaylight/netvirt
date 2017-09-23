@@ -13,7 +13,6 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
-import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -52,6 +51,7 @@ public class DhcpManager {
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
     private final JobCoordinator jobCoordinator;
+    private DhcpPortCache dhcpPortCache;
 
     private volatile int dhcpOptLeaseTime = 0;
     private volatile String dhcpOptDefDomainName;
@@ -63,7 +63,7 @@ public class DhcpManager {
             final INeutronVpnManager neutronVpnManager,
             final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager,
-            final @Named("elanService") IElanService ielanService,
+            final IElanService ielanService, final DhcpPortCache dhcpPortCache,
             final JobCoordinator jobCoordinator) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
@@ -72,6 +72,7 @@ public class DhcpManager {
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.interfaceManager = interfaceManager;
         this.elanService = ielanService;
+        this.dhcpPortCache = dhcpPortCache;
         this.jobCoordinator = jobCoordinator;
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
@@ -81,7 +82,7 @@ public class DhcpManager {
         LOG.trace("Netvirt DHCP Manager Init .... {}",config.isControllerDhcpEnabled());
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager,
-                    interfaceManager, elanService, jobCoordinator);
+                    interfaceManager, elanService, dhcpPortCache, jobCoordinator);
             dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this,
                     jobCoordinator);
             LOG.info("DHCP Service initialized");
