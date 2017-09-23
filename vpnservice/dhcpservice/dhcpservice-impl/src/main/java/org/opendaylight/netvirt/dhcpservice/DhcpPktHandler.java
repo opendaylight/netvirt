@@ -137,16 +137,20 @@ public class DhcpPktHandler implements PacketProcessingListener {
                     LOG.error("Failed to get interface info for interface name {}", interfaceName);
                     return;
                 }
-                Port port = getNeutronPort(interfaceName);
+                Port port;
+                if (tunnelId != null) {
+                    port = dhcpExternalTunnelManager.readVniMacToPortCache(tunnelId, macAddress);
+                } else {
+                    port = getNeutronPort(interfaceName);
+                }
                 Subnet subnet = getNeutronSubnet(port);
-                //When neutronport-dhcp flag is disabled continue running DHCP Server by hijacking the subnet-gateway-ip
                 String serverMacAddress = interfaceInfo.getMacAddress();
                 String serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
                 if (subnet != null) {
                     java.util.Optional<SubnetToDhcpPort> dhcpPortData = DhcpServiceUtils
                             .getSubnetDhcpPortData(broker, subnet.getUuid().getValue());
-                    /* If neutronport-dhcp flag was enabled and an ODL network DHCP Port data was made available use the
-                     * ports Fixed IP as server IP for DHCP communication.
+                    /* If enable_dhcp_service flag was enabled and an ODL network DHCP Port data was made available use
+                     * the ports Fixed IP as server IP for DHCP communication.
                      */
                     if (dhcpPortData.isPresent()) {
                         serverIp  = dhcpPortData.get().getPortFixedip();
@@ -158,7 +162,11 @@ public class DhcpPktHandler implements PacketProcessingListener {
                         return;
                     }
                 }
-                DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, tunnelId, port, subnet, serverIp);
+                DHCP replyPkt = handleDhcpPacket(pktIn, interfaceName, macAddress, port, subnet, serverIp);
+                if (replyPkt == null) {
+                    LOG.warn("Unable to construct reply packet for interface name {}", interfaceName);
+                    return;
+                }
                 byte[] pktOut = getDhcpPacketOut(replyPkt, ethPkt, serverMacAddress);
                 sendPacketOut(pktOut, interfaceInfo.getDpId(), interfaceName, tunnelId);
             }
@@ -172,19 +180,13 @@ public class DhcpPktHandler implements PacketProcessingListener {
         this.pktService.transmitPacket(output);
     }
 
-    private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, BigInteger tunnelId,
-                                  Port interfacePort, Subnet subnet, String serverIp) {
+    private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, Port interfacePort,
+                                  Subnet subnet, String serverIp) {
         LOG.trace("DHCP pkt rcvd {}", dhcpPkt);
         byte msgType = dhcpPkt.getMsgType();
-        Port port;
-        if (tunnelId != null) {
-            port = dhcpExternalTunnelManager.readVniMacToPortCache(tunnelId, macAddress);
-        } else {
-            port = interfacePort;
-        }
         DhcpInfo dhcpInfo = null;
-        if (port != null) {
-            dhcpInfo = handleDhcpNeutronPacket(msgType, port, subnet, serverIp);
+        if (interfacePort != null) {
+            dhcpInfo = handleDhcpNeutronPacket(msgType, interfacePort, subnet, serverIp);
         } else if (config.isDhcpDynamicAllocationPoolEnabled()) {
             dhcpInfo = handleDhcpAllocationPoolPacket(msgType, dhcpPkt, interfaceName, macAddress);
         }

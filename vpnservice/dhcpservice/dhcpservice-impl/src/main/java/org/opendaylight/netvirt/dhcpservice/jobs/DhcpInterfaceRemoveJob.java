@@ -47,6 +47,8 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     private final BigInteger dpnId;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
+    private final Port port;
+
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -62,7 +64,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                   DataBroker dataBroker,
                                   Interface interfaceDel, BigInteger dpnId, IInterfaceManager interfaceManager,
-                                  IElanService elanService) {
+                                  IElanService elanService, Port port) {
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
@@ -70,6 +72,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
+        this.port = port;
     }
 
     @Override
@@ -127,4 +130,5 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
         return null;
     }
+
 }
