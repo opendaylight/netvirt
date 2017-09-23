@@ -15,9 +15,11 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.DesignatedSwitchesForExternalTunnels;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -63,19 +65,41 @@ public class DhcpDesignatedDpnListener
                 del.getTunnelRemoteIpAddress(), del.getElanInstanceName());
         dhcpExternalTunnelManager.unInstallDhcpFlowsForVms(del.getElanInstanceName(),
                 del.getTunnelRemoteIpAddress(), DhcpServiceUtils.getListOfDpns(broker));
+        LOG.trace("Removing designated DPN {} DHCP Arp Flows for Elan {}.", del.getDpId(), del.getElanInstanceName());
+        java.util.Optional<SubnetToDhcpPort> subnetDhcpData = dhcpExternalTunnelManager
+                .getSubnetDhcpPortData(del.getElanInstanceName());
+        if (subnetDhcpData.isPresent()) {
+            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(BigInteger.valueOf(del.getDpId()),
+                    del.getElanInstanceName(), false, del.getTunnelRemoteIpAddress(),
+                    subnetDhcpData.get().getPortFixedip(), subnetDhcpData.get().getPortMacaddress());
+        }
+
     }
 
     @Override
     protected void update(InstanceIdentifier<DesignatedSwitchForTunnel> identifier, DesignatedSwitchForTunnel original,
             DesignatedSwitchForTunnel update) {
         LOG.debug("Update for DesignatedSwitchForTunnel original {}, update {}", original, update);
+        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(original.getDpId()),
+                original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
         BigInteger designatedDpnId = BigInteger.valueOf(update.getDpId());
         IpAddress tunnelRemoteIpAddress = update.getTunnelRemoteIpAddress();
         String elanInstanceName = update.getElanInstanceName();
-        dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(original.getDpId()),
-                original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
         dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
+        java.util.Optional<SubnetToDhcpPort> subnetDhcpData = dhcpExternalTunnelManager
+                .getSubnetDhcpPortData(elanInstanceName);
+        if (subnetDhcpData.isPresent()) {
+            LOG.trace("Removing Designated DPN {} DHCP Arp Flows for Elan {}.", original.getDpId(),
+                    original.getElanInstanceName());
+            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(BigInteger.valueOf(original.getDpId()),
+                    original.getElanInstanceName(), false, original.getTunnelRemoteIpAddress(),
+                    subnetDhcpData.get().getPortFixedip(), subnetDhcpData.get().getPortMacaddress());
+            LOG.trace("Configuring DHCP Arp Flows for Designated dpn {} Elan {}", designatedDpnId, elanInstanceName);
+            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(designatedDpnId, elanInstanceName,
+                    true, tunnelRemoteIpAddress, subnetDhcpData.get().getPortFixedip(),
+                    subnetDhcpData.get().getPortMacaddress());
+        }
     }
 
     @Override
@@ -86,6 +110,14 @@ public class DhcpDesignatedDpnListener
         String elanInstanceName = add.getElanInstanceName();
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
         dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
+        LOG.trace("Configuring DHCP Arp Flows for Designated dpn {} Elan {}", designatedDpnId, elanInstanceName);
+        java.util.Optional<SubnetToDhcpPort> subnetDhcpData = dhcpExternalTunnelManager
+                .getSubnetDhcpPortData(elanInstanceName);
+        if (subnetDhcpData.isPresent()) {
+            dhcpExternalTunnelManager.configureDhcpArpRequestResponseFlow(designatedDpnId, elanInstanceName,
+                    true, tunnelRemoteIpAddress, subnetDhcpData.get().getPortFixedip(),
+                    subnetDhcpData.get().getPortMacaddress());
+        }
     }
 
     @Override
