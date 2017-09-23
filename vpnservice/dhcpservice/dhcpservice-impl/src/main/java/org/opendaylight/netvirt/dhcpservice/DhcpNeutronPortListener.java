@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
@@ -89,6 +90,11 @@ public class DhcpNeutronPortListener
             DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             portDataStoreCoordinator.enqueueJob(getJobKey(del), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
+                java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(del);
+                if (ip4Address.isPresent()) {
+                    dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(del.getNetworkId().getValue(),
+                            false, ip4Address.get(), del.getMacAddress().getValue());
+                }
                 DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
                         .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
                 processArpResponderForElanDpns(del, arpInput -> {
@@ -158,6 +164,11 @@ public class DhcpNeutronPortListener
                 });
                 return Collections.singletonList(wrtConfigTxn.submit());
             });
+            java.util.Optional<String> ip4Address = DhcpServiceUtils.getIpV4Address(add);
+            if (ip4Address.isPresent()) {
+                dhcpExternalTunnelManager.addOrRemoveDhcpArpFlowforElan(add.getNetworkId().getValue(),
+                        true, ip4Address.get(), add.getMacAddress().getValue());
+            }
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;
