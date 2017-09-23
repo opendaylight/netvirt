@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -20,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -29,6 +31,7 @@ import java.util.concurrent.Future;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
+import javax.inject.Named;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
@@ -48,6 +51,9 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
@@ -67,9 +73,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.Desi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorRef;
@@ -97,6 +107,7 @@ public class DhcpExternalTunnelManager {
     private final ItmRpcService itmRpcService;
     private final EntityOwnershipService entityOwnershipService;
     private final IInterfaceManager interfaceManager;
+    private IElanService elanService;
 
     private final ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache =
             new ConcurrentHashMap<>();
@@ -108,12 +119,14 @@ public class DhcpExternalTunnelManager {
     @Inject
     public DhcpExternalTunnelManager(final DataBroker broker,
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
-            final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager) {
+            final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager,
+            @Named("elanService") IElanService ielanService) {
         this.broker = broker;
         this.mdsalUtil = mdsalUtil;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipService = entityOwnershipService;
         this.interfaceManager = interfaceManager;
+        this.elanService = ielanService;
     }
 
     @PostConstruct
@@ -410,6 +423,11 @@ public class DhcpExternalTunnelManager {
             LOG.trace("Updating DHCP flows for VMs {} with new designated DPN {}", setOfVmMacs, newDesignatedDpn);
             installDhcpFlowsForVms(newDesignatedDpn, setOfVmMacs, tx);
         }
+        java.util.Optional<SubnetToDhcpPort> subnetDhcpData = getSubnetDhcpPortData(pair.getRight());
+        if (subnetDhcpData.isPresent()) {
+            configureDhcpArpRequestResponseFlow(newDesignatedDpn, pair.getRight(), true,
+                    pair.getLeft(), subnetDhcpData.get().getPortFixedip(), subnetDhcpData.get().getPortMacaddress());
+        }
     }
 
     private void changeExistingFlowToDrop(Pair<IpAddress, String> tunnelIpElanNamePair, BigInteger dpnId,
@@ -488,6 +506,133 @@ public class DhcpExternalTunnelManager {
                 vmMacAddress, NwConstants.ADD_FLOW, mdsalUtil, tx);
     }
 
+    public void addOrRemoveDhcpArpFlowforElan(String elanInstanceName, boolean addFlow, String dhcpIpAddress,
+                                              String dhcpMacAddress) {
+        LOG.trace("Configure DHCP SR-IOV Arp flows for Elan {} dpns .", elanInstanceName);
+        for (Map.Entry<BigInteger,Set<Pair<IpAddress,String>>> entry :
+                designatedDpnsToTunnelIpElanNameCache.entrySet()) {
+            BigInteger dpn = entry.getKey();
+            Set<Pair<IpAddress,String>> tunnelIpElanNameSet = entry.getValue();
+            for (Pair<IpAddress, String> pair : tunnelIpElanNameSet) {
+                if (pair.getRight().equalsIgnoreCase(elanInstanceName)) {
+                    if (addFlow) {
+                        LOG.trace("Adding SR-IOV DHCP Arp Flows for Elan {} and tunnelIp {}",
+                                elanInstanceName, pair.getLeft());
+                        configureDhcpArpRequestResponseFlow(dpn, elanInstanceName, true,
+                                pair.getLeft(), dhcpIpAddress, dhcpMacAddress);
+                    } else {
+                        LOG.trace("Deleting SR-IOV DHCP Arp Flows for Elan {} and tunnelIp {}",
+                                elanInstanceName, pair.getLeft());
+                        configureDhcpArpRequestResponseFlow(dpn, elanInstanceName, false,
+                                pair.getLeft(), dhcpIpAddress, dhcpMacAddress);
+                    }
+                }
+            }
+        }
+    }
+
+
+    public void configureDhcpArpRequestResponseFlow(BigInteger dpnId, String elanInstanceName, boolean addFlow,
+                                            IpAddress tunnelIp, String dhcpIpAddress, String dhcpMacAddress) {
+        L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
+        if (device == null) {
+            LOG.error("Unable to get L2Device for tunnelIp {} and elanInstanceName {}", tunnelIp,
+                    elanInstanceName);
+        }
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isOwner) {
+                if (isOwner) {
+                    String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(dpnId),
+                            device.getHwvtepNodeId());
+                    int lportTag = interfaceManager.getInterfaceInfo(tunnelInterfaceName).getInterfaceTag();
+                    InstanceIdentifier<ElanInstance> elanIdentifier = InstanceIdentifier.builder(ElanInstances.class)
+                            .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
+                    Optional<ElanInstance> optElan = MDSALUtil.read(broker,
+                            LogicalDatastoreType.CONFIGURATION, elanIdentifier);
+                    if (optElan.isPresent()) {
+                        LOG.trace("Configuring the SR-IOV Arp request/response flows for LPort {} ElanTag {}.",
+                                lportTag, optElan.get().getElanTag());
+                        Uuid nwUuid = new Uuid(elanInstanceName);
+                        String strVni = DhcpServiceUtils.getSegmentationId(nwUuid, broker);
+                        BigInteger vni = strVni != null ? new BigInteger(strVni) : BigInteger.ZERO;
+                        if (!vni.equals(BigInteger.ZERO)) {
+                            if (addFlow) {
+                                LOG.trace("Installing the SR-IOV DHCP Arp flow for DPN {} Port Ip {}, Lport {}.",
+                                        dpnId, dhcpIpAddress, lportTag);
+                                installDhcpArpRequestFlows(dpnId, vni, dhcpIpAddress, lportTag,
+                                        optElan.get().getElanTag());
+                                installDhcpArpResponderFlows(dpnId, tunnelInterfaceName, lportTag, elanInstanceName,
+                                        dhcpIpAddress, dhcpMacAddress);
+                            } else {
+                                LOG.trace("Uninstalling the SR-IOV DHCP Arp flows for DPN {} Port Ip {}, Lport {}.",
+                                        dpnId, dhcpIpAddress, lportTag);
+                                uninstallDhcpArpRequestFlows(dpnId, vni, dhcpIpAddress, lportTag);
+                                uninstallDhcpArpResponderFlows(dpnId, tunnelInterfaceName, lportTag, dhcpIpAddress);
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.error("Failed to install  SR-IOV DHCP Arp flows for DPN {}.", dpnId, error);
+            }
+        });
+    }
+
+    public  java.util.Optional<SubnetToDhcpPort> getSubnetDhcpPortData(String elanInstanceName) {
+        java.util.Optional<SubnetToDhcpPort> optSubnetDhcp = java.util.Optional.empty();
+        Uuid nwUuid = new Uuid(elanInstanceName);
+        List<Uuid> subnets = DhcpServiceUtils.getSubnetIdsFromNetworkId(broker, nwUuid);
+        for (Uuid subnet : subnets) {
+            if (DhcpServiceUtils.isIpv4Subnet(broker, subnet)) {
+                optSubnetDhcp = DhcpServiceUtils.getSubnetDhcpPortData(broker, subnet.getValue());
+                return optSubnetDhcp;
+            }
+        }
+        return optSubnetDhcp;
+    }
+
+    private void installDhcpArpRequestFlows(BigInteger dpnId, BigInteger vni, String dhcpIpAddress,
+                                            int lportTag, Long elanTag) {
+        DhcpServiceUtils.setupDhcpArpRequest(dpnId, NwConstants.EXTERNAL_TUNNEL_TABLE, vni, dhcpIpAddress,
+                lportTag, elanTag, NwConstants.ADD_FLOW, mdsalUtil);
+    }
+
+    private void installDhcpArpResponderFlows(BigInteger dpnId, String interfaceName, int lportTag,
+                                              String elanInstanceName, String dhcpIpAddress, String dhcpMacAddress) {
+        LOG.trace("Adding SR-IOV DHCP ArpResponder for elan {} Lport {} Port Ip {}.",
+                elanInstanceName, lportTag, dhcpIpAddress);
+        ArpResponderInput.ArpReponderInputBuilder builder = new ArpResponderInput.ArpReponderInputBuilder();
+        builder.setDpId(dpnId).setInterfaceName(interfaceName).setSpa(dhcpIpAddress).setSha(dhcpMacAddress)
+                .setLportTag(lportTag);
+        builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager, interfaceName,
+                dhcpIpAddress, dhcpMacAddress));
+        elanService.addExternalTunnelArpResponderFlow(builder.buildForInstallFlow(), elanInstanceName);
+    }
+
+    private void uninstallDhcpArpResponderFlows(BigInteger dpnId, String interfaceName, int lportTag,
+                                                String dhcpIpAddress) {
+        LOG.trace("Removing SR-IOV DHCP ArpResponder flow for interface {} on DPN {}", interfaceName, dpnId);
+        ArpResponderInput arpInput = new ArpResponderInput.ArpReponderInputBuilder().setDpId(dpnId)
+                .setInterfaceName(interfaceName).setSpa(dhcpIpAddress)
+                .setLportTag(lportTag).buildForRemoveFlow();
+        elanService.removeArpResponderFlow(arpInput);
+    }
+
+    private void uninstallDhcpArpRequestFlows(BigInteger dpnId, BigInteger vni, String dhcpIpAddress,
+                                              int lportTag) {
+        DhcpServiceUtils.setupDhcpArpRequest(dpnId, NwConstants.EXTERNAL_TUNNEL_TABLE, vni, dhcpIpAddress,
+                lportTag, null, NwConstants.DEL_FLOW, mdsalUtil);
+    }
+
+
     public void unInstallDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE_EXTERNAL_TUNNEL,
                 vmMacAddress, NwConstants.DEL_FLOW, mdsalUtil, tx);
@@ -513,6 +658,7 @@ public class DhcpExternalTunnelManager {
                 WriteTransaction tx = broker.newWriteOnlyTransaction();
                 for (Pair<IpAddress, String> tunnelElanPair : tunnelElanPairSet) {
                     IpAddress tunnelIpInDpn = tunnelElanPair.getLeft();
+                    String elanInstanceName = tunnelElanPair.getRight();
                     if (tunnelIpInDpn.equals(tunnelIp)) {
                         if (!checkL2GatewayConnection(tunnelElanPair)) {
                             LOG.trace("Couldn't find device for given tunnelIpElanPair {} in L2GwConnCache",
@@ -523,6 +669,12 @@ public class DhcpExternalTunnelManager {
                         List<BigInteger> dpns = DhcpServiceUtils.getListOfDpns(broker);
                         dpns.remove(interfaceDpn);
                         changeExistingFlowToDrop(tunnelElanPair, interfaceDpn, tx);
+                        java.util.Optional<SubnetToDhcpPort> subnetDhcpData = getSubnetDhcpPortData(elanInstanceName);
+                        if (subnetDhcpData.isPresent()) {
+                            configureDhcpArpRequestResponseFlow(interfaceDpn, elanInstanceName, false,
+                                    tunnelIpInDpn, subnetDhcpData.get().getPortFixedip(),
+                                    subnetDhcpData.get().getPortMacaddress());
+                        }
                         updateCacheAndInstallNewFlows(interfaceDpn, dpns, tunnelElanPair, tx);
                     }
                 }
@@ -776,13 +928,20 @@ public class DhcpExternalTunnelManager {
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             for (Pair<IpAddress, String> pair : tunnelIpElanPair) {
                 if (tunnelIp.equals(pair.getLeft())) {
-                    BigInteger newDesignatedDpn = designateDpnId(tunnelIp, pair.getRight(), dpns);
+                    String elanInstanceName = pair.getRight();
+                    BigInteger newDesignatedDpn = designateDpnId(tunnelIp, elanInstanceName, dpns);
                     if (newDesignatedDpn != null && !newDesignatedDpn.equals(DhcpMConstants.INVALID_DPID)) {
                         Set<String> vmMacAddress = tunnelIpElanNameToVmMacCache.get(pair);
                         if (vmMacAddress != null && !vmMacAddress.isEmpty()) {
                             LOG.trace("Updating DHCP flow for macAddress {} with newDpn {}",
                                     vmMacAddress, newDesignatedDpn);
                             installDhcpFlowsForVms(newDesignatedDpn, vmMacAddress, tx);
+                        }
+                        java.util.Optional<SubnetToDhcpPort> subnetDhcpData = getSubnetDhcpPortData(elanInstanceName);
+                        if (subnetDhcpData.isPresent()) {
+                            configureDhcpArpRequestResponseFlow(newDesignatedDpn, elanInstanceName,
+                                    true, tunnelIp, subnetDhcpData.get().getPortFixedip(),
+                                    subnetDhcpData.get().getPortMacaddress());
                         }
                     }
                 }
