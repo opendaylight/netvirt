@@ -99,19 +99,6 @@ public class CentralizedSwitchChangeListener
         }
 
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
-        Uuid extNetworkId = router.getNetworkId();
-        String extGwMacAddress = router.getExtGwMacAddress();
-        String routerName = router.getRouterName();
-        List<ExternalIps> externalIps = router.getExternalIps();
-        if (externalIps.isEmpty()) {
-            LOG.error("CentralizedSwitchChangeListener: setupRouterGwFlows no externalIP present");
-            return;
-        }
-        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
-        vpnManager.setupRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
-                subnetVpnName.getValue(), writeTx, addOrRemove);
-        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
-                VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
-                extGwMacAddress, primarySwitchId, extNetworkId, writeTx, addOrRemove);
+        NatUtil.installRouterGwFlows(dataBroker, vpnManager, router, primarySwitchId, addOrRemove);
     }
 }
