@@ -377,7 +377,7 @@ public class NatTunnelInterfaceStateListener
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, dpnRoutersListId);
         if (!optionalRouterDpnList.isPresent()) {
-            LOG.warn("hndlTepAddForAllRtrs : RouterDpnList model is empty for DPN {}. Hence ignoring TEP add event "
+            LOG.info("hndlTepAddForAllRtrs : RouterDpnList model is empty for DPN {}. Hence ignoring TEP add event "
                     + "for the ITM TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and TUNNEL NAME {} ",
                 srcDpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
             return false;

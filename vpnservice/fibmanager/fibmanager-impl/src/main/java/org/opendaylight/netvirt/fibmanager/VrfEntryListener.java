@@ -1513,7 +1513,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         if (!vrfTable.isPresent()) {
-            LOG.warn("VRF Table not yet available for RD {}", rd);
+            LOG.info("VRF Table not yet available for RD {}", rd);
             if (callback != null) {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
