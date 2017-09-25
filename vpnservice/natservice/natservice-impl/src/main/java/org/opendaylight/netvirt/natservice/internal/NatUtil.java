@@ -580,7 +580,7 @@ public class NatUtil {
                 return routerId.getValue();
             }
         }
-        LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
+        LOG.info("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
         return null;
     }
 

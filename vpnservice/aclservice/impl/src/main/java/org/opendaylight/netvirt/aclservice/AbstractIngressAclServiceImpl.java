@@ -418,7 +418,7 @@ public abstract class AbstractIngressAclServiceImpl extends AbstractAclServiceIm
                         instructions, addOrRemove);
             }
         } else {
-            LOG.error("IP Broadcast CIDRs are missing for port {}", port.getInterfaceId());
+            LOG.warn("IP Broadcast CIDRs are missing for port {}", port.getInterfaceId());
         }
     }
 
