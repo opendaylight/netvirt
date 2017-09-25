@@ -16,6 +16,24 @@
       "revId": "96822fc3350fa722c88bfd3a3fa0c4cb9bf040bb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_2d578003",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-09-25T17:24:45Z",
+      "side": 1,
+      "message": "This change is required because, except nat prefixes all others will come to this part of the code. \nThis condition was originally to separate local from self-imported routes.\nHowever, even for PNF prefixes, the vpnId from the vpnInstanceOpData(subnetId) and the vpnId from the vpnInstance of opVpnInterface(networkId) will be different.\nSo, for pnf even though the two vpnIds are different, we will have to go ahead and clean the adjacencies/op vpn interface.",
+      "parentUuid": "ba1f61a0_4d111451",
+      "revId": "96822fc3350fa722c88bfd3a3fa0c4cb9bf040bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
