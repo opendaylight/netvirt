@@ -58,6 +58,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -1912,6 +1913,28 @@ public class NatUtil {
             }
         }
         return false;
+    }
+
+    public static void installRouterGwFlows(DataBroker dataBroker, IVpnManager vpnManager, Routers router,
+            BigInteger primarySwitchId, int addOrRemove) {
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        List<ExternalIps> externalIps = router.getExternalIps();
+        List<String> externalIpsSting = new ArrayList<>();
+
+        if (externalIps.isEmpty()) {
+            LOG.error("installRouterGwFlows: setupRouterGwFlows no externalIP present");
+            return;
+        }
+        for (ExternalIps externalIp : externalIps) {
+            externalIpsSting.add(externalIp.getIpAddress());
+        }
+        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
+        vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
+                router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
+        vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
+                router.getExtGwMacAddress(), primarySwitchId,
+                router.getNetworkId(), writeTx, addOrRemove);
+        writeTx.submit();
     }
 
     public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(

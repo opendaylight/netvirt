@@ -166,10 +166,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
          *  datapath for traffic forwarding for ``SNAT-to-DNAT`` and ``DNAT-to-DNAT`` cases within the
          *  DataCenter.
         */
-        if (provType == ProviderTypes.GRE || provType == ProviderTypes.VXLAN) {
-            NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
+        NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
-        }
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
         LOG.debug("onAddFloatingIp: Nexthop ip for prefix {} is {}", externalIp, nextHopIp);
         WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
