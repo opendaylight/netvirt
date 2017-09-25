@@ -248,7 +248,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 // Allocate Primary Napt Switch for this router
                 BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, segmentId);
                 if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-                    handleRouterGwFlows(routers, primarySwitchId, NwConstants.ADD_FLOW);
                     if (!routers.isEnableSnat()) {
                         LOG.info("add : SNAT is disabled for external router {} ", routerName);
                         return;
