@@ -167,6 +167,8 @@ public class RouterDpnChangeListener
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         if (routerId == NatConstants.INVALID_ID) {
                             LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
+                            writeFlowInvTx.cancel();
+                            removeFlowInvTx.cancel();
                             return futures;
                         }
                         Long vpnId;
@@ -175,6 +177,8 @@ public class RouterDpnChangeListener
                             vpnId = routerId;
                             if (vpnId == NatConstants.INVALID_ID) {
                                 LOG.error("add : Invalid vpnId returned for routerName {}", routerUuid);
+                                writeFlowInvTx.cancel();
+                                removeFlowInvTx.cancel();
                                 return futures;
                             }
                             LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerUuid);
@@ -189,6 +193,8 @@ public class RouterDpnChangeListener
                             vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                             if (vpnId == NatConstants.INVALID_ID) {
                                 LOG.error("add : Invalid vpnId returned for routerName {}", routerUuid);
+                                writeFlowInvTx.cancel();
+                                removeFlowInvTx.cancel();
                                 return futures;
                             }
 
@@ -204,7 +210,16 @@ public class RouterDpnChangeListener
 
                         if (router.isEnableSnat()) {
                             LOG.info("add : SNAT enabled for router {}", routerUuid);
-                            handleSNATForDPN(dpnId, routerUuid, routerId, vpnId, writeFlowInvTx, removeFlowInvTx);
+                            ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
+                                    routerUuid, networkId);
+                            if (extNwProvType == null) {
+                                LOG.error("add : External Network Provider Type missing");
+                                writeFlowInvTx.cancel();
+                                removeFlowInvTx.cancel();
+                                return futures;
+                            }
+                            handleSNATForDPN(dpnId, routerUuid, routerId, vpnId, writeFlowInvTx, removeFlowInvTx,
+                                    extNwProvType);
                         } else {
                             LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}",
                                     routerUuid, dpnId);
@@ -260,6 +275,7 @@ public class RouterDpnChangeListener
                             vpnId = routerId;
                             if (vpnId == NatConstants.INVALID_ID) {
                                 LOG.error("remove : Invalid vpnId returned for routerName {}", routerUuid);
+                                removeFlowInvTx.cancel();
                                 return futures;
                             }
                             LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerUuid);
@@ -272,6 +288,7 @@ public class RouterDpnChangeListener
                             vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
                             if (vpnId == NatConstants.INVALID_ID) {
                                 LOG.error("remove : Invalid vpnId returned for routerName {}", routerUuid);
+                                removeFlowInvTx.cancel();
                                 return futures;
                             }
                             LOG.debug("remove : Retrieved vpnId {} for router {}", vpnId, routerUuid);
@@ -305,7 +322,7 @@ public class RouterDpnChangeListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     void handleSNATForDPN(BigInteger dpnId, String routerName, long routerId, Long routerVpnId,
-            WriteTransaction writeFlowInvTx, WriteTransaction removeFlowInvTx) {
+            WriteTransaction writeFlowInvTx, WriteTransaction removeFlowInvTx, ProviderTypes extNwProvType) {
        //Check if primary and secondary switch are selected, If not select the role
         //Install select group to NAPT switch
         //Install default miss entry to NAPT switch
@@ -324,7 +341,7 @@ public class RouterDpnChangeListener
                 LOG.debug("handleSNATForDPN : Switch {} is elected as NaptSwitch for router {}", dpnId, routerName);
 
                 // When NAPT switch is elected during first VM comes up for the given Router
-                if (elanManager.isOpenStackVniSemanticsEnforced()) {
+                if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
                     NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager,
                             idManager, NatConstants.ODL_VNI_POOL_NAME);
                 }

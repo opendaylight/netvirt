@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
@@ -64,10 +65,23 @@ public class RouterToVpnListener implements NeutronvpnListener {
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
-            long routerId = NatUtil.getVpnId(dataBroker, routerName);
             LOG.debug("onRouterAssociatedToVpn : Router {} is associated with ext nw {}", routerName, extNetwork);
             handleDNATConfigurationForRouterAssociation(routerName, vpnName, extNetwork);
-            externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, writeFlowInvTx);
+            Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+            if (extNetworkUuid == null) {
+                LOG.error("onRouterAssociatedToVpn : Unable to retrieve external network Uuid for router {}",
+                        routerName);
+                return;
+            }
+            ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
+                    extNetworkUuid);
+            if (extNwProvType == null) {
+                LOG.error("onRouterAssociatedToVpn : External Network Provider Type missing");
+                return;
+            }
+            long routerId = NatUtil.getVpnId(dataBroker, routerName);
+            externalRoutersListener.changeLocalVpnIdToBgpVpnId(routerName, routerId, vpnName, writeFlowInvTx,
+                    extNwProvType);
         } else {
             LOG.debug("onRouterAssociatedToVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName);
@@ -87,10 +101,23 @@ public class RouterToVpnListener implements NeutronvpnListener {
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
-            long routerId = NatUtil.getVpnId(dataBroker, routerName);
             LOG.debug("onRouterDisassociatedFromVpn : Router {} is associated with ext nw {}", routerName, extNetwork);
             handleDNATConfigurationForRouterDisassociation(routerName, vpnName, extNetwork);
-            externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, writeFlowInvTx);
+            Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+            if (extNetworkUuid == null) {
+                LOG.error("onRouterDisassociatedFromVpn : Unable to retrieve external network Uuid for router {}",
+                        routerName);
+                return;
+            }
+            ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
+                    extNetworkUuid);
+            if (extNwProvType == null) {
+                LOG.error("onRouterDisassociatedFromVpn : External Network Provider Type missing");
+                return;
+            }
+            long routerId = NatUtil.getVpnId(dataBroker, routerName);
+            externalRoutersListener.changeBgpVpnIdToLocalVpnId(routerName, routerId, vpnName, writeFlowInvTx,
+                    extNwProvType);
         } else {
             LOG.debug("onRouterDisassociatedFromVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName);
