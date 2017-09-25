@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_0fb9d478",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-25T11:00:49Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_414c5fc8",
+      "revId": "b318726471a76d29fb5f9373d92c1f181f27af83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_77068187",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-15T06:40:00Z",
       "side": 1,
       "message": "Do we need a reverse path for non-conntrack traffic ?",
+      "revId": "b318726471a76d29fb5f9373d92c1f181f27af83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6fb33098",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-25T11:00:49Z",
+      "side": 1,
+      "message": "Reverse path for both conntrack and non-conntrack traffic will be governed by SG rules.",
+      "parentUuid": "ba1f61a0_77068187",
       "revId": "b318726471a76d29fb5f9373d92c1f181f27af83",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_8f7b04bd",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-25T11:00:49Z",
+      "side": 1,
+      "message": "No. Metadata itself will be used for holding lport tag in ingress dispatcher as it is in the current implementation.\n\nCurrently METADATA_MASK_REMOTE_ACL_ID\u003d0000000000FFFFFE, this mask will be changed to \"0000000000FFFFFC\" leaving the second bit for ACL2 table to distinguish between conntrack (0x0/0x2) and non-conntrack (0x2/0x2) traffic.",
+      "parentUuid": "ba1f61a0_772de1fd",
+      "revId": "b318726471a76d29fb5f9373d92c1f181f27af83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_570b7d8d",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 6
@@ -70,6 +124,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_ef4d609b",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-25T11:00:49Z",
+      "side": 1,
+      "message": "Yes, overlapping allowed ip/mac pair will be handled even in anti-spoofing flows.\nAdditional match on lport tag is added (as mention in the flow) which will make ip/mac pair specific to a port.",
+      "parentUuid": "ba1f61a0_570b7d8d",
+      "revId": "b318726471a76d29fb5f9373d92c1f181f27af83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_b7fc7973",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 6
@@ -81,6 +153,24 @@
       "writtenOn": "2017-09-15T06:40:00Z",
       "side": 1,
       "message": "The proposal for removing id manager not included with this?",
+      "revId": "b318726471a76d29fb5f9373d92c1f181f27af83",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_cf505c34",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 338,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-09-25T11:00:49Z",
+      "side": 1,
+      "message": "Updated spec with the info related to removal of ID manager dependency which was used for generating flow priorities.",
+      "parentUuid": "ba1f61a0_b7fc7973",
       "revId": "b318726471a76d29fb5f9373d92c1f181f27af83",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
