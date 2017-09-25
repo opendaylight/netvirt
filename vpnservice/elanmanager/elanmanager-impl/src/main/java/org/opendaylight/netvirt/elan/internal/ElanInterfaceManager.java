@@ -552,7 +552,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         String interfaceName = elanInterfaceAdded.getName();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         if (interfaceInfo == null) {
-            LOG.warn("Interface {} is removed from Interface Oper DS due to port down ", interfaceName);
+            LOG.info("Interface {} is removed from Interface Oper DS due to port down ", interfaceName);
             return;
         }
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);

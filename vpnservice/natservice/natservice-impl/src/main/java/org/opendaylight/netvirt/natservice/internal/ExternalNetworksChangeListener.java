@@ -111,7 +111,8 @@ public class ExternalNetworksChangeListener
     @Override
     protected void remove(InstanceIdentifier<Networks> identifier, Networks networks) {
         if (identifier == null || networks == null || networks.getRouterIds().isEmpty()) {
-            LOG.error("remove : returning without processing since networks/identifier is null");
+            LOG.warn("remove : returning without processing since networks/identifier is null: "
+                + "identifier: {}, networks: {}", identifier, networks);
             return;
         }
 
@@ -224,7 +225,8 @@ public class ExternalNetworksChangeListener
             }
             LOG.debug("associateExternalNetworkWithVPN : got primarySwitch as dpnId{} ", dpnId);
             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                LOG.error("associateExternalNetworkWithVPN : primary napt Switch not found for router {}", routerId);
+                LOG.warn("associateExternalNetworkWithVPN : primary napt Switch not found for router {} on dpn: {}",
+                    routerId, dpnId);
                 return;
             }
 
