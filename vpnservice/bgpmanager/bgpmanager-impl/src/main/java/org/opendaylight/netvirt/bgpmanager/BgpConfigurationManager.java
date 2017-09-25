@@ -410,6 +410,8 @@ public class BgpConfigurationManager {
                     LOG.error(YANG_OBJ + "Add failed; " + ADD_WARN);
                 }
             }
+            VtyshCli.setHostAddr(val.getHost().getValue());
+            ClearBgpCli.setHostAddr(val.getHost().getValue());
         }
 
         @Override
