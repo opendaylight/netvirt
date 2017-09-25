@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_4d111451",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-25T17:12:06Z",
+      "side": 1,
+      "message": "can you please educate me why this change is required?\n\nWe removed this in our earlier patch where we converted the boolean NATPrefix to Enums.",
+      "revId": "96822fc3350fa722c88bfd3a3fa0c4cb9bf040bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
