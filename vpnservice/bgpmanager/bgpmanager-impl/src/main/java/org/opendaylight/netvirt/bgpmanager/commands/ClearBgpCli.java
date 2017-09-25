@@ -75,6 +75,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
 
     public void clearBgp(String clearCommand) throws IOException {
         try {
+            LOG.trace("Connecting to BgpHost: {}, port {} for clearBgp()", serverName, serverPort);
             socket = new Socket(serverName, serverPort);
         } catch (IOException ioe) {
             session.getConsole().println("failed to connect to bgpd " + ioe.getMessage());
@@ -102,8 +103,8 @@ public class ClearBgpCli extends OsgiCommandSupport {
 
     private void intializeSocketOptions() throws SocketException, IOException {
         socket.setSoTimeout(sockTimeout * 1000);
-        out = new PrintWriter(session.getConsole(), true);
-        in = new BufferedReader(new InputStreamReader(session.getKeyboard()));
+        out = new PrintWriter(socket.getOutputStream(), true);
+        in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
     }
 
     private static boolean readPassword(BufferedReader in) throws IOException {
