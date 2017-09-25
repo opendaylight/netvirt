@@ -71,7 +71,8 @@ public class TunnelEndPointChangeListener
 
         List<VpnInstance> vpnInstances = VpnHelper.getAllVpnInstances(broker);
         if (vpnInstances == null || vpnInstances.isEmpty()) {
-            LOG.warn("add: No VPN instances defined");
+            LOG.warn("add: dpnId: {}: tep: tep.getInterfaceName(): No VPN instances defined",
+                dpnId, tep.getInterfaceName());
             return;
         }
 

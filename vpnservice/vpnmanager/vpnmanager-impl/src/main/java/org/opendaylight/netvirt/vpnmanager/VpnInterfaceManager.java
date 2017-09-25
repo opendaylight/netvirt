@@ -292,12 +292,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         return futures;
                     });
             } else {
-                LOG.error("addVpnInterface: Handling addition of VPN interface {} on vpn {} skipped as interfaceState"
+                LOG.info("addVpnInterface: Handling addition of VPN interface {} on vpn {} skipped as interfaceState"
                         + " is not available", interfaceName, vpnName);
             }
         } else {
-            LOG.error("addVpnInterface: Handling addition of VPN interface {} on vpn {} dpn {} skipped"
-                    + " as interfaceState is not available", interfaceName, vpnInterface.getVpnInstanceName(),
+            LOG.info("addVpnInterface: Handling addition of VPN interface {} on vpn {} dpn {} skipped"
+                    + " as vpn is pending delete", interfaceName, vpnInterface.getVpnInstanceName(),
                     vpnInterface.getDpnId());
         }
     }
@@ -455,7 +455,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
         List<Uuid> routerIds = VpnUtil.getExternalNetworkRouterIds(dataBroker, extNetworkId);
         if (routerIds == null || routerIds.isEmpty()) {
-            LOG.error("processExternalVpnInterface: No router is associated with {}."
+            LOG.info("processExternalVpnInterface: No router is associated with {}."
                     + " Bailing out of processing external vpn interface {} on dpn {} for vpn {}",
                     extNetworkId.getValue(), vpnInterface.getName(), dpId,
                     vpnInterface.getVpnInstanceName());
@@ -1125,14 +1125,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     public void remove(InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
-        LOG.info("remove: VPN Interface remove event - intfName {} vpn {}" ,vpnInterface.getName(),
-                vpnInterface.getVpnInstanceName());
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
         BigInteger dpId = BigInteger.ZERO;
         final String vpnName = vpnInterface.getVpnInstanceName();
 
-        LOG.info("remove: VPN Interface remove event - intfName {} vpn {} dpn {}" ,vpnInterface.getName(),
+        LOG.info("remove: VPN Interface remove event - intfName {} vpn {} dpn {}", vpnInterface.getName(),
                 vpnInterface.getVpnInstanceName(), vpnInterface.getDpnId());
         removeInterfaceFromUnprocessedList(identifier, vpnInterface);
         Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
@@ -1198,7 +1196,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     return futures;
                 });
         } else {
-            LOG.error("remove: Handling removal of VPN interface {} on dpn {} for vpn {} skipped as"
+            LOG.info("remove: Handling removal of VPN interface {} on dpn {} for vpn {} skipped as"
                     + " interfaceState is not available", interfaceName, vpnInterface.getDpnId(),
                     vpnInterface.getVpnInstanceName());
         }
@@ -1624,8 +1622,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         + " interface {} rd {} elantag {}", label, prefix, nextHopIpList, vpnId, vpnInterfaceName, rd,
                         elanTag);
             } else {
-                LOG.error("addToLabelMapper: Can't add entry to label map for label {} prefix {} nextHopList {}"
-                        + " vpnId {} interface {} rd {} elantag {} ,dpnId is null", label, prefix, nextHopIpList,
+                LOG.warn("addToLabelMapper: Can't add entry to label map for label {} prefix {} nextHopList {}"
+                        + " vpnId {} interface {} rd {} elantag {}, dpnId is null", label, prefix, nextHopIpList,
                         vpnId, vpnInterfaceName, rd, elanTag);
             }
         }
