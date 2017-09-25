@@ -236,6 +236,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
+        LOG.info("makeConnectedRoute: DPN{} rd {} prefix {}", dpId, rd, destPrefix);
         String flowRef = FibUtil.getFlowRef(dpId, NwConstants.L3_FIB_TABLE, rd, priority, destPrefix);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef, priority,
                 flowRef, 0, 0,

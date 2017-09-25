@@ -532,6 +532,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         dropInstructions.add(new InstructionApplyActions(actionsInfos));
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + IPV4_ADDR_PREFIX_LENGTH;
+        LOG.info("installSubnetBroadcastAddrDropRule: DPN{} rd {} prefix {}", dpnId, rd, destPrefix);
         String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, rd, priority, destPrefix);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_SUBNET_ROUTE_TABLE, flowRef, priority,
                 flowRef, 0, 0, COOKIE_TABLE_MISS, matches, dropInstructions);
