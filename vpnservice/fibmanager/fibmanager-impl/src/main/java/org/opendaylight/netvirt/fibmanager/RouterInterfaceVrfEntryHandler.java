@@ -75,27 +75,29 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + rd);
         Preconditions.checkNotNull(vpnInstance.getVpnId(),
                 "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
-        final Collection<VpnToDpnList> vpnToDpnList;
-        if (vrfEntry.getParentVpnRd() != null
-                && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
-            VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
-            vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
-                    : vpnInstance.getVpnToDpnList();
-        } else {
-            vpnToDpnList = vpnInstance.getVpnToDpnList();
-        }
-        final Long vpnId = vpnInstance.getVpnId();
+        synchronized (vpnInstance.getVpnInstanceName().intern()) {
+            final Collection<VpnToDpnList> vpnToDpnList;
+            if (vrfEntry.getParentVpnRd() != null
+                    && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
+                VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
+                vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
+                        : vpnInstance.getVpnToDpnList();
+            } else {
+                vpnToDpnList = vpnInstance.getVpnToDpnList();
+            }
+            final Long vpnId = vpnInstance.getVpnId();
 
-        if (vpnToDpnList != null) {
-            String routerId = routerInterface.getUuid();
-            String macAddress = routerInterface.getMacAddress();
-            String ipValue = routerInterface.getIpAddress();
-            LOG.trace("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
-                    routerId, ipValue, macAddress);
-            for (VpnToDpnList vpnDpn : vpnToDpnList) {
-                if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                    installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue, new MacAddress(macAddress),
-                            addOrRemove);
+            if (vpnToDpnList != null) {
+                String routerId = routerInterface.getUuid();
+                String macAddress = routerInterface.getMacAddress();
+                String ipValue = routerInterface.getIpAddress();
+                LOG.info("createFibEntries - Router augmented vrfentry found for for router uuid:{}, ip:{}, mac:{}",
+                        routerId, ipValue, macAddress);
+                for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                    if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                        installRouterFibEntry(vrfEntry, vpnDpn.getDpnId(), vpnId, ipValue, new MacAddress(macAddress),
+                                addOrRemove);
+                    }
                 }
             }
         }
@@ -109,9 +111,9 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
         // address families
         FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(l3GwMacFlowEntity);
+            mdsalManager.syncInstallFlow(l3GwMacFlowEntity);
         } else {
-            mdsalManager.removeFlow(l3GwMacFlowEntity);
+            mdsalManager.syncRemoveFlow(l3GwMacFlowEntity);
         }
 
         java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
