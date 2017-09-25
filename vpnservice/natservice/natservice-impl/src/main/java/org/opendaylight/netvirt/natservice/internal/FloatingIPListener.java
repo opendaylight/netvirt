@@ -519,7 +519,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (dpnId == null) {
             dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
             if (dpnId.equals(BigInteger.ZERO)) {
-                LOG.error("removeNATFlowEntries: Abort processing Floating ip configuration. No DPN for port: {}",
+                LOG.warn("removeNATFlowEntries: Abort processing Floating ip configuration. No DPN for port: {}",
                         interfaceName);
                 return;
             }

@@ -231,7 +231,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 }
                 LOG.debug("Deletion from FloatingIpInfo DS successful for fixedIp {} ", fixedIpAddress);
             } else {
-                LOG.error("routerPorts for router {} not found", routerName);
+                LOG.error("routerPorts for router {} - fixedIp {} not found", routerName, fixedIpAddress);
             }
         } catch (Exception e) {
             LOG.error("Failed to delete internal-to-external-port-map from FloatingIpInfo DS for fixed Ip {}",
