@@ -1256,6 +1256,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             String ifName = prefixInfo.getVpnInterfaceName();
             Optional<VpnInterface> optvpnInterface = MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 FibUtil.getVpnInterfaceIdentifier(ifName));
+            if (Prefixes.PrefixCue.PhysNetFunc.equals(prefixInfo.getPrefixCue())) {
+                /*Get vpnId for rd = networkId since op vpnInterface will be pointing to rd = networkId
+                * */
+                vpnId = FibUtil.getVpnId(dataBroker, vrfEntry.getParentVpnRd());
+            }
             if (optvpnInterface.isPresent()) {
                 long associatedVpnId = FibUtil.getVpnId(dataBroker, optvpnInterface.get().getVpnInstanceName());
                 if (vpnId != associatedVpnId) {
