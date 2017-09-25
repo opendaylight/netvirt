@@ -1537,7 +1537,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         }
                         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
                         if (routerInt != null) {
-                            LOG.trace("Router augmented vrfentry found rd:{}, uuid:{}, ip:{}, mac:{}",
+                            LOG.info("populateFibOnNewDpn: Router augmented vrfentry found rd:{}, uuid:{}, ip:{},"
+                                            + "mac:{}",
                                 rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
                             routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
                                     routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
@@ -1715,7 +1716,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             // ping responder for router interfaces
                             RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
                             if (routerInt != null) {
-                                LOG.trace("Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}, mac:{}",
+                                LOG.trace("cleanUpDpnForVpn: Router augmented vrfentry found for rd:{}, uuid:{}, ip:{}"
+                                        + "mac:{}",
                                     rd, routerInt.getUuid(), routerInt.getIpAddress(), routerInt.getMacAddress());
                                 routerInterfaceVrfEntryHandler.installRouterFibEntry(vrfEntry, dpnId, vpnId,
                                         routerInt.getIpAddress(), new MacAddress(routerInt.getMacAddress()),
