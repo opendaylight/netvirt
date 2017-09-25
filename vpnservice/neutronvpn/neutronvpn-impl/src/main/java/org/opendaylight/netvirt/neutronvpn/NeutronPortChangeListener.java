@@ -218,15 +218,15 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         InterfaceAcl infAcl = handlePortSecurityUpdated(dataBroker, original, update,
                                 origSecurityEnabled, updatedSecurityEnabled, interfaceBuilder).build();
                         interfaceBuilder.addAugmentation(InterfaceAcl.class, infAcl);
-                        LOG.info("Of-port-interface updation for port {}", portName);
+                        LOG.info("update: Of-port-interface updation for port {}", portName);
                         // Update OFPort interface for this neutron port
                         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier,
                                 interfaceBuilder.build());
                     } else {
-                        LOG.error("Interface {} is not present", portName);
+                        LOG.warn("update: Interface {} is not present", portName);
                     }
                 } catch (ReadFailedException e) {
-                    LOG.error("Failed to update interface {}", portName, e);
+                    LOG.error("update: Failed to update interface {}", portName, e);
                 }
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(wrtConfigTxn.submit());
@@ -548,10 +548,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             if (optionalInf.isPresent()) {
                 wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier);
             } else {
-                LOG.error("Interface {} is not present", name);
+                LOG.warn("deleteOfPortInterface: Interface {} is not present", name);
             }
         } catch (ReadFailedException e) {
-            LOG.error("Failed to delete interface {}", name, e);
+            LOG.error("deleteOfPortInterface: Failed to delete interface {}", name, e);
         }
     }
 

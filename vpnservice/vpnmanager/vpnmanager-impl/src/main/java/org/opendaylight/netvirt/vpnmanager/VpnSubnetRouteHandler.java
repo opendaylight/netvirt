@@ -619,7 +619,7 @@ public class VpnSubnetRouteHandler {
                     LogicalDatastoreType.OPERATIONAL,
                     subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
-                    LOG.error("{} onInterfaceDown: SubnetOpDataEntry for subnet {} is not available."
+                    LOG.info("{} onInterfaceDown: SubnetOpDataEntry for subnet {} is not available."
                             + " Ignoring port {} down event.", LOGGING_PREFIX, subnetId.getValue(), interfaceName);
                     return;
                 }

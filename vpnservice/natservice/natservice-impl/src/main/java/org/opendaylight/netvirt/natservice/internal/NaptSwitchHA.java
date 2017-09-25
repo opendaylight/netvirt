@@ -430,7 +430,7 @@ public class NaptSwitchHA {
                     SnatServiceManager.Action.SNAT_ALL_SWITCH_ENBL);
         } else {
             if (naptSwitch.equals(BigInteger.ZERO)) {
-                LOG.error("isNaptSwitchDown : No napt switch is elected since all the switches for router {}"
+                LOG.warn("isNaptSwitchDown : No napt switch is elected since all the switches for router {}"
                         + " are down. SNAT IS NOT SUPPORTED FOR ROUTER {}", routerName);
                 boolean naptUpdatedStatus = updateNaptSwitch(routerName, naptSwitch);
                 if (!naptUpdatedStatus) {
@@ -979,7 +979,7 @@ public class NaptSwitchHA {
             Set<String> removedExternalIps = new HashSet<>(externalIpsCache);
             removedExternalIps.removeAll(newExternalIps);
             if (removedExternalIps.isEmpty()) {
-                LOG.error("bestEffortDeletion : No external Ip needed to be removed in bestEffortDeletion "
+                LOG.info("bestEffortDeletion : No external Ip needed to be removed in bestEffortDeletion "
                         + "method for router {}", routerName);
                 return;
             }

@@ -81,7 +81,7 @@ public class NatRouterInterfaceListener
             NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
             NatUtil.addToDpnRoutersMap(dataBroker, routerId, interfaceName, interfaceManager, writeOperTxn);
         } else {
-            LOG.warn("add : Interface {} not yet operational to handle router interface add event in router {}",
+            LOG.info("add : Interface {} not yet operational to handle router interface add event in router {}",
                     interfaceName, routerId);
         }
 
