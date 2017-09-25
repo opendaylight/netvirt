@@ -166,7 +166,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
          *  datapath for traffic forwarding for ``SNAT-to-DNAT`` and ``DNAT-to-DNAT`` cases within the
          *  DataCenter.
         */
-        if (provType == ProviderTypes.GRE || provType == ProviderTypes.VXLAN) {
+        if (elanService.isOpenStackVniSemanticsEnforced() && (provType == ProviderTypes.GRE
+                || provType == ProviderTypes.VXLAN)) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
         }
@@ -205,7 +206,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                      * the L3VNI value of VPNInstance to which the VM belongs to.
                      */
                     long l3vni = 0;
-                    if (elanService.isOpenStackVniSemanticsEnforced()) {
+                    if (elanService.isOpenStackVniSemanticsEnforced() && provType == ProviderTypes.GRE) {
                         l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                     }
                     String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
@@ -218,7 +219,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     List<ActionInfo> actionsInfos = new ArrayList<>();
                     actionsInfos.add(new ActionNxResubmit(NwConstants.PDNAT_TABLE));
                     instructions.add(new InstructionApplyActions(actionsInfos).buildInstruction(0));
-                    makeTunnelTableEntry(vpnName, dpnId, label, instructions);
+                    makeTunnelTableEntry(vpnName, dpnId, label, instructions, provType);
 
                     //Install custom FIB routes
                     List<ActionInfo> actionInfoFib = new ArrayList<>();
@@ -411,7 +412,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     }
 
     private void makeTunnelTableEntry(String vpnName, BigInteger dpnId, long serviceId,
-            List<Instruction> customInstructions) {
+            List<Instruction> customInstructions, ProviderTypes provType) {
         List<MatchInfo> mkMatches = new ArrayList<>();
 
         LOG.info("makeTunnelTableEntry on DpnId = {} and serviceId = {}", dpnId, serviceId);
@@ -419,7 +420,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
         // Increased the 36->25 flow priority. If SNAT is also configured on the same
         // DPN, then the traffic will be hijacked to DNAT and if there are no DNAT match,
         // then handled back to using using flow 25->44(which will be installed as part of SNAT)
-        if (elanService.isOpenStackVniSemanticsEnforced()) {
+        if (elanService.isOpenStackVniSemanticsEnforced() && provType == ProviderTypes.GRE) {
             mkMatches.add(new MatchTunnelId(NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, serviceId)));
             flowPriority = 6;
         } else {

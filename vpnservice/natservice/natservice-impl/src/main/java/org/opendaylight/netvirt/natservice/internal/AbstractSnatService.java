@@ -14,7 +14,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -38,7 +37,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -102,7 +100,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     public boolean handleSnatAllSwitch(Routers routers, BigInteger primarySwitchId,  int addOrRemove) {
         LOG.debug("handleSnatAllSwitch : Handle Snat in all switches");
         String routerName = routers.getRouterName();
-        installRouterGwFlows(routers, primarySwitchId, addOrRemove);
         List<BigInteger> switches = naptSwitchSelector.getDpnsForVpn(routerName);
         /*
          * Primary switch handled separately since the pseudo port created may
@@ -198,22 +195,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         flowRef = flowRef + "inbound" + externalIp;
         syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.SNAT_FIB_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructionInfo, addOrRemove);
-    }
-
-    protected void installRouterGwFlows(Routers router, BigInteger primarySwitchId, int addOrRemove) {
-        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        List<ExternalIps> externalIps = router.getExternalIps();
-        List<String> externalIpsSting = new ArrayList<>();
-        for (ExternalIps externalIp : externalIps) {
-            externalIpsSting.add(externalIp.getIpAddress());
-        }
-        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
-        vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-                router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
-        vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
-                router.getExtGwMacAddress(), primarySwitchId,
-                router.getNetworkId(), writeTx, addOrRemove);
-        writeTx.submit();
     }
 
     protected void installSnatMissEntry(BigInteger dpnId, Long routerId, String routerName, BigInteger primarySwitchId,

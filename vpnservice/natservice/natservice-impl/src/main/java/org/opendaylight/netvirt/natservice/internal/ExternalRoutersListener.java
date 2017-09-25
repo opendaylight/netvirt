@@ -248,7 +248,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 // Allocate Primary Napt Switch for this router
                 BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName, segmentId);
                 if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-                    handleRouterGwFlows(routers, primarySwitchId, NwConstants.ADD_FLOW);
                     if (!routers.isEnableSnat()) {
                         LOG.info("add : SNAT is disabled for external router {} ", routerName);
                         return;
@@ -1024,7 +1023,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         }
                         //Inform BGP
                         long l3vni = 0;
-                        if (elanManager.isOpenStackVniSemanticsEnforced()) {
+                        if (elanManager.isOpenStackVniSemanticsEnforced() && extNwProvType == ProviderTypes.GRE) {
                             l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, vpnName, l3vni).longValue();
                         }
                         Routers extRouter = router != null ? router :
@@ -1221,8 +1220,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             }
 
             if (!Objects.equals(original.getExtGwMacAddress(), update.getExtGwMacAddress())) {
-                handleRouterGwFlows(original, dpnId, NwConstants.DEL_FLOW);
-                handleRouterGwFlows(update, dpnId, NwConstants.ADD_FLOW);
+                NatUtil.installRouterGwFlows(dataBroker, vpnManager, original, dpnId, NwConstants.DEL_FLOW);
+                NatUtil.installRouterGwFlows(dataBroker, vpnManager, update, dpnId, NwConstants.ADD_FLOW);
             }
 
             //Check if the Update is on External IPs
@@ -1655,7 +1654,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             routerName);
                     return;
                 } else {
-                    handleRouterGwFlows(router, primarySwitchId, NwConstants.DEL_FLOW);
+                    NatUtil.installRouterGwFlows(dataBroker, vpnManager, router, primarySwitchId, NwConstants.DEL_FLOW);
                     Collection<String> externalIps = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
                     handleDisableSnat(router, networkUuid, externalIps, true, null, primarySwitchId, removeFlowInvTx);
                 }
@@ -1664,22 +1663,6 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
             }
         }
-    }
-
-    private void handleRouterGwFlows(Routers router, BigInteger primarySwitchId, int addOrRemove) {
-        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        List<ExternalIps> externalIps = router.getExternalIps();
-        if (externalIps.isEmpty()) {
-            LOG.error("handleRouterGwFlows : no externalIP present");
-            return;
-        }
-        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
-        vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-                router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
-        vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(),
-                NatUtil.getIpsListFromExternalIps(router.getExternalIps()),
-                router.getExtGwMacAddress(), primarySwitchId, router.getNetworkId(), writeTx, addOrRemove);
-        writeTx.submit();
     }
 
     // TODO Clean up the exception handling
