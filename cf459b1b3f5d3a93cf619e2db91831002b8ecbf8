@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_2fcad8a0",
+        "filename": "vpnservice/features/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-09-25T08:43:58Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "ba1f61a0_866134d5",
+      "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_e6a75009",
         "filename": "vpnservice/stfw/api/pom.xml",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_0fcd54b7",
+        "filename": "vpnservice/stfw/api/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-09-25T08:43:58Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "ba1f61a0_e6a75009",
+      "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_66b3604d",
         "filename": "vpnservice/stfw/impl/pom.xml",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-09-21T16:26:28Z",
       "side": 1,
       "message": "let\u0027s just remove this. I believe this stuff was deprecated or isn\u0027t used anymore. We need to remove it from the other bundles.",
+      "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_4fc2ac85",
+        "filename": "vpnservice/stfw/impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-09-25T08:43:58Z",
+      "side": 1,
+      "message": "wasn\u0027t sure, so retained it. will do.",
+      "parentUuid": "ba1f61a0_66b3604d",
       "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_afbd2804",
+        "filename": "vpnservice/stfw/impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-09-25T08:43:58Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "ba1f61a0_86b8142b",
+      "range": {
+        "startLine": 72,
+        "startChar": 6,
+        "endLine": 72,
+        "endChar": 14
+      },
+      "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_e67e3069",
         "filename": "vpnservice/stfw/impl/src/main/java/org/opendaylight/netvirt/stfw/InterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -93,6 +171,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_0ff6f4f8",
+        "filename": "vpnservice/stfw/impl/src/main/java/org/opendaylight/netvirt/stfw/InterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-09-25T08:43:58Z",
+      "side": 1,
+      "message": "we don\u0027t really care for what exception is as this is more of a dev code for use by devs. Once we start seeing xceptions in this, we can add granular ones.",
+      "parentUuid": "ba1f61a0_e67e3069",
+      "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_2694c889",
         "filename": "vpnservice/stfw/impl/src/main/java/org/opendaylight/netvirt/stfw/InterfaceStateChangeListener.java",
         "patchSetId": 1
@@ -104,6 +200,24 @@
       "writtenOn": "2017-09-21T16:26:28Z",
       "side": 1,
       "message": "above there is a try/catch in the add() - guess that isn\u0027t needed here?",
+      "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_6fe05029",
+        "filename": "vpnservice/stfw/impl/src/main/java/org/opendaylight/netvirt/stfw/InterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-09-25T08:43:58Z",
+      "side": 1,
+      "message": "currently not needed in either. had some more code in add earlier which required try catch. will probably add here as catch-all for generic issues.",
+      "parentUuid": "ba1f61a0_2694c889",
       "revId": "cf459b1b3f5d3a93cf619e2db91831002b8ecbf8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
