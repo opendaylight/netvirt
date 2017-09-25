@@ -1258,7 +1258,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 FibUtil.getVpnInterfaceIdentifier(ifName));
             if (optvpnInterface.isPresent()) {
                 long associatedVpnId = FibUtil.getVpnId(dataBroker, optvpnInterface.get().getVpnInstanceName());
-                if (vpnId != associatedVpnId) {
+                if (vpnId != associatedVpnId && !Prefixes.PrefixCue.PhysNetFunc.equals(prefixInfo.getPrefixCue())) {
                     LOG.warn("Prefixes {} are associated with different vpn instance with id : {} rather than {}",
                         vrfEntry.getDestPrefix(), associatedVpnId, vpnId);
                     LOG.warn("Not proceeding with Cleanup op data for prefix {}", vrfEntry.getDestPrefix());
