@@ -468,6 +468,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
         String flowId = FibUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
+
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
     }
