@@ -622,7 +622,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         }
         if (provType == ProviderTypes.VXLAN) {
             floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, NatConstants.DEFAULT_L3VNI_VALUE,
-                    removeFlowInvTx);
+                    removeFlowInvTx, provType);
             removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
             return;
         }
@@ -632,7 +632,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                     internalIp, routerId);
             return;
         }
-        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, removeFlowInvTx);
+        floatingIPHandler.cleanupFibEntries(dpnId, vpnName, externalIp, label, removeFlowInvTx, provType);
         removeOperationalDS(routerName, interfaceName, internalIp, externalIp);
     }
 
