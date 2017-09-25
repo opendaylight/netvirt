@@ -1271,7 +1271,7 @@ public final class VpnUtil {
         }
 
         String flowId = getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
-
+        LOG.info("buildL3vpnGatewayFlow:  dpId {} vpnId {} gwMacAddress {}", dpId, vpnId, gwMacAddress);
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
     }
