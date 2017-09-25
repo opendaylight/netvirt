@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -32,7 +31,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -58,6 +56,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -1844,20 +1843,6 @@ public class NatUtil {
         return NatConstants.INVALID_ID;
     }
 
-    public static void djcFlow(FlowEntity flowEntity, int addOrRemove, IMdsalApiManager mdsalManager) {
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        String jobKey = (flowEntity.getFlowName() != null) ? flowEntity.getFlowName() : flowEntity.getFlowId();
-        dataStoreCoordinator.enqueueJob(jobKey, () -> {
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                futures.add(mdsalManager.installFlow(flowEntity));
-            } else {
-                futures.add(mdsalManager.removeFlow(flowEntity));
-            }
-            return futures;
-        });
-    }
-
     public static String validateAndAddNetworkMask(String ipAddress) {
         return ipAddress.contains("/32") ? ipAddress : (ipAddress + "/32");
     }
@@ -1889,6 +1874,28 @@ public class NatUtil {
         return false;
     }
 
+    public static void installRouterGwFlows(DataBroker dataBroker, IVpnManager vpnManager, Routers router,
+            BigInteger primarySwitchId, int addOrRemove) {
+        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        List<ExternalIps> externalIps = router.getExternalIps();
+        List<String> externalIpsSting = new ArrayList<>();
+
+        if (externalIps.isEmpty()) {
+            LOG.error("installRouterGwFlows: setupRouterGwFlows no externalIP present");
+            return;
+        }
+        for (ExternalIps externalIp : externalIps) {
+            externalIpsSting.add(externalIp.getIpAddress());
+        }
+        Uuid subnetVpnName = externalIps.get(0).getSubnetId();
+        vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
+                router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
+        vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
+                router.getExtGwMacAddress(), primarySwitchId,
+                router.getNetworkId(), writeTx, addOrRemove);
+        writeTx.submit();
+    }
+
     public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
             WriteTransaction tx) {
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
@@ -1898,5 +1905,14 @@ public class NatUtil {
             LOG.error("Error writing to datastore {}", e);
         }
         return futures;
+    }
+
+    public static Boolean isOpenStackVniSemanticsEnforcedForGreAndVxlan(IElanService elanManager,
+                                                                        ProviderTypes extNwProvType) {
+        if (elanManager.isOpenStackVniSemanticsEnforced() && (extNwProvType == ProviderTypes.GRE
+                || extNwProvType == ProviderTypes.VXLAN)) {
+            return true;
+        }
+        return false;
     }
 }

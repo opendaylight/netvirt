@@ -210,7 +210,7 @@ public class NaptSwitchHA {
                     + "with the DPN ID {} and router ID {}", NwConstants.INTERNAL_TUNNEL_TABLE, naptSwitch, routerId);
             mdsalManager.removeFlowToTx(tsNatFlowEntity, removeFlowInvTx);
         }
-        if (elanManager.isOpenStackVniSemanticsEnforced()) {
+        if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
             //Remove the flow table 25->44 If there is no FIP Match on table 25 (PDNAT_TABLE)
             NatUtil.removePreDnatToSnatTableEntry(mdsalManager, naptSwitch, removeFlowInvTx);
         }
@@ -905,12 +905,24 @@ public class NaptSwitchHA {
                 naptSwitch, routerId);
             externalRouterListener.installNaptPfibExternalOutputFlow(routerName, routerId, naptSwitch, writeFlowInvTx);
         } else {
+            Uuid extNetworkUuid = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
+            if (extNetworkUuid == null) {
+                LOG.error("onRouterAssociatedToVpn : Unable to retrieve external network Uuid for router {}",
+                        routerName);
+                return;
+            }
+            ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName,
+                    extNetworkUuid);
+            if (extNwProvType == null) {
+                LOG.error("onRouterAssociatedToVpn : External Network Provider Type missing");
+                return;
+            }
             //36 -> 46 ..Install flow forwarding packet to table46 from table36
             LOG.debug("installSnatFlows : installTerminatingServiceTblEntry in naptswitch with dpnId {} for "
                 + "routerName {} with BgpVpnId {}", naptSwitch, routerName, routerVpnId);
             externalRouterListener
                 .installTerminatingServiceTblEntryWithUpdatedVpnId(naptSwitch, routerName, routerId,
-                        routerVpnId, writeFlowInvTx);
+                        routerVpnId, writeFlowInvTx, extNwProvType);
 
             //Install default flows punting to controller in table 46(OutBoundNapt table)
             LOG.debug("installSnatFlows : installOutboundMissEntry in naptswitch with dpnId {} for "

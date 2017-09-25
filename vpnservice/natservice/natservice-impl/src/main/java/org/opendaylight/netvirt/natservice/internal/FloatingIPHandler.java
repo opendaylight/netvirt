@@ -11,6 +11,7 @@ import java.math.BigInteger;
 
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 
 public interface FloatingIPHandler {
@@ -22,5 +23,5 @@ public interface FloatingIPHandler {
                             InternalToExternalPortMap mapping, long label, WriteTransaction removeFlowInvTx);
 
     void cleanupFibEntries(BigInteger dpnId, String vpnName, String externalIp, long label,
-                           WriteTransaction removeFlowInvTx);
+                           WriteTransaction removeFlowInvTx, ProviderTypes provType);
 }
