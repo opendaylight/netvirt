@@ -70,6 +70,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             if (network == null) {
                 LOG.info("update: vpnId {}, networkId: {}, subnetId: {}: network was not found",
                     vpnId.getValue(), subnetmap.getNetworkId().getValue(), subnetId.getValue());
+                return;
             }
             if (VpnUtil.getIsExternal(network)) {
                 return;
@@ -111,6 +112,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         if (network == null) {
             LOG.info("update: vpnIdNew: {}, vpnIdOld: {}, networkId: {}, subnetId: {}: network was not found",
                 vpnIdNew.getValue(), vpnIdOld.getValue(), elanInstanceName, subnetId.getValue());
+            return;
         }
         if (VpnUtil.getIsExternal(network)) {
             return;
