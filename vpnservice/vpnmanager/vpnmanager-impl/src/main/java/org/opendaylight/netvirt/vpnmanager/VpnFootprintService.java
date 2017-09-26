@@ -483,7 +483,7 @@ public class VpnFootprintService implements IVpnFootprintService {
          */
         @Override
         public void onFailure(Throwable throwable) {
-            log.error("onFailure: Failed to establish/clear footprint for vpn {} rd {} on dpn {} ", vpnName, rd, dpnId,
+            log.info("onFailure: Failed to establish/clear footprint for vpn {} rd {} on dpn {} ", vpnName, rd, dpnId,
                     throwable);
         }
     }
