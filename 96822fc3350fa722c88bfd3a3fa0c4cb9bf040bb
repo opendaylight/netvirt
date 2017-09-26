@@ -34,6 +34,24 @@
       "revId": "96822fc3350fa722c88bfd3a3fa0c4cb9bf040bb",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c8bcd2bd",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1266,
+      "author": {
+        "id": 5492
+      },
+      "writtenOn": "2017-09-26T05:36:38Z",
+      "side": 1,
+      "message": "The condition here of checking vpnId !\u003d associatedVpnId is not for distinguishing local / self-imported routes.\n\nIt is to proactively not service VPNInterfaceDelete if the vpnInstanceName for VPNinterface to which a prefix belongs to was changed under the carpet by VPNEngine, when the VRFEntryListener was just getting to busy up cleaning the VPNInterface for the prefix.  This was done primarily for timing issues seen with router-association/router-disassociation to VPN.\n\nFor now, could we please code this positively where we pro-actively get the adjacency for the prefix within the interface and retrieve the vpnId for the subnetId within that adjacency and use that as associatedVpnId for the PNF usse-case?",
+      "parentUuid": "ba1f61a0_2d578003",
+      "revId": "96822fc3350fa722c88bfd3a3fa0c4cb9bf040bb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
