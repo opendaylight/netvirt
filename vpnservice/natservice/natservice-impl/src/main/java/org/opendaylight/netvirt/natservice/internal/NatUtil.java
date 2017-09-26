@@ -423,7 +423,7 @@ public class NatUtil {
                 return networkId.getValue();
             }
         }
-        LOG.error("getAssociatedExternalNetwork : External Network missing for routerid : {}", routerId);
+        LOG.info("getAssociatedExternalNetwork : External Network missing for routerid : {}", routerId);
         return null;
     }
 
