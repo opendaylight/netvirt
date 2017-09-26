@@ -453,7 +453,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return;
         }
         if (portupdateIps == null || portupdateIps.isEmpty()) {
-            LOG.error("Ignoring portUpdate (fixed_ip removal) for port {} as this case is handled "
+            LOG.info("Ignoring portUpdate (fixed_ip removal) for port {} as this case is handled "
                       + "during subnet deletion event.", portupdate.getUuid().getValue());
             return;
         }

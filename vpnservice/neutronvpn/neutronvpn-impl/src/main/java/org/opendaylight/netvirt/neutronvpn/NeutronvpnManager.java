@@ -435,7 +435,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id,
                             subnetmap);
                 } else {
-                    LOG.error("Trying to remove port from non-existing subnetmap node {}", subnetId.getValue());
+                    LOG.info("Trying to remove port from non-existing subnetmap node {}", subnetId.getValue());
                 }
             }
         } catch (ReadFailedException | TransactionCommitFailedException e) {

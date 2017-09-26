@@ -62,7 +62,7 @@ public class InterfaceUtils {
             if (dpIdResult.isSuccessful()) {
                 nodeId = dpIdResult.getResult().getDpid();
             } else {
-                LOG.error("getDpnForInterface: Could not retrieve DPN Id for interface {}", ifName);
+                LOG.info("getDpnForInterface: Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
             LOG.error("getDpnForInterface: Exception when getting dpn for interface {}", ifName, e);
