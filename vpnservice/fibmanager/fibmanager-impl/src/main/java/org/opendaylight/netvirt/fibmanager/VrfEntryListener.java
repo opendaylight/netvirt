@@ -750,7 +750,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         } else {
             BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId,
                     rd, vrfEntry, vpnId, /*routes*/ null, /*vpnExtraRoutes*/ null);
-            returnLocalDpnId.add(dpnId);
+            if (dpnId != null) {
+                returnLocalDpnId.add(dpnId);
+            }
         }
         return returnLocalDpnId;
     }
@@ -766,6 +768,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
                 LOG.debug("checkCreateLocalFibEntry: NAT Prefix {} with vpnId {} rd {}. Skip local dpn {}"
+                        + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
+                return dpnId;
+            }
+            if (Prefixes.PrefixCue.PhysNetFunc.equals(localNextHopInfo.getPrefixCue())) {
+                LOG.debug("checkCreateLocalFibEntry: PNF Prefix {} with vpnId {} rd {}. Skip local dpn {}"
                         + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
                 return dpnId;
             }
@@ -1038,6 +1045,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
                 LOG.debug("checkDeleteLocalFibEntry: NAT Prefix {} with vpnId {} rd {}. Skip local dpn {}"
+                        + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
+                return dpnId;
+            }
+            if (Prefixes.PrefixCue.PhysNetFunc.equals(localNextHopInfo.getPrefixCue())) {
+                LOG.debug("checkDeleteLocalFibEntry: PNF Prefix {} with vpnId {} rd {}. Skip local dpn {}"
                         + " FIB processing", vrfEntry.getDestPrefix(), vpnId, rd, dpnId);
                 return dpnId;
             }
@@ -1885,7 +1897,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
         if (prefix != null) {
             BigInteger prefixDpnId = prefix.getDpnId();
-            if (prefixDpnId == dpnId) {
+            if (dpnId.equals(prefixDpnId)) {
                 LOG.trace("Should not create remote FIB entry for vrfEntry {} on DPN {}",
                         vrfEntry, dpnId);
                 return false;
