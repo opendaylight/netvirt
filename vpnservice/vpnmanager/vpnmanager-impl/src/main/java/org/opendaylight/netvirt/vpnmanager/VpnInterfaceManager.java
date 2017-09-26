@@ -198,7 +198,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         if (canHandleNewVpnInterface(identifier, vpnInterface)) {
             addVpnInterface(identifier, vpnInterface, null, null);
         } else {
-            LOG.error("add: VpnInstance {} for vpnInterface {} not ready, holding on ",
+            LOG.warn("add: VpnInstance {} for vpnInterface {} not ready, holding on ",
                     vpnInterface.getVpnInstanceName(), vpnInterface.getName());
         }
     }
@@ -316,7 +316,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     interfaceName, dpId, vpnName);
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (vpnId == VpnConstants.INVALID_ID) {
-                LOG.error("processVpnInterfaceUp: VpnInstance to VPNId mapping not available for VpnName {}"
+                LOG.warn("processVpnInterfaceUp: VpnInstance to VPNId mapping not available for VpnName {}"
                         + " processing vpninterface {} on dpn {}, bailing out now.", vpnName, interfaceName,
                         dpId);
                 return;
@@ -334,7 +334,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // However, if the primary VRF Entry for this VPNInterface exists, please continue bailing out !
                     List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
                     if (adjs == null) {
-                        LOG.error("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} failed as adjacencies"
+                        LOG.warn("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} failed as adjacencies"
                                 + " for this vpn interface could not be obtained", interfaceName, dpId,
                                 vpnName);
                         return;
@@ -346,7 +346,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     }
                     if (primaryInterfaceIp == null) {
-                        LOG.error("processVpnInterfaceUp: VPN Interface {} addition on dpn {} for vpn {} failed"
+                        LOG.warn("processVpnInterfaceUp: VPN Interface {} addition on dpn {} for vpn {} failed"
                                 + " as primary adjacency for this vpn interface could not be obtained", interfaceName,
                                 dpId, vpnName);
                         return;
@@ -354,13 +354,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // Get the rd of the vpn instance
                     VrfEntry vrf = VpnUtil.getVrfEntry(dataBroker, primaryRd, primaryInterfaceIp);
                     if (vrf != null) {
-                        LOG.error("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} already provisioned ,"
+                        LOG.warn("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} already provisioned ,"
                                 + " bailing out from here.", interfaceName, dpId, vpnName);
                         return;
                     }
                     waitForVpnInterfaceOpRemoval = true;
                 } else {
-                    LOG.error("processVpnInterfaceUp: vpn interface {} to go to configured vpn {} on dpn {},"
+                    LOG.warn("processVpnInterfaceUp: vpn interface {} to go to configured vpn {} on dpn {},"
                             + " but in operational vpn {}", interfaceName, vpnName, dpId, opVpnName);
                 }
             }
@@ -400,7 +400,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
             opVpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, interfaceName);
             if (opVpnInterface != null) {
-                LOG.error("processVpnInterfaceUp: VPN Interface {} removal on dpn {} for vpn {}"
+                LOG.warn("processVpnInterfaceUp: VPN Interface {} removal on dpn {} for vpn {}"
                         + " by FIB did not complete on time," + " bailing addition ...", interfaceName,
                         dpId, vpnName);
                 return;
@@ -637,7 +637,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         try {
             nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
         } catch (Exception e) {
-            LOG.error("processVpnInterfaceAdjacencies: Unable to retrieve enpoint ip address for "
+            LOG.error("processVpnInterfaceAdjacencies: Unable to retrieve endpoint ip address for "
                     + "dpnId {} for vpnInterface {} vpnName {}", dpnId, interfaceName, vpnName);
         }
         List<String> nhList = new ArrayList<>();
@@ -693,14 +693,16 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             arpResponderHandler.addArpResponderFlow(dpnId, lportTag, vpnName, vpnId, interfaceName,
                                     subnetId, gatewayIp.get(), gwMac.get());
                         } else {
-                            LOG.error("Gateway MAC for subnet ID {} could not be obtained, cannot create "
-                                            + "ARP responder flow for interface name {}, vpnName {}, gwIp {}",
-                                    interfaceName, vpnName, gatewayIp.get());
+                            LOG.error("processVpnInterfaceAdjacencies: Gateway MAC for subnet ID {} could not be "
+                                + "obtained, cannot create ARP responder flow for interface name {}, vpnName {}, "
+                                + "gwIp {}",
+                                interfaceName, vpnName, gatewayIp.get());
                         }
                     }
                 } else {
-                    LOG.warn("Gateway IP for subnet ID {} could not be obtained, cannot create ARP responder flow "
-                            + "for interface name {}, vpnName {}", subnetId, interfaceName, vpnName);
+                    LOG.warn("processVpnInterfaceAdjacencies: Gateway IP for subnet ID {} could not be obtained, "
+                        + "cannot create ARP responder flow for interface name {}, vpnName {}",
+                        subnetId, interfaceName, vpnName);
                 }
                 LOG.info("processVpnInterfaceAdjacencies: Added prefix {} to interface {} with nextHops {} on dpn {}"
                         + " for vpn {}", prefix, interfaceName, nhList, dpnId, vpnName);
@@ -714,9 +716,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             prefix, vpnName, nextHop.getNextHopIpList().get(0), dpnId, writeOperTxn);
                     if (rdToAllocate.isPresent()) {
                         rd = rdToAllocate.get();
-                        LOG.info("The rd {} is allocated for the extraroute {}", rd, prefix);
+                        LOG.info("processVpnInterfaceAdjacencies: The rd {} is allocated for the extraroute {}",
+                            rd, prefix);
                     } else {
-                        LOG.error("No rds to allocate extraroute {}", prefix);
+                        LOG.error("processVpnInterfaceAdjacencies: No rds to allocate extraroute {}", prefix);
                         continue;
                     }
                 }
@@ -737,7 +740,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             try {
                 operationalAdjacency = registeredPopulator.createOperationalAdjacency(input);
             } catch (NullPointerException e) {
-                LOG.error(e.getMessage());
+                LOG.error("processVpnInterfaceAdjacencies: failed to create operational adjacency: input: {}, {}",
+                    input, e.getMessage());
                 return;
             }
             if (nextHop.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
@@ -1472,8 +1476,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 try {
                     operFuture.get();
                 } catch (ExecutionException e) {
-                    LOG.error("Exception encountered while submitting operational future for update"
-                            + " VpnInterface {}: {}", vpnInterfaceName, e);
+                    LOG.error("update: Exception encountered while submitting operational future for update"
+                            + " VpnInterface {}", vpnInterfaceName, e);
                     return null;
                 }
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
