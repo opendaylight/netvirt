@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_f1e7f6a9",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "you are right. I removed it.",
+      "parentUuid": "ba1f61a0_fa0a5188",
+      "range": {
+        "startLine": 30,
+        "startChar": 8,
+        "endLine": 30,
+        "endChar": 17
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_1a676527",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -36,6 +60,30 @@
       "writtenOn": "2017-09-19T09:24:07Z",
       "side": 1,
       "message": "In Config3, router is a dual-stack right (i.e., subnet C and F)? \nAm I missing something?",
+      "range": {
+        "startLine": 127,
+        "startChar": 55,
+        "endLine": 127,
+        "endChar": 75
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_c3566905",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "I made some changes.\nconfig 1 \u003d single stack IPv6\nconfig 2 \u003d dual stack single router\nconfig 3 \u003d two router solution",
+      "parentUuid": "ba1f61a0_1a676527",
       "range": {
         "startLine": 127,
         "startChar": 55,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_518d22d2",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "yes, because north / south ipv6 without bgpvpn is not supported by this spec.\n\nnote that config 1 will remain single stack router.\nAnd this router config will only be IPv6 based.\nand for that subnetD will not be needed to be configured.",
+      "parentUuid": "ba1f61a0_baa4594b",
+      "range": {
+        "startLine": 139,
+        "startChar": 51,
+        "endLine": 139,
+        "endChar": 59
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_ba529932",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -82,6 +154,30 @@
       "writtenOn": "2017-09-19T09:24:07Z",
       "side": 1,
       "message": "Can you use a different network name instead of \"N\" here. Since the same network seems to be having other subnets shown in config1 (i.e., line 141)",
+      "range": {
+        "startLine": 150,
+        "startChar": 16,
+        "endLine": 150,
+        "endChar": 25
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b1bf3e60",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_ba529932",
       "range": {
         "startLine": 150,
         "startChar": 16,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_317a2ebd",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "it is admin only feature.\nthat means that when using admin association, in addition to external subnetworks that will be conveyed through BGPVPN, also the private IPv6 subnets will be conveyed too.",
+      "parentUuid": "ba1f61a0_da578d24",
+      "range": {
+        "startLine": 214,
+        "startChar": 45,
+        "endLine": 215,
+        "endChar": 22
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_fa1ed16e",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -128,6 +248,30 @@
       "writtenOn": "2017-09-19T09:24:07Z",
       "side": 1,
       "message": "In Line 270, you have used GATEWAY_NET. Please use the same name even here.",
+      "range": {
+        "startLine": 241,
+        "startChar": 48,
+        "endLine": 241,
+        "endChar": 59
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_11756aca",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_fa1ed16e",
       "range": {
         "startLine": 241,
         "startChar": 48,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_517b62bd",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 242,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "as I make it optional, I removed the lien.",
+      "parentUuid": "ba1f61a0_1a35a5f7",
+      "range": {
+        "startLine": 242,
+        "startChar": 41,
+        "endLine": 242,
+        "endChar": 58
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_fa37f1fc",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -174,6 +342,30 @@
       "writtenOn": "2017-09-19T09:24:07Z",
       "side": 1,
       "message": "nit: s/illustration/illustrated",
+      "range": {
+        "startLine": 244,
+        "startChar": 42,
+        "endLine": 244,
+        "endChar": 54
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_b14d7e9c",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_fa37f1fc",
       "range": {
         "startLine": 244,
         "startChar": 42,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_f13a56e5",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_1a1c8577",
+      "range": {
+        "startLine": 270,
+        "startChar": 32,
+        "endLine": 270,
+        "endChar": 39
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_b5174a44",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -220,6 +436,30 @@
       "writtenOn": "2017-09-19T09:24:07Z",
       "side": 1,
       "message": "Can you please use the same names as used in the examples below. i.e., external-l3vpn-id",
+      "range": {
+        "startLine": 297,
+        "startChar": 95,
+        "endLine": 297,
+        "endChar": 110
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_e33e0db7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_b5174a44",
       "range": {
         "startLine": 297,
         "startChar": 95,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_2345c542",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "nothing is planned to prevent from misconfiguring IPv6 networks.",
+      "parentUuid": "ba1f61a0_55208e9a",
+      "range": {
+        "startLine": 320,
+        "startChar": 2,
+        "endLine": 320,
+        "endChar": 77
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_b52e2a8a",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_8377519f",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 330,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_b52e2a8a",
+      "range": {
+        "startLine": 330,
+        "startChar": 59,
+        "endLine": 330,
+        "endChar": 65
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_f57a6286",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -289,6 +577,30 @@
       "writtenOn": "2017-09-19T09:24:07Z",
       "side": 1,
       "message": "nit: typo - will",
+      "range": {
+        "startLine": 362,
+        "startChar": 22,
+        "endLine": 362,
+        "endChar": 25
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_637a1d89",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_f57a6286",
       "range": {
         "startLine": 362,
         "startChar": 22,
@@ -347,6 +659,30 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_4361d9d1",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "this is a case where an other BGPVPN is configured, but for inter DC only. ( see above config, i used external-vpn-id)",
+      "parentUuid": "ba1f61a0_35a87ada",
+      "range": {
+        "startLine": 404,
+        "startChar": 29,
+        "endLine": 404,
+        "endChar": 55
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_d5b8fe2b",
         "filename": "docs/specs/ipv6-l3vpn-internet.rst",
         "patchSetId": 29
@@ -358,6 +694,30 @@
       "writtenOn": "2017-09-19T09:24:07Z",
       "side": 1,
       "message": "l3vpn-id? Is it internetvpn-id or external-l3vpn-id?",
+      "range": {
+        "startLine": 405,
+        "startChar": 53,
+        "endLine": 405,
+        "endChar": 61
+      },
+      "revId": "963b298493eb972c52435057bc07350ee106eacb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_839e31b7",
+        "filename": "docs/specs/ipv6-l3vpn-internet.rst",
+        "patchSetId": 29
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-09-27T17:46:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba1f61a0_d5b8fe2b",
       "range": {
         "startLine": 405,
         "startChar": 53,
