@@ -37,7 +37,6 @@ public class DataBrokerPairsUtil {
 
     @Inject
     public DataBrokerPairsUtil(DataBroker db) {
-        super();
         this.singleTxDB = new SingleTransactionDataBroker(db);
     }
 

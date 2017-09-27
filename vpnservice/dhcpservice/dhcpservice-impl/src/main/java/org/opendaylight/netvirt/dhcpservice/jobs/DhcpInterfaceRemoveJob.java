@@ -63,7 +63,6 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
                                   DataBroker dataBroker,
                                   Interface interfaceDel, BigInteger dpnId, IInterfaceManager interfaceManager,
                                   IElanService elanService) {
-        super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
