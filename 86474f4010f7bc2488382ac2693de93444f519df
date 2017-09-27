@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_e3da8d76",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-09-27T18:06:53Z",
+      "side": 1,
+      "message": "still wondering whether elan\u0027s version is 0.5.0 or not??",
+      "revId": "86474f4010f7bc2488382ac2693de93444f519df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_63d69d50",
+        "filename": "vpnservice/features/odl-netvirt-api/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-09-27T18:06:53Z",
+      "side": 1,
+      "message": "isn\u0027t this 1.2.1 for nitrogen?",
+      "revId": "86474f4010f7bc2488382ac2693de93444f519df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
