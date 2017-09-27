@@ -168,6 +168,9 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             }
         }
 
+        // Ensure that netvirt logical SFF is added
+        sfcMdsalHelper.addNetvirLogicalSff();
+
         //For each port pair group
         for (PortPairGroup ppg : portPairGroupList) {
             List<ServiceFunctionBuilder> portPairSFList = new ArrayList<>();
