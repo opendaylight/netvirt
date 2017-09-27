@@ -65,7 +65,7 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
         if (serviceFunction != null) {
             //Current support is for one Service Function connected to one data plane locator
             SffName sffName = serviceFunction.getSfDataPlaneLocator().get(0).getServiceFunctionForwarder();
-            if (sffName != null) {
+            if (sffName != null && !SfcMdsalHelper.NETVIRT_LOGICAL_SFF_NAME.equals(sffName.getValue())) {
                 ServiceFunctionForwarderKey sffKey = new ServiceFunctionForwarderKey(sffName);
                 ServiceFunctionForwarder sff = sfcMdsalHelper.readServiceFunctionForwarder(sffKey);
                 if (sff != null) {
