@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba1f61a0_439ef963",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-09-27T18:43:58Z",
+      "side": 1,
+      "message": "yes, this will go to 0.5.1",
+      "parentUuid": "ba1f61a0_e3da8d76",
+      "revId": "86474f4010f7bc2488382ac2693de93444f519df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba1f61a0_63d69d50",
         "filename": "vpnservice/features/odl-netvirt-api/pom.xml",
         "patchSetId": 3
@@ -30,6 +48,24 @@
       "writtenOn": "2017-09-27T18:06:53Z",
       "side": 1,
       "message": "isn\u0027t this 1.2.1 for nitrogen?",
+      "revId": "86474f4010f7bc2488382ac2693de93444f519df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_638e9d2f",
+        "filename": "vpnservice/features/odl-netvirt-api/pom.xml",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-09-27T18:43:58Z",
+      "side": 1,
+      "message": "this goes to 1.2.1. I pushed a different path to clean up some other coe versions first since that is blowing up the builds right now. Once that merges I will rebase this one. https://git.opendaylight.org/gerrit/#/c/63713/",
+      "parentUuid": "ba1f61a0_63d69d50",
       "revId": "86474f4010f7bc2488382ac2693de93444f519df",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
