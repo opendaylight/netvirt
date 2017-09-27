@@ -87,7 +87,6 @@ public class ArpResponderInput {
         }
 
         public ArpReponderInputBuilder(ArpResponderInput input) {
-            super();
             this.input = input;
         }
 
