@@ -235,4 +235,10 @@ public class SfcMdsalHelper {
         ServiceFunctionForwarder sff = sffBuilder.build();
         this.addServiceFunctionForwarder(sff);
     }
+
+    void removeNetvirtLogicalSff() {
+        SffName netvirtLogicalSffName = new SffName(NETVIRT_LOGICAL_SFF_NAME);
+        ServiceFunctionForwarderKey netvirtLogicalSffKey = new ServiceFunctionForwarderKey(netvirtLogicalSffName);
+        this.deleteServiceFunctionForwarder(netvirtLogicalSffKey);
+    }
 }
