@@ -17,6 +17,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   </parent>
 
   <artifactId>coe-aggregator</artifactId>
+  <version>0.5.1-SNAPSHOT</version>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>pom</packaging>
 
