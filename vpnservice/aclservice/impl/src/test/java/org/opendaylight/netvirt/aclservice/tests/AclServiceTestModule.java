@@ -49,7 +49,6 @@ public class AclServiceTestModule extends AbstractModule {
     final SecurityGroupMode securityGroupMode;
 
     public AclServiceTestModule(SecurityGroupMode securityGroupMode) {
-        super();
         this.securityGroupMode = securityGroupMode;
     }
 

@@ -21,7 +21,6 @@ public class DhcpAllocationPoolRemoveJob implements Callable<List<ListenableFutu
     private final String interfaceName;
 
     public DhcpAllocationPoolRemoveJob(DataBroker dataBroker, String interfaceName) {
-        super();
         this.dataBroker = dataBroker;
         this.interfaceName = interfaceName;
     }
@@ -36,5 +35,4 @@ public class DhcpAllocationPoolRemoveJob implements Callable<List<ListenableFutu
         DhcpServiceUtils.unbindDhcpService(interfaceName, unbindServiceTx);
         return Collections.singletonList(unbindServiceTx.submit());
     }
-
 }
