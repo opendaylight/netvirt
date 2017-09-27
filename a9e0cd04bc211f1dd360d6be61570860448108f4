@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_31d4eeea",
+        "filename": "vpnservice/coe/impl/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-09-27T15:51:46Z",
+      "side": 1,
+      "message": "version?",
+      "revId": "a9e0cd04bc211f1dd360d6be61570860448108f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ba1f61a0_d1e912b8",
+        "filename": "vpnservice/features/odl-netvirt-api/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-09-27T15:51:46Z",
+      "side": 1,
+      "message": "version is not right for nitrogen",
+      "revId": "a9e0cd04bc211f1dd360d6be61570860448108f4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
