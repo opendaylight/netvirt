@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ba1f61a0_82a752bc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-09-27T02:56:18Z",
+      "side": 1,
+      "message": "Based on your points, I\u0027m fine with the patch since we are querying the networkId only when the subnetMap does not include it. \n\nWe do see exceptions popping out in CSIT/local-testing. It would be helpful to include the exception that you have noticed for this issue (as part of Bug#9167) as it helps us to map this fix to the exception.",
+      "revId": "33fc058defd71973b44a85146dbc99881da77b70",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
