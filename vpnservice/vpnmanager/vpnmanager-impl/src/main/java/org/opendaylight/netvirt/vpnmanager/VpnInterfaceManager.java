@@ -2211,7 +2211,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         VpnInterface vpnInterface;
 
         UnprocessedVpnInterfaceData(InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
-            super();
             this.identifier = identifier;
             this.vpnInterface = vpnInterface;
         }

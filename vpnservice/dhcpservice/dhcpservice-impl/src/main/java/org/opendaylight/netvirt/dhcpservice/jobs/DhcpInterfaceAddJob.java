@@ -69,7 +69,6 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                DataBroker dataBroker, Interface interfaceAdd, BigInteger dpnId,
                                IInterfaceManager interfaceManager, IElanService elanService) {
-        super();
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;

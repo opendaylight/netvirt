@@ -129,7 +129,6 @@ public final class AclServiceUtils {
 
     @Inject
     public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config, IdManagerService idManager) {
-        super();
         this.aclDataUtil = aclDataUtil;
         this.config = config;
         this.idManager = idManager;

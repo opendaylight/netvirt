@@ -33,7 +33,6 @@ public class InterVpnLinkStateListener
     private final IVpnLinkService ivpnLinkService;
 
     public InterVpnLinkStateListener(final DataBroker dataBroker, final IVpnLinkService interVpnLinkService) {
-        super();
         this.dataBroker = dataBroker;
         this.ivpnLinkService = interVpnLinkService;
     }
