@@ -58,6 +58,8 @@ public class OpenStackSFCTranslatorProvider extends AbstractLifecycle {
         neutronPortPairListener.close();
         neutronPortPairGroupListener.close();
         neutronPortChainListener.close();
+        SfcMdsalHelper sfcMdsal = new SfcMdsalHelper(dataBroker);
+        sfcMdsal.removeNetvirtLogicalSff();
         LOG.info("{} close", getClass().getSimpleName());
     }
 }
