@@ -57,7 +57,6 @@ public class ArpResponderHandler {
      *
      */
     public ArpResponderHandler(DataBroker dataBroker, IElanService elanService, IInterfaceManager interfaceManager) {
-        super();
         this.dataBroker = dataBroker;
         this.elanService = elanService;
         this.interfaceManager = interfaceManager;

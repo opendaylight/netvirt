@@ -49,7 +49,6 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
 
     @Inject
     public NeutronTrunkChangeListener(final DataBroker dataBroker, IInterfaceManager ifMgr) {
-        super();
         this.dataBroker = dataBroker;
         this.ifMgr = ifMgr;
     }

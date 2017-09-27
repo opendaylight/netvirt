@@ -35,7 +35,6 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
 
     public ArpMonitorStopTask(MacEntry macEntry, DataBroker dataBroker,
         AlivenessMonitorService alivenessManager) {
-        super();
         this.macEntry = macEntry;
         this.dataBroker = dataBroker;
         this.alivenessManager = alivenessManager;

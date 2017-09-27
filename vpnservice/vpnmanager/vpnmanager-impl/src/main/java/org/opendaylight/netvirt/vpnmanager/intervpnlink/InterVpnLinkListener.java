@@ -95,7 +95,6 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                 final InterVpnLinkLocator interVpnLinkLocator,
                                 final VpnFootprintService vpnFootprintService,
                                 final VpnOpDataSyncer vpnOpDataSyncer) {
-        super();
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;

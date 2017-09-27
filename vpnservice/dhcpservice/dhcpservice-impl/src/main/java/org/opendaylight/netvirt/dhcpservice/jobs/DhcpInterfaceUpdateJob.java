@@ -36,7 +36,6 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
     public DhcpInterfaceUpdateJob(DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                   DataBroker dataBroker, String interfaceName, BigInteger dpnId,
                                   OperStatus operStatus, IInterfaceManager interfaceManager) {
-        super();
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
         this.interfaceName = interfaceName;

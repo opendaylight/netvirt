@@ -28,7 +28,6 @@ public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>
     public ArpMonitorStartTask(MacEntry macEntry, Long profileId, DataBroker databroker,
         AlivenessMonitorService alivenessManager, OdlInterfaceRpcService interfaceRpc,
         INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager) {
-        super();
         this.macEntry = macEntry;
         this.arpMonitorProfileId = profileId;
         this.databroker = databroker;
@@ -45,5 +44,4 @@ public class ArpMonitorStartTask implements Callable<List<ListenableFuture<Void>
             interfaceManager);
         return null;
     }
-
 }
