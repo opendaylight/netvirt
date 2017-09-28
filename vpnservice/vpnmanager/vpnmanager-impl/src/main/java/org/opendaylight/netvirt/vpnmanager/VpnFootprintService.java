@@ -23,7 +23,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
-import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
@@ -78,9 +77,6 @@ public class VpnFootprintService implements IVpnFootprintService {
     public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        if (dpId == null) {
-            dpId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, interfaceName);
-        }
         if (!dpId.equals(BigInteger.ZERO)) {
             if (add) {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause
