@@ -402,7 +402,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, interfaceName);
 
         if (dpnId.equals(BigInteger.ZERO)) {
-            LOG.error("createNATFlowEntries : No DPN for interface {}. NAT flow entries for ip mapping {} will "
+            LOG.warn("createNATFlowEntries : No DPN for interface {}. NAT flow entries for ip mapping {} will "
                 + "not be installed", interfaceName, mapping);
             return;
         }

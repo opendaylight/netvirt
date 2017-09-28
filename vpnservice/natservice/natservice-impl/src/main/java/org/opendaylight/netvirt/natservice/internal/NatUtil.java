@@ -1439,7 +1439,7 @@ public class NatUtil {
 
         IpAddress gatewayIp = subnetOpt.get().getGatewayIp();
         if (gatewayIp == null) {
-            LOG.error("getSubnetGwMac : No GW ip found for subnet {}", subnetId.getValue());
+            LOG.warn("getSubnetGwMac : No GW ip found for subnet {}", subnetId.getValue());
             return null;
         }
 
@@ -1724,7 +1724,7 @@ public class NatUtil {
                 return extIp.getSubnetId();
             }
         }
-        LOG.error("getExternalSubnetForRouterExternalIp : Missing External Subnet for Ip:{}", externalIpAddress);
+        LOG.warn("getExternalSubnetForRouterExternalIp : Missing External Subnet for Ip:{}", externalIpAddress);
         return null;
     }
 
