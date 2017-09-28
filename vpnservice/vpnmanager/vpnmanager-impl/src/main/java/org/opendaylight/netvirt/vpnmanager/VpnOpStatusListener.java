@@ -21,6 +21,7 @@ import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
@@ -92,6 +93,9 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 // Clean up FIB Entries Config DS
                 fibManager.removeVrfTable(dataBroker, primaryRd, null);
                 // Clean up VPNExtraRoutes Operational DS
+                if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
+                    rds.parallelStream().forEach(rd -> bgpManager.deleteVrf(rd, false, AddressFamily.IPV4));
+                }
                 InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
                 Optional<Vpn> optVpnToExtraroute = VpnUtil.read(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
