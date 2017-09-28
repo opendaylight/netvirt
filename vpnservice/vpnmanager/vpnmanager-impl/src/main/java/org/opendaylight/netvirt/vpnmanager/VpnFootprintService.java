@@ -78,9 +78,6 @@ public class VpnFootprintService implements IVpnFootprintService {
     public void updateVpnToDpnMapping(BigInteger dpId, String vpnName, String primaryRd, String interfaceName,
             ImmutablePair<IpAddresses.IpAddressSource, String> ipAddressSourceValuePair, boolean add) {
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-        if (dpId == null) {
-            dpId = InterfaceUtils.getDpnForInterface(ifaceMgrRpcService, interfaceName);
-        }
         if (!dpId.equals(BigInteger.ZERO)) {
             if (add) {
                 // Considering the possibility of VpnInstanceOpData not being ready yet cause
