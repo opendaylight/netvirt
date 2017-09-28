@@ -389,7 +389,7 @@ public class VpnSubnetRouteHandler {
                 String vpnName = optionalSubs.get().getVpnName();
                 String subnetIp = optionalSubs.get().getSubnetCidr();
                 String rd = optionalSubs.get().getVrfId();
-                TaskState routeAdvState = optionalSubs.get().getRouteAdvState();
+                String routeAdvState = optionalSubs.get().getRouteAdvState().toString();
                 LOG.info("{} onPortAddedToSubnet: Port {} being added to subnet {} subnetIp {} vpnName {} rd {} "
                                 + "TaskState {}", LOGGING_PREFIX, portId.getValue(), subnetId.getValue(), subnetIp,
                         vpnName, rd, routeAdvState);

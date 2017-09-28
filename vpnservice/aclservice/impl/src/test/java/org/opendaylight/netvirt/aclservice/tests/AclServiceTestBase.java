@@ -128,8 +128,10 @@ public abstract class AclServiceTestBase {
 
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
         testInterfaceManager.addInterfaceInfo(newInterfaceInfo("port1"));
-        testInterfaceManager.addInterface(port1.getValue());
-        dataBrokerUtil.put(port1);
+        dataBrokerUtil.put(new IdentifiedSubnetIpPrefixBuilder()
+                .interfaceName("port1")
+                .addAllIpPrefixOrAddress(Collections.singletonList(
+                        new IpPrefixOrAddress(SUBNET_IP_PREFIX_1.toCharArray()))));
 
         // When
         putNewStateInterface(dataBroker, "port1", PORT_MAC_1);

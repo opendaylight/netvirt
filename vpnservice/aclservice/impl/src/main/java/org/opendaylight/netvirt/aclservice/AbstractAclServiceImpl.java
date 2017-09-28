@@ -99,8 +99,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean bindAcl(AclInterface port) {
-        if (port == null) {
-            LOG.error("port cannot be null");
+        if (port == null || port.getSecurityGroups() == null) {
+            LOG.error("Port and port security groups cannot be null for binding ACL service, port={}", port);
             return false;
         }
         bindService(port);

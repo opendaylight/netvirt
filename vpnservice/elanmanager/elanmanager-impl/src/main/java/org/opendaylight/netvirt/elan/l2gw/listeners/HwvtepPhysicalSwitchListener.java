@@ -233,7 +233,7 @@ public class HwvtepPhysicalSwitchListener
                         LOG.info("Deleting itm tunnels for device {}", existingDevice.getDeviceName());
                         L2GatewayUtils.deleteItmTunnels(itmRpcService, hwvtepId,
                                 existingDevice.getDeviceName(), existingDevice.getTunnelIp());
-                        Thread.sleep(10000L);
+                        Thread.sleep(10000L);//TODO remove these sleeps
                         LOG.info("Creating itm tunnels for device {}", existingDevice.getDeviceName());
                         ElanL2GatewayUtils.createItmTunnels(itmRpcService, hwvtepId, psName,
                                 phySwitchAfter.getTunnelIps().get(0).getTunnelIpsKey());
@@ -241,7 +241,7 @@ public class HwvtepPhysicalSwitchListener
                     }
                 );
                 try {
-                    Thread.sleep(20000L);
+                    Thread.sleep(20000L);//TODO remove the sleep by using better itm api to detect finish of prev op
                 } catch (InterruptedException e) {
                     LOG.error("Interrupted ");
                 }

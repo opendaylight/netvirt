@@ -16,8 +16,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <relativePath/>
   </parent>
 
-  <artifactId>coe-aggregator</artifactId>
+  <groupId>org.opendaylight.netvirt</groupId>
   <version>0.5.1-SNAPSHOT</version>
+  <artifactId>coe</artifactId>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
   <packaging>pom</packaging>
 

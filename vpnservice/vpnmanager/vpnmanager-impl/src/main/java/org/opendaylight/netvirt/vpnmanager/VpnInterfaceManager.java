@@ -1535,7 +1535,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         vpnInterfaceIterator.remove();
                     }
                 }
-                if (vpnInterfaceList.size() == 0) {
+                if (vpnInterfaceList.isEmpty()) {
                     log.info("run: All VpnInterfaces are successfully removed from OLD VPN after time {}", waitTime);
                     break;
                 }
