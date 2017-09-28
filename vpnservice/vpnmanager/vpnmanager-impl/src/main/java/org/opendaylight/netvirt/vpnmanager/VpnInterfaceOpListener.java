@@ -108,8 +108,20 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             List<Adjacency> adjList = (adjs != null) ? adjs.getAdjacency() : null;
 
             if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
-                // Vpn Interface removed => No more adjacencies from it.
-                // Hence clean up interface from vpn-dpn-interface list.
+                /*
+                 * When a VPN Interface is removed by FibManager (aka VrfEntryListener and its cohorts),
+                 * one adjacency for that VPN Interface will be hanging around along with that
+                 * VPN Interface.   That adjacency could be primary (or) non-primary.
+                 * If its a primary adjacency, then a prefix-to-interface entry will be available for the
+                 * same.  If its a non-primary adjacency, then a prefix-to-interface entry will not be
+                 * available for the same, instead we will have vpn-to-extraroutes filled in for them.
+                 *
+                 * Here we try to remove prefix-to-interface entry for pending adjacency in the deleted
+                 * vpnInterface.   More importantly, we also update the vpnInstanceOpData by removing this
+                 * vpnInterface from it.
+                 */
+                // TODO(vivek) # It is not yet clear, where we are cleaning up the prefix-to-interface
+                // TODO(vivek) # for primary adjacencies and that has to be fixed.
                 Adjacency adjacency = adjs.getAdjacency().get(0);
                 List<Prefixes> prefixToInterface = new ArrayList<>();
                 Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
@@ -128,17 +140,34 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                         }
                     }
                 }
+                /*
+                 * In VPN Migration scenarios, there is a race condition where we use the new DPNID
+                 * for the migrated VM instead of old DPNID because when we read prefix-to-interface to cleanup
+                 * old DPNID, we actually get the new DPNID.
+                 *
+                 * More dangerously, we tend to alter the new prefix-to-interface which should be retained intac
+                 * for the migration to succeed in L3VPN.  As a workaround, here we are going to use the dpnId in
+                 * the deleted vpnInterface itself instead of tinkering with the prefix-to-interface.  Further we
+                 * will tinker prefix-to-interface only when are damn sure if its value matches our
+                 * deleted vpnInterface.
+                 *
+                 */
                 for (Prefixes pref : prefixToInterface) {
-                    if (writeOperTxn != null) {
-                        writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()));
-                    } else {
-                        VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()),
-                            VpnUtil.DEFAULT_CALLBACK);
+                    if (isMatchedPrefixToInterface(pref, del)) {
+                        if (writeOperTxn != null) {
+                            writeOperTxn.delete(LogicalDatastoreType.OPERATIONAL,
+                                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()));
+                        } else {
+                            VpnUtil.delete(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(), pref.getIpAddress()),
+                                    VpnUtil.DEFAULT_CALLBACK);
+                        }
                     }
-                    vpnFootprintService.updateVpnToDpnMapping(pref.getDpnId(), del.getVpnInstanceName(), rd,
-                        interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
+                }
+                if (del.getDpnId() != null) {
+                    vpnFootprintService.updateVpnToDpnMapping(del.getDpnId(), del.getVpnInstanceName(), rd,
+                            interfaceName, null /*ipAddressSourceValuePair*/,
+                            false /* do delete */);
                 }
             }
             LOG.info("postProcessVpnInterfaceRemoval: Removed vpn operational data and updated vpn footprint"
@@ -149,6 +178,18 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                     del.getDpnId());
         }
         notifyTaskIfRequired(interfaceName);
+    }
+
+    private boolean isMatchedPrefixToInterface(Prefixes prefix, VpnInterface vpnInterface) {
+        if ((prefix != null) && (vpnInterface != null)) {
+            if (prefix.getDpnId() != null && vpnInterface.getDpnId() != null) {
+                if (prefix.getVpnInterfaceName() != null && vpnInterface.getName() != null) {
+                    return ( ( prefix.getDpnId().equals(vpnInterface.getDpnId()) ) &&
+                            ( prefix.getVpnInterfaceName().equalsIgnoreCase(vpnInterface.getName())) );
+                }
+            }
+        }
+        return false;
     }
 
     private void notifyTaskIfRequired(String intfName) {
