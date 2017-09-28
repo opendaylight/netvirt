@@ -1180,7 +1180,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.info("remove: Removal of vpn interface {} on dpn {} for vpn {} processed successfully",
                                 interfaceName, vpnInterface.getDpnId(), vpnInterface.getVpnInstanceName());
                     } else {
-                        LOG.error("remove: VPN interface {} on dpn {} for vpn {} was unavailable in operational data "
+                        LOG.warn("remove: VPN interface {} on dpn {} for vpn {} was unavailable in operational data "
                                 + "store to handle remove event", interfaceName, vpnInterface.getDpnId(),
                                 vpnInterface.getVpnInstanceName());
                     }
