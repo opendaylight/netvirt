@@ -41,14 +41,12 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance.Type;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.ExternalTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.external.tunnel.list.ExternalTunnel;
@@ -58,10 +56,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargetsBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTargetKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,113 +103,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         return VpnInstanceListener.this;
     }
 
-    private void waitForOpRemoval(String rd, String vpnName) {
-        //wait till DCN for update on VPN Instance Op Data signals that vpn interfaces linked to this vpn instance is
-        // zero
-        //TODO(vpnteam): Entire code would need refactoring to listen only on the parent object - VPNInstance
-        VpnInstanceOpDataEntry vpnOpEntry = null;
-        Long intfCount = 0L;
-        Long currentIntfCount = 0L;
-        Integer retryCount = 3;
-        long timeout = VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
-        Optional<VpnInstanceOpDataEntry> vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-            VpnUtil.getVpnInstanceOpDataIdentifier(rd));
-
-        if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
-            vpnOpEntry = vpnOpValue.get();
-            List<VpnToDpnList> dpnToVpns = vpnOpEntry.getVpnToDpnList();
-            if (dpnToVpns != null) {
-                for (VpnToDpnList dpn : dpnToVpns) {
-                    if (dpn.getVpnInterfaces() != null) {
-                        intfCount = intfCount + dpn.getVpnInterfaces().size();
-                    }
-                }
-            }
-            //intfCount = vpnOpEntry.getVpnInterfaceCount();
-            while (true) {
-                if (intfCount > 0) {
-                    // Minimum wait time of 5 seconds for one VPN Interface clearance (inclusive of full trace on)
-                    timeout = intfCount * VpnConstants.MIN_WAIT_TIME_IN_MILLISECONDS;
-                    // Maximum wait time of 90 seconds for all VPN Interfaces clearance (inclusive of full trace on)
-                    if (timeout > VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS) {
-                        timeout = VpnConstants.MAX_WAIT_TIME_IN_MILLISECONDS;
-                    }
-                    LOG.info("VPNInstance removal count of interface at {} for for rd {}, vpnname {}",
-                        intfCount, rd, vpnName);
-                }
-                LOG.info("VPNInstance removal thread waiting for {} seconds for rd {}, vpnname {}",
-                    (timeout / 1000), rd, vpnName);
-
-                try {
-                    Thread.sleep(timeout);
-                } catch (InterruptedException e) {
-                    // Ignored
-                }
-
-                // Check current interface count
-                vpnOpValue = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getVpnInstanceOpDataIdentifier(rd));
-                if ((vpnOpValue != null) && (vpnOpValue.isPresent())) {
-                    vpnOpEntry = vpnOpValue.get();
-                    dpnToVpns = vpnOpEntry.getVpnToDpnList();
-                    currentIntfCount = 0L;
-                    if (dpnToVpns != null) {
-                        for (VpnToDpnList dpn : dpnToVpns) {
-                            if (dpn.getVpnInterfaces() != null) {
-                                currentIntfCount = currentIntfCount + dpn.getVpnInterfaces().size();
-                            }
-                        }
-                    }
-                    if ((currentIntfCount == 0) || (currentIntfCount >= intfCount)) {
-                        // Either the FibManager completed its job to cleanup all vpnInterfaces in VPN
-                        // OR
-                        // There is no progress by FibManager in removing all the interfaces even after good time!
-                        // In either case, let us quit and take our chances.
-                        //TODO(vpnteam): L3VPN refactoring to take care of this case.
-                        if ((dpnToVpns == null) || dpnToVpns.size() <= 0) {
-                            LOG.info("VPN Instance vpn {} rd {} ready for removal, exiting wait loop", vpnName, rd);
-                            break;
-                        } else {
-                            if (retryCount > 0) {
-                                retryCount--;
-                                LOG.info(
-                                    "Retrying clearing vpn with vpnname {} rd {} since current interface count {} ",
-                                    vpnName, rd, currentIntfCount);
-                                if (currentIntfCount > 0) {
-                                    intfCount = currentIntfCount;
-                                } else {
-                                    LOG.info(
-                                        "Current interface count is zero, but instance Op for vpn {} and rd {} not "
-                                            + "cleared yet. Waiting for 5 more seconds.",
-                                        vpnName, rd);
-                                    intfCount = 1L;
-                                }
-                            } else {
-                                LOG.info(
-                                    "VPNInstance bailing out of wait loop as current interface count is {} and max "
-                                        + "retries exceeded for for vpnName {}, rd {}",
-                                    currentIntfCount, vpnName, rd);
-                                break;
-                            }
-                        }
-                    } else {
-                        LOG.info("Retrying clearing because not all vpnInterfaces removed : current interface count {},"
-                                + " initial count {} for rd {}, vpnname {}", currentIntfCount, intfCount, rd, vpnName);
-                        intfCount = currentIntfCount;
-                    }
-                } else {
-                    // There is no VPNOPEntry.  Something else happened on the system !
-                    // So let us quit and take our chances.
-                    //TODO(vpnteam): L3VPN refactoring to take care of this case.
-                    LOG.error("VpnInstanceOpData is not present in the operational DS for rd {}, vpnname {}", rd,
-                            vpnName);
-                    break;
-                }
-            }
-        }
-        LOG.info("Returned out of waiting for  Op Data removal for rd {}, vpnname {}", rd, vpnName);
-    }
-
     @Override
     protected void remove(InstanceIdentifier<VpnInstance> identifier, VpnInstance del) {
         LOG.trace("{} remove: VPN event key: {}, value: {}", LOGGING_PREFIX_DELETE, identifier, del);
@@ -248,96 +137,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                         LOGGING_PREFIX_DELETE, vpnName, primaryRd);
                 return Collections.singletonList(writeTxn.submit());
             }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
-        }
-
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("VPN-" + vpnName,
-            new DeleteVpnInstanceWorker(idManager, dataBroker, del));
-    }
-
-    private class DeleteVpnInstanceWorker implements Callable<List<ListenableFuture<Void>>> {
-        IdManagerService idManager;
-        DataBroker broker;
-        VpnInstance vpnInstance;
-
-        DeleteVpnInstanceWorker(IdManagerService idManager,
-            DataBroker broker,
-            VpnInstance value) {
-            this.idManager = idManager;
-            this.broker = broker;
-            this.vpnInstance = value;
-        }
-
-        @Override
-        public List<ListenableFuture<Void>> call() {
-            final String vpnName = vpnInstance.getVpnInstanceName();
-            List<String> rds = null;
-            if (vpnInstance.getIpv4Family() != null) {
-                rds = vpnInstance.getIpv4Family().getRouteDistinguisher();
-            }
-            if (rds == null && vpnInstance.getIpv6Family() != null) {
-                rds = vpnInstance.getIpv6Family().getRouteDistinguisher();
-            }
-            String primaryRd = VpnUtil.getPrimaryRd(vpnInstance);
-            final long vpnId = VpnUtil.getVpnId(broker, vpnName);
-            WriteTransaction writeTxn = broker.newWriteOnlyTransaction();
-            waitForOpRemoval(primaryRd, vpnName);
-
-            // Clean up VpnInstanceToVpnId from Config DS
-            VpnUtil.removeVpnIdToVpnInstance(broker, vpnId, writeTxn);
-            VpnUtil.removeVpnInstanceToVpnId(broker, vpnName, writeTxn);
-            LOG.trace("Removed vpnIdentifier for  rd{} vpnname {}", primaryRd, vpnName);
-            // Clean up FIB Entries Config DS
-            synchronized (vpnName.intern()) {
-                fibManager.removeVrfTable(broker, primaryRd, null);
-            }
-            boolean doIpv4 = vpnInstance.getIpv4Family() != null;
-            boolean doIpv6 = vpnInstance.getIpv6Family() != null;
-            if (VpnUtil.isBgpVpn(vpnName, primaryRd)) {
-                if (doIpv4) {
-                    if (vpnInstance.getType().compareTo(Type.L2) == 0
-                        && VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) {
-                        rds.parallelStream().forEach(rd -> {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.L2VPN);
-                        });
-                    } else {
-                        rds.parallelStream().forEach(rd -> {
-                            bgpManager.deleteVrf(rd, false, AddressFamily.IPV4);
-                        });
-                    }
-                }
-                if (doIpv6) {
-                    rds.parallelStream().forEach(rd -> {
-                        bgpManager.deleteVrf(rd, false, AddressFamily.IPV6);
-                    });
-                }
-            }
-            // Clean up VPNExtraRoutes Operational DS
-            InstanceIdentifier<Vpn> vpnToExtraroute = VpnExtraRouteHelper.getVpnToExtrarouteVpnIdentifier(vpnName);
-            Optional<Vpn> optVpnToExtraroute = VpnUtil.read(broker,
-                    LogicalDatastoreType.OPERATIONAL, vpnToExtraroute);
-            if (optVpnToExtraroute.isPresent()) {
-                VpnUtil.removeVpnExtraRouteForVpn(broker, vpnName, writeTxn);
-            }
-
-            if (VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) {
-                removeExternalTunnelDemuxFlows(vpnName);
-            }
-
-            // Clean up VPNInstanceOpDataEntry
-            VpnUtil.removeVpnOpInstance(broker, primaryRd, writeTxn);
-            // Clean up PrefixToInterface Operational DS
-            VpnUtil.removePrefixToInterfaceForVpnId(broker, vpnId, writeTxn);
-
-            // Clean up L3NextHop Operational DS
-            VpnUtil.removeL3nexthopForVpnId(broker, vpnId, writeTxn);
-
-            // Release the ID used for this VPN back to IdManager
-            VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME, vpnName);
-
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(writeTxn.submit());
-            return futures;
         }
     }
 
@@ -726,17 +525,5 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private String getFibFlowRef(BigInteger dpnId, short tableId, String vpnName, int priority) {
         return VpnConstants.FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + vpnName + NwConstants.FLOWID_SEPARATOR + priority;
-    }
-
-    private void removeExternalTunnelDemuxFlows(String vpnName) {
-        LOG.info("Removing external tunnel flows for vpn {}", vpnName);
-        for (BigInteger dpnId: NWUtil.getOperativeDPNs(dataBroker)) {
-            LOG.debug("Removing external tunnel flows for vpn {} from dpn {}", vpnName, dpnId);
-            String flowRef = getFibFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
-                    vpnName, VpnConstants.DEFAULT_FLOW_PRIORITY);
-            FlowEntity flowEntity = VpnUtil.buildFlowEntity(dpnId,
-                    NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, flowRef);
-            mdsalManager.removeFlow(flowEntity);
-        }
     }
 }
