@@ -154,7 +154,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 }
             }
         } else {
-            LOG.error("BGPVPN type for VPN {} is not L3", vpnName);
+            LOG.warn("BGPVPN type for VPN {} is not L3", vpnName);
         }
     }
 
@@ -178,7 +178,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             // Release RD Id in pool
             NeutronvpnUtils.releaseRDId(idManager, NeutronConstants.RD_IDPOOL_NAME, input.getUuid().toString());
         } else {
-            LOG.error("BGPVPN type for VPN {} is not L3", input.getUuid().getValue());
+            LOG.warn("BGPVPN type for VPN {} is not L3", input.getUuid().getValue());
         }
     }
 
@@ -201,7 +201,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             List<Uuid> newRouters = update.getRouters();
             handleRoutersUpdate(vpnId, oldRouters, newRouters);
         } else {
-            LOG.error("BGPVPN type for VPN {} is not L3", vpnId.getValue());
+            LOG.warn("BGPVPN type for VPN {} is not L3", vpnId.getValue());
         }
     }
 

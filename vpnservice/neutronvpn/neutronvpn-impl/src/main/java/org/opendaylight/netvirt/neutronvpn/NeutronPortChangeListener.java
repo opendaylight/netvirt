@@ -346,7 +346,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
         Router router = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
         if (router == null) {
-            LOG.error("No router found for router GW port {} for router {}", routerGwPort.getUuid().getValue(),
+            LOG.warn("No router found for router GW port {} for router {}", routerGwPort.getUuid().getValue(),
                     routerId.getValue());
             return;
         }

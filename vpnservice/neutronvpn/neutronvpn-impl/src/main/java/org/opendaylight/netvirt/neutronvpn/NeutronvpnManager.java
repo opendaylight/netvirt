@@ -1677,7 +1677,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         if (port != null) {
                             deleteVpnInterface(vpnId, port, wrtConfigTxn);
                         } else {
-                            LOG.error("Cannot proceed with deleteVpnInterface for port {} in subnet {} since port is "
+                            LOG.warn("Cannot proceed with deleteVpnInterface for port {} in subnet {} since port is "
                                 + "absent in Neutron config DS", portId.getValue(), subnet.getValue());
                         }
                         futures.add(wrtConfigTxn.submit());
