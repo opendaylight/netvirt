@@ -33,7 +33,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <neutron.version>0.10.0-SNAPSHOT</neutron.version>
     <openflowplugin.version>0.6.0-SNAPSHOT</openflowplugin.version>
     <ovsdb.version>1.6.0-SNAPSHOT</ovsdb.version>
-    <yangtools.version>2.0.0-SNAPSHOT</yangtools.version>
+    <yangtools.version>1.2.0</yangtools.version>
   </properties>
 
   <dependencyManagement>
