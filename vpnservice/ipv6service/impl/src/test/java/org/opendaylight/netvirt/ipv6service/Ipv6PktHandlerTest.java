@@ -20,6 +20,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -41,6 +42,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.packet.received.MatchBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.table.types.rev131026.TableId;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class Ipv6PktHandlerTest {
@@ -256,7 +258,7 @@ public class Ipv6PktHandlerTest {
                 "01",                                              // ICMPv6 Option: Source Link Layer Address
                 "01",                                              // Length
                 "08 00 27 D4 10 BB"                                // Link Layer Address
-        )).setIngress(ncRef).setMatch(matchbuilder.build()).build());
+        )).setIngress(ncRef).setMatch(matchbuilder.build()).setTableId(new TableId(NwConstants.IPV6_TABLE)).build());
         //wait on this thread until the async job is completed in the packet handler.
         waitForPacketProcessing();
         verify(pktProcessService, times(1)).transmitPacket(any(TransmitPacketInput.class));

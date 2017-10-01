@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -751,11 +750,14 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
     private void addExternalFixedIpToExternalIpsList(List<ExternalIps> externalIps, ExternalFixedIps fixedIps) {
         Uuid subnetId = fixedIps.getSubnetId();
-        String ip = fixedIps.getIpAddress().getIpv4Address().getValue();
-        ExternalIpsBuilder externalIpsBuilder = new ExternalIpsBuilder();
-        externalIpsBuilder.setKey(new ExternalIpsKey(ip, subnetId));
-        externalIpsBuilder.setIpAddress(ip);
-        externalIpsBuilder.setSubnetId(subnetId);
-        externalIps.add(externalIpsBuilder.build());
+        // TODO: Revisit this code.
+        if (fixedIps.getIpAddress().getIpv4Address() != null) {
+            String ip = fixedIps.getIpAddress().getIpv4Address().getValue();
+            ExternalIpsBuilder externalIpsBuilder = new ExternalIpsBuilder();
+            externalIpsBuilder.setKey(new ExternalIpsKey(ip, subnetId));
+            externalIpsBuilder.setIpAddress(ip);
+            externalIpsBuilder.setSubnetId(subnetId);
+            externalIps.add(externalIpsBuilder.build());
+        }
     }
 }

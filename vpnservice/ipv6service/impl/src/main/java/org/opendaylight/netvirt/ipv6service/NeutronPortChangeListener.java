@@ -54,12 +54,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port port) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
-            // Todo: revisit when IPv6 north-south support is implemented.
-            LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for add event", port);
-            return;
-        }
-
         LOG.debug("Add port notification handler is invoked for port {} ", port);
         List<FixedIps> ipList = port.getFixedIps();
         for (FixedIps fixedip : ipList) {
@@ -72,24 +66,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void remove(InstanceIdentifier<Port> identifier, Port port) {
-        if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
-            // Todo: revisit when IPv6 north-south support is implemented.
-            LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for remove event", port);
-            return;
-        }
-
         LOG.debug("remove port notification handler is invoked for port {}", port);
         ifMgr.removePort(port.getUuid());
     }
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
-        if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
-            // Todo: revisit when IPv6 north-south support is implemented.
-            LOG.info("IPv6Service (TODO): Skipping router_gateway port {} for update event", update);
-            return;
-        }
-
         LOG.debug("update port notification handler is invoked for port {} ", update);
 
         Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
@@ -107,7 +89,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             }
 
             if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-                ifMgr.updateRouterIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
+                ifMgr.updateRouterInternalIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
+            } else if (update.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+                ifMgr.updateRouterGatewayIntf(update.getUuid(), new Uuid(update.getDeviceId()), update.getFixedIps());
             } else {
                 ifMgr.updateHostIntf(update.getUuid(), portIncludesV6Address);
             }
@@ -118,7 +102,17 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
             LOG.info("IPv6: addInterfaceInfo is invoked for a router interface {}, fixedIp: {}", port, fixedip);
             // Add router interface
-            ifMgr.addRouterIntf(port.getUuid(),
+            ifMgr.addRouterInternalIntf(port.getUuid(),
+                    new Uuid(port.getDeviceId()),
+                    fixedip.getSubnetId(),
+                    port.getNetworkId(),
+                    fixedip.getIpAddress(),
+                    port.getMacAddress().getValue(),
+                    port.getDeviceOwner());
+        } else if (port.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+            LOG.info("IPv6: addInterfaceInfo is invoked for a router gateway iface {}, fixedIp: {}", port, fixedip);
+            // Add router gateway interface
+            ifMgr.addRouterGatewayIntf(port.getUuid(),
                     new Uuid(port.getDeviceId()),
                     fixedip.getSubnetId(),
                     port.getNetworkId(),

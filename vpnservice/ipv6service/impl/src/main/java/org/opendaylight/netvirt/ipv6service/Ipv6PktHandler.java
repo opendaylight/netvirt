@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.BitBufferHelper;
 import org.opendaylight.controller.liblldp.BufferException;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
@@ -141,32 +142,51 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             }
 
             BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
-            long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
-            String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
-            VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
-            if (port == null) {
-                pktProccessedCounter++;
-                LOG.warn("Port {} not found, skipping.", port);
-                return;
-            }
+            short tableId = packet.getTableId().getValue();
+            String macAddress = null;
+            // Todo: revisit the table numbers.
+            if (tableId == NwConstants.L3_GW_MAC_TABLE) {
+                long vpnId = MetaDataUtil.getVpnIdFromMetadata(metadata);
+                String vpnIdVpnInstanceName = ifMgr.getVpnId(vpnId);
+                if (null == vpnIdVpnInstanceName) {
+                    pktProccessedCounter++;
+                    LOG.warn("vpnId {} to vpnName mapping not found.", vpnId);
+                    return;
+                }
+                macAddress = ifMgr.getRouterGatewayMACforNetwork(new Uuid(vpnIdVpnInstanceName),
+                        nsPdu.getTargetIpAddress());
+            } else if (tableId == NwConstants.IPV6_TABLE) {
+                long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
+                String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
+                VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
+                if (port == null) {
+                    pktProccessedCounter++;
+                    LOG.warn("Port {} not found, skipping.", port);
+                    return;
+                }
 
-            VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
-            if (routerPort == null) {
-                pktProccessedCounter++;
-                LOG.warn("Port {} is not associated to a Router, skipping NS request.", routerPort);
-                return;
-            }
+                VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
+                if (routerPort == null) {
+                    pktProccessedCounter++;
+                    LOG.warn("Port {} is not associated to a Router, skipping NS request.", routerPort);
+                    return;
+                }
 
-            if (!routerPort.getIpv6Addresses().contains(nsPdu.getTargetIpAddress())) {
-                pktProccessedCounter++;
-                LOG.warn("No Router interface with address {} on the network {}, skipping NS request.",
-                        nsPdu.getTargetIpAddress(), port.getNetworkID());
+                if (!routerPort.getIpv6Addresses().contains(nsPdu.getTargetIpAddress())) {
+                    pktProccessedCounter++;
+                    LOG.warn("No Router interface with address {} on the network {}, skipping NS request.",
+                            nsPdu.getTargetIpAddress(), port.getNetworkID());
+                    return;
+                }
+                macAddress = routerPort.getMacAddress();
+            } else {
+                LOG.warn("Neighbor Solicitation request from a non-ipv6 pipeline, ignoring the request.");
                 return;
             }
 
             //formulate the NA response
             NeighborAdvertisePacketBuilder naPacket = new NeighborAdvertisePacketBuilder();
-            updateNAResponse(nsPdu, routerPort, naPacket);
+            updateNAResponse(nsPdu, macAddress, naPacket);
             // serialize the response packet
             byte[] txPayload = fillNeighborAdvertisementPacket(naPacket.build());
             InstanceIdentifier<Node> outNode = packet.getIngress().getValue().firstIdentifierOf(Node.class);
@@ -229,7 +249,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         }
 
         private void updateNAResponse(NeighborSolicitationPacket pdu,
-                                      VirtualPort port, NeighborAdvertisePacketBuilder naPacket) {
+                                      String macAddress, NeighborAdvertisePacketBuilder naPacket) {
             long flag = 0;
             if (!pdu.getSourceIpv6().equals(ipv6Utils.UNSPECIFIED_ADDR)) {
                 naPacket.setDestinationIpv6(pdu.getSourceIpv6());
@@ -241,7 +261,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             naPacket.setDestinationMac(pdu.getSourceMac());
             naPacket.setEthertype(pdu.getEthertype());
             naPacket.setSourceIpv6(pdu.getTargetIpAddress());
-            naPacket.setSourceMac(new MacAddress(port.getMacAddress()));
+            naPacket.setSourceMac(new MacAddress(macAddress));
             naPacket.setHopLimit(Ipv6Constants.ICMP_V6_MAX_HOP_LIMIT);
             naPacket.setIcmp6Type(Ipv6Constants.ICMP_V6_NA_CODE);
             naPacket.setIcmp6Code(pdu.getIcmp6Code());
@@ -253,7 +273,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             naPacket.setOptionType(Ipv6Constants.ICMP_V6_OPTION_TARGET_LLA);
             naPacket.setTargetAddrLength((short)1);
             naPacket.setTargetAddress(pdu.getTargetIpAddress());
-            naPacket.setTargetLlAddress(new MacAddress(port.getMacAddress()));
+            naPacket.setTargetLlAddress(new MacAddress(macAddress));
             naPacket.setVersion(pdu.getVersion());
             naPacket.setIcmp6Chksum(0);
             return;

@@ -14,8 +14,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -47,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.node.No
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.id.to.vpn.instance.VpnIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
@@ -60,9 +63,11 @@ public class IfMgr {
     private final Map<Uuid, VirtualNetwork> vnetworks = new HashMap<>();
     private final Map<Uuid, VirtualSubnet> vsubnets = new HashMap<>();
     private final Map<Uuid, VirtualPort> vintfs = new HashMap<>();
-    private final Map<Uuid, VirtualPort> vrouterv6IntfMap = new HashMap<>();
+    private final Map<Uuid, VirtualPort> vrouterv6InternalIfaceMap = new HashMap<>();
+    private final Map<Uuid, Set<Uuid>> vrouterv6ExternalIfaceMap = new HashMap<>();
     private final Map<Uuid, List<VirtualPort>> unprocessedRouterIntfs = new HashMap<>();
     private final Map<Uuid, List<VirtualPort>> unprocessedSubnetIntfs = new HashMap<>();
+    private final Map<Long, String> vpnIds = new HashMap<>();
     private OdlInterfaceRpcService interfaceManagerRpc;
     private IElanService elanProvider;
     private IMdsalApiManager mdsalUtil;
@@ -229,10 +234,106 @@ public class IfMgr {
         }
     }
 
-    public void addRouterIntf(Uuid portId, Uuid rtrId, Uuid snetId,
+    public void addRouterGatewayIntf(Uuid portId, Uuid rtrId, Uuid snetId,
                               Uuid networkId, IpAddress fixedIp, String macAddress,
                               String deviceOwner) {
-        LOG.debug("addRouterIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
+        LOG.debug("addRouterGatewayIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
+                portId, rtrId, snetId, networkId, fixedIp, macAddress);
+        //Save the interface ipv6 address in its fully expanded format
+        Ipv6Address addr = new Ipv6Address(InetAddresses
+                .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+        fixedIp = new IpAddress(addr);
+
+        VirtualPort intf = vintfs.get(portId);
+        if (intf == null) {
+            intf = new VirtualPort();
+            vintfs.put(portId, intf);
+            intf.setIntfUUID(portId)
+                    .setSubnetInfo(snetId, fixedIp)
+                    .setNetworkID(networkId)
+                    .setMacAddress(macAddress)
+                    .setRouterIntfFlag(true)
+                    .setDeviceOwner(deviceOwner);
+            MacAddress ifaceMac = MacAddress.getDefaultInstance(macAddress);
+            /* A new router interface is created. This is triggered when the external network is associated to
+            the Neutron router. TODO program any punt flows on the NAPT switch if there are any tenant IPv6
+            subnets associated to the router.
+             */
+        } else {
+            intf.setSubnetInfo(snetId, fixedIp);
+        }
+
+        VirtualRouter rtr = vrouters.get(rtrId);
+        VirtualSubnet snet = vsubnets.get(snetId);
+
+        if (rtr != null && snet != null) {
+            snet.setRouter(rtr);
+            intf.setSubnet(snetId, snet);
+            rtr.addSubnet(snet);
+        } else if (snet != null) {
+            intf.setSubnet(snetId, snet);
+            addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
+        } else {
+            addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
+            addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
+        }
+        addToExternalRouterPortList(vrouterv6ExternalIfaceMap, networkId, intf);
+    }
+
+    public void updateRouterGatewayIntf(Uuid portId, Uuid rtrId, List<FixedIps> fixedIpsList) {
+        LOG.info("updateRouterGatewayIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
+        VirtualPort intf = vintfs.get(portId);
+        if (intf == null) {
+            LOG.info("Skip Router interface update for non-ipv6 port {}", portId);
+            return;
+        }
+
+        List<Ipv6Address> existingIPv6AddressList = intf.getIpv6AddressesWithoutLLA();
+        List<Ipv6Address> newlyAddedIpv6AddressList = new ArrayList<>();
+        intf.clearSubnetInfo();
+        for (FixedIps fip : fixedIpsList) {
+            IpAddress fixedIp = fip.getIpAddress();
+
+            if (fixedIp.getIpv4Address() != null) {
+                continue;
+            }
+
+            //Save the interface ipv6 address in its fully expanded format
+            Ipv6Address addr = new Ipv6Address(InetAddresses
+                    .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
+            fixedIp = new IpAddress(addr);
+            intf.setSubnetInfo(fip.getSubnetId(), fixedIp);
+
+            VirtualRouter rtr = vrouters.get(rtrId);
+            VirtualSubnet snet = vsubnets.get(fip.getSubnetId());
+
+            if (rtr != null && snet != null) {
+                snet.setRouter(rtr);
+                intf.setSubnet(fip.getSubnetId(), snet);
+                rtr.addSubnet(snet);
+            } else if (snet != null) {
+                intf.setSubnet(fip.getSubnetId(), snet);
+                addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
+            } else {
+                addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
+                addUnprocessed(unprocessedSubnetIntfs, fip.getSubnetId(), intf);
+            }
+
+            if (existingIPv6AddressList.contains(fixedIp.getIpv6Address())) {
+                existingIPv6AddressList.remove(fixedIp.getIpv6Address());
+            } else {
+                newlyAddedIpv6AddressList.add(fixedIp.getIpv6Address());
+            }
+        }
+
+        /* This is a port update event for router Gateway Port.
+        * TODO: revisit this section*/
+    }
+
+    public void addRouterInternalIntf(Uuid portId, Uuid rtrId, Uuid snetId,
+                              Uuid networkId, IpAddress fixedIp, String macAddress,
+                              String deviceOwner) {
+        LOG.debug("addRouterInternalIntf portId {}, rtrId {}, snetId {}, networkId {}, ip {}, mac {}",
             portId, rtrId, snetId, networkId, fixedIp, macAddress);
         //Save the interface ipv6 address in its fully expanded format
         Ipv6Address addr = new Ipv6Address(InetAddresses
@@ -280,7 +381,7 @@ public class IfMgr {
             addUnprocessed(unprocessedSubnetIntfs, snetId, intf);
         }
 
-        vrouterv6IntfMap.put(networkId, intf);
+        vrouterv6InternalIfaceMap.put(networkId, intf);
         programIcmpv6NSPuntFlowForAddress(intf, fixedIp.getIpv6Address(), Ipv6Constants.ADD_FLOW);
 
         if (newIntf) {
@@ -289,8 +390,8 @@ public class IfMgr {
         }
     }
 
-    public void updateRouterIntf(Uuid portId, Uuid rtrId, List<FixedIps> fixedIpsList) {
-        LOG.info("updateRouterIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
+    public void updateRouterInternalIntf(Uuid portId, Uuid rtrId, List<FixedIps> fixedIpsList) {
+        LOG.info("updateRouterInternalIntf portId {}, fixedIpsList {} ", portId, fixedIpsList);
         VirtualPort intf = vintfs.get(portId);
         if (intf == null) {
             LOG.info("Skip Router interface update for non-ipv6 port {}", portId);
@@ -327,7 +428,7 @@ public class IfMgr {
                 addUnprocessed(unprocessedRouterIntfs, rtrId, intf);
                 addUnprocessed(unprocessedSubnetIntfs, fip.getSubnetId(), intf);
             }
-            vrouterv6IntfMap.put(intf.getNetworkID(), intf);
+            vrouterv6InternalIfaceMap.put(intf.getNetworkID(), intf);
 
             if (existingIPv6AddressList.contains(fixedIp.getIpv6Address())) {
                 existingIPv6AddressList.remove(fixedIp.getIpv6Address());
@@ -462,9 +563,9 @@ public class IfMgr {
         if (intf != null) {
             intf.removeSelf();
             if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-                LOG.info("In removePort for router interface, portId {}", portId);
+                LOG.info("In removePort for router internal interface, portId {}", portId);
                 MacAddress ifaceMac = MacAddress.getDefaultInstance(intf.getMacAddress());
-                vrouterv6IntfMap.remove(intf.getNetworkID(), intf);
+                vrouterv6InternalIfaceMap.remove(intf.getNetworkID(), intf);
                 /* Router port is deleted. Remove the corresponding icmpv6 punt flows on all
                 the dpnIds which were hosting the VMs on the network.
                  */
@@ -477,6 +578,11 @@ public class IfMgr {
                 timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
                 intf.resetPeriodicTimeout();
                 LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
+            } else if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_GATEWAY)) {
+                LOG.info("In removePort for router gateway interface, portId {}", portId);
+                removeFromExternalRouterPortList(vrouterv6ExternalIfaceMap, intf.getNetworkID(), intf);
+                /* TODO revisit this section. Router gateway port is deleted, Remove the corresponding punt flows
+                 * on the NAPT Switch */
             } else {
                 LOG.info("In removePort for host interface, portId {}", portId);
                 // Remove the serviceBinding entry for the port.
@@ -506,7 +612,7 @@ public class IfMgr {
 
     public VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
         LOG.debug("obtaining the virtual interface for {}", networkId);
-        return (vrouterv6IntfMap.get(networkId));
+        return (vrouterv6InternalIfaceMap.get(networkId));
     }
 
     public VirtualPort obtainV6Interface(Uuid id) {
@@ -648,6 +754,7 @@ public class IfMgr {
             net.removeSelf();
             vnetworks.remove(networkId);
         }
+        removeFromExternalRouterPortList(vrouterv6ExternalIfaceMap, networkId);
     }
 
     private void transmitRouterAdvertisement(VirtualPort intf, Ipv6RtrAdvertType advType) {
@@ -695,5 +802,63 @@ public class IfMgr {
         port.setPeriodicTimeout(portTimeout);
         LOG.debug("re-started periodic RA Timer for routerIntf {}, int {}s", port.getIntfUUID(),
                    Ipv6Constants.PERIODIC_RA_INTERVAL);
+    }
+
+    public void addToExternalRouterPortList(Map<Uuid, Set<Uuid>> routerPorts, Uuid id, VirtualPort intf) {
+        if (routerPorts.containsKey(id)) {
+            Set<Uuid> intfList = routerPorts.get(id);
+            intfList.add(intf.getIntfUUID());
+        } else {
+            Set<Uuid> intfList = new HashSet<>();
+            intfList.add(intf.getIntfUUID());
+            routerPorts.put(id, intfList);
+        }
+    }
+
+    public void removeFromExternalRouterPortList(Map<Uuid, Set<Uuid>> routerPorts, Uuid id) {
+        if (routerPorts.containsKey(id)) {
+            routerPorts.remove(id);
+        }
+    }
+
+    public void removeFromExternalRouterPortList(Map<Uuid, Set<Uuid>> routerPorts, Uuid id,
+                                                 VirtualPort intf) {
+        if (routerPorts.containsKey(id)) {
+            Set<Uuid> intfList = routerPorts.get(id);
+            if (intfList != null) {
+                intfList.remove(intf.getIntfUUID());
+            }
+        }
+    }
+
+    public String getRouterGatewayMACforNetwork(Uuid networkId, Ipv6Address fixedIp) {
+        Set<Uuid> intfList = vrouterv6ExternalIfaceMap.get(networkId);
+        if (intfList != null) {
+            for (Uuid intf : intfList) {
+                VirtualPort virtualPort = vintfs.get(intf);
+                if (virtualPort != null) {
+                    if (virtualPort.getIpv6Addresses().contains(fixedIp)) {
+                        return virtualPort.getMacAddress();
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public String getVpnId(long vpnId) {
+        return vpnIds.containsKey(vpnId) ? vpnIds.get(vpnId) : null;
+    }
+
+    public void addVpnId(VpnIds vpnId) {
+        if (!vpnIds.containsKey(vpnId.getVpnId())) {
+            vpnIds.put(vpnId.getVpnId(), vpnId.getVrfId());
+        }
+    }
+
+    public void removeVpnId(VpnIds vpnId) {
+        if (vpnIds.containsKey(vpnId.getVpnId())) {
+            vpnIds.remove(vpnId.getVpnId());
+        }
     }
 }
