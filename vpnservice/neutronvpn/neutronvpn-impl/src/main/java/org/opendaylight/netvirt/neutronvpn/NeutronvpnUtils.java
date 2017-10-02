@@ -999,7 +999,7 @@ public class NeutronvpnUtils {
 
     // TODO Remove this method entirely
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
                                                    InstanceIdentifier<T> path) {
         try {
             return SingleTransactionDataBroker.syncReadOptional(broker, datastoreType, path);
