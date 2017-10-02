@@ -17,6 +17,7 @@ import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -61,7 +62,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
     }
 
     public String getJobKey() {
-        return elanInstance.getElanInstanceName();
+        return elanInstance.getElanInstanceName() + HwvtepHAUtil.L2GW_JOB_KEY;
     }
 
     @Override
