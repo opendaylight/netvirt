@@ -7,11 +7,18 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.utils.clustering.ClusteringUtils;
+import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -20,13 +27,14 @@ import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanDpnInterfaceClusteredListener
-    extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
-    implements AutoCloseable {
+        extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener>
+        implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
 
@@ -50,43 +58,58 @@ public class ElanDpnInterfaceClusteredListener
     @Override
     public InstanceIdentifier<DpnInterfaces> getWildCardPath() {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class).child(ElanDpnInterfacesList.class)
-            .child(DpnInterfaces.class).build();
+                .child(DpnInterfaces.class).build();
     }
 
     void handleUpdate(InstanceIdentifier<DpnInterfaces> id, DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(id);
         if (ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).isEmpty()) {
             LOG.debug("dpnInterface updation, no external l2 devices to update for elan {} with Dp Id:", elanName,
-                dpnInterfaces.getDpId());
+                    dpnInterfaces.getDpId());
             return;
         }
         ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "updating mcast mac upon tunnel event",
             () -> Collections.singletonList(
-                elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
+                    elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
     }
 
     @Override
     protected void remove(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         // this is the last dpn interface on this elan
         final String elanName = getElanName(identifier);
-        LOG.debug("Received ElanDpnInterface removed for for elan {} with Dp Id ", elanName,
-            dpnInterfaces.getDpId());
-        ElanUtils.removeDPNInterfaceFromElanInCache(getElanName(identifier), dpnInterfaces);
+        //Cache need to be updated in all cluster nodes and not only by leader node .
+        //Hence moved out from DJC job
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isOwner) {
+                DataStoreJobCoordinator.getInstance().enqueueJob(elanName + ":l2gw", () -> {
+                    try {
+                        if (isOwner) {
+                            // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
+                            elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
+                                    dpnInterfaces.getDpId());
 
-        if (ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).isEmpty()) {
-            LOG.debug("dpnInterface removed, no external l2 devices to update for elan {} with Dp Id:", elanName,
-                dpnInterfaces.getDpId());
-            return;
-        }
-        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "handling ElanDpnInterface removed",
-            () -> {
-                // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
-                elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,
-                    dpnInterfaces.getDpId());
-                // updating remote mcast mac on l2gw devices
-                return Collections.singletonList(
-                    elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName));
-            });
+                            //Removing this dpn from cache to avoid race between this and local ucast mac listener
+                            ElanUtils.removeDPNInterfaceFromElanInCache(getElanName(identifier), dpnInterfaces);
+
+                            // updating remote mcast mac on l2gw devices
+                            elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
+                        }
+                    } finally {
+                        ElanUtils.addDPNInterfaceToElanInCache(getElanName(identifier), dpnInterfaces);
+                    }
+                    return null;
+                });
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.error("Error while fetching checkNodeEntityOwner", error);
+            }
+        });
     }
 
     @Override
@@ -103,13 +126,36 @@ public class ElanDpnInterfaceClusteredListener
 
     @Override
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
-        ElanUtils.addDPNInterfaceToElanInCache(getElanName(identifier), dpnInterfaces);
-        if (dpnInterfaces.getInterfaces().size() == 1) {
-            LOG.debug("dpninterfaces first dpn interface on this elan {} {} ", dpnInterfaces.getKey(),
-                dpnInterfaces.getInterfaces().get(0));
-            // this is the first dpn interface on this elan
-            handleUpdate(identifier, dpnInterfaces);
-        }
+        final String elanName = getElanName(identifier);
+        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
+                entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
+            @Override
+            public void onSuccess(Boolean isOwner) {
+                DataStoreJobCoordinator.getInstance().enqueueJob(elanName + ":l2gw", () -> {
+                    try {
+                        if (isOwner) {
+                            ElanUtils.addDPNInterfaceToElanInCache(getElanName(identifier), dpnInterfaces);
+                            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+                            elanL2GatewayUtils.installElanL2gwDevicesLocalMacsInDpn(
+                                    dpnInterfaces.getDpId(), elanInstance, dpnInterfaces.getInterfaces().get(0));
+
+                            // updating remote mcast mac on l2gw devices
+                            elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
+                        }
+                    } finally {
+                        ElanUtils.addDPNInterfaceToElanInCache(getElanName(identifier), dpnInterfaces);
+                    }
+                    return null;
+                });
+            }
+
+            @Override
+            public void onFailure(Throwable error) {
+                LOG.error("Error while fetching checkNodeEntityOwner", error);
+            }
+        });
     }
 
     private String getElanName(InstanceIdentifier<DpnInterfaces> identifier) {
