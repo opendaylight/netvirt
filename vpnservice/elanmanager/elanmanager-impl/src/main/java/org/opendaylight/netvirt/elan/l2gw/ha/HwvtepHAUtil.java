@@ -77,6 +77,7 @@ public class HwvtepHAUtil {
     public static final String UUID = "uuid";
     public static final String HWVTEP_URI_PREFIX = "hwvtep";
     public static final String MANAGER_KEY = "managerKey";
+    public static final String L2GW_JOB_KEY = ":l2gw";
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
