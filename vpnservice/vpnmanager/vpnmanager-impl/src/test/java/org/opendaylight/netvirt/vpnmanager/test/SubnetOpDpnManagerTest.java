@@ -90,10 +90,12 @@ public class SubnetOpDpnManagerTest {
     private void setupMocks() {
 
         List<VpnInterfaces> vpnInterfaces = new ArrayList<>();
+        List<Uuid> subnetIdList = new ArrayList<>();
+        subnetIdList.add(subnetId);
         subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
             vpnInterfaces).build();
-        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(infName)).setSubnetId(
-            subnetId).setPortId(portId).build();
+        portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(infName)).setSubnetIds(
+            subnetIdList).setPortId(portId).build();
         doReturn(mockReadTx).when(dataBroker).newReadOnlyTransaction();
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
         doReturn(Futures.immediateCheckedFuture(null)).when(mockWriteTx).submit();
@@ -141,7 +143,7 @@ public class SubnetOpDpnManagerTest {
     @Test
     public void testRemovePortOpDataEntryPortOpPresent() {
 
-        subOpDpnManager.removePortOpDataEntry(infName);
+        subOpDpnManager.removePortOpDataEntry(infName, null);
 
         verify(mockWriteTx).delete(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
     }
@@ -152,7 +154,7 @@ public class SubnetOpDpnManagerTest {
         doReturn(Futures.immediateCheckedFuture(Optional.absent())).when(mockReadTx).read(LogicalDatastoreType
             .OPERATIONAL, portOpIdentifier);
 
-        subOpDpnManager.removePortOpDataEntry(infName);
+        subOpDpnManager.removePortOpDataEntry(infName, null);
 
         verify(mockReadTx).read(LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
 

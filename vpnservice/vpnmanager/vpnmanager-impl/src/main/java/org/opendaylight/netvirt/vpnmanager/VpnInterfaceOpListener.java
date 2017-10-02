@@ -23,6 +23,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
@@ -122,22 +123,30 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                  */
                 // TODO(vivek) # It is not yet clear, where we are cleaning up the prefix-to-interface
                 // TODO(vivek) # for primary adjacencies and that has to be fixed.
-                Adjacency adjacency = adjs.getAdjacency().get(0);
                 List<Prefixes> prefixToInterface = new ArrayList<>();
-                Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                        VpnUtil.getIpPrefix(adjacency.getIpAddress())));
-                if (prefix.isPresent()) {
-                    prefixToInterface.add(prefix.get());
-                }
-                if (prefixToInterface.isEmpty()) {
-                    for (String nh : adjacency.getNextHopIpList()) {
-                        prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                VpnUtil.getIpPrefix(nh)));
-                        if (prefix.isPresent()) {
-                            prefixToInterface.add(prefix.get());
+                for (Adjacency adjacency : adjs.getAdjacency()) {
+                    List<Prefixes> prefixToInterfaceLocal = new ArrayList<>();
+                    if (adjacency.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
+                        continue;
+                    }
+                    Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                            VpnUtil.getIpPrefix(adjacency.getIpAddress())));
+                    if (prefix.isPresent()) {
+                        prefixToInterfaceLocal.add(prefix.get());
+                    }
+                    if (prefixToInterfaceLocal.isEmpty()) {
+                        for (String nh : adjacency.getNextHopIpList()) {
+                            prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                                    VpnUtil.getIpPrefix(nh)));
+                            if (prefix.isPresent()) {
+                                prefixToInterfaceLocal.add(prefix.get());
+                            }
                         }
+                    }
+                    if (!prefixToInterfaceLocal.isEmpty()) {
+                        prefixToInterface.addAll(prefixToInterfaceLocal);
                     }
                 }
                 /*
@@ -246,26 +255,32 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             List<Adjacency> adjList = (adjs != null) ? adjs.getAdjacency() : null;
 
             if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
-                Adjacency adjacency = adjs.getAdjacency().get(0);
                 List<Prefixes> prefixToInterfaceList = new ArrayList<>();
-                Optional<Prefixes> prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                for (Adjacency adjacency : adjs.getAdjacency()) {
+                    List<Prefixes> prefixToInterfaceListLocal = new ArrayList<>();
+                    if (adjacency.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
+                        continue;
+                    }
+                    Optional<Prefixes> prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
                         VpnUtil.getIpPrefix(adjacency.getIpAddress())));
-                if (prefixToInterface.isPresent()) {
-                    prefixToInterfaceList.add(prefixToInterface.get());
-                } else {
-                    for (String adj : adjacency.getNextHopIpList()) {
-                        prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                            VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                VpnUtil.getIpPrefix(adj)));
-                        if (prefixToInterface.isPresent()) {
-                            prefixToInterfaceList.add(prefixToInterface.get());
+                    if (prefixToInterface.isPresent()) {
+                        prefixToInterfaceListLocal.add(prefixToInterface.get());
+                    } else {
+                        for (String adj : adjacency.getNextHopIpList()) {
+                            prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
+                                    VpnUtil.getIpPrefix(adj)));
+                            if (prefixToInterface.isPresent()) {
+                                prefixToInterfaceListLocal.add(prefixToInterface.get());
+                            }
                         }
                     }
-                }
-                for (Prefixes prefix : prefixToInterfaceList) {
-                    vpnFootprintService.updateVpnToDpnMapping(prefix.getDpnId(), original.getVpnInstanceName(), rd,
-                        interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
+                    for (Prefixes prefix : prefixToInterfaceListLocal) {
+                        vpnFootprintService.updateVpnToDpnMapping(prefix.getDpnId(),
+                            original.getVpnInstanceName(), rd,
+                            interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
+                    }
                 }
             }
             LOG.info("postProcessVpnInterfaceUpdate: Updated vpn operational data and vpn footprint"
