@@ -473,7 +473,8 @@ public class VpnSubnetRouteHandler {
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
             try {
-                PortOpDataEntry portOpEntry = subOpDpnManager.removePortOpDataEntry(portId.getValue());
+                PortOpDataEntry portOpEntry = subOpDpnManager.removePortOpDataEntry(portId.getValue(),
+                                                                               subnetmap.getId());
                 if (portOpEntry == null) {
                     return;
                 }
