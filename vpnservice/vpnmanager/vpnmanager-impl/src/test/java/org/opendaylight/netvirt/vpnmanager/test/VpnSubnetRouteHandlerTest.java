@@ -258,10 +258,12 @@ public class VpnSubnetRouteHandlerTest {
         final List<Uuid> portList = new ArrayList<>();
         final List<PortOpDataEntry> listPortOpDataEntry = new ArrayList<>();
         final List<TunnelEndPoints> tunnelEndPoints = new ArrayList<>();
+        List<Uuid> subnetIdList = new ArrayList<>();
+        subnetIdList.add(subnetId);
         vpnInterfaces.add(vpnIntfaces);
         lowerLayerIfList.add(nodeConnectorId.getValue());
         portOp = new PortOpDataEntryBuilder().setDpnId(dpId).setKey(new PortOpDataEntryKey(tenantId.getValue()))
-            .setSubnetId(subnetId).setPortId(tenantId.getValue()).build();
+            .setSubnetIds(subnetIdList).setPortId(tenantId.getValue()).build();
         subnetToDpn = new SubnetToDpnBuilder().setDpnId(dpId).setKey(new SubnetToDpnKey(dpId)).setVpnInterfaces(
             vpnInterfaces).build();
         allocateIdOutput = new AllocateIdOutputBuilder().setIdValue(longId).build();
