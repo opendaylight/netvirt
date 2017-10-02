@@ -70,8 +70,8 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     }
 
     @Override
-    synchronized void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node updated, ReadWriteTransaction tx)  {
-        connectedNodes.add(key);
+    public synchronized void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node updated, ReadWriteTransaction tx) {
+        connectedNodes. add(key);
         addToCacheIfHAChildNode(key, updated);
         hwvtepHACache.updateConnectedNodeStatus(key);
         if (waitingJobs.containsKey(key) && !waitingJobs.get(key).isEmpty()) {
