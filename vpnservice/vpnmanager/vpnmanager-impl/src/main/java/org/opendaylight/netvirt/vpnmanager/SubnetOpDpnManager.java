@@ -145,10 +145,17 @@ public class SubnetOpDpnManager {
                 // Create PortOpDataEntry only if not present
                 portOpBuilder =
                     new PortOpDataEntryBuilder().setKey(new PortOpDataEntryKey(intfName)).setPortId(intfName);
-                portOpBuilder.setSubnetId(subnetId);
+                List<Uuid> listSubnet = new ArrayList<>();
+                listSubnet.add(subnetId);
+                portOpBuilder.setSubnetIds(listSubnet);
             } else {
+                List<Uuid> listSubnet = optionalPortOp.get().getSubnetIds();
                 portOpBuilder = new PortOpDataEntryBuilder(optionalPortOp.get());
-                portOpBuilder.setSubnetId(subnetId);
+                if (listSubnet == null) {
+                    listSubnet = new ArrayList<Uuid>();
+                }
+                listSubnet.add(subnetId);
+                portOpBuilder.setSubnetIds(listSubnet);
             }
             if (dpnId != null && !dpnId.equals(BigInteger.ZERO)) {
                 portOpBuilder.setDpnId(dpnId);
@@ -203,7 +210,7 @@ public class SubnetOpDpnManager {
         return dpnRemoved;
     }
 
-    public PortOpDataEntry removePortOpDataEntry(String intfName) {
+    public PortOpDataEntry removePortOpDataEntry(String intfName, Uuid subnetId) {
         // Remove PortOpData and return out
         InstanceIdentifier<PortOpDataEntry> portOpIdentifier =
             InstanceIdentifier.builder(PortOpData.class).child(PortOpDataEntry.class,
@@ -217,8 +224,30 @@ public class SubnetOpDpnManager {
             return null;
         } else {
             portOpEntry = optionalPortOp.get();
-            MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
-            LOG.info("removePortOpDataEntry: Deleted portOpData entry for port {}", intfName);
+            List<Uuid> listSubnet = portOpEntry.getSubnetIds();
+            if (listSubnet == null) {
+                listSubnet = new ArrayList<Uuid>();
+            }
+            if (subnetId != null && listSubnet.contains(subnetId)) {
+                listSubnet.remove(subnetId);
+            }
+            if (listSubnet.isEmpty() || subnetId == null) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier);
+                LOG.info("removePortOpDataEntry: Deleted portOpData entry for port {}", intfName);
+            } else {
+                try {
+                    PortOpDataEntryBuilder portOpBuilder = null;
+                    portOpBuilder = new PortOpDataEntryBuilder(portOpEntry);
+                    portOpBuilder.setSubnetIds(listSubnet);
+                    SingleTransactionDataBroker.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, portOpIdentifier,
+                        portOpEntry);
+                    LOG.info("removePortOpDataEntry: Updated PortOpData entry for port {} with removing subnetId {}",
+                        intfName, subnetId.getValue());
+                } catch (TransactionCommitFailedException ex) {
+                    LOG.error("removePortOpDataEntry failed: Updated PortOpData entry for port {}"
+                        + " with removing subnetId {}", intfName, subnetId.getValue());
+                }
+            }
         }
         return portOpEntry;
     }
