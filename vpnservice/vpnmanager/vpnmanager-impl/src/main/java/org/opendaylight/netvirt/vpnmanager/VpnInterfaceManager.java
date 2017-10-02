@@ -1823,7 +1823,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     deleteExtraRouteFromCurrentAndImportingVpns(currVpnIntf.getVpnInstanceName(),
                                             adj.getIpAddress(), nh, rd, currVpnIntf.getName(), writeConfigTxn);
                                 }
-                            } else if (adj.isPhysNetworkFunc()) {
+                            }
+                            if (adj.getNextHopIpList() == null && adj.isPhysNetworkFunc()) {
                                 LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet [}",
                                         adj.getIpAddress(), adj.getSubnetId());
                                 fibManager.removeFibEntry(dataBroker, adj.getSubnetId().getValue(), adj.getIpAddress(),
