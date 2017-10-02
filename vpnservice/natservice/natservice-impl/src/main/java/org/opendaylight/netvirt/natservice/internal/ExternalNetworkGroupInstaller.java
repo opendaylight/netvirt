@@ -30,7 +30,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -133,6 +135,14 @@ public class ExternalNetworkGroupInstaller {
         for (String extInterface : extInterfaces) {
             installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress);
         }
+    }
+
+    public boolean hasExternalElanInterface(Uuid networkId, BigInteger dpnId) {
+       return null != elanService.getExternalElanInterface(networkId.getValue(), dpnId);
+    }
+
+    public InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(Uuid networkId, BigInteger dpnId) {
+        return elanService.getElanDpnInterfaceOperationalDataPath(networkId.getValue(), dpnId);
     }
 
     private void installExtNetGroupEntry(Uuid networkId, Uuid subnetId, BigInteger dpnId, String macAddress) {

@@ -483,7 +483,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         @Override
         protected void add(InstanceIdentifier<Interface> instanceIdentifier, Interface iface) {
             LOG.info("WaitForIt2, ADD! {}", iface);
-            createNATFlowEntries(interfaceName, mapping, portIid, routerName);
+            WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
+            createNATFlowEntries(interfaceName, mapping, portIid, routerName, writeTransaction);
+            writeTransaction.submit();
             close();
         }
 

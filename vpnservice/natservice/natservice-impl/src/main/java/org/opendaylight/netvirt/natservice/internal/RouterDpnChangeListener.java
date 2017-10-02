@@ -14,13 +14,21 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
+import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -38,6 +46,7 @@ import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
@@ -49,6 +58,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -157,6 +168,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
+/*
                     DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                     dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
                         WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
@@ -228,11 +240,153 @@ public class RouterDpnChangeListener
                         futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
                         return futures;
                     }, NatConstants.NAT_DJC_MAX_RETRIES);
+*/
+                    addNonConntrack(dpnInfo, routerUuid, dpnId, router, networkId);
                 } // end of controller based SNAT
             }
         } else {
             LOG.debug("add : Router {} is not associated with External network", routerUuid);
         }
+    }
+
+    private Waiter3<DpnInterfaces> waiter = null;
+    private void addNonConntrack(DpnVpninterfacesList dpnInfo, String routerUuid, BigInteger dpnId, Routers router, Uuid networkId) {
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+            WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            LOG.debug("add : Router {} is associated with ext nw {}", routerUuid, networkId);
+            Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
+            Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            if (routerId == NatConstants.INVALID_ID) {
+                LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
+                writeFlowInvTx.cancel();
+                removeFlowInvTx.cancel();
+                return futures;
+            }
+            Long vpnId;
+            if (vpnName == null) {
+                LOG.debug("add : Internal vpn associated to router {}", routerUuid);
+                vpnId = routerId;
+                if (vpnId == NatConstants.INVALID_ID) {
+                    LOG.error("add : Invalid vpnId returned for routerName {}", routerUuid);
+                    writeFlowInvTx.cancel();
+                    removeFlowInvTx.cancel();
+                    return futures;
+                }
+                LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerUuid);
+                //Install default entry in FIB to SNAT table
+                LOG.info("add : Installing default route in FIB on dpn {} for router {} with vpn {}",
+                        dpnId, routerUuid, vpnId);
+                installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                        NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
+            } else {
+                LOG.debug("add : External BGP vpn associated to router {}", routerUuid);
+                vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                if (vpnId == NatConstants.INVALID_ID) {
+                    LOG.error("add : Invalid vpnId returned for routerName {}", routerUuid);
+                    writeFlowInvTx.cancel();
+                    removeFlowInvTx.cancel();
+                    return futures;
+                }
+
+                LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerUuid);
+                //Install default entry in FIB to SNAT table
+                LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
+                        + "vpnId {}...", dpnId, routerUuid, vpnId);
+                installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                        NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId, writeFlowInvTx);
+            }
+            extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+
+            if (router.isEnableSnat()) {
+                LOG.info("add : SNAT enabled for router {}", routerUuid);
+                ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
+                        routerUuid, networkId);
+                if (extNwProvType == null) {
+                    LOG.error("add : External Network Provider Type missing");
+                    writeFlowInvTx.cancel();
+                    removeFlowInvTx.cancel();
+                    return futures;
+                }
+                handleSNATForDPN(dpnId, routerUuid, routerId, vpnId, writeFlowInvTx, removeFlowInvTx,
+                        extNwProvType);
+            } else {
+                LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}",
+                        routerUuid, dpnId);
+            }
+            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+            return futures;
+        }, NatConstants.NAT_DJC_MAX_RETRIES);
+        /*
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+
+            if (!extNetGroupInstaller.hasExternalElanInterface(networkId, dpnId) && null == waiter) {
+                waiter = new Waiter3<DpnInterfaces>(this.dataBroker, LogicalDatastoreType.OPERATIONAL,
+                        extNetGroupInstaller.getElanDpnInterfaceOperationalDataPath(networkId, dpnId),
+                        (t,v) -> {addNonConntrack(dpnInfo, routerUuid, dpnId, router, networkId);});
+            }
+            extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+
+            WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
+            LOG.debug("add : Router {} is associated with ext nw {}", routerUuid, networkId);
+            Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);
+            Long routerId = NatUtil.getVpnId(dataBroker, routerUuid);
+            List<ListenableFuture<Void>> futures = new ArrayList<>();
+            if (routerId == NatConstants.INVALID_ID) {
+                LOG.error("add : Invalid routerId returned for routerName {}", routerUuid);
+                return futures;
+            }
+            Long vpnId;
+            if (vpnName == null) {
+                LOG.debug("add : Internal vpn associated to router {}", routerUuid);
+                vpnId = routerId;
+                if (vpnId == NatConstants.INVALID_ID) {
+                    LOG.error("add : Invalid vpnId returned for routerName {}", routerUuid);
+                    return futures;
+                }
+                LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerUuid);
+                //Install default entry in FIB to SNAT table
+                LOG.info("add : Installing default route in FIB on dpn {} for router {} with vpn {}",
+                        dpnId, routerUuid, vpnId);
+                installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                        NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
+            } else {
+                LOG.debug("add : External BGP vpn associated to router {}", routerUuid);
+                vpnId = NatUtil.getVpnId(dataBroker, vpnName.getValue());
+                if (vpnId == NatConstants.INVALID_ID) {
+                    LOG.error("add : Invalid vpnId returned for routerName {}", routerUuid);
+                    return futures;
+                }
+
+                LOG.debug("add : Retrieved vpnId {} for router {}", vpnId, routerUuid);
+                //Install default entry in FIB to SNAT table
+                LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
+                        + "vpnId {}...", dpnId, routerUuid, vpnId);
+                installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                        NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
+                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId, writeFlowInvTx);
+            }
+
+            if (router.isEnableSnat()) {
+                LOG.info("add : SNAT enabled for router {}", routerUuid);
+                handleSNATForDPN(dpnId, routerUuid, routerId, vpnId, writeFlowInvTx, removeFlowInvTx);
+            } else {
+                LOG.info("add : SNAT is not enabled for router {} to handle addDPN event {}",
+                        routerUuid, dpnId);
+            }
+            futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+            return futures;
+        }, NatConstants.NAT_DJC_MAX_RETRIES);
+        */
     }
 
     @Override
@@ -528,5 +682,55 @@ public class RouterDpnChangeListener
     private InstanceIdentifier<Subnetmap> getSubnetMapIdentifier(Uuid subnetId) {
         return InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
                 new SubnetmapKey(subnetId)).build();
+    }
+}
+
+class Waiter3<T extends DataObject> implements DataTreeChangeListener<T> {
+
+    private static final Logger LOG = LoggerFactory.getLogger(Waiter.class);
+
+    private static Set instances = new HashSet();
+
+    private BiConsumer<T, DataBroker> handler;
+    private DataBroker dataBroker;
+    private ListenerRegistration<Waiter3> registration;
+    private InstanceIdentifier<T> iid;
+
+    public Waiter3(DataBroker dataBroker, LogicalDatastoreType dataStore, InstanceIdentifier<T> iid, BiConsumer<T, DataBroker> handler) {
+        this.handler = handler;
+        this.dataBroker = dataBroker;
+        this.iid = iid;
+        final DataTreeIdentifier<T> treeId = new DataTreeIdentifier<>(dataStore, iid);
+        LOG.info("Waiter {} waiting on {}", hashCode(), treeId);
+        synchronized (instances) {
+            this.registration = dataBroker.registerDataTreeChangeListener(treeId, this);
+            instances.add(this);
+        }
+    }
+
+    @Override
+    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<T>> collection) {
+        for (DataTreeModification<T> change : collection) {
+            final InstanceIdentifier<T> key = change.getRootPath().getRootIdentifier();
+            final DataObjectModification<T> mod = change.getRootNode();
+
+            switch (mod.getModificationType()) {
+                case DELETE:
+                    LOG.info("Waiter {} got delete?!", hashCode());
+                    break;
+                case SUBTREE_MODIFIED:
+                    LOG.info("Waiter {} got update?!", hashCode());
+                    handler.accept(mod.getDataAfter(), this.dataBroker);
+                    break;
+                case WRITE:
+                    LOG.info("Waiter {} got a write update?!", hashCode());
+                    handler.accept(mod.getDataAfter(), this.dataBroker);
+                    break;
+                default:
+                    // FIXME: May be not a good idea to throw.
+                    throw new IllegalArgumentException("Unhandled modification type " + mod.getModificationType());
+            }
+        }
+
     }
 }
