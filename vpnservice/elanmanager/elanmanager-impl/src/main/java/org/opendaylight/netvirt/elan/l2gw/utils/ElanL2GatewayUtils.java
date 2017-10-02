@@ -343,6 +343,8 @@ public class ElanL2GatewayUtils {
         final String extDeviceNodeId = extL2GwDevice.getHwvtepNodeId();
         final String elanInstanceName = elan.getElanInstanceName();
         final List<DpnInterfaces> elanDpns = getElanDpns(elanInstanceName);
+        ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
+                .getInvolvedL2GwDevices(elanInstanceName);
 
         // Retrieve all participating DPNs in this Elan. Populate this MAC in
         // DMAC table.
@@ -378,8 +380,6 @@ public class ElanL2GatewayUtils {
                             macToBeAdded);
                     return Collections.emptyList();
                 }
-                ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
-                        .getInvolvedL2GwDevices(elanInstanceName);
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
                     if (!otherDevice.getHwvtepNodeId().equals(extDeviceNodeId)
