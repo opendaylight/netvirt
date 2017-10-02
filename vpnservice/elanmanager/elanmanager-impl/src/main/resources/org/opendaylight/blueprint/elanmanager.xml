@@ -226,12 +226,12 @@
     <argument ref="dataBroker" />
   </bean>
 
-  <bean id="hwvtepLocalUcastMacListener"
+  <!--<bean id="hwvtepLocalUcastMacListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanL2GatewayUtils" />
-  </bean>
+  </bean>-->
 
   <bean id="elanStatusMonitor"
     class="org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitorJMX"
@@ -431,6 +431,14 @@
     <argument ref="itmRpcService" />
     <argument ref="entityOwnershipService" />
     <argument ref="l2GatewayConnectionUtils" />
+  </bean>
+
+  <bean id="localUcastMacListener" class="org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener"
+        init-method="init" destroy-method="close">
+    <argument ref="dataBroker" />
+    <argument ref="elanUtils" />
+    <argument ref="haOpClusteredListener" />
+    <argument ref="elanL2GatewayUtils" />
   </bean>
 
 </blueprint>
