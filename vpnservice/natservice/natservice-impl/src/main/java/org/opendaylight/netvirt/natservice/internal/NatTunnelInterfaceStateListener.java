@@ -406,6 +406,9 @@ public class NatTunnelInterfaceStateListener
             Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
             ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
                     routerName, externalNetworkId);
+            if (extNwProvType == null) {
+                return false;
+            }
             hndlTepAddForDnatInEachRtr(router, routerId, nextHopIp, srcDpnId, extNwProvType, writeFlowInvTx);
 
             LOG.debug("hndlTepAddForAllRtrs : TEP ADD : SNAT -> Advertising routes for router {} ", routerName);
@@ -473,6 +476,9 @@ public class NatTunnelInterfaceStateListener
             Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
             ProviderTypes extNwProvType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker,
                     routerName, externalNetworkId);
+            if (extNwProvType == null) {
+                return false;
+            }
             hndlTepDelForDnatInEachRtr(router, routerId, srcDpnId, extNwProvType, writeFlowInvTx);
             LOG.debug("handleTepDelForAllRtrs :  TEP DEL : SNAT -> Withdrawing and Advertising routes for router {} ",
                 router.getRouter());
