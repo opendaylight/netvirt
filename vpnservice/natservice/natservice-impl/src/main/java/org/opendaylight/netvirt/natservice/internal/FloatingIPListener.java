@@ -283,7 +283,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         } else {
             mdsalManager.addFlowToTx(preFlowEntity, writeFlowInvTx);
             FlowEntity flowEntity = buildDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
-            mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+            if (flowEntity != null) {
+                mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+            }
         }
     }
 
@@ -293,7 +295,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         mdsalManager.removeFlowToTx(preFlowEntity, removeFlowInvTx);
 
         FlowEntity flowEntity = buildDNATDeleteFlowEntity(dpnId, internalIp, routerId);
-        mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+        if (flowEntity != null) {
+            mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+        }
     }
 
     private void createSNATTblEntry(BigInteger dpnId, InternalToExternalPortMap mapping, long vpnId, long routerId,
@@ -303,7 +307,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         mdsalManager.addFlowToTx(preFlowEntity, writeFlowInvTx);
 
         FlowEntity flowEntity = buildSNATFlowEntity(dpnId, mapping, vpnId, externalNetworkId);
-        mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+        if (flowEntity != null) {
+            mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
+        }
     }
 
     private void removeSNATTblEntry(BigInteger dpnId, String internalIp, String externalIp, long routerId, long vpnId,
@@ -312,7 +318,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         mdsalManager.removeFlowToTx(preFlowEntity, removeFlowInvTx);
 
         FlowEntity flowEntity = buildSNATDeleteFlowEntity(dpnId, externalIp, vpnId);
-        mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+        if (flowEntity != null) {
+            mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+        }
     }
 
     private Uuid getExtNetworkId(final InstanceIdentifier<RouterPorts> portIid,
@@ -530,7 +538,9 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         mdsalManager.installFlow(preFlowEntity);
 
         flowEntity = buildSNATFlowEntity(dpnId, mapping, vpnId, externalNetworkId);
-        mdsalManager.installFlow(flowEntity);
+        if (flowEntity != null) {
+            mdsalManager.installFlow(flowEntity);
+        }
 
     }
 
