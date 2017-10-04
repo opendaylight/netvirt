@@ -66,8 +66,8 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final OdlInterfaceRpcService interfaceManager;
     private final IVpnManager vpnManager;
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
-    protected final int loadStart = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
-    protected final int loadEnd = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
+    static final int LOAD_START = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
+    static final int LOAD_END = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
             .METADATA_MASK_SH_FLAG.intValue());
 
     public AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -276,7 +276,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             }
             matches.add(new MatchTunnelId(BigInteger.valueOf(extSubnetId)));
             ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                    .getVpnIdMetadata(extSubnetId), loadStart, loadEnd);
+                    .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
             actionsInfos.add(actionLoadMeta);
         }
         actionsInfos.add(new ActionNxResubmit(NwConstants.INBOUND_NAPT_TABLE));
@@ -397,14 +397,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         return null;
     }
 
-    private int mostSignificantBit(int value) {
-        int mask = 1 << 31;
-        for (int bitIndex = 31; bitIndex >= 0; bitIndex--) {
-            if ((value & mask) != 0) {
-                return bitIndex;
-            }
-            mask >>>= 1;
-        }
-        return -1;
+    static int mostSignificantBit(int value) {
+        return 31 - Integer.numberOfLeadingZeros(value);
     }
 }

@@ -128,7 +128,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
                 .OUTBOUND_NAPT_TABLE,ctActionsList);
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                .getVpnIdMetadata(routerId.longValue()), loadStart, loadEnd);
+                .getVpnIdMetadata(routerId.longValue()), LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
         actionsInfos.add(actionNxConntrack);
         List<InstructionInfo> instructions = new ArrayList<>();
@@ -214,7 +214,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 return;
             }
             ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                    .getVpnIdMetadata(extSubnetId), loadStart, loadEnd);
+                    .getVpnIdMetadata(extSubnetId), LOAD_START, LOAD_END);
             listActionInfo.add(actionLoadMeta);
         }
         ArrayList<InstructionInfo> instructions = new ArrayList<>();
@@ -252,7 +252,7 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
         List<NxCtAction> ctActionsList = new ArrayList<>();
         NxCtAction nxCtAction = new ActionNxConntrack.NxNat(0, 0, 0,null, null,0, 0);
         ActionNxLoadMetadata actionLoadMeta = new ActionNxLoadMetadata(MetaDataUtil
-                .getVpnIdMetadata(routerId), loadStart, loadEnd);
+                .getVpnIdMetadata(routerId), LOAD_START, LOAD_END);
         actionsInfos.add(actionLoadMeta);
         ctActionsList.add(nxCtAction);
         ActionNxConntrack actionNxConntrack = new ActionNxConntrack(0, 0, elanId, NwConstants
