@@ -146,7 +146,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                         LOG.trace("onPacketReceived : SNAT({}) Packet already processed.", sourceIPPortKey);
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
                             operation, protocol, packetReceived, true, state);
-                        LOG.info("onPacketReceived : Retry Packet IN Queue Size : {}",
+                        LOG.debug("onPacketReceived : Retry Packet IN Queue Size : {}",
                                 ((ThreadPoolExecutor)retryPacketExecutorService).getQueue().size());
 
                         long firstPacketInTime = state.getFirstPacketInTime();
