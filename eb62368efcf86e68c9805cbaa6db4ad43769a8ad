@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_7f03aa73",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-10-04T14:17:04Z",
+      "side": 1,
+      "message": "you forgot to link to spec doc, so it is not being generated:\n\nhttps://logs.opendaylight.org/releng/jenkins092/docs-verify-rtd-oxygen/38/html/submodules/netvirt/docs/contributor-guide/index.html\n\nEasier to review the generated doc. This should be:\n\nSR-IOV Hardware Offload for OVS \u003csriov-hardware-offload\u003e",
+      "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bf3b6237",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-10-04T14:17:04Z",
+      "side": 1,
+      "message": "could you clarify what this means? specifically, what will NeutronPort code do? Am just trying to figure out if there could be a simpler easier way to do it.",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 48
+      },
+      "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
