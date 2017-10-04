@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_ff515ad9",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 217,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-10-04T13:21:30Z",
+      "side": 1,
+      "message": "where are these defined? These are the new constants in the other file right? How are they used here?",
+      "revId": "818739bcb0d2b12f1593bcf0101c56aae0d5a902",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
