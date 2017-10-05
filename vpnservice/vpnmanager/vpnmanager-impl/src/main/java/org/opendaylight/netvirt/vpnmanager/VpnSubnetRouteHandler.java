@@ -116,7 +116,7 @@ public class VpnSubnetRouteHandler {
                       subnetId);
             return;
         }
-        LOG.info("{} onSubnetAddedToVpn: Subnet {} with IP {}being added to vpn {}", LOGGING_PREFIX,
+        LOG.info("{} onSubnetAddedToVpn: Subnet {} with IP {} being added to vpn {}", LOGGING_PREFIX,
                 subnetId.getValue(), subnetIp, vpnName);
 
         //TODO(vivek): Change this to use more granularized lock at subnetId level
@@ -157,7 +157,7 @@ public class VpnSubnetRouteHandler {
                             + " detected to be present", LOGGING_PREFIX, subnetId.getValue(), subnetIp, vpnName);
                     return;
                 }
-                LOG.debug("{} onSubnetAddedToVpn: Creating new SubnetOpDataEntry node for subnet {} subnetIp {}"
+                LOG.debug("{} onSubnetAddedToVpn: Creating new SubnetOpDataEntry node for subnet {} subnetIp {} "
                         + "vpn {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp, vpnName);
                 subOpBuilder = new SubnetOpDataEntryBuilder().setKey(new SubnetOpDataEntryKey(subnetId));
                 subOpBuilder.setSubnetId(subnetId);
