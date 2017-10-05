@@ -7,7 +7,8 @@
  */
 package org.opendaylight.netvirt.elanmanager.tests;
 
-import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -19,6 +20,7 @@ import org.opendaylight.genius.lockmanager.LockManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
+import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
@@ -65,12 +67,13 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
         bind(IMdsalApiManager.class).toInstance(TestIMdsalApiManager.newInstance());
         bindTypesToInstance(IInterfaceManager.class, TestInterfaceManager.class, TestInterfaceManager.newInstance());
-        bind(ItmRpcService.class).toInstance(Mockito.mock(ItmRpcService.class)); // new ItmManagerRpcService();
-        bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
-        bind(EvpnUtils.class).toInstance(Mockito.mock(EvpnUtils.class));
-        bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
-        bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
+        bind(ItmRpcService.class).toInstance(mock(ItmRpcService.class)); // new ItmManagerRpcService();
+        bind(ElanStatusMonitor.class).toInstance(mock(ElanStatusMonitor.class));
+        bind(EvpnUtils.class).toInstance(mock(EvpnUtils.class));
+        bind(EntityOwnershipService.class).toInstance(mock(EntityOwnershipService.class));
+        bind(INeutronVpnManager.class).toInstance(mock(NeutronvpnManagerImpl.class));
         bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
+        bind(DiagStatusService.class).toInstance(mock(DiagStatusService.class));
     }
 
 }
