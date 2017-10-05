@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 
 public class ElanConstants {
 
+    public static final String ELAN_SERVICE_NAME = "ELAN";
     public static final String LEAVES_POSTFIX = "_leaves";
     public static final String ELAN_ID_POOL_NAME = "elan.ids.pool";
     public static final long ELAN_ID_LOW_VALUE = 5000L;
