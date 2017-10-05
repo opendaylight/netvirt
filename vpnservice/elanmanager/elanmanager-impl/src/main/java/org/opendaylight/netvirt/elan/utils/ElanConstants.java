@@ -15,6 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 
 public class ElanConstants {
 
+    public static final String ELAN_SERVICE_NAME = "ELAN";
     public static final String LEAVES_POSTFIX = "_leaves";
     public static final String ELAN_ID_POOL_NAME = "elan.ids.pool";
     public static final long ELAN_ID_LOW_VALUE = 5000L;
