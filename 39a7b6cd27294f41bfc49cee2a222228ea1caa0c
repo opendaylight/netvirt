@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_5fbfc1d0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-05T13:44:24Z",
+      "side": 1,
+      "message": "a space would be welcome.",
+      "range": {
+        "startLine": 114,
+        "startChar": 59,
+        "endLine": 114,
+        "endChar": 63
+      },
+      "revId": "39a7b6cd27294f41bfc49cee2a222228ea1caa0c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
