@@ -346,8 +346,19 @@ public final class FibUtil {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
         }
-        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
 
+        InstanceIdentifier<VrfEntry> idVrf =
+            InstanceIdentifier.builder(FibEntries.class)
+               .child(VrfTables.class, new VrfTablesKey(rd))
+               .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+        Optional<VrfEntry> optVrfEntry = MDSALUtil.read(broker,
+                    LogicalDatastoreType.CONFIGURATION, idVrf);
+        if (!optVrfEntry.isPresent()) {
+            LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}"
+                     + " already removed", prefix, rd);
+            return;
+        }
+        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
         InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
             InstanceIdentifier.builder(FibEntries.class)
                 .child(VrfTables.class, new VrfTablesKey(rd)).child(VrfEntry.class, new VrfEntryKey(prefix));
