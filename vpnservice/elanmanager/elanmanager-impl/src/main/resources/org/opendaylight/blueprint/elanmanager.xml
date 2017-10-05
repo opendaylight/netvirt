@@ -20,6 +20,8 @@
              interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" availability="optional"/>
   <reference id="neutronvpnManagerImpl"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" availability="optional"/>
+  <reference id="diagStatusService"
+             interface="org.opendaylight.infrautils.diagstatus.DiagStatusService" />
 
   <odl:rpc-service id="odlInterfaceRpcService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />

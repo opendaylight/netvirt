@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.internal.MDSALManager;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
+import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
@@ -38,6 +39,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
+import org.ops4j.pax.cdi.api.OsgiService;
 
 
 /**
@@ -97,7 +99,8 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(ItmRpcTestImpl.class).toInstance((ItmRpcTestImpl)itmRpcService);
         //bind(IVpnManager.class).toInstance(ivpnManager);
         //bind(IBgpManager.class).toInstance(ibgpManager);
-        bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
+        bind(DataImportBootReady.class).annotatedWith(OsgiService.class).toInstance(new DataImportBootReady() {});
+        bind(DiagStatusService.class).toInstance(Mockito.mock(DiagStatusService.class));
         bind(IElanService.class).to(ElanServiceProvider.class);
     }
 
