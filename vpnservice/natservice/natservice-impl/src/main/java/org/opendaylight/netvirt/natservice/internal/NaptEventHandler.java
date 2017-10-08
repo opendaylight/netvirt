@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -244,7 +245,7 @@ public class NaptEventHandler {
                     final Long finalRouterId = routerId;
                     final long finalBgpVpnId = bgpVpnId;
                     Futures.addCallback(JdkFutureAdapters.listenInPoolThread(addFlowResult),
-                            new FutureCallback<RpcResult<AddFlowOutput>>() {
+                                        new FutureCallback<RpcResult<AddFlowOutput>>() {
 
                                 @Override
                                 public void onSuccess(@Nullable RpcResult<AddFlowOutput> result) {
@@ -271,7 +272,7 @@ public class NaptEventHandler {
                                                         + "SNAT flows using RPC for SNAT connection from {} to {}",
                                                                   internalAddress, externalAddress);
                                             }
-                                        });
+                                        }, MoreExecutors.directExecutor());
                                 }
 
                                 @Override
@@ -280,7 +281,7 @@ public class NaptEventHandler {
                                             + "using RPC for SNAT connection from {} to {}",
                                             internalAddress, externalAddress);
                                 }
-                            });
+                            }, MoreExecutors.directExecutor());
                     String key = naptEntryEvent.getRouterId() + NatConstants.COLON_SEPARATOR
                             + naptEntryEvent.getIpAddress() + NatConstants.COLON_SEPARATOR
                             + naptEntryEvent.getPortNumber();

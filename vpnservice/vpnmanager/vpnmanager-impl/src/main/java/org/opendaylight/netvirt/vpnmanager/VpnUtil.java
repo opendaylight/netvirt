@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
@@ -782,7 +783,7 @@ public final class VpnUtil {
         InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.merge(datastoreType, path, data, true);
-        Futures.addCallback(tx.submit(), callback);
+        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
     public static <T extends DataObject> void asyncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
@@ -794,7 +795,7 @@ public final class VpnUtil {
         InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        Futures.addCallback(tx.submit(), callback);
+        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
     // TODO Clean up the exception handling
@@ -820,7 +821,7 @@ public final class VpnUtil {
         InstanceIdentifier<T> path, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), callback);
+        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
     public static <T extends DataObject> void syncWrite(DataBroker broker, LogicalDatastoreType datastoreType,
@@ -1383,7 +1384,7 @@ public final class VpnUtil {
             public void onFailure(Throwable error) {
                 LOG.error("runOnlyInLeaderNode: Failed to identity cluster owner ", error);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {

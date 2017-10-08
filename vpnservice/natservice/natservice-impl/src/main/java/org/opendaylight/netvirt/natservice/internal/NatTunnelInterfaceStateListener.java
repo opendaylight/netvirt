@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -784,7 +785,7 @@ public class NatTunnelInterfaceStateListener
                                     + "for prefix {} in DPN {}, {}", externalIp, srcDpnId, result.getErrors());
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
         }
         return true;
@@ -917,7 +918,7 @@ public class NatTunnelInterfaceStateListener
                                 + "entries for prefix {} in DPN {}, {}", externalIp, fipCfgdDpnId, result.getErrors());
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
         }
     }
@@ -1116,7 +1117,7 @@ public class NatTunnelInterfaceStateListener
                                 + "21 entry pushing the MPLS label to the tunnnel due to {}", result.getErrors());
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
         }
     }

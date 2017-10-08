@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -1094,7 +1095,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             + "for prefix {} in DPN {}, {}", externalIp, dpnId, result.getErrors());
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private List<Instruction> createFibTableCustomInstructions(DataBroker dataBroker, short tableId,
@@ -2264,7 +2265,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             + " from VPN {}, {}", externalIp, vpnName, result.getErrors());
                     }
                 }
-            });
+            }, MoreExecutors.directExecutor());
         } else {
             LOG.debug("delFibTsAndReverseTraffic: switch-over is happened on DpnId {}. No need to release allocated "
                     + "label {} for external fixed ip {} for router {}", dpnId, label, externalIp, routerId);
@@ -2370,7 +2371,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             + " from VPN {}, {}", externalIp, vpnName, result.getErrors());
                     }
                 }
-            });
+            }, MoreExecutors.directExecutor());
         } else {
             LOG.debug("delFibTsAndReverseTraffic: switch-over is happened on DpnId {}. No need to release allocated "
                     + "label {} for external fixed ip {} for router {}", dpnId, label, externalIp, routerId);

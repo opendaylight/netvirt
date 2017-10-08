@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -57,7 +58,7 @@ public class TransactionUtil {
             InstanceIdentifier<T> path, T data, FutureCallback<Void> callback) {
         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, true);
-        Futures.addCallback(tx.submit(), callback);
+        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
     public static <T extends DataObject> void syncWrite(DataBroker dataBroker, LogicalDatastoreType datastoreType,

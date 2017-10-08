@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -183,18 +184,19 @@ public class HwvtepTerminationPointListener
         final ReadWriteTransaction tx = broker.newReadWriteTransaction();
         final SettableFuture settableFuture = SettableFuture.create();
         List<ListenableFuture<Void>> futures = Collections.singletonList(settableFuture);
-        Futures.addCallback(
-                tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid), new SettableFutureCallback(settableFuture) {
+        Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid),
+                new SettableFutureCallback(settableFuture) {
                     @Override
                     public void onSuccess(Object resultNode) {
                         Optional<Node> nodeOptional = (Optional<Node>) resultNode;
                         if (nodeOptional.isPresent()) {
                             //case of port deleted
                             tx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
-                            Futures.addCallback(tx.submit(), new SettableFutureCallback(settableFuture));
+                            Futures.addCallback(tx.submit(), new SettableFutureCallback(settableFuture),
+                                                MoreExecutors.directExecutor());
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
         return futures;
     }
 

@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -326,14 +327,14 @@ public class ElanUtils {
             InstanceIdentifier<T> path) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK);
+        Futures.addCallback(tx.submit(), DEFAULT_CALLBACK, MoreExecutors.directExecutor());
     }
 
     public static <T extends DataObject> void delete(DataBroker broker, LogicalDatastoreType datastoreType,
             InstanceIdentifier<T> path, FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.delete(datastoreType, path);
-        Futures.addCallback(tx.submit(), callback);
+        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceIdentifier() {

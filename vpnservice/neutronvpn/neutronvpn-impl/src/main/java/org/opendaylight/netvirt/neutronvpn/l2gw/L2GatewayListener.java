@@ -11,6 +11,7 @@ import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -179,7 +180,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                 public void onFailure(Throwable throwable) {
                     LOG.error("Failed to delete vlan bindings as part of l2gw udpate {}", update);
                 }
-            });
+            }, MoreExecutors.directExecutor());
             return fts;
         }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
@@ -230,7 +231,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                         public void onFailure(Throwable error) {
                             LOG.error("Failed to delete ITM tunnels", error);
                         }
-                    });
+                    }, MoreExecutors.directExecutor());
                 } else {
                     L2GatewayCacheUtils.removeL2DeviceFromCache(l2DeviceName);
                     // Cleaning up the config DS

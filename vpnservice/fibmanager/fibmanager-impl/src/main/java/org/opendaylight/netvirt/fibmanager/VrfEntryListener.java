@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -1537,7 +1538,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             if (callback != null) {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-                Futures.addCallback(listenableFuture, callback);
+                Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
             }
             return;
         }
@@ -1598,7 +1599,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
                 if (callback != null) {
                     ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-                    Futures.addCallback(listenableFuture, callback);
+                    Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                 }
                 return futures;
             });
@@ -1773,7 +1774,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         futures.add(tx.submit());
                         if (callback != null) {
                             ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-                            Futures.addCallback(listenableFuture, callback);
+                            Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
                         }
                     }
                     return futures;

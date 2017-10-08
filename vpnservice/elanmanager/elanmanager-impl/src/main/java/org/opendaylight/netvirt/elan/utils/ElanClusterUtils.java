@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.Collections;
 import java.util.List;
@@ -31,8 +32,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanClusterUtils {
+public final class ElanClusterUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ElanClusterUtils.class);
+
+    private ElanClusterUtils() {
+    }
 
     public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, Runnable job) {
         runOnlyInLeaderNode(entityOwnershipService, job, "");
@@ -57,7 +61,7 @@ public class ElanClusterUtils {
             public void onFailure(Throwable error) {
                 LOG.error("Failed to identity cluster owner ", error);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, String jobKey,
@@ -87,7 +91,7 @@ public class ElanClusterUtils {
             public void onFailure(Throwable error) {
                 LOG.error("Failed to identity cluster owner for job " + jobDescription, error);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public static <T extends DataObject> void asyncReadAndExecute(final DataBroker broker,
@@ -102,12 +106,12 @@ public class ElanClusterUtils {
             ReadWriteTransaction tx = broker.newReadWriteTransaction();
 
             Futures.addCallback(tx.read(datastoreType, iid),
-                    new SettableFutureCallback<Optional<T>>(settableFuture) {
+                                new SettableFutureCallback<Optional<T>>(settableFuture) {
                         public void onSuccess(Optional<T> data) {
                             function.apply(data);
                             super.onSuccess(data);
                         }
-                    });
+                    }, MoreExecutors.directExecutor());
 
             return futures;
         }, ElanConstants.JOB_MAX_RETRIES);

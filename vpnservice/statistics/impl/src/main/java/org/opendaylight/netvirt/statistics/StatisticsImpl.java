@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -961,7 +962,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                     LOG.error("RPC to create Idpool failed {}", result.getErrors());
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private void releaseId(String idKey) {

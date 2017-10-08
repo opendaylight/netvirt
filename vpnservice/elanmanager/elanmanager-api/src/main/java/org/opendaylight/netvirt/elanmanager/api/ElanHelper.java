@@ -27,7 +27,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanHelper {
+public final class ElanHelper {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanHelper.class);
 

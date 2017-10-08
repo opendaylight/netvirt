@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.qosservice;
 
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -338,7 +339,7 @@ public final class QosAlertManager implements Runnable {
                                                           FutureCallback<Void> callback) {
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         tx.put(datastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        Futures.addCallback(tx.submit(), callback);
+        Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
     private void writeConfigDataStore(boolean alertEnabled, short threshold, int pollInterval) {
