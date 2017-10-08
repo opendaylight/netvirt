@@ -147,7 +147,6 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     @Override
     public void onFlowUpdated(FlowUpdated arg0) {
         // TODO Auto-generated method stub
-
     }
 
     @Override

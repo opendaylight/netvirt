@@ -12,6 +12,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
@@ -464,7 +465,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 LOG.trace("Error notification for InterVpnLink successfully sent. VpnLinkName={} state={}",
                     vpnLinkState.getInterVpnLinkName(), vpnLinkState);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     /**

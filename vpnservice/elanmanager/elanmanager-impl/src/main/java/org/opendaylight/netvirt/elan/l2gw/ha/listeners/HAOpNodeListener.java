@@ -15,6 +15,7 @@ import com.google.common.base.Strings;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -245,7 +246,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                                     @Override
                                     public void onFailure(Throwable throwable) {
                                     }
-                                });
+                                }, MoreExecutors.directExecutor());
                                 break;//TODO handle all switches instead of just one switch
                             }
                         } else {
@@ -261,7 +262,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
             @Override
             public void onFailure(Throwable throwable) {
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     void handleNodeConnected(final InstanceIdentifier<Node> childPath,

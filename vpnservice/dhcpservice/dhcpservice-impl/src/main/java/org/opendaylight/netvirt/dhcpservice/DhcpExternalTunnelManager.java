@@ -12,6 +12,7 @@ import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -210,7 +211,7 @@ public class DhcpExternalTunnelManager {
             public void onFailure(Throwable error) {
                 LOG.error("Error while fetching checkNodeEntityOwner", error);
             }
-        });
+        }, MoreExecutors.directExecutor());
         updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
     }
 
@@ -733,7 +734,7 @@ public class DhcpExternalTunnelManager {
             public void onFailure(Throwable error) {
                 LOG.error("Failed to install remote McastMac", error);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private L2GatewayDevice getDeviceFromTunnelIp(String elanInstanceName, IpAddress tunnelIp) {
@@ -834,7 +835,7 @@ public class DhcpExternalTunnelManager {
             public void onFailure(Throwable error) {
                 LOG.error("Error while fetching checkNodeEntityOwner", error);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public IpAddress getTunnelIpBasedOnElan(String elanInstanceName, String vmMacAddress) {

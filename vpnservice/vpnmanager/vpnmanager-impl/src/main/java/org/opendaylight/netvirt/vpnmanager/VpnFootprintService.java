@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -364,7 +365,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 LOG.info("publishAddNotification: Successful in notifying listeners for add dpn {} in vpn {} rd {}"
                         + " event ", dpnId, vpnName, rd);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private void publishRemoveNotification(final BigInteger dpnId, final String vpnName, final String rd) {
@@ -385,7 +386,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 LOG.info("publishRemoveNotification: Successful in notifying listeners for remove dpn {} in vpn {}"
                         + " rd {} event ", dpnId, vpnName, rd);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private void publishInterfaceAddedToVpnNotification(String interfaceName, BigInteger dpnId, String vpnName,
@@ -409,7 +410,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 LOG.trace("publishInterfaceAddedToVpnNotification: Successful in notifying listeners for add"
                         + " interface {} on dpn {} in vpn {} event ", interfaceName, dpnId, vpnName);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private void publishInterfaceRemovedFromVpnNotification(String interfaceName, BigInteger dpnId, String vpnName,
@@ -435,7 +436,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 LOG.trace("publishInterfaceAddedToVpnNotification: Successful in notifying listeners for removing"
                         + " interface {} from dpn {} in vpn {} event ", interfaceName, dpnId, vpnName);
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     /**

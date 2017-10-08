@@ -14,6 +14,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -352,7 +353,7 @@ public class L2GatewayConnectionUtils {
             final SettableFuture settableFuture = SettableFuture.create();
             Futures.addCallback(broker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
                     nodeIid),
-                    new SettableFutureCallback<Optional<Node>>(settableFuture) {
+                                new SettableFutureCallback<Optional<Node>>(settableFuture) {
                         @Override
                         public void onSuccess(Optional<Node> resultNode) {
                             HwvtepLocalUcastMacListener localUcastMacListener =
@@ -378,7 +379,7 @@ public class L2GatewayConnectionUtils {
                                 }
                             }
                         }
-                    });
+                    }, MoreExecutors.directExecutor());
             return Lists.newArrayList(settableFuture);
         } , 5);
     }

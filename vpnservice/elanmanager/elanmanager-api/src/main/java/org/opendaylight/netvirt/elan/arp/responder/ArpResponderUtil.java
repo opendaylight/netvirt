@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Arp Responder Utility Class.
  */
-public class ArpResponderUtil {
+public final class ArpResponderUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArpResponderUtil.class);
 
@@ -77,7 +77,6 @@ public class ArpResponderUtil {
      * A Utility class.
      */
     private ArpResponderUtil() {
-
     }
 
     /**

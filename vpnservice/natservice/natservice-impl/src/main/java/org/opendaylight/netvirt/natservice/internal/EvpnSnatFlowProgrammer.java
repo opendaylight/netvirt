@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
@@ -168,7 +169,7 @@ public class EvpnSnatFlowProgrammer {
                     NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId, writeFlowInvTx);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
@@ -247,7 +248,7 @@ public class EvpnSnatFlowProgrammer {
                     NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager, removeFlowInvTx);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,

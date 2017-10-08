@@ -13,7 +13,10 @@ import java.util.List;
 /**
  * Created by eaksahu on 8/12/2016.
  */
-public class DataProvider {
+public final class DataProvider {
+
+    private DataProvider() {
+    }
 
     static String logicalSwitchDataD1 = "ls0,100,ls1,200";
     static String logicalSwitchDataD2 = "ls3,300,ls4,400";

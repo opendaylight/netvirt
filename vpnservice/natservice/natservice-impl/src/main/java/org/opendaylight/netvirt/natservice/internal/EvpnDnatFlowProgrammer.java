@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -194,7 +195,7 @@ public class EvpnDnatFlowProgrammer {
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
 
         //Read the FIP vpn-interface details from Configuration l3vpn:vpn-interfaces model and write into Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
@@ -295,7 +296,7 @@ public class EvpnDnatFlowProgrammer {
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
         //Read the FIP vpn-interface details from Operational l3vpn:vpn-interfaces model and delete from Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
         Optional<VpnInterface> optionalVpnInterface =
