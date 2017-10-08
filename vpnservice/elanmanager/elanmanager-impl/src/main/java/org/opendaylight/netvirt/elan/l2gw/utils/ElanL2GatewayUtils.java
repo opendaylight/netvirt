@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -405,7 +406,7 @@ public class ElanL2GatewayUtils {
                                         "Failed adding ucast_remote_macs related to " + "%s in %s",
                                         logicalSwitchName, hwvtepId), error);
                             }
-                        });
+                        }, MoreExecutors.directExecutor());
                         futures.add(ft);
                     }
                 }
@@ -564,7 +565,7 @@ public class ElanL2GatewayUtils {
                     }
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
 
         if (LOG.isDebugEnabled()) {
             List<String> elanMacs = lstElanMacs.stream().map(MacAddress::getValue).collect(Collectors.toList());

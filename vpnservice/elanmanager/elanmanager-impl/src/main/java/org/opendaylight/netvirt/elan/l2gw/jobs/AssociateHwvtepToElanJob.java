@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.jobs;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -124,7 +125,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
             public void onFailure(Throwable error) {
                 LOG.error("Failed logical switch {} creation", logicalSwitchName, error);
             }
-        });
+        }, MoreExecutors.directExecutor());
         return lsCreateFuture;
     }
 }

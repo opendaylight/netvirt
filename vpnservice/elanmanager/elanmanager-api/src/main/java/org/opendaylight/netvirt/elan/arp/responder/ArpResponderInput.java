@@ -15,7 +15,7 @@ import java.util.List;
 
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 
-public class ArpResponderInput {
+public final class ArpResponderInput {
 
     private BigInteger dpId;
     private String interfaceName;
