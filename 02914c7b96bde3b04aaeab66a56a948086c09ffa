@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_764f4793",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-10-09T21:45:29Z",
+      "side": 1,
+      "message": "I\u0027m finding the doc a bit hard to read. The difference between existing Sriov use case and offload is not clear enough. \u0027switchdev\u0027 in capabilities means what, offload or not? I think a table with the 3 use cases and corresponding configuration would be helpful.",
+      "revId": "02914c7b96bde3b04aaeab66a56a948086c09ffa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
