@@ -23,6 +23,7 @@ import org.opendaylight.netvirt.sfc.classifier.utils.AclMatches;
 import org.opendaylight.netvirt.sfc.classifier.utils.OpenFlow13Utils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -87,7 +88,7 @@ public class OpenFlow13ProviderTest {
         Flow flow = openflowProvider.createIngressClassifierFilterVxgpeNshFlow(nodeId);
 
         assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE);
-        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY);
+        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_TUN_NSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue());
         assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
@@ -104,12 +105,13 @@ public class OpenFlow13ProviderTest {
         Flow flow = openflowProvider.createIngressClassifierFilterEthNshFlow(nodeId);
 
         assertEquals(flow.getTableId().shortValue(), NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE);
-        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY);
+        assertEquals(flow.getPriority().intValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_ETH_NSH_PRIORITY);
         assertEquals(flow.getId().getValue(),
                 OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME + nodeId.getValue());
         assertEquals(flow.getCookie().getValue(), OpenFlow13Provider.INGRESS_CLASSIFIER_FILTER_COOKIE);
 
         checkMatchEthNsh(flow.getMatch());
+        checkMatchTunDstIp(flow.getMatch(), OpenFlow13Provider.NULL_IP);
 
         assertEquals(1, flow.getInstructions().getInstruction().size());
         checkActionResubmit(flow.getInstructions().getInstruction().get(0).getInstruction(),
@@ -388,6 +390,23 @@ public class OpenFlow13ProviderTest {
 
             if (nxAugMatch.getNxmNxTunId() != null) {
                 assertEquals(nxAugMatch.getNxmNxTunId().getValue().longValue(), value);
+            }
+        }
+    }
+
+    private void checkMatchTunDstIp(Match match, Ipv4Address value) {
+        GeneralAugMatchNodesNodeTableFlow genAug =
+                match.getAugmentation(GeneralAugMatchNodesNodeTableFlow.class);
+
+        assertNotNull(genAug);
+
+        List<ExtensionList> extensions = genAug.getExtensionList();
+        for (ExtensionList extensionList : extensions) {
+            Extension extension = extensionList.getExtension();
+            NxAugMatchNodesNodeTableFlow nxAugMatch = extension.getAugmentation(NxAugMatchNodesNodeTableFlow.class);
+
+            if (nxAugMatch.getNxmNxTunIpv4Dst() != null) {
+                assertEquals(nxAugMatch.getNxmNxTunIpv4Dst().getIpv4Address(), value);
             }
         }
     }

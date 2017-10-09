@@ -19,6 +19,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.sfc.classifier.utils.AclMatches;
 import org.opendaylight.netvirt.sfc.classifier.utils.OpenFlow13Utils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.Table;
@@ -45,7 +46,8 @@ public class OpenFlow13Provider {
 
     // Priorities for each flow
     public static final int INGRESS_CLASSIFIER_FILTER_CHAIN_EGRESS_PRIORITY = 520;
-    public static final int INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY = 510;
+    public static final int INGRESS_CLASSIFIER_FILTER_TUN_NSH_PRIORITY = 510;
+    public static final int INGRESS_CLASSIFIER_FILTER_ETH_NSH_PRIORITY = 511;
     public static final int INGRESS_CLASSIFIER_FILTER_NONSH_PRIORITY = 500;
     public static final int INGRESS_CLASSIFIER_ACL_PRIORITY = 500;
     public static final int INGRESS_CLASSIFIER_ACL_NOMATCH_PRIORITY = 10;
@@ -78,6 +80,7 @@ public class OpenFlow13Provider {
     public static final long ACL_FLAG_CONTEXT_VALUE = 0xFFFFFFL;
     public static final long SFC_TUNNEL_ID = 0L;
     public static final String OF_URI_SEPARATOR = ":";
+    public static final Ipv4Address NULL_IP = new Ipv4Address("0.0.0.0");
 
     public MatchBuilder getMatchBuilderFromAceMatches(Matches matches) {
         if (matches == null) {
@@ -116,11 +119,13 @@ public class OpenFlow13Provider {
      *     Captures SFC traffic coming from tunnel port and redirects it
      *     to the ingress classifier pipeline. From there, if no chain
      *     egress actions apply, it will be sent back to SFC pipeline.
-     *     Match on SFC VNI = 0, and resubmit to ingress classifier.
+     *     Match on SFC VNI = 0 and ethertype = nsh, and resubmit to
+     *     ingress classifier.
      */
     public Flow createIngressClassifierSfcTunnelTrafficCaptureFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchTunId(match, SFC_TUNNEL_ID);
+        OpenFlow13Utils.addMatchEthNsh(match);
 
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
@@ -139,13 +144,12 @@ public class OpenFlow13Provider {
     /*
      * Ingress Classifier Filter Vxgpe NSH flow:
      *     Only allows Non-NSH packets to proceed in the classifier
-     *     Match on NSP and resubmit to SFC (we don't resubmit to
-     *     since it is still not used for tunnel ports)
-     *
+     *     Match on ethertype and resubmit to SFC (we don't resubmit to
+     *     dispatcher since it is still not used for tunnel ports)
      */
     public Flow createIngressClassifierFilterVxgpeNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
-        OpenFlow13Utils.addMatchVxgpeNsh(match);
+        OpenFlow13Utils.addMatchEthNsh(match);
 
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.SFC_TRANSPORT_INGRESS_TABLE,
@@ -155,18 +159,20 @@ public class OpenFlow13Provider {
         String flowIdStr = INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
-            INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
+                INGRESS_CLASSIFIER_FILTER_TUN_NSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
             INGRESS_CLASSIFIER_FILTER_VXGPENSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 
     /*
      * Ingress Classifier Filter Eth NSH flow:
      *     Only allows Non-NSH packets to proceed in the classifier
-     *     Match on NSP and resubmit to Ingress Dispatch on match
+     *     Match on ethertype and null tunnel IP and resubmit to
+     *     Ingress Dispatcher on match
      */
     public Flow createIngressClassifierFilterEthNshFlow(NodeId nodeId) {
         MatchBuilder match = new MatchBuilder();
         OpenFlow13Utils.addMatchEthNsh(match);
+        OpenFlow13Utils.addMatchTunDstIp(match, NULL_IP);
 
         List<Action> actionList = new ArrayList<>();
         actionList.add(OpenFlow13Utils.createActionResubmitTable(NwConstants.LPORT_DISPATCHER_TABLE,
@@ -176,7 +182,7 @@ public class OpenFlow13Provider {
         String flowIdStr = INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME + nodeId.getValue();
 
         return OpenFlow13Utils.createFlowBuilder(NwConstants.INGRESS_SFC_CLASSIFIER_FILTER_TABLE,
-            INGRESS_CLASSIFIER_FILTER_NSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
+                INGRESS_CLASSIFIER_FILTER_ETH_NSH_PRIORITY, INGRESS_CLASSIFIER_FILTER_COOKIE,
             INGRESS_CLASSIFIER_FILTER_ETHNSH_FLOW_NAME, flowIdStr, match, isb).build();
     }
 

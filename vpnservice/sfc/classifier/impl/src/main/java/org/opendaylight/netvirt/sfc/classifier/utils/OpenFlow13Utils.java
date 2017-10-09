@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.sfc.classifier.utils;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.OutputActionCaseBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.action.output.action._case.OutputActionBuilder;
@@ -81,15 +82,15 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxNshc2Key;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxNsiKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxNspKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxTunGpeNpKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxTunIdKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.NxmNxTunIpv4DstKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.encap.eth.type.grouping.NxmNxEncapEthTypeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nshc._1.grouping.NxmNxNshc1Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nshc._2.grouping.NxmNxNshc2Builder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nsi.grouping.NxmNxNsiBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.nsp.grouping.NxmNxNspBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.tun.gpe.np.grouping.NxmNxTunGpeNpBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.tun.id.grouping.NxmNxTunIdBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.match.rev140714.nxm.nx.tun.ipv4.dst.grouping.NxmNxTunIpv4DstBuilder;
 
 public final class OpenFlow13Utils {
     public static final int ETHERTYPE_NSH = 0x894f;
@@ -107,16 +108,16 @@ public final class OpenFlow13Utils {
         return mb;
     }
 
-    public static void addMatchVxgpeNsh(MatchBuilder match) {
-        NxAugMatchNodesNodeTableFlow am = new NxAugMatchNodesNodeTableFlowBuilder()
-                .setNxmNxTunGpeNp(new NxmNxTunGpeNpBuilder().setValue(TUN_GPE_NP_NSH).build()).build();
-        addExtension(match, NxmNxTunGpeNpKey.class, am);
-    }
-
     public static void addMatchTunId(MatchBuilder match, long value) {
         NxAugMatchNodesNodeTableFlow am = new NxAugMatchNodesNodeTableFlowBuilder()
                 .setNxmNxTunId(new NxmNxTunIdBuilder().setValue(BigInteger.valueOf(value)).build()).build();
         addExtension(match, NxmNxTunIdKey.class, am);
+    }
+
+    public static void addMatchTunDstIp(MatchBuilder match, Ipv4Address ipv4Address) {
+        NxAugMatchNodesNodeTableFlow am = new NxAugMatchNodesNodeTableFlowBuilder()
+                .setNxmNxTunIpv4Dst(new NxmNxTunIpv4DstBuilder().setIpv4Address(ipv4Address).build()).build();
+        addExtension(match, NxmNxTunIpv4DstKey.class, am);
     }
 
     public static void addMatchEthNsh(MatchBuilder match) {
