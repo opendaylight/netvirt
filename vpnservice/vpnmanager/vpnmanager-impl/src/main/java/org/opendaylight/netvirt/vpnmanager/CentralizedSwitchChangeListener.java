@@ -72,10 +72,14 @@ public class CentralizedSwitchChangeListener
     protected void update(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch origRouterToNaptSwitch,
             RouterToNaptSwitch updatedRouterToNaptSwitch) {
         LOG.debug("Updating old {} new {}", origRouterToNaptSwitch, updatedRouterToNaptSwitch);
-        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-        setupRouterGwFlows(origRouterToNaptSwitch, writeTx, NwConstants.DEL_FLOW);
-        setupRouterGwFlows(updatedRouterToNaptSwitch, writeTx, NwConstants.ADD_FLOW);
-        writeTx.submit();
+        if (updatedRouterToNaptSwitch.getPrimarySwitchId() != origRouterToNaptSwitch.getPrimarySwitchId()) {
+            WriteTransaction removeTx = dataBroker.newWriteOnlyTransaction();
+            setupRouterGwFlows(origRouterToNaptSwitch, removeTx, NwConstants.DEL_FLOW);
+            removeTx.submit();
+            WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+            setupRouterGwFlows(updatedRouterToNaptSwitch, writeTx, NwConstants.ADD_FLOW);
+            writeTx.submit();
+        }
     }
 
     @Override
