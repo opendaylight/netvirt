@@ -1888,8 +1888,13 @@ public class NatUtil {
             externalIpsSting.add(externalIp.getIpAddress());
         }
         Uuid subnetVpnName = externalIps.get(0).getSubnetId();
-        vpnManager.setupRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
-                router.getNetworkId(), subnetVpnName.getValue(), writeTx, addOrRemove);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            vpnManager.addRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
+                    router.getNetworkId(), subnetVpnName.getValue(), writeTx);
+        } else {
+            vpnManager.removeRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
+                    router.getNetworkId(), subnetVpnName.getValue(), writeTx);
+        }
         vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
                 router.getExtGwMacAddress(), primarySwitchId,
                 router.getNetworkId(), writeTx, addOrRemove);

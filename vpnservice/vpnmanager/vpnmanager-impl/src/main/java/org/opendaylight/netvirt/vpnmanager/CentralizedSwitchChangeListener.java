@@ -112,8 +112,13 @@ public class CentralizedSwitchChangeListener
             return;
         }
         Uuid subnetVpnName = externalIps.get(0).getSubnetId();
-        vpnManager.setupRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
-                subnetVpnName.getValue(), writeTx, addOrRemove);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            vpnManager.addRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
+                    subnetVpnName.getValue(), writeTx);
+        } else {
+            vpnManager.removeRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
+                    subnetVpnName.getValue(), writeTx);
+        }
         vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
                 VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
                 extGwMacAddress, primarySwitchId, extNetworkId, writeTx, addOrRemove);
