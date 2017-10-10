@@ -149,9 +149,9 @@ public class EvpnDnatFlowProgrammer {
         if (floatingIpPortMacAddress != null) {
             WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
             vpnManager.addSubnetMacIntoVpnInstance(vpnName, null, floatingIpPortMacAddress, dpnId, writeTx);
-            vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
+            vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
                     Collections.singleton(externalIp),
-                    floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
+                    floatingIpPortMacAddress, dpnId, networkId, writeTx);
             writeTx.submit();
         }
         final long finalL3Vni = l3Vni;

@@ -1250,9 +1250,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 addedExternalIps.removeAll(originalExternalIps);
                 if (addedExternalIps.size() != 0) {
                     LOG.debug("update : Start processing of the External IPs addition during the update operation");
-                    vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
+                    vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName, addedExternalIps,
                             update.getExtGwMacAddress(), dpnId,
-                            update.getNetworkId(), null, NwConstants.ADD_FLOW);
+                            update.getNetworkId(), null);
 
                     for (String addedExternalIp : addedExternalIps) {
                     /*
@@ -1276,9 +1276,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 removedExternalIps.removeAll(updatedExternalIps);
                 if (removedExternalIps.size() > 0) {
                     LOG.debug("update : Start processing of the External IPs removal during the update operation");
-                    vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
+                    vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
                             removedExternalIps, original.getExtGwMacAddress(),
-                            dpnId, networkId, null, NwConstants.DEL_FLOW);
+                            dpnId, networkId, null);
 
                     for (String removedExternalIp : removedExternalIps) {
                     /*
