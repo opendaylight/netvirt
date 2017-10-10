@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_27559b1d",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-10-10T16:35:01Z",
+      "side": 1,
+      "message": "would be good to have caption \u0027sampl hostconfig\u0027 for this.",
+      "revId": "e95aeebb76d5fabdcfe04f267dd43a1bb994afd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8718c785",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-10-10T16:35:01Z",
+      "side": 1,
+      "message": "will binding information come in portCreated or portUpdated?",
+      "revId": "e95aeebb76d5fabdcfe04f267dd43a1bb994afd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0725f7c1",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-10-10T16:35:01Z",
+      "side": 1,
+      "message": "why skipping creation?",
+      "range": {
+        "startLine": 145,
+        "startChar": 22,
+        "endLine": 145,
+        "endChar": 50
+      },
+      "revId": "e95aeebb76d5fabdcfe04f267dd43a1bb994afd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
