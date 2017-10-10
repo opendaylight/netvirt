@@ -25,7 +25,7 @@
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager"
              availability="optional" />
   <reference id="entityOwnershipService"
-             interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+             interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
