@@ -46,8 +46,11 @@ public interface IVpnManager {
 
     String getPrimaryRdFromVpnInstance(VpnInstance vpnInstance);
 
-    void setupSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-            BigInteger dpnId, WriteTransaction writeTx, int addOrRemove);
+    void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+            BigInteger dpnId, WriteTransaction tx);
+
+    void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+            BigInteger dpnId, WriteTransaction tx);
 
     void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
             String subnetVpnName, WriteTransaction writeTx, int addOrRemove);
