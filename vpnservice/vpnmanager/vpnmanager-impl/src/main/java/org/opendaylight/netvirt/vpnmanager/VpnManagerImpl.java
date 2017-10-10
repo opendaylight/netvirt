@@ -16,6 +16,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -51,6 +53,7 @@ public class VpnManagerImpl implements IVpnManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnManagerImpl.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnInstanceListener vpnInstanceListener;
     private final IdManagerService idManager;
@@ -69,6 +72,7 @@ public class VpnManagerImpl implements IVpnManager {
                           final IInterfaceManager interfaceManager,
                           final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnInstanceListener = vpnInstanceListener;
         this.idManager = idManagerService;
@@ -203,8 +207,26 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
-            String subnetVpnName, WriteTransaction writeTx, int addOrRemove) {
+    public void addRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+            String subnetVpnName, WriteTransaction writeTx) {
+        setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId, writeTx,
+            (vpnId, tx) -> addSubnetMacIntoVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, tx), "Installing");
+    }
+
+    @Override
+    public void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+            String subnetVpnName, WriteTransaction writeTx) {
+        setupRouterGwMacFlow(routerName, routerGwMac, dpnId, extNetworkId, writeTx,
+            (vpnId, tx) -> removeSubnetMacFromVpnInstance(vpnId, subnetVpnName, routerGwMac, dpnId, tx), "Removing");
+    }
+
+    @FunctionalInterface
+    private interface RouterGwMacFlowSetupMethod {
+        void process(String vpnId, WriteTransaction tx);
+    }
+
+    private void setupRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
+            WriteTransaction writeTx, RouterGwMacFlowSetupMethod consumer, String operation) {
         if (routerGwMac == null) {
             LOG.warn("Failed to handle router GW flow in GW-MAC table. MAC address is missing for router-id {}",
                     routerName);
@@ -223,20 +245,11 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
-        LOG.info("{} router GW MAC flow for router-id {} on switch {}",
-                addOrRemove == NwConstants.ADD_FLOW ? "Installing" : "Removing", routerName, dpnId);
-        boolean submit = false;
+        LOG.info("{} router GW MAC flow for router-id {} on switch {}", operation, routerName, dpnId);
         if (writeTx == null) {
-            submit = true;
-            writeTx = dataBroker.newWriteOnlyTransaction();
-        }
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            addSubnetMacIntoVpnInstance(vpnId.getValue(), subnetVpnName, routerGwMac, dpnId, writeTx);
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> consumer.process(vpnId.getValue(), tx));
         } else {
-            removeSubnetMacFromVpnInstance(vpnId.getValue(), subnetVpnName, routerGwMac, dpnId, writeTx);
-        }
-        if (submit) {
-            writeTx.submit();
+            consumer.process(vpnId.getValue(), writeTx);
         }
     }
 
