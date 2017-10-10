@@ -23,12 +23,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -47,7 +45,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
-import org.opendaylight.genius.utils.clustering.ClusteringUtils;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -1358,33 +1355,6 @@ public final class VpnUtil {
             }
         }
         return gatewayMac;
-    }
-
-    public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, Runnable job) {
-        runOnlyInLeaderNode(entityOwnershipService, job, "");
-    }
-
-    public static void runOnlyInLeaderNode(EntityOwnershipService entityOwnershipService, final Runnable job,
-            final String jobDescription) {
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                entityOwnershipService, VpnConstants.ARP_MONITORING_ENTITY,
-                VpnConstants.ARP_MONITORING_ENTITY);
-        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isOwner) {
-                if (isOwner) {
-                    job.run();
-                } else {
-                    LOG.trace("runOnlyInLeaderNode: job is not run as i m not cluster owner desc :{} ",
-                            jobDescription);
-                }
-            }
-
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("runOnlyInLeaderNode: Failed to identity cluster owner ", error);
-            }
-        }, MoreExecutors.directExecutor());
     }
 
     public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker, VpnInterface vpnInterface) {
