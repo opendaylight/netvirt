@@ -58,12 +58,17 @@ public interface IVpnManager {
     void removeRouterGwMacFlow(String routerName, String routerGwMac, BigInteger dpnId, Uuid extNetworkId,
             String subnetVpnName, WriteTransaction writeTx);
 
-    void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove);
+    void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx);
 
-    void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String routerGwMac,
-            BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx,
-            int addOrRemove);
+    void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String routerGwMac,
+            BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx);
+
+    void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx);
+
+    void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps,
+            BigInteger dpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx);
 
     void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag);
 
