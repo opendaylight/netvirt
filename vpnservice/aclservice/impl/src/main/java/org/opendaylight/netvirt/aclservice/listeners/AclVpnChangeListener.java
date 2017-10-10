@@ -7,15 +7,17 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
+import com.google.common.base.Optional;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
@@ -30,10 +32,12 @@ import org.slf4j.LoggerFactory;
 public class AclVpnChangeListener implements OdlL3vpnListener {
     private static final Logger LOG = LoggerFactory.getLogger(AclVpnChangeListener.class);
     private final AclServiceManager aclServiceManager;
+    private final DataBroker dataBroker;
 
     @Inject
-    public AclVpnChangeListener(AclServiceManager aclServiceManager) {
+    public AclVpnChangeListener(AclServiceManager aclServiceManager, DataBroker dataBroker) {
         this.aclServiceManager = aclServiceManager;
+        this.dataBroker = dataBroker;
     }
 
     @PostConstruct
@@ -61,7 +65,6 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         Long vpnId = data.getVpnId();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(data.getInterfaceName());
         if (null != aclInterface && aclInterface.isPortSecurityEnabled() && !vpnId.equals(aclInterface.getVpnId())) {
-            aclServiceManager.notify(aclInterface, null, Action.UNBIND);
             aclInterface.setVpnId(vpnId);
             aclServiceManager.notify(aclInterface, null, Action.BIND);
         }
@@ -70,11 +73,17 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
     @Override
     public void onRemoveInterfaceFromDpnOnVpnEvent(RemoveInterfaceFromDpnOnVpnEvent notification) {
         RemoveInterfaceEventData data = notification.getRemoveInterfaceEventData();
-        LOG.trace("Processing vpn interface {} deletion", data.getInterfaceName());
+        String interfaceName = data.getInterfaceName();
+        LOG.trace("Processing vpn interface {} deletion", interfaceName);
+        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+            .Interface> interfaceOpt = AclServiceUtils.getInterface(dataBroker, interfaceName);
+        if (!interfaceOpt.isPresent() || (interfaceOpt.isPresent() && interfaceOpt.get() == null)) {
+            LOG.trace("Interface is deleted; no need to rebind again");
+            return;
+        }
         Long vpnId = data.getVpnId();
-        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(data.getInterfaceName());
+        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceName);
         if (null != aclInterface && aclInterface.isPortSecurityEnabled() && vpnId.equals(aclInterface.getVpnId())) {
-            aclServiceManager.notify(aclInterface, null, Action.UNBIND);
             aclInterface.setVpnId(null);
             aclServiceManager.notify(aclInterface, null, Action.BIND);
         }
