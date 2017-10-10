@@ -1457,6 +1457,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         if (oldAdjs.contains(adj)) {
                             oldAdjs.remove(adj);
                         } else {
+                            if (Boolean.TRUE.equals(update.isRouterInterface())) {
+                                updateFibEntryForRouterInterface(primaryRd, update, adj, writeConfigTxn, true);
+                            }
                             // add new adjacency - right now only extra route will hit this path
                             addNewAdjToVpnInterface(identifier, primaryRd, adj, dpnId, writeOperTxn,
                                     writeConfigTxn);
@@ -1466,6 +1469,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     }
                     for (Adjacency adj : oldAdjs) {
+                        if (Boolean.TRUE.equals(update.isRouterInterface())) {
+                            updateFibEntryForRouterInterface(primaryRd, update, adj, writeConfigTxn, false);
+                        }
                         delAdjFromVpnInterface(identifier, adj, dpnId, writeOperTxn, writeConfigTxn);
                         LOG.info("update: Adjacency {} with nextHop {} label {} subnet {} removed from vpn interface {}"
                                         + " on vpn {}", adj.getIpAddress(), adj.getNextHopIpList(), adj.getLabel(),
@@ -2113,6 +2119,32 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         LOG.error("createFibEntryForRouterInterface: VPN Interface {} of router addition failed as primary"
                 + " adjacency for this vpn interface could not be obtained. rd {} vpnName {}", interfaceName,
                 primaryRd, vpnName);
+    }
+
+    protected void updateFibEntryForRouterInterface(String primaryRd, VpnInterface vpnInterface, Adjacency adj,
+                                                    WriteTransaction writeConfigTxn, boolean isAddRequest) {
+        String rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName());
+        String primaryInterfaceIp = adj.getIpAddress();
+        String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
+        if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
+            if (isAddRequest) {
+                String macAddress = adj.getMacAddress();
+                String vpnName = vpnInterface.getVpnInstanceName();
+                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                        VpnUtil.getNextHopLabelKey(primaryRd, prefix));
+                RouterInterface routerInt = new RouterInterfaceBuilder().setUuid(vpnName)
+                        .setIpAddress(primaryInterfaceIp).setMacAddress(macAddress).build();
+                fibManager.addFibEntryForRouterInterface(dataBroker, primaryRd, prefix,
+                        routerInt, label, writeConfigTxn);
+                LOG.info("updateFibEntryForRouterInterface: Router interface {} for vpn {} rd {} prefix {} label {}"
+                                + " macAddress {} processed successfully;",
+                        vpnInterface.getName(), vpnName, primaryRd, prefix, label, macAddress);
+            } else {
+                fibManager.removeOrUpdateFibEntry(dataBroker, rd, prefix, "0.0.0.0", writeConfigTxn);
+                LOG.info("updateFibEntryForRouterInterface: FIB for router interface {} deleted for vpn {} rd {}"
+                        + " prefix {}", vpnInterface.getName(), vpnInterface.getVpnInstanceName(), rd, prefix);
+            }
+        }
     }
 
     protected void deleteFibEntryForRouterInterface(VpnInterface vpnInterface, WriteTransaction writeConfigTxn) {

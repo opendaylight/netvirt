@@ -110,6 +110,8 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
 
         // First install L3_GW_MAC_TABLE flows as it's common for both IPv4 and IPv6
         // address families
+        // Revisit (TODO): In a network that has two IPv6 subnets, when we disassociate one of the IPv6 subnet
+        // from the neutron router the corresponding vrfEntry is deleted and the GatewayFlow is removed from Table 19.
         FlowEntity l3GwMacFlowEntity = buildL3vpnGatewayFlow(dpnId, routerMac.getValue(), vpnId);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.syncInstallFlow(l3GwMacFlowEntity, 1);

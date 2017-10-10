@@ -197,7 +197,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
             Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
             if (!oldIPs.equals(newIPs)) {
-                handleNeutronPortUpdated(original, update);
+                if (update.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
+                    handleRouterInterfaceUpdated(original, update);
+                } else {
+                    handleNeutronPortUpdated(original, update);
+                }
+
             }
         }
 
@@ -292,6 +297,63 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already"
                     + " associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(),
                     routerId.getValue(), existingVpnId.getValue());
+            }
+        }
+    }
+
+    private void handleRouterInterfaceUpdated(final Port portoriginal, final Port portupdate) {
+        if (portupdate.getDeviceId() != null) {
+            Uuid routerId = new Uuid(portupdate.getDeviceId());
+            Uuid infNetworkId = portupdate.getNetworkId();
+            Uuid existingVpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, infNetworkId);
+
+            if (existingVpnId == null) {
+                Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
+                if (vpnId == null) {
+                    vpnId = routerId;
+                }
+                List<FixedIps> originalFixedIps = portoriginal.getFixedIps();
+                List<FixedIps> updatedFixedIps = portupdate.getFixedIps();
+
+                Set<FixedIps> addedIps = new HashSet<>(updatedFixedIps);
+                addedIps.removeAll(originalFixedIps);
+                if (addedIps.size() != 0) {
+                    for (FixedIps portIP : addedIps) {
+                        // NOTE:  Please donot change the order of calls to updateSubnetNodeWithFixedIP
+                        // and addSubnetToVpn here
+                        String ipValue = String.valueOf(portIP.getIpAddress().getValue());
+                        Uuid subnetId = portIP.getSubnetId();
+                        nvpnManager.updateSubnetNodeWithFixedIp(subnetId, routerId,
+                                portupdate.getUuid(), ipValue, portupdate.getMacAddress().getValue());
+                    }
+                    for (FixedIps portIP : addedIps) {
+                        String ipValue = String.valueOf(portIP.getIpAddress().getValue());
+                        nvpnManager.addSubnetToVpn(vpnId, portIP.getSubnetId());
+                        LOG.trace("NeutronPortChangeListener Add Subnet Gateway IP {} MAC {} Interface {} VPN {}",
+                                ipValue, portupdate.getMacAddress(),
+                                portupdate.getUuid().getValue(), vpnId.getValue());
+                    }
+                    nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
+                }
+
+                nvpnManager.createVpnInterface(vpnId, portupdate, null);
+                Set<FixedIps> removedIps = new HashSet<>(originalFixedIps);
+                removedIps.removeAll(updatedFixedIps);
+                if (removedIps.size() != 0) {
+                    for (FixedIps portIP : removedIps) {
+                        nvpnManager.removeFromSubnetNode(portIP.getSubnetId(), null, routerId, vpnId, null);
+                        nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null,
+                                null, null, null);
+                        nvpnNatManager.handleSubnetsForExternalRouter(routerId, dataBroker);
+                        String ipValue = String.valueOf(portIP.getIpAddress().getValue());
+                        NeutronvpnUtils.removeVpnPortFixedIpToPort(dataBroker, vpnId.getValue(),
+                                ipValue, null /*writeTransaction*/);
+                    }
+                }
+            } else {
+                LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {} already"
+                                + " associated to VPN {}", infNetworkId.getValue(), portupdate.getUuid().getValue(),
+                        routerId.getValue(), existingVpnId.getValue());
             }
         }
     }
