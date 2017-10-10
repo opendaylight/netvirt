@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e26d3906",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-10-10T07:47:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_7f03aa73",
+      "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_7588ebe7",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_220c7142",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-10-10T07:47:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_7588ebe7",
+      "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d56c3739",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-05T00:22:20Z",
       "side": 1,
       "message": "When is this needed? oxygen is the current master release and open for features.",
+      "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c2175550",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-10-10T07:47:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d56c3739",
       "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -76,6 +130,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4203650f",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-10-10T07:47:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_bf3b6237",
+      "range": {
+        "startLine": 101,
+        "startChar": 0,
+        "endLine": 101,
+        "endChar": 48
+      },
+      "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b569c327",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 2
@@ -87,6 +165,24 @@
       "writtenOn": "2017-10-05T00:22:20Z",
       "side": 1,
       "message": "is using hostconfig does this also imply we are using the v2 driver and pseudoagent port binding?",
+      "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_62066922",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-10-10T07:47:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_b569c327",
       "revId": "eb62368efcf86e68c9805cbaa6db4ad43769a8ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
