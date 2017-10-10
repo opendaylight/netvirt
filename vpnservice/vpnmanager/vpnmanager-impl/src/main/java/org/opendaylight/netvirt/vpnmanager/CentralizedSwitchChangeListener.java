@@ -115,12 +115,15 @@ public class CentralizedSwitchChangeListener
         if (addOrRemove == NwConstants.ADD_FLOW) {
             vpnManager.addRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
                     subnetVpnName.getValue(), writeTx);
+            vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
+                    VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
+                    extGwMacAddress, primarySwitchId, extNetworkId, writeTx);
         } else {
             vpnManager.removeRouterGwMacFlow(routerName, extGwMacAddress, primarySwitchId, extNetworkId,
                     subnetVpnName.getValue(), writeTx);
+            vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
+                    VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
+                    extGwMacAddress, primarySwitchId, extNetworkId, writeTx);
         }
-        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
-                VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
-                extGwMacAddress, primarySwitchId, extNetworkId, writeTx, addOrRemove);
     }
 }
