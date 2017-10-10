@@ -1891,13 +1891,16 @@ public class NatUtil {
         if (addOrRemove == NwConstants.ADD_FLOW) {
             vpnManager.addRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
                     router.getNetworkId(), subnetVpnName.getValue(), writeTx);
+            vpnManager.addArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
+                    router.getExtGwMacAddress(), primarySwitchId,
+                    router.getNetworkId(), writeTx);
         } else {
             vpnManager.removeRouterGwMacFlow(router.getRouterName(), router.getExtGwMacAddress(), primarySwitchId,
                     router.getNetworkId(), subnetVpnName.getValue(), writeTx);
+            vpnManager.removeArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
+                    router.getExtGwMacAddress(), primarySwitchId,
+                    router.getNetworkId(), writeTx);
         }
-        vpnManager.setupArpResponderFlowsToExternalNetworkIps(router.getRouterName(), externalIpsSting,
-                router.getExtGwMacAddress(), primarySwitchId,
-                router.getNetworkId(), writeTx, addOrRemove);
         writeTx.submit();
     }
 

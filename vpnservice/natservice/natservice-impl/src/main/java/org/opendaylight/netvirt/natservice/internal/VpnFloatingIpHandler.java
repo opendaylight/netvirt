@@ -243,9 +243,9 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                         vpnManager.addSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
                                 floatingIpPortMacAddress, dpnId, tx);
-                        vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerUuid,
+                        vpnManager.addArpResponderFlowsToExternalNetworkIps(routerUuid,
                                 Collections.singleton(externalIp),
-                                floatingIpPortMacAddress, dpnId, networkId, tx, NwConstants.ADD_FLOW);
+                                floatingIpPortMacAddress, dpnId, networkId, tx);
                     });
                     return JdkFutureAdapters.listenInPoolThread(future1);
                 } else {
@@ -308,8 +308,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
             vpnManager.removeSubnetMacFromVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
                     dpnId, tx);
-            vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerUuid, Collections.singletonList(externalIp),
-                    floatingIpPortMacAddress, dpnId, networkId, tx, NwConstants.DEL_FLOW);
+            vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerUuid, Collections.singletonList(externalIp),
+                    floatingIpPortMacAddress, dpnId, networkId, tx);
         });
         removeFromFloatingIpPortInfo(floatingIpId);
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerUuid, networkId);
