@@ -14,9 +14,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -154,15 +156,46 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void setupSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
-        BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
+    public void addSubnetMacIntoVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+            BigInteger dpnId, WriteTransaction tx) {
+        setupSubnetMacInVpnInstance(vpnName, srcMacAddress, dpnId,
+                dpId -> addGwMac(srcMacAddress, tx, VpnUtil.getVpnId(dataBroker, vpnName), dpId,
+                        VpnUtil.getVpnId(dataBroker, subnetVpnName)));
+    }
+
+    @Override
+    public void removeSubnetMacFromVpnInstance(String vpnName, String subnetVpnName, String srcMacAddress,
+            BigInteger dpnId, WriteTransaction tx) {
+        setupSubnetMacInVpnInstance(vpnName, srcMacAddress, dpnId,
+                dpId -> removeGwMac(srcMacAddress, tx, VpnUtil.getVpnId(dataBroker, vpnName), dpId,
+                        VpnUtil.getVpnId(dataBroker, subnetVpnName)));
+    }
+
+    private void setupSubnetMacInVpnInstance(String vpnName, String srcMacAddress,
+            BigInteger dpnId, Consumer<BigInteger> consumer) {
         if (vpnName == null) {
             LOG.warn("Cannot setup subnet MAC {} on DPN {}, null vpnName", srcMacAddress, dpnId);
             return;
         }
 
-        VpnUtil.setupSubnetMacIntoVpnInstance(dataBroker, mdsalManager, vpnName, subnetVpnName,
-                srcMacAddress, dpnId, writeTx, addOrRemove);
+        if (dpnId.equals(BigInteger.ZERO)) {
+            /* Apply the MAC on all DPNs in a VPN */
+            for (BigInteger dpId : VpnUtil.getDpnsOnVpn(dataBroker, vpnName)) {
+                consumer.accept(dpId);
+            }
+        } else {
+            consumer.accept(dpnId);
+        }
+    }
+
+    private void addGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
+        mdsalManager.addFlowToTx(flowEntity, tx);
+    }
+
+    private void removeGwMac(String srcMacAddress, WriteTransaction tx, long vpnId, BigInteger dpId, long subnetVpnId) {
+        FlowEntity flowEntity = VpnUtil.buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
+        mdsalManager.removeFlowToTx(flowEntity, tx);
     }
 
     @Override
@@ -193,8 +226,11 @@ public class VpnManagerImpl implements IVpnManager {
             submit = true;
             writeTx = dataBroker.newWriteOnlyTransaction();
         }
-        setupSubnetMacIntoVpnInstance(vpnId.getValue(), subnetVpnName, routerGwMac, dpnId, writeTx,
-                addOrRemove);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            addSubnetMacIntoVpnInstance(vpnId.getValue(), subnetVpnName, routerGwMac, dpnId, writeTx);
+        } else {
+            removeSubnetMacFromVpnInstance(vpnId.getValue(), subnetVpnName, routerGwMac, dpnId, writeTx);
+        }
         if (submit) {
             writeTx.submit();
         }
