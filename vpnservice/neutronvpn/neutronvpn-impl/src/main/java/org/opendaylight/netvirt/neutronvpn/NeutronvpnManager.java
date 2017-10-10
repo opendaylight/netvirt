@@ -732,6 +732,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void createVpnInterface(Uuid vpnId, Port port, WriteTransaction wrtConfigTxn) {
+        if (port == null) {
+            LOG.error("createVpnInterface - Port is null, returning.");
+            return;
+        }
+
         String infName = port.getUuid().getValue();
         List<Adjacency> adjList = new ArrayList<>();
         Boolean isRouterInterface = false;

@@ -194,6 +194,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 handleFloatingIpPortUpdated(original, update);
             }
         } else {
+            if (update.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
+                handleRouterInterfaceAdded(update);
+                return;
+            }
             Set<FixedIps> oldIPs = getFixedIpSet(original.getFixedIps());
             Set<FixedIps> newIPs = getFixedIpSet(update.getFixedIps());
             if (!oldIPs.equals(newIPs)) {
