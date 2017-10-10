@@ -9,10 +9,7 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -26,7 +23,6 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,7 +31,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
@@ -43,10 +38,11 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.utils.clustering.ClusteringUtils;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -179,38 +175,25 @@ public class DhcpExternalTunnelManager {
             final BigInteger designatedDpnId, final String vmMacAddress) {
         LOG.trace("In installDhcpFlowsForVms ipAddress {}, elanInstanceName {}, dpn {}, vmMacAddress {}", tunnelIp,
                 elanInstanceName, designatedDpnId, vmMacAddress);
-        // TODO: Make use a util that directly tells if this is the owner or not rather than making use of callbacks.
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isOwner) {
-                if (isOwner) {
-                    String tunnelIpDpnKey = getTunnelIpDpnKey(tunnelIp, designatedDpnId);
-                    DataStoreJobCoordinator.getInstance()
-                            .enqueueJob(getJobKey(tunnelIpDpnKey), () -> {
-                                synchronized (tunnelIpDpnKey) {
-                                    WriteTransaction tx = broker.newWriteOnlyTransaction();
-                                    dpns.remove(designatedDpnId);
-                                    for (BigInteger dpn : dpns) {
-                                        installDhcpDropAction(dpn, vmMacAddress, tx);
-                                    }
-                                    installDhcpEntries(designatedDpnId, vmMacAddress, tx);
-                                    DhcpServiceUtils.submitTransaction(tx);
-                                    return null;
-                                }
-                            });
-                } else {
-                    LOG.trace("Exiting installDhcpEntries since this cluster node is not the owner for dpn");
+
+        String tunnelIpDpnKey = getTunnelIpDpnKey(tunnelIp, designatedDpnId);
+        DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(tunnelIpDpnKey), () -> {
+            if (EntityOwnershipUtils.isEntityOwner(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                    HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
+                dpns.remove(designatedDpnId);
+                for (BigInteger dpn : dpns) {
+                    installDhcpDropAction(dpn, vmMacAddress, tx);
                 }
+                installDhcpEntries(designatedDpnId, vmMacAddress, tx);
+                DhcpServiceUtils.submitTransaction(tx);
+            } else {
+                LOG.trace("Exiting installDhcpEntries since this cluster node is not the owner for dpn");
             }
 
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("Error while fetching checkNodeEntityOwner", error);
-            }
+            return null;
         });
+
         updateLocalCache(tunnelIp, elanInstanceName, vmMacAddress);
     }
 
@@ -691,48 +674,39 @@ public class DhcpExternalTunnelManager {
         if (designatedDpnId.equals(DhcpMConstants.INVALID_DPID)) {
             return;
         }
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(entityOwnershipService,
-                HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isOwner) {
-                if (isOwner) {
-                    DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(elanInstanceName), () -> {
-                        LOG.info("Installing remote McastMac");
-                        L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
-                        if (device == null) {
-                            LOG.error("Unable to get L2Device for tunnelIp {} and elanInstanceName {}", tunnelIp,
-                                elanInstanceName);
-                            return null;
-                        }
-                        String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(designatedDpnId),
-                                device.getHwvtepNodeId());
-                        IpAddress internalTunnelIp = null;
-                        if (tunnelInterfaceName != null) {
-                            Interface tunnelInterface =
-                                    interfaceManager.getInterfaceInfoFromConfigDataStore(tunnelInterfaceName);
-                            if (tunnelInterface == null) {
-                                LOG.trace("Tunnel Interface is not present {}", tunnelInterfaceName);
-                                return null;
-                            }
-                            internalTunnelIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
-                            WriteTransaction transaction = broker.newWriteOnlyTransaction();
-                            putRemoteMcastMac(transaction, elanInstanceName, device, internalTunnelIp);
-                            if (transaction != null) {
-                                return Lists.newArrayList(transaction.submit());
-                            }
-                        }
-                        return null;
-                    });
-                } else {
-                    LOG.info("Installing remote McastMac is not executed for this node.");
-                }
+
+        DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(elanInstanceName), () -> {
+            if (!EntityOwnershipUtils.isEntityOwner(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                    HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
+                LOG.info("Installing remote McastMac is not executed for this node.");
+                return null;
             }
 
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("Failed to install remote McastMac", error);
+            LOG.info("Installing remote McastMac");
+            L2GatewayDevice device = getDeviceFromTunnelIp(elanInstanceName, tunnelIp);
+            if (device == null) {
+                LOG.error("Unable to get L2Device for tunnelIp {} and elanInstanceName {}", tunnelIp,
+                    elanInstanceName);
+                return null;
             }
+            String tunnelInterfaceName = getExternalTunnelInterfaceName(String.valueOf(designatedDpnId),
+                    device.getHwvtepNodeId());
+            IpAddress internalTunnelIp = null;
+            if (tunnelInterfaceName != null) {
+                Interface tunnelInterface =
+                        interfaceManager.getInterfaceInfoFromConfigDataStore(tunnelInterfaceName);
+                if (tunnelInterface == null) {
+                    LOG.trace("Tunnel Interface is not present {}", tunnelInterfaceName);
+                    return null;
+                }
+                internalTunnelIp = tunnelInterface.getAugmentation(IfTunnel.class).getTunnelSource();
+                WriteTransaction transaction = broker.newWriteOnlyTransaction();
+                putRemoteMcastMac(transaction, elanInstanceName, device, internalTunnelIp);
+                if (transaction != null) {
+                    return Lists.newArrayList(transaction.submit());
+                }
+            }
+            return null;
         });
     }
 
@@ -809,31 +783,19 @@ public class DhcpExternalTunnelManager {
     }
 
     private void unInstallDhcpEntriesOnDpns(final List<BigInteger> dpns, final String vmMacAddress) {
-        // TODO: Make use a util that directly tells if this is the owner or not rather than making use of callbacks.
-        ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
-        Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-            @Override
-            public void onSuccess(Boolean isOwner) {
-                if (isOwner) {
-                    DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(vmMacAddress), () -> {
-                        WriteTransaction tx = broker.newWriteOnlyTransaction();
-                        for (final BigInteger dpn : dpns) {
-                            unInstallDhcpEntries(dpn, vmMacAddress, tx);
-                        }
-                        DhcpServiceUtils.submitTransaction(tx);
-                        return null;
-                    });
-                } else {
-                    LOG.trace("Exiting unInstallDhcpEntries since this cluster node is not the owner for dpn");
+        DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(vmMacAddress), () -> {
+            if (EntityOwnershipUtils.isEntityOwner(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                    HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
+                for (final BigInteger dpn : dpns) {
+                    unInstallDhcpEntries(dpn, vmMacAddress, tx);
                 }
+                DhcpServiceUtils.submitTransaction(tx);
+            } else {
+                LOG.trace("Exiting unInstallDhcpEntries since this cluster node is not the owner for dpn");
             }
 
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("Error while fetching checkNodeEntityOwner", error);
-            }
+            return null;
         });
     }
 
