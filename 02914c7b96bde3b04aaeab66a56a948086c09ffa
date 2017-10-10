@@ -16,6 +16,24 @@
       "revId": "02914c7b96bde3b04aaeab66a56a948086c09ffa",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cc266468",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-10-10T07:47:42Z",
+      "side": 1,
+      "message": "Hi Vishal, I\u0027ve added some extra info, let me know what else needs elaborating.",
+      "parentUuid": "9a245df4_764f4793",
+      "revId": "02914c7b96bde3b04aaeab66a56a948086c09ffa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
