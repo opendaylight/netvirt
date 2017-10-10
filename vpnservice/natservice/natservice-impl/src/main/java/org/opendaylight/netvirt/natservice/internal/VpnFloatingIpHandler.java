@@ -28,6 +28,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -84,6 +86,7 @@ import org.slf4j.LoggerFactory;
 public class VpnFloatingIpHandler implements FloatingIPHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnFloatingIpHandler.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final VpnRpcService vpnService;
     private final IBgpManager bgpManager;
@@ -111,6 +114,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                                 final INeutronVpnManager nvpnManager,
                                 final IdManagerService idManager) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.vpnService = vpnService;
         this.bgpManager = bgpManager;
@@ -235,16 +239,14 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     Future<RpcResult<Void>> future1 = fibService.createFibEntry(input);
                     LOG.debug("onAddFloatingIp : Add Floating Ip {} , found associated to fixed port {}",
                             externalIp, interfaceName);
-                    if (floatingIpPortMacAddress != null) {
-                        String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
-                        WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
-                        vpnManager.setupSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
-                                floatingIpPortMacAddress, dpnId, writeTx, NwConstants.ADD_FLOW);
+                    String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                        vpnManager.addSubnetMacIntoVpnInstance(networkVpnName, subnetVpnName,
+                                floatingIpPortMacAddress, dpnId, tx);
                         vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerUuid,
                                 Collections.singleton(externalIp),
-                            floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.ADD_FLOW);
-                        writeTx.submit();
-                    }
+                                floatingIpPortMacAddress, dpnId, networkId, tx, NwConstants.ADD_FLOW);
+                    });
                     return JdkFutureAdapters.listenInPoolThread(future1);
                 } else {
                     String errMsg = String.format("onAddFloatingIp : Could not retrieve the label for prefix %s "
@@ -302,15 +304,13 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     + "router {} to remove floatingIp {}", floatingIpId, routerUuid, externalIp);
             return;
         }
-        if (floatingIpPortMacAddress != null) {
-            WriteTransaction writeTx = dataBroker.newWriteOnlyTransaction();
+        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
             String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
-            vpnManager.setupSubnetMacIntoVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
-                    dpnId, writeTx, NwConstants.DEL_FLOW);
+            vpnManager.removeSubnetMacFromVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
+                    dpnId, tx);
             vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerUuid, Collections.singletonList(externalIp),
-                floatingIpPortMacAddress, dpnId, networkId, writeTx, NwConstants.DEL_FLOW);
-            writeTx.submit();
-        }
+                    floatingIpPortMacAddress, dpnId, networkId, tx, NwConstants.DEL_FLOW);
+        });
         removeFromFloatingIpPortInfo(floatingIpId);
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerUuid, networkId);
         if (provType == null) {
