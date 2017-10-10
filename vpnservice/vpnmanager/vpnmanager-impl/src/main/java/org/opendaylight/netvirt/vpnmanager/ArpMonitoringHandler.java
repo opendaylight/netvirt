@@ -10,16 +10,19 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
+import org.opendaylight.mdsal.eos.binding.api.Entity;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
@@ -40,9 +43,10 @@ public class ArpMonitoringHandler
     private final AlivenessMonitorService alivenessManager;
     private final INeutronVpnManager neutronVpnService;
     private final IInterfaceManager interfaceManager;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
 
     private Long arpMonitorProfileId = 0L;
+    private EntityOwnershipCandidateRegistration candidateRegistration;
 
     public ArpMonitoringHandler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
             IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager,
@@ -55,7 +59,7 @@ public class ArpMonitoringHandler
         this.alivenessManager = alivenessManager;
         this.neutronVpnService = neutronVpnService;
         this.interfaceManager = interfaceManager;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
     }
 
     public void start() {
@@ -68,12 +72,22 @@ public class ArpMonitoringHandler
             LOG.error("Error while allocating Profile Id", profileIdOptional);
         }
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+
         try {
-            EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
-                    VpnConstants.ARP_MONITORING_ENTITY, VpnConstants.ARP_MONITORING_ENTITY,
-                    null/*listener*/);
+            candidateRegistration = entityOwnershipUtils.getEntityOwnershipService().registerCandidate(
+                    new Entity(VpnConstants.ARP_MONITORING_ENTITY, VpnConstants.ARP_MONITORING_ENTITY));
         } catch (CandidateAlreadyRegisteredException e) {
             LOG.error("failed to register the entity {}", VpnConstants.ARP_MONITORING_ENTITY);
+        }
+    }
+
+    @Override
+    @PreDestroy
+    public void close() {
+        super.close();
+
+        if (candidateRegistration != null) {
+            candidateRegistration.close();
         }
     }
 
@@ -92,7 +106,7 @@ public class ArpMonitoringHandler
     @Override
     protected void update(InstanceIdentifier<LearntVpnVipToPort> id, LearntVpnVipToPort value,
             LearntVpnVipToPort dataObjectModificationAfter) {
-        VpnUtil.runOnlyInLeaderNode(entityOwnershipService, () -> {
+        runOnlyInOwnerNode("ArpMonitoringHandler: update event", () -> {
             try {
                 if (value.getMacAddress() == null || dataObjectModificationAfter.getMacAddress() == null) {
                     LOG.warn("The mac address received is null for LearntVpnVipIpToPort {}, ignoring the DTCN",
@@ -110,7 +124,7 @@ public class ArpMonitoringHandler
 
     @Override
     protected void add(InstanceIdentifier<LearntVpnVipToPort> identifier, LearntVpnVipToPort value) {
-        VpnUtil.runOnlyInLeaderNode(entityOwnershipService, () -> {
+        runOnlyInOwnerNode("ArpMonitoringHandler: add event", () -> {
             try {
                 InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
                 if (value.getMacAddress() == null) {
@@ -133,7 +147,7 @@ public class ArpMonitoringHandler
 
     @Override
     protected void remove(InstanceIdentifier<LearntVpnVipToPort> key, LearntVpnVipToPort value) {
-        VpnUtil.runOnlyInLeaderNode(entityOwnershipService, () -> {
+        runOnlyInOwnerNode("ArpMonitoringHandler: remove event", () -> {
             try {
                 InetAddress srcInetAddr = InetAddress.getByName(value.getPortFixedip());
                 if (value.getMacAddress() == null) {
@@ -159,6 +173,11 @@ public class ArpMonitoringHandler
                 LOG.error("Error in deserializing packet {} with exception", value, e);
             }
         });
+    }
+
+    private void runOnlyInOwnerNode(String jobDesc, final Runnable job) {
+        entityOwnershipUtils.runOnlyInOwnerNode(VpnConstants.ARP_MONITORING_ENTITY, VpnConstants.ARP_MONITORING_ENTITY,
+                DataStoreJobCoordinator.getInstance(), jobDesc, job);
     }
 
     static String buildJobKey(String ip, String vpnName) {
