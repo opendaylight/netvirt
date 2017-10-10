@@ -22,7 +22,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
@@ -254,8 +253,8 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     @Override
-    public void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, int addOrRemove) {
+    public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx) {
 
         if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
             LOG.warn("Failed to install arp responder flows for router {}. DPN id is missing.", id);
@@ -288,42 +287,88 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
-        long vpnId = (addOrRemove == NwConstants.ADD_FLOW) ? getVpnIdFromExtNetworkId(extNetworkId)
-                : VpnConstants.INVALID_ID;
-        setupArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, vpnId, extInterfaceName, lportTag,
-                writeTx, addOrRemove);
+        long vpnId = getVpnIdFromExtNetworkId(extNetworkId);
+        addArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, vpnId, extInterfaceName, lportTag,
+                writeTx);
     }
 
-
     @Override
-    public void setupArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx,
-            int addOrRemove) {
+    public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx) {
         if (fixedIps == null || fixedIps.isEmpty()) {
             LOG.debug("No external IPs defined for {}", id);
             return;
         }
 
-        LOG.info("{} ARP responder flows for {} fixed-ips {} on switch {}",
-                addOrRemove == NwConstants.ADD_FLOW ? "Installing" : "Removing", id, fixedIps, dpnId);
+        LOG.info("Installing ARP responder flows for {} fixed-ips {} on switch {}", id, fixedIps, dpnId);
 
-        boolean submit = false;
         if (writeTx == null) {
-            submit = true;
-            writeTx = dataBroker.newWriteOnlyTransaction();
-        }
-
-        for (String fixedIp : fixedIps) {
-            if (addOrRemove == NwConstants.ADD_FLOW) {
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> {
+                    for (String fixedIp : fixedIps) {
+                        installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
+                                vpnId,fixedIp, tx);
+                    }
+                });
+        } else {
+            for (String fixedIp : fixedIps) {
                 installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
                         fixedIp, writeTx);
-            } else {
-                removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, writeTx,extInterfaceName);
             }
         }
+    }
 
-        if (submit) {
-            writeTx.submit();
+    @Override
+    public void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx) {
+
+        if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+            LOG.warn("Failed to remove arp responder flows for router {}. DPN id is missing.", id);
+            return;
+        }
+
+        String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
+        if (extInterfaceName == null) {
+            LOG.warn("Failed to remove responder flows for {}. No external interface found for DPN id {}", id, dpnId);
+            return;
+        }
+
+        Interface extInterfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, extInterfaceName);
+        if (extInterfaceState == null) {
+            LOG.debug("No interface state found for interface {}. Delaying responder flows for {}", extInterfaceName,
+                    id);
+            return;
+        }
+
+        Integer lportTag = extInterfaceState.getIfIndex();
+        if (lportTag == null) {
+            LOG.debug("No Lport tag found for interface {}. Delaying flows for router-id {}", extInterfaceName, id);
+            return;
+        }
+
+        if (macAddress == null) {
+
+            LOG.debug("Failed to remove arp responder flows for router-gateway-ip {} for router {}."
+                    + "External Gw MacAddress is missing.", fixedIps,  id);
+            return;
+        }
+
+        removeArpResponderFlowsToExternalNetworkIps(id, fixedIps, dpnId,
+                extInterfaceName, lportTag, writeTx);
+    }
+
+    @Override
+    public void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps,
+            BigInteger dpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx) {
+        if (fixedIps == null || fixedIps.isEmpty()) {
+            LOG.debug("No external IPs defined for {}", id);
+            return;
+        }
+
+        LOG.info("Removing ARP responder flows for {} fixed-ips {} on switch {}", id, fixedIps, dpnId);
+
+        for (String fixedIp : fixedIps) {
+            removeArpResponderFlowsToExternalNetworkIp(dpnId, lportTag, fixedIp, extInterfaceName);
         }
     }
 
@@ -360,7 +405,7 @@ public class VpnManagerImpl implements IVpnManager {
     }
 
     private void removeArpResponderFlowsToExternalNetworkIp(BigInteger dpnId, Integer lportTag, String fixedIp,
-            WriteTransaction writeTx,String extInterfaceName) {
+            String extInterfaceName) {
         ArpResponderInput arpInput = new ArpReponderInputBuilder().setDpId(dpnId).setInterfaceName(extInterfaceName)
                 .setSpa(fixedIp).setLportTag(lportTag).buildForRemoveFlow();
         elanService.removeArpResponderFlow(arpInput);

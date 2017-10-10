@@ -471,9 +471,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             if (Objects.equals(primarySwitch, dpId)) {
                 Routers router = VpnUtil.getExternalRouter(dataBroker, routerName);
                 if (router != null) {
-                    vpnManager.setupArpResponderFlowsToExternalNetworkIps(routerName,
-                            VpnUtil.getIpsListFromExternalIps(router.getExternalIps()), router.getExtGwMacAddress(),
-                            dpId, vpnId, vpnInterface.getName(), lportTag, writeInvTxn, addOrRemove);
+                    if (addOrRemove == NwConstants.ADD_FLOW) {
+                        vpnManager.addArpResponderFlowsToExternalNetworkIps(routerName,
+                                VpnUtil.getIpsListFromExternalIps(router.getExternalIps()), router.getExtGwMacAddress(),
+                                dpId, vpnId, vpnInterface.getName(), lportTag, writeInvTxn);
+                    } else {
+                        vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerName,
+                                VpnUtil.getIpsListFromExternalIps(router.getExternalIps()),
+                                dpId, vpnInterface.getName(), lportTag, writeInvTxn);
+                    }
                 } else {
                     LOG.error("processExternalVpnInterface: No external-router found for router-id {}. Bailing out of"
                             + " processing external vpn-interface {} on dpn {} for vpn {}", routerName,
