@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -481,16 +482,14 @@ public final class VpnUtil {
      * @return the dataplane identifier of the VPN, the VrfTag.
      */
     public static long getVpnId(DataBroker broker, String vpnName) {
-
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                    .VpnInstance> vpnInstance =
-            read(broker, LogicalDatastoreType.CONFIGURATION, VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName));
-
-        long vpnId = VpnConstants.INVALID_ID;
-        if (vpnInstance.isPresent()) {
-            vpnId = vpnInstance.get().getVpnId();
+        if (vpnName == null) {
+            return VpnConstants.INVALID_ID;
         }
-        return vpnId;
+
+        return read(broker, LogicalDatastoreType.CONFIGURATION,
+                VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(vpnName)).toJavaUtil().map(
+                org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
+                        .VpnInstance::getVpnId).orElse(VpnConstants.INVALID_ID);
     }
 
     public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance
@@ -1120,6 +1119,7 @@ public final class VpnUtil {
         return null;
     }
 
+    @Nonnull
     public static List<BigInteger> getDpnsOnVpn(DataBroker dataBroker, String vpnInstanceName) {
         List<BigInteger> result = new ArrayList<>();
         String rd = getVpnRd(dataBroker, vpnInstanceName);
@@ -1225,38 +1225,6 @@ public final class VpnUtil {
 
     static InstanceIdentifier<Subnetmaps> buildSubnetMapsWildCardPath() {
         return InstanceIdentifier.create(Subnetmaps.class);
-    }
-
-    static void setupSubnetMacIntoVpnInstance(DataBroker dataBroker, IMdsalApiManager mdsalManager, String vpnName,
-            String subnetVpnName, String srcMacAddress, BigInteger dpnId, WriteTransaction writeTx, int addOrRemove) {
-        long vpnId = getVpnId(dataBroker, vpnName);
-        long subnetVpnId = VpnConstants.INVALID_ID;
-        if (subnetVpnName != null) {
-            subnetVpnId = getVpnId(dataBroker,subnetVpnName);
-        }
-
-        if (dpnId.equals(BigInteger.ZERO)) {
-            /* Apply the MAC on all DPNs in a VPN */
-            List<BigInteger> dpIds = getDpnsOnVpn(dataBroker, vpnName);
-            if (dpIds == null || dpIds.isEmpty()) {
-                return;
-            }
-            for (BigInteger dpId : dpIds) {
-                addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpId, subnetVpnId);
-            }
-        } else {
-            addGwMacIntoTx(mdsalManager, srcMacAddress, writeTx, addOrRemove, vpnId, dpnId, subnetVpnId);
-        }
-    }
-
-    static void addGwMacIntoTx(IMdsalApiManager mdsalManager, String srcMacAddress, WriteTransaction writeTx,
-        int addOrRemove, long vpnId, BigInteger dpId, long subnetVpnId) {
-        FlowEntity flowEntity = buildL3vpnGatewayFlow(dpId, srcMacAddress, vpnId, subnetVpnId);
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.addFlowToTx(flowEntity, writeTx);
-        } else {
-            mdsalManager.removeFlowToTx(flowEntity, writeTx);
-        }
     }
 
     public static FlowEntity buildL3vpnGatewayFlow(BigInteger dpId, String gwMacAddress, long vpnId,
