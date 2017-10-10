@@ -61,7 +61,6 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         Long vpnId = data.getVpnId();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(data.getInterfaceName());
         if (null != aclInterface && aclInterface.isPortSecurityEnabled() && !vpnId.equals(aclInterface.getVpnId())) {
-            aclServiceManager.notify(aclInterface, null, Action.UNBIND);
             aclInterface.setVpnId(vpnId);
             aclServiceManager.notify(aclInterface, null, Action.BIND);
         }
@@ -74,7 +73,6 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         Long vpnId = data.getVpnId();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(data.getInterfaceName());
         if (null != aclInterface && aclInterface.isPortSecurityEnabled() && vpnId.equals(aclInterface.getVpnId())) {
-            aclServiceManager.notify(aclInterface, null, Action.UNBIND);
             aclInterface.setVpnId(null);
             aclServiceManager.notify(aclInterface, null, Action.BIND);
         }
