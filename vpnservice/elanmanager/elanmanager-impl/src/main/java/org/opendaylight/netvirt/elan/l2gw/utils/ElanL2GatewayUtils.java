@@ -32,13 +32,13 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
@@ -110,7 +110,7 @@ public class ElanL2GatewayUtils {
     private final DataBroker broker;
     private final ElanDmacUtils elanDmacUtils;
     private final ElanItmUtils elanItmUtils;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
 
     private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
@@ -120,12 +120,12 @@ public class ElanL2GatewayUtils {
 
     @Inject
     public ElanL2GatewayUtils(DataBroker broker, ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
-                              EntityOwnershipService entityOwnershipService,
+                              EntityOwnershipUtils entityOwnershipUtils,
                               OdlInterfaceRpcService interfaceManagerRpcService) {
         this.broker = broker;
         this.elanDmacUtils = elanDmacUtils;
         this.elanItmUtils = elanItmUtils;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = entityOwnershipUtils;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
     }
 
@@ -351,7 +351,7 @@ public class ElanL2GatewayUtils {
         // DMAC table
         if (elanDpns != null && elanDpns.size() > 0) {
             String jobKey = elan.getElanInstanceName() + ":" + macToBeAdded;
-            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "install l2gw macs in dmac table",
+            ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, jobKey, "install l2gw macs in dmac table",
                 () -> {
                     if (doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                         for (DpnInterfaces elanDpn : elanDpns) {
@@ -371,7 +371,7 @@ public class ElanL2GatewayUtils {
         macList.add(new PhysAddress(macToBeAdded));
 
         String jobKey = "hwvtep:" + elan.getElanInstanceName() + ":" + macToBeAdded;
-        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "install remote ucast macs in l2gw device",
+        ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, jobKey, "install remote ucast macs in l2gw device",
             () -> {
                 if (!doesLocalUcastMacExistsInCache(extL2GwDevice, localUcastMacs)) {
                     LOG.trace(
@@ -452,7 +452,7 @@ public class ElanL2GatewayUtils {
         for (final MacAddress mac : macAddresses) {
             if (elanDpns != null && !elanDpns.isEmpty()) {
                 String jobKey = elanName + ":" + mac.getValue();
-                ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey, "delete l2gw macs from dmac table",
+                ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, jobKey, "delete l2gw macs from dmac table",
                     () -> {
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         for (DpnInterfaces elanDpn : elanDpns) {
@@ -469,7 +469,7 @@ public class ElanL2GatewayUtils {
         //Batched job
         DeleteL2GwDeviceMacsFromElanJob job = new DeleteL2GwDeviceMacsFromElanJob(elanName, l2GwDevice,
                 macAddresses);
-        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, job.getJobKey(),
+        ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, job.getJobKey(),
                 "delete remote ucast macs in l2gw devices", job);
     }
 
@@ -500,8 +500,7 @@ public class ElanL2GatewayUtils {
             if (localMacs != null && !localMacs.isEmpty()) {
                 for (final MacAddress mac : localMacs) {
                     String jobKey = elanName + ":" + mac.getValue();
-                    ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, jobKey,
-                            "delete l2gw macs from dmac table",
+                    ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, jobKey,
                         () -> elanDmacUtils.deleteDmacFlowsToExternalMac(elanTag, dpnId,
                                 l2GwDevice.getHwvtepNodeId(), mac.getValue()));
                 }

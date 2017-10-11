@@ -22,10 +22,10 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
@@ -63,17 +63,17 @@ public class L2GatewayConnectionUtils {
     private final DataBroker broker;
     private final ElanInstanceManager elanInstanceManager;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
     private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
-                                    EntityOwnershipService entityOwnershipService, ElanUtils elanUtils,
+                                    EntityOwnershipUtils entityOwnershipUtils, ElanUtils elanUtils,
                                     ElanL2GatewayUtils elanL2GatewayUtils) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
     }
@@ -244,8 +244,8 @@ public class L2GatewayConnectionUtils {
                     new DisAssociateHwvtepFromElanJob(broker, elanL2GatewayUtils, elanL2GatewayMulticastUtils,
                             elanL2GwDevice, elanName,
                             l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
-            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, disAssociateHwvtepToElanJob.getJobKey(),
-                    "remove l2gw connection job ", disAssociateHwvtepToElanJob);
+            ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, disAssociateHwvtepToElanJob.getJobKey(),
+                    "remove l2gw connection job", disAssociateHwvtepToElanJob);
         }
     }
 
@@ -283,7 +283,7 @@ public class L2GatewayConnectionUtils {
                         hwvtepNodeId, elanName);
                 if (logicalSwitch == null) {
                     HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(broker,
-                            elanL2GatewayUtils, entityOwnershipService, elanUtils, elanL2GatewayMulticastUtils,
+                            elanL2GatewayUtils, entityOwnershipUtils, elanUtils, elanL2GatewayMulticastUtils,
                             l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId);
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     createLogicalSwitch = true;
@@ -296,9 +296,8 @@ public class L2GatewayConnectionUtils {
                         elanL2GatewayUtils, elanL2GatewayMulticastUtils, l2GatewayDevice, elanInstance,
                         l2Device, defaultVlan, createLogicalSwitch);
 
-                ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, associateHwvtepToElanJob.getJobKey() ,
-                        "create logical switch in hwvtep topo",
-                        associateHwvtepToElanJob);
+                ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, associateHwvtepToElanJob.getJobKey() ,
+                        "create logical switch in hwvtep topo", associateHwvtepToElanJob);
 
             } else {
                 LOG.info("L2GwConn create is not handled for device with id {} as it's not connected", l2DeviceName);
@@ -359,7 +358,7 @@ public class L2GatewayConnectionUtils {
                             HwvtepLocalUcastMacListener localUcastMacListener =
                                     new HwvtepLocalUcastMacListener(broker, elanL2GatewayUtils);
                             settableFuture.set(resultNode);
-                            Optional<Node> nodeOptional = (Optional<Node>) resultNode;
+                            Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {
                                 Node node = nodeOptional.get();
                                 if (node.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
