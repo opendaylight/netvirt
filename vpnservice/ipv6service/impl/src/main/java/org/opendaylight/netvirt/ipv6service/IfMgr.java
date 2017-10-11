@@ -696,4 +696,36 @@ public class IfMgr {
         LOG.debug("re-started periodic RA Timer for routerIntf {}, int {}s", port.getIntfUUID(),
                    Ipv6Constants.PERIODIC_RA_INTERVAL);
     }
+
+    public List<VirtualPort> getInterfaceCache() {
+        List<VirtualPort> virtualPorts = new ArrayList<>();
+        for (VirtualPort vport: vintfs.values()) {
+            virtualPorts.add(vport);
+        }
+        return virtualPorts;
+    }
+
+    public List<VirtualNetwork> getNetworkCache() {
+        List<VirtualNetwork> virtualNetworks = new ArrayList<>();
+        for (VirtualNetwork vnet: vnetworks.values()) {
+            virtualNetworks.add(vnet);
+        }
+        return virtualNetworks;
+    }
+
+    public List<VirtualSubnet> getSubnetCache() {
+        List<VirtualSubnet> virtualSubnets = new ArrayList<>();
+        for (VirtualSubnet vsubnet: vsubnets.values()) {
+            virtualSubnets.add(vsubnet);
+        }
+        return virtualSubnets;
+    }
+
+    public List<VirtualRouter> getRouterCache() {
+        List<VirtualRouter> virtualRouter = new ArrayList<>();
+        for (VirtualRouter vrouter: vrouters.values()) {
+            virtualRouter.add(vrouter);
+        }
+        return virtualRouter;
+    }
 }
