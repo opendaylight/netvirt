@@ -9,9 +9,9 @@ package org.opendaylight.netvirt.elan.internal;
 
 import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -31,14 +31,14 @@ public class ElanDpnInterfaceClusteredListener
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfaceClusteredListener.class);
 
     private final DataBroker broker;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
-    public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipService entityOwnershipService,
+    public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipUtils entityOwnershipUtils,
                                              ElanUtils elanUtils, ElanL2GatewayUtils elanL2GatewayUtils) {
         this.broker = broker;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
     }
@@ -60,7 +60,7 @@ public class ElanDpnInterfaceClusteredListener
                 dpnInterfaces.getDpId());
             return;
         }
-        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "updating mcast mac upon tunnel event",
+        ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, elanName, "updating mcast mac upon tunnel event",
             () -> Collections.singletonList(
                 elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
     }
@@ -78,7 +78,7 @@ public class ElanDpnInterfaceClusteredListener
                 dpnInterfaces.getDpId());
             return;
         }
-        ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, elanName, "handling ElanDpnInterface removed",
+        ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, elanName, "handling ElanDpnInterface removed",
             () -> {
                 // deleting Elan L2Gw Devices UcastLocalMacs From Dpn
                 elanL2GatewayUtils.deleteElanL2GwDevicesUcastLocalMacsFromDpn(elanName,

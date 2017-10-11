@@ -9,7 +9,7 @@
   <reference id="notificationService"
     interface="org.opendaylight.controller.md.sal.binding.api.NotificationService" />
   <reference id="entityOwnershipService"
-    interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+    interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
   <reference id="mdsalUtils"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
   <reference id="interfaceManager"
@@ -35,6 +35,10 @@
     default-config-file-name="netvirt-elanmanager-config.xml"
     update-strategy="none">
   </odl:clustered-app-config>
+
+  <bean id="entityOwnershipUtils" class="org.opendaylight.genius.utils.clustering.EntityOwnershipUtils">
+    <argument ref="entityOwnershipService" />
+  </bean>
 
   <bean id="elanBridgeManager"
     class="org.opendaylight.netvirt.elan.internal.ElanBridgeManager">
@@ -176,14 +180,14 @@
     <argument ref="dataBroker" />
     <argument ref="elanInterfaceManager" />
     <argument ref="elanUtils" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
   </bean>
 
   <bean id="elanDpnInterfaceClusteredListener"
     class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfaceClusteredListener"
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
     <argument ref="elanUtils" />
     <argument ref="elanL2GatewayUtils" />
   </bean>
@@ -247,7 +251,7 @@
   <bean id="l2GatewayConnectionUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils">
     <argument ref="dataBroker" />
     <argument ref="elanInstanceManager" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
     <argument ref="elanUtils" />
     <argument ref="elanL2GatewayUtils" />
   </bean>
@@ -257,7 +261,7 @@
     <argument ref="dataBroker" />
     <argument ref="elanDmacUtils" />
     <argument ref="elanItmUtils" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
     <argument ref="odlInterfaceRpcService" />
   </bean>
 
@@ -266,7 +270,7 @@
     init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="itmRpcService" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
     <argument ref="l2GatewayConnectionUtils" />
     <argument ref="l2gwService" />
     <argument ref="l2gatewayUtils" />
@@ -278,7 +282,7 @@
     destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="elanL2GatewayUtils" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
   </bean>
 
   <bean id="haEventHandler"
@@ -322,7 +326,7 @@
     class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanGroupListener">
     <argument ref="elanInterfaceManager" />
     <argument ref="dataBroker" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
     <argument ref="elanInstanceManager" />
   </bean>
 
@@ -356,7 +360,7 @@
         class="org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider"
         init-method="init">
     <argument ref="dataBroker" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
     <argument ref="itmRpcService" />
     <argument ref="l2GatewayConnectionUtils" />
   </bean>
@@ -367,7 +371,7 @@
         class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener"
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="entityOwnershipService" />
+    <argument ref="entityOwnershipUtils" />
   </bean>
 
   <bean id="evpnUtils" class="org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils"
@@ -429,7 +433,6 @@
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="itmRpcService" />
-    <argument ref="entityOwnershipService" />
     <argument ref="l2GatewayConnectionUtils" />
   </bean>
 
