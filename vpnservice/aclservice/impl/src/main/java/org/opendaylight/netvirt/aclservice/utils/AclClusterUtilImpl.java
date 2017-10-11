@@ -11,9 +11,11 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
-import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
+import org.opendaylight.mdsal.eos.binding.api.Entity;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,19 +27,21 @@ public class AclClusterUtilImpl implements AclClusterUtil {
     private static final String ACL_ENTITY_TYPE_FOR_OWNERSHIP = "netvirt-acl";
     private static final String ACL_ENTITY_NAME = "netvirt-acl";
 
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
+
+    private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
     public AclClusterUtilImpl(EntityOwnershipService entityOwnershipService) {
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
     }
 
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         try {
-            EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
-                    ACL_ENTITY_TYPE_FOR_OWNERSHIP, ACL_ENTITY_NAME, null);
+            candidateRegistration = entityOwnershipUtils.getEntityOwnershipService().registerCandidate(
+                    new Entity(ACL_ENTITY_TYPE_FOR_OWNERSHIP, ACL_ENTITY_NAME));
         } catch (CandidateAlreadyRegisteredException e) {
             LOG.error("Failed to register acl entity.", e);
         }
@@ -45,12 +49,16 @@ public class AclClusterUtilImpl implements AclClusterUtil {
 
     @Override
     public boolean isEntityOwner() {
-        return EntityOwnerUtils.amIEntityOwner(ACL_ENTITY_TYPE_FOR_OWNERSHIP, ACL_ENTITY_NAME);
+        return entityOwnershipUtils.isEntityOwner(new Entity(ACL_ENTITY_TYPE_FOR_OWNERSHIP, ACL_ENTITY_NAME), 0, 1);
     }
 
     @PreDestroy
     public void close() {
         LOG.info("{} close", getClass().getSimpleName());
+
+        if (candidateRegistration != null) {
+            candidateRegistration.close();
+        }
     }
 
 }
