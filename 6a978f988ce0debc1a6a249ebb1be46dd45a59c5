@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_e946b522",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-11T07:07:28Z",
+      "side": 1,
+      "message": "This table can be merged with ACL6? Does that affect any functionality? Just a thought since there is a concern that is using more tables:-)",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8681e891",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-11T07:07:28Z",
+      "side": 1,
+      "message": "Can we have a generic approach here like always 246 checks for acl rules? Do we need a special handling for single remote SG?",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_233e2eb9",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-11T07:07:28Z",
+      "side": 1,
+      "message": "Would be good to add a sample flow here",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
