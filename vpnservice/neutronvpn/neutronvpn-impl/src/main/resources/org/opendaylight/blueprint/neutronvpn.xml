@@ -11,7 +11,7 @@
   <reference id="iL2gwService"
              interface="org.opendaylight.netvirt.elanmanager.api.IL2gwService" />
   <reference id="entityOwnershipService"
-             interface="org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService" />
+             interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
   <reference id="notificationPublishService"
              interface="org.opendaylight.controller.md.sal.binding.api.NotificationPublishService" />
   <reference id="iCentralizedSwitchProvider"
