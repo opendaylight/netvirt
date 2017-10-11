@@ -53,7 +53,7 @@ public class BgpRouterAddNeighborTest {
     @Before public void setUp() {
         MockitoAnnotations.initMocks(this);
         clientInOrder = inOrder(bgpClientMock);
-        sut = BgpRouter.makeTestingRouter(bgpClientMock);
+        sut = BgpRouter.newTestingInstance(bgpClientMock);
     }
 
 

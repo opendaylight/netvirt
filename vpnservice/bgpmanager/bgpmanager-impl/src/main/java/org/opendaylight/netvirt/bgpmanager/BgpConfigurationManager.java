@@ -44,6 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.Nullable;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
+import org.apache.thrift.transport.TTransport;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -275,7 +276,7 @@ public class BgpConfigurationManager {
         VtyshCli.setHostAddr(cHostStartup);
         ClearBgpCli.setHostAddr(cHostStartup);
         setEntityOwnershipService(entityOwnershipService);
-        bgpRouter = BgpRouter.getInstance();
+        bgpRouter = BgpRouter.newInstance();
         odlThriftIp = getProperty(SDNC_BGP_MIP, DEF_SDNC_BGP_MIP);
         bgpThriftIp = getProperty(BGP_SDNC_MIP, DEF_BGP_SDNC_MIP);
         delayEorSeconds = Integer.valueOf(getProperty(BGP_EOR_DELAY, DEF_BGP_EOR_DELAY));
@@ -1267,7 +1268,7 @@ public class BgpConfigurationManager {
                 }
                 try {
                     List<AddressFamiliesVrf> adf = mapNewAdFamily.get(rd);
-                    adf = adf != null ? adf : new ArrayList<AddressFamiliesVrf>();
+                    adf = adf != null ? adf : new ArrayList<>();
                     for (AddressFamiliesVrf s : val.getAddressFamiliesVrf()) {
                         br.delVrf(rd);
                         adf.remove(s);// remove in the map the vrf in waiting for advertise quagga
@@ -1301,11 +1302,11 @@ public class BgpConfigurationManager {
             List<AddressFamiliesVrf> newlistAdFamilies = new ArrayList();
             if (oldval != null) {
                 oldlistAdFamilies = oldval.getAddressFamiliesVrf() == null
-                        ? new ArrayList<AddressFamiliesVrf>() : oldval.getAddressFamiliesVrf();
+                        ? new ArrayList<>() : oldval.getAddressFamiliesVrf();
             }
             if (newval != null) {
                 newlistAdFamilies = newval.getAddressFamiliesVrf() == null
-                        ? new ArrayList<AddressFamiliesVrf>() : newval.getAddressFamiliesVrf();
+                        ? new ArrayList<>() : newval.getAddressFamiliesVrf();
             }
             /*find old AddressFamily to remove from new configuration*/
             for (AddressFamiliesVrf adVrf : oldlistAdFamilies) {
@@ -1660,7 +1661,7 @@ public class BgpConfigurationManager {
     }
 
     public static boolean isValidConfigBgpHostPort(String bgpHost, int bgpPort) {
-        if ((!bgpHost.equals(DEF_CHOST)) && (bgpPort != Integer.parseInt(DEF_CPORT))) {
+        if (!bgpHost.equals(DEF_CHOST) && bgpPort != Integer.parseInt(DEF_CPORT)) {
             return true;
         } else {
             return false;
@@ -2640,7 +2641,7 @@ public class BgpConfigurationManager {
         //** update or delete the vrfs with the rest of AddressFamilies already present in the last list
         AddressFamiliesVrf adfToDel = adfBuilder.build();
         List<AddressFamiliesVrf> adfListOriginal = vrfOriginal.getAddressFamiliesVrf() == null
-                ? new ArrayList<AddressFamiliesVrf>() : vrfOriginal.getAddressFamiliesVrf();
+                ? new ArrayList<>() : vrfOriginal.getAddressFamiliesVrf();
         List<AddressFamiliesVrf> adfListToRemoveFromOriginal = new ArrayList();
         adfListOriginal.forEach(adf -> {
             if (adf.equals(adfToDel)) {
@@ -2912,6 +2913,10 @@ public class BgpConfigurationManager {
 
     public long getStartTS() {
         return bgpRouter.getStartTS();
+    }
+
+    public TTransport getTransport() {
+        return bgpRouter.getTransport();
     }
 
     public static int getTotalStaledCount() {
