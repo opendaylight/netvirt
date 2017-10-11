@@ -15,14 +15,13 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -66,8 +65,7 @@ public class HwvtepPhysicalSwitchListener
     /** The itm rpc service. */
     private final ItmRpcService itmRpcService;
 
-    /** The entity ownership service. */
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
 
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
@@ -131,27 +129,28 @@ public class HwvtepPhysicalSwitchListener
      * @param dataBroker
      *            the data broker
      * @param itmRpcService itm rpc
-     * @param entityOwnershipService entity ownership service
+     * @param entityOwnershipUtils entity ownership utils
      * @param l2GatewayConnectionUtils l2gw connection utils
      * @param l2gwServiceProvider l2gw service Provider
      * @param l2GatewayUtils utils
      * @param haListener HA Op node listners
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
-                                        EntityOwnershipService entityOwnershipService,
+                                        EntityOwnershipUtils entityOwnershipUtils,
                                         L2GatewayConnectionUtils l2GatewayConnectionUtils,
                                         L2gwServiceProvider l2gwServiceProvider,
                                         L2GatewayUtils l2GatewayUtils, HAOpClusteredListener haListener) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = entityOwnershipUtils;
         this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
         this.l2GatewayUtils = l2GatewayUtils;
         this.haOpClusteredListener = haListener;
     }
 
+    @Override
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
@@ -228,7 +227,7 @@ public class HwvtepPhysicalSwitchListener
                     && TUNNEL_IP_CHANGED.test(phySwitchAfter, existingDevice)) {
 
                 final String hwvtepId = existingDevice.getHwvtepNodeId();
-                ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService,
+                ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, existingDevice.getDeviceName(),
                         "handling Physical Switch add create itm tunnels ", () -> {
                         LOG.info("Deleting itm tunnels for device {}", existingDevice.getDeviceName());
                         L2GatewayUtils.deleteItmTunnels(itmRpcService, hwvtepId,

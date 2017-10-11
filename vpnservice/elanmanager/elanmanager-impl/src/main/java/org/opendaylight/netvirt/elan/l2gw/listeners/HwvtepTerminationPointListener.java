@@ -19,10 +19,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
@@ -61,15 +61,15 @@ public class HwvtepTerminationPointListener
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
 
     public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-                                          EntityOwnershipService entityOwnershipService) {
+            EntityOwnershipUtils entityOwnershipUtils) {
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);
 
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = entityOwnershipUtils;
         //No longer needed as port reconciliation is added in plugin
         //registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         LOG.debug("created HwvtepTerminationPointListener");
@@ -99,9 +99,8 @@ public class HwvtepTerminationPointListener
                 del.getAugmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
-            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
-                    "Handling Physical port delete", () ->
-                            handlePortDeleted(identifier, portAugmentation, del, nodeId));
+            ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
+                "Handling Physical port delete", () -> handlePortDeleted(identifier, portAugmentation, del, nodeId));
             return;
         }
     }
@@ -118,8 +117,8 @@ public class HwvtepTerminationPointListener
                 add.getAugmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
             final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
-            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
-                    "handling Physical Switch add", () -> handlePortAdded(portAugmentation, add, nodeId));
+            ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
+                () -> handlePortAdded(portAugmentation, add, nodeId));
             return;
         }
 
