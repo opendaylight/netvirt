@@ -12,7 +12,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,17 +22,17 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.SystemPropertyReader;
-import org.opendaylight.genius.utils.clustering.ClusteringUtils;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
@@ -59,13 +58,13 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
     private final IL2gwService l2gwService;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
 
     @Inject
     public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
                              final ItmRpcService itmRpcService, IL2gwService l2gwService) {
         this.dataBroker = dataBroker;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.itmRpcService = itmRpcService;
         this.l2gwService = l2gwService;
     }
@@ -136,7 +135,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
         DataStoreJobCoordinator.getInstance().enqueueJob("l2gw.update", () -> {
             ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
             DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
-            List<ListenableFuture<Void>> fts = new ArrayList<ListenableFuture<Void>>();
+            List<ListenableFuture<Void>> fts = new ArrayList<>();
             original.getDevices()
                     .stream()
                     .filter((originalDevice) -> originalDevice.getInterfaces() != null)
@@ -209,28 +208,21 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                     // Delete ITM tunnels
                     final String hwvtepId = l2GwDevice.getHwvtepNodeId();
                     InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(hwvtepId));
-                    ListenableFuture<Boolean> checkEntityOwnerFuture = ClusteringUtils.checkNodeEntityOwner(
-                            entityOwnershipService, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                            HwvtepSouthboundConstants.ELAN_ENTITY_NAME);
+
                     final Set<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
-                    Futures.addCallback(checkEntityOwnerFuture, new FutureCallback<Boolean>() {
-                        @Override
-                        public void onSuccess(Boolean isOwner) {
-                            if (isOwner) {
-                                LOG.info("Deleting ITM Tunnels for {} connected to cluster node owner", l2DeviceName);
-                                for (IpAddress tunnelIp : tunnelIps) {
-                                    L2GatewayUtils.deleteItmTunnels(itmRpcService, hwvtepId, l2DeviceName, tunnelIp);
-                                }
-                            } else {
-                                LOG.info("ITM Tunnels are not deleted on the cluster node as this is not owner for {}",
-                                        l2DeviceName);
+                    DataStoreJobCoordinator.getInstance().enqueueJob(hwvtepId, () -> {
+                        if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
+                                HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
+                            LOG.info("Deleting ITM Tunnels for {} connected to cluster node owner", l2DeviceName);
+                            for (IpAddress tunnelIp : tunnelIps) {
+                                L2GatewayUtils.deleteItmTunnels(itmRpcService, hwvtepId, l2DeviceName, tunnelIp);
                             }
+                        } else {
+                            LOG.info("ITM Tunnels are not deleted on the cluster node as this is not owner for {}",
+                                    l2DeviceName);
                         }
 
-                        @Override
-                        public void onFailure(Throwable error) {
-                            LOG.error("Failed to delete ITM tunnels", error);
-                        }
+                        return null;
                     }, MoreExecutors.directExecutor());
                 } else {
                     L2GatewayCacheUtils.removeL2DeviceFromCache(l2DeviceName);
