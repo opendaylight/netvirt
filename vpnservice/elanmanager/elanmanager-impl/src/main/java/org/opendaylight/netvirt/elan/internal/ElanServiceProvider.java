@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -23,8 +22,6 @@ import java.util.function.BiFunction;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.exceptions.InterfaceAlreadyExistsException;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
@@ -35,9 +32,12 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.mdsal.eos.binding.api.Entity;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -94,6 +94,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private boolean generateIntBridgeMac = true;
     private boolean isL2BeforeL3;
 
+    private final EntityOwnershipCandidateRegistration candidateRegistration;
+
     @Inject
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
@@ -109,12 +111,18 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
         elanInterfaceManager.setElanUtils(elanUtils);
+
+        candidateRegistration = registerCandidate(entityOwnershipService);
+    }
+
+    private static EntityOwnershipCandidateRegistration registerCandidate(
+            EntityOwnershipService entityOwnershipService) {
         try {
-            EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
-                    HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-                    null/*listener*/);
+            return entityOwnershipService.registerCandidate(
+                    new Entity(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE, HwvtepSouthboundConstants.ELAN_ENTITY_TYPE));
         } catch (CandidateAlreadyRegisteredException e) {
             LOG.error("failed to register the entity");
+            return null;
         }
     }
 
@@ -134,7 +142,10 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    protected void stop() throws Exception {
+    protected void stop() {
+        if (candidateRegistration != null) {
+            candidateRegistration.close();
+        }
     }
 
     @Override

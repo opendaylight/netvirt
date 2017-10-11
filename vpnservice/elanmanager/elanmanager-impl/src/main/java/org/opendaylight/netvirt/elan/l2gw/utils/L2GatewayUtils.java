@@ -9,11 +9,10 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.DeleteL2GwDeviceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -29,8 +28,6 @@ public class L2GatewayUtils {
 
     private final ItmRpcService itmRpcService;
 
-    private final EntityOwnershipService entityOwnershipService;
-
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
     public L2GatewayUtils(DataBroker dataBroker, ItmRpcService itmRpcService,
@@ -38,7 +35,6 @@ public class L2GatewayUtils {
                           L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
-        this.entityOwnershipService = entityOwnershipService;
         this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
     }
 

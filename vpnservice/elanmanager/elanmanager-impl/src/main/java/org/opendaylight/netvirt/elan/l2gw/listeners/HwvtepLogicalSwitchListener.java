@@ -8,8 +8,8 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.jobs.LogicalSwitchAddedJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -40,26 +40,26 @@ public class HwvtepLogicalSwitchListener extends
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepLogicalSwitchListener.class);
 
     /** The node id. */
-    private NodeId nodeId;
+    private final NodeId nodeId;
 
     /** The logical switch name. */
-    private String logicalSwitchName;
+    private final String logicalSwitchName;
 
     /** The physical device. */
-    private Devices physicalDevice;
+    private final Devices physicalDevice;
 
     /** The l2 gateway device. */
-    private L2GatewayDevice l2GatewayDevice;
+    private final L2GatewayDevice l2GatewayDevice;
 
     // The default vlan id
-    private Integer defaultVlanId;
+    private final Integer defaultVlanId;
 
     // Id of L2 Gateway connection responsible for this logical switch creation
-    private Uuid l2GwConnId;
+    private final Uuid l2GwConnId;
 
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
     private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
@@ -68,7 +68,7 @@ public class HwvtepLogicalSwitchListener extends
      *
      * @param dataBroker DataBroker
      * @param elanL2GatewayUtils l2 gateway utils
-     * @param entityOwnershipService the entity ownership service
+     * @param entityOwnershipUtils the entity ownership utils
      * @param elanUtils the ELAN utilities
      * @param elanL2GatewayMulticastUtils l2 gateway multicast utils
      * @param l2GatewayDevice the l2 gateway device
@@ -78,7 +78,7 @@ public class HwvtepLogicalSwitchListener extends
      * @param l2GwConnId l2 gateway connection id
      */
     public HwvtepLogicalSwitchListener(DataBroker dataBroker, ElanL2GatewayUtils elanL2GatewayUtils,
-                                       EntityOwnershipService entityOwnershipService, ElanUtils elanUtils,
+                                       EntityOwnershipUtils entityOwnershipUtils, ElanUtils elanUtils,
                                        ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                        L2GatewayDevice l2GatewayDevice,
                                        String logicalSwitchName,
@@ -86,7 +86,7 @@ public class HwvtepLogicalSwitchListener extends
         super(LogicalSwitches.class, HwvtepLogicalSwitchListener.class);
         this.broker = dataBroker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
@@ -158,9 +158,8 @@ public class HwvtepLogicalSwitchListener extends
             LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(elanL2GatewayUtils,
                     elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
                     defaultVlanId);
-            ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, logicalSwitchAddedWorker.getJobKey() ,
-                    "create vlan mappings and mcast configurations",
-                    logicalSwitchAddedWorker);
+            ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, logicalSwitchAddedWorker.getJobKey(),
+                    "create vlan mappings and mcast configurations", logicalSwitchAddedWorker);
         } catch (RuntimeException e) {
             LOG.error("Failed to handle HwVTEPLogicalSwitch - add for: {}", identifier, e);
         } finally {
