@@ -250,11 +250,11 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     public String getConfigHost() {
-        return BgpConfigurationManager.getConfigHost();
+        return bcm.getConfigHost();
     }
 
     public int getConfigPort() {
-        return BgpConfigurationManager.getConfigPort();
+        return bcm.getConfigPort();
     }
 
 

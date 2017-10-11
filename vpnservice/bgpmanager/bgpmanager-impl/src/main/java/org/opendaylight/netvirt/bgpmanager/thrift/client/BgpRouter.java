@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.bgpmanager.thrift.client;
 import com.google.common.annotations.VisibleForTesting;
 import java.net.ConnectException;
 import java.util.List;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -70,7 +71,8 @@ public class BgpRouter {
         }
     }
 
-    private final BgpOp bop;
+    private final BgpOp bop = new BgpOp();
+    private final Supplier<Bgp> bgpConfigSupplier;
 
     private volatile TTransport transport;
     private volatile BgpConfigurator.Client bgpClient;
@@ -78,14 +80,15 @@ public class BgpRouter {
     private volatile long startTS;
     private volatile long connectTS;
     private volatile long lastConnectedTS;
+    private volatile boolean configServerUpdated = false;
 
-    private BgpRouter() {
-        bop = new BgpOp();
+    private BgpRouter(Supplier<Bgp> bgpConfigSupplier) {
+        this.bgpConfigSupplier = bgpConfigSupplier;
     }
 
     // private ctor FOR UNIT TESTS ONLY
     private BgpRouter(BgpConfigurator.Client bgpClient) {
-        this();
+        this(() -> null);
         this.bgpClient = bgpClient;
     }
 
@@ -95,8 +98,8 @@ public class BgpRouter {
         return new BgpRouter(bgpClient);
     }
 
-    public static BgpRouter newInstance() {
-        return new BgpRouter();
+    public static BgpRouter newInstance(Supplier<Bgp> bgpConfigSupplier) {
+        return new BgpRouter(bgpConfigSupplier);
     }
 
     public TTransport getTransport() {
@@ -127,6 +130,10 @@ public class BgpRouter {
         this.startTS = startTS;
     }
 
+    public void configServerUpdated() {
+        configServerUpdated = true;
+    }
+
     public synchronized void disconnect() {
         bgpClient = null;
         isConnected = false;
@@ -144,7 +151,7 @@ public class BgpRouter {
         }
 
         final int numberOfConnectRetries = 180;
-        BgpConfigurationManager.config_server_updated = false;
+        configServerUpdated = false;
         RetryOnException connectRetry = new RetryOnException(numberOfConnectRetries);
 
         disconnect();
@@ -155,7 +162,7 @@ public class BgpRouter {
                 isConnected = false;
                 return false;
             }
-            if (BgpConfigurationManager.config_server_updated) {
+            if (configServerUpdated) {
                 LOG.error("Config server updated while connecting to server {} {}", bgpHost, bgpPort);
                 isConnected = false;
                 return false;
@@ -209,7 +216,7 @@ public class BgpRouter {
     }
 
     private void reConnect(TTransportException tte) {
-        Bgp bgpConfig = BgpConfigurationManager.getConfig();
+        Bgp bgpConfig = bgpConfigSupplier.get();
         if (bgpConfig != null) {
             LOG.error("Received TTransportException, while configuring qthriftd, goind for Disconnect/Connect "
                             + " Host: {}, Port: {}", bgpConfig.getConfigServer().getHost().getValue(),
