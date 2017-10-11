@@ -10,14 +10,12 @@ package org.opendaylight.netvirt.bgpmanager;
 
 import java.io.PrintStream;
 import java.util.Date;
-import java.util.List;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.apache.thrift.transport.TTransport;
 import org.opendaylight.netvirt.bgpmanager.commands.Cache;
 import org.opendaylight.netvirt.bgpmanager.commands.Commands;
-import org.opendaylight.netvirt.bgpmanager.thrift.client.BgpRouter;
 
 
 @Command(scope = "odl", name = "display-bgp-config", description = "")
@@ -34,9 +32,10 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
 
         if (debug) {
             ps.printf("\nis ODL Connected to Q-BGP: %s\n", bm.isBgpConnected() ? "TRUE" : "FALSE");
-            if (BgpRouter.getTransport() != null) {
+            final TTransport transport = bm.getBgpConfigurationManager().getTransport();
+            if (transport != null) {
                 ps.printf("\nODL BGP Router transport is open: %s\n",
-                        BgpRouter.getTransport().isOpen() ? "TRUE" : "FALSE");
+                        transport.isOpen() ? "TRUE" : "FALSE");
             } else {
                 ps.printf("\nODL BGP Router transport is NULL\n");
             }
@@ -61,12 +60,6 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
 
             ps.printf("Total stale entries created %d \n", BgpConfigurationManager.getTotalStaledCount());
             ps.printf("Total stale entries cleared %d \n", BgpConfigurationManager.getTotalCleared());
-
-            List<EntityOwnerUtils.EntityEvent> eventsHistory = EntityOwnerUtils.getEventsHistory();
-            for (EntityOwnerUtils.EntityEvent event : eventsHistory) {
-                ps.printf("%s entity : %s amIOwner:%s hasOwner:%s \n", new Date(event.getTime()).toString(),
-                        event.getEntityName(), event.hasOwner(), event.isOwner());
-            }
         }
         Cache cache = new Cache();
         return cache.show(session);

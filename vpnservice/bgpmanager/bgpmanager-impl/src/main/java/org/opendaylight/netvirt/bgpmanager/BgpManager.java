@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Timer;
 import javax.annotation.Nullable;
-
 import org.apache.thrift.TException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -37,6 +36,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpManager.class);
     private final DataBroker dataBroker;
     private final BgpConfigurationManager bcm;
+
     private final BgpAlarmBroadcaster qbgpAlarmProducer;
     private final FibDSWriter fibDSWriter;
     private long qbgprestartTS = 0;
@@ -63,6 +63,10 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
+    }
+
+    public BgpConfigurationManager getBgpConfigurationManager() {
+        return bcm;
     }
 
     public void configureGR(int stalepathTime) throws TException {
@@ -169,6 +173,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         LOG.info("WITHDRAW: Removed Prefix rd {} prefix {} afi {}", rd, prefix);
     }
 
+    @Override
     public void setQbgpLog(String fileName, String debugLevel) {
         bcm.addLogging(fileName, debugLevel);
     }
@@ -223,6 +228,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         return nbrs.get(0).getAddress().getValue();
     }
 
+    @Override
     public synchronized void sendNotificationEvent(String pfx, int code, int subcode) {
         BgpAlarmErrorCodes errorSubCode;
         if (code != BgpConstants.BGP_NOTIFY_CEASE_CODE) {
@@ -252,6 +258,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
 
+    @Override
     public void bgpRestarted() {
         bcm.bgpRestarted();
     }
@@ -280,6 +287,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         return qbgprestartTS;
     }
 
+    @Override
     public void setQbgprestartTS(long qbgprestartTS) {
         this.qbgprestartTS = qbgprestartTS;
     }

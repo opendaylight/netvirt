@@ -8,12 +8,12 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.client;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.net.ConnectException;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
-import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
@@ -32,20 +32,74 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BgpRouter {
-    private static TTransport transport;
-    private static TProtocol protocol;
-    private static BgpConfigurator.Client bgpClient = null;
-    boolean isConnected = false;
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouter.class);
-    public int startBGPresult = Integer.MIN_VALUE;
-    public String bgpHost = null;
-    public int bgpHostPort = 0;
-    private long startTS = 0;
-    private long connectTS = 0;
-    private long lastConnectedTS = 0;
-    private static final int THRIFT_TIMEOUT_MILLI = 10000;
 
-    public static TTransport getTransport() {
+    private static final int THRIFT_TIMEOUT_MILLI = 10000;
+    private static final int GET_RTS_INIT = 0;
+    private static final int GET_RTS_NEXT = 1;
+    private static final int CONNECTION_TIMEOUT = 60000;
+
+    private enum Optype {
+        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP, EOR, DELAY_EOR
+    }
+
+    private static class BgpOp {
+        static final int IGNORE = 0;
+
+        Optype type;
+        boolean add;
+        String[] strs;
+        int[] ints;
+        List<String> irts;
+        List<String> erts;
+        long asNumber;
+        layer_type thriftLayerType;
+        protocol_type thriftProtocolType;
+        int ethernetTag;
+        String esi;
+        String macAddress;
+        int l2label;
+        int l3label;
+        encap_type thriftEncapType;
+        String routermac;
+        int delayEOR;
+
+        BgpOp() {
+            strs = new String[3];
+            ints = new int[2];
+        }
+    }
+
+    private final BgpOp bop;
+
+    private volatile TTransport transport;
+    private volatile BgpConfigurator.Client bgpClient;
+    private volatile boolean isConnected = false;
+    private volatile long startTS;
+    private volatile long connectTS;
+    private volatile long lastConnectedTS;
+
+    private BgpRouter() {
+        bop = new BgpOp();
+    }
+
+    // private ctor FOR UNIT TESTS ONLY
+    private BgpRouter(BgpConfigurator.Client bgpClient) {
+        this();
+        this.bgpClient = bgpClient;
+    }
+
+    // FOR UNIT TESTS ONLY
+    @VisibleForTesting
+    static BgpRouter newTestingInstance(BgpConfigurator.Client bgpClient) {
+        return new BgpRouter(bgpClient);
+    }
+
+    public static BgpRouter newInstance() {
+        return new BgpRouter();
+    }
+
+    public TTransport getTransport() {
         return transport;
     }
 
@@ -73,47 +127,6 @@ public class BgpRouter {
         this.startTS = startTS;
     }
 
-
-    private enum Optype {
-        START, STOP, NBR, VRF, PFX, SRC, MHOP, LOG, AF, GR, MP, VRFMP, EOR, DELAY_EOR
-    }
-
-    private static final int GET_RTS_INIT = 0;
-    private static final int GET_RTS_NEXT = 1;
-    private static final int CONNECTION_TIMEOUT = 60000;
-
-
-    private class BgpOp {
-
-        public Optype type;
-        public boolean add;
-        public String[] strs;
-        public int[] ints;
-        public List<String> irts;
-        public List<String> erts;
-        public long asNumber;
-        static final int IGNORE = 0;
-        public layer_type thriftLayerType;
-        public protocol_type thriftProtocolType;
-        public int ethernetTag;
-        public String esi;
-        public String macAddress;
-        public int l2label;
-        public int l3label;
-        public encap_type thriftEncapType;
-        public String routermac;
-        public af_afi afi;
-        public int delayEOR;
-        public af_safi safi;
-
-        BgpOp() {
-            strs = new String[3];
-            ints = new int[2];
-        }
-    }
-
-    private static BgpOp bop;
-
     public synchronized void disconnect() {
         bgpClient = null;
         isConnected = false;
@@ -124,9 +137,6 @@ public class BgpRouter {
 
     public synchronized boolean connect(String bgpHost, int bgpPort) {
         String msgPiece = "BGP config server at " + bgpHost + ":" + bgpPort;
-
-        this.bgpHost = bgpHost;
-        this.bgpHostPort = bgpPort;
 
         if (!BgpConfigurationManager.isValidConfigBgpHostPort(bgpHost, bgpPort)) {
             LOG.error("Invalid config server host: {}, port: {}", bgpHost, bgpPort);
@@ -178,8 +188,8 @@ public class BgpRouter {
             isConnected = false;
             return false;
         }
-        protocol = new TBinaryProtocol(transport);
-        bgpClient = new BgpConfigurator.Client(protocol);
+
+        bgpClient = new BgpConfigurator.Client(new TBinaryProtocol(transport));
         LOG.info("Connected to " + msgPiece);
         return true;
     }
@@ -188,28 +198,7 @@ public class BgpRouter {
         return isConnected;
     }
 
-    private BgpRouter() {
-        bop = new BgpOp();
-    }
-
-    private BgpRouter(BgpConfigurator.Client bgpClient) { // FOR UNIT TESTS ONLY
-        this.bgpClient = bgpClient;
-        this.bop = new BgpOp();
-    } // private ctor FOR UNIT TESTS ONLY
-
-    static BgpRouter makeTestingRouter(BgpConfigurator.Client bgpClient) { // FOR UNIT TESTS ONLY
-        return new BgpRouter(bgpClient);
-    } // static factory makeTestingRouter
-
-    private static BgpRouter br = null;
-
-    public static synchronized BgpRouter getInstance() {
-        return br == null ? br = new BgpRouter() : br;
-    }
-
     private void dispatch(BgpOp op) throws TException, BgpRouterException {
-        final int numberOfDispathRetries = 3;
-        RetryOnException dispatchRetries = new RetryOnException(numberOfDispathRetries);
         try {
             dispatchInternal(op);
         } catch (TTransportException tte) {
@@ -225,13 +214,13 @@ public class BgpRouter {
             LOG.error("Received TTransportException, while configuring qthriftd, goind for Disconnect/Connect "
                             + " Host: {}, Port: {}", bgpConfig.getConfigServer().getHost().getValue(),
                     bgpConfig.getConfigServer().getPort().intValue());
-            br.disconnect();
+            disconnect();
             try {
                 Thread.sleep(2000);
             } catch (InterruptedException e) {
                 LOG.error("Exception wile reconnecting ", e);
             }
-            br.connect(bgpConfig.getConfigServer().getHost().getValue(),
+            connect(bgpConfig.getConfigServer().getHost().getValue(),
                     bgpConfig.getConfigServer().getPort().intValue());
         } else {
             LOG.error("Unable to send commands to thrift and fetch bgp configuration", tte);
@@ -255,7 +244,6 @@ public class BgpRouter {
                 result = bgpClient.startBgp(op.asNumber, op.strs[0],
                         BgpOp.IGNORE, BgpOp.IGNORE, BgpOp.IGNORE, op.ints[0], op.add);
                 LOG.debug("Result of startBgp thrift call for AsId {} : {}", op.asNumber, result);
-                startBGPresult = result;
                 break;
             case STOP:
                 result = bgpClient.stopBgp(op.asNumber);
@@ -402,8 +390,6 @@ public class BgpRouter {
         bop.strs[0] = rd;
         bop.irts = irts;
         bop.erts = erts;
-        bop.afi = af_afi.findByValue((int)afi);
-        bop.safi = af_safi.findByValue((int)safi);
         LOG.debug("Adding BGP VRF rd: {} ", rd);
         dispatch(bop);
     }
