@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f7edec8c",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-10-11T14:50:55Z",
+      "side": 1,
+      "message": "Yes, we can merge ACL5 with ACL6. Only concern is we might have to omit matching on \"ct_state\u003d+trk\" which should be fine  as we can assume rest of the traffic (excluding est, rel, inv) will be tracked (+trk) anyways. \n\nDo you see any issues by omitting match on \"ct_state\u003d+trk\"?",
+      "parentUuid": "9a245df4_e946b522",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8681e891",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 11
