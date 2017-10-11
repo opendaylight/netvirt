@@ -79,6 +79,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <bundle>mvn:org.opendaylight.netvirt/policyservice-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/ipv6service-api/{{VERSION}}</bundle>
+    <bundle>mvn:org.opendaylight.netvirt/ipv6service-shell/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/statemanager-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.netvirt/statistics-impl/{{VERSION}}</bundle>
     <bundle>mvn:org.opendaylight.ovsdb/utils.mdsal-utils/{{VERSION}}</bundle>
