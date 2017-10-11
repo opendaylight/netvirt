@@ -12,13 +12,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TimerTask;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpAlarms extends TimerTask {
+public class BgpAlarms implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(BgpAlarms.class);
     private static final BgpJMXAlarmAgent ALARM_AGENT = new BgpJMXAlarmAgent();
     private static Map<String, String> neighborStatusMap = new HashMap<>();

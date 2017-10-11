@@ -58,8 +58,8 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             //Stale cleanup time
             ps.printf("Time taken for Stale FIB cleanup : %s ms\n", bm.getStaleCleanupTime());
 
-            ps.printf("Total stale entries created %d \n", BgpConfigurationManager.getTotalStaledCount());
-            ps.printf("Total stale entries cleared %d \n", BgpConfigurationManager.getTotalCleared());
+            ps.printf("Total stale entries created %d \n", bm.getBgpConfigurationManager().getTotalStaledCount());
+            ps.printf("Total stale entries cleared %d \n", bm.getBgpConfigurationManager().getTotalCleared());
         }
         Cache cache = new Cache();
         return cache.show(session);
