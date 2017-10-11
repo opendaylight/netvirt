@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.bgpmanager.thrift.server;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
-
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.ServerContext;
@@ -34,20 +33,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BgpThriftService {
-    int ourPort;
-    IBgpManager bgpManager;
-    FibDSWriter fibDSWriter;
-    TServer server;
-
-    // to store copy fo FIB-VRF tables on QBGP restart.
-    public List<VrfTables> staleVrfTables;
-
     private static final Logger LOG = LoggerFactory.getLogger(BgpThriftService.class);
 
-    public BgpThriftService(int ourPort, IBgpManager bm, FibDSWriter fibDSWriter) {
+    private final int ourPort;
+    private final IBgpManager bgpManager;
+    private final FibDSWriter fibDSWriter;
+    private TServer server;
+
+    // to store copy fo FIB-VRF tables on QBGP restart.
+    private List<VrfTables> staleVrfTables;
+
+    private final BgpConfigurationManager bgpConfigManager;
+
+    public BgpThriftService(int ourPort, IBgpManager bm, FibDSWriter fibDSWriter,
+            BgpConfigurationManager bgpConfigManager) {
         this.ourPort = ourPort;
         bgpManager = bm;
         this.fibDSWriter = fibDSWriter;
+        this.bgpConfigManager = bgpConfigManager;
     }
 
     public static class ThriftClientContext implements ServerContext {
@@ -69,6 +72,7 @@ public class BgpThriftService {
         BgpUpdateServer() {
         }
 
+        @Override
         public void run() {
             try {
                 BgpUpdater.Processor processor = new BgpUpdater.Processor(this);
@@ -125,6 +129,7 @@ public class BgpThriftService {
             }
         }
 
+        @Override
         @SuppressWarnings("checkstyle:IllegalCatch")
         public void onUpdatePushRoute(protocol_type protocolType,
                                       String rd,
@@ -142,7 +147,7 @@ public class BgpThriftService {
                 LOG.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
 
                 // l2label is ignored even in case of RT5. only l3label considered
-                BgpConfigurationManager.onUpdatePushRoute(
+                bgpConfigManager.onUpdatePushRoute(
                         protocolType,
                         rd,
                         prefix,
@@ -161,6 +166,7 @@ public class BgpThriftService {
             }
         }
 
+        @Override
         public void onUpdateWithdrawRoute(protocol_type protocolType,
                                           String rd,
                                           String prefix,
@@ -174,7 +180,7 @@ public class BgpThriftService {
                                           af_afi afi) {
             try {
                 LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-                BgpConfigurationManager.onUpdateWithdrawRoute(
+                bgpConfigManager.onUpdateWithdrawRoute(
                         protocolType,
                         rd,
                         prefix,
@@ -190,15 +196,17 @@ public class BgpThriftService {
             }
         }
 
+        @Override
         public void onStartConfigResyncNotification() {
             LOG.info("BGP (re)started");
             bgpManager.setQbgprestartTS(System.currentTimeMillis());
             bgpManager.bgpRestarted();
         }
 
+        @Override
         public void onNotificationSendEvent(String prefix, byte errCode,
                 byte errSubcode) {
-            bgpManager.sendNotificationEvent(prefix, (int) errCode, (int) errSubcode);
+            bgpManager.sendNotificationEvent(prefix, errCode, errSubcode);
         }
     }
 
