@@ -8,9 +8,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -30,18 +30,18 @@ public class ElanInterfaceStateClusteredListener extends
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
     private final ElanUtils elanUtils;
-    private final EntityOwnershipService entityOwnershipService;
+    private final EntityOwnershipUtils entityOwnershipUtils;
 
     /* FIXME:
      * Why do we have ElanInterfaceStateChangeListener and ElanInterfaceStateClusteredListener
      * both within same module? Refactor this code into single listener.
      */
     public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
-                                               ElanUtils elanUtils, EntityOwnershipService entityOwnershipService) {
+                                               ElanUtils elanUtils, EntityOwnershipUtils entityOwnershipUtils) {
         this.broker = broker;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
-        this.entityOwnershipService = entityOwnershipService;
+        this.entityOwnershipUtils = entityOwnershipUtils;
     }
 
     public void init() {
@@ -68,7 +68,7 @@ public class ElanInterfaceStateClusteredListener extends
             if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                 final String interfaceName = intrf.getName();
 
-                ElanClusterUtils.runOnlyInLeaderNode(entityOwnershipService, () -> {
+                ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, "external tunnel update", () -> {
                     LOG.debug("running external tunnel update job for interface {} added", interfaceName);
                     try {
                         handleExternalTunnelUpdate(interfaceName, intrf);
