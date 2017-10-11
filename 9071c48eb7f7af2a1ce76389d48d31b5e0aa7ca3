@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_d231d60c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1211,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-11T22:37:49Z",
+      "side": 1,
+      "message": "I believe this should be \u003d\u003d, then the loop below makes sense",
+      "range": {
+        "startLine": 1211,
+        "startChar": 49,
+        "endLine": 1211,
+        "endChar": 51
+      },
+      "revId": "9071c48eb7f7af2a1ce76389d48d31b5e0aa7ca3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b236e201",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2087,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-11T22:37:49Z",
+      "side": 1,
+      "message": "All the code in this large method was simply indented left due to the removal of the unnecessary synchronized block.",
+      "revId": "9071c48eb7f7af2a1ce76389d48d31b5e0aa7ca3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_123c0ee2",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/EvpnRdNetworkListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-11T22:37:49Z",
+      "side": 1,
+      "message": "This class is not instantiated anywhere - not sure of the purpose - maybe it can be removed altogether?",
+      "revId": "9071c48eb7f7af2a1ce76389d48d31b5e0aa7ca3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
