@@ -28,24 +28,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
-import java.util.TimerTask;
-
 import javax.annotation.Nonnull;
 import javax.management.JMException;
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
-
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BgpCounters extends TimerTask {
+public class BgpCounters implements Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpCounters.class);
     private static BgpCountersBroadcaster bgpStatsBroadcaster = null;
     private MBeanServer bgpStatsServer = null;
-    private Map<String, String> countersMap = new HashMap<>();
+    private final Map<String, String> countersMap = new HashMap<>();
     private String bgpSdncMip = "127.0.0.1";
     public static final String BGP_VPNV6_FILE = "cmd_ip_bgp_vpnv6_all.txt";
     public static final String BGP_VPNV4_FILE = "cmd_ip_bgp_vpnv4_all.txt";
@@ -201,7 +198,7 @@ public class BgpCounters extends TimerTask {
             /*if exception is catched then the prefix is not an IPv6 and IPv4*/
             LOG.error("Unrecognized ip address ipAddress: {}", ip);
         }
-        return (identifiedAFI == afi.getValue() ? true : false);
+        return identifiedAFI == afi.getValue() ? true : false;
     }
 
     /*
@@ -436,7 +433,7 @@ public class BgpCounters extends TimerTask {
     }
 
     static void resetFile(String fileName) {
-        File file = (new File(fileName));
+        File file = new File(fileName);
         if (!file.delete()) {
             try (PrintWriter pw = new PrintWriter(file)) {
                 pw.print("");

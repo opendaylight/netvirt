@@ -8,8 +8,6 @@
 
 package org.opendaylight.netvirt.bgpmanager;
 
-import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
@@ -18,7 +16,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetwork;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,12 +26,15 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
     private final EntityOwnershipService entityOwnershipService;
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRdNetworkListener.class);
 
+    private final BgpConfigurationManager bgpConfigManager;
 
     public EvpnRdNetworkListener(DataBroker dataBroker,
-                                 EntityOwnershipService entityOwnershipService) {
+                                 EntityOwnershipService entityOwnershipService,
+                                 BgpConfigurationManager bgpConfigManager) {
         super(EvpnRdToNetwork.class, EvpnRdNetworkListener.class);
         this.broker = dataBroker;
         this.entityOwnershipService = entityOwnershipService;
+        this.bgpConfigManager = bgpConfigManager;
     }
 
     @Override
@@ -84,31 +84,17 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
         deleteExternalTepsfromElanInstance(rd);
     }
 
-    public void addExternalTepstoElanInstance(String rd) {
-        Map<String, Map<String, Map<String, Long>>> rt2Map = BgpConfigurationManager.getRt2TepMap();
-        if (!rt2Map.isEmpty()) {
-            if (rt2Map.containsKey(rd)) {
-                rt2Map.get(rd).forEach((tepIp, mac) -> {
-                    LOG.debug("Adding tep {} to Elan Corresponding to RD {}", tepIp, rd);
-                    BgpUtil.addTepToElanInstance(broker, rd, tepIp);
-                });
-            } else {
-                LOG.debug("No entry for rd {}", rd);
-            }
+    private void addExternalTepstoElanInstance(String rd) {
+        for (String tepIp: bgpConfigManager.getTepIPs(rd)) {
+            LOG.debug("Adding tep {} to Elan Corresponding to RD {}", tepIp, rd);
+            BgpUtil.addTepToElanInstance(broker, rd, tepIp);
         }
     }
 
-    public void deleteExternalTepsfromElanInstance(String rd) {
-        Map<String, Map<String, Map<String, Long>>> rt2Map = BgpConfigurationManager.getRt2TepMap();
-        if (!rt2Map.isEmpty()) {
-            if (rt2Map.containsKey(rd)) {
-                rt2Map.get(rd).forEach((tepIp, mac) -> {
-                    LOG.debug("Deleting tep {} to Elan Corresponding to RD {}", tepIp, rd);
-                    BgpUtil.deleteTepFromElanInstance(broker, rd, tepIp);
-                });
-            } else {
-                LOG.debug("No entry for rd {}", rd);
-            }
+    private void deleteExternalTepsfromElanInstance(String rd) {
+        for (String tepIp: bgpConfigManager.getTepIPs(rd)) {
+            LOG.debug("Deleting tep {} to Elan Corresponding to RD {}", tepIp, rd);
+            BgpUtil.deleteTepFromElanInstance(broker, rd, tepIp);
         }
     }
 }
