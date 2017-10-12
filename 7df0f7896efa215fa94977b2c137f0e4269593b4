@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_98f2dd98",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1273,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-12T12:16:43Z",
+      "side": 1,
+      "message": "remove this line...\nor, print only the vpnName, rd",
+      "range": {
+        "startLine": 1273,
+        "startChar": 6,
+        "endLine": 1273,
+        "endChar": 75
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_78ef29b1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 1283,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-12T12:16:43Z",
+      "side": 1,
+      "message": "print vpnId",
+      "range": {
+        "startLine": 1283,
+        "startChar": 68,
+        "endLine": 1283,
+        "endChar": 85
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_98201df9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-12T12:16:43Z",
+      "side": 1,
+      "message": "isRouterDissociatedFromVpn",
+      "range": {
+        "startLine": 148,
+        "startChar": 20,
+        "endLine": 148,
+        "endChar": 28
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_781d69bd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 150,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-12T12:16:43Z",
+      "side": 1,
+      "message": "Not required. isBgpVpn ensures that oldVpnId is bgpvpn",
+      "range": {
+        "startLine": 150,
+        "startChar": 49,
+        "endLine": 150,
+        "endChar": 97
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cc813a4c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-12T12:16:43Z",
+      "side": 1,
+      "message": "Why is this block required?\nWhen a router dissociation from vpn happens, the subnetMap for all the subnets for that bgpvpn will be updated. Finally no address family will be associated to that bgpvpn.\nThis code block seems redundant as you will be doing an intensive read and search for all the subnets for the bgpvpn even when you know that on a dissociate, you need to withdraw both the ipv4 and ipv6 from the bgpvpn.\n\nSo, just withdraw ipversion from bgpvpn directly on a dissociate.\n\nAlso, please handle the case where the router is reassociated to the bgpvpn. In this case, you will have to advertise the vrfs for all the subnets for that bgpvpn",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 168,
+        "endChar": 17
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
