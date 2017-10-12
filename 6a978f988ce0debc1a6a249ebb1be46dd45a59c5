@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3dada332",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-10-12T07:37:01Z",
+      "side": 1,
+      "message": "Yes, this is required to support non-conntrack traffic.",
+      "parentUuid": "9a245df4_1df41ff1",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8681e891",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 11
@@ -66,6 +84,24 @@
       "writtenOn": "2017-10-11T07:07:28Z",
       "side": 1,
       "message": "Can we have a generic approach here like always 246 checks for acl rules? Do we need a special handling for single remote SG?",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fdbb0b70",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-10-12T07:37:01Z",
+      "side": 1,
+      "message": "I did this way keeping in mind about datapath optimization.\nThis is the most commonly used usecase where there would be only one remote SG.\nIn this case, there is no need of sending packets to ACL7 table if we match acl filters in ACL6 itself. The packets can be directly sent to ACL8 table.\nI agree this might cause some confusion in the way we handle for ports having single and multiple remote SGs.\n\nIt makes sense to have common handling for ACL rule filters. I will change it so that all ACL rule filters will be handled in ACL7 table itself.",
+      "parentUuid": "9a245df4_8681e891",
       "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
