@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.qosservice;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -26,18 +29,16 @@ import org.slf4j.LoggerFactory;
 public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(QosEosHandler.class);
 
-    private static volatile boolean isEosOwner;
+    private volatile boolean isEosOwner;
 
     private final EntityOwnershipService entityOwnershipService;
-    private final QosAlertManager qosAlertManager;
     private EntityOwnershipListenerRegistration listenerRegistration;
     private EntityOwnershipCandidateRegistration candidateRegistration;
+    private final List<Consumer<Boolean>> localOwnershipChangedListeners = new CopyOnWriteArrayList<>();
 
     @Inject
-    public QosEosHandler(final EntityOwnershipService eos, final QosAlertManager qam) {
+    public QosEosHandler(final EntityOwnershipService eos) {
         entityOwnershipService = eos;
-        qosAlertManager = qam;
-        isEosOwner = false;
     }
 
     @PostConstruct
@@ -56,6 +57,10 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
             candidateRegistration.close();
         }
         LOG.trace("entity ownership unregisterated");
+    }
+
+    public void addLocalOwnershipChangedListener(Consumer<Boolean> listener) {
+        localOwnershipChangedListeners.add(listener);
     }
 
     private void registerQosAlertEosListener() {
@@ -78,15 +83,15 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
 
         if (entityOwnershipChange.getState().hasOwner() && entityOwnershipChange.getState().isOwner()
                 || !entityOwnershipChange.getState().hasOwner() && entityOwnershipChange.getState().wasOwner()) {
-            qosAlertManager.setQosAlertOwner(true); // continue polling until new owner is elected
+            localOwnershipChangedListeners.forEach(l -> l.accept(Boolean.TRUE));
             isEosOwner = true;
         } else {
-            qosAlertManager.setQosAlertOwner(false); // no longer an owner
+            localOwnershipChangedListeners.forEach(l -> l.accept(Boolean.FALSE));
             isEosOwner = false;
         }
     }
 
-    public static boolean isQosClusterOwner() {
+    public boolean isQosClusterOwner() {
         LOG.trace("isQosClusterOwner: {}", isEosOwner);
         return isEosOwner;
     }
