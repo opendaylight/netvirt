@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import java.math.BigInteger;
@@ -19,10 +17,7 @@ import java.util.concurrent.Callable;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
@@ -35,12 +30,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.InterfaceNameMacAddresses;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,17 +44,6 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     private final BigInteger dpnId;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
-    private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
-        @Override
-        public void onSuccess(Void result) {
-            LOG.debug("Success in Datastore write operation");
-        }
-
-        @Override
-        public void onFailure(Throwable error) {
-            LOG.error("Error in Datastore write operation", error);
-        }
-    };
 
     public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                DataBroker dataBroker, Interface interfaceAdd, BigInteger dpnId,
@@ -126,42 +105,9 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     }
 
     private List<ListenableFuture<Void>> installDhcpEntries(String interfaceName, BigInteger dpId) {
-        String vmMacAddress = getAndUpdateVmMacAddress(interfaceName);
+        String vmMacAddress = DhcpServiceUtils.getAndUpdateVmMacAddress(dataBroker, interfaceName, dhcpManager);
         WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
         dhcpManager.installDhcpEntries(dpId, vmMacAddress, flowTx);
         return Collections.singletonList(flowTx.submit());
-    }
-
-    private String getAndUpdateVmMacAddress(String interfaceName) {
-        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
-                InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
-                        .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        Optional<InterfaceNameMacAddress> existingEntry =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
-        if (!existingEntry.isPresent()) {
-            LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
-            String vmMacAddress = getNeutronMacAddress(interfaceName);
-            if (vmMacAddress == null || vmMacAddress.isEmpty()) {
-                return null;
-            }
-            LOG.trace("Updating InterfaceNameVmMacAddress map with {}, {}", interfaceName,vmMacAddress);
-            InterfaceNameMacAddress interfaceNameMacAddress =
-                    new InterfaceNameMacAddressBuilder()
-                            .setKey(new InterfaceNameMacAddressKey(interfaceName))
-                            .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
-            MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier,
-                    interfaceNameMacAddress, DEFAULT_CALLBACK);
-            return vmMacAddress;
-        }
-        return existingEntry.get().getMacAddress();
-    }
-
-    private String getNeutronMacAddress(String interfaceName) {
-        Port port = dhcpManager.getNeutronPort(interfaceName);
-        if (port != null) {
-            LOG.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
-            return port.getMacAddress().getValue();
-        }
-        return null;
     }
 }
