@@ -48,8 +48,6 @@ import org.apache.thrift.transport.TTransport;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -57,7 +55,13 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
-import org.opendaylight.genius.utils.clustering.EntityOwnerUtils;
+import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
+import org.opendaylight.mdsal.eos.binding.api.Entity;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListenerRegistration;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
+import org.opendaylight.mdsal.eos.common.api.EntityOwnershipChangeState;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmStatus;
@@ -155,6 +159,10 @@ public class BgpConfigurationManager {
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
     private static final String BGP_ENTITY_TYPE_FOR_OWNERSHIP = "bgp";
     private static final String BGP_ENTITY_NAME = "bgp";
+    private static final String ADD_WARN = "Config store updated; undo with Delete if needed.";
+    private static final String DEL_WARN = "Config store updated; undo with Add if needed.";
+    private static final String UPD_WARN = "Update operation not supported; Config store updated;"
+            + " restore with another Update if needed.";
 
     private static final Class<?>[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
@@ -216,6 +224,10 @@ public class BgpConfigurationManager {
 
     private final List<AutoCloseable> listeners = new ArrayList<>();
 
+    private final EntityOwnershipUtils entityOwnershipUtils;
+    private final EntityOwnershipCandidateRegistration candidateRegistration;
+    private final EntityOwnershipListenerRegistration entityListenerRegistration;
+
     public BgpConfigurationManager(final DataBroker dataBroker,
             final EntityOwnershipService entityOwnershipService,
             final FibDSWriter fibDSWriter,
@@ -233,10 +245,14 @@ public class BgpConfigurationManager {
                 + hostStartup + ":" + portStartup);
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
-        setEntityOwnershipService(entityOwnershipService);
-        bgpRouter = BgpRouter.newInstance(this::getConfig);
+        bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
         odlThriftIp = getProperty(SDNC_BGP_MIP, DEF_SDNC_BGP_MIP);
         registerCallbacks();
+
+        entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
+
+        candidateRegistration = registerEntityCandidate(entityOwnershipService);
+        entityListenerRegistration = registerEntityListener(entityOwnershipService);
 
         LOG.info("BGP Configuration manager initialized");
         initer.countDown();
@@ -337,6 +353,12 @@ public class BgpConfigurationManager {
             updateServer.stop();
         }
 
+        if (candidateRegistration != null) {
+            candidateRegistration.close();
+        }
+
+        entityListenerRegistration.close();
+
         listeners.forEach(l -> {
             try {
                 l.close();
@@ -353,41 +375,41 @@ public class BgpConfigurationManager {
         return property == null ? def : property;
     }
 
-    public static boolean ignoreClusterDcnEventForFollower() {
-        return !EntityOwnerUtils.amIEntityOwner(BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME);
+    private EntityOwnershipCandidateRegistration registerEntityCandidate(
+            final EntityOwnershipService entityOwnershipService) {
+        try {
+            return entityOwnershipService.registerCandidate(
+                    new Entity(BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME));
+        } catch (CandidateAlreadyRegisteredException e) {
+            LOG.error("failed to register bgp entity", e);
+            return null;
+        }
+    }
+
+    private EntityOwnershipListenerRegistration registerEntityListener(
+            final EntityOwnershipService entityOwnershipService) {
+        return entityOwnershipService.registerListener(BGP_ENTITY_TYPE_FOR_OWNERSHIP, ownershipChange -> {
+            LOG.trace("entity owner change event fired: {}", ownershipChange);
+
+            if (ownershipChange.getState() == EntityOwnershipChangeState.LOCAL_OWNERSHIP_GRANTED) {
+                LOG.trace("This PL is the Owner");
+                activateMIP();
+                bgpRestarted();
+            } else {
+                LOG.debug("Not owner: hasOwner: {}, isOwner: {}", ownershipChange.getState().hasOwner(),
+                        ownershipChange.getState().isOwner());
+            }
+        });
+    }
+
+    public boolean isBGPEntityOwner() {
+        return entityOwnershipUtils.isEntityOwner(new Entity(BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME), 0, 1);
     }
 
     public Bgp get() {
         config = getConfig();
         return config;
     }
-
-    public void setEntityOwnershipService(final EntityOwnershipService entityOwnershipService) {
-        try {
-            EntityOwnerUtils.registerEntityCandidateForOwnerShip(entityOwnershipService,
-                BGP_ENTITY_TYPE_FOR_OWNERSHIP, BGP_ENTITY_NAME, ownershipChange -> {
-                    LOG.trace("entity owner change event fired");
-                    if (ownershipChange.hasOwner() && ownershipChange.isOwner()) {
-                        LOG.trace("This PL is the Owner");
-                        activateMIP();
-                        bgpRestarted();
-                    } else {
-                        LOG.info("Not owner: hasOwner: {}, isOwner: {}", ownershipChange.hasOwner(),
-                                ownershipChange.isOwner());
-                    }
-                });
-        } catch (CandidateAlreadyRegisteredException e) {
-            LOG.error("failed to register bgp entity", e);
-        }
-    }
-
-    private static final String ADD_WARN =
-            "Config store updated; undo with Delete if needed.";
-    private static final String DEL_WARN =
-            "Config store updated; undo with Add if needed.";
-    private static final String UPD_WARN =
-            "Update operation not supported; Config store updated;"
-                    + " restore with another Update if needed.";
 
     public class ConfigServerReactor
             extends AsyncDataTreeChangeListenerBase<ConfigServer, ConfigServerReactor>
@@ -401,7 +423,7 @@ public class BgpConfigurationManager {
         @Override
         protected synchronized void add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp connect config host {}", val.getHost().getValue());
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
 
@@ -436,7 +458,7 @@ public class BgpConfigurationManager {
         @Override
         protected synchronized void remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp disconnect");
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
 
@@ -451,7 +473,7 @@ public class BgpConfigurationManager {
         protected void update(InstanceIdentifier<ConfigServer> iid,
                 ConfigServer oldval, ConfigServer newval) {
             LOG.trace("received bgp Connection update");
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.error(YANG_OBJ + UPD_WARN);
@@ -479,7 +501,7 @@ public class BgpConfigurationManager {
         @Override
         protected synchronized void add(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received bgp add asid {}", val);
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add router config asNum {}", val.getLocalAs());
@@ -527,7 +549,7 @@ public class BgpConfigurationManager {
         @Override
         protected synchronized void remove(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received delete router config asNum {}", val.getLocalAs());
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
@@ -570,7 +592,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<AsId> iid,
                 AsId oldval, AsId newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.error(YANG_OBJ + UPD_WARN);
@@ -589,7 +611,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
@@ -620,7 +642,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received delete GracefulRestart config val {}", val.getStalepathTime().intValue());
@@ -642,7 +664,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<GracefulRestart> iid,
                 GracefulRestart oldval, GracefulRestart newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received update GracefulRestart config val {}", newval.getStalepathTime().intValue());
@@ -675,7 +697,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<Logging> iid, Logging val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
@@ -705,7 +727,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<Logging> iid, Logging val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove Logging config val {}", val.getLevel());
@@ -727,7 +749,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<Logging> iid,
                 Logging oldval, Logging newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
@@ -758,7 +780,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add Neighbors config val {}", val.getAddress().getValue());
@@ -794,7 +816,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove Neighbors config val {}", val.getAddress().getValue());
@@ -820,7 +842,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<Neighbors> iid,
                 Neighbors oldval, Neighbors newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             //purposefully nothing to do.
@@ -839,7 +861,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add EbgpMultihop config val {}", val.getPeerIp().getValue());
@@ -871,7 +893,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove EbgpMultihop config val {}", val.getPeerIp().getValue());
@@ -894,7 +916,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<EbgpMultihop> iid,
                 EbgpMultihop oldval, EbgpMultihop newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.error(YANG_OBJ + UPD_WARN);
@@ -913,7 +935,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add UpdateSource config val {}", val.getSourceIp().getValue());
@@ -945,7 +967,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove UpdateSource config val {}", val.getSourceIp().getValue());
@@ -968,7 +990,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<UpdateSource> iid,
                 UpdateSource oldval, UpdateSource newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.error(YANG_OBJ + UPD_WARN);
@@ -987,7 +1009,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add AddressFamilies config val {}", val.getPeerIp().getValue());
@@ -1021,7 +1043,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove AddressFamilies config val {}", val.getPeerIp().getValue());
@@ -1046,7 +1068,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<AddressFamilies> iid,
                 AddressFamilies oldval, AddressFamilies newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.error(YANG_OBJ + UPD_WARN);
@@ -1070,7 +1092,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<Networks> iid, Networks val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add Networks config val {}", val.getPrefixLen());
@@ -1115,7 +1137,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<Networks> iid, Networks val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove Networks config val {}", val.getPrefixLen());
@@ -1163,7 +1185,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(final InstanceIdentifier<Networks> iid,
                 final Networks oldval, final Networks newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             if (oldval.equals(newval)) {
@@ -1199,7 +1221,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void add(InstanceIdentifier<Vrfs> iid, Vrfs vrfs) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received add Vrfs config value {}", vrfs.getRd());
@@ -1258,7 +1280,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove Vrfs config val {}", val.getRd());
@@ -1296,7 +1318,7 @@ public class BgpConfigurationManager {
                 LOG.debug("received update Vrfs config val {}, from old vrf {}",
                         newval, oldval);
             }
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
 
@@ -1385,7 +1407,7 @@ public class BgpConfigurationManager {
             }
             synchronized (BgpConfigurationManager.this) {
                 config = val;
-                if (ignoreClusterDcnEventForFollower()) {
+                if (!isBGPEntityOwner()) {
                     return;
                 }
                 activateMIP();
@@ -1404,7 +1426,7 @@ public class BgpConfigurationManager {
 
         @Override
         protected synchronized void remove(InstanceIdentifier<Bgp> iid, Bgp val) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove Bgp config");
@@ -1416,7 +1438,7 @@ public class BgpConfigurationManager {
         @Override
         protected void update(InstanceIdentifier<Bgp> iid,
                 Bgp oldval, Bgp newval) {
-            if (ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner()) {
                 return;
             }
             synchronized (BgpConfigurationManager.this) {
@@ -1472,7 +1494,7 @@ public class BgpConfigurationManager {
 
             @Override
             public Void call() throws Exception {
-                if (!ignoreClusterDcnEventForFollower()) {
+                if (isBGPEntityOwner()) {
                     synchronized (BgpConfigurationManager.this) {
 
                         BgpRouter br = getClient(YANG_OBJ);
@@ -1536,7 +1558,7 @@ public class BgpConfigurationManager {
 
             @Override
             public Void call() throws Exception {
-                if (!ignoreClusterDcnEventForFollower()) {
+                if (isBGPEntityOwner()) {
                     synchronized (BgpConfigurationManager.this) {
                         BgpRouter br = getClient(YANG_OBJ);
                         if (br != null) {

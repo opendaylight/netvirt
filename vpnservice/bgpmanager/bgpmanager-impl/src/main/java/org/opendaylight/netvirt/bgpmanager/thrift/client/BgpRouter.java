@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.bgpmanager.thrift.client;
 import com.google.common.annotations.VisibleForTesting;
 import java.net.ConnectException;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 import org.apache.thrift.TException;
@@ -73,6 +74,7 @@ public class BgpRouter {
 
     private final BgpOp bop = new BgpOp();
     private final Supplier<Bgp> bgpConfigSupplier;
+    private final BooleanSupplier isBGPEntityOwner;
 
     private volatile TTransport transport;
     private volatile BgpConfigurator.Client bgpClient;
@@ -82,13 +84,14 @@ public class BgpRouter {
     private volatile long lastConnectedTS;
     private volatile boolean configServerUpdated = false;
 
-    private BgpRouter(Supplier<Bgp> bgpConfigSupplier) {
+    private BgpRouter(Supplier<Bgp> bgpConfigSupplier, BooleanSupplier isBGPEntityOwner) {
         this.bgpConfigSupplier = bgpConfigSupplier;
+        this.isBGPEntityOwner = isBGPEntityOwner;
     }
 
     // private ctor FOR UNIT TESTS ONLY
     private BgpRouter(BgpConfigurator.Client bgpClient) {
-        this(() -> null);
+        this(() -> null, () -> false);
         this.bgpClient = bgpClient;
     }
 
@@ -98,8 +101,8 @@ public class BgpRouter {
         return new BgpRouter(bgpClient);
     }
 
-    public static BgpRouter newInstance(Supplier<Bgp> bgpConfigSupplier) {
-        return new BgpRouter(bgpConfigSupplier);
+    public static BgpRouter newInstance(Supplier<Bgp> bgpConfigSupplier, BooleanSupplier isEntityBGPOwner) {
+        return new BgpRouter(bgpConfigSupplier, isEntityBGPOwner);
     }
 
     public TTransport getTransport() {
@@ -157,7 +160,7 @@ public class BgpRouter {
         disconnect();
         setConnectTS(System.currentTimeMillis());
         do {
-            if (BgpConfigurationManager.ignoreClusterDcnEventForFollower()) {
+            if (!isBGPEntityOwner.getAsBoolean()) {
                 LOG.error("Non Entity BGP owner trying to connect to thrift. Returning");
                 isConnected = false;
                 return false;

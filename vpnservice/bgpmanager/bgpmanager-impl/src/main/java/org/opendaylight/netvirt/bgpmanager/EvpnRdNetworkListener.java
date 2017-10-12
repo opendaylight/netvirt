@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.bgpmanager;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.EvpnRdToNetworks;
@@ -23,17 +22,14 @@ import org.slf4j.LoggerFactory;
 public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnRdToNetwork, EvpnRdNetworkListener>
         implements AutoCloseable, ClusteredDataTreeChangeListener<EvpnRdToNetwork> {
     private final DataBroker broker;
-    private final EntityOwnershipService entityOwnershipService;
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRdNetworkListener.class);
 
     private final BgpConfigurationManager bgpConfigManager;
 
     public EvpnRdNetworkListener(DataBroker dataBroker,
-                                 EntityOwnershipService entityOwnershipService,
                                  BgpConfigurationManager bgpConfigManager) {
         super(EvpnRdToNetwork.class, EvpnRdNetworkListener.class);
         this.broker = dataBroker;
-        this.entityOwnershipService = entityOwnershipService;
         this.bgpConfigManager = bgpConfigManager;
     }
 
@@ -54,7 +50,7 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
 
     @Override
     protected void add(InstanceIdentifier<EvpnRdToNetwork> instanceIdentifier, EvpnRdToNetwork rdToNetwork) {
-        if (BgpConfigurationManager.ignoreClusterDcnEventForFollower()) {
+        if (!bgpConfigManager.isBGPEntityOwner()) {
             return;
         }
         String rd = rdToNetwork.getRd();
@@ -75,7 +71,7 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
 
     @Override
     protected void remove(InstanceIdentifier<EvpnRdToNetwork> instanceIdentifier, EvpnRdToNetwork rdToNetwork) {
-        if (BgpConfigurationManager.ignoreClusterDcnEventForFollower()) {
+        if (!bgpConfigManager.isBGPEntityOwner()) {
             return;
         }
         String rd = rdToNetwork.getRd();
