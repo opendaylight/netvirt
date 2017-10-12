@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5db0578b",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-12T07:38:51Z",
+      "side": 1,
+      "message": "I think that you are referring to the adjacencies from config DS.\nIndeed, I encountered that issue because I was associating/disassociating a BGPVPN with a router.\nThat swap showed that the second IP was not propagated in the FIB.",
+      "parentUuid": "9a245df4_0c6eb701",
+      "range": {
+        "startLine": 10,
+        "startChar": 48,
+        "endLine": 10,
+        "endChar": 69
+      },
+      "revId": "904692e38af6fe31d94cc39338bb1bb97655af2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4c770fd5",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9daacf17",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1710,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-12T07:38:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_4c770fd5",
+      "range": {
+        "startLine": 1710,
+        "startChar": 16,
+        "endLine": 1710,
+        "endChar": 38
+      },
+      "revId": "904692e38af6fe31d94cc39338bb1bb97655af2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_2c745bce",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 3
@@ -59,6 +107,30 @@
       "writtenOn": "2017-10-11T12:17:38Z",
       "side": 1,
       "message": "this is redundant, since we already compared it in Line 1710",
+      "range": {
+        "startLine": 1713,
+        "startChar": 23,
+        "endLine": 1713,
+        "endChar": 39
+      },
+      "revId": "904692e38af6fe31d94cc39338bb1bb97655af2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7da71b50",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1713,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-12T07:38:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_2c745bce",
       "range": {
         "startLine": 1713,
         "startChar": 23,
