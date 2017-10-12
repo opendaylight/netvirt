@@ -12,25 +12,26 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.common.api.clustering.CandidateAlreadyRegisteredException;
-import org.opendaylight.controller.md.sal.common.api.clustering.Entity;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipCandidateRegistration;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipChange;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListener;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipListenerRegistration;
-import org.opendaylight.controller.md.sal.common.api.clustering.EntityOwnershipService;
+import org.opendaylight.mdsal.eos.binding.api.Entity;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipChange;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListener;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListenerRegistration;
+import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
-
-    private static EntityOwnershipService entityOwnershipService;
-    private static QosAlertManager qosAlertManager;
-    private static EntityOwnershipListenerRegistration listenerRegistration;
-    private static EntityOwnershipCandidateRegistration candidateRegistration;
     private static final Logger LOG = LoggerFactory.getLogger(QosEosHandler.class);
-    private static boolean isEosOwner;
+
+    private static volatile boolean isEosOwner;
+
+    private final EntityOwnershipService entityOwnershipService;
+    private final QosAlertManager qosAlertManager;
+    private EntityOwnershipListenerRegistration listenerRegistration;
+    private EntityOwnershipCandidateRegistration candidateRegistration;
 
     @Inject
     public QosEosHandler(final EntityOwnershipService eos, final QosAlertManager qam) {
@@ -47,8 +48,13 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
     @Override
     @PreDestroy
     public void close() {
-        listenerRegistration.close();
-        candidateRegistration.close();
+        if (listenerRegistration != null) {
+            listenerRegistration.close();
+        }
+
+        if (candidateRegistration != null) {
+            candidateRegistration.close();
+        }
         LOG.trace("entity ownership unregisterated");
     }
 
@@ -70,8 +76,8 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
     public void ownershipChanged(EntityOwnershipChange entityOwnershipChange) {
         LOG.trace("ownershipChanged: {}", entityOwnershipChange);
 
-        if ((entityOwnershipChange.hasOwner() && entityOwnershipChange.isOwner())
-                || (!entityOwnershipChange.hasOwner() && entityOwnershipChange.wasOwner())) {
+        if (entityOwnershipChange.getState().hasOwner() && entityOwnershipChange.getState().isOwner()
+                || !entityOwnershipChange.getState().hasOwner() && entityOwnershipChange.getState().wasOwner()) {
             qosAlertManager.setQosAlertOwner(true); // continue polling until new owner is elected
             isEosOwner = true;
         } else {
@@ -82,6 +88,6 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
 
     public static boolean isQosClusterOwner() {
         LOG.trace("isQosClusterOwner: {}", isEosOwner);
-        return (isEosOwner);
+        return isEosOwner;
     }
 }
