@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetNodeConnectorStatisticsOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
@@ -50,53 +49,50 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public final class QosAlertManager implements Runnable {
-
-    private short threshold;
-    private boolean alertEnabled;
-    private int pollInterval;
-    private final QosalertConfig defaultConfig;
-    private boolean statsPollThreadStart;
-    private static DataBroker dataBroker;
-    private static OpendaylightDirectStatisticsService odlDirectStatisticsService;
-    private static INeutronVpnManager neutronVpnManager;
-    private Thread thread;
-    private static OdlInterfaceRpcService odlInterfaceRpcService;
-    private static ConcurrentHashMap<BigInteger, ConcurrentHashMap<String, QosAlertPortData>>
-                                                         qosAlertDpnPortNumberMap = new ConcurrentHashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertManager.class);
 
-    private static final FutureCallback<Void> DEFAULT_FUTURE_CALLBACK;
+    private static final FutureCallback<Void> DEFAULT_FUTURE_CALLBACK = new FutureCallback<Void>() {
+        @Override
+        public void onSuccess(Void result) {
+            LOG.debug("Datastore operation completed successfully");
+        }
 
-    static {
-        DEFAULT_FUTURE_CALLBACK = new FutureCallback<Void>() {
+        @Override
+        public void onFailure(Throwable error) {
+            LOG.error("Error in datastore operation {}", error);
+        }
 
-            @Override
-            public void onSuccess(Void result) {
-                LOG.debug("Datastore operation completed successfully");
-            }
+    };
 
-            @Override
-            public void onFailure(Throwable error) {
-                LOG.error("Error in datastore operation {}", error);
-            }
+    private volatile short threshold;
+    private volatile boolean alertEnabled;
+    private volatile int pollInterval;
+    private volatile Thread thread;
+    private volatile boolean statsPollThreadStart;
 
-        };
-    }
+    private final DataBroker dataBroker;
+    private final QosalertConfig defaultConfig;
+    private final OpendaylightDirectStatisticsService odlDirectStatisticsService;
+    private final QosNeutronUtils qosNeutronUtils;
+    private final QosEosHandler qosEosHandler;
+    private final INeutronVpnManager neutronVpnManager;
+    private final ConcurrentHashMap<BigInteger, ConcurrentHashMap<String, QosAlertPortData>>
+                                                         qosAlertDpnPortNumberMap = new ConcurrentHashMap<>();
+
 
     @Inject
     public QosAlertManager(final DataBroker dataBroker,
-                           final OpendaylightDirectStatisticsService odlDirectStatisticsService,
-                           final QosalertConfig defaultConfig,
-                           final OdlInterfaceRpcService odlInterfaceRpcService,
-                           final INeutronVpnManager neutronVpnManager) {
+            final OpendaylightDirectStatisticsService odlDirectStatisticsService, final QosalertConfig defaultConfig,
+            final QosNeutronUtils qosNeutronUtils, final QosEosHandler qosEosHandler,
+            final INeutronVpnManager neutronVpnManager) {
 
         LOG.debug("{} created",  getClass().getSimpleName());
         this.dataBroker = dataBroker;
         this.odlDirectStatisticsService = odlDirectStatisticsService;
-        this.odlInterfaceRpcService = odlInterfaceRpcService;
-        this.neutronVpnManager =  neutronVpnManager;
         this.defaultConfig = defaultConfig;
-        thread = null;
+        this.qosNeutronUtils = qosNeutronUtils;
+        this.qosEosHandler = qosEosHandler;
+        this.neutronVpnManager = neutronVpnManager;
         LOG.debug("QosAlert default config poll alertEnabled:{} threshold:{} pollInterval:{}",
                 defaultConfig.isQosAlertEnabled(), defaultConfig.getQosDropPacketThreshold(),
                 defaultConfig.getQosAlertPollInterval());
@@ -105,6 +101,7 @@ public final class QosAlertManager implements Runnable {
 
     @PostConstruct
     public void init() {
+        qosEosHandler.addLocalOwnershipChangedListener(this::setQosAlertOwner);
         qosAlertDpnPortNumberMap.clear();
         QosAlertPortData.setAlertThreshold(threshold);
         statsPollThreadStart = true;
@@ -121,7 +118,7 @@ public final class QosAlertManager implements Runnable {
         LOG.debug("{} close done", getClass().getSimpleName());
     }
 
-    public void setQosAlertOwner(boolean isOwner) {
+    private void setQosAlertOwner(boolean isOwner) {
         LOG.trace("qos alert set owner : {}", isOwner);
         statsPollThreadStart = isOwner;
         if (thread != null) {
@@ -150,7 +147,7 @@ public final class QosAlertManager implements Runnable {
     }
 
     private void startStatsPollThread() {
-        if (statsPollThreadStart && alertEnabled && (thread == null)) {
+        if (statsPollThreadStart && alertEnabled && thread == null) {
             initPortStatsData();
             thread = new Thread(this);
             thread.setDaemon(true);
@@ -210,43 +207,42 @@ public final class QosAlertManager implements Runnable {
         writeConfigDataStore(alertEnabled, threshold, pollInterval);
     }
 
-    public static void addToQosAlertCache(Port port) {
+    public void addToQosAlertCache(Port port) {
         LOG.trace("Adding port {} in cache", port.getUuid());
 
-        BigInteger dpnId = QosNeutronUtils.getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
+        BigInteger dpnId = qosNeutronUtils.getDpnForInterface(port.getUuid().getValue());
 
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.debug("DPN ID for port {} not found", port.getUuid());
             return;
         }
 
-        String portNumber = QosNeutronUtils.getPortNumberForInterface(odlInterfaceRpcService,
-                                                                                 port.getUuid().getValue());
+        String portNumber = qosNeutronUtils.getPortNumberForInterface(port.getUuid().getValue());
 
         if (qosAlertDpnPortNumberMap.containsKey(dpnId)) {
             LOG.trace("Adding port {}  port number {} in DPN {}", port.getUuid(), portNumber, dpnId);
-            qosAlertDpnPortNumberMap.get(dpnId).put(portNumber, new QosAlertPortData(port, neutronVpnManager));
+            qosAlertDpnPortNumberMap.get(dpnId).put(portNumber, new QosAlertPortData(port, qosNeutronUtils));
         } else {
             LOG.trace("Adding DPN ID {} with port {} port number {}", dpnId, port.getUuid(), portNumber);
             ConcurrentHashMap<String, QosAlertPortData> portDataMap = new ConcurrentHashMap<>();
-            portDataMap.put(portNumber, new QosAlertPortData(port, neutronVpnManager));
+            portDataMap.put(portNumber, new QosAlertPortData(port, qosNeutronUtils));
             qosAlertDpnPortNumberMap.put(dpnId, portDataMap);
         }
     }
 
-    public static void addToQosAlertCache(Network network) {
+    public void addToQosAlertCache(Network network) {
         LOG.trace("Adding network {} in cache", network.getUuid());
 
-        List<Uuid> subnetIds = QosNeutronUtils.getSubnetIdsFromNetworkId(dataBroker, network.getUuid());
+        List<Uuid> subnetIds = qosNeutronUtils.getSubnetIdsFromNetworkId(network.getUuid());
 
         if (subnetIds != null) {
             for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(dataBroker, subnetId);
+                List<Uuid> portIds = qosNeutronUtils.getPortIdsFromSubnetId(subnetId);
                 if (portIds != null) {
                     for (Uuid portId : portIds) {
                         Port port = neutronVpnManager.getNeutronPort(portId);
                         if (port != null) {
-                            if (!QosNeutronUtils.portHasQosPolicy(neutronVpnManager, port)) {
+                            if (!qosNeutronUtils.portHasQosPolicy(port)) {
                                 LOG.trace("Adding network {} port {} in cache", network.getUuid(), port.getUuid());
                                 addToQosAlertCache(port);
                             }
@@ -257,18 +253,17 @@ public final class QosAlertManager implements Runnable {
         }
     }
 
-    public static void removeFromQosAlertCache(Port port) {
+    public void removeFromQosAlertCache(Port port) {
         LOG.trace("Removing port {} from cache", port.getUuid());
 
-        BigInteger dpnId = QosNeutronUtils.getDpnForInterface(odlInterfaceRpcService, port.getUuid().getValue());
+        BigInteger dpnId = qosNeutronUtils.getDpnForInterface(port.getUuid().getValue());
 
         if (dpnId.equals(BigInteger.ZERO)) {
             LOG.debug("DPN ID for port {} not found", port.getUuid());
             return;
         }
 
-        String portNumber = QosNeutronUtils.getPortNumberForInterface(odlInterfaceRpcService,
-                                                                                  port.getUuid().getValue());
+        String portNumber = qosNeutronUtils.getPortNumberForInterface(port.getUuid().getValue());
 
         if (qosAlertDpnPortNumberMap.containsKey(dpnId)
                                          && qosAlertDpnPortNumberMap.get(dpnId).containsKey(portNumber)) {
@@ -284,7 +279,7 @@ public final class QosAlertManager implements Runnable {
 
     }
 
-    public static void removeFromQosAlertCache(NodeConnectorId nodeConnectorId) {
+    public void removeFromQosAlertCache(NodeConnectorId nodeConnectorId) {
         LOG.trace("Removing node connector {} from cache", nodeConnectorId.getValue());
 
         long nodeId = MDSALUtil.getDpnIdFromPortName(nodeConnectorId);
@@ -310,19 +305,19 @@ public final class QosAlertManager implements Runnable {
 
     }
 
-    public static void removeFromQosAlertCache(Network network) {
+    public void removeFromQosAlertCache(Network network) {
         LOG.trace("Removing network {} from cache", network.getUuid());
 
-        List<Uuid> subnetIds = QosNeutronUtils.getSubnetIdsFromNetworkId(dataBroker, network.getUuid());
+        List<Uuid> subnetIds = qosNeutronUtils.getSubnetIdsFromNetworkId(network.getUuid());
 
         if (subnetIds != null) {
             for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(dataBroker, subnetId);
+                List<Uuid> portIds = qosNeutronUtils.getPortIdsFromSubnetId(subnetId);
                 if (portIds != null) {
                     for (Uuid portId : portIds) {
                         Port port = neutronVpnManager.getNeutronPort(portId);
                         if (port != null) {
-                            if (!QosNeutronUtils.portHasQosPolicy(neutronVpnManager, port)) {
+                            if (!qosNeutronUtils.portHasQosPolicy(port)) {
                                 LOG.trace("Removing network {} port {} from cache", network.getUuid(), port.getUuid());
                                 removeFromQosAlertCache(port);
                             }
@@ -351,7 +346,8 @@ public final class QosAlertManager implements Runnable {
                 .setQosAlertPollInterval(pollInterval)
                 .build();
 
-        asyncWrite(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig, dataBroker, DEFAULT_FUTURE_CALLBACK);
+        asyncWrite(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig, dataBroker,
+                DEFAULT_FUTURE_CALLBACK);
     }
 
     private void pollDirectStatisticsForAllNodes() {

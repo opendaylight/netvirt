@@ -15,13 +15,11 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -39,22 +37,20 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
     private static final Logger LOG = LoggerFactory.getLogger(QosInterfaceStateChangeListener.class);
 
     private final DataBroker dataBroker;
-    private final OdlInterfaceRpcService odlInterfaceRpcService;
-    private final INeutronVpnManager neutronVpnManager;
-    private final IMdsalApiManager mdsalUtils;
     private final UuidUtil uuidUtil;
+    private final QosAlertManager qosAlertManager;
+    private final QosNeutronUtils qosNeutronUtils;
+    private final INeutronVpnManager neutronVpnManager;
 
     @Inject
-    public QosInterfaceStateChangeListener(final DataBroker dataBroker,
-                                           final OdlInterfaceRpcService odlInterfaceRpcService,
-                                           final INeutronVpnManager neutronVpnManager,
-                                           final IMdsalApiManager mdsalUtils) {
+    public QosInterfaceStateChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
+            final QosNeutronUtils qosNeutronUtils, final INeutronVpnManager neutronVpnManager) {
         super(Interface.class, QosInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
-        this.odlInterfaceRpcService = odlInterfaceRpcService;
-        this.neutronVpnManager = neutronVpnManager;
-        this.mdsalUtils = mdsalUtils;
         this.uuidUtil = new UuidUtil();
+        this.qosAlertManager = qosAlertManager;
+        this.qosNeutronUtils = qosNeutronUtils;
+        this.neutronVpnManager = neutronVpnManager;
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
@@ -86,22 +82,20 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                     if (port.getAugmentation(QosPortExtension.class) != null) {
                         Uuid portQosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
                         if (portQosUuid != null) {
-                            QosNeutronUtils.addToQosPortsCache(portQosUuid, port);
-                            QosNeutronUtils.handleNeutronPortQosAdd(dataBroker, odlInterfaceRpcService, mdsalUtils,
-                                    port, portQosUuid);
+                            qosNeutronUtils.addToQosPortsCache(portQosUuid, port);
+                            qosNeutronUtils.handleNeutronPortQosAdd(port, portQosUuid);
                         }
 
                     } else {
                         if (network.getAugmentation(QosNetworkExtension.class) != null) {
                             Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
                             if (networkQosUuid != null) {
-                                QosNeutronUtils.handleNeutronPortQosAdd(dataBroker, odlInterfaceRpcService, mdsalUtils,
-                                        port, networkQosUuid);
+                                qosNeutronUtils.handleNeutronPortQosAdd(port, networkQosUuid);
                             }
                         }
                     }
-                    if (QosNeutronUtils.hasBandwidthLimitRule(neutronVpnManager, port)) {
-                        QosAlertManager.addToQosAlertCache(port);
+                    if (qosNeutronUtils.hasBandwidthLimitRule(port)) {
+                        qosAlertManager.addToQosAlertCache(port);
                     }
                 });
             }
@@ -125,7 +119,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                 return Optional.fromJavaUtil(uuid.toJavaUtil().map(neutronVpnManager::getNeutronPort));
             }
             LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
-            QosNeutronUtils.removeStaleFlowEntry(dataBroker,mdsalUtils,odlInterfaceRpcService,intrf);
+            qosNeutronUtils.removeStaleFlowEntry(intrf);
         }
         return Optional.absent();
     }
@@ -140,19 +134,17 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
 
                 String lowerLayerIf = intrf.getLowerLayerIf().get(0);
                 LOG.trace("lowerLayerIf {}", lowerLayerIf);
-                QosAlertManager.removeFromQosAlertCache(new NodeConnectorId(lowerLayerIf));
+                qosAlertManager.removeFromQosAlertCache(new NodeConnectorId(lowerLayerIf));
                 QosPortExtension removeQos = port.getAugmentation(QosPortExtension.class);
                 if (removeQos != null) {
-                    QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
-                            mdsalUtils, port, removeQos.getQosPolicyId(), intrf);
-                    QosNeutronUtils.removeFromQosPortsCache(removeQos.getQosPolicyId(), port);
+                    qosNeutronUtils.handleNeutronPortRemove(port, removeQos.getQosPolicyId(), intrf);
+                    qosNeutronUtils.removeFromQosPortsCache(removeQos.getQosPolicyId(), port);
                 } else {
                     Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
                     if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
                         Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
                         if (networkQosUuid != null) {
-                            QosNeutronUtils.handleNeutronPortRemove(dataBroker, odlInterfaceRpcService,
-                                    mdsalUtils, port, networkQosUuid, intrf);
+                            qosNeutronUtils.handleNeutronPortRemove(port, networkQosUuid, intrf);
                         }
                     }
                 }

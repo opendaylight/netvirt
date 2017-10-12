@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.qosservice;
 
 import java.math.BigInteger;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
@@ -17,21 +16,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class QosAlertPortData {
+    private static final Logger LOG = LoggerFactory.getLogger(QosAlertPortData.class);
+    private static final BigInteger BIG_HUNDRED = new BigInteger("100");
+
+    private static volatile BigInteger alertThreshold;
+
     private final Port port;
-    private static INeutronVpnManager neutronVpnManager;
+    private final QosNeutronUtils qosNeutronUtils;
     private BigInteger rxPackets;
     private BigInteger rxDroppedPackets;
-    private static BigInteger   alertThreshold;
     private boolean statsDataInit;
 
-    private static final BigInteger BIG_HUNDRED = new BigInteger("100");
-    private static final Logger LOG = LoggerFactory.getLogger(QosAlertPortData.class);
-
-
-    public QosAlertPortData(final Port port, final INeutronVpnManager neutronVpnManager) {
+    public QosAlertPortData(final Port port, final QosNeutronUtils qosNeutronUtils) {
         this.port = port;
-        QosAlertPortData.neutronVpnManager = neutronVpnManager;
-        statsDataInit = false;
+        this.qosNeutronUtils = qosNeutronUtils;
     }
 
     public static void setAlertThreshold(int threshold) {
@@ -63,7 +61,7 @@ public class QosAlertPortData {
         BigInteger rxTotalDiff = rxDiff.add(rxDroppedDiff);
         LOG.trace("Port {} rxDiff:{} rxDropped diff:{} total diff:{}", port.getUuid(), rxDiff,
                                                                             rxDroppedDiff, rxTotalDiff);
-        QosPolicy qosPolicy = QosNeutronUtils.getQosPolicy(neutronVpnManager, port);
+        QosPolicy qosPolicy = qosNeutronUtils.getQosPolicy(port);
 
         if (qosPolicy == null) {
             return;

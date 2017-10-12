@@ -13,9 +13,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -29,21 +26,16 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
         QosNeutronNetworkChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronNetworkChangeListener.class);
     private final DataBroker dataBroker;
-    private final OdlInterfaceRpcService odlInterfaceRpcService;
-    private final INeutronVpnManager neutronVpnManager;
-    private final IMdsalApiManager mdsalUtils;
-
+    private final QosAlertManager qosAlertManager;
+    private final QosNeutronUtils qosNeutronUtils;
 
     @Inject
-    public QosNeutronNetworkChangeListener(final DataBroker dataBroker,
-                                           final INeutronVpnManager neutronVpnManager,
-                                           final OdlInterfaceRpcService odlInterfaceRpcService,
-                                           final IMdsalApiManager mdsalUtils) {
+    public QosNeutronNetworkChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
+            final QosNeutronUtils qosNeutronUtils) {
         super(Network.class, QosNeutronNetworkChangeListener.class);
         this.dataBroker = dataBroker;
-        this.neutronVpnManager = neutronVpnManager;
-        this.odlInterfaceRpcService = odlInterfaceRpcService;
-        this.mdsalUtils = mdsalUtils;
+        this.qosAlertManager = qosAlertManager;
+        this.qosNeutronUtils = qosNeutronUtils;
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
@@ -65,8 +57,8 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
 
     @Override
     protected void remove(InstanceIdentifier<Network> instanceIdentifier, Network network) {
-        if (QosNeutronUtils.hasBandwidthLimitRule(network)) {
-            QosAlertManager.removeFromQosAlertCache(network);
+        if (qosNeutronUtils.hasBandwidthLimitRule(network)) {
+            qosAlertManager.removeFromQosAlertCache(network);
         }
     }
 
@@ -76,38 +68,35 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
         QosNetworkExtension originalQos = original.getAugmentation(QosNetworkExtension.class);
         if (originalQos == null && updateQos != null) {
             // qosservice policy add
-            QosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
-            QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                    neutronVpnManager, mdsalUtils, update, updateQos.getQosPolicyId());
-            if (QosNeutronUtils.hasBandwidthLimitRule(update)) {
-                QosAlertManager.addToQosAlertCache(update);
+            qosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
+            if (qosNeutronUtils.hasBandwidthLimitRule(update)) {
+                qosAlertManager.addToQosAlertCache(update);
             }
         } else if (originalQos != null && updateQos != null
                 && !originalQos.getQosPolicyId().equals(updateQos.getQosPolicyId())) {
 
             // qosservice policy update
 
-            QosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
-            QosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
-            QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                    neutronVpnManager, mdsalUtils, update, updateQos.getQosPolicyId());
+            qosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
+            qosNeutronUtils.addToQosNetworksCache(updateQos.getQosPolicyId(), update);
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(update, updateQos.getQosPolicyId());
 
-            if (QosNeutronUtils.hasBandwidthLimitRule(original)
-                                             && !QosNeutronUtils.hasBandwidthLimitRule(update)) {
-                QosAlertManager.removeFromQosAlertCache(original);
-            } else if (!QosNeutronUtils.hasBandwidthLimitRule(original)
-                                              && QosNeutronUtils.hasBandwidthLimitRule(update)) {
-                QosAlertManager.addToQosAlertCache(update);
+            if (qosNeutronUtils.hasBandwidthLimitRule(original)
+                                             && !qosNeutronUtils.hasBandwidthLimitRule(update)) {
+                qosAlertManager.removeFromQosAlertCache(original);
+            } else if (!qosNeutronUtils.hasBandwidthLimitRule(original)
+                                              && qosNeutronUtils.hasBandwidthLimitRule(update)) {
+                qosAlertManager.addToQosAlertCache(update);
             }
 
         } else if (originalQos != null && updateQos == null) {
             // qosservice policy delete
-            if (QosNeutronUtils.hasBandwidthLimitRule(original)) {
-                QosAlertManager.removeFromQosAlertCache(original);
+            if (qosNeutronUtils.hasBandwidthLimitRule(original)) {
+                qosAlertManager.removeFromQosAlertCache(original);
             }
-            QosNeutronUtils.handleNeutronNetworkQosRemove(dataBroker, odlInterfaceRpcService,
-                    neutronVpnManager, mdsalUtils, original, originalQos.getQosPolicyId());
-            QosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
+            qosNeutronUtils.handleNeutronNetworkQosRemove(original, originalQos.getQosPolicyId());
+            qosNeutronUtils.removeFromQosNetworksCache(originalQos.getQosPolicyId(), original);
         }
     }
 
@@ -115,11 +104,10 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
     protected void add(InstanceIdentifier<Network> instanceIdentifier, Network network) {
         QosNetworkExtension networkQos = network.getAugmentation(QosNetworkExtension.class);
         if (networkQos != null) {
-            QosNeutronUtils.addToQosNetworksCache(networkQos.getQosPolicyId(), network);
-            QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                    neutronVpnManager, mdsalUtils, network, networkQos.getQosPolicyId());
-            if (QosNeutronUtils.hasBandwidthLimitRule(network)) {
-                QosAlertManager.addToQosAlertCache(network);
+            qosNeutronUtils.addToQosNetworksCache(networkQos.getQosPolicyId(), network);
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, networkQos.getQosPolicyId());
+            if (qosNeutronUtils.hasBandwidthLimitRule(network)) {
+                qosAlertManager.addToQosAlertCache(network);
             }
 
         }
