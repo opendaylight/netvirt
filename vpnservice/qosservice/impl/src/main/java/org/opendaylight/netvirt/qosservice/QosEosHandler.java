@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(QosEosHandler.class);
 
-    private static volatile boolean isEosOwner;
+    private volatile boolean isEosOwner;
 
     private final EntityOwnershipService entityOwnershipService;
     private final QosAlertManager qosAlertManager;
@@ -86,7 +86,7 @@ public class QosEosHandler implements EntityOwnershipListener, AutoCloseable {
         }
     }
 
-    public static boolean isQosClusterOwner() {
+    public boolean isQosClusterOwner() {
         LOG.trace("isQosClusterOwner: {}", isEosOwner);
         return isEosOwner;
     }
