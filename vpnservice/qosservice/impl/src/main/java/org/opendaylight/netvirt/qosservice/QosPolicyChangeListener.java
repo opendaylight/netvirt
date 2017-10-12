@@ -23,11 +23,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.neutronvpn.api.utils.ChangeUtils;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.QosPolicies;
@@ -49,20 +46,16 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
                                                 QosPolicyChangeListener> implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(QosPolicyChangeListener.class);
     private final DataBroker dataBroker;
-    private final OdlInterfaceRpcService odlInterfaceRpcService;
-    private final INeutronVpnManager neutronVpnManager;
-    private final IMdsalApiManager mdsalUtils;
+    private final QosAlertManager qosAlertManager;
+    private final QosNeutronUtils qosNeutronUtils;
 
     @Inject
-    public QosPolicyChangeListener(final DataBroker dataBroker,
-                                   final INeutronVpnManager neutronVpnManager,
-                                   final OdlInterfaceRpcService odlInterfaceRpcService,
-                                   final IMdsalApiManager mdsalUtils) {
+    public QosPolicyChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
+            final QosNeutronUtils qosNeutronUtils) {
         super(QosPolicy.class, QosPolicyChangeListener.class);
         this.dataBroker = dataBroker;
-        this.neutronVpnManager = neutronVpnManager;
-        this.odlInterfaceRpcService = odlInterfaceRpcService;
-        this.mdsalUtils = mdsalUtils;
+        this.qosAlertManager = qosAlertManager;
+        this.qosNeutronUtils = qosNeutronUtils;
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
@@ -149,37 +142,29 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
     @Override
     protected void add(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Adding  QosPolicy : key: {}, value={}", identifier, input);
-        QosNeutronUtils.addToQosPolicyCache(input);
+        qosNeutronUtils.addToQosPolicyCache(input);
     }
 
     protected void add(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
         LOG.trace("Adding BandwidthlimitRules : key: {}, value={}", identifier, input);
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
-        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
-                QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                        neutronVpnManager, mdsalUtils, network, qosUuid);
-                QosAlertManager.addToQosAlertCache(network);
-            }
+        for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
+            qosAlertManager.addToQosAlertCache(network);
         }
 
-        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
-                QosAlertManager.addToQosAlertCache(port);
-                final DataStoreJobCoordinator portDataStoreCoordinator =
-                        DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    QosNeutronUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, input,
-                            wrtConfigTxn);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                });
-            }
+        for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
+            qosAlertManager.addToQosAlertCache(port);
+            final DataStoreJobCoordinator portDataStoreCoordinator =
+                    DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.setPortBandwidthLimits(port, input, wrtConfigTxn);
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
     }
 
@@ -188,35 +173,27 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
 
-        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
-                QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                        neutronVpnManager, mdsalUtils, network, qosUuid);
-            }
+        for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
         }
 
-        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
-                final DataStoreJobCoordinator portDataStoreCoordinator =
-                        DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    QosNeutronUtils.setPortDscpMarking(dataBroker, odlInterfaceRpcService, mdsalUtils, port, input);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                });
-            }
+        for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
+            final DataStoreJobCoordinator portDataStoreCoordinator =
+                    DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.setPortDscpMarking(port, input);
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
-
     }
 
     @Override
     protected void remove(InstanceIdentifier<QosPolicy> identifier, QosPolicy input) {
         LOG.trace("Removing QosPolicy : key: {}, value={}", identifier, input);
-        QosNeutronUtils.removeFromQosPolicyCache(input);
+        qosNeutronUtils.removeFromQosPolicyCache(input);
     }
 
     private void remove(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules input) {
@@ -227,30 +204,22 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         BandwidthLimitRules zeroBwLimitRule =
                 bwLimitBuilder.setMaxBurstKbps(BigInteger.ZERO).setMaxKbps(BigInteger.ZERO).build();
 
-        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
-                QosAlertManager.removeFromQosAlertCache(network);
-                QosNeutronUtils.handleNeutronNetworkQosBwRuleRemove(dataBroker, odlInterfaceRpcService,
-                        neutronVpnManager, network, zeroBwLimitRule);
-            }
+        for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
+            qosAlertManager.removeFromQosAlertCache(network);
+            qosNeutronUtils.handleNeutronNetworkQosBwRuleRemove(network, zeroBwLimitRule);
         }
 
-        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
-                QosAlertManager.removeFromQosAlertCache(port);
-                final DataStoreJobCoordinator portDataStoreCoordinator =
-                        DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    QosNeutronUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, zeroBwLimitRule,
-                            wrtConfigTxn);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                });
-            }
+        for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
+            qosAlertManager.removeFromQosAlertCache(port);
+            final DataStoreJobCoordinator portDataStoreCoordinator =
+                    DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, wrtConfigTxn);
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
     }
 
@@ -259,34 +228,27 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
 
-        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
-                QosNeutronUtils.handleNeutronNetworkQosDscpRuleRemove(dataBroker, odlInterfaceRpcService,
-                        neutronVpnManager, mdsalUtils, network);
-            }
+        for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
+            qosNeutronUtils.handleNeutronNetworkQosDscpRuleRemove(network);
         }
 
-        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
-                final DataStoreJobCoordinator portDataStoreCoordinator =
-                        DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    QosNeutronUtils.unsetPortDscpMark(dataBroker, odlInterfaceRpcService, mdsalUtils, port);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                });
-            }
+        for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
+            final DataStoreJobCoordinator portDataStoreCoordinator =
+                    DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.unsetPortDscpMark(port);
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
     }
 
     @Override
     protected void update(InstanceIdentifier<QosPolicy> identifier, QosPolicy original, QosPolicy update) {
         LOG.trace("Updating QosPolicy : key: {}, original value={}, update value={}", identifier, original, update);
-        QosNeutronUtils.addToQosPolicyCache(update);
+        qosNeutronUtils.addToQosPolicyCache(update);
     }
 
     private void update(InstanceIdentifier<BandwidthLimitRules> identifier, BandwidthLimitRules original,
@@ -294,28 +256,20 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         LOG.trace("Updating BandwidthLimitRules : key: {}, original value={}, update value={}", identifier, original,
                 update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
-        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
-                QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                        neutronVpnManager, mdsalUtils, network, qosUuid);
-            }
+        for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
         }
 
-        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
-                final DataStoreJobCoordinator portDataStoreCoordinator =
-                        DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    QosNeutronUtils.setPortBandwidthLimits(dataBroker, odlInterfaceRpcService, port, update,
-                            wrtConfigTxn);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                });
-            }
+        for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
+            final DataStoreJobCoordinator portDataStoreCoordinator =
+                    DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.setPortBandwidthLimits(port, update, wrtConfigTxn);
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
     }
 
@@ -325,28 +279,20 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
                 update);
         Uuid qosUuid = identifier.firstKeyOf(QosPolicy.class).getUuid();
 
-        if (QosNeutronUtils.qosNetworksMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosNetworksMap.get(qosUuid).isEmpty()) {
-            for (Network network : QosNeutronUtils.qosNetworksMap.get(qosUuid).values()) {
-                QosNeutronUtils.handleNeutronNetworkQosUpdate(dataBroker, odlInterfaceRpcService,
-                        neutronVpnManager, mdsalUtils, network, qosUuid);
-            }
+        for (Network network : qosNeutronUtils.getQosNetworks(qosUuid)) {
+            qosNeutronUtils.handleNeutronNetworkQosUpdate(network, qosUuid);
         }
 
-        if (QosNeutronUtils.qosPortsMap.get(qosUuid) != null
-                && !QosNeutronUtils.qosPortsMap.get(qosUuid).isEmpty()) {
-            for (Port port : QosNeutronUtils.qosPortsMap.get(qosUuid).values()) {
-                final DataStoreJobCoordinator portDataStoreCoordinator =
-                        DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    QosNeutronUtils.setPortDscpMarking(dataBroker, odlInterfaceRpcService, mdsalUtils,
-                            port, update);
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                });
-            }
+        for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
+            final DataStoreJobCoordinator portDataStoreCoordinator =
+                    DataStoreJobCoordinator.getInstance();
+            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+                WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                qosNeutronUtils.setPortDscpMarking(port, update);
+                futures.add(wrtConfigTxn.submit());
+                return futures;
+            });
         }
     }
 
