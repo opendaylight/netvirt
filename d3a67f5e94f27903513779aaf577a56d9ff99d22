@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_3d792330",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 373,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-12T06:54:05Z",
+      "side": 1,
+      "message": "Please remove this submit. Not required.",
+      "range": {
+        "startLine": 373,
+        "startChar": 16,
+        "endLine": 373,
+        "endChar": 51
+      },
+      "revId": "d3a67f5e94f27903513779aaf577a56d9ff99d22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7d739b4d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-12T06:54:05Z",
+      "side": 1,
+      "message": "Not required. please remove this.",
+      "range": {
+        "startLine": 415,
+        "startChar": 16,
+        "endLine": 415,
+        "endChar": 51
+      },
+      "revId": "d3a67f5e94f27903513779aaf577a56d9ff99d22",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
