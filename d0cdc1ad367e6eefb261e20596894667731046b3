@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_ef09902d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1461,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-12T15:03:24Z",
+      "side": 1,
+      "message": "- this should be out of the Adjacency loop.\nor the same kind of function should be called ( for deletion), meaning that an adjacency parameter should be passed.\n- it should be called in a datastore coordinator.\n- further actions should  not be necessary ( addNewAdjToVpnInterface)",
+      "range": {
+        "startLine": 1461,
+        "startChar": 32,
+        "endLine": 1461,
+        "endChar": 64
+      },
+      "revId": "d0cdc1ad367e6eefb261e20596894667731046b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ef57d000",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-12T15:03:24Z",
+      "side": 1,
+      "message": "- further actions delAdjFromVpnInterface should not be necessary.",
+      "range": {
+        "startLine": 1473,
+        "startChar": 28,
+        "endLine": 1473,
+        "endChar": 60
+      },
+      "revId": "d0cdc1ad367e6eefb261e20596894667731046b3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
