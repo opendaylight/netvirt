@@ -128,10 +128,15 @@ public class DhcpManager {
     public Subnet getNeutronSubnet(Port port) {
         if (port != null) {
             // DHCP Service is only interested in IPv4 IPs/Subnets
-            for (FixedIps fixedIp: port.getFixedIps()) {
-                if (fixedIp.getIpAddress().getIpv4Address() != null) {
-                    return neutronVpnService.getNeutronSubnet(fixedIp.getSubnetId());
-                }
+            return getNeutronSubnet(port.getFixedIps());
+        }
+        return null;
+    }
+
+    public Subnet getNeutronSubnet(List<FixedIps> fixedIps) {
+        for (FixedIps fixedIp: fixedIps) {
+            if (fixedIp.getIpAddress().getIpv4Address() != null) {
+                return neutronVpnService.getNeutronSubnet(fixedIp.getSubnetId());
             }
         }
         return null;

@@ -23,6 +23,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
@@ -31,9 +33,11 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.Subnet;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.config.rev150710.DhcpserviceConfig;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -49,17 +53,19 @@ public class DhcpNeutronPortListener
     private final DataBroker broker;
     private final DhcpserviceConfig config;
     private final IInterfaceManager interfaceManager;
+    private final DhcpManager dhcpManager;
 
     @Inject
     public DhcpNeutronPortListener(DataBroker db, DhcpExternalTunnelManager dhcpExternalTunnelManager,
             @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
-            DhcpserviceConfig config) {
+            DhcpserviceConfig config, DhcpManager dhcpManager) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.elanService = ielanService;
         this.interfaceManager = interfaceManager;
         this.broker = db;
         this.config = config;
+        this.dhcpManager = dhcpManager;
     }
 
     @PostConstruct
@@ -111,6 +117,39 @@ public class DhcpNeutronPortListener
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
         LOG.trace("Port changed to {}", update);
+        DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+        //With Ipv6 changes we can get ipv4 subnets later. The below check is to support such scenario.
+        if (original.getFixedIps().size() < update.getFixedIps().size()) {
+            final String interfaceName = update.getUuid().getValue();
+            List<FixedIps> updatedFixedIps = update.getFixedIps();
+            // Need to check only the newly added fixed ip.
+            updatedFixedIps.removeAll(original.getFixedIps());
+            Subnet subnet = dhcpManager.getNeutronSubnet(updatedFixedIps);
+            if (null == subnet || !subnet.isEnableDhcp()) {
+                LOG.trace("Subnet is null/not ipv4 or not enabled {}", subnet);
+                return;
+            }
+            // Binding the DHCP service for an existing port because of subnet change.
+            dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), () -> {
+                WriteTransaction bindServiceTx = broker.newWriteOnlyTransaction();
+                if (LOG.isDebugEnabled()) {
+                    LOG.debug("Binding DHCP service for interface {}", interfaceName);
+                }
+                DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
+                return Collections.singletonList(bindServiceTx.submit());
+            }, DhcpMConstants.RETRY_COUNT);
+            dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), () -> {
+                BigInteger dpnId = interfaceManager.getDpnForInterface(interfaceName);
+                if (dpnId == null || dpnId.equals(DhcpMConstants.INVALID_DPID)) {
+                    LOG.trace("Unable to install the DHCP flow since dpn is not available");
+                    return Collections.EMPTY_LIST;
+                }
+                String vmMacAddress = DhcpServiceUtils.getAndUpdateVmMacAddress(broker, interfaceName, dhcpManager);
+                WriteTransaction flowTx = broker.newWriteOnlyTransaction();
+                dhcpManager.installDhcpEntries(dpnId, vmMacAddress, flowTx);
+                return Collections.singletonList(flowTx.submit());
+            }, DhcpMConstants.RETRY_COUNT);
+        }
         if (!isVnicTypeDirectOrMacVtap(update)) {
             LOG.trace("Port updated is normal {}", update.getUuid());
             if (isVnicTypeDirectOrMacVtap(original)) {
