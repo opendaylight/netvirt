@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.FutureCallback;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -19,6 +21,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -30,6 +33,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
+import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -75,7 +79,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.InterfaceNameMacAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.SubnetDhcpPortData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710._interface.name.mac.addresses.InterfaceNameMacAddressKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.dhcpservice.api.rev150710.subnet.dhcp.port.data.SubnetToDhcpPortKey;
@@ -86,6 +94,17 @@ import org.slf4j.LoggerFactory;
 public class DhcpServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
+    private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
+        @Override
+        public void onSuccess(Void result) {
+            LOG.debug("Success in Datastore write operation");
+        }
+
+        @Override
+        public void onFailure(Throwable error) {
+            LOG.error("Error in Datastore write operation", error);
+        }
+    };
 
     public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
                                           IMdsalApiManager mdsalUtil, WriteTransaction tx) {
@@ -408,6 +427,40 @@ public class DhcpServiceUtils {
 
     public static boolean isIpV4AddressAvailable(FixedIps fixedIp) {
         return fixedIp != null && fixedIp.getIpAddress() != null && fixedIp.getIpAddress().getIpv4Address() != null;
+    }
+
+    public static String getAndUpdateVmMacAddress(DataBroker dataBroker, String interfaceName,
+            DhcpManager dhcpManager) {
+        InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
+                InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
+                        .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
+        Optional<InterfaceNameMacAddress> existingEntry =
+                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+        if (!existingEntry.isPresent()) {
+            LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
+            String vmMacAddress = getNeutronMacAddress(interfaceName, dhcpManager);
+            if (vmMacAddress == null || vmMacAddress.isEmpty()) {
+                return null;
+            }
+            LOG.trace("Updating InterfaceNameVmMacAddress map with {}, {}", interfaceName,vmMacAddress);
+            InterfaceNameMacAddress interfaceNameMacAddress =
+                    new InterfaceNameMacAddressBuilder()
+                            .setKey(new InterfaceNameMacAddressKey(interfaceName))
+                            .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
+            MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier,
+                    interfaceNameMacAddress, DEFAULT_CALLBACK);
+            return vmMacAddress;
+        }
+        return existingEntry.get().getMacAddress();
+    }
+
+    private static String getNeutronMacAddress(String interfaceName, DhcpManager dhcpManager) {
+        Port port = dhcpManager.getNeutronPort(interfaceName);
+        if (port != null) {
+            LOG.trace("Port found in neutron. Interface Name {}, port {}", interfaceName, port);
+            return port.getMacAddress().getValue();
+        }
+        return null;
     }
 
 }
