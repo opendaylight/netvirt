@@ -16,6 +16,24 @@
       "revId": "334a75b6ff5e7a1e3fb6fab1c1dc4867dc717acc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_60c5af5a",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-10-13T12:40:02Z",
+      "side": 1,
+      "message": "No, the generated html format looks fine.",
+      "parentUuid": "9a245df4_00a67310",
+      "revId": "334a75b6ff5e7a1e3fb6fab1c1dc4867dc717acc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
