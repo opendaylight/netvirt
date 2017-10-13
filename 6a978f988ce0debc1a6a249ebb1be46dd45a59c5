@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_c0a1fbaa",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-10-13T12:40:02Z",
+      "side": 1,
+      "message": "Changes done according to the discussion here. Merged ACL5 and ACL6 tables.",
+      "parentUuid": "9a245df4_3dada332",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8681e891",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 11
@@ -126,6 +144,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_a0a687bf",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-10-13T12:40:02Z",
+      "side": 1,
+      "message": "Changes done according to the discussion here.",
+      "parentUuid": "9a245df4_afe9581c",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_233e2eb9",
         "filename": "docs/specs/acl-non-conntrack.rst",
         "patchSetId": 11
@@ -137,6 +173,24 @@
       "writtenOn": "2017-10-11T07:07:28Z",
       "side": 1,
       "message": "Would be good to add a sample flow here",
+      "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_00acb39f",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 268,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2017-10-13T12:40:02Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_233e2eb9",
       "revId": "6a978f988ce0debc1a6a249ebb1be46dd45a59c5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
