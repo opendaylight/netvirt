@@ -261,6 +261,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_45a7dd4f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-13T12:29:42Z",
+      "side": 1,
+      "message": "I will do some changes for line 138.\nand for line 147, I understand you propose to just withdraw all IP families from BGPVPN.\nMeaning for instance, i should not do any calculation, i could simply call vpnUtil.withdrawIpFamilyFromVpnInstance...\n\nbut what will happen if the BGPVPN is used by two routers ?\nor is associated to other networks ?\nIndeed, I don\u0027t think it should be the place to completely flush the BGPVPN",
+      "parentUuid": "9a245df4_c53aad35",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 168,
+        "endChar": 17
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4546bdc0",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 31
@@ -272,6 +296,30 @@
       "writtenOn": "2017-10-13T09:30:22Z",
       "side": 1,
       "message": "VpnSubnetRouteHandler is THE file written specifically to handle the SubnetRouteFeature to realise Virtual Access Gateway.\nPlease dont use this file for other scenarios such as updating addressFamilies like you have done here:)\n\nCall updateVpnnstanceWithIpFamily in SubnetMapChangeListener, where onSubnetAddedToVpn and subnetDeletedFromVpn is called.",
+      "range": {
+        "startLine": 80,
+        "startChar": 12,
+        "endLine": 80,
+        "endChar": 59
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_203737e5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-13T12:29:42Z",
+      "side": 1,
+      "message": "the changes are done so that vpnsubnetroutehandler is not modified",
+      "parentUuid": "9a245df4_4546bdc0",
       "range": {
         "startLine": 80,
         "startChar": 12,
