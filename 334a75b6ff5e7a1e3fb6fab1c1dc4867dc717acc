@@ -34,6 +34,24 @@
       "revId": "334a75b6ff5e7a1e3fb6fab1c1dc4867dc717acc",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_60464fc1",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-13T13:23:18Z",
+      "side": 1,
+      "message": "Many of the section(like Problem Description, Use cases and some of the tables) has a extra bar at the left side with much larger font not seen in other specs[1]. Was this done with intention?\n\n[1]https://logs.opendaylight.org/releng/jenkins092/docs-rtd-verify-oxygen/125/html/submodules/netvirt/docs/specs/dhcp-dynamic-allocation-pool.html",
+      "parentUuid": "9a245df4_60c5af5a",
+      "revId": "334a75b6ff5e7a1e3fb6fab1c1dc4867dc717acc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
