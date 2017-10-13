@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_00a67310",
+        "filename": "docs/specs/acl-non-conntrack.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-13T12:23:33Z",
+      "side": 1,
+      "message": "Do we have formatting issue here?",
+      "revId": "334a75b6ff5e7a1e3fb6fab1c1dc4867dc717acc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
