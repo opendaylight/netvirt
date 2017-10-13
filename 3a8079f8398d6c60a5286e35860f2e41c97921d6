@@ -1,0 +1,78 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_4054eb53",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-10-13T13:39:09Z",
+      "side": 1,
+      "message": "Can you add api\u0027s in the api bundle for these methods? And then use the API in the shell bundle?",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c060db37",
+        "filename": "vpnservice/ipv6service/shell/src/main/resources/org/opendaylight/blueprint/blueprint.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-10-13T13:39:09Z",
+      "side": 1,
+      "message": "wonder if this should be org/opendaylight/blueprint or OSGI-INF.blueprint?",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a065e746",
+        "filename": "vpnservice/ipv6service/shell/src/main/resources/org/opendaylight/blueprint/blueprint.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-10-13T13:39:09Z",
+      "side": 1,
+      "message": "move this to on line so the copyright can move left also. Also trailing comment.",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_005b1388",
+        "filename": "vpnservice/ipv6service/shell/src/main/resources/org/opendaylight/blueprint/blueprint.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-10-13T13:39:09Z",
+      "side": 1,
+      "message": "I don\u0027t think these are needed since this isn\u0027t using the odl blueprint",
+      "range": {
+        "startLine": 9,
+        "startChar": 11,
+        "endLine": 10,
+        "endChar": 54
+      },
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
