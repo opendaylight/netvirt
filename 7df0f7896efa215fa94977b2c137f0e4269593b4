@@ -234,6 +234,53 @@
       "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c53aad35",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-13T09:30:22Z",
+      "side": 1,
+      "message": "On a router-interface-delete, the vpnId in the subnetMap moves from non-null to null. This use case is handled in line138. There you will have to check if that subnet is the last IPV4/V6 subnet in tht bgpvpn and then withdraw accordingly.\n\nBut here in line 147, this case is only when a router is associated/dissociated from bgpvpn in this case all the subnets WILL be removed from the bgpvpn.",
+      "parentUuid": "9a245df4_02e4bb0b",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 168,
+        "endChar": 17
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4546bdc0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-13T09:30:22Z",
+      "side": 1,
+      "message": "VpnSubnetRouteHandler is THE file written specifically to handle the SubnetRouteFeature to realise Virtual Access Gateway.\nPlease dont use this file for other scenarios such as updating addressFamilies like you have done here:)\n\nCall updateVpnnstanceWithIpFamily in SubnetMapChangeListener, where onSubnetAddedToVpn and subnetDeletedFromVpn is called.",
+      "range": {
+        "startLine": 80,
+        "startChar": 12,
+        "endLine": 80,
+        "endChar": 59
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
