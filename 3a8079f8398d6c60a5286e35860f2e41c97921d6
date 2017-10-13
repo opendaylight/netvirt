@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_db73aaaf",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-13T15:40:26Z",
+      "side": 1,
+      "message": "Actually, I don\u0027t want to expose them as a public API to the end users since its only an internal cache and not the real Neutron resources in the datastore. This information is supposed to help us for debugging issues specific to ipv6service. If users are interested in any neutron resources, they should normally query them from the datastore. I only want the ipv6service-shell bundle to be able to read the cache info and display it.",
+      "parentUuid": "9a245df4_4054eb53",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c060db37",
         "filename": "vpnservice/ipv6service/shell/src/main/resources/org/opendaylight/blueprint/blueprint.xml",
         "patchSetId": 1
