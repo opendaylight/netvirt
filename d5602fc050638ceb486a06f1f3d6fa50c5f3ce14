@@ -16,6 +16,24 @@
       "revId": "d5602fc050638ceb486a06f1f3d6fa50c5f3ce14",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2220df48",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5882
+      },
+      "writtenOn": "2017-10-13T06:31:19Z",
+      "side": 1,
+      "message": "BindService of InterfaceManager internally performs update operation if bind exists for the interface",
+      "parentUuid": "9a245df4_4269938a",
+      "revId": "d5602fc050638ceb486a06f1f3d6fa50c5f3ce14",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
