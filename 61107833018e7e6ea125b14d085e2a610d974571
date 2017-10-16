@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_3b5e41e7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanDiagStatusMonitor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-16T18:57:59Z",
+      "side": 1,
+      "message": "as per discussion in c/62901, I think it would be worth to confirm that this \"split\" really is useful (which I doubt a little bit, sorry), before we copy/paste it around further..",
+      "revId": "61107833018e7e6ea125b14d085e2a610d974571",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1b06ddce",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanDiagStatusMonitor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-16T18:57:59Z",
+      "side": 1,
+      "message": "I\u0027m looking forward to seeing this, here and for c/62901... because if this just stays like this for a while, then really this whole \"pull model\" of diagstatus... was not really needed after all? ;) I\u0027m just saying that before you copy/paste this to more places, it would now be interesting to see an example of there this actually is implemented as doing something?",
+      "revId": "61107833018e7e6ea125b14d085e2a610d974571",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
