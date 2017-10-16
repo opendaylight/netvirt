@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -32,6 +31,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
@@ -39,6 +39,7 @@ import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
@@ -346,14 +347,21 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
             LOG.info("Could not retrieve VpnMaps object from Configurational DS");
             return new HashMap<>();
         }
-        Predicate<VpnMap> isExternalVpn =
-            (vpnMap) -> vpnMap.getRouterId() != null
-                        && ! vpnMap.getVpnId().getValue().equalsIgnoreCase(vpnMap.getRouterId().getValue());
-
-        return optVpnMaps.get().getVpnMap().stream()
-                                           .filter(isExternalVpn)
-                                           .collect(Collectors.toMap(v -> v.getRouterId().getValue(),
-                                               v -> v.getVpnId().getValue()));
+        Map<String,String> vmap = new HashMap<String,String>();
+        final List<VpnMap> VpnMapList = optVpnMaps.get().getVpnMap();
+        for (VpnMap map : VpnMapList) {
+            if (map.getRouterIds() == null) {
+                continue;
+            }
+            final List<Uuid> vpnRouterIds = NeutronUtils.getVpnMapRouterIdsListUuid(map.getRouterIds());
+            for (Uuid routerId : vpnRouterIds) {
+                if (map.getVpnId().getValue().equalsIgnoreCase(routerId.getValue())) {
+                    break; // VPN is internal
+                }
+                vmap.put(routerId.getValue(), map.getVpnId().getValue());
+            }
+        }
+        return vmap;
     }
 
 
