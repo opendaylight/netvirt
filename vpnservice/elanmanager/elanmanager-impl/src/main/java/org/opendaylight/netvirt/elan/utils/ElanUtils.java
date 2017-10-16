@@ -1510,18 +1510,20 @@ public class ElanUtils {
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeFlat.class);
     }
 
-    public void handleDmacRedirectToDispatcherFlows(Long elanTag, String displayName,
-            String macAddress, int addOrRemove, List<BigInteger> dpnIds) {
+    public void addDmacRedirectToDispatcherFlows(Long elanTag, String displayName,
+            String macAddress, List<BigInteger> dpnIds) {
         for (BigInteger dpId : dpnIds) {
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                WriteTransaction writeTx = broker.newWriteOnlyTransaction();
-                mdsalManager.addFlowToTx(buildDmacRedirectToDispatcherFlow(dpId, macAddress, displayName, elanTag),
-                        writeTx);
-                writeTx.submit();
-            } else {
-                String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, macAddress, elanTag);
-                mdsalManager.removeFlow(dpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, flowId));
-            }
+            WriteTransaction writeTx = broker.newWriteOnlyTransaction();
+            mdsalManager.addFlowToTx(buildDmacRedirectToDispatcherFlow(dpId, macAddress, displayName, elanTag),
+                    writeTx);
+            writeTx.submit();
+        }
+    }
+
+    public void removeDmacRedirectToDispatcherFlows(Long elanTag, String macAddress, List<BigInteger> dpnIds) {
+        for (BigInteger dpId : dpnIds) {
+            String flowId = getKnownDynamicmacFlowRef(NwConstants.ELAN_DMAC_TABLE, dpId, macAddress, elanTag);
+            mdsalManager.removeFlow(dpId, MDSALUtil.buildFlow(NwConstants.ELAN_DMAC_TABLE, flowId));
         }
     }
 

@@ -71,7 +71,12 @@ public interface IElanService extends IEtreeService {
 
     ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName);
 
+    @Deprecated
     void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove);
+
+    void addKnownL3DmacAddress(String macAddress, String elanInstanceName);
+
+    void removeKnownL3DmacAddress(String macAddress, String elanInstanceName);
 
     List<MatchInfoBase> getEgressMatchesForElanInstance(String elanInstanceName);
 
