@@ -309,6 +309,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_15bd0e69",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-16T15:37:30Z",
+      "side": 1,
+      "message": "I have three proposals:\n- I keep the code as is ( ie parsing the ipx families for each subnetmap update) \n- in order to facilitate acceptance of this review, can we focu on dual stack single router changes only ?\n- about vpnopstatus listener, the update logic should also be called in the case where you don\u0027t have any other networks linked to the BGPVPN router. what happens if you remove the last subnet from the router. If it is ipv4, then the BGPVPN ipv4 will be removed.\nSo I would say vpnopstatus listener will work.",
+      "parentUuid": "9a245df4_152d0e47",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 168,
+        "endChar": 17
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4546bdc0",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 31
