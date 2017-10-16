@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -276,4 +277,18 @@ public class NeutronUtils {
         }
         return true;
     }
+
+    public static List<Uuid> getVpnMapRouterIdsListUuid(List<org.opendaylight.yang
+          .gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds> routerIds) {
+        List<Uuid> listUuid = new ArrayList<Uuid>();
+        if (routerIds == null) {
+            return listUuid;
+        }
+        for (org.opendaylight.yang
+            .gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds routerId : routerIds) {
+            listUuid.add(routerId.getRouterId());
+        }
+        return listUuid;
+    }
+
 }
