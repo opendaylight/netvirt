@@ -35,6 +35,7 @@ public interface NeutronConstants {
     String VNIC_TYPE_DIRECT = "direct";
     String BINDING_PROFILE_CAPABILITIES = "capabilities";
     String SWITCHDEV = "switchdev";
+    int MAX_ROUTERS_PER_BGPVPN = 2;
 
     Predicate<Port> IS_DHCP_PORT = port -> port != null
             && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner());

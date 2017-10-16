@@ -29,7 +29,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeL3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.Bgpvpns;
@@ -139,15 +138,20 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                             rd);
                     return;
                 }
-                Uuid router = null;
+                List<Uuid> routersList = null;
                 if (input.getRouters() != null && !input.getRouters().isEmpty()) {
-                    // currently only one router
-                    router = input.getRouters().get(0);
+                    // try to take all routers
+                    routersList = input.getRouters();
+                }
+                if (routersList != null && routersList.size() > NeutronConstants.MAX_ROUTERS_PER_BGPVPN) {
+                    LOG.error("Creation of BGPVPN for rd {} failed: maximum allowed number of associated "
+                             + "routers is {}.", rd, NeutronConstants.MAX_ROUTERS_PER_BGPVPN);
+                    return;
                 }
                 if (!rd.isEmpty()) {
                     try {
                         nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
-                                importRouteTargets, exportRouteTargets, router, input.getNetworks(),
+                                importRouteTargets, exportRouteTargets, routersList, input.getNetworks(),
                                 vpnInstanceType, 0 /*l3vni*/);
                     } catch (Exception e) {
                         LOG.error("Creation of BGPVPN {} failed", vpnName, e);
@@ -255,23 +259,37 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     protected void handleRoutersUpdate(Uuid vpnId, List<Uuid> oldRouters, List<Uuid> newRouters) {
+        // for dualstack case we can associate with one VPN instance maximum 2 routers: one with
+        // only IPv4 ports and one with only IPv6 ports, or only one router with IPv4/IPv6 ports
+        // TODO: check router ports ethertype to follow this restriction
+        if (oldRouters != null && !oldRouters.isEmpty()) {
+            //remove to oldRouters the newRouters if existing
+            List<Uuid> oldRoutersCopy = new ArrayList<>();
+            oldRoutersCopy.addAll(oldRouters);
+            if (newRouters != null) {
+                newRouters.forEach(r -> oldRoutersCopy.remove(r));
+            }
+            /* dissociate old router */
+            oldRoutersCopy.forEach(r -> {
+                nvpnManager.dissociateRouterFromVpn(vpnId, r);
+            });
+        }
         if (newRouters != null && !newRouters.isEmpty()) {
-            if (oldRouters != null && !oldRouters.isEmpty()) {
-                if (oldRouters.size() > 1 || newRouters.size() > 1) {
-                    VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
-                    if (vpnMap != null && vpnMap.getRouterId() != null) {
-                        LOG.warn("Only single router association to a given bgpvpn is allowed. Kindly disassociate "
-                                + "router {} from vpn {} before proceeding with associate",
-                                vpnMap.getRouterId().getValue(), vpnId.getValue());
+            if (newRouters.size() > NeutronConstants.MAX_ROUTERS_PER_BGPVPN) {
+                LOG.debug("In handleRoutersUpdate: maximum allowed number of associated routers is 2. VPN: {} "
+                        + "is already associated with router: {} and with router: {}",
+                        vpnId, newRouters.get(0).getValue(), newRouters.get(1).getValue());
+                return;
+            } else {
+                for (Uuid routerId : newRouters) {
+                    if (oldRouters != null && oldRouters.contains(routerId)) {
+                        continue;
+                    }
+                    if (validateRouteInfo(routerId)) {
+                        nvpnManager.associateRouterToVpn(vpnId, routerId);
                     }
                 }
-            } else if (validateRouteInfo(newRouters.get(0))) {
-                nvpnManager.associateRouterToVpn(vpnId, newRouters.get(0));
             }
-        } else if (oldRouters != null && !oldRouters.isEmpty()) {
-                /* dissociate old router */
-            Uuid oldRouter = oldRouters.get(0);
-            nvpnManager.dissociateRouterFromVpn(vpnId, oldRouter);
         }
     }
 
