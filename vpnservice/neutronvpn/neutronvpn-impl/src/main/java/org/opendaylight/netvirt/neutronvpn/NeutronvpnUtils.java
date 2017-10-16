@@ -243,15 +243,20 @@ public class NeutronvpnUtils {
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
-                Uuid router = vpnMap.getRouterId();
-                if (router != null && routerId.equals(routerId)) {
-                    if (externalVpn) {
-                        if (!routerId.equals(vpnMap.getVpnId())) {
-                            return vpnMap.getVpnId();
-                        }
-                    } else {
-                        if (routerId.equals(vpnMap.getVpnId())) {
-                            return vpnMap.getVpnId();
+                List<Uuid> routerIdsList = vpnMap.getRouterIds();
+                if (routerIdsList == null) {
+                    continue;
+                }
+                for (Uuid rtrId : routerIdsList) {
+                    if (routerId.equals(rtrId)) {
+                        if (externalVpn) {
+                            if (!routerId.equals(vpnMap.getVpnId())) {
+                                return vpnMap.getVpnId();
+                            }
+                        } else {
+                            if (routerId.equals(vpnMap.getVpnId())) {
+                                return vpnMap.getVpnId();
+                            }
                         }
                     }
                 }
@@ -261,13 +266,13 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static Uuid getRouterforVpn(DataBroker broker, Uuid vpnId) {
+    protected static List<Uuid> getRouterforVpn(DataBroker broker, Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
         Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
-            return vpnMap.getRouterId();
+            return vpnMap.getRouterIds();
         }
         LOG.error("getRouterforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;

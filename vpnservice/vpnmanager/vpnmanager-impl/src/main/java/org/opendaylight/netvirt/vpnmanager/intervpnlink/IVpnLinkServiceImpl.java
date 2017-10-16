@@ -342,12 +342,15 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         Map<String,String> vmap = new HashMap<String,String>();
         final List<VpnMap> VpnMapList = optVpnMaps.get().getVpnMap();
         for (VpnMap map : VpnMapList) {
-            if (map.getRouterId() == null) {
+            if (map.getRouterIds() == null) {
                 continue;
             }
-            final Uuid vpnRouterId = map.getRouterId();
-            if (map.getVpnId().getValue().equalsIgnoreCase(vpnRouterId.getValue())) {
-                vmap.put(vpnRouterId.getValue(), map.getVpnId().getValue());
+            final List<Uuid> VpnRouterIds = map.getRouterIds();
+            for (Uuid routerId : VpnRouterIds) {
+                if (map.getVpnId().getValue().equalsIgnoreCase(routerId.getValue())) {
+                    break; // VPN is external
+                }
+                vmap.put(routerId.getValue(), map.getVpnId().getValue());
             }
         }
         return vmap;
