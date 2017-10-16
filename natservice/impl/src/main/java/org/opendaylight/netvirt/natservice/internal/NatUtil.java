@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.CheckedFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
@@ -61,6 +62,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
+import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -207,6 +209,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
@@ -220,6 +223,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.ni
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -571,15 +575,35 @@ public final class NatUtil {
     }
 
     public static String getRouterIdfromVpnInstance(DataBroker broker, String vpnName) {
+        // returns only router, attached to IPv4 networks
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
             .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
         Optional<VpnMap> optionalVpnMap =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
-        if (optionalVpnMap.isPresent()) {
-            Uuid routerId = optionalVpnMap.get().getRouterId();
-            if (routerId != null) {
-                return routerId.getValue();
+        if (!optionalVpnMap.isPresent()) {
+            LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
+            return null;
+        }
+        List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(optionalVpnMap.get().getRouterIds());
+        if (routerIdsList != null && !routerIdsList.isEmpty()) {
+            for (Uuid routerUuid : routerIdsList) {
+                InstanceIdentifier<Router> routerIdentifier = buildNeutronRouterIdentifier(routerUuid);
+                Optional<Router> optRouter = SingleTransactionDataBroker
+                    .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                            LogicalDatastoreType.CONFIGURATION, routerIdentifier);
+                if (!optRouter.isPresent()) {
+                    continue;
+                }
+                List<Routes> routes = optRouter.get().getRoutes();
+                if (routes == null || routes.isEmpty()) {
+                    continue;
+                }
+                for (Routes r : routes) {
+                    if (r.getDestination().getIpv4Prefix() != null) {
+                        return routerUuid.getValue();
+                    }
+                }
             }
         }
         LOG.info("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
@@ -587,19 +611,23 @@ public final class NatUtil {
     }
 
     static Uuid getVpnForRouter(DataBroker broker, String routerId) {
+        Preconditions.checkNotNull(routerId, "dissociateRouter: routerId not found!");
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
-            if (routerId != null) {
-                for (VpnMap vpnMap : allMaps) {
-                    if (vpnMap.getRouterId() != null
-                        && routerId.equals(vpnMap.getRouterId().getValue())
-                        && !routerId.equals(vpnMap.getVpnId().getValue())) {
-                        return vpnMap.getVpnId();
-                    }
+            for (VpnMap vpnMap: allMaps) {
+                if (routerId.equals(vpnMap.getVpnId().getValue())) {
+                    continue;
+                }
+                List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(vpnMap.getRouterIds());
+                if (routerIdsList == null || routerIdsList.isEmpty()) {
+                    return null;
+                }
+                if (routerIdsList.contains(new Uuid(routerId))) {
+                    return vpnMap.getVpnId();
                 }
             }
         }
