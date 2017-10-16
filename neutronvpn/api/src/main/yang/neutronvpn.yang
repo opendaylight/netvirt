@@ -125,9 +125,12 @@ module neutronvpn {
              Format is ASN:nn or IP-address:nn.";
         }
 
-        leaf router-id {
-          type    yang:uuid;
-          description "UUID of router ";
+        list router-ids {
+           key "router-id";
+           leaf router-id {
+               type yang:uuid;
+               description "UUID of router ";
+          }
         }
 
         leaf-list network-ids {
@@ -178,9 +181,12 @@ module neutronvpn {
                 description "The UUID of the tenant that will own the subnet.";
             }
 
-            leaf router-id {
-              type    yang:uuid;
-              description "UUID of router ";
+            list router-ids {
+               key "router-id";
+               leaf router-id {
+                   type yang:uuid;
+                   description "UUID of router ";
+              }
             }
             leaf-list network_ids {
               type    yang:uuid;
@@ -306,10 +312,13 @@ module neutronvpn {
                 mandatory "true";
                 description "vpn-id";
             }
-            leaf router-id {
-                type    yang:uuid;
-                mandatory "true";
-                description "vpn-id";
+            list router-ids {
+               key "router-id";
+               min-elements "1";
+               description "list of router-ids to be associated with the vpn";
+               leaf router-id {
+                   type yang:uuid;
+              }
             }
         }
     }
@@ -322,10 +331,13 @@ module neutronvpn {
                 mandatory "true";
                 description "vpn-id";
             }
-            leaf router-id {
-                type    yang:uuid;
-                mandatory "true";
-                description "router-id";
+            list router-ids {
+               key "router-id";
+               min-elements "1";
+               description "list of router-ids to be dissociated from the vpn";
+               leaf router-id {
+                   type yang:uuid;
+              }
             }
         }
     }
