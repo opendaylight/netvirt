@@ -242,13 +242,20 @@ public class NeutronvpnUtils {
 
     // @param external vpn - true if external vpn being fetched, false for internal vpn
     protected static Uuid getVpnForRouter(DataBroker broker, Uuid routerId, Boolean externalVpn) {
+        if (routerId == null) {
+            return null;
+        }
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
-            if (routerId != null) {
-                for (VpnMap vpnMap : allMaps) {
-                    if (routerId.equals(vpnMap.getRouterId())) {
+            for (VpnMap vpnMap : allMaps) {
+                List<Uuid> routerIdsList = NeutronUtils.getVpnMapRouterIdsListUuid(vpnMap.getRouterIds());
+                if (routerIdsList == null || routerIdsList.isEmpty()) {
+                    continue;
+                }
+                for (Uuid rtrId : routerIdsList) {
+                    if (routerId.equals(rtrId)) {
                         if (externalVpn) {
                             if (!routerId.equals(vpnMap.getVpnId())) {
                                 return vpnMap.getVpnId();
@@ -266,13 +273,13 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected static Uuid getRouterforVpn(DataBroker broker, Uuid vpnId) {
+    protected static List<Uuid> getRouterforVpn(DataBroker broker, Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
         Optional<VpnMap> optionalVpnMap = read(broker, LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
-            return vpnMap.getRouterId();
+            return NeutronUtils.getVpnMapRouterIdsListUuid(vpnMap.getRouterIds());
         }
         LOG.error("getRouterforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;
@@ -1658,4 +1665,97 @@ public class NeutronvpnUtils {
         });
         return;
     }
+
+    public static List<Uuid> getAssociateRouterInputRouterIdsListUuid(List<org.opendaylight.yang.gen.v1
+             .urn.opendaylight.netvirt.neutronvpn.rev150602.associaterouter.input.RouterIds> routerIds) {
+        List<Uuid> listUuid = new ArrayList<Uuid>();
+        if (routerIds == null) {
+            return listUuid;
+        }
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
+                .associaterouter.input.RouterIds routerId : routerIds) {
+            listUuid.add(routerId.getRouterId());
+        }
+        return listUuid;
+    }
+
+    public static List<Uuid> getDissociateRouterInputRouterIdsListUuid(List<org.opendaylight.yang.gen.v1
+             .urn.opendaylight.netvirt.neutronvpn.rev150602.dissociaterouter.input.RouterIds> routerIds) {
+        List<Uuid> listUuid = new ArrayList<Uuid>();
+        if (routerIds == null) {
+            return listUuid;
+        }
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602
+                .dissociaterouter.input.RouterIds routerId : routerIds) {
+            listUuid.add(routerId.getRouterId());
+        }
+        return listUuid;
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
+        .neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds getvpnMapRouterIds(Uuid routerId) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
+             .neutronvpn.rev150602.vpnmaps.vpnmap.RouterIdsBuilder().setRouterId(routerId).build();
+    }
+
+    public static void removeVpnMapRouterIdsFromList(Uuid routerId, List<org.opendaylight.yang
+          .gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds> vpnRouterIds) {
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
+                    .neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds vpnRouterId : vpnRouterIds) {
+            if (vpnRouterId.getRouterId().getValue().equals(routerId.getValue())) {
+                vpnRouterIds.remove(vpnRouterId);
+                return;
+            }
+        }
+        return;
+    }
+
+    public static boolean vpnMapRouterIdsContainsRouterId(Uuid routerId, List<org.opendaylight.yang
+          .gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds> vpnRouterIds) {
+        if (routerId == null) {
+            return false;
+        }
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt
+                    .neutronvpn.rev150602.vpnmaps.vpnmap.RouterIds vpnRouterId : vpnRouterIds) {
+            if (vpnRouterId.getRouterId().getValue().equals(routerId.getValue())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static List<Uuid> getVpnInstanceRouterIdsListUuid(List<org.opendaylight.yang.gen.v1.urn.opendaylight
+                      .netvirt.neutronvpn.rev150602.vpn.instance.RouterIds> routerIds) {
+        List<Uuid> listUuid = new ArrayList<Uuid>();
+        if (routerIds == null) {
+            return listUuid;
+        }
+        for (org.opendaylight.yang.gen.v1.urn.opendaylight
+                      .netvirt.neutronvpn.rev150602.vpn.instance.RouterIds routerId : routerIds) {
+            listUuid.add(routerId.getRouterId());
+        }
+        return listUuid;
+    }
+
+    public static org.opendaylight.yang.gen.v1.urn.opendaylight
+                      .netvirt.neutronvpn.rev150602.vpn.instance.RouterIds
+             getvpnInstanceRouterIds(Uuid routerId) {
+        return new org.opendaylight.yang.gen.v1.urn.opendaylight
+             .netvirt.neutronvpn.rev150602.vpn.instance.RouterIdsBuilder().setRouterId(routerId).build();
+    }
+
+    public static List<org.opendaylight.yang.gen.v1.urn.opendaylight
+                      .netvirt.neutronvpn.rev150602.vpn.instance.RouterIds>
+        getVpnInstanceRouterIdsList(List<Uuid> routerIds) {
+        List<org.opendaylight.yang.gen.v1.urn.opendaylight
+               .netvirt.neutronvpn.rev150602.vpn.instance.RouterIds> listRouterIds = new ArrayList<>();
+        for (Uuid routerId : routerIds) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight
+                .netvirt.neutronvpn.rev150602.vpn.instance.RouterIds
+                    routerIdInstance = getvpnInstanceRouterIds(routerId);
+            listRouterIds.add(routerIdInstance);
+        }
+        return listRouterIds;
+    }
+
 }
