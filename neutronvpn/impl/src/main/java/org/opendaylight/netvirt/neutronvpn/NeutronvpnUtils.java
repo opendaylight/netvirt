@@ -29,9 +29,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
+
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -108,9 +111,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpn.instance.RouterIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.vpnmap.RouterIdsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.l3.attributes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
@@ -251,7 +257,7 @@ public class NeutronvpnUtils {
     }
 
     // @param external vpn - true if external vpn being fetched, false for internal vpn
-    protected Uuid getVpnForRouter(Uuid routerId, Boolean externalVpn) {
+    protected Uuid getVpnForRouter(Uuid routerId, boolean externalVpn) {
         if (routerId == null) {
             return null;
         }
@@ -261,7 +267,11 @@ public class NeutronvpnUtils {
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
-                if (routerId.equals(vpnMap.getRouterId())) {
+                List<Uuid> routerIdsList = vpnMap.getRouterIds();
+                if (routerIdsList == null || routerIdsList.isEmpty()) {
+                    continue;
+                }
+                if(routerIdsList.contains(routerId)) {
                     if (externalVpn) {
                         if (!routerId.equals(vpnMap.getVpnId())) {
                             return vpnMap.getVpnId();
@@ -278,15 +288,15 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected Uuid getRouterforVpn(Uuid vpnId) {
+    protected List<Uuid> getRouterIdListforVpn(Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
         Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
-            return vpnMap.getRouterId();
+            return NeutronUtils.getVpnMapRouterIdsListUuid(vpnMap.getRouterIds());
         }
-        LOG.error("getRouterforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
+        LOG.error("getRouterIdListforVpn: Failed as VPNMaps DS is absent for VPN {}", vpnId.getValue());
         return null;
     }
 
@@ -1563,44 +1573,52 @@ public class NeutronvpnUtils {
         if (extNetVpnId == null) {
             return subList;
         }
-        Router router = getNeutronRouter(getRouterforVpn(extNetVpnId));
-        ExternalGatewayInfo info = router.getExternalGatewayInfo();
-        if (info == null) {
-            LOG.error("getPrivateSubnetsToExport: can not get info about external gateway for router {}",
-                      router.getUuid().getValue());
-            return subList;
+        for (Uuid rtrId: getRouterIdListforVpn(extNetVpnId)) {
+            Router router = getNeutronRouter(rtrId);
+            ExternalGatewayInfo info = router.getExternalGatewayInfo();
+            if (info == null) {
+                LOG.error("getPrivateSubnetsToExport: can not get info about external gateway for router {}",
+                          router.getUuid().getValue());
+                continue;
+            }
+            // check that router really has given provider network as its external gateway port
+            if (!extNet.getUuid().equals(info.getExternalNetworkId())) {
+                LOG.error("getPrivateSubnetsToExport: router {} is not attached to given provider network {}",
+                          router.getUuid().getValue(), extNet.getUuid().getValue());
+                continue;
+            }
+            subList.addAll(getSubnetsforVpn(rtrId));
         }
-        // check that router really has given provider network as its external gateway port
-        if (!extNet.getUuid().equals(info.getExternalNetworkId())) {
-            LOG.error("getPrivateSubnetsToExport: router {} is not attached to given provider network {}",
-                      router.getUuid().getValue(), extNet.getUuid().getValue());
-            return subList;
-        }
-        return getSubnetsforVpn(router.getUuid());
+        return subList;
     }
 
     public void updateVpnInstanceWithFallback(String vpnName, boolean add) {
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
+        Long vpnId = vpnInstanceOpDataEntry.getVpnId();
         if (vpnInstanceOpDataEntry == null) {
-            // BGPVPN context not found
+            LOG.error("updateVpnInstanceWithFallback: vpnInstanceOpDataEntry not found for vpn {}", vpnName);
             return;
         }
-        String routerIdUuid = getRouterIdfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
-        if (routerIdUuid != null) {
-            List<BigInteger> dpnIds = getDpnsForRouter(routerIdUuid);
-            if (!dpnIds.isEmpty()) {
-                Long vpnId = vpnInstanceOpDataEntry.getVpnId();
-                VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(routerIdUuid);
-                Long routerIdAsLong = vpnOpDataEntry.getVpnId();
-                if (routerIdAsLong == null) {
-                    return;
-                }
-                for (BigInteger dpnId : dpnIds) {
-                    if (add) {
-                        ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
-                    } else {
-                        ipV6InternetDefRt.removeDefaultRoute(dpnId, vpnId, routerIdAsLong);
-                    }
+        List<Uuid> routerIds = getRouterIdsfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
+        if ((routerIds == null) || (routerIds.isEmpty())) {
+            LOG.error("updateVpnInstanceWithFallback: router not found for vpn {}", vpnName);
+            return;
+        }
+        for (Uuid rtrId: routerIds) {
+            if (rtrId == null) {
+                continue;
+            }
+            List<BigInteger> dpnIds = getDpnsForRouter(rtrId.getValue());
+            if (dpnIds.isEmpty()) {
+                continue;
+            }
+            VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(rtrId.getValue());
+            Long routerIdAsLong = vpnOpDataEntry.getVpnId();
+            for (BigInteger dpnId : dpnIds) {
+                if (add) {
+                    ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                } else {
+                    ipV6InternetDefRt.removeDefaultRoute(dpnId, vpnId, routerIdAsLong);
                 }
             }
         }
@@ -1642,6 +1660,67 @@ public class NeutronvpnUtils {
         return;
     }
 
+    public List<Uuid> getAssociateRouterInputRouterIdsListUuid(List<RouterIds> routerIds) {
+        if (routerIds == null) {
+            return Collections.emptyList();
+        }
+        return routerIds.stream().map(
+            routerId -> routerId.getRouterId()).collect(Collectors.toList());
+    }
+
+    public List<Uuid> getDisassociateRouterInputRouterIdsListUuid(List<RouterIds> routerIds) {
+        if (routerIds == null) {
+            return Collections.emptyList();
+        }
+        return routerIds.stream().map(
+            routerId -> routerId.getRouterId()).collect(Collectors.toList());
+    }
+
+    public RouterIds getvpnMapRouterIds(Uuid routerId) {
+        return new RouterIdsBuilder().setRouterId(routerId).build();
+    }
+
+    public void removeVpnMapRouterIdsFromList(Uuid routerId, List<RouterIds> vpnRouterIds) {
+        Iterator<RouterIds> vpnRouterIdIter = vpnRouterIds.iterator();
+        while (vpnRouterIdIter.hasNext()) {
+            RouterIds vpnRouterId = vpnRouterIdIter.next();
+            if (vpnRouterId.getRouterId().getValue().equals(routerId.getValue())) {
+                vpnRouterIdIter.remove();
+                return;
+            }
+        }
+        return;
+    }
+
+    public boolean vpnMapRouterIdsContainsRouterId(Uuid routerId, List<RouterIds> vpnRouterIds) {
+        if (routerId == null) {
+            return false;
+        }
+        return vpnRouterIds.stream().anyMatch(vpnRouterId ->
+              vpnRouterId.getRouterId().getValue().equals(routerId.getValue()));
+    }
+
+    public List<Uuid> getVpnInstanceRouterIdsListUuid(List<RouterIds> routerIds) {
+        if (routerIds == null) {
+            return Collections.emptyList();
+        }
+        return routerIds.stream().map(
+            routerId -> routerId.getRouterId()).collect(Collectors.toList());
+    }
+
+    public RouterIds getvpnInstanceRouterIds(Uuid routerId) {
+        return new RouterIdsBuilder().setRouterId(routerId).build();
+    }
+
+    public List<RouterIds> getVpnInstanceRouterIdsList(List<Uuid> routerIds) {
+        List<RouterIds> listRouterIds = new ArrayList<>();
+        for (Uuid routerId : routerIds) {
+            RouterIds routerIdInstance = getvpnInstanceRouterIds(routerId);
+            listRouterIds.add(routerIdInstance);
+        }
+        return listRouterIds;
+    }
+
     @Nonnull
     public List<BigInteger> getDpnsForRouter(String routerUuid) {
         InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
@@ -1659,7 +1738,7 @@ public class NeutronvpnUtils {
         return dpns;
     }
 
-    public String getRouterIdfromVpnInstance(String vpnName) {
+    public List<Uuid> getRouterIdsfromVpnInstance(String vpnName) {
         // returns only router, attached to IPv4 networks
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
             .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
@@ -1667,15 +1746,11 @@ public class NeutronvpnUtils {
                 .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (!optionalVpnMap.isPresent()) {
-            LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
+            LOG.error("getRouterIdsfromVpnInstance : Router not found for vpn : {}", vpnName);
             return null;
         }
-        Uuid routerId = optionalVpnMap.get().getRouterId();
-        if (routerId != null) {
-            return routerId.getValue();
-        }
-        LOG.info("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
-        return null;
+        return optionalVpnMap.get().getRouterIds();
+
     }
 
     public InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
