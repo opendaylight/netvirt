@@ -285,6 +285,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_152d0e47",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 31
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-16T13:53:18Z",
+      "side": 1,
+      "message": "Thats a very good point Philippe:)\nI now realize that, the introduction of the ip-\u003cv4/v6\u003e-family boolean attribute compels us to handle the withdraw/advertise in both the ipv4/6 cases through the vpn update.\nHence, with the current implementation in 62916, we will have to handle all instances of vpnId updates in subnetMapChange:istener.\n\nAlso, the current changes in VpnOpStatusListener wont work, since the update logic there is executed only on a dissociate + delete of a vpn.",
+      "parentUuid": "9a245df4_45a7dd4f",
+      "range": {
+        "startLine": 155,
+        "startChar": 16,
+        "endLine": 168,
+        "endChar": 17
+      },
+      "revId": "7df0f7896efa215fa94977b2c137f0e4269593b4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4546bdc0",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 31
