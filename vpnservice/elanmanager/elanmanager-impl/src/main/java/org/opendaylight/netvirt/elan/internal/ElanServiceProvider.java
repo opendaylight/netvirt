@@ -669,6 +669,15 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void handleKnownL3DmacAddress(String macAddress, String elanInstanceName, int addOrRemove) {
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            addKnownL3DmacAddress(macAddress, elanInstanceName);
+        } else {
+            removeKnownL3DmacAddress(macAddress, elanInstanceName);
+        }
+    }
+
+    @Override
+    public void addKnownL3DmacAddress(String macAddress, String elanInstanceName) {
         if (!isL2BeforeL3) {
             LOG.trace("ELAN service is after L3VPN in the Netvirt pipeline skip known L3DMAC flows installation");
             return;
@@ -685,8 +694,29 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        elanUtils.handleDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), elanInstanceName, macAddress,
-                addOrRemove, dpnsIdsForElanInstance);
+        elanUtils.addDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), elanInstanceName, macAddress,
+                dpnsIdsForElanInstance);
+    }
+
+    @Override
+    public void removeKnownL3DmacAddress(String macAddress, String elanInstanceName) {
+        if (!isL2BeforeL3) {
+            LOG.trace("ELAN service is after L3VPN in the Netvirt pipeline skip known L3DMAC flows installation");
+            return;
+        }
+        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        if (elanInstance == null) {
+            LOG.warn("Null elan instance {}", elanInstanceName);
+            return;
+        }
+
+        List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
+        if (dpnsIdsForElanInstance == null || dpnsIdsForElanInstance.isEmpty()) {
+            LOG.warn("No DPNs for elan instance {}", elanInstance);
+            return;
+        }
+
+        elanUtils.removeDmacRedirectToDispatcherFlows(elanInstance.getElanTag(), macAddress, dpnsIdsForElanInstance);
     }
 
     @Override

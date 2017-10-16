@@ -30,7 +30,6 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
@@ -158,8 +157,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 return;
             } else if (NeutronConstants.DEVICE_OWNER_GATEWAY_INF.equals(input.getDeviceOwner())
                     || NeutronConstants.DEVICE_OWNER_FLOATING_IP.equals(input.getDeviceOwner())) {
-                elanService.handleKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue(),
-                        NwConstants.DEL_FLOW);
+                elanService.removeKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue());
             }
         }
         if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
@@ -243,8 +241,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
             addToFloatingIpPortInfo(new Uuid(update.getDeviceId()), update.getUuid(), update.getFixedIps().get(0)
                     .getSubnetId(), update.getMacAddress().getValue());
-            elanService.handleKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue(),
-                    NwConstants.ADD_FLOW);
+            elanService.addKnownL3DmacAddress(update.getMacAddress().getValue(), update.getNetworkId().getValue());
         }
     }
 
@@ -254,8 +251,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             Uuid infNetworkId = routerPort.getNetworkId();
             Uuid existingVpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, infNetworkId);
 
-            elanService.handleKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue(),
-                    NwConstants.ADD_FLOW);
+            elanService.addKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue());
             if (existingVpnId == null) {
                 Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
                 List<Subnetmap> subnetMapList = new ArrayList<>();
@@ -301,8 +297,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             Uuid routerId = new Uuid(routerPort.getDeviceId());
             Uuid infNetworkId = routerPort.getNetworkId();
 
-            elanService.handleKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue(),
-                    NwConstants.DEL_FLOW);
+            elanService.removeKnownL3DmacAddress(routerPort.getMacAddress().getValue(), infNetworkId.getValue());
             List<Subnetmap> subnetMapList = new ArrayList<>();
             Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
             if (vpnId == null) {
@@ -341,8 +336,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleRouterGatewayUpdated(Port routerGwPort) {
         Uuid routerId = new Uuid(routerGwPort.getDeviceId());
         Uuid networkId = routerGwPort.getNetworkId();
-        elanService.handleKnownL3DmacAddress(routerGwPort.getMacAddress().getValue(), networkId.getValue(),
-                NwConstants.ADD_FLOW);
+        elanService.addKnownL3DmacAddress(routerGwPort.getMacAddress().getValue(), networkId.getValue());
 
         Router router = NeutronvpnUtils.getNeutronRouter(dataBroker, routerId);
         if (router == null) {
