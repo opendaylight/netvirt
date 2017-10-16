@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeInterfaceInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
@@ -531,7 +533,7 @@ public class QosNeutronUtils {
         }
 
         //1. OF rules
-        syncFlow(db, dpnId, NwConstants.ADD_FLOW, mdsalUtils, dscpValue, ifName, ipAddress);
+        addFlow(dpnId, mdsalUtils, dscpValue, ifName, ipAddress, getInterfaceStateFromOperDS(ifName, db));
         if (qosServiceConfiguredPorts.add(port.getUuid())) {
             // bind qos service to interface
             bindservice(db, ifName);
@@ -561,7 +563,7 @@ public class QosNeutronUtils {
         //unbind service from interface
         unbindservice(dataBroker, ifName);
         // 1. OF
-        syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress);
+        removeFlow(dpnId, mdsalUtils, ifName, getInterfaceStateFromOperDS(ifName, dataBroker));
         qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
@@ -578,7 +580,7 @@ public class QosNeutronUtils {
         }
         IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
         unbindservice(dataBroker, ifName);
-        syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress, intrf);
+        removeFlow(dpnId, mdsalUtils, ifName, intrf);
     }
 
     private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
@@ -681,26 +683,15 @@ public class QosNeutronUtils {
         mdsalUtils.removeFlow(flowEntity);
     }
 
-    private static void syncFlow(DataBroker db, BigInteger dpnId, int addOrRemove,
-                                 IMdsalApiManager mdsalUtils, Short dscpValue,
-                                 String ifName, IpAddress ipAddress) {
-        Interface ifState = getInterfaceStateFromOperDS(ifName, db);
-        syncFlow(db, dpnId, addOrRemove, mdsalUtils, dscpValue, ifName, ipAddress, ifState);
-    }
-
-    private static void syncFlow(DataBroker db, BigInteger dpnId, int addOrRemove,
-                                 IMdsalApiManager mdsalUtils, Short dscpValue,
-                                 String ifName, IpAddress ipAddress, Interface ifState) {
-        List<MatchInfo> matches = new ArrayList<>();
-        List<InstructionInfo> instructions = new ArrayList<>();
-        List<ActionInfo> actionsInfos = new ArrayList<>();
-
+    private static void addFlow(BigInteger dpnId, IMdsalApiManager mdsalUtils, Short dscpValue, String ifName,
+            IpAddress ipAddress, Interface ifState) {
         if (ifState == null) {
             LOG.trace("Could not find the ifState for interface {}", ifName);
             return;
         }
         Integer ifIndex = ifState.getIfIndex();
 
+        List<MatchInfo> matches = new ArrayList<>();
         if (ipAddress.getIpv4Address() != null) {
             matches.add(new MatchEthernetType(NwConstants.ETHTYPE_IPV4));
         } else {
@@ -708,24 +699,27 @@ public class QosNeutronUtils {
         }
         matches.add(new MatchMetadata(MetaDataUtil.getLportTagMetaData(ifIndex), MetaDataUtil.METADATA_MASK_LPORT_TAG));
 
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionSetFieldDscp(dscpValue));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
 
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            actionsInfos.add(new ActionSetFieldDscp(dscpValue));
-            actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
+        List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.QOS_DSCP_TABLE,
+                getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex),
+                QosConstants.QOS_DEFAULT_FLOW_PRIORITY, "QoSConfigFlow", 0, 0, NwConstants.COOKIE_QOS_TABLE,
+                matches, instructions);
+        mdsalUtils.installFlow(flowEntity);
+    }
 
-            instructions.add(new InstructionApplyActions(actionsInfos));
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.QOS_DSCP_TABLE,
-                    getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex),
-                    QosConstants.QOS_DEFAULT_FLOW_PRIORITY, "QoSConfigFlow", 0, 0, NwConstants.COOKIE_QOS_TABLE,
-                    matches, instructions);
-            mdsalUtils.installFlow(flowEntity);
-        } else {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.QOS_DSCP_TABLE,
-                    getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex),
-                    QosConstants.QOS_DEFAULT_FLOW_PRIORITY, "QoSRemoveFlow", 0, 0, NwConstants.COOKIE_QOS_TABLE,
-                    matches, null);
-            mdsalUtils.removeFlow(flowEntity);
+    private static void removeFlow(BigInteger dpnId, IMdsalApiManager mdsalUtils, String ifName, Interface ifState) {
+        if (ifState == null) {
+            LOG.trace("Could not find the ifState for interface {}", ifName);
+            return;
         }
+        Integer ifIndex = ifState.getIfIndex();
+
+        mdsalUtils.removeFlow(dpnId, NwConstants.QOS_DSCP_TABLE,
+                new FlowId(getQosFlowId(NwConstants.QOS_DSCP_TABLE, dpnId, ifIndex)));
     }
 
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
