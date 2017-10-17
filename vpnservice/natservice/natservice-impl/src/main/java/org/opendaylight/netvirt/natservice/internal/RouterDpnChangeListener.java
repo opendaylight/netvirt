@@ -23,7 +23,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -41,7 +40,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.Group
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.NeutronRouterDpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.dpn.vpninterfaces.list.RouterInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
@@ -133,26 +131,10 @@ public class RouterDpnChangeListener
                         LOG.warn("add : NAPT switch is not selected.");
                         return;
                     }
-                    //If it is a router port skip the notify.
-                    for (Uuid subnetUuid :router.getSubnetIds()) {
-                        try {
-                            Optional<Subnetmap> subnetMapEntry =
-                                    SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                                            LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
-                            if (subnetMapEntry.isPresent()) {
-                                String routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId().getValue();
-                                List<RouterInterfaces> routerInterfaces = dpnInfo.getRouterInterfaces();
-                                for (RouterInterfaces routerInterface : routerInterfaces) {
-                                    if (routerPortUuid.equals(routerInterface.getInterface())) {
-                                        return;
-                                    }
-                                }
-                            }
-                        } catch (ReadFailedException e) {
-                            LOG.warn("add : The subnet map entry is not present.");
-                            return;
-                        }
-
+                    //If it is for NAPT switch skip as the flows would be already programmed.
+                    if (naptSwitch.equals(dpnId)) {
+                        LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
+                        return;
                     }
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
@@ -258,6 +240,11 @@ public class RouterDpnChangeListener
                     BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, router.getRouterName());
                     if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
                         LOG.warn("remove : NAPT switch is not selected.");
+                        return;
+                    }
+                    //If it is for NAPT switch skip as the flows would be already programmed.
+                    if (naptSwitch.equals(dpnId)) {
+                        LOG.debug("Skipping the notification recived for NAPT switch {}", routerUuid);
                         return;
                     }
                     natServiceManager.notify(router, naptSwitch, dpnId,

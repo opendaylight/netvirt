@@ -8,10 +8,11 @@
 
 package org.opendaylight.netvirt.natservice.ha;
 
-import com.google.common.base.Optional;
-
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.inject.Inject;
@@ -19,6 +20,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
@@ -35,86 +37,64 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchScheduler {
     private final Map<BigInteger,Integer> switchWeightsMap = new HashMap<>();
+    private final Map<String,String> subnetIdToRouterPortMap = new HashMap<>();
     private final DataBroker dataBroker;
-    private final NatDataUtil natDataUtil;
     final OdlInterfaceRpcService interfaceManager;
     private final int initialSwitchWeight = 0;
     private final IVpnFootprintService vpnFootprintService;
+    private static final Logger LOG = LoggerFactory.getLogger(WeightedCentralizedSwitchScheduler.class);
 
     @Inject
     public WeightedCentralizedSwitchScheduler(DataBroker dataBroker, OdlInterfaceRpcService interfaceManager,
-            NatDataUtil natDataUtil, IVpnFootprintService vpnFootprintService) {
+            IVpnFootprintService vpnFootprintService) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
-        this.natDataUtil = natDataUtil;
         this.vpnFootprintService = vpnFootprintService;
     }
 
     @Override
-    public boolean scheduleCentralizedSwitch(String routerName) {
+    public boolean scheduleCentralizedSwitch(Routers router) {
         BigInteger nextSwitchId = getSwitchWithLowestWeight();
+        String routerName = router.getRouterName();
         RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
                 new RouterToNaptSwitchBuilder().setRouterName(routerName);
         RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(nextSwitchId).build();
+        addToDpnMaps(routerName, router.getSubnetIds(), nextSwitchId);
         try {
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
-            String vpnName = router.getRouterName();
-            String primaryRd = NatUtil.getPrimaryRd(dataBroker, vpnName);
-            for (Uuid subnetUuid :router.getSubnetIds()) {
-                Optional<Subnetmap> subnetMapEntry =
-                        SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
-                                dataBroker, LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
-                if (subnetMapEntry.isPresent()) {
-
-                    Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
-
-                    vpnFootprintService.updateVpnToDpnMapping(nextSwitchId, vpnName, primaryRd,
-                            routerPortUuid.getValue(), null, true);
-                    NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerPortUuid.getValue(),
-                            nextSwitchId, writeOperTxn);
-                    NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerPortUuid.getValue(),
-                            nextSwitchId, writeOperTxn);
-                }
-            }
-            writeOperTxn.submit();
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName), id);
             switchWeightsMap.put(nextSwitchId,switchWeightsMap.get(nextSwitchId) + 1);
 
         } catch (TransactionCommitFailedException e) {
-            // TODO Auto-generated catch block
+            LOG.error("ScheduleCentralizedSwitch failed for {}", routerName);
         }
         return true;
 
     }
 
     @Override
-    public boolean releaseCentralizedSwitch(String routerName) {
+    public boolean updateCentralizedSwitch(Routers oldRouter, Routers newRouter) {
+        String routerName = newRouter.getRouterName();
+        List<Uuid> addedSubnetIds = getUpdatedSubnetIds(newRouter.getSubnetIds(), oldRouter.getSubnetIds());
+        List<Uuid> deletedSubnetIds = getUpdatedSubnetIds(oldRouter.getSubnetIds(), newRouter.getSubnetIds());
+        BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, newRouter.getRouterName());
+        addToDpnMaps(routerName, addedSubnetIds, primarySwitchId);
+        deleteFromDpnMaps(routerName, deletedSubnetIds, primarySwitchId);
+        return true;
+    }
+
+    @Override
+    public boolean releaseCentralizedSwitch(Routers router) {
+        String routerName = router.getRouterName();
         BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        deleteFromDpnMaps(routerName, router.getSubnetIds(), primarySwitchId);
         try {
-            WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-            Routers router = natDataUtil.getRouter(routerName);
-            String vpnName = router.getRouterName();
-            String primaryRd = NatUtil.getPrimaryRd(dataBroker, vpnName);
-            for (Uuid subnetUuid :router.getSubnetIds()) {
-                Optional<Subnetmap> subnetMapEntry =
-                        SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(
-                                dataBroker, LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
-                if (subnetMapEntry.isPresent()) {
-                    Uuid routerPortUuid = subnetMapEntry.get().getRouterInterfacePortId();
-                    vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, vpnName, primaryRd,
-                            routerPortUuid.getValue(), null, false);
-                    NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
-                    NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
-                            writeOperTxn);
-                }
-            }
-            writeOperTxn.submit();
             SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     getNaptSwitchesIdentifier(routerName));
             switchWeightsMap.put(primarySwitchId,switchWeightsMap.get(primarySwitchId) - 1);
@@ -122,6 +102,52 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             return false;
         }
         return true;
+    }
+
+    private void addToDpnMaps(String routerName, List<Uuid> addedSubnetIds, BigInteger primarySwitchId) {
+        if (addedSubnetIds == null || addedSubnetIds.isEmpty()) {
+            LOG.debug("addToDpnMaps no subnets associated with {}", routerName);
+            return;
+        }
+        String primaryRd = NatUtil.getPrimaryRd(dataBroker, routerName);
+        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+        for (Uuid subnetUuid : addedSubnetIds) {
+            try {
+                Subnetmap subnetMapEntry = SingleTransactionDataBroker.syncRead(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, getSubnetMapIdentifier(subnetUuid));
+                Uuid routerPortUuid = subnetMapEntry.getRouterInterfacePortId();
+                subnetIdToRouterPortMap.put(subnetUuid.getValue(), routerPortUuid.getValue());
+                vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
+                        routerPortUuid.getValue(), null, true);
+                NatUtil.addToNeutronRouterDpnsMap(dataBroker, routerName, routerPortUuid.getValue(),
+                        primarySwitchId, writeOperTxn);
+                NatUtil.addToDpnRoutersMap(dataBroker, routerName, routerPortUuid.getValue(),
+                        primarySwitchId, writeOperTxn);
+            } catch (ReadFailedException e) {
+                LOG.error("addToDpnMaps failed for {}", routerName);
+            }
+        }
+        writeOperTxn.submit();
+    }
+
+
+
+    private void deleteFromDpnMaps(String routerName, List<Uuid> deletedSubnetIds, BigInteger primarySwitchId) {
+        if (deletedSubnetIds == null || deletedSubnetIds.isEmpty()) {
+            LOG.debug("deleteFromDpnMaps no subnets associated with {}", routerName);
+            return;
+        }
+        WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
+        String primaryRd = NatUtil.getPrimaryRd(dataBroker, routerName);
+        for (Uuid subnetUuid :deletedSubnetIds) {
+            String routerPort = subnetIdToRouterPortMap.get(subnetUuid.getValue());
+            vpnFootprintService.updateVpnToDpnMapping(primarySwitchId, routerName, primaryRd,
+                    routerPort, null, false);
+            NatUtil.removeFromNeutronRouterDpnsMap(dataBroker, routerName, primarySwitchId, writeOperTxn);
+            NatUtil.removeFromDpnRoutersMap(dataBroker, routerName, routerName, interfaceManager,
+                    writeOperTxn);
+        }
+        writeOperTxn.submit();
     }
 
     @Override
@@ -138,9 +164,10 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
             NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
             for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
                 if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {
-                    releaseCentralizedSwitch(routerToNaptSwitch.getRouterName());
+                    Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
+                    releaseCentralizedSwitch(router);
                     switchWeightsMap.remove(dpnId);
-                    scheduleCentralizedSwitch(routerToNaptSwitch.getRouterName());
+                    scheduleCentralizedSwitch(router);
                     break;
                 }
             }
@@ -182,5 +209,28 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     public boolean getCentralizedSwitch(String routerName) {
         // TODO Auto-generated method stub
         return false;
+    }
+
+    public static List<Uuid> getUpdatedSubnetIds(
+            List<Uuid> updatedSubnetIds,
+            List<Uuid> currentSubnetIds) {
+        if (updatedSubnetIds == null) {
+            return null;
+        }
+        List<Uuid> newSubnetIds = new ArrayList<>(updatedSubnetIds);
+        if (currentSubnetIds == null) {
+            return newSubnetIds;
+        }
+        List<Uuid> origSubnetIds = new ArrayList<>(currentSubnetIds);
+        for (Iterator<Uuid> iterator = newSubnetIds.iterator(); iterator.hasNext();) {
+            Uuid updatedSubnetId = iterator.next();
+            for (Uuid currentSubnetId : origSubnetIds) {
+                if (updatedSubnetId.getValue().equals(currentSubnetId.getValue())) {
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return newSubnetIds;
     }
 }
