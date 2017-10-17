@@ -41,8 +41,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatRangePresent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ConntrackBasedSnatService extends AbstractSnatService {
 
@@ -52,7 +50,6 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
     protected final int snatCtStateMask = 0x40;
     protected final int dnatCtState = 0x80;
     protected final int dnatCtStateMask = 0x80;
-    private static final Logger LOG = LoggerFactory.getLogger(ConntrackBasedSnatService.class);
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
             OdlInterfaceRpcService interfaceManager, IdManagerService idManager, NaptManager naptManager,
