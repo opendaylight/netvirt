@@ -1499,6 +1499,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         matches.add(new MatchMplsLabel(label));
 
         // Install the flow entry in L3_LFIB_TABLE
+        LOG.info("makeLFibTableEntry: dpnId {} label {} priority {}", dpId, label, priority);
         String flowRef = FibUtil.getFlowRef(dpId, NwConstants.L3_LFIB_TABLE, label, priority);
 
         FlowEntity flowEntity;
