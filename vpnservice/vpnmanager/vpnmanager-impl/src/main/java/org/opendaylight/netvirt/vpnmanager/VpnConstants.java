@@ -17,6 +17,8 @@ public interface VpnConstants {
     long VPN_IDPOOL_LOW = 100000L;
     long VPN_IDPOOL_HIGH = 130000L;
     short DEFAULT_FLOW_PRIORITY = 10;
+    short DEFAULT_FLOW_PRIORITY_IPV6 = 8;
+    short DEFAULT_FLOW_PRIORITY_IPV4 = 12;
     int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
     int VPN_ID_LENGTH = 24;
     long INVALID_ID = -1;
