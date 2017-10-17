@@ -1092,7 +1092,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
-        LOG.debug("createremotefibentry: adding route {} for rd {} on remoteDpnId {}",
+        LOG.info("createremotefibentry: adding route {} for rd {} on remoteDpnId {}",
                 vrfEntry.getDestPrefix(), rd, remoteDpnId);
 
         List<AdjacencyResult> adjacencyResults = baseVrfEntryHandler.resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
@@ -1582,7 +1582,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         boolean shouldCreateRemoteFibEntry = shouldCreateFibEntryForVrfAndVpnIdOnDpn(vpnId,
                                 vrfEntry, dpnId);
                         if (shouldCreateRemoteFibEntry) {
-                            LOG.trace("Will create remote FIB entry for vrfEntry {} on DPN {}",
+                            LOG.info("populateFibOnNewDpn: Will create remote FIB entry for vrfEntry {} on DPN {}",
                                     vrfEntry, dpnId);
                             if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
                                 bgpRouteVrfEntryHandler.createRemoteFibEntry(dpnId, vpnId,

@@ -236,6 +236,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
+        LOG.info("makeConnectedRoute: dpId {} rd {} priority {} destPrefix {} addOrRemove {}",
+                dpId, rd, priority, destPrefix, addOrRemove);
         String flowRef = FibUtil.getFlowRef(dpId, NwConstants.L3_FIB_TABLE, rd, priority, destPrefix);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef, priority,
                 flowRef, 0, 0,
@@ -510,9 +512,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         } else {
-            mdsalManager.removeFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         }
     }
 }

@@ -79,9 +79,9 @@ public class IPv6Handler {
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         } else {
-            mdsalManager.removeFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         }
     }
 }
