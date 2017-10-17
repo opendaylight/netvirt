@@ -1575,21 +1575,23 @@ public final class VpnUtil {
     }
 
     static void bindService(final String vpnInstanceName, final String interfaceName, DataBroker dataBroker,
-                            boolean isTunnelInterface, JobCoordinator jobCoordinator) {
+                            boolean isTunnelInterface, JobCoordinator jobCoordinator, short service,
+                            String serviceName) {
         jobCoordinator.enqueueJob(interfaceName,
             () -> Collections.singletonList(
                     new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(tx -> {
                         BoundServices serviceInfo = isTunnelInterface
                                 ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
-                                : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName);
+                                : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName,
+                                VpnConstants.DEFAULT_FLOW_PRIORITY);
                         tx.put(LogicalDatastoreType.CONFIGURATION, InterfaceUtils.buildServiceId(interfaceName,
-                                ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                        NwConstants.L3VPN_SERVICE_INDEX)),
+                                ServiceIndex.getIndex(serviceName, service)),
                                 serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
                     })), SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
-    static BoundServices getBoundServicesForVpnInterface(DataBroker broker, String vpnName, String interfaceName) {
+    static BoundServices getBoundServicesForVpnInterface(DataBroker broker, String vpnName,
+                                             String interfaceName, int priority) {
         List<Instruction> instructions = new ArrayList<>();
         int instructionKey = 0;
         final long vpnId = VpnUtil.getVpnId(broker, vpnName);
@@ -1604,7 +1606,7 @@ public final class VpnUtil {
         BoundServices serviceInfo = InterfaceUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", vpnName, interfaceName),
                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX),
-                VpnConstants.DEFAULT_FLOW_PRIORITY, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                priority, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         return serviceInfo;
     }
 
@@ -1622,15 +1624,14 @@ public final class VpnUtil {
     }
 
     static void unbindService(DataBroker dataBroker, final String vpnInterfaceName, boolean isInterfaceStateDown,
-            JobCoordinator jobCoordinator) {
+                      JobCoordinator jobCoordinator, short service, String serviceName) {
         if (!isInterfaceStateDown) {
             jobCoordinator.enqueueJob(vpnInterfaceName,
                 () -> Collections.singletonList(new ManagedNewTransactionRunnerImpl(
                         dataBroker).callWithNewWriteOnlyTransactionAndSubmit(tx ->
                         tx.delete(LogicalDatastoreType.CONFIGURATION,
                                 InterfaceUtils.buildServiceId(vpnInterfaceName,
-                                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                                NwConstants.L3VPN_SERVICE_INDEX))))),
+                                        ServiceIndex.getIndex(serviceName, service))))),
                 SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
     }
@@ -1871,6 +1872,33 @@ public final class VpnUtil {
             }
         }
         return null;
+    }
+
+    public static IpVersionChoice getVpnType(DataBroker dataBroker, String vpnName) {
+        String primaryRd = getVpnRd(dataBroker, vpnName);
+        String index = primaryRd;
+        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
+        if (primaryRd == null) {
+            LOG.error("getVpnType: Primary RD not found for VPN {}", vpnName);
+            index = vpnName;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(index)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("getVpnType: VpnInstanceOpDataEntry not found for VPN {}", vpnName);
+            return ipVersion;
+        }
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
+        if (vpnInstanceOpDataEntry.isIpv4Configured()) {
+            ipVersion = ipVersion.addVersion(IpVersionChoice.IPV4);
+        }
+        if (vpnInstanceOpDataEntry.isIpv6Configured()) {
+            ipVersion = ipVersion.addVersion(IpVersionChoice.IPV6);
+        }
+        return ipVersion;
     }
 
     /** Get boolean true if vpn is bgpvpn internet, false otherwise.
