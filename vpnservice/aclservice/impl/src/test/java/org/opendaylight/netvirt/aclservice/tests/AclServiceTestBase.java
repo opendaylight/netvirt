@@ -17,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Before;
 import org.junit.Ignore;
