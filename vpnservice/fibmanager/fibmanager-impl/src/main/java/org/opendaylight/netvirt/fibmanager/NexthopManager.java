@@ -11,25 +11,21 @@ import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -48,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetSource;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldVlanVid;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.L3VPNTransportTypes;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -136,6 +133,7 @@ public class NexthopManager implements AutoCloseable {
     private final IdManagerService idManager;
     private final IElanService elanService;
     private final SalGroupService salGroupService;
+    private final JobCoordinator jobCoordinator;
     private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
     private static final long FIXED_DELAY_IN_MILLISECONDS = 4000;
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
@@ -158,7 +156,8 @@ public class NexthopManager implements AutoCloseable {
                           final OdlInterfaceRpcService interfaceManager,
                           final ItmRpcService itmManager,
                           final IElanService elanService,
-                          final SalGroupService salGroupService) {
+                          final SalGroupService salGroupService,
+                          final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.mdsalApiManager = mdsalApiManager;
         this.idManager = idManager;
@@ -166,6 +165,7 @@ public class NexthopManager implements AutoCloseable {
         this.itmManager = itmManager;
         this.elanService = elanService;
         this.salGroupService = salGroupService;
+        this.jobCoordinator = jobCoordinator;
         createIdPool();
     }
 
@@ -346,9 +346,7 @@ public class NexthopManager implements AutoCloseable {
             return groupId;
         }
         String nextHopLockStr = vpnId + ipAddress;
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-
-        dataStoreCoordinator.enqueueJob(jobKey, () -> {
+        jobCoordinator.enqueueJob(jobKey, () -> {
             synchronized (nextHopLockStr.intern()) {
                 VpnNexthop nexthop = getVpnNexthop(vpnId, ipAddress);
                 LOG.trace("nexthop: {} retrieved for vpnId {}, prefix {}, ifName {} on dpn {}", nexthop, vpnId,
