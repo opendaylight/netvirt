@@ -36,10 +36,13 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class IPv6Handler {
     private final IMdsalApiManager mdsalManager;
+    private static final Logger LOG = LoggerFactory.getLogger(IPv6Handler.class);
 
     @Inject
     public IPv6Handler(final IMdsalApiManager mdsalManager) {
@@ -79,9 +82,9 @@ public class IPv6Handler {
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         } else {
-            mdsalManager.removeFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         }
     }
 }
