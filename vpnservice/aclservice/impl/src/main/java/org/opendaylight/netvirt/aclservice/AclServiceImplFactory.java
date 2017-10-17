@@ -12,6 +12,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
@@ -31,14 +32,16 @@ public class AclServiceImplFactory extends AbstractLifecycle {
     private SecurityGroupMode securityGroupMode;
     private final AclDataUtil aclDataUtil;
     private final AclServiceUtils aclServiceUtils;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public AclServiceImplFactory(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclserviceConfig config,
-            AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils) {
+            AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServiceUtils;
+        this.jobCoordinator = jobCoordinator;
         if (config != null) {
             this.securityGroupMode = config.getSecurityGroupMode();
         }
@@ -62,12 +65,13 @@ public class AclServiceImplFactory extends AbstractLifecycle {
 
     public AbstractIngressAclServiceImpl createIngressAclServiceImpl() {
         LOG.info("creating ingress acl service using mode {}", securityGroupMode);
-        return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
+        return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils,
+                jobCoordinator);
     }
 
     public AbstractEgressAclServiceImpl createEgressAclServiceImpl() {
         LOG.info("creating egress acl service using mode {}", securityGroupMode);
-        return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
+        return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator);
     }
 
 }
