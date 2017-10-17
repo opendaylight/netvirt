@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -23,7 +22,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -32,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionRegLoad;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.cloudservicechain.jobs.AddVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.jobs.RemoveVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
@@ -63,14 +62,17 @@ public class VPNServiceChainHandler implements AutoCloseable {
     private final DataBroker dataBroker;
     private final IVpnFootprintService vpnFootprintService;
     private final IInterfaceManager interfaceManager;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public VPNServiceChainHandler(final DataBroker db, final IMdsalApiManager mdsalManager,
-                                  final IVpnFootprintService vpnFootprintService, final IInterfaceManager ifaceMgr) {
+                                  final IVpnFootprintService vpnFootprintService, final IInterfaceManager ifaceMgr,
+                                  final JobCoordinator jobCoordinator) {
         this.dataBroker = db;
         this.mdsalManager = mdsalManager;
         this.vpnFootprintService = vpnFootprintService;
         this.interfaceManager = ifaceMgr;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @PostConstruct
@@ -139,12 +141,12 @@ public class VPNServiceChainHandler implements AutoCloseable {
             if (addOrRemove == NwConstants.ADD_FLOW) {
                 AddVpnPseudoPortDataJob updateVpnToPseudoPortTask =
                         new AddVpnPseudoPortDataJob(dataBroker, rd, lportTag, tableId, (int) scfTag);
-                DataStoreJobCoordinator.getInstance().enqueueJob(updateVpnToPseudoPortTask.getDsJobCoordinatorKey(),
-                                                                 updateVpnToPseudoPortTask);
+                jobCoordinator.enqueueJob(updateVpnToPseudoPortTask.getDsJobCoordinatorKey(),
+                        updateVpnToPseudoPortTask);
             } else {
                 RemoveVpnPseudoPortDataJob removeVpnPseudoPortDataTask = new RemoveVpnPseudoPortDataJob(dataBroker, rd);
-                DataStoreJobCoordinator.getInstance().enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
-                                                                 removeVpnPseudoPortDataTask);
+                jobCoordinator.enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
+                        removeVpnPseudoPortDataTask);
             }
 
             for (VpnToDpnList dpnInVpn : vpnToDpnList) {
@@ -220,7 +222,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         if (vpnInstance != null) {
 
             if (addOrRemove == NwConstants.ADD_FLOW
-                   || (addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain)) {
+                   || addOrRemove == NwConstants.DEL_FLOW && isLastServiceChain) {
 
                 Long vpnId = vpnInstance.getVpnId();
                 List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
@@ -248,7 +250,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
             String intfName = VpnServiceChainUtils.buildVpnPseudoPortIfName(dpnId, scfTag, servChainTag,
                                                                             vpnPseudoLportTag);
             vpnFootprintService.updateVpnToDpnMapping(BigInteger.valueOf(dpnId), vpnName, rd, intfName,
-                    null/*ipAddressSourceValuePair*/, (addOrRemove == NwConstants.ADD_FLOW));
+                    null/*ipAddressSourceValuePair*/, addOrRemove == NwConstants.ADD_FLOW);
         }
         LOG.info("L3VPN: Service Chaining programScfToVpnPipeline [End]");
     }
@@ -292,8 +294,8 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
         if (rd != null) {
             RemoveVpnPseudoPortDataJob removeVpnPseudoPortDataTask = new RemoveVpnPseudoPortDataJob(dataBroker, rd);
-            DataStoreJobCoordinator.getInstance().enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
-                                                             removeVpnPseudoPortDataTask);
+            jobCoordinator.enqueueJob(removeVpnPseudoPortDataTask.getDsJobCoordinatorKey(),
+                    removeVpnPseudoPortDataTask);
         }
     }
 

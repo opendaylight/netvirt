@@ -7,9 +7,9 @@
  */
 package org.opendaylight.netvirt.cloudservicechain;
 
+import static org.mockito.Matchers.anyObject;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.anyObject;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -44,6 +44,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.internal.JobCoordinatorImpl;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowEntityMatcher;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
@@ -119,7 +120,7 @@ public class VPNServiceChainHandlerTest {
         when(writeTx.submit()).thenReturn(chkdFuture);
 
         // SUT
-        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnFootprintService, ifaceMgr);
+        vpnsch = new VPNServiceChainHandler(broker, mdsalMgr, vpnFootprintService, ifaceMgr, new JobCoordinatorImpl());
     }
 
     @After
