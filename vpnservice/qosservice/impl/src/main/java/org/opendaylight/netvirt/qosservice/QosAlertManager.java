@@ -239,19 +239,13 @@ public final class QosAlertManager implements Runnable {
 
         List<Uuid> subnetIds = QosNeutronUtils.getSubnetIdsFromNetworkId(dataBroker, network.getUuid());
 
-        if (subnetIds != null) {
-            for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(dataBroker, subnetId);
-                if (portIds != null) {
-                    for (Uuid portId : portIds) {
-                        Port port = neutronVpnManager.getNeutronPort(portId);
-                        if (port != null) {
-                            if (!QosNeutronUtils.portHasQosPolicy(neutronVpnManager, port)) {
-                                LOG.trace("Adding network {} port {} in cache", network.getUuid(), port.getUuid());
-                                addToQosAlertCache(port);
-                            }
-                        }
-                    }
+        for (Uuid subnetId : subnetIds) {
+            List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(dataBroker, subnetId);
+            for (Uuid portId : portIds) {
+                Port port = neutronVpnManager.getNeutronPort(portId);
+                if (port != null && !QosNeutronUtils.portHasQosPolicy(port)) {
+                    LOG.trace("Adding network {} port {} in cache", network.getUuid(), port.getUuid());
+                    addToQosAlertCache(port);
                 }
             }
         }
@@ -315,19 +309,13 @@ public final class QosAlertManager implements Runnable {
 
         List<Uuid> subnetIds = QosNeutronUtils.getSubnetIdsFromNetworkId(dataBroker, network.getUuid());
 
-        if (subnetIds != null) {
-            for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(dataBroker, subnetId);
-                if (portIds != null) {
-                    for (Uuid portId : portIds) {
-                        Port port = neutronVpnManager.getNeutronPort(portId);
-                        if (port != null) {
-                            if (!QosNeutronUtils.portHasQosPolicy(neutronVpnManager, port)) {
-                                LOG.trace("Removing network {} port {} from cache", network.getUuid(), port.getUuid());
-                                removeFromQosAlertCache(port);
-                            }
-                        }
-                    }
+        for (Uuid subnetId : subnetIds) {
+            List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(dataBroker, subnetId);
+            for (Uuid portId : portIds) {
+                Port port = neutronVpnManager.getNeutronPort(portId);
+                if (port != null && !QosNeutronUtils.portHasQosPolicy(port)) {
+                    LOG.trace("Removing network {} port {} from cache", network.getUuid(), port.getUuid());
+                    removeFromQosAlertCache(port);
                 }
             }
         }

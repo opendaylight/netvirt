@@ -11,11 +11,14 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -97,11 +100,11 @@ import org.slf4j.LoggerFactory;
 
 public class QosNeutronUtils {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronUtils.class);
-    private static final String EXTERNAL_ID_INTERFACE_ID = "iface-id";
-    public static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
+
+    private static ConcurrentHashMap<Uuid, QosPolicy> qosPolicyMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, ConcurrentHashMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     public static ConcurrentHashMap<Uuid, ConcurrentHashMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
-    public static CopyOnWriteArraySet<Uuid> qosServiceConfiguredPorts = new CopyOnWriteArraySet<>();
+    private static CopyOnWriteArraySet<Uuid> qosServiceConfiguredPorts = new CopyOnWriteArraySet<>();
 
     public static void addToQosPolicyCache(QosPolicy qosPolicy) {
         qosPolicyMap.put(qosPolicy.getUuid(),qosPolicy);
@@ -112,15 +115,7 @@ public class QosNeutronUtils {
     }
 
     public static void addToQosPortsCache(Uuid qosUuid, Port port) {
-        if (qosPortsMap.containsKey(qosUuid)) {
-            if (!qosPortsMap.get(qosUuid).containsKey(port.getUuid())) {
-                qosPortsMap.get(qosUuid).put(port.getUuid(), port);
-            }
-        } else {
-            ConcurrentHashMap<Uuid, Port> portMap = new ConcurrentHashMap<>();
-            portMap.put(port.getUuid(), port);
-            qosPortsMap.put(qosUuid, portMap);
-        }
+        qosPortsMap.computeIfAbsent(qosUuid, key -> new ConcurrentHashMap<>()).putIfAbsent(port.getUuid(), port);
     }
 
     public static void removeFromQosPortsCache(Uuid qosUuid, Port port) {
@@ -130,16 +125,8 @@ public class QosNeutronUtils {
     }
 
     public static void addToQosNetworksCache(Uuid qosUuid, Network network) {
-        if (qosNetworksMap.containsKey(qosUuid)) {
-            if (!qosNetworksMap.get(qosUuid).containsKey(network.getUuid())) {
-                qosNetworksMap.get(qosUuid).put(network.getUuid(), network);
-            }
-        } else {
-
-            ConcurrentHashMap<Uuid, Network> networkMap = new ConcurrentHashMap<>();
-            networkMap.put(network.getUuid(), network);
-            qosNetworksMap.put(qosUuid, networkMap);
-        }
+        qosNetworksMap.computeIfAbsent(qosUuid, key -> new ConcurrentHashMap<>()).putIfAbsent(network.getUuid(),
+                network);
     }
 
     public static void removeFromQosNetworksCache(Uuid qosUuid, Network network) {
@@ -148,21 +135,23 @@ public class QosNeutronUtils {
         }
     }
 
+    @Nonnull
     public static List<Uuid> getSubnetIdsFromNetworkId(DataBroker broker, Uuid networkId) {
         InstanceIdentifier<NetworkMap> networkMapId = InstanceIdentifier.builder(NetworkMaps.class)
                 .child(NetworkMap.class, new NetworkMapKey(networkId)).build();
         Optional<NetworkMap> optionalNetworkMap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 networkMapId,broker);
-        return optionalNetworkMap.isPresent() ? optionalNetworkMap.get().getSubnetIdList() : null;
+        return optionalNetworkMap.isPresent() ? optionalNetworkMap.get().getSubnetIdList() : Collections.emptyList();
     }
 
+    @Nonnull
     protected static List<Uuid> getPortIdsFromSubnetId(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier<Subnetmap> subnetMapId = InstanceIdentifier
                 .builder(Subnetmaps.class)
                 .child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
         Optional<Subnetmap> optionalSubnetmap = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
                 subnetMapId,broker);
-        return optionalSubnetmap.isPresent() ? optionalSubnetmap.get().getPortList() : null;
+        return optionalSubnetmap.isPresent() ? optionalSubnetmap.get().getPortList() : Collections.emptyList();
     }
 
     public static void handleNeutronPortQosAdd(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
@@ -291,8 +280,8 @@ public class QosNeutronUtils {
         });
     }
 
-    public static void handleNeutronPortRemove(DataBroker db, OdlInterfaceRpcService odlInterfaceRpcService,
-                                               IMdsalApiManager mdsalUtils, Port port, Uuid qosUuid, Interface intrf) {
+    public static void handleNeutronPortRemove(DataBroker db,
+            IMdsalApiManager mdsalUtils, Port port, Uuid qosUuid, Interface intrf) {
         LOG.trace("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid(), qosUuid);
         QosPolicy qosPolicy = QosNeutronUtils.qosPolicyMap.get(qosUuid);
 
@@ -302,7 +291,7 @@ public class QosNeutronUtils {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
                     && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                unsetPortDscpMark(db, odlInterfaceRpcService, mdsalUtils, port, intrf);
+                unsetPortDscpMark(db, mdsalUtils, port, intrf);
             }
             futures.add(wrtConfigTxn.submit());
             return futures;
@@ -323,34 +312,29 @@ public class QosNeutronUtils {
             return;
         }
         List<Uuid> subnetIds = QosNeutronUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
-        if (subnetIds != null) {
-            for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(db, subnetId);
-                if (portIds != null) {
-                    for (Uuid portId : portIds) {
-                        Port port = neutronVpnManager.getNeutronPort(portId);
-                        if (port != null && (port.getAugmentation(QosPortExtension.class) == null
-                                || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                            final DataStoreJobCoordinator portDataStoreCoordinator =
-                                    DataStoreJobCoordinator.getInstance();
-                            portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
-                                WriteTransaction wrtConfigTxn = db.newWriteOnlyTransaction();
-                                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                                    setPortBandwidthLimits(db, odlInterfaceRpcService, port,
-                                            qosPolicy.getBandwidthLimitRules().get(0), wrtConfigTxn);
-                                }
-                                if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
-                                        && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                                    setPortDscpMarking(db, odlInterfaceRpcService, mdsalUtils,
-                                            port, qosPolicy.getDscpmarkingRules().get(0));
-                                }
-                                futures.add(wrtConfigTxn.submit());
-                                return futures;
-                            });
+        for (Uuid subnetId : subnetIds) {
+            List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(db, subnetId);
+            for (Uuid portId : portIds) {
+                Port port = neutronVpnManager.getNeutronPort(portId);
+                if (port != null && (port.getAugmentation(QosPortExtension.class) == null
+                        || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                    final DataStoreJobCoordinator portDataStoreCoordinator =
+                            DataStoreJobCoordinator.getInstance();
+                    portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
+                        WriteTransaction wrtConfigTxn = db.newWriteOnlyTransaction();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        if (qosPolicy.getBandwidthLimitRules() != null
+                                && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                            setPortBandwidthLimits(db, odlInterfaceRpcService, port,
+                                    qosPolicy.getBandwidthLimitRules().get(0), wrtConfigTxn);
                         }
-                    }
+                        if (qosPolicy.getDscpmarkingRules() != null && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                            setPortDscpMarking(db, odlInterfaceRpcService, mdsalUtils,
+                                    port, qosPolicy.getDscpmarkingRules().get(0));
+                        }
+                        futures.add(wrtConfigTxn.submit());
+                        return futures;
+                    });
                 }
             }
         }
@@ -364,35 +348,31 @@ public class QosNeutronUtils {
         QosPolicy qosPolicy = QosNeutronUtils.qosPolicyMap.get(qosUuid);
 
         List<Uuid> subnetIds = QosNeutronUtils.getSubnetIdsFromNetworkId(db, network.getUuid());
-        if (subnetIds != null) {
-            for (Uuid subnetId : subnetIds) {
-                List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(db, subnetId);
-                if (portIds != null) {
-                    for (Uuid portId : portIds) {
-                        Port port = neutronVpnManager.getNeutronPort(portId);
-                        if (port != null && (port.getAugmentation(QosPortExtension.class) == null
-                                || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                            final DataStoreJobCoordinator portDataStoreCoordinator =
-                                    DataStoreJobCoordinator.getInstance();
-                            portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
-                                WriteTransaction wrtConfigTxn = db.newWriteOnlyTransaction();
-                                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                                if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
-                                        && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
-                                    BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
-                                    setPortBandwidthLimits(db, odlInterfaceRpcService, port, bwLimitBuilder
-                                            .setMaxBurstKbps(BigInteger.ZERO)
-                                            .setMaxKbps(BigInteger.ZERO).build(), null);
-                                }
-                                if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
-                                        && !qosPolicy.getDscpmarkingRules().isEmpty()) {
-                                    unsetPortDscpMark(db, odlInterfaceRpcService, mdsalUtils, port);
-                                }
-                                futures.add(wrtConfigTxn.submit());
-                                return futures;
-                            });
+        for (Uuid subnetId : subnetIds) {
+            List<Uuid> portIds = QosNeutronUtils.getPortIdsFromSubnetId(db, subnetId);
+            for (Uuid portId : portIds) {
+                Port port = neutronVpnManager.getNeutronPort(portId);
+                if (port != null && (port.getAugmentation(QosPortExtension.class) == null
+                        || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
+                    final DataStoreJobCoordinator portDataStoreCoordinator =
+                            DataStoreJobCoordinator.getInstance();
+                    portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
+                        WriteTransaction wrtConfigTxn = db.newWriteOnlyTransaction();
+                        List<ListenableFuture<Void>> futures = new ArrayList<>();
+                        if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
+                                && !qosPolicy.getBandwidthLimitRules().isEmpty()) {
+                            BandwidthLimitRulesBuilder bwLimitBuilder = new BandwidthLimitRulesBuilder();
+                            setPortBandwidthLimits(db, odlInterfaceRpcService, port, bwLimitBuilder
+                                    .setMaxBurstKbps(BigInteger.ZERO)
+                                    .setMaxKbps(BigInteger.ZERO).build(), null);
                         }
-                    }
+                        if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
+                                && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                            unsetPortDscpMark(db, odlInterfaceRpcService, mdsalUtils, port);
+                        }
+                        futures.add(wrtConfigTxn.submit());
+                        return futures;
+                    });
                 }
             }
         }
@@ -565,8 +545,8 @@ public class QosNeutronUtils {
         qosServiceConfiguredPorts.remove(port.getUuid());
     }
 
-    public static void unsetPortDscpMark(DataBroker dataBroker, OdlInterfaceRpcService odlInterfaceRpcService,
-                                         IMdsalApiManager mdsalUtils, Port port, Interface intrf) {
+    public static void unsetPortDscpMark(DataBroker dataBroker, IMdsalApiManager mdsalUtils, Port port,
+            Interface intrf) {
         LOG.trace("Removing dscp marking rule from Port {}", port);
 
         BigInteger dpnId = getDpIdFromInterface(intrf);
@@ -578,7 +558,7 @@ public class QosNeutronUtils {
         }
         IpAddress ipAddress = port.getFixedIps().get(0).getIpAddress();
         unbindservice(dataBroker, ifName);
-        syncFlow(dataBroker, dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress, intrf);
+        syncFlow(dpnId, NwConstants.DEL_FLOW, mdsalUtils, (short) 0, ifName, ipAddress, intrf);
     }
 
     private static BigInteger getDpIdFromInterface(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf
@@ -607,35 +587,27 @@ public class QosNeutronUtils {
         return nodeId;
     }
 
-    private static BridgeEntry getBridgeEntryFromConfigDS(BigInteger dpnId,
-                                                          DataBroker dataBroker) {
+    @Nullable
+    private static BridgeEntry getBridgeEntryFromConfigDS(BigInteger dpnId, DataBroker dataBroker) {
         BridgeEntryKey bridgeEntryKey = new BridgeEntryKey(dpnId);
         InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier = getBridgeEntryIdentifier(bridgeEntryKey);
         LOG.debug("Trying to retrieve bridge entry from config for Id: {}", bridgeEntryInstanceIdentifier);
-        return getBridgeEntryFromConfigDS(bridgeEntryInstanceIdentifier,
-                dataBroker);
+        return getBridgeEntryFromConfigDS(bridgeEntryInstanceIdentifier, dataBroker);
     }
 
+    @Nullable
     private static BridgeEntry getBridgeEntryFromConfigDS(InstanceIdentifier<BridgeEntry> bridgeEntryInstanceIdentifier,
                                                           DataBroker dataBroker) {
-        Optional<BridgeEntry> bridgeEntryOptional = MDSALUtil.read(LogicalDatastoreType.CONFIGURATION,
-                bridgeEntryInstanceIdentifier, dataBroker);
-        if (!bridgeEntryOptional.isPresent()) {
-            return null;
-        }
-        return bridgeEntryOptional.get();
+        return MDSALUtil.read(LogicalDatastoreType.CONFIGURATION, bridgeEntryInstanceIdentifier, dataBroker).orNull();
     }
 
+    @Nullable
     private static BridgeRefEntry getBridgeRefEntryFromOperDS(InstanceIdentifier<BridgeRefEntry> dpnBridgeEntryIid,
                                                               DataBroker dataBroker) {
-        Optional<BridgeRefEntry> bridgeRefEntryOptional = MDSALUtil.read(LogicalDatastoreType.OPERATIONAL,
-                dpnBridgeEntryIid, dataBroker);
-        if (!bridgeRefEntryOptional.isPresent()) {
-            return null;
-        }
-        return bridgeRefEntryOptional.get();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, dpnBridgeEntryIid, dataBroker).orNull();
     }
 
+    @Nullable
     private static OvsdbBridgeRef getBridgeRefEntryFromOperDS(BigInteger dpId,
                                                               DataBroker dataBroker) {
         BridgeRefEntryKey bridgeRefEntryKey = new BridgeRefEntryKey(dpId);
@@ -653,21 +625,17 @@ public class QosNeutronUtils {
         return bridgeRefEntry.getBridgeReference();
     }
 
+    @Nonnull
     private static InstanceIdentifier<BridgeRefEntry> getBridgeRefEntryIdentifier(BridgeRefEntryKey bridgeRefEntryKey) {
-        InstanceIdentifier.InstanceIdentifierBuilder<BridgeRefEntry> bridgeRefEntryInstanceIdentifierBuilder =
-                InstanceIdentifier.builder(BridgeRefInfo.class)
-                        .child(BridgeRefEntry.class, bridgeRefEntryKey);
-        return bridgeRefEntryInstanceIdentifierBuilder.build();
+        return InstanceIdentifier.builder(BridgeRefInfo.class).child(BridgeRefEntry.class, bridgeRefEntryKey).build();
     }
 
+    @Nonnull
     private static InstanceIdentifier<BridgeEntry> getBridgeEntryIdentifier(BridgeEntryKey bridgeEntryKey) {
-        InstanceIdentifier.InstanceIdentifierBuilder<BridgeEntry> bridgeEntryIdBuilder =
-                InstanceIdentifier.builder(BridgeInterfaceInfo.class).child(BridgeEntry.class, bridgeEntryKey);
-        return bridgeEntryIdBuilder.build();
+        return InstanceIdentifier.builder(BridgeInterfaceInfo.class).child(BridgeEntry.class, bridgeEntryKey).build();
     }
 
-    public  static  void removeStaleFlowEntry(DataBroker db, IMdsalApiManager mdsalUtils,
-                                                OdlInterfaceRpcService odlInterfaceRpcService, Interface intrf) {
+    public  static  void removeStaleFlowEntry(IMdsalApiManager mdsalUtils, Interface intrf) {
         List<MatchInfo> matches = new ArrayList<>();
 
         BigInteger dpnId = getDpIdFromInterface(intrf);
@@ -685,10 +653,10 @@ public class QosNeutronUtils {
                                  IMdsalApiManager mdsalUtils, Short dscpValue,
                                  String ifName, IpAddress ipAddress) {
         Interface ifState = getInterfaceStateFromOperDS(ifName, db);
-        syncFlow(db, dpnId, addOrRemove, mdsalUtils, dscpValue, ifName, ipAddress, ifState);
+        syncFlow(dpnId, addOrRemove, mdsalUtils, dscpValue, ifName, ipAddress, ifState);
     }
 
-    private static void syncFlow(DataBroker db, BigInteger dpnId, int addOrRemove,
+    private static void syncFlow(BigInteger dpnId, int addOrRemove,
                                  IMdsalApiManager mdsalUtils, Short dscpValue,
                                  String ifName, IpAddress ipAddress, Interface ifState) {
         List<MatchInfo> matches = new ArrayList<>();
@@ -728,32 +696,26 @@ public class QosNeutronUtils {
         }
     }
 
+    @Nullable
     public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.state.Interface getInterfaceStateFromOperDS(
             String interfaceName, DataBroker dataBroker) {
-        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-                .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateId =
-                createInterfaceStateInstanceIdentifier(interfaceName);
-        Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
-                .ietf.interfaces.rev140508.interfaces.state.Interface> ifStateOptional = MDSALUtil
-                .read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
-        if (ifStateOptional.isPresent()) {
-            return ifStateOptional.get();
-        }
-        return null;
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                createInterfaceStateInstanceIdentifier(interfaceName)).orNull();
     }
 
+    @Nonnull
     public static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.state.Interface> createInterfaceStateInstanceIdentifier(
             String interfaceName) {
-        InstanceIdentifier.InstanceIdentifierBuilder<Interface> idBuilder = InstanceIdentifier
+        return InstanceIdentifier
                 .builder(InterfacesState.class)
                 .child(org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
                                 .ietf.interfaces.rev140508.interfaces.state.Interface.class,
                         new org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
                                 .ietf.interfaces.rev140508.interfaces.state.InterfaceKey(
-                                interfaceName));
-        return idBuilder.build();
+                                interfaceName))
+                .build();
     }
 
     public static void bindservice(DataBroker dataBroker, String ifName) {
@@ -791,8 +753,9 @@ public class QosNeutronUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
+    @Nonnull
     public static String getQosFlowId(short tableId, BigInteger dpId, int lportTag) {
-        return new StringBuffer().append(tableId).append(dpId).append(lportTag).toString();
+        return String.valueOf(tableId) + dpId + lportTag;
     }
 
     public static String getPortNumberForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
@@ -810,21 +773,19 @@ public class QosNeutronUtils {
         return null;
     }
 
-    public static boolean portHasQosPolicy(INeutronVpnManager neutronVpnManager, Port port) {
-        Uuid qosUuid = null;
+    public static boolean portHasQosPolicy(Port port) {
         boolean isQosPolicy = false;
 
         LOG.trace("checking qos policy for port: {}", port.getUuid());
 
         if (port.getAugmentation(QosPortExtension.class) != null) {
-            qosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
-        }
-        if (qosUuid != null) {
-            isQosPolicy = true;
+            if (port.getAugmentation(QosPortExtension.class).getQosPolicyId() != null) {
+                isQosPolicy = true;
+            }
         }
 
         LOG.trace("portHasQosPolicy for  port: {} return value {}", port.getUuid(), isQosPolicy);
-        return (isQosPolicy);
+        return isQosPolicy;
     }
 
     public static boolean hasBandwidthLimitRule(INeutronVpnManager neutronVpnManager, Port port) {
@@ -852,7 +813,7 @@ public class QosNeutronUtils {
         }
 
         LOG.trace("Bandwidth limit rule for  port: {} return value {}", port.getUuid(), bwLimitRule);
-        return (bwLimitRule);
+        return bwLimitRule;
     }
 
     public static boolean hasBandwidthLimitRule(Network network) {
@@ -873,9 +834,10 @@ public class QosNeutronUtils {
         }
 
         LOG.trace("Bandwidth limit rule for  network: {} return value {}", network.getUuid(), bwLimitRule);
-        return (bwLimitRule);
+        return bwLimitRule;
     }
 
+    @Nullable
     public static QosPolicy getQosPolicy(INeutronVpnManager neutronVpnManager, Port port) {
         Uuid qosUuid = null;
         QosPolicy qosPolicy = null;
@@ -894,7 +856,7 @@ public class QosNeutronUtils {
             qosPolicy = qosPolicyMap.get(qosUuid);
         }
 
-        return (qosPolicy);
+        return qosPolicy;
     }
 
 }
