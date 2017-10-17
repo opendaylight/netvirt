@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_ea94d138",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5089
+      },
+      "writtenOn": "2017-10-17T14:37:07Z",
+      "side": 1,
+      "message": "This is not a very good error message.  No need to put \u0027returning\u0027 out of a method in the message. Just something like:\nUnable to create VPN Interface on vpn \u003cvpnId\u003e.  Port is null.",
+      "range": {
+        "startLine": 736,
+        "startChar": 12,
+        "endLine": 736,
+        "endChar": 70
+      },
+      "revId": "db4a8d00e534674f5e0300dfcd9e27e34880e4c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
