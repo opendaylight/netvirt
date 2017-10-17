@@ -101,4 +101,9 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
     public void programV6InternetFallbackFlow(Uuid routerId, Uuid internetVpnId, int addOrRemove) {
         nvManager.programV6InternetFallbackFlow(routerId, internetVpnId, addOrRemove);
     }
+
+    @Override
+    public Uuid getVpnForSubnet(Uuid subnetId) {
+        return neutronvpnUtils.getVpnForSubnet(subnetId);
+    }
 }
