@@ -504,15 +504,16 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_PREFIX_LENGTH;
+        LOG.info("installPingResponderFlowEntry: dpnId {} label {} priority {}", dpnId, label, priority);
         String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.installFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         } else {
-            mdsalManager.removeFlow(flowEntity);
+            mdsalManager.syncInstallFlow(flowEntity, 1);
         }
     }
 }
