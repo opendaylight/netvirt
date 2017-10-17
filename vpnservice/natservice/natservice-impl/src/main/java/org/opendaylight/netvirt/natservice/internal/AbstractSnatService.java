@@ -65,7 +65,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final ItmRpcService itmManager;
     protected final OdlInterfaceRpcService interfaceManager;
     private final IVpnManager vpnManager;
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
+    protected final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
     static final int LOAD_START = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
     static final int LOAD_END = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
             .METADATA_MASK_SH_FLAG.intValue());
