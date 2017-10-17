@@ -9,20 +9,17 @@
 package org.opendaylight.netvirt.policyservice;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceFlowUtil;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
@@ -46,16 +43,17 @@ public class PolicyRouteFlowProgrammer {
     private final PolicyIdManager policyIdManager;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyServiceFlowUtil policyFlowUtil;
-    private final DataStoreJobCoordinator coordinator;
+    private final JobCoordinator coordinator;
 
     @Inject
     public PolicyRouteFlowProgrammer(final DataBroker dataBroker, final PolicyIdManager policyIdManager,
-            final PolicyServiceUtil policyServiceUtil, final PolicyServiceFlowUtil policyFlowUtil) {
+            final PolicyServiceUtil policyServiceUtil, final PolicyServiceFlowUtil policyFlowUtil,
+            final JobCoordinator coordinator) {
         this.dataBroker = dataBroker;
         this.policyIdManager = policyIdManager;
         this.policyServiceUtil = policyServiceUtil;
         this.policyFlowUtil = policyFlowUtil;
-        this.coordinator = DataStoreJobCoordinator.getInstance();
+        this.coordinator = coordinator;
     }
 
     public void programPolicyClassifierFlows(String policyClassifierName, List<BigInteger> localDpIds,

@@ -11,19 +11,17 @@ package org.opendaylight.netvirt.policyservice.listeners;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.policyservice.PolicyRouteFlowProgrammer;
 import org.opendaylight.netvirt.policyservice.PolicyServiceConstants;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
@@ -60,16 +58,17 @@ public class TunnelStateChangeListener
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyRouteFlowProgrammer routeFlowProgrammer;
     private final IInterfaceManager interfaceManager;
-    private final DataStoreJobCoordinator coordinator;
+    private final JobCoordinator coordinator;
 
     @Inject
     public TunnelStateChangeListener(DataBroker dataBroker, final PolicyServiceUtil policyServiceUtil,
-            final PolicyRouteFlowProgrammer routeFlowProgrammer, final IInterfaceManager interfaceManager) {
+            final PolicyRouteFlowProgrammer routeFlowProgrammer, final IInterfaceManager interfaceManager,
+            final JobCoordinator coordinator) {
         this.dataBroker = dataBroker;
         this.policyServiceUtil = policyServiceUtil;
         this.routeFlowProgrammer = routeFlowProgrammer;
         this.interfaceManager = interfaceManager;
-        this.coordinator = DataStoreJobCoordinator.getInstance();
+        this.coordinator = coordinator;
     }
 
     @Override

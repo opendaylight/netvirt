@@ -9,7 +9,6 @@
 package org.opendaylight.netvirt.policyservice.util;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,19 +18,17 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AclBase;
@@ -92,16 +89,17 @@ public class PolicyServiceUtil {
     private final IElanBridgeManager bridgeManager;
     private final ItmRpcService itmRpcService;
     private final IInterfaceManager interfaceManager;
-    private final DataStoreJobCoordinator coordinator;
+    private final JobCoordinator coordinator;
 
     @Inject
     public PolicyServiceUtil(final DataBroker dataBroker, final IElanBridgeManager bridgeManager,
-            final ItmRpcService itmRpcService, final IInterfaceManager interfaceManager) {
+            final ItmRpcService itmRpcService, final IInterfaceManager interfaceManager,
+            final JobCoordinator coordinator) {
         this.dataBroker = dataBroker;
         this.bridgeManager = bridgeManager;
         this.itmRpcService = itmRpcService;
         this.interfaceManager = interfaceManager;
-        this.coordinator = DataStoreJobCoordinator.getInstance();
+        this.coordinator = coordinator;
     }
 
     public Optional<String> getAcePolicyClassifier(Ace ace) {
