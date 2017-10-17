@@ -48,5 +48,7 @@ public interface INeutronVpnManager {
 
     void programV6InternetFallbackFlow(Uuid routerId, Uuid internetVpnId, int addOrRemove);
 
+    Uuid getVpnForSubnet(Uuid subnetId);
+
 }
 
