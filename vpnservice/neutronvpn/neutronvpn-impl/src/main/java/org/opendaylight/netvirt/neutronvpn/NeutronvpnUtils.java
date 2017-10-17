@@ -1402,17 +1402,18 @@ public class NeutronvpnUtils {
 
     public static VpnInstanceOpDataEntry getVpnInstanceOpDataEntryFromVpnId(DataBroker dataBroker, String vpnName) {
         String primaryRd = getVpnRd(dataBroker, vpnName);
+        String index = primaryRd;
         if (primaryRd == null) {
             LOG.error("getVpnInstanceOpDataEntryFromVpnId: Vpn Instance {} "
-                     + "Primary RD not found", vpnName);
-            return null;
+                     + "Primary RD not found. Reusing vpnName.", vpnName);
+            index = vpnName;
         }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(index)).build();
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
             read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
         if (!vpnInstanceOpDataEntryOptional.isPresent()) {
-            LOG.error("getVpnInstanceOpDataEntryFromVpnId: VpnInstance {} not found", primaryRd);
+            LOG.error("getVpnInstanceOpDataEntryFromVpnId: VpnInstance {} not found", index);
             return null;
         }
         return vpnInstanceOpDataEntryOptional.get();
@@ -1637,13 +1638,14 @@ public class NeutronvpnUtils {
     public static void updateVpnInstanceOpVpn(DataBroker dataBroker,
                                  VpnInstanceOpDataEntry.BgpvpnType choice, Uuid vpn) {
         String primaryRd = getVpnRd(dataBroker, vpn.getValue());
+        String index = primaryRd;
         if (primaryRd == null) {
             LOG.error("updateVpnInstanceOpVpn: Update BgpvpnType {} for {}."
-                    + "Primary RD not found", choice, vpn.getValue());
-            return;
+                    + "Primary RD not found. Using default VpnInstanceOpVpn", choice, vpn.getValue());
+            index = vpn.getValue();
         }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(index)).build();
 
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
             read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
