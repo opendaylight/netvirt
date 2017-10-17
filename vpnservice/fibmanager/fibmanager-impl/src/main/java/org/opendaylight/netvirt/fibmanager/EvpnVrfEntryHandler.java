@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -25,6 +24,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestinati
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.utils.batching.SubTransaction;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -48,17 +48,20 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     private final VrfEntryListener vrfEntryListener;
     private final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler;
     private final NexthopManager nexthopManager;
+    private final JobCoordinator jobCoordinator;
 
     EvpnVrfEntryHandler(DataBroker broker, VrfEntryListener vrfEntryListener,
                           BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
-                          NexthopManager nexthopManager) {
+                          NexthopManager nexthopManager, JobCoordinator jobCoordinator) {
         super(broker, nexthopManager, null);
         this.dataBroker = broker;
         this.vrfEntryListener = vrfEntryListener;
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
         this.nexthopManager = nexthopManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
+    @Override
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         LOG.info("Initiating creation of Evpn Flows");
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
@@ -75,8 +78,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             LOG.trace("SubnetRoute augmented vrfentry found for rd {} prefix {} with elantag {}",
                     rd, vrfEntry.getDestPrefix(), elanTag);
             if (vpnToDpnList != null) {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
+                jobCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                     () -> {
                         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                         for (final VpnToDpnList curDpn : vpnToDpnList) {
@@ -108,6 +110,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         createRemoteEvpnFlows(rd, vrfEntry, vpnInstance, localDpnId, vrfTableKey, isNatPrefix);
     }
 
+    @Override
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstanceOpData(dataBroker,
@@ -123,6 +126,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         vrfEntryListener.cleanUpOpDataForFib(vpnInstance.getVpnId(), rd, vrfEntry);
     }
 
+    @Override
     public void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
         //Not used
     }
@@ -172,8 +176,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         final List<InstructionInfo> instructions = Collections.singletonList(
             new InstructionApplyActions(
                 Collections.singletonList(new ActionGroup(groupId))));
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("FIB-" + vpnId.toString() + "-" + dpnId.toString()
+        jobCoordinator.enqueueJob("FIB-" + vpnId.toString() + "-" + dpnId.toString()
                 + "-" + vrfEntry.getDestPrefix(),
             () -> {
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
@@ -191,8 +194,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         if (vpnToDpnList != null) {
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB" + rd.toString() + vrfEntry.getDestPrefix(),
+            jobCoordinator.enqueueJob("FIB" + rd.toString() + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -270,8 +272,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         List<SubTransaction> subTxns =  new ArrayList<>();
         if (vpnToDpnList != null) {
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB" + rd.toString() + vrfEntry.getDestPrefix(),
+            jobCoordinator.enqueueJob("FIB" + rd.toString() + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     final Optional<Routes> extraRouteOptional = Optional.absent();
@@ -322,8 +323,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             //Handle extra routes and imported routes
         } else {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
+            jobCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
