@@ -16,7 +16,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -26,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -52,6 +52,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected final Class<? extends ServiceModeBase> serviceMode;
     protected final AclDataUtil aclDataUtil;
     protected final AclServiceUtils aclServiceUtils;
+    protected final JobCoordinator jobCoordinator;
 
     /**
      * Initialize the member variables.
@@ -68,12 +69,14 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      *            the acl service util.
      */
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
-            IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils) {
+            IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils,
+            JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.serviceMode = serviceMode;
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServiceUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -213,7 +216,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 String aclName = entry.getKey();
                 for (AclInterface port : entry.getValue()) {
                     if (currentPortId.equals(port.getInterfaceId())
-                            || (port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1)) {
+                            || port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1) {
                         continue;
                     }
                     List<Ace> remoteAceList = AclServiceUtils.getAceWithRemoteAclId(dataBroker, port, remoteAclId);
@@ -383,8 +386,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected void syncFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase> matches,
             List<InstructionInfo> instructions, int addOrRemove) {
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(flowName, () -> {
+        jobCoordinator.enqueueJob(flowName, () -> {
             if (addOrRemove == NwConstants.DEL_FLOW) {
                 FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName,
                         idleTimeOut, hardTimeOut, cookie, matches, null);
@@ -516,8 +518,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                             }
                         }
                     }
-                    int addRremove = (allMultipleAcls) ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
-                    addRremove = (isAclDeleted) ? NwConstants.DEL_FLOW : addRremove;
+                    int addRremove = allMultipleAcls ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
+                    addRremove = isAclDeleted ? NwConstants.DEL_FLOW : addRremove;
                     for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
                         if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
                             continue;
