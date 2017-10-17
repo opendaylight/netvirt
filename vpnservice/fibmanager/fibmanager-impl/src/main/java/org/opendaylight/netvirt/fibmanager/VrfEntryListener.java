@@ -366,20 +366,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob(FibUtil.getJobKeyForRdPrefix(rd, vrfEntry.getDestPrefix()), () -> {
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                for (VpnToDpnList vpnDpn : vpnToDpnList) {
-                    if (!localDpnIdList.contains(vpnDpn.getDpnId())) {
-                        if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
-                            try {
-                                if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
-                                    bgpRouteVrfEntryHandler.createRemoteFibEntry(vpnDpn.getDpnId(),
-                                            vpnId, vrfTableKey.getRouteDistinguisher(), vrfEntry, tx, txnObjects);
-                                } else {
-                                    createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
-                                            vrfTableKey.getRouteDistinguisher(), vrfEntry, tx);
+                synchronized (vpnInstance.getVpnInstanceName().intern()) {
+                    for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                        if (!localDpnIdList.contains(vpnDpn.getDpnId())) {
+                            if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
+                                try {
+                                    if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
+                                        bgpRouteVrfEntryHandler.createRemoteFibEntry(vpnDpn.getDpnId(),
+                                                vpnId, vrfTableKey.getRouteDistinguisher(), vrfEntry, tx, txnObjects);
+                                    } else {
+                                        createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(),
+                                                vrfTableKey.getRouteDistinguisher(), vrfEntry, tx);
+                                    }
+                                } catch (NullPointerException e) {
+                                    LOG.error("Failed to get create remote fib flows for prefix {} ",
+                                            vrfEntry.getDestPrefix(), e);
                                 }
-                            } catch (NullPointerException e) {
-                                LOG.error("Failed to get create remote fib flows for prefix {} ",
-                                        vrfEntry.getDestPrefix(), e);
                             }
                         }
                     }
@@ -1093,7 +1095,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
-        LOG.debug("createremotefibentry: adding route {} for rd {} on remoteDpnId {}",
+        LOG.info("createremotefibentry: adding route {} for rd {} on remoteDpnId {}",
                 vrfEntry.getDestPrefix(), rd, remoteDpnId);
 
         List<AdjacencyResult> adjacencyResults = baseVrfEntryHandler.resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
@@ -1583,7 +1585,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         boolean shouldCreateRemoteFibEntry = shouldCreateFibEntryForVrfAndVpnIdOnDpn(vpnId,
                                 vrfEntry, dpnId);
                         if (shouldCreateRemoteFibEntry) {
-                            LOG.trace("Will create remote FIB entry for vrfEntry {} on DPN {}",
+                            LOG.info("populateFibOnNewDpn:Will create remote FIB entry for vrfEntry {} on DPN {}",
                                     vrfEntry, dpnId);
                             if (RouteOrigin.BGP.getValue().equals(vrfEntry.getOrigin())) {
                                 bgpRouteVrfEntryHandler.createRemoteFibEntry(dpnId, vpnId,
