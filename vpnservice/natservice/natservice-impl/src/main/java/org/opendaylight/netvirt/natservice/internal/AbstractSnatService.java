@@ -36,7 +36,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -57,15 +56,13 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSnatService implements SnatServiceListener {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
     protected final DataBroker dataBroker;
     protected final IMdsalApiManager mdsalManager;
     protected final IdManagerService idManager;
-    protected final NaptManager naptManager;
     protected final NAPTSwitchSelector naptSwitchSelector;
     protected final ItmRpcService itmManager;
     protected final OdlInterfaceRpcService interfaceManager;
-    private final IVpnManager vpnManager;
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
     static final int LOAD_START = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
     static final int LOAD_END = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
             .METADATA_MASK_SH_FLAG.intValue());
@@ -74,17 +71,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
             final ItmRpcService itmManager,
             final OdlInterfaceRpcService interfaceManager,
             final IdManagerService idManager,
-            final NaptManager naptManager,
-            final NAPTSwitchSelector naptSwitchSelector,
-            final IVpnManager vpnManager) {
+            final NAPTSwitchSelector naptSwitchSelector) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
-        this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
-        this.vpnManager = vpnManager;
     }
 
     public void init() {
@@ -302,24 +295,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         String flowRef = getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, extNetId);
         syncFlow(dpnId, NwConstants.L3_FIB_TABLE, flowRef, NatConstants.DEFAULT_DNAT_FLOW_PRIORITY, flowRef,
                 NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
-    }
-
-    protected BigInteger getPrimaryNaptSwitch(String routerName, long routerId) {
-        // Allocate Primary Napt Switch for this router
-        BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
-        if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch with DPN ID {} is already elected for router",
-                    primarySwitchId, routerName);
-            return primarySwitchId;
-        }
-
-        primarySwitchId = naptSwitchSelector.selectNewNAPTSwitch(routerName);
-        LOG.debug("getPrimaryNaptSwitch : Primary NAPT switch DPN ID {}", primarySwitchId);
-        if (primarySwitchId == null || primarySwitchId.equals(BigInteger.ZERO)) {
-            LOG.error("getPrimaryNaptSwitch : Unable to to select the primary NAPT switch");
-        }
-
-        return primarySwitchId;
     }
 
     protected String getFlowRef(BigInteger dpnId, short tableId, long routerID) {
