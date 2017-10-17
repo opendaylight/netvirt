@@ -10,13 +10,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <parent>
     <groupId>org.opendaylight.odlparent</groupId>
     <artifactId>karaf-parent</artifactId>
-    <version>1.8.2-SNAPSHOT</version>
+    <version>1.8.3-SNAPSHOT</version>
     <relativePath/>
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <groupId>org.opendaylight.netvirt</groupId>
   <artifactId>vpnservice-karaf</artifactId>
-  <version>0.4.2-SNAPSHOT</version>
+  <version>0.4.3-SNAPSHOT</version>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
   <properties>
     <!-- <karaf.localFeature>odl-vpnservice-core</karaf.localFeature> -->
@@ -61,7 +61,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
        -->
       <groupId>org.opendaylight.controller</groupId>
       <artifactId>mdsal-trace-features</artifactId>
-      <version>1.5.2-SNAPSHOT</version>
+      <version>1.5.3-SNAPSHOT</version>
       <classifier>features</classifier>
       <type>xml</type>
       <scope>runtime</scope>
