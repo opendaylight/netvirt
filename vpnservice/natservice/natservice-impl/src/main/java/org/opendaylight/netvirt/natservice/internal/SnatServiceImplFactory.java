@@ -13,7 +13,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -32,10 +31,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final ItmRpcService itmManager;
     private final OdlInterfaceRpcService interfaceManager;
     private final IdManagerService idManager;
-    private final NaptManager naptManager;
     private final NAPTSwitchSelector naptSwitchSelector;
     private NatMode natMode;
-    private final IVpnManager vpnManager;
     private final INeutronVpnManager nvpnManager;
 
     @Inject
@@ -43,9 +40,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             final ItmRpcService itmManager,
             final OdlInterfaceRpcService interfaceManager,
             final IdManagerService idManager,
-            final NaptManager naptManager,
             final NAPTSwitchSelector naptSwitchSelector,
-            final IVpnManager vpnManager,
             final NatserviceConfig config,
             final INeutronVpnManager nvpnManager) {
         this.dataBroker = dataBroker;
@@ -53,9 +48,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.itmManager = itmManager;
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
-        this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
-        this.vpnManager = vpnManager;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -78,7 +71,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
             return new ConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager, idManager,
-                naptManager, naptSwitchSelector, vpnManager);
+                    naptSwitchSelector);
         }
         return null;
     }
