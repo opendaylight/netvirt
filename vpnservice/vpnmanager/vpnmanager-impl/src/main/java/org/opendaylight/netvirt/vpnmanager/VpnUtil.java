@@ -1675,14 +1675,14 @@ public final class VpnUtil {
     }
 
     static void bindService(final String vpnInstanceName, final String interfaceName, DataBroker dataBroker,
-                            boolean isTunnelInterface) {
+                            boolean isTunnelInterface, int priority) {
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 BoundServices serviceInfo = isTunnelInterface
                         ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
-                        : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName);
+                        : getBoundServicesForVpnInterface(dataBroker, vpnInstanceName, interfaceName, priority);
                 writeTxn.put(LogicalDatastoreType.CONFIGURATION, InterfaceUtils.buildServiceId(interfaceName,
                         ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                         serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
@@ -1690,7 +1690,8 @@ public final class VpnUtil {
             });
     }
 
-    static BoundServices getBoundServicesForVpnInterface(DataBroker broker, String vpnName, String interfaceName) {
+    static BoundServices getBoundServicesForVpnInterface(DataBroker broker, String vpnName,
+                                             String interfaceName, int priority) {
         List<Instruction> instructions = new ArrayList<>();
         int instructionKey = 0;
         final long vpnId = VpnUtil.getVpnId(broker, vpnName);
@@ -1705,7 +1706,7 @@ public final class VpnUtil {
         BoundServices serviceInfo = InterfaceUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", vpnName, interfaceName),
                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX),
-                VpnConstants.DEFAULT_FLOW_PRIORITY, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                priority, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         return serviceInfo;
     }
 
@@ -1876,6 +1877,27 @@ public final class VpnUtil {
             sn = optionalSn.get();
         }
         return sn;
+    }
+
+    public static IpVersionChoice getVpnType(DataBroker dataBroker, String vpnName) {
+        InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,
+                new VpnInstanceKey(vpnName)).build();
+        Optional<org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns
+                    .yang.l3vpn.rev140815.vpn.instances
+                    .VpnInstance> opVpnInstance = read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
+        if (!opVpnInstance.isPresent()) {
+            return IpVersionChoice.UNDEFINED;
+        }
+        VpnInstance vpnInstance = opVpnInstance.get();
+        if ((vpnInstance.getIpv4Family() == null) && (vpnInstance.getIpv6Family() != null)) {
+            LOG.error("getVpnType : VPN {} is Ipv6", vpnName);
+            return IpVersionChoice.IPV6;
+        }
+        if ((vpnInstance.getIpv6Family() == null) && (vpnInstance.getIpv4Family() != null)) {
+            LOG.error("getVpnType : VPN {} is Ipv4", vpnName);
+            return IpVersionChoice.IPV4;
+        }
+        return IpVersionChoice.IPV4AND6;
     }
 
     /** Get boolean true if vpn is bgpvpn internet, false otherwise.
