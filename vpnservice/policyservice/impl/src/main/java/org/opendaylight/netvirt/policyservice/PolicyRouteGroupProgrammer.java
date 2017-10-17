@@ -11,13 +11,11 @@ package org.opendaylight.netvirt.policyservice;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceFlowUtil;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
@@ -44,16 +42,17 @@ public class PolicyRouteGroupProgrammer {
     private final PolicyIdManager policyIdManager;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyServiceFlowUtil policyServiceFlowUtil;
-    private final DataStoreJobCoordinator coordinator;
+    private final JobCoordinator coordinator;
 
     @Inject
     public PolicyRouteGroupProgrammer(final DataBroker dataBroker, final PolicyIdManager policyIdManager,
-            final PolicyServiceUtil policyServiceUtil, final PolicyServiceFlowUtil policyServiceFlowUtil) {
+            final PolicyServiceUtil policyServiceUtil, final PolicyServiceFlowUtil policyServiceFlowUtil,
+            final JobCoordinator coordinator) {
         this.dataBroker = dataBroker;
         this.policyIdManager = policyIdManager;
         this.policyServiceUtil = policyServiceUtil;
         this.policyServiceFlowUtil = policyServiceFlowUtil;
-        this.coordinator = DataStoreJobCoordinator.getInstance();
+        this.coordinator = coordinator;
     }
 
     public void programPolicyClassifierGroups(String policyClassifier, List<BigInteger> localDpIds,

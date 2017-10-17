@@ -20,11 +20,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceFlowUtil;
 import org.opendaylight.netvirt.policyservice.util.PolicyServiceUtil;
@@ -57,19 +57,20 @@ public class PolicyAceFlowProgrammer {
     private final PolicyIdManager policyIdManager;
     private final PolicyServiceUtil policyServiceUtil;
     private final PolicyServiceFlowUtil policyFlowUtil;
-    private final DataStoreJobCoordinator coordinator;
+    private final JobCoordinator coordinator;
 
     @Inject
     public PolicyAceFlowProgrammer(final DataBroker dataBroker, final IAclServiceUtil aclServiceUtil,
             final IInterfaceManager interfaceManager, final PolicyIdManager policyIdManager,
-            final PolicyServiceUtil policyServiceUtil, final PolicyServiceFlowUtil policyFlowUtil) {
+            final PolicyServiceUtil policyServiceUtil, final PolicyServiceFlowUtil policyFlowUtil,
+            final JobCoordinator coordinator) {
         this.dataBroker = dataBroker;
         this.aclServiceUtil = aclServiceUtil;
         this.interfaceManager = interfaceManager;
         this.policyIdManager = policyIdManager;
         this.policyServiceUtil = policyServiceUtil;
         this.policyFlowUtil = policyFlowUtil;
-        this.coordinator = DataStoreJobCoordinator.getInstance();
+        this.coordinator = coordinator;
     }
 
     public void programAceFlows(Ace ace, BigInteger dpId, int addOrRemove) {
