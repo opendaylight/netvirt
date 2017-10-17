@@ -287,7 +287,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             tx = dataBroker.newWriteOnlyTransaction();
         }
 
-        LOG.debug("createRemoteFibEntry: adding route {} for rd {} on remoteDpnId {}",
+        LOG.info("createRemoteFibEntry-BGP: adding route {} for rd {} on remoteDpnId {}",
                 vrfEntry.getDestPrefix(), rd, remoteDpnId);
 
         List<NexthopManager.AdjacencyResult> adjacencyResults =
