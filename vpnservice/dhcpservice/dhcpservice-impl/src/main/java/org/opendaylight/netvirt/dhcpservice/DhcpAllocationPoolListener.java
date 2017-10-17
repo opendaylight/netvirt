@@ -10,11 +10,10 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpAllocationPoolAddJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpAllocationPoolRemoveJob;
@@ -32,15 +31,15 @@ public class DhcpAllocationPoolListener
 
     private final DhcpAllocationPoolManager dhcpAllocationPoolManager;
     private final DataBroker dataBroker;
-    private final DataStoreJobCoordinator dataStoreJobCoordinator;
+    private final JobCoordinator jobCoordinator;
 
     public DhcpAllocationPoolListener(final DhcpAllocationPoolManager dhcpAllocationPoolManager,
-            final DataBroker dataBroker) {
+            final DataBroker dataBroker, final JobCoordinator jobCoordinator) {
         super(AllocationPool.class, DhcpAllocationPoolListener.class);
         this.dhcpAllocationPoolManager = dhcpAllocationPoolManager;
         this.dataBroker = dataBroker;
+        this.jobCoordinator = jobCoordinator;
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
         LOG.info("DhcpAllocationPoolListener initialized");
     }
 
@@ -54,7 +53,7 @@ public class DhcpAllocationPoolListener
                 LOG.debug("Install Dhcp Entries for dpId: {} interface : {}", dpnId, interfaceName);
                 DhcpAllocationPoolAddJob job = new DhcpAllocationPoolAddJob(dataBroker,
                         interfaceName);
-                dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job,
+                jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job,
                         DhcpMConstants.RETRY_COUNT);
             }
         }
@@ -80,7 +79,7 @@ public class DhcpAllocationPoolListener
             for (String interfaceName : elanDpnInterfacesByName.get(dpnId)) {
                 DhcpAllocationPoolRemoveJob job = new DhcpAllocationPoolRemoveJob(dataBroker,
                         interfaceName);
-                dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job,
+                jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job,
                         DhcpMConstants.RETRY_COUNT);
             }
         }

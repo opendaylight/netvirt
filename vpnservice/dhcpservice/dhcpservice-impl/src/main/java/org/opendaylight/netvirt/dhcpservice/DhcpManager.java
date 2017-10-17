@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -30,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionPuntToController;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -51,6 +51,7 @@ public class DhcpManager {
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
+    private final JobCoordinator jobCoordinator;
 
     private int dhcpOptLeaseTime = 0;
     private String dhcpOptDefDomainName;
@@ -62,7 +63,8 @@ public class DhcpManager {
             final INeutronVpnManager neutronVpnManager,
             final DhcpserviceConfig config, final DataBroker dataBroker,
             final DhcpExternalTunnelManager dhcpExternalTunnelManager, final IInterfaceManager interfaceManager,
-            final @Named("elanService") IElanService ielanService) {
+            final @Named("elanService") IElanService ielanService,
+            final JobCoordinator jobCoordinator) {
         this.mdsalUtil = mdsalApiManager;
         this.neutronVpnService = neutronVpnManager;
         this.config = config;
@@ -70,6 +72,7 @@ public class DhcpManager {
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.interfaceManager = interfaceManager;
         this.elanService = ielanService;
+        this.jobCoordinator = jobCoordinator;
         configureLeaseDuration(DhcpMConstants.DEFAULT_LEASE_TIME);
     }
 
@@ -78,8 +81,9 @@ public class DhcpManager {
         LOG.trace("Netvirt DHCP Manager Init .... {}",config.isControllerDhcpEnabled());
         if (config.isControllerDhcpEnabled()) {
             dhcpInterfaceEventListener = new DhcpInterfaceEventListener(this, broker, dhcpExternalTunnelManager,
-                    interfaceManager, elanService);
-            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this);
+                    interfaceManager, elanService, jobCoordinator);
+            dhcpInterfaceConfigListener = new DhcpInterfaceConfigListener(broker, dhcpExternalTunnelManager, this,
+                    jobCoordinator);
             LOG.info("DHCP Service initialized");
         }
     }

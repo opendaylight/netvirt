@@ -12,9 +12,9 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceAddJob;
 import org.opendaylight.netvirt.dhcpservice.jobs.DhcpInterfaceRemoveJob;
@@ -41,21 +41,22 @@ public class DhcpInterfaceEventListener
     private final DataBroker dataBroker;
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private final DataStoreJobCoordinator dataStoreJobCoordinator;
+    private final JobCoordinator jobCoordinator;
     private final IInterfaceManager interfaceManager;
     private final IElanService elanService;
 
     public DhcpInterfaceEventListener(DhcpManager dhcpManager, DataBroker dataBroker,
                                       DhcpExternalTunnelManager dhcpExternalTunnelManager,
-                                      IInterfaceManager interfaceManager, IElanService elanService) {
+                                      IInterfaceManager interfaceManager, IElanService elanService,
+                                      JobCoordinator jobCoordinator) {
         super(Interface.class, DhcpInterfaceEventListener.class);
         this.dhcpManager = dhcpManager;
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
+        this.jobCoordinator = jobCoordinator;
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-        dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     }
 
     @Override
@@ -82,7 +83,7 @@ public class DhcpInterfaceEventListener
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceRemoveJob job = new DhcpInterfaceRemoveJob(dhcpManager, dhcpExternalTunnelManager,
                 dataBroker, del, dpnId, interfaceManager, elanService);
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
+        jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override
@@ -111,7 +112,7 @@ public class DhcpInterfaceEventListener
         String interfaceName = update.getName();
         DhcpInterfaceUpdateJob job = new DhcpInterfaceUpdateJob(dhcpExternalTunnelManager, dataBroker,
                 interfaceName, dpnId, update.getOperStatus(), interfaceManager);
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
+        jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override
@@ -135,7 +136,7 @@ public class DhcpInterfaceEventListener
         BigInteger dpnId = BigInteger.valueOf(MDSALUtil.getDpnIdFromPortName(nodeConnectorId));
         DhcpInterfaceAddJob job = new DhcpInterfaceAddJob(dhcpManager, dhcpExternalTunnelManager, dataBroker,
                 add, dpnId, interfaceManager, elanService);
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
+        jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), job, DhcpMConstants.RETRY_COUNT);
     }
 
     @Override
