@@ -9,13 +9,12 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import java.util.Collections;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -38,16 +37,17 @@ public class DhcpInterfaceConfigListener
     private final DataBroker dataBroker;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DhcpManager dhcpManager;
-    private DataStoreJobCoordinator dataStoreJobCoordinator;
+    private final JobCoordinator jobCoordinator;
 
     public DhcpInterfaceConfigListener(DataBroker dataBroker,
-            DhcpExternalTunnelManager dhcpExternalTunnelManager, DhcpManager dhcpManager) {
+            DhcpExternalTunnelManager dhcpExternalTunnelManager, DhcpManager dhcpManager,
+            JobCoordinator jobCoordinator) {
         super(Interface.class, DhcpInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dhcpManager = dhcpManager;
+        this.jobCoordinator = jobCoordinator;
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     }
 
     @Override
@@ -58,7 +58,7 @@ public class DhcpInterfaceConfigListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface del) {
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(del.getName()), () -> {
+        jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(del.getName()), () -> {
             IfTunnel tunnelInterface = del.getAugmentation(IfTunnel.class);
             IfL2vlan vlanInterface = del.getAugmentation(IfL2vlan.class);
             String interfaceName = del.getName();
@@ -90,7 +90,7 @@ public class DhcpInterfaceConfigListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface add) {
-        dataStoreJobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(add.getName()), () -> {
+        jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(add.getName()), () -> {
             String interfaceName = add.getName();
             IfL2vlan vlanInterface = add.getAugmentation(IfL2vlan.class);
             if (vlanInterface == null) {

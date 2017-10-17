@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Consumer;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -21,8 +20,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
@@ -49,17 +48,19 @@ public class DhcpNeutronPortListener
     private final DataBroker broker;
     private final DhcpserviceConfig config;
     private final IInterfaceManager interfaceManager;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public DhcpNeutronPortListener(DataBroker db, DhcpExternalTunnelManager dhcpExternalTunnelManager,
             @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
-            DhcpserviceConfig config) {
+            DhcpserviceConfig config, final JobCoordinator jobCoordinator) {
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.elanService = ielanService;
         this.interfaceManager = interfaceManager;
         this.broker = db;
         this.config = config;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @PostConstruct
@@ -86,8 +87,7 @@ public class DhcpNeutronPortListener
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
-            DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob(getJobKey(del), () -> {
+            jobCoordinator.enqueueJob(getJobKey(del), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
                 DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
                         .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
@@ -120,7 +120,7 @@ public class DhcpNeutronPortListener
             }
             return;
         }
-        if (!isVnicTypeDirectOrMacVtap((original))) {
+        if (!isVnicTypeDirectOrMacVtap(original)) {
             LOG.trace("Original port was normal and updated is direct. Calling addPort()");
             addPort(update);
             return;
@@ -143,8 +143,7 @@ public class DhcpNeutronPortListener
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(add)) {
-            DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob(getJobKey(add), () -> {
+            jobCoordinator.enqueueJob(getJobKey(add), () -> {
                 WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
                 DhcpServiceUtils.createSubnetDhcpPortData(add, (subnetDhcpPortIdfr, subnetToDhcpport) -> wrtConfigTxn
                         .put(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr, subnetToDhcpport));
@@ -200,7 +199,7 @@ public class DhcpNeutronPortListener
             return false;
         }
         String vnicType = portBinding.getVnicType().trim().toLowerCase();
-        return (vnicType.equals("direct") || vnicType.equals("macvtap"));
+        return vnicType.equals("direct") || vnicType.equals("macvtap");
     }
 
     @Override

@@ -33,7 +33,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -42,6 +41,7 @@ import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
@@ -93,6 +93,7 @@ public class DhcpExternalTunnelManager {
     private final ItmRpcService itmRpcService;
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final IInterfaceManager interfaceManager;
+    private final JobCoordinator jobCoordinator;
 
     private final ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache =
             new ConcurrentHashMap<>();
@@ -104,12 +105,14 @@ public class DhcpExternalTunnelManager {
     @Inject
     public DhcpExternalTunnelManager(final DataBroker broker,
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
-            final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager) {
+            final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager,
+            final JobCoordinator jobCoordinator) {
         this.broker = broker;
         this.mdsalUtil = mdsalUtil;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.interfaceManager = interfaceManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @PostConstruct
@@ -177,7 +180,7 @@ public class DhcpExternalTunnelManager {
                 elanInstanceName, designatedDpnId, vmMacAddress);
 
         String tunnelIpDpnKey = getTunnelIpDpnKey(tunnelIp, designatedDpnId);
-        DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(tunnelIpDpnKey), () -> {
+        jobCoordinator.enqueueJob(getJobKey(tunnelIpDpnKey), () -> {
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
                 WriteTransaction tx = broker.newWriteOnlyTransaction();
@@ -675,7 +678,7 @@ public class DhcpExternalTunnelManager {
             return;
         }
 
-        DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(elanInstanceName), () -> {
+        jobCoordinator.enqueueJob(getJobKey(elanInstanceName), () -> {
             if (!entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
                 LOG.info("Installing remote McastMac is not executed for this node.");
@@ -783,7 +786,7 @@ public class DhcpExternalTunnelManager {
     }
 
     private void unInstallDhcpEntriesOnDpns(final List<BigInteger> dpns, final String vmMacAddress) {
-        DataStoreJobCoordinator.getInstance().enqueueJob(getJobKey(vmMacAddress), () -> {
+        jobCoordinator.enqueueJob(getJobKey(vmMacAddress), () -> {
             if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                     HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
                 WriteTransaction tx = broker.newWriteOnlyTransaction();
