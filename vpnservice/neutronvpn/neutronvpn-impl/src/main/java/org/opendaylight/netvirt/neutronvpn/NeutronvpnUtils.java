@@ -1386,14 +1386,10 @@ public class NeutronvpnUtils {
 
     public VpnInstanceOpDataEntry getVpnInstanceOpDataEntryFromVpnId(String vpnName) {
         String primaryRd = getVpnRd(vpnName);
-        if (primaryRd == null) {
-            LOG.error("getVpnInstanceOpDataEntryFromVpnId: Vpn Instance {} "
-                     + "Primary RD not found", vpnName);
-            return null;
-        }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
               .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional = read(LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(LogicalDatastoreType.OPERATIONAL, id);
         if (!vpnInstanceOpDataEntryOptional.isPresent()) {
             LOG.error("getVpnInstanceOpDataEntryFromVpnId: VpnInstance {} not found", primaryRd);
             return null;
@@ -1647,11 +1643,6 @@ public class NeutronvpnUtils {
 
     public void updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType choice, Uuid vpn) {
         String primaryRd = getVpnRd(vpn.getValue());
-        if (primaryRd == null) {
-            LOG.error("updateVpnInstanceOpWithType: Update BgpvpnType {} for {}."
-                    + "Primary RD not found", choice, vpn.getValue());
-            return;
-        }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
               .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
 
