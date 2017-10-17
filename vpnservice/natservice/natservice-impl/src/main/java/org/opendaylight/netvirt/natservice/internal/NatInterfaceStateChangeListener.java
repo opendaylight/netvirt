@@ -20,8 +20,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -40,14 +40,16 @@ public class NatInterfaceStateChangeListener
     private static final Logger LOG = LoggerFactory.getLogger(NatInterfaceStateChangeListener.class);
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
+    private final JobCoordinator coordinator;
     private static final String NAT_DS = "NATDS";
 
     @Inject
     public NatInterfaceStateChangeListener(final DataBroker dataBroker,
-            final OdlInterfaceRpcService odlInterfaceRpcService) {
+            final OdlInterfaceRpcService odlInterfaceRpcService, final JobCoordinator coordinator) {
         super(Interface.class, NatInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
+        this.coordinator = coordinator;
     }
 
     @Override
@@ -76,7 +78,7 @@ public class NatInterfaceStateChangeListener
             LOG.debug("add : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+
         NatInterfaceStateAddWorker natIfaceStateAddWorker = new NatInterfaceStateAddWorker(intrf);
         coordinator.enqueueJob(NAT_DS + "-" + intrf.getName(), natIfaceStateAddWorker);
     }
@@ -90,7 +92,7 @@ public class NatInterfaceStateChangeListener
             LOG.debug("remove : Interface {} is not Vlan Interface.Ignoring", intrf.getName());
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+
         NatInterfaceStateRemoveWorker natIfaceStateRemoveWorker = new NatInterfaceStateRemoveWorker(intrf);
         coordinator.enqueueJob(NAT_DS + "-" + intrf.getName(), natIfaceStateRemoveWorker);
     }
@@ -104,7 +106,7 @@ public class NatInterfaceStateChangeListener
             LOG.debug("update : Interface {} is not Vlan Interface.Ignoring", update.getName());
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+
         NatInterfaceStateUpdateWorker natIfaceStateupdateWorker = new NatInterfaceStateUpdateWorker(original,update);
         coordinator.enqueueJob(NAT_DS + "-" + update.getName(), natIfaceStateupdateWorker);
     }

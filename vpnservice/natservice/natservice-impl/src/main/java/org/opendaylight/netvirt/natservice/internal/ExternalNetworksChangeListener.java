@@ -16,15 +16,14 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -58,6 +57,7 @@ public class ExternalNetworksChangeListener
     private final IBgpManager bgpManager;
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
+    private final JobCoordinator coordinator;
     private NatMode natMode = NatMode.Controller;
 
     @Inject
@@ -69,7 +69,8 @@ public class ExternalNetworksChangeListener
                                           final IBgpManager bgpManager,
                                           final VpnRpcService vpnService,
                                           final FibRpcService fibService,
-                                          final NatserviceConfig config) {
+                                          final NatserviceConfig config,
+                                          final JobCoordinator coordinator) {
         super(Networks.class, ExternalNetworksChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -80,6 +81,7 @@ public class ExternalNetworksChangeListener
         this.bgpManager = bgpManager;
         this.vpnService = vpnService;
         this.fibService = fibService;
+        this.coordinator = coordinator;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -132,8 +134,7 @@ public class ExternalNetworksChangeListener
         //Check for VPN disassociation
         Uuid originalVpn = original.getVpnid();
         Uuid updatedVpn = update.getVpnid();
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
             WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (originalVpn == null && updatedVpn != null) {
