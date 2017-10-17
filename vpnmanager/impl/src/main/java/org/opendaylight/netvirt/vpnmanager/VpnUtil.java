@@ -1455,26 +1455,28 @@ public final class VpnUtil {
         return externalIps.stream().map(ExternalIps::getIpAddress).collect(Collectors.toList());
     }
 
-    void bindService(final String vpnInstanceName, final String interfaceName, boolean isTunnelInterface) {
+    void bindService(final String vpnInstanceName, final String interfaceName, boolean isTunnelInterface,
+                     short service, String serviceName) {
         jobCoordinator.enqueueJob(interfaceName,
             () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
                                                                                 Datastore.CONFIGURATION, tx -> {
                     BoundServices serviceInfo = isTunnelInterface
                             ? VpnUtil.getBoundServicesForTunnelInterface(vpnInstanceName, interfaceName)
-                            : getBoundServicesForVpnInterface(vpnInstanceName, interfaceName);
+                            : getBoundServicesForVpnInterface(vpnInstanceName, interfaceName,
+                            VpnConstants.DEFAULT_FLOW_PRIORITY);
                     tx.put(InterfaceUtils.buildServiceId(interfaceName,
-                            ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                    NwConstants.L3VPN_SERVICE_INDEX)),
+                            ServiceIndex.getIndex(serviceName, service)),
                             serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
                 })), SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
-    BoundServices getBoundServicesForVpnInterface(String vpnName, String interfaceName) {
+    BoundServices getBoundServicesForVpnInterface(String vpnName, String interfaceName, int priority) {
         List<Instruction> instructions = new ArrayList<>();
         int instructionKey = 0;
         final long vpnId = getVpnId(vpnName);
         List<Action> actions = Collections.singletonList(
-                new ActionRegLoad(0, VpnConstants.VPN_REG_ID, 0, VpnConstants.VPN_ID_LENGTH, vpnId).buildAction());
+                new ActionRegLoad(0, VpnConstants.VPN_REG_ID, 0, VpnConstants.VPN_ID_LENGTH,
+                        vpnId).buildAction());
         instructions.add(MDSALUtil.buildApplyActionsInstruction(actions, ++instructionKey));
         instructions.add(
                 MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
@@ -1484,7 +1486,7 @@ public final class VpnUtil {
         BoundServices serviceInfo = InterfaceUtils.getBoundServices(
                 String.format("%s.%s.%s", "vpn", vpnName, interfaceName),
                 ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX),
-                VpnConstants.DEFAULT_FLOW_PRIORITY, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
+                priority, NwConstants.COOKIE_VM_INGRESS_TABLE, instructions);
         return serviceInfo;
     }
 
@@ -1501,14 +1503,13 @@ public final class VpnUtil {
         return serviceInfo;
     }
 
-    void unbindService(final String vpnInterfaceName, boolean isInterfaceStateDown) {
+    void unbindService(final String vpnInterfaceName, boolean isInterfaceStateDown, short service, String serviceName) {
         if (!isInterfaceStateDown) {
             jobCoordinator.enqueueJob(vpnInterfaceName,
                 () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                         Datastore.CONFIGURATION, tx ->
                         tx.delete(InterfaceUtils.buildServiceId(vpnInterfaceName,
-                                        ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
-                                                NwConstants.L3VPN_SERVICE_INDEX))))),
+                                        ServiceIndex.getIndex(serviceName, service))))),
                 SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
     }
@@ -1721,6 +1722,33 @@ public final class VpnUtil {
             }
         }
         return null;
+    }
+
+    public IpVersionChoice getVpnType(String vpnName) {
+        String primaryRd = getVpnRd(vpnName);
+        String index = primaryRd;
+        IpVersionChoice ipVersion = IpVersionChoice.UNDEFINED;
+        if (primaryRd == null) {
+            LOG.error("getVpnType: Primary RD not found for VPN {}", vpnName);
+            index = vpnName;
+        }
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(index)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("getVpnType: VpnInstanceOpDataEntry not found for VPN {}", vpnName);
+            return ipVersion;
+        }
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = vpnInstanceOpDataEntryOptional.get();
+        if (vpnInstanceOpDataEntry.isIpv4Configured()) {
+            ipVersion = ipVersion.addVersion(IpVersionChoice.IPV4);
+        }
+        if (vpnInstanceOpDataEntry.isIpv6Configured()) {
+            ipVersion = ipVersion.addVersion(IpVersionChoice.IPV6);
+        }
+        return ipVersion;
     }
 
     /** Get boolean true if vpn is bgpvpn internet, false otherwise.
