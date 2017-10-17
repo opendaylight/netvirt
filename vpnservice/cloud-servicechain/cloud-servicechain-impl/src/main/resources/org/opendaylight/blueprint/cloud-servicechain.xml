@@ -8,6 +8,7 @@
     <reference id="iMdsalApiManager" interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
     <reference id="iVpnFootprintService" interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService" />
     <reference id="iInterfaceManager" interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+    <reference id="jobCoordinator" interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
 
     <service ref="cloudServiceChainProvider" odl:type="default"
              interface="org.opendaylight.netvirt.cloudservicechain.api.ICloudServiceChain"/>
