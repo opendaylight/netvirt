@@ -33,6 +33,24 @@
       "revId": "61107833018e7e6ea125b14d085e2a610d974571",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a11aff6b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statusanddiag/ElanDiagStatusMonitor.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-10-17T18:57:15Z",
+      "side": 1,
+      "message": "Sure will soon do this for OFPlugin.. Once service recovery comes in place, the input I got from Vivek is that there will be some audit function being called here to check if all datastores are in sync and showing the right values, if not service will be shown in ERROR state.",
+      "parentUuid": "9a245df4_1b06ddce",
+      "revId": "61107833018e7e6ea125b14d085e2a610d974571",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
