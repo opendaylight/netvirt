@@ -52,6 +52,7 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -213,6 +214,31 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
+    private void updateBindServices(String vpnName, String interfaceName, Boolean bind) {
+        if (VpnUtil.isBgpVpnInternet(dataBroker, vpnName)) {
+            LOG.debug("updateBindServices: vpn {} is BgpVpnInternet, so skip", vpnName);
+            return;
+        }
+        short service = NwConstants.L3VPN_SERVICE_INDEX;
+        IpVersionChoice ipVersion = VpnUtil.getVpnType(dataBroker, vpnName);
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+            service = NwConstants.L3_VPNV6_SERVICE_INDEX;
+        }
+        String serviceName = service == NwConstants.L3_VPNV6_SERVICE_INDEX
+                   ? NwConstants.L3_VPNV6_SERVICE_NAME : NwConstants.L3VPN_SERVICE_NAME;
+        LOG.debug("updateBindServices: interface {} VPN {} service {}", interfaceName, vpnName,
+                  serviceName);
+        if (bind) {
+            VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/, jobCoordinator,
+                    service, serviceName);
+        } else {
+            Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+            Boolean isInterfaceStateDown = interfaceState.getOperStatus() == Interface.OperStatus.Down ? true : false;
+            VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown, jobCoordinator, service,
+                                  serviceName);
+        }
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void addVpnInterface(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface vpnInterface,
@@ -220,6 +246,90 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
             String vpnName = vpnInterfaceVpnInstance.getVpnName();
             addVpnInterfaceCall(identifier, vpnInterface, oldAdjs, newAdjs, vpnName);
+        }
+        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        final String interfaceName = key.getName();
+        jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName, () -> {
+            LOG.debug("VPN Interface.addBindServices: interface {} bindService", interfaceName);
+            addBindServices(identifier, vpnInterface, interfaceName);
+            return Collections.emptyList();
+        });
+
+    }
+
+    private void addBindServices(final InstanceIdentifier<VpnInterface> identifier,
+                  final VpnInterface vpnInterface, String interfaceName) {
+        Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+        int nbVpnInterfacesAvailable = 0;
+        String vpnIpv4Name = null;
+        String vpnIpv6Name = null;
+        boolean arbitrateProvision = false;
+        String firstVpnName = null;
+        String secondVpnName = null;
+
+        if (interfaceState != null) {
+            for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
+                String vpnName = vpnInterfaceVpnInstance.getVpnName();
+                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+                if (VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+                    continue;
+                }
+                if (VpnUtil.isBgpVpnInternet(dataBroker, vpnName)) {
+                    continue;
+                }
+                nbVpnInterfacesAvailable++;
+                if (firstVpnName == null) {
+                    firstVpnName = vpnName;
+                } else if (secondVpnName == null) {
+                    secondVpnName = vpnName;
+                }
+                IpVersionChoice ipVersion = VpnUtil.getVpnType(dataBroker, vpnName);
+                if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+                    if (vpnIpv4Name == null) {
+                        vpnIpv4Name = vpnName;
+                    } else {
+                        arbitrateProvision = true;
+                    }
+                } else if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                    if (vpnIpv6Name == null) {
+                        vpnIpv6Name = vpnName;
+                    } else {
+                        arbitrateProvision = true;
+                    }
+                } else {
+                    arbitrateProvision = true;
+                }
+            }
+        }
+        if (nbVpnInterfacesAvailable > 1) {
+            if (vpnIpv4Name != null && vpnIpv6Name != null) {
+                LOG.debug("VPN Interface.addBindServices: interface {} adding bindRule with {} service {}",
+                          interfaceName, vpnIpv4Name, NwConstants.L3VPN_SERVICE_NAME);
+                LOG.debug("VPN Interface.addBindServices: interface {} adding bindRule with {} service {}",
+                          interfaceName, vpnIpv6Name, NwConstants.L3_VPNV6_SERVICE_NAME);
+                VpnUtil.bindService(vpnIpv4Name, interfaceName, dataBroker,
+                        false /*isTunnelInterface*/, jobCoordinator,
+                        NwConstants.L3VPN_SERVICE_INDEX, NwConstants.L3VPN_SERVICE_NAME);
+                VpnUtil.bindService(vpnIpv6Name, interfaceName, dataBroker,
+                        false /*isTunnelInterface*/, jobCoordinator,
+                        NwConstants.L3_VPNV6_SERVICE_INDEX, NwConstants.L3_VPNV6_SERVICE_NAME);
+            }
+        } else if (nbVpnInterfacesAvailable == 1) {
+            if (firstVpnName != null) {
+                short serviceIndex;
+                String serviceName;
+                if (vpnIpv6Name != null) {
+                    serviceIndex = NwConstants.L3_VPNV6_SERVICE_INDEX;
+                    serviceName = NwConstants.L3_VPNV6_SERVICE_NAME;
+                } else {
+                    serviceIndex = NwConstants.L3VPN_SERVICE_INDEX;
+                    serviceName = NwConstants.L3VPN_SERVICE_NAME;
+                }
+                LOG.debug("VPN Interface.addBindServices: interface {} adding bindRule with {} service {}",
+                          interfaceName, firstVpnName, serviceName);
+                VpnUtil.bindService(firstVpnName, interfaceName, dataBroker,
+                           false /*isTunnelInterface*/, jobCoordinator, serviceIndex, serviceName);
+            }
         }
     }
 
@@ -414,10 +524,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         true /* add */);
                 processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                         vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
-                if (!isBgpVpnInternetVpn) {
-                    VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/,
-                            jobCoordinator);
-                }
                 LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {}", interfaceName,
                         dpId, vpnName);
                 if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -464,9 +570,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     true /* add */);
             processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                     vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
-            if (!isBgpVpnInternetVpn) {
-                VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/, jobCoordinator);
-            }
             LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {} after waiting for"
                     + " FIB to clean up", interfaceName, dpId, vpnName);
             if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -1192,11 +1295,23 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     @Override
     public void remove(InstanceIdentifier<VpnInterface> identifier, VpnInterface vpnInterface) {
-        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
-        final String interfaceName = key.getName();
         for (VpnInstanceNames vpnInterfaceVpnInstance : vpnInterface.getVpnInstanceNames()) {
-            String vpnName = vpnInterfaceVpnInstance.getVpnName();
-            removeVpnInterfaceCall(identifier, vpnInterface, vpnName, interfaceName);
+            final String vpnName = vpnInterfaceVpnInstance.getVpnName();
+            if (VpnUtil.isBgpVpnInternet(dataBroker, vpnName)) {
+                continue;
+            }
+            short service = NwConstants.L3VPN_SERVICE_INDEX;
+            String serviceName = NwConstants.L3VPN_SERVICE_NAME;
+            LOG.debug("remove: unbindService {} for interface {}", serviceName, vpnInterface.getName());
+            VpnUtil.unbindService(dataBroker, vpnInterface.getName(), false, jobCoordinator, service, serviceName);
+            IpVersionChoice ipVersion = VpnUtil.getVpnType(dataBroker, vpnName);
+            if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+                service = NwConstants.L3_VPNV6_SERVICE_INDEX;
+                serviceName = NwConstants.L3_VPNV6_SERVICE_NAME;
+                LOG.debug("remove: unbindService {} for interface {} ", serviceName, vpnInterface.getName());
+                VpnUtil.unbindService(dataBroker, vpnInterface.getName(), false, jobCoordinator, service, serviceName);
+            }
+            removeVpnInterfaceCall(identifier, vpnInterface, vpnName, vpnInterface.getName());
         }
     }
 
@@ -1308,20 +1423,15 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                     interfaceName, vpnName);
         if (!isInterfaceStateDown) {
             final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE,
-                    null);
-            final boolean isBgpVpnInternetVpn = VpnUtil.isBgpVpnInternet(dataBroker, vpnName);
-            removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnName,
-                    vpnId, gwMac, writeConfigTxn, writeOperTxn, writeInvTxn);
+            VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE, null);
+            removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnName, vpnId, gwMac, writeConfigTxn,
+                                     writeOperTxn, writeInvTxn);
             if (interfaceManager.isExternalInterface(interfaceName)) {
                 processExternalVpnInterface(interfaceName, vpnName, vpnId, dpId, lportTag, writeInvTxn,
                         NwConstants.DEL_FLOW);
             }
-            if (!isBgpVpnInternetVpn) {
-                VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown, jobCoordinator);
-            }
             LOG.info("processVpnInterfaceDown: Unbound vpn service from interface {} on dpn {} for vpn {}"
-                    + " successful", interfaceName, dpId, vpnName);
+                     + " successful", interfaceName, dpId, vpnName);
         } else {
             // Interface is retained in the DPN, but its Link Down.
             // Only withdraw the prefixes for this interface from BGP
@@ -1608,6 +1718,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         if (!oldVpnList.isEmpty() || !newVpnList.isEmpty()) {
             for (String oldVpnName: oldVpnList) {
                 isSwap = Boolean.TRUE;
+                updateBindServices(oldVpnName, interfaceName, false /*bind*/);
                 LOG.info("handleVpnSwapForVpnInterface: VPN Interface update event - intfName {} remove vpnName {}"
                         + " running config-driven swap removal", interfaceName, oldVpnName);
                 removeVpnInterfaceCall(identifier, original, oldVpnName, interfaceName);
@@ -1631,12 +1742,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             ? origAdjs.getAdjacency() : new ArrayList<>();
                     final Adjacencies updateAdjs = update.augmentation(Adjacencies.class);
                     final List<Adjacency> newAdjs = (updateAdjs != null && updateAdjs.getAdjacency() != null)
-                            ? updateAdjs.getAdjacency() : new ArrayList<>();
-
+                        ? updateAdjs.getAdjacency() : new ArrayList<>();
                     addVpnInterfaceCall(identifier, update, oldAdjs, newAdjs, newVpnName);
-                    LOG.info("handleVpnSwapForVpnInterface: Processed Add for update on VPNInterface {}"
-                                    + "from oldVpn(s) {} to newVpn {} upon VPN swap",
-                            interfaceName, oldVpnListCopy, newVpnName);
+                    LOG.info("handleVpnSwapForVpnInterface: Processed Add for update on VPNInterface {} from oldVpn(s) "
+                             + "{} to newVpn {} upon VPN swap", interfaceName, oldVpnListCopy, newVpnName);
+                    updateBindServices(newVpnName, interfaceName, true /*bind*/);
                 }
             }
         }
