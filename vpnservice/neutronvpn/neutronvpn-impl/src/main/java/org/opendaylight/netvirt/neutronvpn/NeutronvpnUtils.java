@@ -1381,16 +1381,18 @@ public class NeutronvpnUtils {
 
     public VpnInstanceOpDataEntry getVpnInstanceOpDataEntryFromVpnId(String vpnName) {
         String primaryRd = getVpnRd(vpnName);
+        String index = primaryRd;
         if (primaryRd == null) {
             LOG.error("getVpnInstanceOpDataEntryFromVpnId: Vpn Instance {} "
-                     + "Primary RD not found", vpnName);
-            return null;
+                     + "Primary RD not found. Reusing vpnName.", vpnName);
+            index = vpnName;
         }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
               .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional = read(LogicalDatastoreType.OPERATIONAL, id);
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(LogicalDatastoreType.OPERATIONAL, id);
         if (!vpnInstanceOpDataEntryOptional.isPresent()) {
-            LOG.error("getVpnInstanceOpDataEntryFromVpnId: VpnInstance {} not found", primaryRd);
+            LOG.error("getVpnInstanceOpDataEntryFromVpnId: VpnInstance {} not found", index);
             return null;
         }
         return vpnInstanceOpDataEntryOptional.get();
@@ -1619,13 +1621,14 @@ public class NeutronvpnUtils {
 
     public void updateVpnInstanceOpVpn(VpnInstanceOpDataEntry.BgpvpnType choice, Uuid vpn) {
         String primaryRd = getVpnRd(vpn.getValue());
+        String index = primaryRd;
         if (primaryRd == null) {
             LOG.error("updateVpnInstanceOpVpn: Update BgpvpnType {} for {}."
-                    + "Primary RD not found", choice, vpn.getValue());
-            return;
+                    + "Primary RD not found. Using default VpnInstanceOpVpn", choice, vpn.getValue());
+            index = vpn.getValue();
         }
         InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
-              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(index)).build();
 
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
             read(LogicalDatastoreType.OPERATIONAL, id);

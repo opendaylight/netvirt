@@ -334,7 +334,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if (VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) { //Handled for L3VPN Over VxLAN
                 for (String tunnelInterfaceName: getDcGatewayTunnelInterfaceNameList()) {
                     VpnUtil.bindService(vpnInstance.getVpnInstanceName(), tunnelInterfaceName, dataBroker,
-                            true/*isTunnelInterface*/, jobCoordinator);
+                              true/*isTunnelInterface*/, jobCoordinator, 0);
                 }
 
                 // install flow
