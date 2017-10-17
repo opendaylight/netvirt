@@ -61,6 +61,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <version>${infrautils.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>jobcoordinator-impl</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>com.googlecode.java-ipv6</groupId>
       <artifactId>java-ipv6</artifactId>
       <version>0.16</version>
