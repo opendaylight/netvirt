@@ -17,12 +17,10 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -44,6 +42,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Source;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -71,16 +70,19 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private final IMdsalApiManager mdsalManager;
     private final OdlInterfaceRpcService interfaceManager;
     private final FloatingIPHandler floatingIPHandler;
+    private final JobCoordinator coordinator;
 
     @Inject
     public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                               final OdlInterfaceRpcService interfaceManager,
-                              final FloatingIPHandler floatingIPHandler) {
+                              final FloatingIPHandler floatingIPHandler,
+                              final JobCoordinator coordinator) {
         super(InternalToExternalPortMap.class, FloatingIPListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
         this.floatingIPHandler = floatingIPHandler;
+        this.coordinator = coordinator;
     }
 
     @Override
@@ -133,7 +135,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return null;
         }
         LOG.debug("buildPreDNATFlowEntity : Bulding DNAT Flow entity for ip {} ", externalIp);
-        long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
+        long segmentId = associatedVpn == NatConstants.INVALID_ID ? routerId : associatedVpn;
         LOG.debug("buildPreDNATFlowEntity : Segment id {} in build preDNAT Flow", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
@@ -169,7 +171,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         String externalIp = mapping.getExternalIp();
         LOG.info("buildDNATFlowEntity : Bulding DNAT Flow entity for ip {} ", externalIp);
 
-        long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
+        long segmentId = associatedVpn == NatConstants.INVALID_ID ? routerId : associatedVpn;
         LOG.debug("buildDNATFlowEntity : Segment id {} in build DNAT", segmentId);
 
         List<MatchInfo> matches = new ArrayList<>();
@@ -204,7 +206,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
 
         LOG.debug("buildPreSNATFlowEntity : Building PSNAT Flow entity for ip {} ", internalIp);
 
-        long segmentId = (associatedVpn == NatConstants.INVALID_ID) ? routerId : associatedVpn;
+        long segmentId = associatedVpn == NatConstants.INVALID_ID ? routerId : associatedVpn;
 
         LOG.debug("buildPreSNATFlowEntity : Segment id {} in build preSNAT flow", segmentId);
 
@@ -376,8 +378,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         String interfaceName = pKey.getPortName();
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> {
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> {
             WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             createNATFlowEntries(interfaceName, mapping, portIid, routerId, writeFlowInvTx);
@@ -396,8 +397,7 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         String interfaceName = pKey.getPortName();
 
         InstanceIdentifier<RouterPorts> portIid = identifier.firstIdentifierOf(RouterPorts.class);
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> {
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + mapping.getKey(), () -> {
             WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             removeNATFlowEntries(interfaceName, mapping, portIid, routerId, null, removeFlowInvTx);

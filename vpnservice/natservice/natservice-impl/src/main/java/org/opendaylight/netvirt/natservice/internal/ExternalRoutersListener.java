@@ -38,7 +38,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -62,6 +61,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -161,6 +161,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private NatMode natMode = NatMode.Controller;
     private final INeutronVpnManager nvpnManager;
     private final IElanService elanManager;
+    private final JobCoordinator coordinator;
     private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
     static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
@@ -183,7 +184,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final INeutronVpnManager nvpnManager,
                                    final CentralizedSwitchScheduler centralizedSwitchScheduler,
                                    final NatserviceConfig config,
-                                   final IElanService elanManager) {
+                                   final IElanService elanManager,
+                                   final JobCoordinator coordinator) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -204,6 +206,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.nvpnManager = nvpnManager;
         this.elanManager = elanManager;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
+        this.coordinator = coordinator;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -244,8 +247,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             //snatServiceManger.notify(routers, null, Action.ADD);
         } else {
             try {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.getKey(), () -> {
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.getKey(), () -> {
                     WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                     LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
                     long bgpVpnId = NatConstants.INVALID_ID;
@@ -814,7 +816,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("createGroupIdPool : GroupIdPool created successfully");
             } else {
                 LOG.error("createGroupIdPool : Unable to create GroupIdPool");
@@ -1216,9 +1218,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 // Router has no interface attached
                 return;
             }
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             final long finalBgpVpnId = bgpVpnId;
-            dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
+            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + update.getKey(), () -> {
                 WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                 WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                 Uuid networkId = original.getNetworkId();
@@ -1656,8 +1657,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     centralizedSwitchScheduler.releaseCentralizedSwitch(routerName);
                 }
             } else {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.getKey(), () -> {
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + router.getKey(), () -> {
                     LOG.info("remove : Removing default NAT route from FIB on all dpns part of router {} ", routerName);
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     Long routerId = NatUtil.getVpnId(dataBroker, routerName);
@@ -1901,7 +1901,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // - This does not work since ext-routers is deleted already - no network info
         //Get the VPN ID from the ExternalNetworks model
         long vpnId = -1;
-        if ((vpnName == null) || (vpnName.isEmpty())) {
+        if (vpnName == null || vpnName.isEmpty()) {
             // ie called from router delete cases
             Uuid vpnUuid = NatUtil.getVpnIdfromNetworkId(dataBroker, networkId);
             LOG.debug("removeNaptFlowsFromActiveSwitch : vpnUuid is {}", vpnUuid);
