@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,19 +18,18 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.natservice.api.SnatServiceManager;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -67,7 +65,8 @@ public class RouterDpnChangeListener
     private final INeutronVpnManager nvpnManager;
     private final ExternalNetworkGroupInstaller extNetGroupInstaller;
     private final IElanService elanManager;
-    private SnatServiceManager natServiceManager;
+    private final JobCoordinator coordinator;
+    private final SnatServiceManager natServiceManager;
     private NatMode natMode = NatMode.Controller;
 
     @Inject
@@ -79,7 +78,8 @@ public class RouterDpnChangeListener
                                    final INeutronVpnManager nvpnManager,
                                    final SnatServiceManager natServiceManager,
                                    final NatserviceConfig config,
-                                   final IElanService elanManager) {
+                                   final IElanService elanManager,
+                                   final JobCoordinator coordinator) {
         super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -90,6 +90,7 @@ public class RouterDpnChangeListener
         this.nvpnManager = nvpnManager;
         this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
+        this.coordinator = coordinator;
         if (config != null) {
             this.natMode = config.getNatMode();
         }
@@ -157,8 +158,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_ENBL);
                 } else {
-                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
                         WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                         LOG.debug("add : Router {} is associated with ext nw {}", routerUuid, networkId);
@@ -263,8 +263,7 @@ public class RouterDpnChangeListener
                     natServiceManager.notify(router, naptSwitch, dpnId,
                             SnatServiceManager.Action.SNAT_ROUTER_DISBL);
                 } else {
-                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
+                    coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + dpnInfo.getKey(), () -> {
                         WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
                         LOG.debug("remove : Router {} is associated with ext nw {}", routerUuid, networkId);
                         Uuid vpnName = NatUtil.getVpnForRouter(dataBroker, routerUuid);

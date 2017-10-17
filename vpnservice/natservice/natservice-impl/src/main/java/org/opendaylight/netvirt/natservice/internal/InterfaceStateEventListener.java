@@ -22,11 +22,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
@@ -61,19 +61,22 @@ public class InterfaceStateEventListener
     private final FloatingIPListener floatingIPListener;
     private final NaptManager naptManager;
     private final NeutronvpnService neutronVpnService;
+    private final JobCoordinator coordinator;
     private static final String NAT_FLOW = "NATFLOW";
 
     @Inject
     public InterfaceStateEventListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                        final FloatingIPListener floatingIPListener,
                                        final NaptManager naptManager,
-                                       final NeutronvpnService neutronvpnService) {
+                                       final NeutronvpnService neutronvpnService,
+                                       final JobCoordinator coordinator) {
         super(Interface.class, InterfaceStateEventListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.floatingIPListener = floatingIPListener;
         this.naptManager = naptManager;
         this.neutronVpnService = neutronvpnService;
+        this.coordinator = coordinator;
     }
 
     @Override
@@ -102,7 +105,7 @@ public class InterfaceStateEventListener
             LOG.debug("remove : Interface {} is a not type Vlan.Ignoring", delintrf.getName());
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+
         NatFlowRemoveWorker natFlowRemoveWorker =
                 new NatFlowRemoveWorker(delintrf);
         coordinator.enqueueJob(NAT_FLOW + "-" + delintrf.getName(), natFlowRemoveWorker,
@@ -118,7 +121,7 @@ public class InterfaceStateEventListener
             LOG.debug("update : Interface {} is not type Vlan.Ignoring", update.getName());
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+
         NatFlowUpdateWorker natFlowUpdateWorker =
                 new NatFlowUpdateWorker(original, update);
         coordinator.enqueueJob(NAT_FLOW + "-" + update.getName(), natFlowUpdateWorker,
@@ -135,7 +138,7 @@ public class InterfaceStateEventListener
             LOG.debug("add : Interface {} is not type vlan.Ignoring", intrf.getName());
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
+
         NatFlowAddWorker natFlowAddWorker =
                 new NatFlowAddWorker(intrf);
         coordinator.enqueueJob(NAT_FLOW + "-" + intrf.getName(), natFlowAddWorker,

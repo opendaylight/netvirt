@@ -32,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionOutput;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
 import org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener;
@@ -78,7 +79,8 @@ public class ExternalNetworksChangeListenerTest {
             Mockito.mock(IBgpManager.class),
             Mockito.mock(VpnRpcService.class),
             Mockito.mock(FibRpcService.class),
-            Mockito.mock(NatserviceConfig.class));
+            Mockito.mock(NatserviceConfig.class),
+            Mockito.mock(JobCoordinator.class));
 
         PowerMockito.mockStatic(MDSALUtil.class);
     }
