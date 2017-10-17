@@ -1660,6 +1660,16 @@ public final class VpnUtil {
 
     static void unbindService(DataBroker dataBroker, final String vpnInterfaceName, boolean isInterfaceStateDown) {
         if (!isInterfaceStateDown) {
+            InstanceIdentifier<BoundServices> id = InterfaceUtils.buildServiceId(vpnInterfaceName,
+                                                  ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME,
+                                                       NwConstants.L3VPN_SERVICE_INDEX));
+            Optional<BoundServices> optBoundServices = read(dataBroker,
+                                                LogicalDatastoreType.OPERATIONAL, id);
+            if (!optBoundServices.isPresent()) {
+                LOG.error("unbindService: Vpn Interface {} state {} not found",
+                       vpnInterfaceName, isInterfaceStateDown);
+                return;
+            }
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             dataStoreCoordinator.enqueueJob(vpnInterfaceName,
                 () -> {
