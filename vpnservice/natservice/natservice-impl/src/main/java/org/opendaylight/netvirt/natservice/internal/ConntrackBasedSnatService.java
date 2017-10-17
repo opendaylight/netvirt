@@ -31,7 +31,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -46,19 +45,18 @@ import org.slf4j.LoggerFactory;
 
 public class ConntrackBasedSnatService extends AbstractSnatService {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ConntrackBasedSnatService.class);
     protected final int trackedNewCtState = 0x21;
     protected final int trackedNewCtMask = 0x21;
     protected final int snatCtState = 0x40;
     protected final int snatCtStateMask = 0x40;
     protected final int dnatCtState = 0x80;
     protected final int dnatCtStateMask = 0x80;
-    private static final Logger LOG = LoggerFactory.getLogger(ConntrackBasedSnatService.class);
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
-            OdlInterfaceRpcService interfaceManager, IdManagerService idManager, NaptManager naptManager,
-            NAPTSwitchSelector naptSwitchSelector, IVpnManager vpnManager) {
-        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptManager, naptSwitchSelector,
-                vpnManager);
+            OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
+            NAPTSwitchSelector naptSwitchSelector) {
+        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector);
     }
 
     @Override

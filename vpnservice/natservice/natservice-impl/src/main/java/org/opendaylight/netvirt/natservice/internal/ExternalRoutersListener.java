@@ -238,7 +238,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             List<ExternalIps> externalIps = routers.getExternalIps();
             // Allocate Primary Napt Switch for this router
             if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
-                boolean result = centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
+                boolean result = centralizedSwitchScheduler.scheduleCentralizedSwitch(routers);
             }
             //snatServiceManger.notify(routers, null, Action.ADD);
         } else {
@@ -1189,16 +1189,18 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 BigInteger primarySwitchId;
                 if (originalSNATEnabled) {
                     //SNAT disabled for the router
-                    centralizedSwitchScheduler.releaseCentralizedSwitch(routerName);
+                    centralizedSwitchScheduler.releaseCentralizedSwitch(update);
                 } else {
-                    centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
+                    centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
                 }
+            } else if (updatedSNATEnabled) {
+                centralizedSwitchScheduler.updateCentralizedSwitch(original,update);
             }
             List<ExternalIps> originalExternalIps = original.getExternalIps();
             List<ExternalIps> updateExternalIps = update.getExternalIps();
             if (!Objects.equals(originalExternalIps, updateExternalIps)) {
                 if (originalExternalIps == null || originalExternalIps.isEmpty()) {
-                    centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
+                    centralizedSwitchScheduler.scheduleCentralizedSwitch(update);
                 }
             }
         } else {
@@ -1652,7 +1654,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             String routerName = router.getRouterName();
             if (natMode == NatMode.Conntrack) {
                 if (router.isEnableSnat()) {
-                    centralizedSwitchScheduler.releaseCentralizedSwitch(routerName);
+                    centralizedSwitchScheduler.releaseCentralizedSwitch(router);
                 }
             } else {
                 DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();

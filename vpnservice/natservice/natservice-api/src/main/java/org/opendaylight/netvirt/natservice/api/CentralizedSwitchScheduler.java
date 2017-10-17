@@ -10,21 +10,31 @@ package org.opendaylight.netvirt.natservice.api;
 
 import java.math.BigInteger;
 
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+
 public interface CentralizedSwitchScheduler {
 
     /**
      * Schedule the centralized switch for the router.
-     * @param routerName the router name.
+     * @param router the external router.
      * @return success/failure
      */
-    boolean scheduleCentralizedSwitch(String routerName);
+    boolean scheduleCentralizedSwitch(Routers router);
+
+    /**
+     * Update the centralized switch scheduled for the router.
+     * @param oldRouter the existing external router.
+     * @param newRouter the new external router.
+     * @return  success/failure
+     */
+    boolean updateCentralizedSwitch(Routers oldRouter, Routers newRouter);
 
     /**
      * Releases the centralized switch scheduled for the router.
-     * @param routerName the router name.
+     * @param router the external router.
      * @return success/failure
      */
-    boolean releaseCentralizedSwitch(String routerName);
+    boolean releaseCentralizedSwitch(Routers router);
 
     /**
      * Retrieves the centralized switch scheduled for the router.
