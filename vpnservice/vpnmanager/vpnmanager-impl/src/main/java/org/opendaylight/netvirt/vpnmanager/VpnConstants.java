@@ -18,6 +18,8 @@ public class VpnConstants {
     public static final long VPN_IDPOOL_LOW = 100000L;
     public static final long VPN_IDPOOL_HIGH = 130000L;
     public static final short DEFAULT_FLOW_PRIORITY = 10;
+    public static final short DEFAULT_FLOW_PRIORITY_IPV6 = 8;
+    public static final short DEFAULT_FLOW_PRIORITY_IPV4 = 12;
     public static final int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
     public static final int VPN_ID_LENGTH = 24;
     public static final long INVALID_ID = -1;
