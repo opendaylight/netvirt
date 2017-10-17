@@ -36,10 +36,13 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class IPv6Handler {
     private final IMdsalApiManager mdsalManager;
+    private static final Logger LOG = LoggerFactory.getLogger(IPv6Handler.class);
 
     @Inject
     public IPv6Handler(final IMdsalApiManager mdsalManager) {
@@ -73,6 +76,7 @@ public class IPv6Handler {
         instructions.add(new InstructionApplyActions(actionsInfos));
 
         int priority = FibConstants.DEFAULT_FIB_FLOW_PRIORITY + FibConstants.DEFAULT_IPV6_PREFIX_LENGTH;
+        LOG.info("installPing6ResponderFlowEntry: dpnId {} label {} priority {}", dpnId, label, priority);
         String flowRef = FibUtil.getFlowRef(dpnId, NwConstants.L3_FIB_TABLE, label, priority);
 
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3_FIB_TABLE, flowRef, priority, flowRef,
