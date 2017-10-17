@@ -25,10 +25,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefixBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortEventAction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.config.rev161130.VpnConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.slf4j.Logger;
@@ -63,6 +65,7 @@ public abstract class AbstractIpLearnNotificationHandler {
         List<Adjacency> adjacencies = vpnUtil.getAdjacenciesForVpnInterfaceFromConfig(srcInterface);
         IpVersionChoice srcIpVersion = vpnUtil.getIpVersionFromString(srcIP.stringValue());
         boolean isSrcIpVersionPartOfVpn = false;
+        Uuid srcIpSubnetId = null;
         if (adjacencies != null && !adjacencies.isEmpty()) {
             for (Adjacency adj : adjacencies) {
                 IpPrefix ipPrefix = IpPrefixBuilder.getDefaultInstance(adj.getIpAddress());
@@ -73,6 +76,7 @@ public abstract class AbstractIpLearnNotificationHandler {
                 IpVersionChoice currentAdjIpVersion = vpnUtil.getIpVersionFromString(adj.getIpAddress());
                 if (srcIpVersion.isIpVersionChosen(currentAdjIpVersion)) {
                     isSrcIpVersionPartOfVpn = true;
+                    srcIpSubnetId = adj.getSubnetId();
                 }
             }
             //If srcIP version is not part of the srcInterface VPN Adjacency, ignore IpLearning process
@@ -83,11 +87,11 @@ public abstract class AbstractIpLearnNotificationHandler {
 
         LOG.trace("ARP/NA Notification Response Received from interface {} and IP {} having MAC {}, learning MAC",
                 srcInterface, srcIP.stringValue(), srcMac.getValue());
-        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP);
+        processIpLearning(srcInterface, srcIP, srcMac, metadata, targetIP, srcIpSubnetId);
     }
 
     protected void processIpLearning(String srcInterface, IpAddress srcIP, MacAddress srcMac, BigInteger metadata,
-                                     IpAddress dstIP) {
+                                     IpAddress dstIP, Uuid srcIpSubnetId) {
 
         if (metadata == null || Objects.equals(metadata, BigInteger.ZERO)) {
             return;
@@ -122,6 +126,16 @@ public abstract class AbstractIpLearnNotificationHandler {
 
                 if (!"Octavia".equals(neutronPort.getDeviceOwner())) {
                     LOG.debug("Neutron port {} is not an Octavia port, ignoring", portName);
+                    continue;
+                }
+            }
+            if (srcIpSubnetId != null) {
+                Subnetmap snMap = vpnUtil.getSubnetmapFromItsUuid(srcIpSubnetId);
+                if (snMap != null && snMap.getVpnId() != null && !snMap.getVpnId().getValue().equals(vpnName)) {
+                    /* If subnet is not part of vpn then it should be ignored
+                     * from being discovered. This use case will come for dual router
+                     * use case where all V6 subnets are part of VPN1 and all V4 subnets are part of VPN2.
+                     */
                     continue;
                 }
             }
