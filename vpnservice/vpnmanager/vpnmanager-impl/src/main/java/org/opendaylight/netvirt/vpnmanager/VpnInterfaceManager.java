@@ -203,12 +203,119 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         addVpnInterface(identifier, vpnInterface, null, null);
     }
 
+    private void updateBindServices(String newVpnName, String interfaceName, VpnInterface vpnInterface) {
+        Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+        int nbVpnInterfacesAvailable = 0;
+        if (interfaceState == null) {
+            return;
+        }
+        if (VpnUtil.isBgpVpnInternet(dataBroker, newVpnName)) {
+            return;
+        }
+        for (String vpnName : vpnInterface.getVpnInstanceNames()) {
+            String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+            if (VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+                continue;
+            }
+            if (VpnUtil.isBgpVpnInternet(dataBroker, vpnName)) {
+                continue;
+            }
+            if (newVpnName.equals(vpnName)) {
+                continue;
+            }
+            nbVpnInterfacesAvailable++;
+        }
+        // add a second rule. keep old rule as is.
+        if (nbVpnInterfacesAvailable == 1 || nbVpnInterfacesAvailable == 0) {
+            IpVersionChoice ipVersion = VpnUtil.getVpnType(dataBroker, newVpnName);
+            LOG.debug("VPN Interface.updateBindServices: interface {} adding bindRule with {} priority {}",
+                      interfaceName, newVpnName, ipVersion == IpVersionChoice.IPV4
+                      ? VpnConstants.DEFAULT_FLOW_PRIORITY_IPV4 : VpnConstants.DEFAULT_FLOW_PRIORITY_IPV6);
+            if (ipVersion == IpVersionChoice.IPV4) {
+                VpnUtil.bindService(newVpnName, interfaceName, dataBroker,
+                      false /*isTunnelInterface*/, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV4);
+            } else {
+                VpnUtil.bindService(newVpnName, interfaceName, dataBroker,
+                      false /*isTunnelInterface*/, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV6);
+            }
+        }
+    }
+
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void addVpnInterface(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface vpnInterface,
                              final List<Adjacency> oldAdjs, final List<Adjacency> newAdjs) {
-        for (String vpnName : vpnInterface.getVpnInstanceNames()) {
-            addVpnInterfaceCall(identifier, vpnInterface, oldAdjs, newAdjs, vpnName);
+        final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
+        final String interfaceName = key.getName();
+        Interface interfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+        int nbVpnInterfacesAvailable = 0;
+        String vpnIpv4Name = null;
+        String vpnIpv6Name = null;
+        boolean arbitrateProvision = false;
+        String firstVpnName = null;
+        String secondVpnName = null;
+        if (interfaceState != null) {
+            for (String vpnName : vpnInterface.getVpnInstanceNames()) {
+                String primaryRd = VpnUtil.getPrimaryRd(dataBroker, vpnName);
+                if (VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
+                    continue;
+                }
+                if (VpnUtil.isBgpVpnInternet(dataBroker, vpnName)) {
+                    continue;
+                }
+                nbVpnInterfacesAvailable++;
+                if (firstVpnName == null) {
+                    firstVpnName = vpnName;
+                } else if (secondVpnName == null) {
+                    secondVpnName = vpnName;
+                }
+                IpVersionChoice ipVersion = VpnUtil.getVpnType(dataBroker, vpnName);
+                if (ipVersion == IpVersionChoice.IPV4) {
+                    if (vpnIpv4Name == null) {
+                        vpnIpv4Name = vpnName;
+                    } else {
+                        arbitrateProvision = true;
+                    }
+                } else if (ipVersion == IpVersionChoice.IPV6) {
+                    if (vpnIpv6Name == null) {
+                        vpnIpv6Name = vpnName;
+                    } else {
+                        arbitrateProvision = true;
+                    }
+                } else {
+                    arbitrateProvision = true;
+                }
+            }
+        }
+        if (nbVpnInterfacesAvailable > 1) {
+            if (vpnIpv4Name != null && vpnIpv6Name != null) {
+                LOG.debug("VPN Interface.updateBindServices: interface {} adding bindRule with {} priority {}",
+                          interfaceName, vpnIpv4Name, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV4);
+                LOG.debug("VPN Interface.updateBindServices: interface {} adding bindRule with {} priority {}",
+                          interfaceName, vpnIpv6Name, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV6);
+                VpnUtil.bindService(vpnIpv4Name, interfaceName, dataBroker,
+                          false /*isTunnelInterface*/, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV4);
+                VpnUtil.bindService(vpnIpv6Name, interfaceName, dataBroker,
+                          false /*isTunnelInterface*/, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV6);
+            } else if (arbitrateProvision == true) {
+                if (firstVpnName != null && secondVpnName != null) {
+                    LOG.debug("VPN Interface.updateBindServices: interface {} adding bindRule with {} priority {}",
+                              interfaceName, firstVpnName, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV4);
+                    LOG.debug("VPN Interface.updateBindServices: interface {} adding bindRule with {} priority {}",
+                              interfaceName, secondVpnName, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV6);
+                    VpnUtil.bindService(secondVpnName, interfaceName, dataBroker,
+                          false /*isTunnelInterface*/, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV4);
+                    VpnUtil.bindService(firstVpnName, interfaceName, dataBroker,
+                          false /*isTunnelInterface*/, VpnConstants.DEFAULT_FLOW_PRIORITY_IPV6);
+                }
+            }
+        } else {
+            if (firstVpnName != null) {
+                LOG.debug("VPN Interface.updateBindServices: interface {} adding bindRule with {} priority {}",
+                          interfaceName, firstVpnName, VpnConstants.DEFAULT_FLOW_PRIORITY);
+                VpnUtil.bindService(firstVpnName, interfaceName, dataBroker,
+                        false /*isTunnelInterface*/, VpnConstants.DEFAULT_FLOW_PRIORITY);
+            }
         }
     }
 
@@ -415,9 +522,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, primaryRd, interfaceName,
                         null/*ipAddressSourceValuePair*/,
                         true /* add */);
-                if (!VpnUtil.isBgpVpnInternet(dataBroker, vpnName)) {
-                    VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/);
-                }
                 processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                         vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                 LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {}", interfaceName,
@@ -459,9 +563,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, primaryRd, interfaceName,
                     null/*ipAddressSourceValuePair*/,
                     true /* add */);
-            if (!VpnUtil.isBgpVpnInternet(dataBroker, vpnName)) {
-                VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/);
-            }
             processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                     vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
             LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {} after waiting for"
@@ -1245,6 +1346,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         for (String vpnName : vpnInterface.getVpnInstanceNames()) {
             removeVpnInterfaceCall(identifier, vpnInterface, vpnName, interfaceName);
         }
+        VpnUtil.unbindService(dataBroker, interfaceName, false);
     }
 
     private void removeVpnInterfaceCall(final InstanceIdentifier<VpnInterface> identifier,
@@ -1358,9 +1460,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 if (interfaceManager.isExternalInterface(interfaceName)) {
                     processExternalVpnInterface(vpnOpInterface, vpnId, dpId, lportTag, writeInvTxn,
                             NwConstants.DEL_FLOW);
-                }
-                if (!isBgpVpnInternet) {
-                    VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown);
                 }
                 LOG.info("processVpnInterfaceDown: Unbound vpn service from interface {} on dpn {} for vpn {}"
                         + " successful", interfaceName, dpId, vpnName);
@@ -1670,6 +1769,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     addVpnInterfaceToOperational(newVpnName, vpnInterfaceName, dpnId, aug,
                             dataBroker.newReadWriteTransaction(), false, VpnInterfaceState.Inactive);
                 }
+                updateBindServices(newVpnName, vpnInterfaceName, update);
                 addVpnInterfaceVpn(opIdentifier, update, copyOldAdjs, copyNewAdjs, identifier, newVpnName);
             } else {
                 LOG.error("update: Ignoring update of vpnInterface {}, as newVpnInstance {} with primaryRd {}"
