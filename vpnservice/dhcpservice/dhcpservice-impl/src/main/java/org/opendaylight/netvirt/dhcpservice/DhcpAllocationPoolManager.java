@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.EventListener;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -25,7 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -61,23 +59,23 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
     private DhcpAllocationPoolListener dhcpAllocationPoolListener;
 
     private final DataBroker dataBroker;
-    private final IMdsalApiManager mdsalUtil;
     private final IdManagerService idManager;
     private final DhcpserviceConfig config;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
-    public DhcpAllocationPoolManager(final IMdsalApiManager mdsalApiManager, final DataBroker dataBroker,
-            final IdManagerService idManager, final DhcpserviceConfig config) {
-        this.mdsalUtil = mdsalApiManager;
+    public DhcpAllocationPoolManager(final DataBroker dataBroker, final IdManagerService idManager,
+            final DhcpserviceConfig config, final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.config = config;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @PostConstruct
     public void init() {
         if (config.isDhcpDynamicAllocationPoolEnabled()) {
-            dhcpAllocationPoolListener = new DhcpAllocationPoolListener(this, dataBroker);
+            dhcpAllocationPoolListener = new DhcpAllocationPoolListener(this, dataBroker, jobCoordinator);
             LOG.info("DHCP Allocation Pool Service initialized");
         }
     }
