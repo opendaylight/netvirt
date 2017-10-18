@@ -16,8 +16,8 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 
 public abstract class AbstractCountersService {
 
@@ -37,33 +37,25 @@ public abstract class AbstractCountersService {
 
     public abstract void installDefaultCounterRules(String interfaceId);
 
-    public abstract void syncCounterFlows(ElementCountersRequest ecr, int operation);
+    public abstract void installCounterRules(ElementCountersRequest ecr);
+
+    public abstract void deleteCounterRules(ElementCountersRequest ecr);
 
     public void bindService(String interfaceId) {
         bind(interfaceId);
         installDefaultCounterRules(interfaceId);
     }
 
-    public void installCounterRules(ElementCountersRequest ecr) {
-        syncCounterFlows(ecr, NwConstants.ADD_FLOW);
-    }
-
-    public void deleteCounterRules(ElementCountersRequest ecr) {
-        syncCounterFlows(ecr, NwConstants.DEL_FLOW);
-    }
-
-    protected void syncFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
+    protected void addFlow(BigInteger dpId, short tableId, String flowId, int priority, String flowName,
             int idleTimeOut, int hardTimeOut, BigInteger cookie, List<? extends MatchInfoBase> matches,
-            List<InstructionInfo> instructions, int operation) {
-        if (NwConstants.DEL_FLOW == operation) {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
-                    hardTimeOut, cookie, matches, null);
-            mdsalManager.removeFlow(flowEntity);
-        } else if (NwConstants.ADD_FLOW == operation) {
-            FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
-                    hardTimeOut, cookie, matches, instructions);
-            mdsalManager.installFlow(flowEntity);
-        }
+            List<InstructionInfo> instructions) {
+        FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, tableId, flowId, priority, flowName, idleTimeOut,
+                hardTimeOut, cookie, matches, instructions);
+        mdsalManager.installFlow(flowEntity);
+    }
+
+    protected void deleteFlow(BigInteger dpId, short tableId, String flowId) {
+        mdsalManager.removeFlow(dpId, tableId, new FlowId(flowId));
     }
 
 }

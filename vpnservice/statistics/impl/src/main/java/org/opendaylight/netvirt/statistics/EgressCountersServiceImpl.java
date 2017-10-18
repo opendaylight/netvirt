@@ -57,9 +57,9 @@ public class EgressCountersServiceImpl extends AbstractCountersService {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions = CountersServiceUtils.getDispatcherTableResubmitInstructions(actionsInfos,
                 ElementCountersDirection.EGRESS);
-        syncFlow(dpn, NwConstants.EGRESS_COUNTERS_TABLE, defaultFlowName,
+        addFlow(dpn, NwConstants.EGRESS_COUNTERS_TABLE, defaultFlowName,
                 CountersServiceUtils.COUNTER_TABLE_DEFAULT_FLOW_PRIORITY, CountersServiceUtils.COUNTER_FLOW_NAME, 0, 0,
-                CountersServiceUtils.COOKIE_COUNTERS_BASE, defaultFlowMatches, instructions, NwConstants.ADD_FLOW);
+                CountersServiceUtils.COOKIE_COUNTERS_BASE, defaultFlowMatches, instructions);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class EgressCountersServiceImpl extends AbstractCountersService {
     }
 
     @Override
-    public void syncCounterFlows(ElementCountersRequest ecr, int operation) {
+    public void installCounterRules(ElementCountersRequest ecr) {
         int lportTag = ecr.getLportTag();
         List<MatchInfoBase> flowMatches =
                 CountersServiceUtils.getCounterFlowMatch(ecr, lportTag, ElementCountersDirection.EGRESS);
@@ -81,9 +81,18 @@ public class EgressCountersServiceImpl extends AbstractCountersService {
         BigInteger dpn = ecr.getDpn();
         String flowName = createFlowName(ecr, lportTag, dpn);
 
-        syncFlow(dpn, NwConstants.EGRESS_COUNTERS_TABLE, flowName,
+        addFlow(dpn, NwConstants.EGRESS_COUNTERS_TABLE, flowName,
                 CountersServiceUtils.COUNTER_TABLE_COUNTER_FLOW_PRIORITY, CountersServiceUtils.COUNTER_FLOW_NAME, 0, 0,
-                CountersServiceUtils.COOKIE_COUNTERS_BASE, flowMatches, instructions, operation);
+                CountersServiceUtils.COOKIE_COUNTERS_BASE, flowMatches, instructions);
+    }
+
+    @Override
+    public void deleteCounterRules(ElementCountersRequest ecr) {
+        int lportTag = ecr.getLportTag();
+        BigInteger dpn = ecr.getDpn();
+        String flowName = createFlowName(ecr, lportTag, dpn);
+
+        deleteFlow(dpn, NwConstants.EGRESS_COUNTERS_TABLE, flowName);
     }
 
     private String createFlowName(ElementCountersRequest ecr, int lportTag, BigInteger dpn) {
