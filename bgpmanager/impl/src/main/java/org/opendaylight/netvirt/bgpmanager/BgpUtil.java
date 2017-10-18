@@ -392,8 +392,8 @@ public class BgpUtil implements AutoCloseable {
                 .collect(toList());
     }
 
-
-    public void removeOrUpdateLBGroups(String tepIp, int addRemoveOrUpdate, boolean isTunnelUp) {
+    public void removeLBGroups(String tepIp, int addRemoveOrUpdate2, boolean isTunnelUp) {
+        int addRemoveOrUpdate = NwConstants.DEL_FLOW;
         LOG.debug("removing bucket towards DCGW {}", tepIp);
         List<String> availableDcGws = getDcGwIps();
         getDpnTEPsInfos(dataBroker).forEach(dpnInfo -> {
@@ -403,8 +403,17 @@ public class BgpUtil implements AutoCloseable {
                 LOG.debug("Deleting groups in DPN {}", dpnInfo.getDPNID());
             }
             Class<? extends TunnelTypeBase> tunType = TunnelTypeMplsOverGre.class;
-            fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpnInfo.getDPNID(),
-                    tepIp, addRemoveOrUpdate, isTunnelUp, tunType);
+            fibManager.removeDcGwLoadBalancingGroup(availableDcGws, dpnInfo.getDPNID(), tepIp);
+        });
+    }
+
+    public void updateLBGroups(String tepIp, boolean isTunnelUp) {
+        LOG.debug("removing bucket towards DCGW {}", tepIp);
+        List<String> availableDcGws = getDcGwIps();
+        getDpnTEPsInfos(dataBroker).forEach(dpnInfo -> {
+            LOG.debug("Updating bucket in DPN {}", dpnInfo.getDPNID());
+            Class<? extends TunnelTypeBase> tunType = TunnelTypeMplsOverGre.class;
+            fibManager.updateDcGwLoadBalancingGroup(availableDcGws, dpnInfo.getDPNID(), tepIp, isTunnelUp, tunType);
         });
     }
 }

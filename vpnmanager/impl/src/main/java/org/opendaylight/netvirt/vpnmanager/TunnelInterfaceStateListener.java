@@ -37,7 +37,6 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.JvmGlobalLocks;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -154,7 +153,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     protected void remove(InstanceIdentifier<StateTunnelList> identifier, StateTunnelList del) {
         LOG.trace("remove: Tunnel deletion---- {}", del);
         if (isGreTunnel(del)) {
-            programDcGwLoadBalancingGroup(del, NwConstants.DEL_FLOW);
+            removeDcGwLoadBalancingGroup(del);
         }
         handleTunnelEventForDPN(del, TunnelAction.TUNNEL_EP_DELETE);
     }
@@ -174,7 +173,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             return;
         }
         if (isGreTunnel(update)) {
-            programDcGwLoadBalancingGroup(update, NwConstants.MOD_FLOW);
+            updateDcGwLoadBalancingGroup(update);
         }
 
         //Remove the corresponding nexthop from the routepath under extraroute in fibentries.
@@ -231,7 +230,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             LOG.error("add: Tunnel {} is not yet UP.", add.getTunnelInterfaceName());
         }
         if (isGreTunnel(add)) {
-            programDcGwLoadBalancingGroup(add, NwConstants.ADD_FLOW);
+            addDcGwLoadBalancingGroup(add);
         }
         LOG.info("add: ITM Tunnel ,type {} ,added between src: {} and dest: {}",
                 fibManager.getTransportTypeStr(add.getTransportType().toString()),
@@ -564,14 +563,24 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         return del.getTransportType() == TunnelTypeMplsOverGre.class;
     }
 
-    private void programDcGwLoadBalancingGroup(StateTunnelList tunnelState, int addOrRemove) {
+    private void addDcGwLoadBalancingGroup(StateTunnelList tunnelState) {
         IpAddress dcGwIp = tunnelState.getDstInfo().getTepIp();
-        String dcGwIpAddress = dcGwIp.stringValue();
-        List<String> availableDcGws = getDcGwIps();
+        BigInteger dpId = new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
+        fibManager.addDcGwLoadBalancingGroup(getDcGwIps(), dpId, dcGwIp.stringValue(), tunnelState.getTransportType());
+    }
+
+    private void updateDcGwLoadBalancingGroup(StateTunnelList tunnelState) {
+        IpAddress dcGwIp = tunnelState.getDstInfo().getTepIp();
         BigInteger dpId = new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
         boolean isTunnelUp = TunnelOperStatus.Up == tunnelState.getOperState();
-        fibManager.programDcGwLoadBalancingGroup(availableDcGws, dpId, dcGwIpAddress, addOrRemove, isTunnelUp,
+        fibManager.updateDcGwLoadBalancingGroup(getDcGwIps(), dpId, dcGwIp.stringValue(), isTunnelUp,
                 tunnelState.getTransportType());
+    }
+
+    private void removeDcGwLoadBalancingGroup(StateTunnelList tunnelState) {
+        IpAddress dcGwIp = tunnelState.getDstInfo().getTepIp();
+        BigInteger dpId = new BigInteger(tunnelState.getSrcInfo().getTepDeviceId());
+        fibManager.removeDcGwLoadBalancingGroup(getDcGwIps(), dpId, dcGwIp.stringValue());
     }
 
     private List<String> getDcGwIps() {

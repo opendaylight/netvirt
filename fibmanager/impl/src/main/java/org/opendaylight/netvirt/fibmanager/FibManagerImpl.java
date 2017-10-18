@@ -200,11 +200,21 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
-    public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
-                                              int addRemoveOrUpdate, boolean isTunnelUp,
-                                              Class<? extends TunnelTypeBase> tunnelType) {
-        nexthopManager.programDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp,
-            addRemoveOrUpdate, isTunnelUp, tunnelType);
+    public void addDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp, Class<? extends TunnelTypeBase> tunnelType) {
+        nexthopManager.createDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp, tunnelType);
+    }
+
+    @Override
+    public void removeDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp) {
+        nexthopManager.removeOrUpdateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
+    }
+
+    @Override
+    public void updateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
+            String destinationIp, boolean isTunnelUp, Class<? extends TunnelTypeBase> tunnelType) {
+        nexthopManager.updateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp, isTunnelUp, tunnelType);
     }
 
     @Override

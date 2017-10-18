@@ -9,10 +9,8 @@
 package org.opendaylight.netvirt.fibmanager.api;
 
 import com.google.common.util.concurrent.FutureCallback;
-
 import java.math.BigInteger;
 import java.util.List;
-
 import org.eclipse.jdt.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.infra.Datastore.Configuration;
@@ -79,9 +77,13 @@ public interface IFibManager {
                                       boolean isVpnFirstEndPoint,
                                       VrfEntry vrfEntry);
 
-    void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
-                                       int addRemoveOrUpdate, boolean isTunnelUp,
-                                       Class<? extends TunnelTypeBase> tunnelType);
+    void addDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
+                                   Class<? extends TunnelTypeBase> tunnelType);
+
+    void removeDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp);
+
+    void updateDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId, String destinationIp,
+                                      boolean isTunnelUp, Class<? extends TunnelTypeBase> tunnelType);
 
     void refreshVrfEntry(String rd, String prefix);
 }
