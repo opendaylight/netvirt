@@ -163,6 +163,75 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_6d13d65c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "Move this code block to a utility method in NeutronVpnUtils, and call it in NeutronBgpvpnChangeListener, as mentioned in my earlier comment.",
+      "range": {
+        "startLine": 149,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 13
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4d10924e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "Move this code block to a utility method in NeutronVpnUtils, and call it in NeutronBgpvpnChangeListener, as mentioned in my earlier comment.",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 196,
+        "endChar": 13
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6d68f6ba",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "Please go through my comments in VpnUtil.java.\n\nNone of the changes in this file will be necessary if my comments in VpnUtil.java hold good.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 0
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_9290e7ed",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 34
@@ -202,6 +271,121 @@
         "startChar": 10,
         "endLine": 263,
         "endChar": 9
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cd792295",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "There are two ways to approach addVrf() call to BGP:\n\n1) The existing approach where we blindly call addVrf() on a vpn instance addition. If you want to follow this, then we dont need to track which subnets are added to the vpn, since addVrf() for v4 and v6 will be handled purely based on the addition/deletion of that vpn.\n\n2) This is the new approach that you have currently coded in this review. Here you are advertising/withdrawing vrf for a vpn strictly based on the presence/absence of a v4/v6 subnet in that vpn. In this case the above changes are not required, since the addVrf() for v4/v6 is handled purely based on an update to vpn-instance-op-data.\n\nSince you have already coded to conform to option (2) above, lets continue with that.\nIn this case, changes in line 420-429 are not required.",
+      "range": {
+        "startLine": 420,
+        "startChar": 13,
+        "endLine": 429,
+        "endChar": 13
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cd876260",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "else-if(update.getVpnState() \u003d\u003d VpnState.Created) {\n// add/delete Vrf accordingly\n}",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 71
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2d21de9f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1814,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "This wont be needed if my comments in line 1814 holds good.",
+      "range": {
+        "startLine": 1790,
+        "startChar": 4,
+        "endLine": 1814,
+        "endChar": 5
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ad1dce68",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1864,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "Instead of updating the vpn-instance config DS, update the boolean values directly in vpn-instance-op-data here.\nAnd then, do a tx.merge() with false as the last parameter here.",
+      "range": {
+        "startLine": 1817,
+        "startChar": 7,
+        "endLine": 1864,
+        "endChar": 100
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8d1a8a6c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1905,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:44:01Z",
+      "side": 1,
+      "message": "same comment as in line 1817",
+      "range": {
+        "startLine": 1870,
+        "startChar": 9,
+        "endLine": 1905,
+        "endChar": 104
       },
       "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
