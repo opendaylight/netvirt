@@ -1083,15 +1083,4 @@ public class NexthopManager implements AutoCloseable {
         return MDSALUtil.buildBucket(listAction, MDSALUtil.GROUP_WEIGHT, index,
                 MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP);
     }
-
-    public void programDcGwLoadBalancingGroup(List<String> availableDcGws, BigInteger dpnId,
-            String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp) {
-        if (NwConstants.ADD_FLOW == addRemoveOrUpdate) {
-            createDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
-        } else if (NwConstants.DEL_FLOW == addRemoveOrUpdate) {
-            removeOrUpdateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp);
-        } else if (NwConstants.MOD_FLOW == addRemoveOrUpdate) {
-            updateDcGwLoadBalancingGroup(availableDcGws, dpnId, destinationIp, isTunnelUp);
-        }
-    }
 }
