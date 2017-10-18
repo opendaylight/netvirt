@@ -2083,9 +2083,7 @@ public class BgpConfigurationManager {
             LOG.error("No Tep IP configured for DCGW {} on a peerDown", ipAddress);
             return;
         }
-        tepIpList.forEach(tepIp -> {
-            bgpUtil.removeOrUpdateLBGroups(tepIp, NwConstants.MOD_FLOW, false);
-        });
+        tepIpList.forEach(tepIp -> bgpUtil.updateLBGroups(tepIp, false));
     }
 
     public void peerUp(String ipAddress, long asNumber) {
@@ -2094,9 +2092,7 @@ public class BgpConfigurationManager {
             LOG.error("No Tep IP configured for DCGW {} on a peerUp", ipAddress);
             return;
         }
-        tepIpList.forEach(tepIp -> {
-            bgpUtil.removeOrUpdateLBGroups(tepIp, NwConstants.MOD_FLOW, true);
-        });
+        tepIpList.forEach(tepIp -> bgpUtil.updateLBGroups(tepIp, true));
     }
 
     private static boolean isRouteModified(int label, Long labelInStaleMap) {
