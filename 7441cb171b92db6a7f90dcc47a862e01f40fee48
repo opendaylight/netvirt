@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4d6ff292",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1545,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-18T16:29:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_740c4343",
+      "revId": "7441cb171b92db6a7f90dcc47a862e01f40fee48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_54093f30",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 14
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-18T09:42:58Z",
       "side": 1,
       "message": "cant we have a case where rdlist is not empty here and still have ipv6?",
+      "revId": "7441cb171b92db6a7f90dcc47a862e01f40fee48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6d72b67d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 14
+      },
+      "lineNbr": 1551,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-18T16:29:39Z",
+      "side": 1,
+      "message": "We could have in a vpnInstance an ipV4Family and an ipv6Family then in this case the rdList will be not empty.So I will do a change to check an new other rd in ipv6Families\n\nThks\ndone",
+      "parentUuid": "9a245df4_54093f30",
       "revId": "7441cb171b92db6a7f90dcc47a862e01f40fee48",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
