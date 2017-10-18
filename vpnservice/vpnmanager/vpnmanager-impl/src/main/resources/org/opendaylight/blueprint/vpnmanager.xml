@@ -175,9 +175,7 @@
         class="org.opendaylight.netvirt.vpnmanager.TunnelInterfaceStateListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="bgpmanager" />
     <argument ref="fibManager" />
-    <argument ref="itmRpcService" />
     <argument ref="odlInterfaceRpcService"/>
     <argument ref="vpnInterfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
