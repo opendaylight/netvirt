@@ -22,6 +22,30 @@
       "revId": "db4a8d00e534674f5e0300dfcd9e27e34880e4c6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d409af96",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 736,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-18T08:19:10Z",
+      "side": 1,
+      "message": "Sure, will change it accordingly. Thanks.",
+      "parentUuid": "9a245df4_ea94d138",
+      "range": {
+        "startLine": 736,
+        "startChar": 12,
+        "endLine": 736,
+        "endChar": 70
+      },
+      "revId": "db4a8d00e534674f5e0300dfcd9e27e34880e4c6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
