@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f27963fd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "configured",
+      "range": {
+        "startLine": 264,
+        "startChar": 21,
+        "endLine": 264,
+        "endChar": 35
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_128997eb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "handles IPv4 traffic",
+      "range": {
+        "startLine": 267,
+        "startChar": 36,
+        "endLine": 267,
+        "endChar": 49
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d27edfe3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "configured",
+      "range": {
+        "startLine": 270,
+        "startChar": 21,
+        "endLine": 270,
+        "endChar": 35
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b277eb01",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "handles IPv6 traffic",
+      "range": {
+        "startLine": 273,
+        "startChar": 36,
+        "endLine": 273,
+        "endChar": 49
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_725e1347",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "I just realised the updating the VpnInstance in SubnetMapChangeListener can cause very bad effects on a bgpvpn delete scenario.:(\nOn a bgpvpn-delete, the dissociate and vpn-delete happen at the same time. This might lead to the update getting committed later than the delete, causing stale vpn-op-data entry to exist in the datastore.\n\nSo, please move the part of updateVpnWithIpFamily out of SubnetMapCHangeListener. Call them in the NeutronBgpvpnChangeListener update() method. you wont have to call it again in the remove() method as the vpn-op-data delete anyways will withdraw the configured vrfs from the vpn",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 0
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_32d2dbd2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "Move this method to NeutronVpnUtils, and in the getIpVersion method, convert all the ifs to if...else and place them in a single try-catch block.",
+      "range": {
+        "startLine": 92,
+        "startChar": 57,
+        "endLine": 92,
+        "endChar": 69
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_32e93b81",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "See comments on line138.",
+      "range": {
+        "startLine": 93,
+        "startChar": 17,
+        "endLine": 93,
+        "endChar": 95
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9290e7ed",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "change this to false",
+      "range": {
+        "startLine": 259,
+        "startChar": 44,
+        "endLine": 259,
+        "endChar": 48
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_72b0d38b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-18T15:21:17Z",
+      "side": 1,
+      "message": "else not needed. Always create your own operTxn here and merge.",
+      "range": {
+        "startLine": 260,
+        "startChar": 10,
+        "endLine": 263,
+        "endChar": 9
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
