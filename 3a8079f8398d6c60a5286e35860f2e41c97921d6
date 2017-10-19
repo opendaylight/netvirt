@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f225dec2",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-10-19T13:30:18Z",
+      "side": 1,
+      "message": "Ok, let Michael and Stephen chime in. We had discussed this recently and came away with we thought it best to always expose anything needed by the shell via an api to keep the bundles properly separated.",
+      "parentUuid": "9a245df4_db73aaaf",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c060db37",
         "filename": "vpnservice/ipv6service/shell/src/main/resources/org/opendaylight/blueprint/blueprint.xml",
         "patchSetId": 1
