@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_edffc6ff",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_f27963fd",
+      "range": {
+        "startLine": 264,
+        "startChar": 21,
+        "endLine": 264,
+        "endChar": 35
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_128997eb",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 34
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-18T15:21:17Z",
       "side": 1,
       "message": "handles IPv4 traffic",
+      "range": {
+        "startLine": 267,
+        "startChar": 36,
+        "endLine": 267,
+        "endChar": 49
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cd048217",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_128997eb",
       "range": {
         "startLine": 267,
         "startChar": 36,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_2d0a7e21",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d27edfe3",
+      "range": {
+        "startLine": 270,
+        "startChar": 21,
+        "endLine": 270,
+        "endChar": 35
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b277eb01",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
         "patchSetId": 34
@@ -82,6 +154,30 @@
       "writtenOn": "2017-10-18T15:21:17Z",
       "side": 1,
       "message": "handles IPv6 traffic",
+      "range": {
+        "startLine": 273,
+        "startChar": 36,
+        "endLine": 273,
+        "endChar": 49
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0d0fba31",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 34
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_b277eb01",
       "range": {
         "startLine": 273,
         "startChar": 36,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_12ed12f0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_725e1347",
+      "range": {
+        "startLine": 10,
+        "startChar": 0,
+        "endLine": 10,
+        "endChar": 0
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_32d2dbd2",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 34
@@ -128,6 +248,30 @@
       "writtenOn": "2017-10-18T15:21:17Z",
       "side": 1,
       "message": "Move this method to NeutronVpnUtils, and in the getIpVersion method, convert all the ifs to if...else and place them in a single try-catch block.",
+      "range": {
+        "startLine": 92,
+        "startChar": 57,
+        "endLine": 92,
+        "endChar": 69
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b2cb66a4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_32d2dbd2",
       "range": {
         "startLine": 92,
         "startChar": 57,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_1216b2f1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "moved to bgpvpnlistener and neutronportchangelistener",
+      "parentUuid": "9a245df4_32e93b81",
+      "range": {
+        "startLine": 93,
+        "startChar": 17,
+        "endLine": 93,
+        "endChar": 95
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_6d13d65c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 34
@@ -174,6 +342,30 @@
       "writtenOn": "2017-10-18T15:44:01Z",
       "side": 1,
       "message": "Move this code block to a utility method in NeutronVpnUtils, and call it in NeutronBgpvpnChangeListener, as mentioned in my earlier comment.",
+      "range": {
+        "startLine": 149,
+        "startChar": 12,
+        "endLine": 169,
+        "endChar": 13
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_52d78a23",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 169,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "same response as for line 93",
+      "parentUuid": "9a245df4_6d13d65c",
       "range": {
         "startLine": 149,
         "startChar": 12,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b2dec63d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 196,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "same response as for line 93",
+      "parentUuid": "9a245df4_4d10924e",
+      "range": {
+        "startLine": 175,
+        "startChar": 12,
+        "endLine": 196,
+        "endChar": 13
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_6d68f6ba",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 34
@@ -220,6 +436,30 @@
       "writtenOn": "2017-10-18T15:44:01Z",
       "side": 1,
       "message": "Please go through my comments in VpnUtil.java.\n\nNone of the changes in this file will be necessary if my comments in VpnUtil.java hold good.",
+      "range": {
+        "startLine": 135,
+        "startChar": 0,
+        "endLine": 135,
+        "endChar": 0
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d21b7a1a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "that code below is removed.\nsince we modify directly vpn instance op directly from neutronvpn.",
+      "parentUuid": "9a245df4_6d68f6ba",
       "range": {
         "startLine": 135,
         "startChar": 0,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4d37f2e3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 259,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done.",
+      "parentUuid": "9a245df4_9290e7ed",
+      "range": {
+        "startLine": 259,
+        "startChar": 44,
+        "endLine": 259,
+        "endChar": 48
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_72b0d38b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 34
@@ -266,6 +530,30 @@
       "writtenOn": "2017-10-18T15:21:17Z",
       "side": 1,
       "message": "else not needed. Always create your own operTxn here and merge.",
+      "range": {
+        "startLine": 260,
+        "startChar": 10,
+        "endLine": 263,
+        "endChar": 9
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ed74e69d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_72b0d38b",
       "range": {
         "startLine": 260,
         "startChar": 10,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f2ce7e82",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 429,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_cd792295",
+      "range": {
+        "startLine": 420,
+        "startChar": 13,
+        "endLine": 429,
+        "endChar": 13
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_cd876260",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 34
@@ -312,6 +624,30 @@
       "writtenOn": "2017-10-18T15:44:01Z",
       "side": 1,
       "message": "else-if(update.getVpnState() \u003d\u003d VpnState.Created) {\n// add/delete Vrf accordingly\n}",
+      "range": {
+        "startLine": 79,
+        "startChar": 8,
+        "endLine": 80,
+        "endChar": 71
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8daa8a6e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_cd876260",
       "range": {
         "startLine": 79,
         "startChar": 8,
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b221a6a1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1814,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_2d21de9f",
+      "range": {
+        "startLine": 1790,
+        "startChar": 4,
+        "endLine": 1814,
+        "endChar": 5
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_ad1dce68",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 34
@@ -370,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_522aea7e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1864,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_ad1dce68",
+      "range": {
+        "startLine": 1817,
+        "startChar": 7,
+        "endLine": 1864,
+        "endChar": 100
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8d1a8a6c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 34
@@ -381,6 +765,30 @@
       "writtenOn": "2017-10-18T15:44:01Z",
       "side": 1,
       "message": "same comment as in line 1817",
+      "range": {
+        "startLine": 1870,
+        "startChar": 9,
+        "endLine": 1905,
+        "endChar": 104
+      },
+      "revId": "e10109de98ed92b08c40224f3165d3bc2caa82a9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_72272eb7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 34
+      },
+      "lineNbr": 1905,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-19T16:19:38Z",
+      "side": 1,
+      "message": "a single function in neutronvpnutils will be available and will add or remove the ipv4/ipv6 ability.\nthis will be\nupdateVpnInstanceWithIpFamily(DataBroker dataBroker, String vpnName, IpVersionChoice ipVersion, boolean add) \n\nadd boolean is true if the ipVersion should be added, del boolean is false if the ipVersion should be removed.",
+      "parentUuid": "9a245df4_8d1a8a6c",
       "range": {
         "startLine": 1870,
         "startChar": 9,
