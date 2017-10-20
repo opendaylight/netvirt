@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -55,19 +54,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSnatService implements SnatServiceListener {
-
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
+
     static final int LOAD_START = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
     static final int LOAD_END = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
             .METADATA_MASK_SH_FLAG.intValue());
-    protected final DataBroker dataBroker;
-    protected final IMdsalApiManager mdsalManager;
-    protected final IdManagerService idManager;
-    protected final NAPTSwitchSelector naptSwitchSelector;
-    protected final ItmRpcService itmManager;
-    protected final OdlInterfaceRpcService interfaceManager;
 
-    public AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
+    private final IdManagerService idManager;
+    private final NAPTSwitchSelector naptSwitchSelector;
+    private final ItmRpcService itmManager;
+    private final OdlInterfaceRpcService interfaceManager;
+
+    protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
             final ItmRpcService itmManager,
             final OdlInterfaceRpcService interfaceManager,
             final IdManagerService idManager,
@@ -80,12 +80,15 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         this.naptSwitchSelector = naptSwitchSelector;
     }
 
+    protected DataBroker getDataBroker() {
+        return dataBroker;
+    }
+
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
     }
 
     public void close() {
-
         LOG.debug("AbstractSnatService Closed");
     }
 
@@ -166,7 +169,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected void installInboundFibEntry(BigInteger dpnId, String externalIp, String routerName, Long routerId,
             int addOrRemove) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             Long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);

@@ -32,7 +32,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final OdlInterfaceRpcService interfaceManager;
     private final IdManagerService idManager;
     private final NAPTSwitchSelector naptSwitchSelector;
-    private NatMode natMode;
+    private final NatMode natMode;
     private final INeutronVpnManager nvpnManager;
 
     @Inject
@@ -51,6 +51,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.naptSwitchSelector = naptSwitchSelector;
         if (config != null) {
             this.natMode = config.getNatMode();
+        } else {
+            this.natMode = null;
         }
         this.nvpnManager = nvpnManager;
     }

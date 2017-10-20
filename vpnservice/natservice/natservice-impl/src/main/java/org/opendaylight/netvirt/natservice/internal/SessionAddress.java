@@ -10,8 +10,8 @@ package org.opendaylight.netvirt.natservice.internal;
 
 public class SessionAddress {
 
-    private String ipAddress;
-    private int portNumber;
+    private final String ipAddress;
+    private final int portNumber;
 
     public SessionAddress(String ipAddress, int portNumber) {
         this.ipAddress = ipAddress;

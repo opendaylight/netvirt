@@ -99,7 +99,7 @@ public class NatTunnelInterfaceStateListener
     private final FibRpcService fibRpcService;
     private final IElanService elanManager;
     private final IInterfaceManager interfaceManager;
-    private NatMode natMode = NatMode.Controller;
+    private final NatMode natMode;
 
     protected enum TunnelAction {
         TUNNEL_EP_ADD,
@@ -159,6 +159,8 @@ public class NatTunnelInterfaceStateListener
         this.interfaceManager = interfaceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
+        } else {
+            this.natMode = NatMode.Controller;
         }
     }
 
@@ -949,7 +951,7 @@ public class NatTunnelInterfaceStateListener
 
         //Check if the DPN having the router is the NAPT switch
         BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-        if (naptId == null || naptId.equals(BigInteger.ZERO) || (!naptId.equals(dpnId))) {
+        if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptId.equals(dpnId)) {
             LOG.warn("hndlTepDelForSnatInEachRtr : SNAT -> Ignoring TEP delete for the DPN {} since"
                     + " its NOT a NAPT switch for the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and"
                     + "TUNNEL NAME {} ", dpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
@@ -1126,7 +1128,7 @@ public class NatTunnelInterfaceStateListener
         String ifaceName = stateTunnelList.getTunnelInterfaceName();
         if (getTunnelType(stateTunnelList) == NatConstants.ITMTunnelLocType.Internal.getValue()) {
             Interface configIface = interfaceManager.getInterfaceInfoFromConfigDataStore(ifaceName);
-            IfTunnel ifTunnel = (configIface != null) ? configIface.getAugmentation(IfTunnel.class) : null;
+            IfTunnel ifTunnel = configIface != null ? configIface.getAugmentation(IfTunnel.class) : null;
             if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
                 ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
                 if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {
