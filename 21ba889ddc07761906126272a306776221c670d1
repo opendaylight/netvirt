@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f8fdb83c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T22:11:12Z",
+      "side": 1,
+      "message": "This isn\u0027t foolproof as another writer could still delete it after the read returns. Also doing a prior read adds unnecessary expense. It\u0027s better to just let the delete fail (ignore ModifiedNodeDoesNotExistException). The optimal solution is to eliminate the multiple writers or prevent multiple writers from deleting the same object,",
+      "revId": "21ba889ddc07761906126272a306776221c670d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
