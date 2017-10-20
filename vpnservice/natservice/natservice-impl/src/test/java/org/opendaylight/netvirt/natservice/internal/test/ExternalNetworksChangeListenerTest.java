@@ -37,7 +37,6 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.natservice.internal.ExternalNetworksChangeListener;
 import org.opendaylight.netvirt.natservice.internal.ExternalRoutersListener;
 import org.opendaylight.netvirt.natservice.internal.FloatingIPListener;
-import org.opendaylight.netvirt.natservice.internal.NaptManager;
 import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
@@ -71,11 +70,9 @@ public class ExternalNetworksChangeListenerTest {
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
         extNetworks = new ExternalNetworksChangeListener(dataBroker,
-            Mockito.mock(IMdsalApiManager.class),
             Mockito.mock(FloatingIPListener.class),
             Mockito.mock(ExternalRoutersListener.class),
             Mockito.mock(OdlInterfaceRpcService.class),
-            Mockito.mock(NaptManager.class),
             Mockito.mock(IBgpManager.class),
             Mockito.mock(VpnRpcService.class),
             Mockito.mock(FibRpcService.class),

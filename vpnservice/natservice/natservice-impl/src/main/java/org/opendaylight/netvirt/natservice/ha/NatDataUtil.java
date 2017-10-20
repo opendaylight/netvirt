@@ -18,15 +18,15 @@ public class NatDataUtil {
 
     private final Map<String,Routers> routerMap = new ConcurrentHashMap<>();
 
-    public synchronized void addtoRouterMap(Routers router) {
+    public void addtoRouterMap(Routers router) {
         routerMap.put(router.getRouterName(), router);
     }
 
-    public synchronized void updateRouterMap(Routers router) {
+    public void updateRouterMap(Routers router) {
         routerMap.put(router.getRouterName(), router);
     }
 
-    public synchronized void removeFromRouterMap(Routers router) {
+    public void removeFromRouterMap(Routers router) {
         routerMap.remove(router.getRouterName());
     }
 

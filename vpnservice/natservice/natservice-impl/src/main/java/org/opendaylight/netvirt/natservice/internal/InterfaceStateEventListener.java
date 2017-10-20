@@ -56,13 +56,15 @@ public class InterfaceStateEventListener
     implements AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateEventListener.class);
+
+    private static final String NAT_FLOW = "NATFLOW";
+
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final FloatingIPListener floatingIPListener;
     private final NaptManager naptManager;
     private final NeutronvpnService neutronVpnService;
     private final JobCoordinator coordinator;
-    private static final String NAT_FLOW = "NATFLOW";
 
     @Inject
     public InterfaceStateEventListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -123,7 +125,7 @@ public class InterfaceStateEventListener
         }
 
         NatFlowUpdateWorker natFlowUpdateWorker =
-                new NatFlowUpdateWorker(original, update);
+                new NatFlowUpdateWorker(update);
         coordinator.enqueueJob(NAT_FLOW + "-" + update.getName(), natFlowUpdateWorker,
                 NatConstants.NAT_DJC_MAX_RETRIES);
 
@@ -229,7 +231,7 @@ public class InterfaceStateEventListener
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    private String getRouterIdForPort(DataBroker dataBroker, String interfaceName) {
+    private String getRouterIdForPort(String interfaceName) {
         String vpnName = null;
         String routerName = null;
         VpnInterface vpnInterface = null;
@@ -390,7 +392,7 @@ public class InterfaceStateEventListener
             String interfaceName = iface.getName();
             try {
                 LOG.trace("call : Port added event received for interface {} ", interfaceName);
-                String routerId = getRouterIdForPort(dataBroker, interfaceName);
+                String routerId = getRouterIdForPort(interfaceName);
                 if (routerId != null) {
                     processInterfaceAdded(interfaceName, routerId, futures);
                 }
@@ -416,7 +418,7 @@ public class InterfaceStateEventListener
             final String interfaceName = delintrf.getName();
             LOG.trace("call : Interface {} removed event received", delintrf);
             try {
-                String routerName = getRouterIdForPort(dataBroker, interfaceName);
+                String routerName = getRouterIdForPort(interfaceName);
                 if (routerName != null) {
                     LOG.trace("call : Port removed event received for interface {} ", interfaceName);
 
@@ -457,11 +459,9 @@ public class InterfaceStateEventListener
     }
 
     private class NatFlowUpdateWorker implements Callable<List<ListenableFuture<Void>>> {
-        Interface original;
         Interface update;
 
-        NatFlowUpdateWorker(Interface original, Interface update) {
-            this.original = original;
+        NatFlowUpdateWorker(Interface update) {
             this.update = update;
         }
 
@@ -475,7 +475,7 @@ public class InterfaceStateEventListener
             } else if (update.getOperStatus().equals(Interface.OperStatus.Down)) {
                 LOG.debug("call : Port DOWN event received for interface {} ", interfaceName);
                 try {
-                    String routerName = getRouterIdForPort(dataBroker, interfaceName);
+                    String routerName = getRouterIdForPort(interfaceName);
                     if (routerName != null) {
                         removeSnatEntriesForPort(interfaceName, routerName);
                     } else {

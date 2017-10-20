@@ -252,7 +252,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
-            });
+            }, MoreExecutors.directExecutor());
 
         Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
 
@@ -369,7 +369,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
-            });
+            }, MoreExecutors.directExecutor());
 
         Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
 

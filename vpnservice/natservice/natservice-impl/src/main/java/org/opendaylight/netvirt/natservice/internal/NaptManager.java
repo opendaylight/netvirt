@@ -80,12 +80,12 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class NaptManager {
     private static final Logger LOG = LoggerFactory.getLogger(NaptManager.class);
-    private final DataBroker dataBroker;
-    private final IdManagerService idManager;
+
     private static final long LOW_PORT = 49152L;
     private static final long HIGH_PORT = 65535L;
-    private static boolean EXTSUBNET_FLAG = false;
-    private static boolean NEXT_EXTIP_FLAG = false;
+
+    private final DataBroker dataBroker;
+    private final IdManagerService idManager;
 
     @Inject
     public NaptManager(final DataBroker dataBroker, final IdManagerService idManager) {
@@ -102,7 +102,7 @@ public class NaptManager {
             .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("createNaptPortPool : Created PortPool :{}", poolName);
             } else {
                 LOG.error("createNaptPortPool : Unable to create PortPool : {}", poolName);
@@ -117,7 +117,7 @@ public class NaptManager {
         LOG.debug("removeNaptPortPool : Remove Napt port pool requested for : {}", poolName);
         try {
             Future<RpcResult<Void>> result = idManager.deleteIdPool(deleteIdPoolInput);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("removeNaptPortPool : Deleted PortPool {}", poolName);
             } else {
                 LOG.error("removeNaptPortPool : Unable to delete PortPool {}", poolName);
@@ -263,8 +263,9 @@ public class NaptManager {
                 SubnetUtils externalIpSubnet;
                 List<String> allIps = new ArrayList<>();
                 String subnetPrefix = "/" + String.valueOf(NatConstants.DEFAULT_PREFIX);
+                boolean extSubnetFlag = false;
                 if (!externalIp.contains(subnetPrefix)) {
-                    EXTSUBNET_FLAG = true;
+                    extSubnetFlag = true;
                     externalIpSubnet = new SubnetUtils(externalIp);
                     allIps = Arrays.asList(externalIpSubnet.getInfo().getAllAddresses());
                     LOG.debug("getExternalAddressMapping : total count of externalIps available {}",
@@ -278,9 +279,10 @@ public class NaptManager {
                     allIps.add(externalIp);
                 }
 
+                boolean nextExtIpFlag = false;
                 for (String extIp : allIps) {
                     LOG.info("getExternalAddressMapping : Looping externalIPs with externalIP now as {}", extIp);
-                    if (NEXT_EXTIP_FLAG) {
+                    if (nextExtIpFlag) {
                         createNaptPortPool(extIp);
                         LOG.debug("getExternalAddressMapping : Created Pool for next Ext IP {}", extIp);
                     }
@@ -290,20 +292,20 @@ public class NaptManager {
                     try {
                         Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
                         RpcResult<AllocateIdOutput> rpcResult;
-                        if ((result != null) && (result.get().isSuccessful())) {
+                        if (result != null && result.get().isSuccessful()) {
                             LOG.debug("getExternalAddressMapping : Got id from idManager");
                             rpcResult = result.get();
                         } else {
                             LOG.error("getExternalAddressMapping : getExternalAddressMapping, idManager could not "
                                 + "allocate id retry if subnet");
-                            if (!EXTSUBNET_FLAG) {
+                            if (!extSubnetFlag) {
                                 LOG.error("getExternalAddressMapping : getExternalAddressMapping returning null "
                                         + "for single IP case, may be ports exhausted");
                                 return null;
                             }
                             LOG.debug("getExternalAddressMapping : Could be ports exhausted case, "
                                     + "try with another externalIP if possible");
-                            NEXT_EXTIP_FLAG = true;
+                            nextExtIpFlag = true;
                             continue;
                         }
                         int extPort = rpcResult.getResult().getIdValue().intValue();
