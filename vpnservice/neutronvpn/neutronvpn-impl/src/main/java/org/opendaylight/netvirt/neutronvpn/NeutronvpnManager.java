@@ -1673,12 +1673,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         Port port = NeutronvpnUtils.getNeutronPort(dataBroker, portId);
-
-                        if (port != null) {
-                            deleteVpnInterface(vpnId, port, wrtConfigTxn);
-                        } else {
+                        if (port == null) {
                             LOG.warn("Cannot proceed with deleteVpnInterface for port {} in subnet {} since port is "
                                 + "absent in Neutron config DS", portId.getValue(), subnet.getValue());
+                            return futures;
+                        }
+                        boolean canDeleteVpnInterface = true;
+                        for (FixedIps portIP : port.getFixedIps()) {
+                            if (!portIP.getSubnetId().equals(subnet)) {
+                                canDeleteVpnInterface = false;
+                            }
+                        }
+                        if (canDeleteVpnInterface == true) {
+                            deleteVpnInterface(vpnId, port, wrtConfigTxn);
+                        } else {
+                            LOG.warn("Cannot proceed with deleteVpnInterface for port {} since other subnet is "
+                                + "present in Neutron config DS", portId.getValue());
                         }
                         futures.add(wrtConfigTxn.submit());
                         return futures;
