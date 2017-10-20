@@ -15,6 +15,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -251,7 +252,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
-            });
+            }, MoreExecutors.directExecutor());
 
         Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
 
@@ -269,7 +270,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                             + "in DPN {}, {}", externalIp, dpnId, result.getErrors());
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
 
         // Handle GARP transmission
         final IpAddress extrenalAddress = IpAddressBuilder.getDefaultInstance(externalIp);
@@ -368,7 +369,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     LOG.error(errMsg);
                     return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                 }
-            });
+            }, MoreExecutors.directExecutor());
 
         Futures.addCallback(labelFuture, new FutureCallback<RpcResult<Void>>() {
 
@@ -387,7 +388,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                         externalIp, vpnName, result.getErrors());
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     private String getFlowRef(BigInteger dpnId, short tableId, long id, String ipAddress) {

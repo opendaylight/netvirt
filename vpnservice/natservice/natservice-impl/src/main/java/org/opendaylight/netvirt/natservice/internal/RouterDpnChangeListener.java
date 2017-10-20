@@ -516,8 +516,7 @@ public class RouterDpnChangeListener
             if (vpnIdForSubnet != NatConstants.INVALID_ID) {
                 LOG.info("installDefaultNatRouteForRouterExternalSubnets : Installing default routes in FIB on dpn {} "
                         + "for subnetId {} with vpnId {}", dpnId, subnetId, vpnIdForSubnet);
-                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnIdForSubnet, subnetId.getValue(),
-                        idManager);
+                snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnIdForSubnet, subnetId.getValue());
             } else {
                 LOG.debug("installDefaultNatRouteForRouterExternalSubnets : No vpnID for subnet {} found", subnetId);
             }

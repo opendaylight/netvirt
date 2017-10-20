@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -36,7 +35,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdOutput;
@@ -56,35 +54,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractSnatService implements SnatServiceListener {
-
-    protected final DataBroker dataBroker;
-    protected final IMdsalApiManager mdsalManager;
-    protected final IdManagerService idManager;
-    protected final NaptManager naptManager;
-    protected final NAPTSwitchSelector naptSwitchSelector;
-    protected final ItmRpcService itmManager;
-    protected final OdlInterfaceRpcService interfaceManager;
-    private final IVpnManager vpnManager;
     private static final Logger LOG = LoggerFactory.getLogger(AbstractSnatService.class);
+
     static final int LOAD_START = mostSignificantBit(MetaDataUtil.METADATA_MASK_SH_FLAG.intValue());
     static final int LOAD_END = mostSignificantBit(MetaDataUtil.METADATA_MASK_VRFID.intValue() | MetaDataUtil
             .METADATA_MASK_SH_FLAG.intValue());
 
-    public AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
+    private final DataBroker dataBroker;
+    private final IMdsalApiManager mdsalManager;
+    private final IdManagerService idManager;
+    private final NAPTSwitchSelector naptSwitchSelector;
+    private final ItmRpcService itmManager;
+    private final OdlInterfaceRpcService interfaceManager;
+
+    protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
             final ItmRpcService itmManager,
             final OdlInterfaceRpcService interfaceManager,
             final IdManagerService idManager,
-            final NaptManager naptManager,
-            final NAPTSwitchSelector naptSwitchSelector,
-            final IVpnManager vpnManager) {
+            final NAPTSwitchSelector naptSwitchSelector) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
-        this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
-        this.vpnManager = vpnManager;
+    }
+
+    protected DataBroker getDataBroker() {
+        return dataBroker;
     }
 
     public void init() {
@@ -92,7 +89,6 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     public void close() {
-
         LOG.debug("AbstractSnatService Closed");
     }
 
@@ -173,7 +169,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
 
     protected void installInboundFibEntry(BigInteger dpnId, String externalIp, String routerName, Long routerId,
             int addOrRemove) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         if (addOrRemove == NwConstants.ADD_FLOW) {
             Long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(dataBroker, routerName, externalIp);

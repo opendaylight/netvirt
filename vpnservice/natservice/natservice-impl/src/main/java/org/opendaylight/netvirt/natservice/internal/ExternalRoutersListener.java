@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -140,6 +141,10 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Routers, ExternalRoutersListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalRoutersListener.class);
+
+    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+    private static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
+
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final ItmRpcService itmManager;
@@ -157,12 +162,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final IVpnManager vpnManager;
     private final EvpnSnatFlowProgrammer evpnSnatFlowProgrammer;
     private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
-    private NatMode natMode = NatMode.Controller;
+    private final NatMode natMode;
     private final INeutronVpnManager nvpnManager;
     private final IElanService elanManager;
     private final JobCoordinator coordinator;
-    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
-    static final BigInteger COOKIE_VM_LFIB_TABLE = new BigInteger("8000022", 16);
 
     @Inject
     public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -208,6 +211,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.coordinator = coordinator;
         if (config != null) {
             this.natMode = config.getNatMode();
+        } else {
+            this.natMode = NatMode.Controller;
         }
     }
 
@@ -241,7 +246,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             List<ExternalIps> externalIps = routers.getExternalIps();
             // Allocate Primary Napt Switch for this router
             if (routers.isEnableSnat() && externalIps != null && !externalIps.isEmpty()) {
-                boolean result = centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
+                centralizedSwitchScheduler.scheduleCentralizedSwitch(routerName);
             }
             //snatServiceManger.notify(routers, null, Action.ADD);
         } else {
@@ -955,16 +960,15 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             return;
         }
         advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
-            externalIp, networkId, router, vpnService, fibService, bgpManager, dataBroker, writeFlowInvTx);
+            externalIp, networkId, router, writeFlowInvTx);
         LOG.debug("handleSnatReverseTraffic : exit for DPN ID {}, routerId {}, externalIp : {}",
             dpnId, routerId, externalIp);
     }
 
     public void advToBgpAndInstallFibAndTsFlows(final BigInteger dpnId, final short tableId, final String vpnName,
                                                 final long routerId, final String routerName, final String externalIp,
-                                                final Uuid extNetworkId, final Routers router, VpnRpcService vpnService,
-                                                final FibRpcService fibService, final IBgpManager bgpManager,
-                                                final DataBroker dataBroker, WriteTransaction writeFlowInvTx) {
+                                                final Uuid extNetworkId, final Routers router,
+                                                final WriteTransaction writeFlowInvTx) {
         LOG.debug("advToBgpAndInstallFibAndTsFlows : entry for DPN ID {}, tableId {}, vpnname {} "
                 + "and externalIp {}", dpnId, tableId, vpnName, externalIp);
         String nextHopIp = NatUtil.getEndpointIpAddressForDPN(dataBroker, dpnId);
@@ -1050,8 +1054,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         makeLFibTableEntry(dpnId, label, tableId, writeFlowInvTx);
 
                         //Install custom FIB routes - FIB table.
-                        List<Instruction> fibTableCustomInstructions = createFibTableCustomInstructions(dataBroker,
-                                tableId, routerName, externalIp);
+                        List<Instruction> fibTableCustomInstructions = createFibTableCustomInstructions(tableId,
+                                routerName, externalIp);
                         if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
                             //Install the flow table 25->44 If there is no FIP Match on table 25 (PDNAT_TABLE)
                             NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId,
@@ -1077,7 +1081,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             externalIp, vpnName, result.getErrors());
                         return Futures.immediateFailedFuture(new RuntimeException(errMsg));
                     }
-                });
+                }, MoreExecutors.directExecutor());
 
         Futures.addCallback(future, new FutureCallback<RpcResult<Void>>() {
 
@@ -1096,11 +1100,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             + "for prefix {} in DPN {}, {}", externalIp, dpnId, result.getErrors());
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
-    private List<Instruction> createFibTableCustomInstructions(DataBroker dataBroker, short tableId,
-            String routerName, String externalIp) {
+    private List<Instruction> createFibTableCustomInstructions(short tableId, String routerName,
+            String externalIp) {
         List<Instruction> fibTableCustomInstructions = new ArrayList<>();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);
         long externalSubnetVpnId = NatUtil.getExternalSubnetVpnIdForRouterExternalIp(dataBroker,
@@ -1609,7 +1613,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 }
                 advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, vpnName, routerId, routerName,
                     leastLoadedExtIp + "/" + leastLoadedExtIpPrefix, networkId, router,
-                    vpnService, fibService, bgpManager, dataBroker, writeFlowInvTx);
+                    writeFlowInvTx);
             }
         }
     }
@@ -2264,7 +2268,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             + " from VPN {}, {}", externalIp, vpnName, result.getErrors());
                     }
                 }
-            });
+            }, MoreExecutors.directExecutor());
         } else {
             LOG.debug("delFibTsAndReverseTraffic: switch-over is happened on DpnId {}. No need to release allocated "
                     + "label {} for external fixed ip {} for router {}", dpnId, label, externalIp, routerId);
@@ -2370,7 +2374,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                             + " from VPN {}, {}", externalIp, vpnName, result.getErrors());
                     }
                 }
-            });
+            }, MoreExecutors.directExecutor());
         } else {
             LOG.debug("delFibTsAndReverseTraffic: switch-over is happened on DpnId {}. No need to release allocated "
                     + "label {} for external fixed ip {} for router {}", dpnId, label, externalIp, routerId);
@@ -2476,14 +2480,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
                 // Get the allocated Primary NAPT Switch for this router
                 LOG.debug("changeLocalVpnIdToBgpVpnId : Router ID value {} ", routerId);
-                BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
 
                 LOG.debug("changeLocalVpnIdToBgpVpnId : Update the Router ID {} to the BGP VPN ID {} ",
                         routerId, bgpVpnId);
                 addOrDelDefaultFibRouteForSnatWithBgpVpn(routerName, routerId, bgpVpnId, true, writeFlowInvTx);
 
                 // Get the group ID
-                long groupId = createGroupId(getGroupIdKey(routerName));
+                BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+                createGroupId(getGroupIdKey(routerName));
                 installFlowsWithUpdatedVpnId(primarySwitchId, routerName, bgpVpnId, routerId, true, writeFlowInvTx,
                         extNwProvType);
             }
@@ -2506,14 +2510,14 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
             // Get the allocated Primary NAPT Switch for this router
             LOG.debug("changeBgpVpnIdToLocalVpnId : Router ID value {} ", routerId);
-            BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
 
             LOG.debug("changeBgpVpnIdToLocalVpnId : Update the BGP VPN ID {} to the Router ID {}", bgpVpnId, routerId);
             addOrDelDefaultFibRouteForSnatWithBgpVpn(routerName, routerId, NatConstants.INVALID_ID,
                     true, writeFlowInvTx);
 
             // Get the group ID
-            long groupId = createGroupId(getGroupIdKey(routerName));
+            createGroupId(getGroupIdKey(routerName));
+            BigInteger primarySwitchId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
             installFlowsWithUpdatedVpnId(primarySwitchId, routerName, NatConstants.INVALID_ID, routerId, true,
                     writeFlowInvTx, extNwProvType);
         }
@@ -2647,9 +2651,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 SessionAddress externalAddress =
                         naptManager.getExternalAddressMapping(routerId, internalAddress, protocol);
                 long internetVpnid = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
-                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid,
+                naptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE, internetVpnid,
                         routerId, bgpVpnId, externalAddress, internalAddress, protocol, extGwMacAddress);
-                NaptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid,
+                naptEventHandler.buildAndInstallNatFlows(dpnId, NwConstants.OUTBOUND_NAPT_TABLE, internetVpnid,
                         routerId, bgpVpnId, internalAddress, externalAddress, protocol, extGwMacAddress);
             }
         }

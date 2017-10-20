@@ -12,15 +12,14 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -47,13 +46,15 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class EvpnSnatFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnSnatFlowProgrammer.class);
+
+    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final FibRpcService fibService;
     private final IdManagerService idManager;
-    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
     @Inject
     public EvpnSnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -168,7 +169,7 @@ public class EvpnSnatFlowProgrammer {
                     NatUtil.makePreDnatToSnatTableEntry(mdsalManager, dpnId, tableId, writeFlowInvTx);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public void evpnDelFibTsAndReverseTraffic(final BigInteger dpnId, final long routerId, final String externalIp,
@@ -247,7 +248,7 @@ public class EvpnSnatFlowProgrammer {
                     NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, extGwMacAddress, mdsalManager, removeFlowInvTx);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
     }
 
     public void makeTunnelTableEntry(BigInteger dpnId, long l3Vni, List<Instruction> customInstructions,

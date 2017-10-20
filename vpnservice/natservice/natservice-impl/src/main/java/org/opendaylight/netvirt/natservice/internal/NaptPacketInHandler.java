@@ -9,11 +9,11 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.primitives.Ints;
 import java.math.BigInteger;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 public class NaptPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
-    public static final HashMap<String,NatPacketProcessingState> INCOMING_PACKET_MAP = new HashMap<>();
+    private final ConcurrentMap<String,NatPacketProcessingState> incomingPacketMap = new ConcurrentHashMap<>();
     private final NaptEventHandler naptEventHandler;
     private ExecutorService firstPacketExecutorService;
     private ExecutorService retryPacketExecutorService;
@@ -53,8 +53,13 @@ public class NaptPacketInHandler implements PacketProcessingListener {
 
     @PreDestroy
     public void close() {
-        firstPacketExecutorService.shutdown();
-        retryPacketExecutorService.shutdown();
+        if (firstPacketExecutorService != null) {
+            firstPacketExecutorService.shutdown();
+        }
+
+        if (retryPacketExecutorService != null) {
+            retryPacketExecutorService.shutdown();
+        }
     }
 
     @Override
@@ -124,28 +129,30 @@ public class NaptPacketInHandler implements PacketProcessingListener {
                     }
                     String sourceIPPortKey = routerId + NatConstants.COLON_SEPARATOR
                             + internalIPAddress + NatConstants.COLON_SEPARATOR + portNumber;
-                    if (!INCOMING_PACKET_MAP.containsKey(sourceIPPortKey)) {
-                        INCOMING_PACKET_MAP.put(sourceIPPortKey,
-                                new NatPacketProcessingState(System.currentTimeMillis(), -1));
+
+                    NatPacketProcessingState state = incomingPacketMap.get(sourceIPPortKey);
+                    if (state == null) {
+                        state = new NatPacketProcessingState(System.currentTimeMillis(), -1);
+                        incomingPacketMap.put(sourceIPPortKey,
+                                state);
                         LOG.trace("onPacketReceived : Processing new SNAT({}) Packet", sourceIPPortKey);
 
                         //send to Event Queue
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
-                            operation, protocol, packetReceived, false);
+                            operation, protocol, packetReceived, false, state);
                         LOG.info("onPacketReceived : First Packet IN Queue Size : {}",
                                 ((ThreadPoolExecutor)firstPacketExecutorService).getQueue().size());
                         firstPacketExecutorService.execute(() -> naptEventHandler.handleEvent(naptEntryEvent));
                     } else {
                         LOG.trace("onPacketReceived : SNAT({}) Packet already processed.", sourceIPPortKey);
                         NAPTEntryEvent naptEntryEvent = new NAPTEntryEvent(internalIPAddress, portNumber, routerId,
-                            operation, protocol, packetReceived, true);
+                            operation, protocol, packetReceived, true, state);
                         LOG.info("onPacketReceived : Retry Packet IN Queue Size : {}",
                                 ((ThreadPoolExecutor)retryPacketExecutorService).getQueue().size());
+
+                        long firstPacketInTime = state.getFirstPacketInTime();
                         retryPacketExecutorService.execute(() -> {
-                            NatPacketProcessingState state = INCOMING_PACKET_MAP.get(sourceIPPortKey);
-                            long firstPacketInTime = state.getFirstPacketInTime();
-                            long flowInstalledTime = state.getFlowInstalledTime();
-                            if ((System.currentTimeMillis() - firstPacketInTime) > 4000) {
+                            if (System.currentTimeMillis() - firstPacketInTime > 4000) {
                                 LOG.error("onPacketReceived : Flow not installed even after 4sec."
                                         + "Dropping SNAT ({}) Packet", sourceIPPortKey);
                                 removeIncomingPacketMap(sourceIPPortKey);
@@ -164,32 +171,28 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     }
 
     public void removeIncomingPacketMap(String sourceIPPortKey) {
-        INCOMING_PACKET_MAP.remove(sourceIPPortKey);
+        incomingPacketMap.remove(sourceIPPortKey);
         LOG.debug("removeIncomingPacketMap : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
     }
 
-    protected class NatPacketProcessingState {
-        long firstPacketInTime;
-        long flowInstalledTime;
+    class NatPacketProcessingState {
+        private final long firstPacketInTime;
+        private volatile long flowInstalledTime;
 
-        public NatPacketProcessingState(long firstPacketInTime, long flowInstalledTime) {
+        NatPacketProcessingState(long firstPacketInTime, long flowInstalledTime) {
             this.firstPacketInTime = firstPacketInTime;
             this.flowInstalledTime = flowInstalledTime;
         }
 
-        public long getFirstPacketInTime() {
+        long getFirstPacketInTime() {
             return firstPacketInTime;
         }
 
-        public void setFirstPacketInTime(long firstPacketInTime) {
-            this.firstPacketInTime = firstPacketInTime;
-        }
-
-        public long getFlowInstalledTime() {
+        long getFlowInstalledTime() {
             return flowInstalledTime;
         }
 
-        public void setFlowInstalledTime(long flowInstalledTime) {
+        void setFlowInstalledTime(long flowInstalledTime) {
             this.flowInstalledTime = flowInstalledTime;
         }
     }
