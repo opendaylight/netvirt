@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_18d24c00",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 1,
+      "message": "addCallback method with default executor is deprecated",
+      "revId": "074b13d632fa7ff29bc4bde723b78d69e6d255de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_384590b3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NAPTEntryEvent.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 1,
+      "message": "New field used by NaptEventHandler",
+      "revId": "074b13d632fa7ff29bc4bde723b78d69e6d255de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_987abcef",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptPacketInHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 1,
+      "message": "Pass the state indirectly to the NaptEventHandler via the NAPTEntryEvent instead of NaptEventHandler obtaining it from the incomingPacketMap. This decouples the NaptEventHandler from NaptPacketInHandler and avoids circular dependency.",
+      "range": {
+        "startLine": 141,
+        "startChar": 72,
+        "endLine": 141,
+        "endChar": 77
+      },
+      "revId": "074b13d632fa7ff29bc4bde723b78d69e6d255de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d88434d6",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptPacketInHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 1,
+      "message": "needs to be volatile as it can be mutated by multiple threads",
+      "revId": "074b13d632fa7ff29bc4bde723b78d69e6d255de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_98611c3c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 1,
+      "message": "Pass in and store NaptEventHandler instance to avoid accessing statically",
+      "revId": "074b13d632fa7ff29bc4bde723b78d69e6d255de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_584fa4bd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SnatServiceManagerImpl.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 1,
+      "message": "Should be thread-safe",
+      "revId": "074b13d632fa7ff29bc4bde723b78d69e6d255de",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

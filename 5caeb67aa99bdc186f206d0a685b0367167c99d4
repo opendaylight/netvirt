@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_18cb6c54",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/NatDataUtil.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "These methods do not need to be synchronized as the routerMap is thread-safe.",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_a4868011",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
         "patchSetId": 2
@@ -82,6 +99,57 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_58c5e43a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused - remove",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_98de3c10",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "Make all field private and add getters where needed.",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f8c5b83d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/AbstractSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused - remove",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_047dcc1c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
         "patchSetId": 2
@@ -99,6 +167,23 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_78e1c8cf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ConntrackBasedSnatService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "make static final",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_24729049",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EventDispatcher.java",
         "patchSetId": 2
@@ -108,6 +193,23 @@
         "id": 1842
       },
       "writtenOn": "2017-10-20T19:06:43Z",
+      "side": 0,
+      "message": "Use a single-threaded executor which encapsulates a queue and thread.",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b8eb40af",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EventDispatcher.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
       "side": 0,
       "message": "Use a single-threaded executor which encapsulates a queue and thread.",
       "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
@@ -178,6 +280,74 @@
       "writtenOn": "2017-10-20T19:06:43Z",
       "side": 0,
       "message": "Remove unused params",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f8cc9863",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused - remove",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_58dcc412",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused - remove",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_38d750ef",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "make final",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d8ff1466",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalNetworksChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "Remove unneeded params",
       "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -327,6 +497,131 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b802206d",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "make final",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_18f9ac80",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused return",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f8f3f89c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 967,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "these params are fields",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_58f3249e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1102,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "dataBroker is a field",
+      "range": {
+        "startLine": 1102,
+        "startChar": 74,
+        "endLine": 1102,
+        "endChar": 84
+      },
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_38ee30b5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2486,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused return",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_982c7c04",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2516,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused return",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_782f08f7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2652,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "method changed to non-static",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_64080892",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
         "patchSetId": 2
@@ -367,6 +662,46 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_d836f451",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 232,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "dataBroker is a field",
+      "range": {
+        "startLine": 232,
+        "startChar": 49,
+        "endLine": 232,
+        "endChar": 59
+      },
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b8398043",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_04f94c80",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NAPTEntryEvent.java",
         "patchSetId": 2
@@ -378,6 +713,23 @@
       "writtenOn": "2017-10-20T19:06:43Z",
       "side": 0,
       "message": "make all field final",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f83ad832",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NAPTEntryEvent.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "make all fields final",
       "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -441,6 +793,57 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9813dcb7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "fields should be non-static and final",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7816e8a8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 287,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "Get state from the event as INCOMING_PACKET_MAP is now non-static",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d80d5492",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptEventHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 378,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "make private and non-static as fields are now non-static",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_2473b016",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
         "patchSetId": 2
@@ -452,6 +855,23 @@
       "writtenOn": "2017-10-20T19:06:43Z",
       "side": 0,
       "message": "Why are these static? They are only used by getExternalAddressMapping and only ever set to true. This doesn\u0027t seem right - it seems they should be local vars.",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f82138fd",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "Why are these static fields? They are only used by getExternalAddressMapping and only ever set to true based on some condition and subsequent calls will always see them as true. This doesn\u0027t seem right - it seems they should be local vars.",
       "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -521,6 +941,57 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_381c70c1",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptPacketInHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "Make private, non-static and thread-safe",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_787d48e7",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptPacketInHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_186ecc2f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptPacketInHandler.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 184,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "unused - remove - also allows firstPacketInTime to be final",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_e44fd8bc",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
         "patchSetId": 2
@@ -561,6 +1032,40 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f8681823",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "These are unused",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_587844f2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptSwitchHA.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "This is only set and used locally by removeSnatFlowsInOldNaptSwitch so no need to store as a field",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_64cbe81e",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
         "patchSetId": 2
@@ -578,6 +1083,23 @@
         "endLine": 520,
         "endChar": 33
       },
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_78642849",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/RouterDpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 520,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "Unnecessary param",
       "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -607,6 +1129,29 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_d85b9485",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SNATDefaultRouteProgrammer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
+      "side": 0,
+      "message": "This is already an instance field.",
+      "range": {
+        "startLine": 147,
+        "startChar": 29,
+        "endLine": 147,
+        "endChar": 38
+      },
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_a4d5e0ba",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SnatServiceImplFactory.java",
         "patchSetId": 2
@@ -616,6 +1161,23 @@
         "id": 1842
       },
       "writtenOn": "2017-10-20T19:06:43Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b85ea074",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SnatServiceImplFactory.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-20T21:53:25Z",
       "side": 0,
       "message": "unused",
       "revId": "5caeb67aa99bdc186f206d0a685b0367167c99d4",
