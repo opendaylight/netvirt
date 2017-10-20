@@ -32,9 +32,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     private final ItmRpcService itmManager;
     private final OdlInterfaceRpcService interfaceManager;
     private final IdManagerService idManager;
-    private final NaptManager naptManager;
     private final NAPTSwitchSelector naptSwitchSelector;
-    private NatMode natMode;
+    private final NatMode natMode;
     private final IVpnManager vpnManager;
     private final INeutronVpnManager nvpnManager;
 
@@ -43,7 +42,6 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             final ItmRpcService itmManager,
             final OdlInterfaceRpcService interfaceManager,
             final IdManagerService idManager,
-            final NaptManager naptManager,
             final NAPTSwitchSelector naptSwitchSelector,
             final IVpnManager vpnManager,
             final NatserviceConfig config,
@@ -53,11 +51,12 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         this.itmManager = itmManager;
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
-        this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
         this.vpnManager = vpnManager;
         if (config != null) {
             this.natMode = config.getNatMode();
+        } else {
+            this.natMode = null;
         }
         this.nvpnManager = nvpnManager;
     }
@@ -78,7 +77,7 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
             return new ConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager, idManager,
-                naptManager, naptSwitchSelector, vpnManager);
+                naptSwitchSelector, vpnManager);
         }
         return null;
     }

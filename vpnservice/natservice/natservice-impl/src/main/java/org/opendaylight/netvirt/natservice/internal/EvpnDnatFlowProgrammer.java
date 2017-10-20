@@ -13,12 +13,12 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -63,6 +63,9 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class EvpnDnatFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnDnatFlowProgrammer.class);
+
+    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IBgpManager bgpManager;
@@ -70,7 +73,6 @@ public class EvpnDnatFlowProgrammer {
     private final FibRpcService fibService;
     private final IVpnManager vpnManager;
     private final IdManagerService idManager;
-    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
     @Inject
     public EvpnDnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -194,7 +196,7 @@ public class EvpnDnatFlowProgrammer {
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
 
         //Read the FIP vpn-interface details from Configuration l3vpn:vpn-interfaces model and write into Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
@@ -204,7 +206,7 @@ public class EvpnDnatFlowProgrammer {
         if (optionalVpnInterface.isPresent()) {
             VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
             Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
-            List<Adjacency> adjacencyList = (adjs != null) ? adjs.getAdjacency() : new ArrayList<>();
+            List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
             Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(adjacencyList).build();
             vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
 
@@ -295,7 +297,7 @@ public class EvpnDnatFlowProgrammer {
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
                 }
             }
-        });
+        }, MoreExecutors.directExecutor());
         //Read the FIP vpn-interface details from Operational l3vpn:vpn-interfaces model and delete from Operational DS
         InstanceIdentifier<VpnInterface> vpnIfIdentifier = NatUtil.getVpnInterfaceIdentifier(floatingIpInterface);
         Optional<VpnInterface> optionalVpnInterface =
