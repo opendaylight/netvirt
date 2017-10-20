@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.ListenableFuture;
+import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -98,7 +99,7 @@ public class NatTunnelInterfaceStateListener
     private final FibRpcService fibRpcService;
     private final IElanService elanManager;
     private final IInterfaceManager interfaceManager;
-    private NatMode natMode = NatMode.Controller;
+    private final NatMode natMode;
 
     protected enum TunnelAction {
         TUNNEL_EP_ADD,
@@ -158,6 +159,8 @@ public class NatTunnelInterfaceStateListener
         this.interfaceManager = interfaceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
+        } else {
+            this.natMode = NatMode.Controller;
         }
     }
 
@@ -784,7 +787,7 @@ public class NatTunnelInterfaceStateListener
                                     + "for prefix {} in DPN {}, {}", externalIp, srcDpnId, result.getErrors());
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
         }
         return true;
@@ -917,7 +920,7 @@ public class NatTunnelInterfaceStateListener
                                 + "entries for prefix {} in DPN {}, {}", externalIp, fipCfgdDpnId, result.getErrors());
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
         }
     }
@@ -948,7 +951,7 @@ public class NatTunnelInterfaceStateListener
 
         //Check if the DPN having the router is the NAPT switch
         BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-        if (naptId == null || naptId.equals(BigInteger.ZERO) || (!naptId.equals(dpnId))) {
+        if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptId.equals(dpnId)) {
             LOG.warn("hndlTepDelForSnatInEachRtr : SNAT -> Ignoring TEP delete for the DPN {} since"
                     + " its NOT a NAPT switch for the TUNNEL TYPE {} b/w SRC IP {} and DST IP {} and"
                     + "TUNNEL NAME {} ", dpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
@@ -1116,7 +1119,7 @@ public class NatTunnelInterfaceStateListener
                                 + "21 entry pushing the MPLS label to the tunnnel due to {}", result.getErrors());
                         }
                     }
-                });
+                }, MoreExecutors.directExecutor());
             }
         }
     }
@@ -1125,7 +1128,7 @@ public class NatTunnelInterfaceStateListener
         String ifaceName = stateTunnelList.getTunnelInterfaceName();
         if (getTunnelType(stateTunnelList) == NatConstants.ITMTunnelLocType.Internal.getValue()) {
             Interface configIface = interfaceManager.getInterfaceInfoFromConfigDataStore(ifaceName);
-            IfTunnel ifTunnel = (configIface != null) ? configIface.getAugmentation(IfTunnel.class) : null;
+            IfTunnel ifTunnel = configIface != null ? configIface.getAugmentation(IfTunnel.class) : null;
             if (ifTunnel != null && ifTunnel.getTunnelInterfaceType().isAssignableFrom(TunnelTypeVxlan.class)) {
                 ParentRefs refs = configIface.getAugmentation(ParentRefs.class);
                 if (refs != null && !Strings.isNullOrEmpty(refs.getParentInterface())) {

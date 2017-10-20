@@ -9,11 +9,9 @@
 package org.opendaylight.netvirt.natservice.ha;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.HashMap;
 import java.util.Map;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -41,7 +39,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private final Map<BigInteger,Integer> switchWeightsMap = new HashMap<>();
     private final DataBroker dataBroker;
     private final NatDataUtil natDataUtil;
-    final OdlInterfaceRpcService interfaceManager;
+    private final OdlInterfaceRpcService interfaceManager;
     private final int initialSwitchWeight = 0;
     private final IVpnFootprintService vpnFootprintService;
 
