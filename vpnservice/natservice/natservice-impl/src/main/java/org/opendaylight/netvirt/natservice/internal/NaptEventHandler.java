@@ -105,14 +105,14 @@ import org.slf4j.LoggerFactory;
 public class NaptEventHandler {
     private static final Logger LOG = LoggerFactory.getLogger(NaptEventHandler.class);
     private final DataBroker dataBroker;
-    private static IMdsalApiManager mdsalManager;
+    private final IMdsalApiManager mdsalManager;
     private final PacketProcessingService pktService;
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final NaptManager naptManager;
     private final IElanService elanManager;
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
-    private static SalFlowService salFlowServiceRpc;
+    private final SalFlowService salFlowServiceRpc;
 
     @Inject
     public NaptEventHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -124,7 +124,7 @@ public class NaptEventHandler {
                             final IdManagerService idManager,
                             final SalFlowService salFlowServiceRpc) {
         this.dataBroker = dataBroker;
-        NaptEventHandler.mdsalManager = mdsalManager;
+        this.mdsalManager = mdsalManager;
         this.naptManager = naptManager;
         this.pktService = pktService;
         this.interfaceManagerRpc = interfaceManagerRpc;
@@ -136,7 +136,7 @@ public class NaptEventHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void handleEvent(NAPTEntryEvent naptEntryEvent) {
+    public void handleEvent(final NAPTEntryEvent naptEntryEvent) {
     /*
             Flow programming logic of the OUTBOUND NAPT TABLE :
             1) Get the internal IP address, port number, router ID from the event.
@@ -160,7 +160,7 @@ public class NaptEventHandler {
             Long routerId = naptEntryEvent.getRouterId();
             LOG.trace("handleEvent : Time Elapsed before procesing snat ({}:{}) packet is {} ms,"
                     + "routerId: {},isPktProcessed:{}", naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(),
-                    (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()),
+                    System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime(),
                     routerId, naptEntryEvent.isPktProcessed());
             //Get the DPN ID
             BigInteger dpnId = NatUtil.getPrimaryNaptfromRouterId(dataBroker, routerId);
@@ -282,17 +282,17 @@ public class NaptEventHandler {
                                             internalAddress, externalAddress);
                                 }
                             }, MoreExecutors.directExecutor());
-                    String key = naptEntryEvent.getRouterId() + NatConstants.COLON_SEPARATOR
-                            + naptEntryEvent.getIpAddress() + NatConstants.COLON_SEPARATOR
-                            + naptEntryEvent.getPortNumber();
-                    NatPacketProcessingState state = NaptPacketInHandler.INCOMING_PACKET_MAP.get(key);
-                    state.setFlowInstalledTime(System.currentTimeMillis());
+
+                    NatPacketProcessingState state = naptEntryEvent.getState();
+                    if (state != null) {
+                        state.setFlowInstalledTime(System.currentTimeMillis());
+                    }
                 } else {
                     prepareAndSendPacketOut(naptEntryEvent, routerId);
                 }
                 LOG.trace("handleEvent : Time elapsed after Processsing snat ({}:{}) packet: {}ms,isPktProcessed:{} ",
                         naptEntryEvent.getIpAddress(), naptEntryEvent.getPortNumber(),
-                        (System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime()),
+                        System.currentTimeMillis() - naptEntryEvent.getObjectCreationTime(),
                         naptEntryEvent.isPktProcessed());
             } else {
                 LOG.debug("handleEvent : Inside delete Operation of NaptEventHandler");
@@ -368,7 +368,7 @@ public class NaptEventHandler {
         }
     }
 
-    public static void buildAndInstallNatFlows(BigInteger dpnId, short tableId, long vpnId, long routerId,
+    public void buildAndInstallNatFlows(BigInteger dpnId, short tableId, long vpnId, long routerId,
                                                long bgpVpnId, SessionAddress actualSourceAddress,
                                                SessionAddress translatedSourceAddress,
                                                NAPTEntryEvent.Protocol protocol, String extGwMacAddress) {
@@ -376,7 +376,7 @@ public class NaptEventHandler {
                 translatedSourceAddress, protocol, extGwMacAddress, false);
     }
 
-    public static Future<RpcResult<AddFlowOutput>> buildAndInstallNatFlowsOptionalRpc(
+    private Future<RpcResult<AddFlowOutput>> buildAndInstallNatFlowsOptionalRpc(
             BigInteger dpnId, short tableId, long vpnId, long routerId, long bgpVpnId,
             SessionAddress actualSourceAddress, SessionAddress translatedSourceAddress,
             NAPTEntryEvent.Protocol protocol, String extGwMacAddress,
@@ -427,21 +427,21 @@ public class NaptEventHandler {
             long startTime = System.currentTimeMillis();
             addFlowResult = salFlowServiceRpc.addFlow(addFlowInput);
             LOG.debug("buildAndInstallNatFlowsOptionalRpc : Time elapsed for salFlowServiceRpc table {}: {}ms ",
-                    tableId, (System.currentTimeMillis() - startTime));
+                    tableId, System.currentTimeMillis() - startTime);
          // Keep flow installation through MDSAL as well to be able to handle switch failures
             startTime = System.currentTimeMillis();
             mdsalManager.installFlow(snatFlowEntity);
             LOG.trace("buildAndInstallNatFlowsOptionalRpc : Time Elapsed while installing table-{} "
                     + "flow on DPN:{} for snat packet({},{}): {}ms", tableId, dpnId,
                     actualSourceAddress.getIpAddress(),actualSourceAddress.getPortNumber(),
-                    (System.currentTimeMillis() - startTime));
+                    System.currentTimeMillis() - startTime);
         } else {
             long startTime = System.currentTimeMillis();
             mdsalManager.syncInstallFlow(snatFlowEntity, 1);
             LOG.trace("buildAndInstallNatFlowsOptionalRpc : Time Elapsed while installing table-{} "
                     + "flow on DPN:{} for snat packet({},{}): {}ms", tableId, dpnId,
                     actualSourceAddress.getIpAddress(),actualSourceAddress.getPortNumber(),
-                    (System.currentTimeMillis() - startTime));
+                    System.currentTimeMillis() - startTime);
         }
         LOG.trace("buildAndInstallNatFlowsOptionalRpc : Exited");
 
@@ -593,7 +593,7 @@ public class NaptEventHandler {
         long startTime = System.currentTimeMillis();
         mdsalManager.removeFlow(snatFlowEntity);
         LOG.trace("removeNatFlows : Time Elapsed for removing table-{} flow from switch with DPN ID:{} "
-                + "for SNAT ({}:{}) session:{}ms", tableId, dpnId, ip, port, (System.currentTimeMillis() - startTime));
+                + "for SNAT ({}:{}) session:{}ms", tableId, dpnId, ip, port, System.currentTimeMillis() - startTime);
     }
 
     protected byte[] buildNaptPacketOut(Ethernet etherPkt) {
