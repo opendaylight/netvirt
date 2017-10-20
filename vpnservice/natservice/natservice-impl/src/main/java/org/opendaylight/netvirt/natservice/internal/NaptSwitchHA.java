@@ -96,16 +96,14 @@ public class NaptSwitchHA {
     private final IdManagerService idManager;
     private final NAPTSwitchSelector naptSwitchSelector;
     private final ExternalRoutersListener externalRouterListener;
-    private final IBgpManager bgpManager;
-    private final VpnRpcService vpnService;
-    private final FibRpcService fibService;
+    private final NaptEventHandler naptEventHandler;
     private final IFibManager fibManager;
     private final IElanService elanManager;
-    private Collection<String> externalIpsCache;
-    private Map<String, Long> externalIpsLabel;
     private final EvpnNaptSwitchHA evpnNaptSwitchHA;
     private final SnatServiceManager natServiceManager;
-    private NatMode natMode = NatMode.Controller;
+    private final NatMode natMode;
+
+    private volatile Collection<String> externalIpsCache;
 
     @Inject
     public NaptSwitchHA(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -121,7 +119,8 @@ public class NaptSwitchHA {
                         final EvpnNaptSwitchHA evpnNaptSwitchHA,
                         final IElanService elanManager,
                         final SnatServiceManager natServiceManager,
-                        final NatserviceConfig config) {
+                        final NatserviceConfig config,
+                        final NaptEventHandler naptEventHandler) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.externalRouterListener = externalRouterListener;
@@ -129,15 +128,15 @@ public class NaptSwitchHA {
         this.interfaceManager = interfaceManager;
         this.idManager = idManager;
         this.naptSwitchSelector = naptSwitchSelector;
-        this.bgpManager = bgpManager;
-        this.vpnService = vpnService;
-        this.fibService = fibService;
+        this.naptEventHandler = naptEventHandler;
         this.fibManager = fibManager;
         this.evpnNaptSwitchHA = evpnNaptSwitchHA;
         this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
+        } else {
+            this.natMode = NatMode.Controller;
         }
     }
 
@@ -179,7 +178,6 @@ public class NaptSwitchHA {
 
     protected void removeSnatFlowsInOldNaptSwitch(String routerName, Long routerId, BigInteger naptSwitch,
                                                   Map<String, Long> externalIpmap, WriteTransaction removeFlowInvTx) {
-        externalIpsLabel = externalIpmap;
         //remove SNAT flows in old NAPT SWITCH
         Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
         String vpnName = getExtNetworkVpnName(routerName, networkId);
@@ -290,9 +288,9 @@ public class NaptSwitchHA {
 
         //Remove Fib entries,tables 20->44 ,36-> 44
         String gwMacAddress = NatUtil.getExtGwMacAddFromRouterName(dataBroker, routerName);
-        if (externalIpsLabel != null && !externalIpsLabel.isEmpty()) {
-            for (String externalIp : externalIpsLabel.keySet()) {
-                Long label = externalIpsLabel.get(externalIp);
+        if (externalIpmap != null && !externalIpmap.isEmpty()) {
+            for (String externalIp : externalIpmap.keySet()) {
+                Long label = externalIpmap.get(externalIp);
                 externalRouterListener.delFibTsAndReverseTraffic(naptSwitch, routerId, externalIp, vpnName,
                         extNetworkId, label, gwMacAddress, true, removeFlowInvTx);
                 LOG.debug("removeSnatFlowsInOldNaptSwitch : Successfully removed fib entries in old naptswitch {} "
@@ -630,7 +628,7 @@ public class NaptSwitchHA {
                 if (getSwitchStatus(newNaptSwitch)) {
                     //Install the flow in newNaptSwitch Inbound NAPT table.
                     try {
-                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.INBOUND_NAPT_TABLE,
+                        naptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.INBOUND_NAPT_TABLE,
                             vpnId, routerId, bgpVpnId, externalAddress, sourceAddress, proto, extGwMacAddress);
                     } catch (Exception ex) {
                         LOG.error("handleNatFlowsInNewNaptSwitch : Failed to add flow in INBOUND_NAPT_TABLE for "
@@ -645,7 +643,7 @@ public class NaptSwitchHA {
                         intportnum, proto, externalAddress, extportNumber, bgpVpnId);
                     //Install the flow in newNaptSwitch Outbound NAPT table.
                     try {
-                        NaptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
+                        naptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.OUTBOUND_NAPT_TABLE,
                             vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
                     } catch (Exception ex) {
                         LOG.error("handleNatFlowsInNewNaptSwitch : Failed to add flow in OUTBOUND_NAPT_TABLE for "
@@ -972,7 +970,7 @@ public class NaptSwitchHA {
                     + "with vpnName {} and externalIp {}", naptSwitch, vpnName, externalIp);
                 externalRouterListener.advToBgpAndInstallFibAndTsFlows(naptSwitch, NwConstants.INBOUND_NAPT_TABLE,
                     vpnName, routerId, routerName, externalIp, networkId, null /* external-router */,
-                    vpnService, fibService, bgpManager, dataBroker, writeFlowInvTx);
+                    writeFlowInvTx);
                 LOG.debug("installSnatFlows : Successfully added fib entries in naptswitch {} for "
                     + "router {} with external IP {}", naptSwitch, routerId, externalIp);
             }

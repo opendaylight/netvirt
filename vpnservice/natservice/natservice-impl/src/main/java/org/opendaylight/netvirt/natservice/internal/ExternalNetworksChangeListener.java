@@ -22,7 +22,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -49,23 +48,19 @@ public class ExternalNetworksChangeListener
         extends AsyncDataTreeChangeListenerBase<Networks, ExternalNetworksChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalNetworksChangeListener.class);
     private final DataBroker dataBroker;
-    private final IMdsalApiManager mdsalManager;
     private final FloatingIPListener floatingIpListener;
     private final ExternalRoutersListener externalRouterListener;
     private final OdlInterfaceRpcService interfaceManager;
-    private final NaptManager naptManager;
     private final IBgpManager bgpManager;
     private final VpnRpcService vpnService;
     private final FibRpcService fibService;
     private final JobCoordinator coordinator;
-    private NatMode natMode = NatMode.Controller;
+    private final NatMode natMode;
 
     @Inject
-    public ExternalNetworksChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-                                          final FloatingIPListener floatingIpListener,
+    public ExternalNetworksChangeListener(final DataBroker dataBroker, final FloatingIPListener floatingIpListener,
                                           final ExternalRoutersListener externalRouterListener,
                                           final OdlInterfaceRpcService interfaceManager,
-                                          final NaptManager naptManager,
                                           final IBgpManager bgpManager,
                                           final VpnRpcService vpnService,
                                           final FibRpcService fibService,
@@ -73,17 +68,17 @@ public class ExternalNetworksChangeListener
                                           final JobCoordinator coordinator) {
         super(Networks.class, ExternalNetworksChangeListener.class);
         this.dataBroker = dataBroker;
-        this.mdsalManager = mdsalManager;
         this.floatingIpListener = floatingIpListener;
         this.externalRouterListener = externalRouterListener;
         this.interfaceManager = interfaceManager;
-        this.naptManager = naptManager;
         this.bgpManager = bgpManager;
         this.vpnService = vpnService;
         this.fibService = fibService;
         this.coordinator = coordinator;
         if (config != null) {
             this.natMode = config.getNatMode();
+        } else {
+            this.natMode = NatMode.Controller;
         }
     }
 
@@ -251,7 +246,7 @@ public class ExternalNetworksChangeListener
                         externalRouterListener.advToBgpAndInstallFibAndTsFlows(dpnId, NwConstants.INBOUND_NAPT_TABLE,
                                 vpnName, routerIdentifier, routerId.getValue(),
                                 externalIp, network.getId(), null /* external-router */,
-                                vpnService, fibService, bgpManager, dataBroker, writeFlowInvTx);
+                                writeFlowInvTx);
                     }
                 }
             } else {

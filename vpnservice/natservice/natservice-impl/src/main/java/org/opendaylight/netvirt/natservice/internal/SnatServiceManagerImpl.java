@@ -8,9 +8,8 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
 import java.util.List;
-
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -23,8 +22,9 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class SnatServiceManagerImpl implements SnatServiceManager {
 
-    private final List<SnatServiceListener> snatServiceListeners = new ArrayList<>();
     private static final Logger LOG = LoggerFactory.getLogger(SnatServiceManagerImpl.class);
+
+    private final List<SnatServiceListener> snatServiceListeners = new CopyOnWriteArrayList<>();
 
     @Inject
     public SnatServiceManagerImpl(final SnatServiceImplFactory factory) {

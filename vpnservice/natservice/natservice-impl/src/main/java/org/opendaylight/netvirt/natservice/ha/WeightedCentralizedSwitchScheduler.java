@@ -46,7 +46,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private final Map<BigInteger,Integer> switchWeightsMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToRouterPortMap = new ConcurrentHashMap<>();
     private final DataBroker dataBroker;
-    final OdlInterfaceRpcService interfaceManager;
+    private final OdlInterfaceRpcService interfaceManager;
     private final int initialSwitchWeight = 0;
     private final IVpnFootprintService vpnFootprintService;
 

@@ -143,8 +143,7 @@ public class SNATDefaultRouteProgrammer {
         mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
     }
 
-    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId,
-            IdManagerService idManager) {
+    void installDefNATRouteInDPN(BigInteger dpnId, long vpnId, String subnetId) {
         FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpnId, vpnId, subnetId, idManager);
         if (flowEntity == null) {
             LOG.error("installDefNATRouteInDPN : Flow entity received is NULL."

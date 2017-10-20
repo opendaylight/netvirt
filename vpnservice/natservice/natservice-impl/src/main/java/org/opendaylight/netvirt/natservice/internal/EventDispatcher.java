@@ -7,49 +7,36 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import javax.annotation.PostConstruct;
+import java.util.concurrent.ExecutorService;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class EventDispatcher {
+public class EventDispatcher implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(EventDispatcher.class);
-    private final BlockingQueue<NAPTEntryEvent> removeFlowQueue;
+
     private final NaptEventHandler naptEventHandler;
+    private final ExecutorService executor = SpecialExecutors.newBoundedSingleThreadExecutor(
+            NatConstants.EVENT_QUEUE_LENGTH, "NatServiceEventDispatcher");
 
     @Inject
     public EventDispatcher(final NaptEventHandler naptEventHandler) {
         this.naptEventHandler = naptEventHandler;
-        this.removeFlowQueue = new ArrayBlockingQueue<>(NatConstants.EVENT_QUEUE_LENGTH);
     }
 
-    @PostConstruct
-    public void init() {
-        FlowRemoveThread flowRemoveThread = new FlowRemoveThread();
-        new Thread(flowRemoveThread).start();
+    @PreDestroy
+    @Override
+    public void close() {
+        executor.shutdown();
     }
 
     public void addFlowRemovedNaptEvent(NAPTEntryEvent naptEntryEvent) {
-        LOG.trace("addFlowRemovedNaptEvent : Adding Flow Removed event to eventQueue which is of size {} "
-                + "and remaining capacity {}", removeFlowQueue.size(), removeFlowQueue.remainingCapacity());
-        this.removeFlowQueue.add(naptEntryEvent);
-    }
+        LOG.trace("addFlowRemovedNaptEvent : Adding Flow Removed event {}", naptEntryEvent);
 
-    private class FlowRemoveThread implements Runnable {
-        public void run() {
-            while (true) {
-                try {
-                    LOG.trace("run : Inside FlowRemoveThread");
-                    NAPTEntryEvent event = removeFlowQueue.take();
-                    naptEventHandler.handleEvent(event);
-                } catch (InterruptedException e) {
-                    LOG.error("run : EventDispatcher : Error in handling the flow removed event queue: ", e);
-                }
-            }
-        }
+        executor.execute(() -> naptEventHandler.handleEvent(naptEntryEvent));
     }
 }

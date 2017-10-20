@@ -19,7 +19,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Future;
-
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -64,6 +63,9 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class EvpnDnatFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnDnatFlowProgrammer.class);
+
+    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IBgpManager bgpManager;
@@ -71,7 +73,6 @@ public class EvpnDnatFlowProgrammer {
     private final FibRpcService fibService;
     private final IVpnManager vpnManager;
     private final IdManagerService idManager;
-    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
 
     @Inject
     public EvpnDnatFlowProgrammer(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -205,7 +206,7 @@ public class EvpnDnatFlowProgrammer {
         if (optionalVpnInterface.isPresent()) {
             VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get());
             Adjacencies adjs = vpnIfBuilder.getAugmentation(Adjacencies.class);
-            List<Adjacency> adjacencyList = (adjs != null) ? adjs.getAdjacency() : new ArrayList<>();
+            List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
             Adjacencies adjacencies = new AdjacenciesBuilder().setAdjacency(adjacencyList).build();
             vpnIfBuilder.addAugmentation(Adjacencies.class, adjacencies);
 
