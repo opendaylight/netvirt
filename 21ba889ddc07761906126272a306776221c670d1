@@ -16,6 +16,24 @@
       "revId": "21ba889ddc07761906126272a306776221c670d1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1b97e691",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 13
+      },
+      "lineNbr": 360,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-21T12:02:51Z",
+      "side": 1,
+      "message": "Indeed, I agree with your suggestion. I will remove the patch from the list.\nExceptions that appear should be handled in an other way.\nI could use that to verify that the exceptions i was dealing with, disappeared.\nbut now, I think I can remove it and try to figure out an other solution.",
+      "parentUuid": "9a245df4_f8fdb83c",
+      "revId": "21ba889ddc07761906126272a306776221c670d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
