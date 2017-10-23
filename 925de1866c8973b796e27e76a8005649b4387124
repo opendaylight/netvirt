@@ -22,6 +22,30 @@
       "revId": "925de1866c8973b796e27e76a8005649b4387124",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_71d72324",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T12:19:18Z",
+      "side": 1,
+      "message": "PS: The JobCoordinatorTestModule from https://git.opendaylight.org/gerrit/#/c/60303/ is useful to do the equivalent to what I\u0027m proposing you should do manually here in a more automated and implicit fashion in Guice-based component tests elsewhere; just FYI.",
+      "parentUuid": "9a245df4_7109e3dc",
+      "range": {
+        "startLine": 123,
+        "startChar": 34,
+        "endLine": 123,
+        "endChar": 35
+      },
+      "revId": "925de1866c8973b796e27e76a8005649b4387124",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
