@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_e784f5d5",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T19:54:35Z",
+      "side": 1,
+      "message": "You\u0027re already importing java.util.List",
+      "range": {
+        "startLine": 27,
+        "startChar": 12,
+        "endLine": 27,
+        "endChar": 22
+      },
+      "revId": "30483adabc83561678e7bf99d7cfbf31b90d3cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8764194a",
+        "filename": "vpnservice/alarm/alarm-impl/src/test/java/org/opendaylight/netvirt/alarm/test/AlarmTest.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T19:54:35Z",
+      "side": 1,
+      "message": "So it seems the only real use for the raiseAlarmObjectMap in the production class  if for the unit test.  You really shouldn\u0027t maintain such state in production for unit tests.  I would suggest adding a NotificationListener to the Mbean. In fact that is really what you want to test/verify - that it emits a notification.",
+      "revId": "30483adabc83561678e7bf99d7cfbf31b90d3cca",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
