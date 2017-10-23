@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_cc0d9639",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NeutronvpnAlarms.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T14:14:31Z",
+      "side": 1,
+      "message": "static instances like this are generally bad practice - the lifecycle is hard(er) to control and define, especially in a dynamic OSGi env.  Is NeutronvpnAlarms a singleton? If so then alarmAgent need not be  static. Otherwise multiple instances of NeutronvpnAlarms will duplicate and race with registerMbean/unregisterMbean calls.\n\nRe: protected, unless it\u0027s final then exposing as non-private is not good practice as it could be mutated (it\u0027s also a security hole and tools like findbugs would report a violation). So it\u0027s better to make all fields private and provide accessors.",
+      "parentUuid": "9a245df4_0e55e64f",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 20
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d86ef400",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnJMXAlarmAgent.java",
         "patchSetId": 20
@@ -125,6 +149,30 @@
       "side": 1,
       "message": "Hi.\nthis object is called from other package like test for example.\nthks",
       "parentUuid": "9a245df4_b8a3404e",
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ec585a34",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnJMXAlarmAgent.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T14:14:31Z",
+      "side": 1,
+      "message": "It is used below - missed that.\n\nIt should be private. public fields are bad practice as I mentioned in another comment. If it needs to accessed outside  then provide an accessor or, better yet, provide methods in this class that access it.",
+      "parentUuid": "9a245df4_ce5bce85",
+      "range": {
+        "startLine": 31,
+        "startChar": 35,
+        "endLine": 31,
+        "endChar": 44
+      },
       "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -260,6 +308,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_0c3deebb",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T14:14:31Z",
+      "side": 1,
+      "message": "Again public fields are bad practice",
+      "parentUuid": "9a245df4_6e674226",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 10
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f88498b2",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -307,6 +379,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_8c78be90",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T14:14:31Z",
+      "side": 1,
+      "message": "The reason is that you don\u0027t restrict it to a particular implementation, it can be any List implementation and your code should only care that it\u0027s a List.",
+      "parentUuid": "9a245df4_ee7212e2",
+      "range": {
+        "startLine": 32,
+        "startChar": 36,
+        "endLine": 32,
+        "endChar": 45
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_58ab241d",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -342,6 +438,30 @@
       "side": 1,
       "message": "Hello, If the arg is null I will make a return; this object have to be cleared most of the time. it a temporary state.",
       "parentUuid": "9a245df4_58ab241d",
+      "range": {
+        "startLine": 33,
+        "startChar": 32,
+        "endLine": 33,
+        "endChar": 48
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0c64cee3",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T14:14:31Z",
+      "side": 1,
+      "message": "I don\u0027t understand the intent here. The caller passes in a List and you take ownership of it and mutate it in raiseAlarm. That doesn\u0027t seem right to me. As I mentioned, it\u0027s better/safer to copy the passed List.\n\nWith that said, why is this even exposed as a public API? It seems the only public API should be raiseAlarm which calls this method. I don\u0027t see anything else calling setRaiseAlarmObject. It seems odd that raiseAlarm mutates raiseAlarmObject, then calls this method which sets raiseAlarmObject to itself, and then immediately clears raiseAlarmObject. What\u0027s the point in even storing raiseAlarmObject as a field - it will always be empty.",
+      "parentUuid": "9a245df4_b1f7dbf4",
       "range": {
         "startLine": 33,
         "startChar": 32,
@@ -518,6 +638,30 @@
       "side": 1,
       "message": "Hello.\nno only one thread have an acces to it, because each thread have its own instance.\nthks",
       "parentUuid": "9a245df4_d8b71485",
+      "range": {
+        "startLine": 76,
+        "startChar": 8,
+        "endLine": 76,
+        "endChar": 24
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8c627eab",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T14:14:31Z",
+      "side": 1,
+      "message": "This a JMX bean - not a thread local instance. Any thread can access this bean at any time.",
+      "parentUuid": "9a245df4_b1135b0c",
       "range": {
         "startLine": 76,
         "startChar": 8,
