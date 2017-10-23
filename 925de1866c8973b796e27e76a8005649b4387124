@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_7109e3dc",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/test/java/org/opendaylight/netvirt/cloudservicechain/VPNServiceChainHandlerTest.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T12:04:36Z",
+      "side": 1,
+      "message": "Tom, sorry to be a PITA, but the right thing to do here would be to keep the JobCoordinatorImpl around in an field of the *Test class and in @After tearDown() call it\u0027s destroy() method...",
+      "range": {
+        "startLine": 123,
+        "startChar": 34,
+        "endLine": 123,
+        "endChar": 35
+      },
+      "revId": "925de1866c8973b796e27e76a8005649b4387124",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
