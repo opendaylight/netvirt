@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_71a563b4",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtilImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T12:28:34Z",
+      "side": 1,
+      "message": "Tiny bit of a DI abberration that one cannot just @Inject EntityOwnershipUtils here, but has to manually create it (just because \"it\u0027s different than everything else\"), so in an ideal world would suggest to make EntityOwnershipUtils a real OSGi service if you can - but I don\u0027t want to hold this up because of that, so will just abstain from voting.. ;)",
+      "revId": "12385d6ca7da0663e7dc27fd62d6a556bd853c56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
