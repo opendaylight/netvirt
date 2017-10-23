@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_acbb02e4",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:32:22Z",
+      "side": 1,
+      "message": "why does the de-static-ification have to make these volatile?",
+      "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ecb5faee",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:32:22Z",
+      "side": 1,
+      "message": "IMHO it\u0027s a better DI design if qosNeutronUtils does not expose public getDataBroker(), but if this class @Inject a DataBroker.",
+      "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8ca55eb7",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:32:22Z",
+      "side": 1,
+      "message": "IMHO this is wrong DI design.. any service depending on this one which needs an INeutronVpnManager should get one injected itself instead",
+      "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ecacdaa2",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 132,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:32:22Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
