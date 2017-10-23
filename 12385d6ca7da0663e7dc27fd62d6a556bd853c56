@@ -16,6 +16,24 @@
       "revId": "12385d6ca7da0663e7dc27fd62d6a556bd853c56",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1127c713",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclClusterUtilImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T13:05:39Z",
+      "side": 1,
+      "message": "So make it a global singleton advertised from genius? We could do that but I didn\u0027t think that was necessary as it\u0027s a simple Utils class that doesn\u0027t maintain state, ie instances are cheap.",
+      "parentUuid": "9a245df4_71a563b4",
+      "revId": "12385d6ca7da0663e7dc27fd62d6a556bd853c56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
