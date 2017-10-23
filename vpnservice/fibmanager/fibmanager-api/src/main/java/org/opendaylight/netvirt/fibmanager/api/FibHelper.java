@@ -12,6 +12,7 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 import java.math.BigInteger;
+import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -24,7 +25,6 @@ import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
@@ -157,8 +157,15 @@ public class FibHelper {
         if (prefix == null || prefix.length() < 7) {
             return rep;
         }
-        String ip = getIpFromPrefix(prefix);
-        return NWUtil.isIpv4Address(ip);
+        try {
+            String ip = getIpFromPrefix(prefix);
+            java.net.Inet4Address ipVersOk = (Inet4Address) java.net.Inet4Address.getByName(ip);
+            rep = true;
+        } catch (SecurityException | UnknownHostException | ClassCastException e) {
+            rep = false;
+            return rep;
+        }
+        return rep;
     }
 
     /** get true if this prefix is an IPv6 version, false otherwise.
@@ -203,6 +210,16 @@ public class FibHelper {
      * @return true if the param subnet contained the prefixToTest false otherwise
      */
     public static boolean isBelongingPrefix(String prefixToTest, String subnet) {
+        return isBelongingPrefixOption(prefixToTest, subnet, true);
+    }
+
+    /**Return true if this prefix or subnet is belonging the specified subnetwork.
+     * @param prefixToTest the prefix which could be in the subnet
+     * @param subnet the subnet that have to contain the prefixToTest to return true
+     * @param exactMatch boolean set to true if exact match is expected
+     * @return true if the param subnet contained the prefixToTest false otherwise
+     */
+    public static boolean isBelongingPrefixOption(String prefixToTest, String subnet, boolean exactMatch) {
         boolean rep = false;
         if (prefixToTest == null || prefixToTest.length() < 7 || subnet == null || subnet.length() < 7) {
             return rep;
@@ -232,7 +249,7 @@ public class FibHelper {
             try {
                 maskPref = Integer.valueOf(maskPrefString);
                 maskSub = Integer.valueOf(maskSubString);
-                if (maskPref != maskSub) {
+                if (exactMatch && maskPref != maskSub) {
                  /*because the mask must be exactly the same between them, the return type is false. This behavior could
                   * be changed to ignored it in including a boolean options to force or not the same mask control*/
                     rep = false;
