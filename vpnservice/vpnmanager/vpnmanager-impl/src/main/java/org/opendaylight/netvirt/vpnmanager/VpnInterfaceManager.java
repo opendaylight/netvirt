@@ -1705,14 +1705,25 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 // This code will be hit in case of first PNF adjacency
                 adjacencies = new ArrayList<>();
             }
+            List<String> nhList = adj.getNextHopIpList();
+            String nextHopIp = null;
+            if (nhList == null || nhList.isEmpty()) {
+                nextHopIp = InterfaceUtils.getEndpointIpAddressForDPN(dataBroker, dpnId);
+                if (nextHopIp != null) {
+                    nhList = new ArrayList<>();
+                    nhList.add(nextHopIp);
+                    LOG.debug("addNewAdjToVpnInterface: updating NextHop {} for adj {} type {}",
+                          nextHopIp, adj, adj.getAdjacencyType());
+                }
+            }
             long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             L3vpnInput input = new L3vpnInput().setNextHop(adj).setVpnName(vpnName)
                     .setInterfaceName(currVpnIntf.getName()).setPrimaryRd(primaryRd).setRd(primaryRd);
             Adjacency operationalAdjacency = null;
-            if (adj.getNextHopIpList() != null && !adj.getNextHopIpList().isEmpty()) {
+            if (nhList != null && !nhList.isEmpty()) {
                 RouteOrigin origin = adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
-                String nh = adj.getNextHopIpList().get(0);
+                String nh = nhList.get(0);
                 String vpnPrefixKey = VpnUtil.getVpnNamePrefixKey(vpnName, prefix);
                 synchronized (vpnPrefixKey.intern()) {
                     java.util.Optional<String> rdToAllocate = VpnUtil.allocateRdForExtraRouteAndUpdateUsedRdsMap(
