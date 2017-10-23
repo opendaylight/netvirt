@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_0e55e64f",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NeutronvpnAlarms.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Hi.\nThis class could be extend and this Object have to be accessible from its extends class. About static way, this is used for only one way (of course I could use a get method but right now that is not mandatory).\nthks.",
+      "parentUuid": "9a245df4_d8a0b445",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 20
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d86ef400",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnJMXAlarmAgent.java",
         "patchSetId": 20
@@ -65,6 +89,48 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_ce5bce85",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnJMXAlarmAgent.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "hi, it is used",
+      "parentUuid": "9a245df4_d86ef400",
+      "range": {
+        "startLine": 31,
+        "startChar": 35,
+        "endLine": 31,
+        "endChar": 44
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8e61d63b",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnJMXAlarmAgent.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Hi.\nthis object is called from other package like test for example.\nthks",
+      "parentUuid": "9a245df4_b8a3404e",
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_188a4cbf",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -76,6 +142,24 @@
       "writtenOn": "2017-10-20T22:34:07Z",
       "side": 1,
       "message": "Make private. Also declare as List.",
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8ebd566b",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_188a4cbf",
       "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -128,6 +212,54 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_aebada6b",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Hello, ok I change it to concurrentMap. Thks",
+      "parentUuid": "9a245df4_38a63054",
+      "range": {
+        "startLine": 29,
+        "startChar": 68,
+        "endLine": 29,
+        "endChar": 75
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6e674226",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "this Object could be got from anywhere.",
+      "parentUuid": "9a245df4_5894c4e1",
+      "range": {
+        "startLine": 29,
+        "startChar": 4,
+        "endLine": 29,
+        "endChar": 10
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f88498b2",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -139,6 +271,30 @@
       "writtenOn": "2017-10-20T22:34:07Z",
       "side": 1,
       "message": "List",
+      "range": {
+        "startLine": 32,
+        "startChar": 36,
+        "endLine": 32,
+        "endChar": 45
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ee7212e2",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Hi, List or ArrayList... why not, I will do it.",
+      "parentUuid": "9a245df4_f88498b2",
       "range": {
         "startLine": 32,
         "startChar": 36,
@@ -174,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b1f7dbf4",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Hello, If the arg is null I will make a return; this object have to be cleared most of the time. it a temporary state.",
+      "parentUuid": "9a245df4_58ab241d",
+      "range": {
+        "startLine": 33,
+        "startChar": 32,
+        "endLine": 33,
+        "endChar": 48
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_388f50ce",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -185,6 +365,30 @@
       "writtenOn": "2017-10-20T22:34:07Z",
       "side": 1,
       "message": "List",
+      "range": {
+        "startLine": 41,
+        "startChar": 11,
+        "endLine": 41,
+        "endChar": 20
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d159afff",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_388f50ce",
       "range": {
         "startLine": 41,
         "startChar": 11,
@@ -220,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b15cfbee",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_98bd9c6b",
+      "range": {
+        "startLine": 55,
+        "startChar": 11,
+        "endLine": 55,
+        "endChar": 20
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f8abf81b",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -237,6 +465,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_11734781",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_f8abf81b",
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d8b71485",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -248,6 +494,30 @@
       "writtenOn": "2017-10-20T22:34:07Z",
       "side": 1,
       "message": "Thread safety? Can multiple threads access this?",
+      "range": {
+        "startLine": 76,
+        "startChar": 8,
+        "endLine": 76,
+        "endChar": 24
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b1135b0c",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Hello.\nno only one thread have an acces to it, because each thread have its own instance.\nthks",
+      "parentUuid": "9a245df4_d8b71485",
       "range": {
         "startLine": 76,
         "startChar": 8,
@@ -283,6 +553,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f1f4b3d0",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_18b1ac8f",
+      "range": {
+        "startLine": 81,
+        "startChar": 32,
+        "endLine": 81,
+        "endChar": 43
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b8ba206c",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 20
@@ -294,6 +588,24 @@
       "writtenOn": "2017-10-20T22:34:07Z",
       "side": 1,
       "message": "This sets clearAlarmObject to itself",
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1121874d",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Hello.\nyou are right, but this is because this 2 methods are doing two different steps.",
+      "parentUuid": "9a245df4_b8ba206c",
       "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -323,6 +635,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f11b131a",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarmMBean.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_98647c23",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 13
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_78670826",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarmMBean.java",
         "patchSetId": 20
@@ -334,6 +670,30 @@
       "writtenOn": "2017-10-20T22:34:07Z",
       "side": 1,
       "message": "List",
+      "range": {
+        "startLine": 20,
+        "startChar": 4,
+        "endLine": 20,
+        "endChar": 13
+      },
+      "revId": "a7ffe6f72a25dd125993185fdc9631eff26270ee",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_511bff1a",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarmMBean.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-10-23T12:46:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_78670826",
       "range": {
         "startLine": 20,
         "startChar": 4,
