@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_4c5ec613",
+        "filename": "vpnservice/ipv6service/shell/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:02:25Z",
+      "side": 1,
+      "message": "AFAIK this is technically not required anymore now, it was only for the k3/4 transition, so you could remove this (entirely, the whole maven-bundle-plugin block here), and it should still work",
+      "revId": "c501a3405e8e6aba00669b343260ae6032d49401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_eca69a0f",
+        "filename": "vpnservice/ipv6service/shell/src/main/java/org/opendaylight/netvirt/ipv6service/shell/ShowIpv6Command.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:02:25Z",
+      "side": 1,
+      "message": "are you aware of the org.opendaylight.infrautils.utils.TablePrinter ?  I\u0027ve never used it myself yet, but AFAIK it can help you write such \"tabular\" output.. (and if it doesn\u0027t exactly meet your needs, then are more than welcome to propose improvenents to it!)",
+      "revId": "c501a3405e8e6aba00669b343260ae6032d49401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
