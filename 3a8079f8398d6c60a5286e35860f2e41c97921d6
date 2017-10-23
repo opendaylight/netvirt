@@ -73,6 +73,41 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_ac830255",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:02:25Z",
+      "side": 1,
+      "message": "My view on this would be that if it\u0027s something you want a CLI for, then in effect it kind of de facto is public information.  Imagine, in theory, you may want it to by REST or JMX or what not and not CLI as well?  However, if mixing this together with the \"main\" functional API defined in YANG bothers you, then what I would perhaps do, at least to start with, is just have a non-YANG interface IfMgrMonitor {} with these methods, if you prefer.  Or if you want it in YANG straight away, have a separate YANG module, like ipv6-monitor?",
+      "parentUuid": "9a245df4_95ce0cb3",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ec7dfa6f",
+        "filename": "vpnservice/ipv6service/shell/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-10-23T14:02:25Z",
+      "side": 1,
+      "message": "I would find it a \"cleaner\" design to only let this depend on ipv6service-api; see also my other comment.",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c060db37",
         "filename": "vpnservice/ipv6service/shell/src/main/resources/org/opendaylight/blueprint/blueprint.xml",
         "patchSetId": 1
