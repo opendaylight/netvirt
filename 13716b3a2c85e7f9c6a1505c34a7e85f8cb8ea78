@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_27428d3e",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T17:16:35Z",
+      "side": 1,
+      "message": "These weren\u0027t static before but do need to be volatile for thread safety (if a field can be accessed by multiple threads, there must be some form of synchronization to ensure updates are visible by all threads). Are you questioning its volatility or that such a change is outside the scope of this patch?",
+      "parentUuid": "9a245df4_acbb02e4",
+      "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_ecb5faee",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_a775dd99",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 344,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T17:16:35Z",
+      "side": 1,
+      "message": "yeah I went back and forth on that. I was trying to simplify this class a bit by eliminating an @Inject but I can change it.",
+      "parentUuid": "9a245df4_ecb5faee",
+      "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8ca55eb7",
         "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2017-10-23T14:32:22Z",
       "side": 1,
       "message": "IMHO this is wrong DI design.. any service depending on this one which needs an INeutronVpnManager should get one injected itself instead",
+      "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_87789990",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosNeutronUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-23T17:16:35Z",
+      "side": 1,
+      "message": "I see your point. I was just trying to avoid some @injects.",
+      "parentUuid": "9a245df4_8ca55eb7",
       "revId": "13716b3a2c85e7f9c6a1505c34a7e85f8cb8ea78",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
