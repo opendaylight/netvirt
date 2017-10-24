@@ -22,7 +22,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.api.utils.ChangeUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -48,14 +48,16 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
     private final DataBroker dataBroker;
     private final QosAlertManager qosAlertManager;
     private final QosNeutronUtils qosNeutronUtils;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public QosPolicyChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
-            final QosNeutronUtils qosNeutronUtils) {
+            final QosNeutronUtils qosNeutronUtils, final JobCoordinator jobCoordinator) {
         super(QosPolicy.class, QosPolicyChangeListener.class);
         this.dataBroker = dataBroker;
         this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
+        this.jobCoordinator = jobCoordinator;
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
@@ -156,9 +158,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             qosAlertManager.addToQosAlertCache(port);
-            final DataStoreJobCoordinator portDataStoreCoordinator =
-                    DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortBandwidthLimits(port, input, wrtConfigTxn);
@@ -178,9 +178,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            final DataStoreJobCoordinator portDataStoreCoordinator =
-                    DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortDscpMarking(port, input);
@@ -211,9 +209,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
             qosAlertManager.removeFromQosAlertCache(port);
-            final DataStoreJobCoordinator portDataStoreCoordinator =
-                    DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortBandwidthLimits(port, zeroBwLimitRule, wrtConfigTxn);
@@ -233,9 +229,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            final DataStoreJobCoordinator portDataStoreCoordinator =
-                    DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.unsetPortDscpMark(port);
@@ -261,9 +255,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            final DataStoreJobCoordinator portDataStoreCoordinator =
-                    DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortBandwidthLimits(port, update, wrtConfigTxn);
@@ -284,9 +276,7 @@ public class QosPolicyChangeListener extends AsyncClusteredDataTreeChangeListene
         }
 
         for (Port port : qosNeutronUtils.getQosPorts(qosUuid)) {
-            final DataStoreJobCoordinator portDataStoreCoordinator =
-                    DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 qosNeutronUtils.setPortDscpMarking(port, update);
