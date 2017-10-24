@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a245df4_41832c56",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-24T10:23:25Z",
+      "side": 1,
+      "message": "In the two router solution, the VM would still have a single NIC (with an IPv4 and IPv6 address) right? Or are we talking about having two separate NICs in the VM?",
+      "range": {
+        "startLine": 9,
+        "startChar": 12,
+        "endLine": 10,
+        "endChar": 6
+      },
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a1aae8cf",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-24T10:23:25Z",
+      "side": 1,
+      "message": "Are we resubmitting from Table 19 back to Table19?",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 14,
+        "endChar": 8
+      },
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c1139c5a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
