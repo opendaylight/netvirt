@@ -191,6 +191,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e48b4e66",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-24T18:59:01Z",
+      "side": 1,
+      "message": "you talk about performance issue.\ndepending on the performance issue, one couldagree to lower or increase this \"subnetmap reduction\" work.",
+      "parentUuid": "9a245df4_9d2c6604",
+      "range": {
+        "startLine": 302,
+        "startChar": 17,
+        "endLine": 302,
+        "endChar": 45
+      },
+      "revId": "de738b961562f450bb1ccbe7bcf18a8458d6b91c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4e4fdebd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 36
@@ -601,6 +625,30 @@
       "side": 1,
       "message": "Philippe, I think with your current implementation in your review, we dont need the addBgpVrf() call in VpnInstanceListener.\nBecause, in regular cases, we first create a bgpvpn, which calls VpnInstanceListener.add(). Only after you associate a router/network, will you be calling addVrf(), that comes is now handled in bgpvpnChangeListener.update().\nThere is no scenari, where a bgpvpn is created with already populated routers and networks.\n\nThere is a independent flow where this might happen. During a CSC reboot, a bgpvpn will be replayed, and this might already contain networks and routers. But, even here, if you check bgpvpnChangeListener.add(), we first create the vpn-instance, then we assoc networks/routers.\n\nSo, in all possible cases, we will always get a vpn-op-data update. So calling addBgpVrf, in VPNInstanceListener is not required.",
       "parentUuid": "9a245df4_87a539b7",
+      "range": {
+        "startLine": 395,
+        "startChar": 12,
+        "endLine": 408,
+        "endChar": 62
+      },
+      "revId": "de738b961562f450bb1ccbe7bcf18a8458d6b91c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e4e22e2e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-24T18:59:01Z",
+      "side": 1,
+      "message": "ok. I have two points:\n- at vpninstanceopdataentry creation, i will make sure that ipv4 and ipv6 is set to false.\n- addBgpVrf is kept , but has no BGPVRF inside. The reason is that some code ( legacy code ?) is called from that function ( vpnInterfaceManager.handleVpnsExportingRoutes ).",
+      "parentUuid": "9a245df4_3dd73aef",
       "range": {
         "startLine": 395,
         "startChar": 12,
