@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_aaa7794e",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 308,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-10-24T15:47:52Z",
+      "side": 1,
+      "message": "Can\u0027t we have a direct dependency on NeutronVpnManager? Or does that introduce a loop?",
+      "revId": "b7c71cb2a480893646185762df0392fe463a123c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4a6ebd02",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-10-24T15:47:52Z",
+      "side": 1,
+      "message": "Same here, we should have a direct dependency on the data broker.",
+      "revId": "b7c71cb2a480893646185762df0392fe463a123c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2a7389ea",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-10-24T15:47:52Z",
+      "side": 1,
+      "message": "I\u0027d rather have this as an explicit dependency.",
+      "revId": "b7c71cb2a480893646185762df0392fe463a123c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6a7461cf",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-10-24T15:47:52Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "b7c71cb2a480893646185762df0392fe463a123c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_aa7e59ac",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2017-10-24T15:47:52Z",
+      "side": 1,
+      "message": "And again... (I\u0027ll ignore the remaining instances of this.)",
+      "revId": "b7c71cb2a480893646185762df0392fe463a123c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
