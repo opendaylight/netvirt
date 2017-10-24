@@ -16,6 +16,24 @@
       "revId": "e9fa5207a14668a62e27357c3992ff6d792a2725",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_dd0d3e92",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-24T08:38:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_98963cef",
+      "revId": "e9fa5207a14668a62e27357c3992ff6d792a2725",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
