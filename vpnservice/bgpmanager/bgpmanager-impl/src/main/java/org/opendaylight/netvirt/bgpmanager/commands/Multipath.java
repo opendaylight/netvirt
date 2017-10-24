@@ -23,6 +23,8 @@ public class Multipath extends OsgiCommandSupport {
     private static final String AF = "--address-family";
     private static final String RD = "--rd";
     private static final String MAXPATH = "--maxpath";
+    private static final int MIN_MAXPATH = 1;
+    private static final int MAX_MAXPATH = 64;
 
     @Option(name = RD, aliases = { "-r" },
             description = "rd",
@@ -60,7 +62,6 @@ public class Multipath extends OsgiCommandSupport {
 
         af_afi afi = null;
         af_safi safi = null;
-        int imaxpath = maxpath == null ? -1 : Integer.parseInt(maxpath);
 
         if (addrFamily != null) {
             if (!addrFamily.equals("lu"))  {
@@ -73,9 +74,12 @@ public class Multipath extends OsgiCommandSupport {
             safi = af_safi.SAFI_MPLS_VPN;
         }
 
-        if (imaxpath < 1 && imaxpath > 64) {
-            session.getConsole().println("error: " + MAXPATH + " must be between 1 and 64");
-            return null;
+        if (maxpath != null) {
+            int imaxpath = Integer.parseInt(maxpath);
+            if (imaxpath < MIN_MAXPATH || imaxpath > MAX_MAXPATH) {
+                session.getConsole().println("error: " + MAXPATH + " range[" + MIN_MAXPATH + " - " + MAX_MAXPATH + "]");
+                return null;
+            }
         }
 
         if (multipathEnable != null) {
