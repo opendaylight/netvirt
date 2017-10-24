@@ -62,9 +62,11 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         // TODO complete this list!!! after Gerrit which adds @Inject to all listeners
 
         // Bindings to test infra (fakes & mocks)
-        bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
+        DataBroker dataBroker = DataBrokerTestModule.dataBroker();
+        bind(DataBroker.class).toInstance(dataBroker);
         bind(IMdsalApiManager.class).toInstance(TestIMdsalApiManager.newInstance());
-        bindTypesToInstance(IInterfaceManager.class, TestInterfaceManager.class, TestInterfaceManager.newInstance());
+        bindTypesToInstance(IInterfaceManager.class, TestInterfaceManager.class,
+                TestInterfaceManager.newInstance(dataBroker));
         bind(ItmRpcService.class).toInstance(Mockito.mock(ItmRpcService.class)); // new ItmManagerRpcService();
         bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
         bind(EvpnUtils.class).toInstance(Mockito.mock(EvpnUtils.class));

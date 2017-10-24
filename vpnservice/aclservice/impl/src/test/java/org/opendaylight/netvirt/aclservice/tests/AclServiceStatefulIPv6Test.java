@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.r
 @Ignore
 public class AclServiceStatefulIPv6Test extends AclServiceTestBaseIPv6 {
 
-    public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
+    public @Rule MethodRule guice = new GuiceRule(
             new AclServiceTestModule(SecurityGroupMode.Stateful),
             new TestableDataTreeChangeListenerModule());
 

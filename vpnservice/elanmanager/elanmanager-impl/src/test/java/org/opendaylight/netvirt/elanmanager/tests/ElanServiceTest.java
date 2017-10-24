@@ -99,6 +99,8 @@ public class ElanServiceTest {
     private InterfaceInfo newInterfaceInfo(String testInterfaceName) {
         InterfaceInfo interfaceInfo = new InterfaceInfo(BigInteger.valueOf(789), "TestPortName");
         interfaceInfo.setInterfaceName(TEST_INTERFACE_NAME);
+        interfaceInfo.setInterfaceTag(1);
+        interfaceInfo.setMacAddress("A6:CA:94:86:25:65");
         return interfaceInfo;
     }
 

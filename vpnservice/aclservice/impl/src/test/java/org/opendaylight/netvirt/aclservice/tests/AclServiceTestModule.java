@@ -11,15 +11,23 @@ import static org.mockito.Mockito.mock;
 import static org.opendaylight.yangtools.testutils.mockito.MoreAnswers.realOrException;
 
 import com.google.common.util.concurrent.Futures;
-import com.google.inject.AbstractModule;
 import java.util.concurrent.Future;
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.genius.testutils.TestInterfaceManager;
+import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
+import org.opendaylight.netvirt.aclservice.AclServiceManagerImpl;
+import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
+import org.opendaylight.netvirt.aclservice.listeners.AclEventListener;
+import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceListener;
+import org.opendaylight.netvirt.aclservice.listeners.AclInterfaceStateListener;
+import org.opendaylight.netvirt.aclservice.listeners.AclNodeListener;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -43,7 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Michael Vorburger
  */
-public class AclServiceTestModule extends AbstractModule {
+public class AclServiceTestModule extends AbstractGuiceJsr250Module {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestModule.class);
 
     final SecurityGroupMode securityGroupMode;
@@ -53,10 +61,19 @@ public class AclServiceTestModule extends AbstractModule {
     }
 
     @Override
-    protected void configure() {
-        bind(DataBroker.class).toInstance(DataBrokerTestModule.dataBroker());
-        bind(AclserviceConfig.class).toInstance(aclServiceConfig());
+    protected void configureBindings() {
+        DataBroker dataBroker = DataBrokerTestModule.dataBroker();
+        bind(DataBroker.class).toInstance(dataBroker);
 
+        bind(AclServiceManager.class).to(AclServiceManagerImpl.class);
+        bindTypesToInstance(IInterfaceManager.class, TestInterfaceManager.class,
+                TestInterfaceManager.newInstance(dataBroker));
+        bind(AclInterfaceStateListener.class);
+        bind(AclNodeListener.class);
+        bind(AclInterfaceListener.class);
+        bind(AclEventListener.class);
+
+        bind(AclserviceConfig.class).toInstance(aclServiceConfig());
         bind(AclClusterUtil.class).toInstance(() -> true);
 
         TestIMdsalApiManager singleton = TestIMdsalApiManager.newInstance();

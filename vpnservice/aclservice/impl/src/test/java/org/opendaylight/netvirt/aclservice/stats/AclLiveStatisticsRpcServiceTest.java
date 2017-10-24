@@ -34,7 +34,6 @@ import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
-import org.opendaylight.netvirt.aclservice.tests.AclServiceModule;
 import org.opendaylight.netvirt.aclservice.tests.AclServiceTestModule;
 import org.opendaylight.netvirt.aclservice.tests.IdentifiedInterfaceWithAclBuilder;
 import org.opendaylight.netvirt.aclservice.tests.infra.DataBrokerPairsUtil;
@@ -63,7 +62,7 @@ public class AclLiveStatisticsRpcServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsRpcServiceTest.class);
 
-    public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
+    public @Rule MethodRule guice = new GuiceRule(
             new AclServiceTestModule(SecurityGroupMode.Stateful), new TestableDataTreeChangeListenerModule());
 
     @Inject

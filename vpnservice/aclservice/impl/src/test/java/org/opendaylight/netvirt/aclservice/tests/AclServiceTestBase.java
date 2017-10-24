@@ -119,6 +119,8 @@ public abstract class AclServiceTestBase {
     private InterfaceInfo newInterfaceInfo(String testInterfaceName) {
         InterfaceInfo interfaceInfo = new InterfaceInfo(BigInteger.valueOf(789), "port1");
         interfaceInfo.setInterfaceName(testInterfaceName);
+        interfaceInfo.setInterfaceTag(1);
+        interfaceInfo.setMacAddress(PORT_MAC_1);
         return interfaceInfo;
     }
 
