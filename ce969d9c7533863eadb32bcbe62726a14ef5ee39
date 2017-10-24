@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_1d27d613",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-24T08:38:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_2740cda4",
+      "range": {
+        "startLine": 47,
+        "startChar": 67,
+        "endLine": 47,
+        "endChar": 74
+      },
+      "revId": "ce969d9c7533863eadb32bcbe62726a14ef5ee39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c739f142",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
         "patchSetId": 6
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-23T19:35:13Z",
       "side": 1,
       "message": "Shouldn\u0027t this be remove? Otherwise subnetIdToRouterPortMap is only added to which would seem like a leak.",
+      "range": {
+        "startLine": 143,
+        "startChar": 56,
+        "endLine": 143,
+        "endChar": 59
+      },
+      "revId": "ce969d9c7533863eadb32bcbe62726a14ef5ee39",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5d214efa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-10-24T08:38:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_c739f142",
       "range": {
         "startLine": 143,
         "startChar": 56,
