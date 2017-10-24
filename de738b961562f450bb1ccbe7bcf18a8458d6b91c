@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5df30e9e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-24T08:21:47Z",
+      "side": 1,
+      "message": "I asked for this because, this block of code was introduced by one of your earlier ipv6 reviews, that got merged recently. We failed to catch it in your previous review.\n\nHowever, its okay if you raise a new review to reduce subnetMap reads.\n\nsubetMap read will not cause exceptions, and there is no inherent read limit. However, every data-store read slows down the exceution, and it would be better to reduce as many data-store accesses as possible.",
+      "parentUuid": "9a245df4_51301f01",
+      "range": {
+        "startLine": 266,
+        "startChar": 16,
+        "endLine": 278,
+        "endChar": 17
+      },
+      "revId": "de738b961562f450bb1ccbe7bcf18a8458d6b91c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_ee4fb2bc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 36
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "can we handle the subnetMap reduction with an other review, please ?",
       "parentUuid": "9a245df4_ee3a1233",
+      "range": {
+        "startLine": 302,
+        "startChar": 17,
+        "endLine": 302,
+        "endChar": 45
+      },
+      "revId": "de738b961562f450bb1ccbe7bcf18a8458d6b91c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9d2c6604",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-24T08:21:47Z",
+      "side": 1,
+      "message": "okay.",
+      "parentUuid": "9a245df4_f12033b2",
       "range": {
         "startLine": 302,
         "startChar": 17,
@@ -471,6 +519,29 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9d05867c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-24T08:21:47Z",
+      "side": 1,
+      "message": "The code blocks in neutronVpn, which update the vpn-op-data, and the code block in this file, that creates the vpn-op data, synchronise them on rd.intern()",
+      "range": {
+        "startLine": 9,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 0
+      },
+      "revId": "de738b961562f450bb1ccbe7bcf18a8458d6b91c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_6e99021f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
         "patchSetId": 36
@@ -506,6 +577,30 @@
       "side": 1,
       "message": "indeed, this is necessary.\nnow initialisation of BGPVRF is relying on reading vpninstance opdata entry.",
       "parentUuid": "9a245df4_6e99021f",
+      "range": {
+        "startLine": 395,
+        "startChar": 12,
+        "endLine": 408,
+        "endChar": 62
+      },
+      "revId": "de738b961562f450bb1ccbe7bcf18a8458d6b91c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3dd73aef",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 36
+      },
+      "lineNbr": 408,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-24T08:21:47Z",
+      "side": 1,
+      "message": "Philippe, I think with your current implementation in your review, we dont need the addBgpVrf() call in VpnInstanceListener.\nBecause, in regular cases, we first create a bgpvpn, which calls VpnInstanceListener.add(). Only after you associate a router/network, will you be calling addVrf(), that comes is now handled in bgpvpnChangeListener.update().\nThere is no scenari, where a bgpvpn is created with already populated routers and networks.\n\nThere is a independent flow where this might happen. During a CSC reboot, a bgpvpn will be replayed, and this might already contain networks and routers. But, even here, if you check bgpvpnChangeListener.add(), we first create the vpn-instance, then we assoc networks/routers.\n\nSo, in all possible cases, we will always get a vpn-op-data update. So calling addBgpVrf, in VPNInstanceListener is not required.",
+      "parentUuid": "9a245df4_87a539b7",
       "range": {
         "startLine": 395,
         "startChar": 12,
