@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_c1139c5a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-24T10:11:17Z",
+      "side": 1,
+      "message": "vpnInterface YANG model has the name as the key right. So, how can we have multiple entries? Can you please clarify.",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a13ca8c0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-24T10:11:17Z",
+      "side": 1,
+      "message": "So are we doing multiple Service Bindings for the same interface now?",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6172b0ae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-24T10:11:17Z",
+      "side": 1,
+      "message": "What does this arbitrateProvision mean? When do we hit this condition?",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2103980e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1913,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-24T10:11:17Z",
+      "side": 1,
+      "message": "A vpnInstanceOpDataEntry may not have an IPAddress right?\nIn such situations, we would return IpVersionChoice.UNDEFINED.\n\nBut in the calling context, you are not handling this situation (basically its treated as IPv6). Is this intentional?",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bd168a53",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1918,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-24T10:11:17Z",
+      "side": 1,
+      "message": "this should be IPV6.",
+      "range": {
+        "startLine": 1918,
+        "startChar": 33,
+        "endLine": 1918,
+        "endChar": 53
+      },
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
