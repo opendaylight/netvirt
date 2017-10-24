@@ -24,7 +24,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -39,6 +38,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -113,16 +113,18 @@ public class QosNeutronUtils {
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtils;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public QosNeutronUtils(final QosEosHandler qosEosHandler, final INeutronVpnManager neutronVpnManager,
             final OdlInterfaceRpcService odlInterfaceRpcService, final DataBroker dataBroker,
-            final IMdsalApiManager mdsalUtils) {
+            final IMdsalApiManager mdsalUtils, final JobCoordinator jobCoordinator) {
         this.qosEosHandler = qosEosHandler;
         this.neutronVpnManager = neutronVpnManager;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.dataBroker = dataBroker;
         this.mdsalUtils = mdsalUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public void addToQosPolicyCache(QosPolicy qosPolicy) {
@@ -202,8 +204,7 @@ public class QosNeutronUtils {
 
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             // handle Bandwidth Limit Rules update
@@ -227,8 +228,7 @@ public class QosNeutronUtils {
         QosPolicy qosPolicyNew = qosPolicyMap.get(qosUuidNew);
         QosPolicy qosPolicyOld = qosPolicyMap.get(qosUuidOld);
 
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             // handle Bandwidth Limit Rules update
@@ -272,8 +272,7 @@ public class QosNeutronUtils {
         } else {
             QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
-            final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 // handle Bandwidth Limit Rules removal
@@ -299,8 +298,7 @@ public class QosNeutronUtils {
         LOG.trace("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid(), qosUuid);
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             //check if any DSCP rule in the policy
@@ -317,8 +315,7 @@ public class QosNeutronUtils {
         LOG.trace("Handling Port removal and Qos associated: port: {} qos: {}", port.getUuid(), qosUuid);
         QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
 
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
@@ -349,9 +346,7 @@ public class QosNeutronUtils {
                         Port port = neutronVpnManager.getNeutronPort(portId);
                         if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                                 || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                            final DataStoreJobCoordinator portDataStoreCoordinator =
-                                    DataStoreJobCoordinator.getInstance();
-                            portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
+                            jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
                                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                                 if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
@@ -386,9 +381,7 @@ public class QosNeutronUtils {
                         Port port = neutronVpnManager.getNeutronPort(portId);
                         if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                                 || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                            final DataStoreJobCoordinator portDataStoreCoordinator =
-                                    DataStoreJobCoordinator.getInstance();
-                            portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
+                            jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
                                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                                 if (qosPolicy != null && qosPolicy.getBandwidthLimitRules() != null
@@ -423,9 +416,7 @@ public class QosNeutronUtils {
                 Port port = neutronVpnManager.getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                    final DataStoreJobCoordinator portDataStoreCoordinator =
-                            DataStoreJobCoordinator.getInstance();
-                    portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
+                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
                         WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         setPortBandwidthLimits(port, zeroBwLimitRule, wrtConfigTxn);
@@ -448,9 +439,7 @@ public class QosNeutronUtils {
                 Port port = neutronVpnManager.getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
-                    final DataStoreJobCoordinator portDataStoreCoordinator =
-                            DataStoreJobCoordinator.getInstance();
-                    portDataStoreCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
+                    jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
                         WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         unsetPortDscpMark(port);
