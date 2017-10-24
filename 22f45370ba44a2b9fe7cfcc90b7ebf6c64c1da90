@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_aa72bde0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-24T19:53:20Z",
+      "side": 1,
+      "message": "This should be remove instead of removing separately below. Also what if routerPort is null?",
+      "range": {
+        "startLine": 143,
+        "startChar": 56,
+        "endLine": 143,
+        "endChar": 59
+      },
+      "revId": "22f45370ba44a2b9fe7cfcc90b7ebf6c64c1da90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
