@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -27,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeListener> implements AutoCloseable {
+public class NodeListener extends AsyncDataTreeChangeListenerBase<Node, NodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeListener.class);
 

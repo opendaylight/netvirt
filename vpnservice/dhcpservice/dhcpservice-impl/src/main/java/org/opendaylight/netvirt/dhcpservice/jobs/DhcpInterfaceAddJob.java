@@ -10,13 +10,11 @@ package org.opendaylight.netvirt.dhcpservice.jobs;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -47,13 +45,7 @@ import org.slf4j.LoggerFactory;
 public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceAddJob.class);
-    private final DhcpManager dhcpManager;
-    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private final DataBroker dataBroker;
-    private final Interface interfaceAdd;
-    private final BigInteger dpnId;
-    private final IInterfaceManager interfaceManager;
-    private final IElanService elanService;
+
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -65,6 +57,14 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             LOG.error("Error in Datastore write operation", error);
         }
     };
+
+    private final DhcpManager dhcpManager;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DataBroker dataBroker;
+    private final Interface interfaceAdd;
+    private final BigInteger dpnId;
+    private final IInterfaceManager interfaceManager;
+    private final IElanService elanService;
 
     public DhcpInterfaceAddJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                DataBroker dataBroker, Interface interfaceAdd, BigInteger dpnId,

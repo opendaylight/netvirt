@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DhcpAllocationPoolListener
-        extends AsyncDataTreeChangeListenerBase<AllocationPool, DhcpAllocationPoolListener> implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<AllocationPool, DhcpAllocationPoolListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpAllocationPoolListener.class);
 

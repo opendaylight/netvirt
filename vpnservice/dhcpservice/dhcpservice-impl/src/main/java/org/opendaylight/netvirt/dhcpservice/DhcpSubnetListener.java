@@ -42,13 +42,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase<Subnet, DhcpSubnetListener>
-        implements AutoCloseable {
-    private DataBroker dataBroker;
-    private DhcpManager dhcpManager;
-    private DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private DhcpserviceConfig config;
+public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase<Subnet, DhcpSubnetListener> {
     private static final Logger LOG = LoggerFactory.getLogger(DhcpSubnetListener.class);
+
+    private final DataBroker dataBroker;
+    private final DhcpManager dhcpManager;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DhcpserviceConfig config;
 
     @Inject
     public DhcpSubnetListener(final DhcpManager dhcpManager, final DhcpExternalTunnelManager
