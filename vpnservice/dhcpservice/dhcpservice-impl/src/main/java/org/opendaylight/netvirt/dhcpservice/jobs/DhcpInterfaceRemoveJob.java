@@ -40,13 +40,7 @@ import org.slf4j.LoggerFactory;
 public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Void>>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceRemoveJob.class);
-    private final DhcpManager dhcpManager;
-    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
-    private final DataBroker dataBroker;
-    private final Interface interfaceDel;
-    private final BigInteger dpnId;
-    private final IInterfaceManager interfaceManager;
-    private final IElanService elanService;
+
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
         public void onSuccess(Void result) {
@@ -58,6 +52,14 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
             LOG.error("Error in Datastore write operation", error);
         }
     };
+
+    private final DhcpManager dhcpManager;
+    private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
+    private final DataBroker dataBroker;
+    private final Interface interfaceDel;
+    private final BigInteger dpnId;
+    private final IInterfaceManager interfaceManager;
+    private final IElanService elanService;
 
     public DhcpInterfaceRemoveJob(DhcpManager dhcpManager, DhcpExternalTunnelManager dhcpExternalTunnelManager,
                                   DataBroker dataBroker,
