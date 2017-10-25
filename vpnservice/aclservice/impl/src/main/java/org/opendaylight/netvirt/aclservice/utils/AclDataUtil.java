@@ -9,14 +9,14 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -25,58 +25,35 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 @Singleton
 public class AclDataUtil {
 
-    private final Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
-    private final Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, ConcurrentMap<String, AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
+    private final Map<Uuid, Set<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
     private final Map<String, Integer> aclFlowPriorityMap = new ConcurrentHashMap<>();
 
-    public synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+    public void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
-            List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
-            if (interfaceList == null) {
-                interfaceList = new ArrayList<>();
-                interfaceList.add(port);
-                aclInterfaceMap.put(acl, interfaceList);
-            } else {
-                interfaceList.add(port);
+            aclInterfaceMap.computeIfAbsent(acl, key -> new ConcurrentHashMap<>())
+                    .putIfAbsent(port.getInterfaceId(), port);
+        }
+    }
+
+    public void addOrUpdateAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+        for (Uuid acl : aclList) {
+            aclInterfaceMap.computeIfAbsent(acl, key -> new ConcurrentHashMap<>()).put(port.getInterfaceId(), port);
+        }
+    }
+
+    public void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
+        for (Uuid acl : aclList) {
+            ConcurrentMap<String, AclInterface> interfaceMap = aclInterfaceMap.get(acl);
+            if (interfaceMap != null) {
+                interfaceMap.remove(port.getInterfaceId());
             }
         }
     }
 
-    public synchronized void addOrUpdateAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
-        for (Uuid acl : aclList) {
-            List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
-            if (interfaceList == null || interfaceList.isEmpty()) {
-                interfaceList = new ArrayList<>();
-            } else {
-                for (Iterator<AclInterface> iterator = interfaceList.iterator();iterator.hasNext();) {
-                    AclInterface aclInterface = iterator.next();
-                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
-                        iterator.remove();
-                    }
-                }
-            }
-            interfaceList.add(port);
-            aclInterfaceMap.put(acl, interfaceList);
-        }
-    }
-
-    public synchronized void removeAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
-        for (Uuid acl : aclList) {
-
-            List<AclInterface> interfaceList = aclInterfaceMap.get(acl);
-            if (interfaceList != null) {
-                for (Iterator<AclInterface> iterator = interfaceList.iterator(); iterator.hasNext(); ) {
-                    AclInterface aclInterface = iterator.next();
-                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())) {
-                        iterator.remove();
-                    }
-                }
-            }
-        }
-    }
-
-    public List<AclInterface> getInterfaceList(Uuid acl) {
-        return aclInterfaceMap.get(acl);
+    public Collection<AclInterface> getInterfaceList(Uuid acl) {
+        final ConcurrentMap<String, AclInterface> interfaceMap = aclInterfaceMap.get(acl);
+        return interfaceMap != null ? interfaceMap.values() : null;
     }
 
     /**
@@ -88,14 +65,15 @@ public class AclDataUtil {
      *         remote ACL ID.
      */
     public Map<String, Set<AclInterface>> getRemoteAclInterfaces(Uuid remoteAclId) {
-        List<Uuid> remoteAclList = getRemoteAcl(remoteAclId);
+        Collection<Uuid> remoteAclList = getRemoteAcl(remoteAclId);
         if (remoteAclList == null) {
             return null;
         }
+
         Map<String, Set<AclInterface>> mapOfAclWithInterfaces = new HashMap<>();
         for (Uuid acl : remoteAclList) {
             Set<AclInterface> interfaceSet = new HashSet<>();
-            List<AclInterface> interfaces = getInterfaceList(acl);
+            Collection<AclInterface> interfaces = getInterfaceList(acl);
             if (interfaces != null && !interfaces.isEmpty()) {
                 interfaceSet.addAll(interfaces);
                 mapOfAclWithInterfaces.put(acl.getValue(), interfaceSet);
@@ -104,25 +82,18 @@ public class AclDataUtil {
         return mapOfAclWithInterfaces;
     }
 
-    public synchronized void addRemoteAclId(Uuid remoteAclId, Uuid aclId) {
-        List<Uuid> aclList = remoteAclIdMap.get(remoteAclId);
-        if (aclList == null) {
-            aclList = new ArrayList<>();
-            aclList.add(aclId);
-            remoteAclIdMap.put(remoteAclId, aclList);
-        } else {
-            aclList.add(aclId);
-        }
+    public void addRemoteAclId(Uuid remoteAclId, Uuid aclId) {
+        remoteAclIdMap.computeIfAbsent(remoteAclId, key -> ConcurrentHashMap.newKeySet()).add(aclId);
     }
 
-    public synchronized void removeRemoteAclId(Uuid remoteAclId, Uuid aclId) {
-        List<Uuid> aclList = remoteAclIdMap.get(remoteAclId);
+    public void removeRemoteAclId(Uuid remoteAclId, Uuid aclId) {
+        Set<Uuid> aclList = remoteAclIdMap.get(remoteAclId);
         if (aclList != null) {
             aclList.remove(aclId);
         }
     }
 
-    public List<Uuid> getRemoteAcl(Uuid remoteAclId) {
+    public Collection<Uuid> getRemoteAcl(Uuid remoteAclId) {
         return remoteAclIdMap.get(remoteAclId);
     }
 
@@ -186,19 +157,7 @@ public class AclDataUtil {
      * @return true if DPN is associated with Acl interface, else false
      */
     public boolean doesDpnHaveAclInterface(BigInteger dpnId) {
-        if (aclInterfaceMap == null || aclInterfaceMap.isEmpty()) {
-            return false;
-        }
-        for (Uuid key : aclInterfaceMap.keySet()) {
-            List<AclInterface> interfaceList = aclInterfaceMap.get(key);
-            if (interfaceList != null && !interfaceList.isEmpty()) {
-                for (AclInterface aclItf : interfaceList) {
-                    if (aclItf.getDpId().equals(dpnId)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return aclInterfaceMap.values().stream().anyMatch(map -> map.values().stream()
+                .anyMatch(aclInterface -> aclInterface.getDpId().equals(dpnId)));
     }
 }

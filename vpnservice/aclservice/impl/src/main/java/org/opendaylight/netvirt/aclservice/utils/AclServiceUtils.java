@@ -12,6 +12,7 @@ import com.google.common.base.Optional;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -501,10 +502,10 @@ public final class AclServiceUtils {
         int cidrPart = Integer.parseInt(ipaddressValues[1]);
         int netmask = 0;
         for (int j = 0; j < cidrPart; ++j) {
-            netmask |= (1 << 31 - j);
+            netmask |= 1 << 31 - j;
         }
-        int network = (address & netmask);
-        int broadcast = network | ~(netmask);
+        int network = address & netmask;
+        int broadcast = network | ~netmask;
         return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
     }
 
@@ -629,7 +630,7 @@ public final class AclServiceUtils {
     public Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(AclInterface aclInterface, Uuid remoteAclId,
             String ignoreInterfaceId, Map<String, List<MatchInfoBase>> flowMatchesMap, boolean isSourceIpMacMatch) {
         boolean singleAcl = false;
-        List<AclInterface> interfaceList = null;
+        Collection<AclInterface> interfaceList = null;
         if (aclInterface.getSecurityGroups() != null && aclInterface.getSecurityGroups().size() == 1) {
             singleAcl = true;
         } else {
@@ -952,17 +953,17 @@ public final class AclServiceUtils {
 
         // If the default behavior is Deny, then ACLs with Allow packetHandling must have lower priority than
         // ACLs with Deny packetHandling - otherwise the Deny ACLs are redundant, and vice versa
-        if ((config.getDefaultBehavior() == DEFAULT_DENY
-                && packetHandlingType == AclConstants.PacketHandlingType.PERMIT)
-                || (config.getDefaultBehavior() == DEFAULT_ALLOW
-                    && packetHandlingType == AclConstants.PacketHandlingType.DENY)) {
+        if (config.getDefaultBehavior() == DEFAULT_DENY
+                && packetHandlingType == AclConstants.PacketHandlingType.PERMIT
+                || config.getDefaultBehavior() == DEFAULT_ALLOW
+                    && packetHandlingType == AclConstants.PacketHandlingType.DENY) {
             createPool = new CreateIdPoolInputBuilder()
                     .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_START)
                     .setHigh(AclConstants.ACL_FLOW_PRIORITY_LOW_POOL_END).build();
-        } else if ((config.getDefaultBehavior() == DEFAULT_DENY
-                && packetHandlingType == AclConstants.PacketHandlingType.DENY)
-                || (config.getDefaultBehavior() == DEFAULT_ALLOW
-                    && packetHandlingType == AclConstants.PacketHandlingType.PERMIT)) {
+        } else if (config.getDefaultBehavior() == DEFAULT_DENY
+                && packetHandlingType == AclConstants.PacketHandlingType.DENY
+                || config.getDefaultBehavior() == DEFAULT_ALLOW
+                    && packetHandlingType == AclConstants.PacketHandlingType.PERMIT) {
             createPool = new CreateIdPoolInputBuilder()
                     .setPoolName(poolName).setLow(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_START)
                     .setHigh(AclConstants.ACL_FLOW_PRIORITY_HIGH_POOL_END).build();
@@ -973,7 +974,7 @@ public final class AclServiceUtils {
         }
         try {
             Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for {}", poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -993,7 +994,7 @@ public final class AclServiceUtils {
                 .setHigh(AclConstants.ACL_ID_METADATA_POOL_END).build();
         try {
             Future<RpcResult<Void>> result = this.idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for {}", poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -1011,7 +1012,7 @@ public final class AclServiceUtils {
         DeleteIdPoolInput deletePool = new DeleteIdPoolInputBuilder().setPoolName(poolName).build();
         try {
             Future<RpcResult<Void>> result = this.idManager.deleteIdPool(deletePool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.debug("Deleted IdPool for {}", poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
@@ -1181,13 +1182,13 @@ public final class AclServiceUtils {
     }
 
     public static boolean exactlyOneAcl(AclInterface port) {
-        return (port.getSecurityGroups() != null) && (port.getSecurityGroups().size() == 1);
+        return port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1;
     }
 
     public static boolean isOfAclInterest(Acl acl) {
         List<Ace> aceList = acl.getAccessListEntries().getAce();
-        if ((aceList != null) && !aceList.isEmpty()) {
-            return (aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null);
+        if (aceList != null && !aceList.isEmpty()) {
+            return aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null;
         }
         return false;
     }
