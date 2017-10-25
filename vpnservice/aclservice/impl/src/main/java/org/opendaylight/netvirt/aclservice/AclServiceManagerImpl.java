@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
@@ -23,7 +23,7 @@ public class AclServiceManagerImpl implements AclServiceManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceManagerImpl.class);
 
-    private final List<AclServiceListener> aclServiceListeners = new ArrayList<>();
+    private final List<AclServiceListener> aclServiceListeners = new CopyOnWriteArrayList<>();
 
     @Inject
     public AclServiceManagerImpl(final AclServiceImplFactory factory) {
