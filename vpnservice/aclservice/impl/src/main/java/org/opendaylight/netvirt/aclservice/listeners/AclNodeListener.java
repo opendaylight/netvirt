@@ -52,7 +52,6 @@ import org.slf4j.LoggerFactory;
  * Listener to handle flow capable node updates.
  */
 @Singleton
-@SuppressWarnings("deprecation")
 public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, AclNodeListener>
         implements AutoCloseable {
 

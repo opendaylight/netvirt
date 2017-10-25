@@ -38,7 +38,6 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
 
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsRpcServiceImpl.class);
 
-    private final AclserviceConfig config;
     private final DataBroker dataBroker;
     private final OpendaylightDirectStatisticsService odlDirectStatsService;
     private final SecurityGroupMode securityGroupMode;
@@ -53,10 +52,9 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
     @Inject
     public AclLiveStatisticsRpcServiceImpl(final AclserviceConfig config, final DataBroker dataBroker,
             final OpendaylightDirectStatisticsService odlDirectStatsService) {
-        this.config = config;
         this.dataBroker = dataBroker;
         this.odlDirectStatsService = odlDirectStatsService;
-        this.securityGroupMode = (config == null ? SecurityGroupMode.Stateful : config.getSecurityGroupMode());
+        this.securityGroupMode = config == null ? SecurityGroupMode.Stateful : config.getSecurityGroupMode();
 
         LOG.info("AclLiveStatisticsRpcServiceImpl initialized");
     }
@@ -73,7 +71,7 @@ public class AclLiveStatisticsRpcServiceImpl implements AclLiveStatisticsService
             return Futures.immediateFuture(rpcResultBuilder.build());
         }
         // Default direction is Both
-        Direction direction = (input.getDirection() == null ? Direction.Both : input.getDirection());
+        Direction direction = input.getDirection() == null ? Direction.Both : input.getDirection();
 
         List<AclPortStats> lstAclInterfaceStats = AclLiveStatisticsHelper.getAclPortStats(direction,
                 input.getInterfaceNames(), this.odlDirectStatsService, this.dataBroker);
