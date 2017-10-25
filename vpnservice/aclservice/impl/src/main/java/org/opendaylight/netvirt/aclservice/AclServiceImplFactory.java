@@ -16,7 +16,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +28,6 @@ public class AclServiceImplFactory extends AbstractLifecycle {
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
-    private SecurityGroupMode securityGroupMode;
     private final AclDataUtil aclDataUtil;
     private final AclServiceUtils aclServiceUtils;
     private final JobCoordinator jobCoordinator;
@@ -42,9 +40,7 @@ public class AclServiceImplFactory extends AbstractLifecycle {
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServiceUtils;
         this.jobCoordinator = jobCoordinator;
-        if (config != null) {
-            this.securityGroupMode = config.getSecurityGroupMode();
-        }
+
         LOG.info("AclserviceConfig: {}", config);
     }
 
@@ -64,13 +60,13 @@ public class AclServiceImplFactory extends AbstractLifecycle {
     }
 
     public AbstractIngressAclServiceImpl createIngressAclServiceImpl() {
-        LOG.info("creating ingress acl service using mode {}", securityGroupMode);
+        LOG.info("creating ingress acl service");
         return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils,
                 jobCoordinator);
     }
 
     public AbstractEgressAclServiceImpl createEgressAclServiceImpl() {
-        LOG.info("creating egress acl service using mode {}", securityGroupMode);
+        LOG.info("creating egress acl service");
         return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator);
     }
 
