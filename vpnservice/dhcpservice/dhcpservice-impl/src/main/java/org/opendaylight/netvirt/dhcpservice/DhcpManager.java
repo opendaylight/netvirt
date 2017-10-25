@@ -53,8 +53,8 @@ public class DhcpManager {
     private final IElanService elanService;
     private final JobCoordinator jobCoordinator;
 
-    private int dhcpOptLeaseTime = 0;
-    private String dhcpOptDefDomainName;
+    private volatile int dhcpOptLeaseTime = 0;
+    private volatile String dhcpOptDefDomainName;
     private DhcpInterfaceEventListener dhcpInterfaceEventListener;
     private DhcpInterfaceConfigListener dhcpInterfaceConfigListener;
 
@@ -109,19 +109,19 @@ public class DhcpManager {
         return getDhcpDefDomain();
     }
 
-    protected int getDhcpLeaseTime() {
+    public int getDhcpLeaseTime() {
         return this.dhcpOptLeaseTime;
     }
 
-    protected int getDhcpRenewalTime() {
+    public int getDhcpRenewalTime() {
         return this.dhcpOptLeaseTime;
     }
 
-    protected int getDhcpRebindingTime() {
+    public int getDhcpRebindingTime() {
         return this.dhcpOptLeaseTime;
     }
 
-    protected String getDhcpDefDomain() {
+    public String getDhcpDefDomain() {
         return this.dhcpOptDefDomainName;
     }
 

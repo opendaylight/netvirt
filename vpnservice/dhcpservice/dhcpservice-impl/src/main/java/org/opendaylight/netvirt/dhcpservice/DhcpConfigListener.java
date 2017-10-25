@@ -22,8 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase<DhcpConfig, DhcpConfigListener>
-        implements AutoCloseable {
+public class DhcpConfigListener extends AsyncClusteredDataTreeChangeListenerBase<DhcpConfig, DhcpConfigListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpConfigListener.class);
 
