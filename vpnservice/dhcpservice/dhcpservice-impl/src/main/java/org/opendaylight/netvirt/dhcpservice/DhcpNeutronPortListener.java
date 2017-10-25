@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DhcpNeutronPortListener
-        extends AsyncClusteredDataTreeChangeListenerBase<Port, DhcpNeutronPortListener> implements AutoCloseable {
+        extends AsyncClusteredDataTreeChangeListenerBase<Port, DhcpNeutronPortListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpNeutronPortListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -83,7 +83,6 @@ public class DhcpNeutronPortListener
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
@@ -139,7 +138,6 @@ public class DhcpNeutronPortListener
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(add)) {
