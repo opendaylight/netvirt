@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -45,10 +44,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AclServiceOFFlowBuilder {
+public final class AclServiceOFFlowBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(AclServiceOFFlowBuilder.class);
 
-    private static final Logger LOG =
-            LoggerFactory.getLogger(AclServiceOFFlowBuilder.class);
+    private AclServiceOFFlowBuilder() {
+    }
 
     /**
      * Converts IP matches into flows.
