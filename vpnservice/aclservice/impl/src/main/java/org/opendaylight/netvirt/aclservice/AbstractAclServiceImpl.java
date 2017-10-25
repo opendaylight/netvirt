@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -459,7 +460,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid acl, BigInteger aclId, int addOrRemove) {
-        List<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(acl);
+        Collection<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(acl);
         BigInteger dpId = port.getDpId();
         boolean isFirstPortInDpn = true;
         if (aclInterfaces != null) {
@@ -490,7 +491,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             if (aclDataUtil.getRemoteAcl(aclUuid) == null) {
                 continue;
             }
-            List<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(aclUuid);
+            Collection<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(aclUuid);
             if (aclInterfaces != null) {
                 for (AclInterface aclInterface : aclInterfaces) {
                     if (aclInterface.getInterfaceId().equals(port.getInterfaceId())
@@ -504,7 +505,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                             if (aclDataUtil.getRemoteAcl(remoteInterfaceRemoteAcl) == null) {
                                 continue;
                             }
-                            List<AclInterface> aclInterfaces2 = aclDataUtil.getInterfaceList(remoteInterfaceRemoteAcl);
+                            Collection<AclInterface> aclInterfaces2 =
+                                    aclDataUtil.getInterfaceList(remoteInterfaceRemoteAcl);
                             if (aclInterfaces2 != null) {
                                 for (AclInterface aclInterface2 : aclInterfaces2) {
                                     if (aclInterface2.getInterfaceId().equals(aclInterface.getInterfaceId())) {
@@ -553,7 +555,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 if (aceAttr.getRemoteGroupId() == null) {
                     continue;
                 }
-                List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(aceAttr.getRemoteGroupId());
+                Collection<AclInterface> interfaceList = aclDataUtil.getInterfaceList(aceAttr.getRemoteGroupId());
                 if (interfaceList == null) {
                     continue;
                 }
