@@ -27,10 +27,10 @@ public class DhcpAllocationPoolRemoveJob implements Callable<List<ListenableFutu
 
     @Override
     public List<ListenableFuture<Void>> call() throws Exception {
-        return unInstallDhcpEntries(interfaceName);
+        return unInstallDhcpEntries();
     }
 
-    private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName) {
+    private List<ListenableFuture<Void>> unInstallDhcpEntries() {
         WriteTransaction unbindServiceTx = dataBroker.newWriteOnlyTransaction();
         DhcpServiceUtils.unbindDhcpService(interfaceName, unbindServiceTx);
         return Collections.singletonList(unbindServiceTx.submit());

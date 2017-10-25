@@ -33,8 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DhcpInterfaceEventListener
-        extends AsyncDataTreeChangeListenerBase<Interface, DhcpInterfaceEventListener>
-        implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<Interface, DhcpInterfaceEventListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceEventListener.class);
 

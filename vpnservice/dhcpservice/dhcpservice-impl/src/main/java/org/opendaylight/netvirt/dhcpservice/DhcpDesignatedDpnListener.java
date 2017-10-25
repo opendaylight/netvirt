@@ -8,8 +8,6 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import java.math.BigInteger;
-import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -27,8 +25,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DhcpDesignatedDpnListener
-        extends AsyncClusteredDataTreeChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener>
-        implements AutoCloseable {
+        extends AsyncClusteredDataTreeChangeListenerBase<DesignatedSwitchForTunnel, DhcpDesignatedDpnListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpDesignatedDpnListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
@@ -78,7 +75,6 @@ public class DhcpDesignatedDpnListener
         dhcpExternalTunnelManager.removeFromLocalCache(BigInteger.valueOf(original.getDpId()),
                 original.getTunnelRemoteIpAddress(), original.getElanInstanceName());
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-        List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
         dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
     }
 
@@ -89,7 +85,6 @@ public class DhcpDesignatedDpnListener
         IpAddress tunnelRemoteIpAddress = add.getTunnelRemoteIpAddress();
         String elanInstanceName = add.getElanInstanceName();
         dhcpExternalTunnelManager.updateLocalCache(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
-        List<BigInteger> elanDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
         dhcpExternalTunnelManager.installRemoteMcastMac(designatedDpnId, tunnelRemoteIpAddress, elanInstanceName);
     }
 

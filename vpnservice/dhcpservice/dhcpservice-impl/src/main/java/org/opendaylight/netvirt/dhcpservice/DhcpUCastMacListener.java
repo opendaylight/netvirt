@@ -39,8 +39,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DhcpUCastMacListener
-        extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener>
-        implements AutoCloseable {
+        extends AsyncClusteredDataTreeChangeListenerBase<LocalUcastMacs, DhcpUCastMacListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpUCastMacListener.class);
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;

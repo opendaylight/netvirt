@@ -33,8 +33,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DhcpMcastMacListener
-        extends HwvtepAbstractDataTreeChangeListener<RemoteMcastMacs, DhcpMcastMacListener>
-        implements AutoCloseable {
+        extends HwvtepAbstractDataTreeChangeListener<RemoteMcastMacs, DhcpMcastMacListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpMcastMacListener.class);
 
@@ -55,6 +54,7 @@ public class DhcpMcastMacListener
         this.config = config;
     }
 
+    @Override
     @PostConstruct
     public void init() {
         if (config.isControllerDhcpEnabled()) {
@@ -62,6 +62,7 @@ public class DhcpMcastMacListener
         }
     }
 
+    @Override
     @PreDestroy
     public void close() {
         if (config.isControllerDhcpEnabled()) {

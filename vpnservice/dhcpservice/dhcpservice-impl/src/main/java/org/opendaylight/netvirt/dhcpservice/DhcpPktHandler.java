@@ -7,8 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
-import com.google.common.base.Optional;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -19,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
@@ -215,7 +212,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private DhcpInfo handleDhcpAllocationPoolPacket(byte msgType, DHCP dhcpPkt, String interfaceName,
             String macAddress) {
         String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
-        AllocationPool pool = (networkId != null) ? dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId)
+        AllocationPool pool = networkId != null ? dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId)
                 : null;
         if (networkId == null || pool == null) {
             LOG.warn("No Dhcp Allocation Pool was found for interface: {}", interfaceName);

@@ -28,10 +28,10 @@ public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<
 
     @Override
     public List<ListenableFuture<Void>> call() {
-        return installDhcpEntries(interfaceName);
+        return installDhcpEntries();
     }
 
-    private List<ListenableFuture<Void>> installDhcpEntries(String interfaceName) {
+    private List<ListenableFuture<Void>> installDhcpEntries() {
         WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
         DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
         return Collections.singletonList(bindServiceTx.submit());

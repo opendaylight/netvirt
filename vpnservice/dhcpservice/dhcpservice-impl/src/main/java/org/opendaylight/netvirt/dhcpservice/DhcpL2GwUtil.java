@@ -8,13 +8,11 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
-
 import java.util.List;
 import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -27,15 +25,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Singleton
 public class DhcpL2GwUtil {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DhcpL2GwUtil.class);
-
-    private static final Predicate<List> EMPTY_LIST = (list) -> list == null || list.isEmpty();
+    private static final Predicate<List<?>> EMPTY_LIST = (list) -> list == null || list.isEmpty();
 
     private static final Predicate<Optional<Node>> CONTAINS_GLOBAL_AUGMENTATION = (optionalNode) -> {
         return optionalNode.isPresent() && optionalNode.get().getAugmentation(HwvtepGlobalAugmentation.class) != null;
