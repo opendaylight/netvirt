@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_db538137",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 6
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-25T12:19:14Z",
+      "side": 1,
+      "message": "Right. The statement was a bit confusing. It says its resubmitted from 19 to 19. Whereas its going from 17-\u003e 19 (no match found) -\u003e 17 -\u003e 19.",
+      "parentUuid": "9a245df4_a4ab161d",
+      "range": {
+        "startLine": 13,
+        "startChar": 10,
+        "endLine": 14,
+        "endChar": 8
+      },
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c1139c5a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -131,6 +155,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3bbd7d69",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-25T12:19:14Z",
+      "side": 1,
+      "message": "Ok understood. In one of your dependent patches, you updated the YANG model. I was looking at the current \"l3vpn:vpn-interfaces\" YANG which is not a list",
+      "parentUuid": "9a245df4_e467ceb5",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_a13ca8c0",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 6
@@ -160,6 +202,24 @@
       "side": 1,
       "message": "Indeed, there may be 2 service bindings.\nBut the 2nd service binding will be a fallback, in case the packet that goes to table 17 and 19 does not find any entries. \n\n\n\nwhen a packet from a VM wants to reach one of the available VPN instances, there are several cases:\n- there is only one VPN instance ( case single router).\nin that case, 1 service binding will be done.\n\n- there are more than 1 VPN instance.\n  - case 1 : one is a BGPVPN internet VPN instance. That one is specific and does not rely on a service binding.\n  - case 2 : it stands for two VPN instances (two routers for example). Then, 2 service bindings should be done so that both IPv4 and IPv6 packets should go to the correct router.",
       "parentUuid": "9a245df4_a13ca8c0",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1bc079df",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-25T12:19:14Z",
+      "side": 1,
+      "message": "Ok thanks.",
+      "parentUuid": "9a245df4_6413de0d",
       "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -230,6 +290,24 @@
       "side": 1,
       "message": "indeed, I expect a VPN ( type router) to be connected to ipv4 subnets only,or to ipv6 subnets only, or none ( in that case, it is undefined).\nThis function will permit avoiding performing arbitrary choice, because we may know which router is IPv6 and which router is IPv4.\nThis will permit maximising the tx traffic, when the packet will leave the VM with the vpnid\u003dipv6 router first.",
       "parentUuid": "9a245df4_2103980e",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bb5e8d43",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1913,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-25T12:19:14Z",
+      "side": 1,
+      "message": "Ok. But my question is that in VpnInterfaceManager, API updateBindServices you are invoking getVpnType and not handling the UNDEFINED case. So, is this intentional?",
+      "parentUuid": "9a245df4_44897a25",
       "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
