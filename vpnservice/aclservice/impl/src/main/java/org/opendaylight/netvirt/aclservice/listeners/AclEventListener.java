@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import javax.annotation.PostConstruct;
@@ -89,7 +90,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         }
 
         String aclName = aclAfter.getAclName();
-        List<AclInterface> interfaceList = aclDataUtil.getInterfaceList(new Uuid(aclName));
+        Collection<AclInterface> interfaceList = aclDataUtil.getInterfaceList(new Uuid(aclName));
         // find and update added ace rules in acl
         List<Ace> addedAceRules = getChangedAceList(aclAfter, aclBefore);
         updateRemoteAclCache(addedAceRules, aclName, AclServiceManager.Action.ADD);
@@ -107,7 +108,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     }
 
-    private void updateAceRules(List<AclInterface> interfaceList, String aclName, List<Ace> aceList,
+    private void updateAceRules(Collection<AclInterface> interfaceList, String aclName, List<Ace> aceList,
             AclServiceManager.Action action) {
         if (null != aceList && !aceList.isEmpty()) {
             LOG.trace("update ace rules - action: {} , ace rules: {}", action.name(), aceList);
