@@ -1573,7 +1573,7 @@ public class ElanUtils {
      */
     public void deleteMacEntryFromDsAndRemoveFlows(IInterfaceManager interfaceManager, String interfaceName,
             String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx) {
-        LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
+        LOG.info("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
                 + "and ElanForwardingTables DS", macAddress, interfaceName);
         PhysAddress physAddress = new PhysAddress(macAddress);
         MacEntry macEntry = getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
