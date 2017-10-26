@@ -355,6 +355,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         if (elanInterfaces.isEmpty()) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInstanceOperationalDataPath(elanName));
+            LOG.info("deleting elanMacAddress for elanInstance {}", elanName);
             tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanMacTableOperationalDataPath(elanName));
             tx.delete(LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanInfo.getElanTag()));
@@ -401,6 +402,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     Optional<MacEntry> macEntryOptional = elanUtils.getMacEntryForElanInstance(elanName,
                             macAddress);
                     if (!isLastElanInterface && macEntryOptional.isPresent()) {
+                        LOG.info("deleting elanMacAddress {} for elanInstance {}", macAddress, elanName);
                         interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
                                 ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
@@ -424,6 +426,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 for (MacEntry macEntry : macEntries) {
                     PhysAddress macAddress = macEntry.getMacAddress();
                     if (elanUtils.getMacEntryForElanInstance(elanName, macAddress).isPresent()) {
+                        LOG.info("deleting elanMacAddress2 {} for elanInstance {}", macAddress, elanName);
                         interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
                                 ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
