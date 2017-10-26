@@ -125,6 +125,7 @@ public class ElanForwardingEntriesHandler {
             MacEntry macEntry, WriteTransaction tx) {
         InstanceIdentifier<MacEntry> macEntryId = ElanUtils
                 .getMacEntryOperationalDataPath(elanInfo.getElanInstanceName(), macEntry.getMacAddress());
+        LOG.info("removing macEntryId {} for elanInstance {}", macEntryId, elanInfo);
         tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
         deleteElanInterfaceForwardingTablesList(interfaceInfo.getInterfaceName(), macEntry, tx);
         WriteTransaction deleteFlowtx = broker.newWriteOnlyTransaction();
