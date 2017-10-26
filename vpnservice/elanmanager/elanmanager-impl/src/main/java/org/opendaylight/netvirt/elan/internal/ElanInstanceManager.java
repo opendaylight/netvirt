@@ -84,14 +84,19 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         if (existingElan != null) {
             List<String> elanInterfaces = existingElan.getElanInterfaces();
             if (elanInterfaces != null && !elanInterfaces.isEmpty()) {
+                DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
+                List<ListenableFuture<Void>> futures2 = new ArrayList<>();
                 for (String elanInterfaceName : elanInterfaces) {
-                    InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
-                            .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
-                    futures.addAll(elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName,
-                            interfaceInfo, false));
-                    ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                            elanInterfaceId);
+                    djc.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName), () -> {
+                        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
+                                .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+                        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
+                        futures2.addAll(elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName,
+                                interfaceInfo, false));
+                        ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
+                                elanInterfaceId);
+                        return futures2;
+                    },ElanConstants.JOB_MAX_RETRIES);
                 }
             }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
