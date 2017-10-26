@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_236d5399",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/ha/WeightedCentralizedSwitchScheduler.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-26T00:35:45Z",
+      "side": 1,
+      "message": "You need to cancel the writeOperTxn before returning. However it seems it shouldn\u0027t return here but instead just skip this entry (ie continue) and process the rest of the list.",
+      "revId": "e4379016ddd440f9d4fd04f8163a8a771ae31121",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
