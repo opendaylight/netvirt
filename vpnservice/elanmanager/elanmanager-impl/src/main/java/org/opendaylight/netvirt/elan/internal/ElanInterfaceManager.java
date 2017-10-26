@@ -347,6 +347,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (elanState == null) {
             return elanState;
         }
+
         List<String> elanInterfaces = elanState.getElanInterfaces();
         boolean isRemoved = elanInterfaces.remove(interfaceName);
         if (!isRemoved) {
@@ -355,6 +356,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         if (elanInterfaces.isEmpty()) {
             tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanInstanceOperationalDataPath(elanName));
+            LOG.info("deleting elanMacAddress for elanInstance {}", elanName);
             tx.delete(LogicalDatastoreType.OPERATIONAL, ElanUtils.getElanMacTableOperationalDataPath(elanName));
             tx.delete(LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanInfo.getElanTag()));
@@ -386,7 +388,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 .getElanInterfaceMacEntriesOperationalDataPath(interfaceName);
         Optional<ElanInterfaceMac> existingElanInterfaceMac = ElanUtils.read(broker,
                 LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
-        LOG.debug("Removing the Interface:{} from elan:{}", interfaceName, elanName);
+        LOG.info("Removing the Interface:{} from elan:{}", interfaceName, elanName);
         if (interfaceInfo != null) {
             if (existingElanInterfaceMac.isPresent()) {
                 List<MacEntry> existingMacEntries = existingElanInterfaceMac.get().getMacEntry();
@@ -396,13 +398,19 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 }
                 List<PhysAddress> macAddresses = macEntries.stream().map(macEntry -> {
                     PhysAddress macAddress = macEntry.getMacAddress();
-                    LOG.debug("removing the  mac-entry:{} present on elanInterface:{}",
+                    LOG.info("removing the  mac-entry:{} present on elanInterface:{}",
                             macAddress.getValue(), interfaceName);
                     Optional<MacEntry> macEntryOptional = elanUtils.getMacEntryForElanInstance(elanName,
                             macAddress);
                     if (!isLastElanInterface && macEntryOptional.isPresent()) {
-                        interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
-                                ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
+                        LOG.info("deleting elanMacAddress {} for elanInstance {}", macAddress, elanName);
+                        synchronized(ElanUtils.getElanMacDPNKey(elanInfo.getElanTag(), macAddress.toString(),
+                                interfaceInfo.getDpId())) {
+                            if (macEntryOptional.isPresent()) {
+                                interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
+                                        ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
+                            }
+                        }
                     }
                     elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, flowTx);
                     return macAddress;
@@ -424,6 +432,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 for (MacEntry macEntry : macEntries) {
                     PhysAddress macAddress = macEntry.getMacAddress();
                     if (elanUtils.getMacEntryForElanInstance(elanName, macAddress).isPresent()) {
+                        LOG.info("deleting elanMacAddress2 {} for elanInstance {}", macAddress, elanName);
                         interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
                                 ElanUtils.getMacEntryOperationalDataPath(elanName, macAddress));
                     }
