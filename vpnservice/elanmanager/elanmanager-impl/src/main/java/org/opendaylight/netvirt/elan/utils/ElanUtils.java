@@ -1583,6 +1583,7 @@ public class ElanUtils {
         }
         interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress));
+        LOG.info("removing macEntry3 {} for elanInstance {}", macAddress, elanName);
         interfaceTx.delete(LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress));
     }

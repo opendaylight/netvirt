@@ -118,6 +118,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                             && macEntryInElanInstance.getInterface().equals(interfaceName)) {
                         InstanceIdentifier<MacEntry> macEntryIdForElanInstance = ElanUtils
                                 .getMacEntryOperationalDataPath(elanInstanceName, physAddress);
+                        LOG.info("removing macEntry2 {} for elanInstance {}", macEntry, elanInstanceName);
                         tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryIdForElanInstance);
                     }
                     ListenableFuture<Void> writeResult = tx.submit();
