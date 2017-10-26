@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3ee1e6d0",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 1220,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-26T10:25:54Z",
+      "side": 1,
+      "message": "will be fixed in https://git.opendaylight.org/gerrit/#/c/57980/",
+      "parentUuid": "9a245df4_52db26ed",
+      "range": {
+        "startLine": 1220,
+        "startChar": 50,
+        "endLine": 1220,
+        "endChar": 74
+      },
+      "revId": "6a6dd6e51234a177665a8590ab698f215100aabc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_32d832ef",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
         "patchSetId": 119
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-11T20:29:39Z",
       "side": 1,
       "message": "never purposely catch NullPointerException",
+      "range": {
+        "startLine": 1236,
+        "startChar": 25,
+        "endLine": 1236,
+        "endChar": 45
+      },
+      "revId": "6a6dd6e51234a177665a8590ab698f215100aabc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1edce211",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 1236,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-26T10:25:54Z",
+      "side": 1,
+      "message": "I guess this was the consequence of the first error.\nso NullPointerException can be removed.",
+      "parentUuid": "9a245df4_32d832ef",
       "range": {
         "startLine": 1236,
         "startChar": 25,
