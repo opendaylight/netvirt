@@ -314,6 +314,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3e7d66e8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1913,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-26T11:17:13Z",
+      "side": 1,
+      "message": "it is intentional.\n\nas far as I understand the code, the updateBindService comes only after add has been invoked.\nThat means that at least one bindService has been created.\n\nupdateBindService is here to add a new VPN Interface. So the question is, do we have to add for that VpnInterface a new service to bind.\n\nso the undefined case should do nothing.",
+      "parentUuid": "9a245df4_bb5e8d43",
+      "revId": "67d0338c18851005e53f221ded8ef34c2b5d048d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_bd168a53",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 6
