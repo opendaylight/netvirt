@@ -91,6 +91,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_91cba052",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-27T14:24:11Z",
+      "side": 1,
+      "message": "The information that is displayed (via shell) is a local cache maintained by IPv6Service and not something that some \"other services\" in Netvirt would require.\nIt would be used purely for debugging purpose particularly when we encounter any issue and would like to see the state of the cache during that time.\nCurrently we are facing some issues with ipv6 use-cases in a clustered setup and need this information for debugging.\n\nHowever, I agree with you that Shell is like a client trying to access the information from ipv6service, so it should be public. \nBut since the use-case is a bit different, and I dont see a need to expose this via a public api, can we pursue this approach for now and revisit this if there is a need for a public api?",
+      "parentUuid": "9a245df4_ac830255",
+      "revId": "3a8079f8398d6c60a5286e35860f2e41c97921d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_ec7dfa6f",
         "filename": "vpnservice/ipv6service/shell/pom.xml",
         "patchSetId": 1
