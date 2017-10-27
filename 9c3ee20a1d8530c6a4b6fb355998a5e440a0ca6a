@@ -1,0 +1,198 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_df219ffc",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "Redundant - already implemented from base class",
+      "range": {
+        "startLine": 28,
+        "startChar": 103,
+        "endLine": 28,
+        "endChar": 116
+      },
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bf1cabc2",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpDesignatedDpnListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "unused and no side-effect",
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1f7b37f6",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpDesignatedDpnListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "unused and no side-effect",
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5f85afce",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpL2GwUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_df787ff4",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpLogicalSwitchListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "Since this class doesn\u0027t register as a listener (commented out), it really does nothing so remove it.",
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5f5c8f7e",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "This class is a singleton and shouldn\u0027t be subclassed so protected isn\u0027t necessary.",
+      "range": {
+        "startLine": 124,
+        "startChar": 4,
+        "endLine": 124,
+        "endChar": 13
+      },
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9f556752",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpNeutronPortListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "It\u0027s usually not good practice to suppress deprecation.",
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_df4fdfbb",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "Unused import",
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ffcbc31b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpAllocationPoolAddJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "this is an instance field - no need to pass in.",
+      "range": {
+        "startLine": 34,
+        "startChar": 67,
+        "endLine": 34,
+        "endChar": 80
+      },
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3fd6fbc5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/jobs/DhcpAllocationPoolRemoveJob.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-27T22:41:36Z",
+      "side": 0,
+      "message": "this is an instance field - no need to pass in.",
+      "range": {
+        "startLine": 33,
+        "startChar": 69,
+        "endLine": 33,
+        "endChar": 82
+      },
+      "revId": "9c3ee20a1d8530c6a4b6fb355998a5e440a0ca6a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
