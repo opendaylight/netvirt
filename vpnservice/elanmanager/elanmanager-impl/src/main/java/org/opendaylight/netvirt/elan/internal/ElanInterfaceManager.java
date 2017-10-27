@@ -216,12 +216,12 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         String elanInstanceName = elanInfo.getElanInstanceName();
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan configWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInfo,
-                interfaceName, interfaceInfo, false, this);
+                interfaceName, interfaceInfo, this);
         coordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
     public List<ListenableFuture<Void>> removeElanInterface(ElanInstance elanInfo, String interfaceName,
-            InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved) {
+            InterfaceInfo interfaceInfo) {
         String elanName = elanInfo.getElanInstanceName();
         boolean isLastElanInterface = false;
         boolean isLastInterfaceOnDpn = false;
@@ -280,7 +280,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
         DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
-                interfaceName, elanInfo, interfaceInfo, isInterfaceStateRemoved, this, isLastElanInterface);
+                interfaceName, elanInfo, interfaceInfo, this, isLastElanInterface);
         coordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), removeInterfaceWorker,
                 ElanConstants.JOB_MAX_RETRIES);
 
@@ -378,7 +378,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     List<ListenableFuture<Void>> removeEntriesForElanInterface(ElanInstance elanInfo, InterfaceInfo
-            interfaceInfo, String interfaceName, boolean isInterfaceStateRemoved, boolean isLastElanInterface) {
+            interfaceInfo, String interfaceName, boolean isLastElanInterface) {
         String elanName = elanInfo.getElanInstanceName();
         WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
         WriteTransaction flowTx = broker.newWriteOnlyTransaction();
@@ -433,9 +433,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (existingElanInterfaceMac.isPresent()) {
             interfaceTx.delete(LogicalDatastoreType.OPERATIONAL, elanInterfaceId);
         }
-        if (!isInterfaceStateRemoved) {
-            unbindService(interfaceName, interfaceTx);
-        }
+        unbindService(interfaceName, interfaceTx);
         deleteElanInterfaceFromConfigDS(interfaceName, interfaceTx);
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         futures.add(ElanUtils.waitForTransactionToComplete(interfaceTx));
