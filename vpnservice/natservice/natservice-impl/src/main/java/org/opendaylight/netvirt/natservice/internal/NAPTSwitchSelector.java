@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.natservice.internal;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -64,37 +63,17 @@ public class NAPTSwitchSelector {
 
             LOG.debug("selectNewNAPTSwitch : Current switch weights for router {} - {}", routerName, switchWeights);
 
-            Iterator<SwitchWeight> it = switchWeights.iterator();
             RouterToNaptSwitchBuilder routerToNaptSwitchBuilder =
                 new RouterToNaptSwitchBuilder().setRouterName(routerName);
-            if (switchWeights.size() == 1) {
-                SwitchWeight singleSwitchWeight = null;
-                while (it.hasNext()) {
-                    singleSwitchWeight = it.next();
-                }
-                primarySwitch = singleSwitchWeight.getSwitch();
-                RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(primarySwitch).build();
+            SwitchWeight firstSwitchWeight = switchWeights.iterator().next();
+            primarySwitch = firstSwitchWeight.getSwitch();
+            RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(primarySwitch).build();
 
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    getNaptSwitchesIdentifier(routerName), id);
+            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                getNaptSwitchesIdentifier(routerName), id);
 
-                LOG.debug("selectNewNAPTSwitch : successful addition of RouterToNaptSwitch to napt-switches container "
-                    + "for single switch");
-                return primarySwitch;
-            } else {
-                SwitchWeight firstSwitchWeight = null;
-                while (it.hasNext()) {
-                    firstSwitchWeight = it.next();
-                }
-                primarySwitch = firstSwitchWeight.getSwitch();
-                RouterToNaptSwitch id = routerToNaptSwitchBuilder.setPrimarySwitchId(primarySwitch).build();
-
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                    getNaptSwitchesIdentifier(routerName), id);
-
-                LOG.debug("selectNewNAPTSwitch : successful addition of RouterToNaptSwitch to napt-switches container");
-                return primarySwitch;
-            }
+            LOG.debug("selectNewNAPTSwitch : successful addition of RouterToNaptSwitch to napt-switches container");
+            return primarySwitch;
         } else {
             primarySwitch = BigInteger.ZERO;
 
@@ -198,7 +177,7 @@ public class NAPTSwitchSelector {
 
         @Override
         public int compareTo(@Nonnull SwitchWeight switchWeight) {
-            return switchWeight.getWeight() - weight;
+            return weight - switchWeight.getWeight();
         }
     }
 }
