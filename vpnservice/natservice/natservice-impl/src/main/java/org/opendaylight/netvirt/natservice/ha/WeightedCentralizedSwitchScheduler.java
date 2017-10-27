@@ -35,9 +35,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchScheduler {
+    private static final Logger LOG = LoggerFactory.getLogger(SnatNodeEventListener.class);
     private final Map<BigInteger,Integer> switchWeightsMap = new HashMap<>();
     private final DataBroker dataBroker;
     private final NatDataUtil natDataUtil;
@@ -127,6 +130,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean addSwitch(BigInteger dpnId) {
         /* Initialize the switch in the map with weight 0 */
+        LOG.info("addSwitch: Adding {} dpnId to switchWeightsMap", dpnId);
         switchWeightsMap.put(dpnId, initialSwitchWeight);
         return true;
 
@@ -134,6 +138,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean removeSwitch(BigInteger dpnId) {
+        LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
         if (switchWeightsMap.get(dpnId) != initialSwitchWeight) {
             NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
             for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
