@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_71c6ec4a",
+        "filename": "vpnservice/ipv6service/shell/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-27T14:24:11Z",
+      "side": 1,
+      "message": "Sure Michael, I\u0027ll remove this section. Thanks.",
+      "parentUuid": "9a245df4_4c5ec613",
+      "revId": "c501a3405e8e6aba00669b343260ae6032d49401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_eca69a0f",
         "filename": "vpnservice/ipv6service/shell/src/main/java/org/opendaylight/netvirt/ipv6service/shell/ShowIpv6Command.java",
         "patchSetId": 2
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-23T14:02:25Z",
       "side": 1,
       "message": "are you aware of the org.opendaylight.infrautils.utils.TablePrinter ?  I\u0027ve never used it myself yet, but AFAIK it can help you write such \"tabular\" output.. (and if it doesn\u0027t exactly meet your needs, then are more than welcome to propose improvenents to it!)",
+      "revId": "c501a3405e8e6aba00669b343260ae6032d49401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_31ec74c7",
+        "filename": "vpnservice/ipv6service/shell/src/main/java/org/opendaylight/netvirt/ipv6service/shell/ShowIpv6Command.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-27T14:24:11Z",
+      "side": 1,
+      "message": "Thanks Michael, I\u0027m not aware of it and will have to explore on how to use it.",
+      "parentUuid": "9a245df4_eca69a0f",
       "revId": "c501a3405e8e6aba00669b343260ae6032d49401",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
