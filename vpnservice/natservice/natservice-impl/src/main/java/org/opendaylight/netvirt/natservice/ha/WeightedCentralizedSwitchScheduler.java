@@ -157,6 +157,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean addSwitch(BigInteger dpnId) {
         /* Initialize the switch in the map with weight 0 */
+        LOG.info("addSwitch: Adding {} dpnId to switchWeightsMap", dpnId);
         switchWeightsMap.put(dpnId, initialSwitchWeight);
         return true;
 
@@ -164,6 +165,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
 
     @Override
     public boolean removeSwitch(BigInteger dpnId) {
+        LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
         if (switchWeightsMap.get(dpnId) != initialSwitchWeight) {
             NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
             for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {

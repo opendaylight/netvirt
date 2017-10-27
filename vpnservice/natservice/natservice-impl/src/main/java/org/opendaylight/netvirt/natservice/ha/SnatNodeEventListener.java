@@ -9,13 +9,12 @@ package org.opendaylight.netvirt.natservice.ha;
 
 import java.math.BigInteger;
 
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.natservice.api.CentralizedSwitchScheduler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -31,8 +30,8 @@ import org.slf4j.LoggerFactory;
  * added/removed.
  */
 @Singleton
-public class SnatNodeEventListener  extends AsyncDataTreeChangeListenerBase<FlowCapableNode, SnatNodeEventListener>
-    implements AutoCloseable {
+public class SnatNodeEventListener  extends AsyncClusteredDataTreeChangeListenerBase<FlowCapableNode,
+                SnatNodeEventListener> {
     private final CentralizedSwitchScheduler  centralizedSwitchScheduler;
     private static final Logger LOG = LoggerFactory.getLogger(SnatNodeEventListener.class);
     private final DataBroker dataBroker;
@@ -43,12 +42,6 @@ public class SnatNodeEventListener  extends AsyncDataTreeChangeListenerBase<Flow
         super(FlowCapableNode.class, SnatNodeEventListener.class);
         this.dataBroker = dataBroker;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
-    }
-
-    @Override
-    @PostConstruct
-    public void init() {
-        LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
@@ -61,6 +54,7 @@ public class SnatNodeEventListener  extends AsyncDataTreeChangeListenerBase<Flow
     protected void remove(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        LOG.info("Dpn removed {}", dpnId);
         centralizedSwitchScheduler.removeSwitch(dpnId);
     }
 
@@ -74,6 +68,7 @@ public class SnatNodeEventListener  extends AsyncDataTreeChangeListenerBase<Flow
     protected void add(InstanceIdentifier<FlowCapableNode> key, FlowCapableNode dataObjectModification) {
         NodeKey nodeKey = key.firstKeyOf(Node.class);
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
+        LOG.info("Dpn added {}", dpnId);
         centralizedSwitchScheduler.addSwitch(dpnId);
 
     }
