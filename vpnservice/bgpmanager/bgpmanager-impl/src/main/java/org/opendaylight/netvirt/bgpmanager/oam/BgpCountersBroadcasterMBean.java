@@ -14,6 +14,6 @@ import java.util.Map;
  * Created by echiapt on 9/28/2015.
  */
 public interface BgpCountersBroadcasterMBean {
-    Map retrieveCounterMap();
+    Map<String, String> retrieveCounterMap();
 }
 

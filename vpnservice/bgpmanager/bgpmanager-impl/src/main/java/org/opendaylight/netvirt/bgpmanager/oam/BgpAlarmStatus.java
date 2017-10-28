@@ -12,14 +12,7 @@ package org.opendaylight.netvirt.bgpmanager.oam;
  * Created by echiapt on 7/27/2015.
  */
 public enum BgpAlarmStatus {
-    UNKNOWN("Unknown"),
-    RAISED("Raised"),
-    CLEARED("Cleared");
-
-    private final String alarmStatus;
-
-    BgpAlarmStatus(String status) {
-        this.alarmStatus = status;
-    }
-
+    UNKNOWN,
+    RAISED,
+    CLEARED;
 }

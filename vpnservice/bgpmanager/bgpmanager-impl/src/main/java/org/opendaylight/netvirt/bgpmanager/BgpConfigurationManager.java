@@ -41,6 +41,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
@@ -64,7 +65,6 @@ import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException
 import org.opendaylight.mdsal.eos.common.api.EntityOwnershipChangeState;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.commands.ClearBgpCli;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmStatus;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
@@ -180,6 +180,7 @@ public class BgpConfigurationManager {
     private final BundleContext bundleContext;
     private Bgp config;
     private final BgpRouter bgpRouter;
+    private final BgpSyncHandle bgpSyncHandle = new BgpSyncHandle();
     private BgpThriftService updateServer;
 
     private final CountDownLatch initer = new CountDownLatch(1);
@@ -188,10 +189,10 @@ public class BgpConfigurationManager {
     private final String hostStartup;
     private final String portStartup;
 
-    private BgpCounters bgpCounters;
+    private final AtomicReference<BgpCounters> bgpCountersReference = new AtomicReference<>();
     private ScheduledFuture<?> bgpCountersTask;
 
-    private BgpAlarms bgpAlarms;
+    private final AtomicReference<BgpAlarms> bgpAlarmsReference = new AtomicReference<>();
     private ScheduledFuture<?> bgpAlarmsTask;
 
     private Future<?> lastReplayJobFt;
@@ -273,7 +274,7 @@ public class BgpConfigurationManager {
             final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
                     IBgpManager.class, bundleContext);
             bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-            updateServer = new BgpThriftService(Integer.parseInt(updatePort), bgpManager, fibDSWriter, this);
+            updateServer = new BgpThriftService(Integer.parseInt(updatePort), bgpManager, this);
             updateServer.start();
             LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
         });
@@ -527,12 +528,9 @@ public class BgpConfigurationManager {
                         }
                     }, 10000L, 10000L);
                 }
-                if (getBgpCounters() == null) {
-                    startBgpCountersTask();
-                }
-                if (getBgpAlarms() == null) {
-                    startBgpAlarmsTask();
-                }
+
+                startBgpCountersTask();
+                startBgpAlarmsTask();
             }
         }
 
@@ -565,12 +563,10 @@ public class BgpConfigurationManager {
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
-                if (getBgpCounters() != null) {
-                    stopBgpCountersTask();
-                }
-                if (getBgpAlarms() != null) {
-                    stopBgpAlarmsTask();
-                }
+
+                stopBgpCountersTask();
+                stopBgpAlarmsTask();
+
                 Bgp conf = getConfig();
                 if (conf == null) {
                     LOG.error("Config Null while removing the as-id");
@@ -834,8 +830,11 @@ public class BgpConfigurationManager {
                 } catch (TException | BgpRouterException e) {
                     LOG.error("{} Delete received exception; {}", YANG_OBJ, DEL_WARN, e);
                 }
-                getBgpAlarms().clearBgpNbrDownAlarm(peerIp);
-                BgpAlarms.neighborsRaisedAlarmStatusMap.put(peerIp, BgpAlarmStatus.CLEARED);
+
+                final BgpAlarms bgpAlarms = getBgpAlarms();
+                if (bgpAlarms != null) {
+                    bgpAlarms.clearBgpNbrDownAlarm(peerIp);
+                }
             }
         }
 
@@ -1745,19 +1744,18 @@ public class BgpConfigurationManager {
     }
 
     private void doRouteSync() throws InterruptedException, TimeoutException, ExecutionException {
-        BgpSyncHandle bsh = BgpSyncHandle.getInstance();
         LOG.error("Starting BGP route sync");
         try {
-            bgpRouter.initRibSync(bsh);
+            bgpRouter.initRibSync(bgpSyncHandle);
         } catch (TException | BgpRouterException e) {
             LOG.error("Route sync aborted, exception when initializing", e);
             return;
         }
-        while (bsh.getState() != BgpSyncHandle.DONE) {
+        while (bgpSyncHandle.getState() != BgpSyncHandle.DONE) {
             for (af_afi afi : af_afi.values()) {
                 Routes routes = null;
                 try {
-                    routes = bgpRouter.doRibSync(bsh, afi);
+                    routes = bgpRouter.doRibSync(bgpSyncHandle, afi);
                 } catch (TException | BgpRouterException e) {
                     LOG.error("Route sync aborted, exception when syncing", e);
                     return;
@@ -1797,7 +1795,7 @@ public class BgpConfigurationManager {
         }
         try {
             LOG.error("Ending BGP route-sync");
-            bgpRouter.endRibSync(bsh);
+            bgpRouter.endRibSync(bgpSyncHandle);
         } catch (TException | BgpRouterException e) {
             // Ignored?
         }
@@ -2197,14 +2195,8 @@ public class BgpConfigurationManager {
 
         replaySucceded = replayDone;
 
-
-        if (getBgpCounters() == null) {
-            startBgpCountersTask();
-        }
-
-        if (getBgpAlarms() == null) {
-            startBgpAlarmsTask();
-        }
+        startBgpCountersTask();
+        startBgpAlarmsTask();
 
         /*
          * commenting this due to a bug with QBGP. Will uncomment once QBGP fix is done.
@@ -2901,13 +2893,13 @@ public class BgpConfigurationManager {
     }
 
     public BgpCounters getBgpCounters() {
-        return bgpCounters;
+        return bgpCountersReference.get();
     }
 
     private void startBgpCountersTask() {
-        if (getBgpCounters() == null) {
-            bgpCounters = new BgpCounters(getBgpSdncMipIp());
-            bgpCountersTask = executor.scheduleAtFixedRate(bgpCounters, 0, 120 * 1000, TimeUnit.MILLISECONDS);
+        if (getBgpCounters() == null && bgpCountersReference.compareAndSet(null, new BgpCounters(getBgpSdncMipIp()))) {
+            bgpCountersTask = executor.scheduleAtFixedRate(bgpCountersReference.get(), 0, 120 * 1000,
+                    TimeUnit.MILLISECONDS);
             LOG.info("Bgp Counters task scheduled for every two minutes.");
 
             bgpManager.setQbgpLog(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
@@ -2915,29 +2907,31 @@ public class BgpConfigurationManager {
     }
 
     private void stopBgpCountersTask() {
-        if (getBgpCounters() != null) {
+        final BgpCounters bgpCounters = bgpCountersReference.getAndSet(null);
+        if (bgpCounters != null) {
             bgpCountersTask.cancel(true);
-            bgpCounters = null;
+            bgpCounters.close();
         }
     }
 
     private void startBgpAlarmsTask() {
-        if (getBgpAlarms() == null) {
-            bgpAlarms = new BgpAlarms(this);
-            bgpAlarmsTask = executor.scheduleAtFixedRate(bgpAlarms, 0, 60 * 1000, TimeUnit.MILLISECONDS);
+        if (getBgpAlarms() == null && bgpAlarmsReference.compareAndSet(null, new BgpAlarms(this))) {
+            bgpAlarmsReference.get().init();
+            bgpAlarmsTask = executor.scheduleAtFixedRate(bgpAlarmsReference.get(), 0, 60 * 1000, TimeUnit.MILLISECONDS);
             LOG.info("Bgp Alarms task scheduled for every minute.");
         }
     }
 
     private void stopBgpAlarmsTask() {
-        if (getBgpAlarms() != null) {
+        final BgpAlarms bgpAlarms = bgpAlarmsReference.getAndSet(null);
+        if (bgpAlarms != null) {
             bgpAlarmsTask.cancel(true);
-            bgpAlarms = null;
+            bgpAlarms.close();
         }
     }
 
     public BgpAlarms getBgpAlarms() {
-        return bgpAlarms;
+        return bgpAlarmsReference.get();
     }
 
     private static String appendNextHopToPrefix(String prefix, String nextHop) {

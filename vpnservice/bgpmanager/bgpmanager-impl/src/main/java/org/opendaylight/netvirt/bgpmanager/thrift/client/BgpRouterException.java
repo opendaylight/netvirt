@@ -14,6 +14,8 @@ import java.util.Map;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.qbgpConstants;
 
 public class BgpRouterException extends Exception {
+    private static final long serialVersionUID = 1L;
+
     public static final int BGP_ERR_INITED = 101;
     public static final int BGP_ERR_NOT_INITED = 102;
     public static final int BGP_ERR_IN_ITER = 103;
@@ -78,6 +80,7 @@ public class BgpRouterException extends Exception {
         return functionCode;
     } // getter getFunctionCode
 
+    @Override
     public String toString() {
         String message = functionCode.messages().get(errcode);
         if (message == null) { // there is no function specific message
