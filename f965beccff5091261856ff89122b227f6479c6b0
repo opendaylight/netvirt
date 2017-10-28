@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_fa863164",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T00:37:50Z",
+      "side": 1,
+      "message": "thread-safety? Use AtomicInteger?",
+      "range": {
+        "startLine": 29,
+        "startChar": 17,
+        "endLine": 29,
+        "endChar": 31
+      },
+      "revId": "f965beccff5091261856ff89122b227f6479c6b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5aa77d0c",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T00:37:50Z",
+      "side": 1,
+      "message": "I really don\u0027t understand what your logic is here wrt raiseAlarmObject.  You populate raiseAlarmObject and store it in the raiseAlarmObjectMap. Then you call setRaiseAlarmObject with raiseAlarmObject which makes a copy of it then re-assigns raiseAlarmObject to the copy. On return you clear raiseAlarmObject which is now the copy. So the List stored in the raiseAlarmObject field and the raiseAlarmObjectMap is always empty. This makes no sense to me.  What is the point of the raiseAlarmObject field?\n\nIt seems all you want to do here is this:\n\n  List\u003cString\u003e alarm \u003d new ArrayList\u003c\u003e();\n  alarm.add(alarmName);\n  ...\n\n  sendNotification(new AttributeChangeNotification(this,\n                sequenceNumber++, System.currentTimeMillis(),\n                \"raise alarm object notified \", \"raiseAlarmObject\", \"ArrayList\",\n                \"\", alarm));\n\nI don\u0027t understand the reason for the setRaiseAlarmObject public API. Who would invoke that and why and what\u0027s the API contract for the List contents? Why would they not invoke this method?\n\nAnother thing is the use of a List to represent an alarm. How does a recipient of it know how to interpret the List entries? Why don\u0027t you use a DTO class with specific fields (ie name, text, source etc)?",
+      "revId": "f965beccff5091261856ff89122b227f6479c6b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
