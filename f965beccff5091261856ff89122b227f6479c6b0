@@ -39,6 +39,24 @@
       "revId": "f965beccff5091261856ff89122b227f6479c6b0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3a2ba931",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T03:33:48Z",
+      "side": 1,
+      "message": "Since setRaiseAlarmObject makes a copy of raiseAlarmObject then the instance stored in raiseAlarmObjectMap won\u0027t be empty. However the raiseAlarmObject field will always be empty - it\u0027s essentially useless along with the getRaiseAlarmObject. The code is confusing and a bit convoluted.",
+      "parentUuid": "9a245df4_5aa77d0c",
+      "revId": "f965beccff5091261856ff89122b227f6479c6b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
