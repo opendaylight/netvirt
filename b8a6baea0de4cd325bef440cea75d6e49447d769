@@ -1,0 +1,204 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_458842e7",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 2918,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "BgpAlarms constructor is now inexpensive - all expensive initialization code is now in init which we only call if the new instance here is atomically set.",
+      "range": {
+        "startLine": 2918,
+        "startChar": 81,
+        "endLine": 2918,
+        "endChar": 90
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_85699a27",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "Can be mutated by multiple threads",
+      "range": {
+        "startLine": 37,
+        "startChar": 12,
+        "endLine": 37,
+        "endChar": 20
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e57856f4",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/EvpnRdNetworkListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "list statics before non-statics",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c5739213",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/RetryOnException.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "list instance methods after the constructor",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_655c667f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "Moved expensive code out of the constructor.",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_455fa272",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "This used to be an instance field but doesn\u0027t need to be as it\u0027s only used by this method and was cleared on entry.",
+      "range": {
+        "startLine": 62,
+        "startChar": 32,
+        "endLine": 62,
+        "endChar": 49
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e54fb6bb",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "Moved here to avoid duplication in all the callers...",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c54a72ab",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarms.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "...and same here",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_05cc8a34",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCountersBroadcaster.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "Can be mutated/accessed by multiple threads",
+      "range": {
+        "startLine": 24,
+        "startChar": 12,
+        "endLine": 24,
+        "endChar": 20
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_85d7dabe",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpSyncHandle.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-28T18:49:30Z",
+      "side": 1,
+      "message": "needs to be thread-safe",
+      "range": {
+        "startLine": 29,
+        "startChar": 32,
+        "endLine": 29,
+        "endChar": 37
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
