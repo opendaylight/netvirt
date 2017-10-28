@@ -23,14 +23,16 @@ import org.slf4j.LoggerFactory;
 
 public class BgpJMXAlarmAgent {
     private static final Logger LOG = LoggerFactory.getLogger(BgpJMXAlarmAgent.class);
-    private MBeanServer mbs = null;
-    private ObjectName alarmName = null;
     private static final String BEANNAME = "SDNC.FM:name=BgpControlPathAlarmBean";
-    private static BgpNbrControlPathAlarm alarmBean = new BgpNbrControlPathAlarm();
+
+    private final MBeanServer mbs;
+    private final BgpNbrControlPathAlarm alarmBean = new BgpNbrControlPathAlarm();
+    private ObjectName alarmName;
 
     public BgpJMXAlarmAgent() {
         // Get the platform MBeanServer
         mbs = ManagementFactory.getPlatformMBeanServer();
+
         try {
             alarmName = new ObjectName(BEANNAME);
         } catch (MalformedObjectNameException e) {

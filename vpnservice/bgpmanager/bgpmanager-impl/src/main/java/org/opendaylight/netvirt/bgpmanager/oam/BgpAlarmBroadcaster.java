@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.bgpmanager.oam;
 
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.management.AttributeChangeNotification;
 import javax.management.JMException;
 import javax.management.MBeanServer;
@@ -19,11 +20,7 @@ import org.slf4j.LoggerFactory;
 
 public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport implements BgpAlarmBroadcasterMBean {
     private static final Logger LOG = LoggerFactory.getLogger(BgpAlarmBroadcaster.class);
-    private long sequenceNumber;
-
-    public BgpAlarmBroadcaster() {
-        this.sequenceNumber = 1;
-    }
+    private final AtomicLong sequenceNumber = new AtomicLong(1);
 
     public void init() {
         // Set up the Infra for Posting BGP Alarms as JMX notifications.
@@ -37,15 +34,15 @@ public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport implemen
         LOG.info("{} start", getClass().getSimpleName());
     }
 
+    @Override
     public void sendBgpAlarmInfo(String pfx, int code, int subcode) {
         BgpAlarmErrorCodes userAlarm = BgpAlarmErrorCodes.checkErrorSubcode(subcode);
         ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add(userAlarm.getAlarmType());
         arrayList.add("Peer=" + pfx);
         arrayList.add("BGF");
-        sendNotification(new AttributeChangeNotification(this, sequenceNumber++, System.currentTimeMillis(),
-                "raise Alarm Object notified", "raiseAlarmObject",
-                "ArrayList", "", arrayList));
+        sendNotification(new AttributeChangeNotification(this, sequenceNumber.incrementAndGet(),
+            System.currentTimeMillis(), "raise Alarm Object notified", "raiseAlarmObject", "ArrayList", "", arrayList));
         LOG.info("BGP: Alarm :" + userAlarm.getAlarmType() + " has been posted.");
     }
 }

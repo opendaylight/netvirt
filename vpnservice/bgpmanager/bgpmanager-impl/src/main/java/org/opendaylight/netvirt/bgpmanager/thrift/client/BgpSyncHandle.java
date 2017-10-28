@@ -11,14 +11,12 @@ package org.opendaylight.netvirt.bgpmanager.thrift.client;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.SocketException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class BgpSyncHandle {
-    private static BgpSyncHandle handle = null;
     private static final Logger LOG = LoggerFactory.getLogger(BgpSyncHandle.class);
-    private int more;
-    private int state;
 
     public static final int INITED = 1;
     public static final int ITERATING = 2;
@@ -28,20 +26,10 @@ public class BgpSyncHandle {
 
     public static final int DEFAULT_TCP_SOCK_SZ = 87380;    //default receive buffer size on linux > 2.4
 
-    private BgpSyncHandle() {
-        more = 1;
-        state = NEVER_DONE;
-    }
+    private final AtomicInteger state = new AtomicInteger(NEVER_DONE);
 
-    public static synchronized BgpSyncHandle getInstance() {
-        if (handle == null) {
-            handle = new BgpSyncHandle();
-        }
-        return handle;
-    }
-
-    public synchronized int getState() {
-        return state;
+    public int getState() {
+        return state.get();
     }
 
     public int getMaxCount() {
@@ -72,14 +60,6 @@ public class BgpSyncHandle {
     }
 
     public int setState(int state) {
-        int retval = this.state;
-        this.state = state;
-        return retval;
-    }
-
-    public int setMore(int more) {
-        int retval = this.more;
-        this.more = more;
-        return retval;
+        return this.state.getAndSet(state);
     }
 }
