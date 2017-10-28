@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.server;
 
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeoutException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -23,12 +22,10 @@ import org.apache.thrift.transport.TNonblockingServerTransport;
 import org.apache.thrift.transport.TTransport;
 import org.apache.thrift.transport.TTransportException;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
-import org.opendaylight.netvirt.bgpmanager.FibDSWriter;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.BgpUpdater;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,19 +34,12 @@ public class BgpThriftService {
 
     private final int ourPort;
     private final IBgpManager bgpManager;
-    private final FibDSWriter fibDSWriter;
+    private final BgpConfigurationManager bgpConfigManager;
     private TServer server;
 
-    // to store copy fo FIB-VRF tables on QBGP restart.
-    private List<VrfTables> staleVrfTables;
-
-    private final BgpConfigurationManager bgpConfigManager;
-
-    public BgpThriftService(int ourPort, IBgpManager bm, FibDSWriter fibDSWriter,
-            BgpConfigurationManager bgpConfigManager) {
+    public BgpThriftService(int ourPort, IBgpManager bm, BgpConfigurationManager bgpConfigManager) {
         this.ourPort = ourPort;
         bgpManager = bm;
-        this.fibDSWriter = fibDSWriter;
         this.bgpConfigManager = bgpConfigManager;
     }
 
@@ -210,15 +200,13 @@ public class BgpThriftService {
         }
     }
 
-    Thread thread;
-
     public void start() {
-        thread = new Thread(new BgpUpdateServer());
-        thread.start();
+        new Thread(new BgpUpdateServer()).start();
     }
 
     public void stop() {
-        server.stop();
-        thread.stop();
+        if (server != null) {
+            server.stop();
+        }
     }
 }

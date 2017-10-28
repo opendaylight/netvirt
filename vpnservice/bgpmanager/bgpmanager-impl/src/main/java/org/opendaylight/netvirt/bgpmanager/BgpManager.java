@@ -11,16 +11,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Timer;
 import javax.annotation.Nullable;
 import org.apache.thrift.TException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarms;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
-import org.opendaylight.netvirt.bgpmanager.oam.BgpCounters;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -37,20 +33,14 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     private final DataBroker dataBroker;
     private final BgpConfigurationManager bcm;
 
-    private final BgpAlarmBroadcaster qbgpAlarmProducer;
     private final FibDSWriter fibDSWriter;
-    private long qbgprestartTS = 0;
-    public Timer bgpAlarmsTimer;
-    public BgpAlarms bgpAlarms;
-    public BgpCounters bgpCounters;
+    private volatile long qbgprestartTS = 0;
 
     public BgpManager(final DataBroker dataBroker,
             final BgpConfigurationManager bcm,
-            final BgpAlarmBroadcaster bgpAlarmProducer,
             final FibDSWriter fibDSWriter) {
         this.dataBroker = dataBroker;
         this.bcm = bcm;
-        this.qbgpAlarmProducer = bgpAlarmProducer;
         this.fibDSWriter = fibDSWriter;
     }
 

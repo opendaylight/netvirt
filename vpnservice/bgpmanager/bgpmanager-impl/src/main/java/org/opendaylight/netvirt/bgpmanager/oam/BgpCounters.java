@@ -24,26 +24,22 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
+import javax.management.InstanceNotFoundException;
 import javax.management.JMException;
-import javax.management.MBeanServer;
+import javax.management.MBeanRegistrationException;
+import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class BgpCounters implements Runnable {
-
-    private static final Logger LOG = LoggerFactory.getLogger(BgpCounters.class);
-    private static BgpCountersBroadcaster bgpStatsBroadcaster = null;
-    private MBeanServer bgpStatsServer = null;
-    private final Map<String, String> countersMap = new HashMap<>();
-    private String bgpSdncMip = "127.0.0.1";
+public class BgpCounters implements Runnable, AutoCloseable {
     public static final String BGP_VPNV6_FILE = "cmd_ip_bgp_vpnv6_all.txt";
     public static final String BGP_VPNV4_FILE = "cmd_ip_bgp_vpnv4_all.txt";
     public static final String BGP_EVPN_FILE = "cmd_bgp_l2vpn_evpn_all.txt";
@@ -51,8 +47,26 @@ public class BgpCounters implements Runnable {
     public static final String BGP_VPNV4_SUMMARY_FILE = "cmd_ip_bgp_vpnv4_all_summary.txt";
     public static final String BGP_EVPN_SUMMARY_FILE = "cmd_bgp_evpn_all_summary.txt";
 
+    private static final Logger LOG = LoggerFactory.getLogger(BgpCounters.class);
+
+    private final Map<String, String> countersMap = new ConcurrentHashMap<>();
+    private final String bgpSdncMip;
+
+    private volatile BgpCountersBroadcaster bgpStatsBroadcaster;
+
     public BgpCounters(String mipAddress) {
         bgpSdncMip = mipAddress;
+    }
+
+    @Override
+    public void close() {
+        if (bgpStatsBroadcaster != null) {
+            try {
+                ManagementFactory.getPlatformMBeanServer().unregisterMBean(bgpStatsON());
+            } catch (MBeanRegistrationException | InstanceNotFoundException | MalformedObjectNameException e) {
+                LOG.warn("Error unregistering BgpCountersBroadcaster", e);
+            }
+        }
     }
 
     @Override
@@ -77,12 +91,10 @@ public class BgpCounters implements Runnable {
                 //First time execution
                 try {
                     bgpStatsBroadcaster = new BgpCountersBroadcaster();
-                    bgpStatsServer = ManagementFactory.getPlatformMBeanServer();
-                    ObjectName bgpStatsObj = new ObjectName("SDNC.PM:type=BgpCountersBroadcaster");
-                    bgpStatsServer.registerMBean(bgpStatsBroadcaster, bgpStatsObj);
+                    ManagementFactory.getPlatformMBeanServer().registerMBean(bgpStatsBroadcaster, bgpStatsON());
                     LOG.info("BGP Counters MBean Registered :::");
                 } catch (JMException e) {
-                    LOG.error("Adding a NotificationBroadcaster failed.", e);
+                    LOG.error("Error registering BgpCountersBroadcaster", e);
                     return;
                 }
             }
@@ -248,39 +260,6 @@ public class BgpCounters implements Runnable {
         } catch (IOException e) {
             LOG.error("Could not process the file {}", file.getAbsolutePath());
         }
-    }
-    /*
-     * The below function parses the output of "show bgp ipv4 unicast statistics" saved in a file.
-     * Below is the sample output for the same :-
-        <output>
-        BGP IPv4 Unicast RIB statistics
-        ...
-        Total Prefixes                :            8
-        ......
-        </output>
-     */
-
-    private void parseBgpIpv4UnicastStatistics() {
-        File file = new File("cmd_bgp_ipv4_unicast_statistics.txt");
-        String totPfx = "";
-        try (Scanner scanner = new Scanner(file)) {
-            while (scanner.hasNextLine()) {
-                String instr = scanner.nextLine();
-                if (instr.contains("Total Prefixes")) {
-                    String[] result = instr.split(":");
-                    if (result.length > 1) {
-                        totPfx = result[1].trim();
-                    } else {
-                        totPfx = "0";
-                    }
-                    break;
-                }
-            }
-        } catch (IOException e) {
-            LOG.error("Could not process the file {}", file.getAbsolutePath());
-            return;
-        }
-        countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX, totPfx);
     }
 
     /*
@@ -493,5 +472,9 @@ public class BgpCounters implements Runnable {
         return BgpCounters.parseIpBgpVpnAllSummary(countMap,
                                                    BGP_EVPN_SUMMARY_FILE,
                                                    af_afi.AFI_IP);
+    }
+
+    private static ObjectName bgpStatsON() throws MalformedObjectNameException {
+        return new ObjectName("SDNC.PM:type=BgpCountersBroadcaster");
     }
 }
