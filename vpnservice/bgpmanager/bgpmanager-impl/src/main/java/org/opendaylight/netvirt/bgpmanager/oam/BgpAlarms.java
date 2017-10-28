@@ -12,19 +12,44 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpAlarms implements Runnable {
+public class BgpAlarms implements Runnable, AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BgpAlarms.class);
-    private static final BgpJMXAlarmAgent ALARM_AGENT = new BgpJMXAlarmAgent();
-    private static Map<String, String> neighborStatusMap = new HashMap<>();
-    private final BgpConfigurationManager bgpMgr;
-
-    public static Map<String, BgpAlarmStatus> neighborsRaisedAlarmStatusMap = new HashMap<>();
     private static final String ALARM_TEXT = "Bgp Neighbor TCP connection is down";
+
+    private final BgpJMXAlarmAgent alarmAgent = new BgpJMXAlarmAgent();
+    private final BgpConfigurationManager bgpMgr;
+    private final Map<String, BgpAlarmStatus> neighborsRaisedAlarmStatusMap = new ConcurrentHashMap<>();
+
+    public BgpAlarms(BgpConfigurationManager bgpManager) {
+        bgpMgr = Objects.requireNonNull(bgpManager);
+    }
+
+    public void init() {
+        alarmAgent.registerMbean();
+
+        if (bgpMgr.getConfig() != null) {
+            List<Neighbors> nbrs = bgpMgr.getConfig().getNeighbors();
+            if (nbrs != null) {
+                for (Neighbors nbr : nbrs) {
+                    LOG.trace("Clearing Neighbor DOWN alarm at the startup for Neighbor {}",
+                            nbr.getAddress().getValue());
+                    clearBgpNbrDownAlarm(nbr.getAddress().getValue());
+                }
+            }
+        }
+    }
+
+    @Override
+    public void close() {
+        alarmAgent.unregisterMbean();
+    }
 
     @Override
     public void run() {
@@ -34,9 +59,9 @@ public class BgpAlarms implements Runnable {
             BgpCounters.resetFile(BgpCounters.BGP_VPNV4_SUMMARY_FILE);
             BgpCounters.resetFile(BgpCounters.BGP_VPNV6_SUMMARY_FILE);
             BgpCounters.resetFile(BgpCounters.BGP_EVPN_SUMMARY_FILE);
-            neighborStatusMap.clear();
+            Map<String, String> neighborStatusMap = new HashMap<>();
 
-            if (bgpMgr != null && bgpMgr.getBgpCounters() != null) {
+            if (bgpMgr.getBgpCounters() != null) {
                 bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV4_SUMMARY_FILE,
                         "show ip bgp vpnv4 all summary");
                 if (bgpMgr.getConfig() != null) {
@@ -54,7 +79,7 @@ public class BgpAlarms implements Runnable {
 
                 BgpCounters.parseBgpL2vpnEvpnAllSummary(neighborStatusMap);
 
-                processNeighborStatusMap(neighborStatusMap, nbrList, neighborsRaisedAlarmStatusMap);
+                processNeighborStatusMap(neighborStatusMap, nbrList);
             }
             LOG.debug("Finished getting the status of BGP neighbors");
         } catch (IOException e) {
@@ -62,36 +87,16 @@ public class BgpAlarms implements Runnable {
         }
     }
 
-    public BgpAlarms(BgpConfigurationManager bgpManager) {
-        bgpMgr = bgpManager;
-        ALARM_AGENT.registerMbean();
-        if (bgpMgr != null && bgpMgr.getConfig() != null) {
-            List<Neighbors> nbrs = bgpMgr.getConfig().getNeighbors();
-            if (nbrs != null) {
-                for (Neighbors nbr : nbrs) {
-                    LOG.trace("Clearing Neighbor DOWN alarm at the startup for Neighbor {}",
-                            nbr.getAddress().getValue());
-                    clearBgpNbrDownAlarm(nbr.getAddress().getValue());
-                    neighborsRaisedAlarmStatusMap.put(nbr.getAddress().getValue(),
-                            BgpAlarmStatus.CLEARED);
-                }
-            }
-        }
-    }
-
-    private void processNeighborStatusMap(Map<String, String> nbrStatusMap,
-            List<Neighbors> nbrs, Map<String, BgpAlarmStatus>
-            nbrsRaisedAlarmStatusMap) {
-        boolean alarmToRaise;
-        String nbrshipStatus;
+    private void processNeighborStatusMap(Map<String, String> nbrStatusMap, List<Neighbors> nbrs) {
         if (nbrs == null || nbrs.isEmpty()) {
             LOG.trace("No BGP neighbors configured.");
             return;
         }
+
         for (Neighbors nbr : nbrs) {
-            alarmToRaise = true;
+            boolean alarmToRaise = true;
             if (nbrStatusMap != null && nbrStatusMap.containsKey(nbr.getAddress().getValue())) {
-                nbrshipStatus = nbrStatusMap.get(nbr.getAddress().getValue());
+                String nbrshipStatus = nbrStatusMap.get(nbr.getAddress().getValue());
                 LOG.trace("nbr {} status {}",
                         nbr.getAddress().getValue(),
                         nbrshipStatus);
@@ -101,23 +106,19 @@ public class BgpAlarms implements Runnable {
                 } catch (NumberFormatException e) {
                     LOG.trace("Exception thrown in parsing the integers. {}", e);
                 }
+
+                final BgpAlarmStatus alarmStatus = neighborsRaisedAlarmStatusMap.get(nbr.getAddress().getValue());
                 if (alarmToRaise) {
-                    if (!nbrsRaisedAlarmStatusMap.containsKey(
-                            nbr.getAddress().getValue()) || nbrsRaisedAlarmStatusMap.get(
-                            nbr.getAddress().getValue()) != BgpAlarmStatus.RAISED) {
+                    if (alarmStatus == null || alarmStatus != BgpAlarmStatus.RAISED) {
                         LOG.trace("alarm raised for {}.", nbr.getAddress().getValue());
                         raiseBgpNbrDownAlarm(nbr.getAddress().getValue());
-                        nbrsRaisedAlarmStatusMap.put(nbr.getAddress().getValue(), BgpAlarmStatus.RAISED);
                     } else {
                         LOG.trace("alarm raised already for {}", nbr.getAddress().getValue());
                     }
                 } else {
-                    if (!nbrsRaisedAlarmStatusMap.containsKey(
-                            nbr.getAddress().getValue()) || nbrsRaisedAlarmStatusMap.get(
-                            nbr.getAddress().getValue()) != BgpAlarmStatus.CLEARED) {
+                    if (alarmStatus == null || alarmStatus != BgpAlarmStatus.CLEARED) {
                         clearBgpNbrDownAlarm(nbr.getAddress().getValue());
                         LOG.trace("alarm cleared for {}", nbr.getAddress().getValue());
-                        nbrsRaisedAlarmStatusMap.put(nbr.getAddress().getValue(), BgpAlarmStatus.CLEARED);
                     } else {
                         LOG.trace("alarm cleared already for {}", nbr.getAddress().getValue());
                     }
@@ -126,7 +127,7 @@ public class BgpAlarms implements Runnable {
         }
     }
 
-    public void raiseBgpNbrDownAlarm(String nbrIp) {
+    private void raiseBgpNbrDownAlarm(String nbrIp) {
 
         StringBuilder source = new StringBuilder();
         source.append("BGP_Neighbor=").append(nbrIp);
@@ -135,7 +136,9 @@ public class BgpAlarms implements Runnable {
         }
         LOG.trace("Raising BgpControlPathFailure alarm. {} alarmtext {} ", source, ALARM_TEXT);
         //Invokes JMX raiseAlarm method
-        ALARM_AGENT.invokeFMraisemethod("BgpControlPathFailure", ALARM_TEXT, source.toString());
+        alarmAgent.invokeFMraisemethod("BgpControlPathFailure", ALARM_TEXT, source.toString());
+
+        neighborsRaisedAlarmStatusMap.put(nbrIp, BgpAlarmStatus.RAISED);
     }
 
     public void clearBgpNbrDownAlarm(String nbrIp) {
@@ -146,6 +149,8 @@ public class BgpAlarms implements Runnable {
         }
         LOG.trace("Clearing BgpControlPathFailure alarm of source {} alarmtext {} ", source, ALARM_TEXT);
         //Invokes JMX clearAlarm method
-        ALARM_AGENT.invokeFMclearmethod("BgpControlPathFailure", ALARM_TEXT, source.toString());
+        alarmAgent.invokeFMclearmethod("BgpControlPathFailure", ALARM_TEXT, source.toString());
+
+        neighborsRaisedAlarmStatusMap.put(nbrIp, BgpAlarmStatus.CLEARED);
     }
 }

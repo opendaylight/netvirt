@@ -17,15 +17,15 @@ public class RetryOnException {
     public static final int MAX_DELAY_FACTOR = 15;
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
 
-    public int getNumberOfTriesLeft() {
-        return numberOfTriesLeft;
-    }
-
     private int numberOfTriesLeft;
     private int delayFactor;
 
     public RetryOnException(int numberOfRetries) {
         numberOfTriesLeft = numberOfRetries;
+    }
+
+    public int getNumberOfTriesLeft() {
+        return numberOfTriesLeft;
     }
 
     public boolean shouldRetry() {

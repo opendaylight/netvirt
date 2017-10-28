@@ -29,7 +29,6 @@
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="bgpConfigurationManager" />
-    <argument ref="bgpAlarmBroadcaster" />
     <argument ref="fibDSWriter" />
   </bean>
   <service ref="bgpManager" odl:type="default"
