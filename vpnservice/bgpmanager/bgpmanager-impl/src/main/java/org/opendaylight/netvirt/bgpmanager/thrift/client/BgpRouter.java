@@ -469,7 +469,6 @@ public class BgpRouter {
             return BgpRouterException.BGP_ERR_IN_ITER;
         }
         handle.setState(BgpSyncHandle.INITED);
-        handle.setMore(1);
         return 0;
     }
 
@@ -510,7 +509,6 @@ public class BgpRouter {
 
         // TODO: receive correct protocol_type here, currently populating with dummy protocol type
         Routes outRoutes = bgpClient.getRoutes(protocol_type.PROTOCOL_ANY, op, winSize, afi);
-        handle.setMore(outRoutes.more);
         if (outRoutes.more == 0) {
             handle.setState(BgpSyncHandle.DONE);
         }

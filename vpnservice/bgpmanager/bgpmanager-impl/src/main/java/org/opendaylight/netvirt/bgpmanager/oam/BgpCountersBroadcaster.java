@@ -19,9 +19,11 @@ import org.slf4j.LoggerFactory;
  * Created by ECHIAPT on 9/25/2015.
  */
 public class BgpCountersBroadcaster extends NotificationBroadcasterSupport implements BgpCountersBroadcasterMBean  {
-    public Map<String, String> bgpCountersMap = new HashMap<>();
     private static final Logger LOG = LoggerFactory.getLogger(BgpCountersBroadcaster.class);
 
+    private volatile Map<String, String> bgpCountersMap = new HashMap<>();
+
+    @Override
     public Map<String, String> retrieveCounterMap() {
         LOG.trace("Polled retrieveCounterMap");
         Map<String, String> countersVal = new HashMap<>(bgpCountersMap);
@@ -31,9 +33,8 @@ public class BgpCountersBroadcaster extends NotificationBroadcasterSupport imple
         return countersVal;
     }
 
-    public void setBgpCountersMap(Map fetchedCountersMap) {
+    public void setBgpCountersMap(Map<String, String> fetchedCountersMap) {
         LOG.trace("putAll");
-        bgpCountersMap.clear();
-        bgpCountersMap.putAll(fetchedCountersMap);
+        bgpCountersMap = new HashMap<>(fetchedCountersMap);
     }
 }
