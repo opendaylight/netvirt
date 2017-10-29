@@ -41,9 +41,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<Trunk, NeutronTrunkChangeListener>
-        implements AutoCloseable {
+public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<Trunk, NeutronTrunkChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronTrunkChangeListener.class);
+
     private final DataBroker dataBroker;
     private final IInterfaceManager ifMgr;
     private final JobCoordinator jobCoordinator;

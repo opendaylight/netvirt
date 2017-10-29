@@ -14,8 +14,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -46,22 +44,24 @@ import org.slf4j.LoggerFactory;
 public class NeutronSubnetGwMacResolver {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetGwMacResolver.class);
     private static final long L3_INSTALL_DELAY_MILLIS = 5000;
+
     private final DataBroker broker;
     private final OdlArputilService arpUtilService;
     private final IElanService elanService;
     private final ICentralizedSwitchProvider cswitchProvider;
-    private final ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Gw-Mac-Res").build();
-    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(threadFactory);
-    private ScheduledFuture<?> arpFuture;
+    private final NeutronvpnUtils neutronvpnUtils;
+    private final ScheduledExecutorService executorService = Executors.newSingleThreadScheduledExecutor(
+            new ThreadFactoryBuilder().setNameFormat("Gw-Mac-Res").build());
 
     @Inject
     public NeutronSubnetGwMacResolver(final DataBroker broker,
             final OdlArputilService arputilService, final IElanService elanService,
-            final ICentralizedSwitchProvider cswitchProvider) {
+            final ICentralizedSwitchProvider cswitchProvider, final NeutronvpnUtils neutronvpnUtils) {
         this.broker = broker;
         this.arpUtilService = arputilService;
         this.elanService = elanService;
         this.cswitchProvider = cswitchProvider;
+        this.neutronvpnUtils = neutronvpnUtils;
     }
 
     // TODO Clean up the exception handling
@@ -70,7 +70,7 @@ public class NeutronSubnetGwMacResolver {
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
 
-        arpFuture = executorService.scheduleAtFixedRate(() -> {
+        executorService.scheduleAtFixedRate(() -> {
             try {
                 sendArpRequestsToExtGateways();
             } catch (Exception e) {
@@ -82,7 +82,7 @@ public class NeutronSubnetGwMacResolver {
 
     @PreDestroy
     public void close() {
-        arpFuture.cancel(true);
+        executorService.shutdownNow();
     }
 
     public void sendArpRequestsToExtGateways(Router router) {
@@ -95,7 +95,7 @@ public class NeutronSubnetGwMacResolver {
 
     private void sendArpRequestsToExtGateways() {
         LOG.trace("Sending ARP requests to exteral gateways");
-        for (Router router : NeutronvpnUtils.routerMap.values()) {
+        for (Router router : neutronvpnUtils.getAllRouters()) {
             sendArpRequestsToExtGateways(router);
         }
     }
@@ -172,7 +172,7 @@ public class NeutronSubnetGwMacResolver {
             return null;
         }
 
-        return NeutronvpnUtils.getNeutronPort(broker, extPortId);
+        return neutronvpnUtils.getNeutronPort(extPortId);
     }
 
     private String getExternalInterface(Router router) {
@@ -204,7 +204,7 @@ public class NeutronSubnetGwMacResolver {
             return null;
         }
 
-        Subnet subnet = NeutronvpnUtils.getNeutronSubnet(broker, subnetId);
+        Subnet subnet = neutronvpnUtils.getNeutronSubnet(subnetId);
         return subnet != null ? subnet.getGatewayIp() : null;
     }
 

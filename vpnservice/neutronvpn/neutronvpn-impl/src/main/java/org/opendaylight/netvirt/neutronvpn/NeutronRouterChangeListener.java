@@ -31,23 +31,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase<Router, NeutronRouterChangeListener>
-        implements AutoCloseable {
+public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase<Router, NeutronRouterChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
+    private final NeutronvpnUtils neutronvpnUtils;
 
     @Inject
     public NeutronRouterChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
                                        final NeutronvpnNatManager neutronvpnNatManager,
-                                       NeutronSubnetGwMacResolver gwMacResolver) {
+                                       final NeutronSubnetGwMacResolver gwMacResolver,
+                                       final NeutronvpnUtils neutronvpnUtils) {
         super(Router.class, NeutronRouterChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         nvpnNatManager = neutronvpnNatManager;
         this.gwMacResolver = gwMacResolver;
+        this.neutronvpnUtils = neutronvpnUtils;
     }
 
     @Override
@@ -71,7 +73,7 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
     @Override
     protected void add(InstanceIdentifier<Router> identifier, Router input) {
         LOG.trace("Adding Router : key: {}, value={}", identifier, input);
-        NeutronvpnUtils.addToRouterCache(input);
+        neutronvpnUtils.addToRouterCache(input);
         // Create internal VPN
         nvpnManager.createL3InternalVpn(input.getUuid(), null, null, null, null, null, input.getUuid(), null);
         nvpnNatManager.handleExternalNetworkForRouter(null, input);
@@ -95,22 +97,22 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         List<Uuid> routerSubnetIds = new ArrayList<>();
         nvpnManager.handleNeutronRouterDeleted(routerId, routerSubnetIds);
 
-        NeutronvpnUtils.removeFromRouterCache(input);
+        neutronvpnUtils.removeFromRouterCache(input);
     }
 
     @Override
     protected void update(InstanceIdentifier<Router> identifier, Router original, Router update) {
         LOG.trace("Updating Router : key: {}, original value={}, update value={}", identifier, original, update);
-        NeutronvpnUtils.addToRouterCache(update);
+        neutronvpnUtils.addToRouterCache(update);
         Uuid routerId = update.getUuid();
-        NeutronvpnUtils.addToRouterCache(update);
-        Uuid vpnId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerId, true);
+        neutronvpnUtils.addToRouterCache(update);
+        Uuid vpnId = neutronvpnUtils.getVpnForRouter(routerId, true);
         // internal vpn always present in case external vpn not found
         if (vpnId == null) {
             vpnId = routerId;
         }
-        List<Routes> oldRoutes = (original.getRoutes() != null) ? original.getRoutes() : new ArrayList<>();
-        List<Routes> newRoutes = (update.getRoutes() != null) ? update.getRoutes() : new ArrayList<>();
+        List<Routes> oldRoutes = original.getRoutes() != null ? original.getRoutes() : new ArrayList<>();
+        List<Routes> newRoutes = update.getRoutes() != null ? update.getRoutes() : new ArrayList<>();
         if (!oldRoutes.equals(newRoutes)) {
             newRoutes.removeIf(oldRoutes::remove);
 
@@ -133,10 +135,10 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         for (Routes route : routes) {
             String nextHop = String.valueOf(route.getNexthop().getValue());
             // Nexthop is another VPN?
-            Optional<InterVpnLink> interVpnLink = NeutronvpnUtils.getInterVpnLinkByEndpointIp(dataBroker, nextHop);
+            Optional<InterVpnLink> interVpnLink = neutronvpnUtils.getInterVpnLinkByEndpointIp(nextHop);
             if (interVpnLink.isPresent()) {
                 Optional<InterVpnLinkState> interVpnLinkState =
-                        NeutronvpnUtils.getInterVpnLinkState(dataBroker, interVpnLink.get().getName());
+                        neutronvpnUtils.getInterVpnLinkState(interVpnLink.get().getName());
                 if (interVpnLinkState.isPresent() && interVpnLinkState.get().getState()
                         == InterVpnLinkState.State.Active) {
                     interVpnLinkRoutes.add(route);

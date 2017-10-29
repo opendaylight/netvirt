@@ -13,26 +13,21 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.EthertypeV4;
 
-public final class NeutronSecurityRuleConstants {
+public interface NeutronSecurityRuleConstants {
+    Class<DirectionEgress> DIRECTION_EGRESS = DirectionEgress.class;
+    Class<DirectionIngress> DIRECTION_INGRESS = DirectionIngress.class;
 
-    private NeutronSecurityRuleConstants() {
-        // private constructor to avoid instantiation of this class.
-    }
+    Short PROTOCOL_ICMP = 1;
+    Short PROTOCOL_TCP = 6;
+    Short PROTOCOL_UDP = 17;
+    Short PROTOCOL_ICMPV6 = 58;
 
-    public static final Class DIRECTION_EGRESS = DirectionEgress.class;
-    public static final Class DIRECTION_INGRESS = DirectionIngress.class;
+    Class<EthertypeV4> ETHERTYPE_IPV4 = EthertypeV4.class;
 
-    public static final Short PROTOCOL_ICMP = 1;
-    public static final Short PROTOCOL_TCP = 6;
-    public static final Short PROTOCOL_UDP = 17;
-    public static final Short PROTOCOL_ICMPV6 = 58;
-
-    public static final Class ETHERTYPE_IPV4 = EthertypeV4.class;
-
-    public static final String IPV4_ALL_NETWORK = "0.0.0.0/0";
-    public static final String IPV6_ALL_NETWORK = "::/0";
+    String IPV4_ALL_NETWORK = "0.0.0.0/0";
+    String IPV6_ALL_NETWORK = "::/0";
 
     // default acp type
-    public static final Class<? extends AclBase> ACLTYPE = Ipv4Acl.class;
+    Class<? extends AclBase> ACLTYPE = Ipv4Acl.class;
 
 }
