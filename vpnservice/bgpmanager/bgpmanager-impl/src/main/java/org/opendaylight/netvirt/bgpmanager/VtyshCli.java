@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -20,6 +21,7 @@ import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 
 @Command(scope = "odl", name = "show-bgp", description = "")
+@SuppressFBWarnings({"DM_DEFAULT_ENCODING", "UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"})
 public class VtyshCli extends OsgiCommandSupport {
 
     @Option(name = "--cmd", description = "command to run", required = true, multiValued = false)

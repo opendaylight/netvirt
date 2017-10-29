@@ -27,27 +27,27 @@ public class Router extends OsgiCommandSupport {
 
     @Argument(name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
-    private String action = null;
+    private final String action = null;
 
     @Option(name = AS, aliases = {"-a"},
             description = "AS number",
             required = false, multiValued = false)
-    private String asNum = null;
+    private final String asNum = null;
 
     @Option(name = RID, aliases = {"-r"},
             description = "Router ID",
             required = false, multiValued = false)
-    private String rid = null;
+    private final String rid = null;
 
     @Option(name = SP, aliases = {"-s"},
             description = "Stale-path time",
             required = false, multiValued = false)
-    private String spt = null;
+    private final String spt = null;
 
     @Option(name = FB, aliases = {"-f"},
             description = "F-bit",
             required = false, multiValued = false)
-    private String fbit = null;
+    private final String fbit = null;
 
     private Object usage() {
         session.getConsole().println(
@@ -75,7 +75,7 @@ public class Router extends OsgiCommandSupport {
                 if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.INT, AS)) {
                     return null;
                 }
-                asn = Long.valueOf(asNum);
+                asn = Long.parseLong(asNum);
                 if (rid != null && !Commands.isValid(session.getConsole(), rid, Commands.Validators.IPADDR, RID)) {
                     return null;
                 }
@@ -83,7 +83,7 @@ public class Router extends OsgiCommandSupport {
                     if (!Commands.isValid(session.getConsole(), spt, Commands.Validators.INT, SP)) {
                         return null;
                     } else {
-                        stalePath = Integer.valueOf(spt);
+                        stalePath = Integer.parseInt(spt);
                     }
                 }
                 if (fbit != null) {

@@ -57,7 +57,7 @@ public class Connect extends OsgiCommandSupport {
                     return null;
                 }
                 // check: already connected?
-                bm.startConfig(host, Integer.valueOf(port));
+                bm.startConfig(host, Integer.parseInt(port));
                 break;
             case "del":
                 if (host != null || port != null) {
