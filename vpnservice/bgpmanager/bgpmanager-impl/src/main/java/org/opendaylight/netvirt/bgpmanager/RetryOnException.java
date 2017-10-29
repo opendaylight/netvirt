@@ -8,9 +8,11 @@
 
 package org.opendaylight.netvirt.bgpmanager;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressFBWarnings("NM_CLASS_NOT_EXCEPTION")
 public class RetryOnException {
     public static final int DEFAULT_RETRIES = Integer.MAX_VALUE;
     public static final long TIME_IN_MILLI = 1000;

@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
 import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
@@ -22,6 +23,8 @@ public class Commands {
         IPADDR, INT, ASNUM, AFI
     }
 
+    // Suppress this for now - BgpManager should be injected instead of accessing statically
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
     public Commands(BgpManager bgpm) {
         bm = bgpm;
     }
@@ -83,7 +86,7 @@ public class Commands {
     private static boolean validateAsNumber(PrintStream ps, String strAsnum) {
 
         try {
-            long asNum = Long.valueOf(strAsnum);
+            long asNum = Long.parseLong(strAsnum);
             if ((int) asNum == 0 || (int) asNum == 65535 || (int) asNum == 23456) {
                 ps.println("Reserved AS Number supplied ");
                 return false;
