@@ -1,0 +1,439 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_e5ab361b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 181,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Inconsistent synchronization of BgpConfigurationManager.config; locked 62% of time\" - just make it volatile",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_85735ae6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "This public \"batchSize\" and \"batchInterval\" fields in BgpUtil are only used here - no need to store and access them from BgbUtil.",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e5821693",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 417,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Class implements same interface as superclass\" -  AutoCloseable - same in all the other AsyncDataTreeChangeListenerBase-derived inner classes",
+      "range": {
+        "startLine": 417,
+        "startChar": 23,
+        "endLine": 417,
+        "endChar": 36
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c57d52b3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "synchronized is not needed for the add/remove/update methods of all the AsyncDataTreeChangeListenerBase-derived inner classes since they won\u0027t be invoked concurrently and they access state in the enclosing class.",
+      "range": {
+        "startLine": 425,
+        "startChar": 18,
+        "endLine": 425,
+        "endChar": 30
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6514664e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Result of integer multiplication cast to long - possibility that the result will overflow\"",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4517a251",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1250,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.vrfs.AddressFamiliesVrfKey is incompatible with expected argument type String\" - should pass \u0027rd\u0027 as it does below",
+      "range": {
+        "startLine": 1250,
+        "startChar": 50,
+        "endLine": 1250,
+        "endChar": 62
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_254c2e9e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1348,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Possible null pointer dereference of newval\" - check for null.",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_054f6a93",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Exceptional return value of java.util.concurrent.ScheduledExecutorService.submit(Callable) ignored \" - since the returned Future isn\u0027t used, call execute instead and change the MultipathStatusChange class to implement Runnable. Same in other places in this file.",
+      "range": {
+        "startLine": 1473,
+        "startChar": 21,
+        "endLine": 1473,
+        "endChar": 27
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a50dbe40",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1587,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Suspicious comparison of Integer references - use equals() instaead of !\u003d\"",
+      "range": {
+        "startLine": 1587,
+        "startChar": 37,
+        "endLine": 1587,
+        "endChar": 39
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6546267e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1604,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Code contains a hard coded reference to an absolute pathname\" - CLUSTER_CONFIG - starts with a \u0027/\u0027. This method isn\u0027t actually used so I removed it and  CLUSTER_CONFIG.",
+      "range": {
+        "startLine": 1604,
+        "startChar": 24,
+        "endLine": 1604,
+        "endChar": 47
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4549628a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2281,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 2281,
+        "startChar": 25,
+        "endLine": 2281,
+        "endChar": 34
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a55f7e40",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 222,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Useless non-empty void method - analysis shows that this non-empty void method does not actually perform any useful work.\" - suppress it",
+      "range": {
+        "startLine": 222,
+        "startChar": 29,
+        "endLine": 222,
+        "endChar": 50
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_855a3a4e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Field should be package protected - a mutable public static field could be changed by malicious code or by accident.\" - these fields should not by public. However they were only used in one place in BgpConfigurationManager so they\u0027re not really needed.",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e559765b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/ConfigureBgpCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 334,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"A boxed primitive is created from a String, just to extract the unboxed primitive value. It is more efficient to just call the static parseXXX method.\"",
+      "range": {
+        "startLine": 334,
+        "startChar": 32,
+        "endLine": 334,
+        "endChar": 39
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c5543223",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/DisplayBgpConfigCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Format string should use %n rather than \\n - in format strings, it is generally preferable better to use %n, which will produce the platform-specific line separator.\"",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25338e15",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/EvpnRdNetworkListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Class implements same interface as superclass\"",
+      "range": {
+        "startLine": 23,
+        "startChar": 19,
+        "endLine": 23,
+        "endChar": 32
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_653d86de",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/VtyshCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Field not initialized in constructor but dereferenced without null check\" - I assume it\u0027s injected so suppress the warning",
+      "range": {
+        "startLine": 26,
+        "startChar": 11,
+        "endLine": 26,
+        "endChar": 14
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a5265ecc",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Cache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Method may fail to close stream\" - if a file PrintStream is used, ensure all code paths close it.",
+      "range": {
+        "startLine": 103,
+        "startChar": 16,
+        "endLine": 103,
+        "endChar": 43
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_85219ab6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Cache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Format string should use %n rather than \\n - in format strings, it is generally preferable better to use %n, which will produce the platform-specific line separator.\"",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e5305603",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/ClearBgpCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"This static field is public but not final, and could be changed by malicious code or by accident\" - all these fields should be private static final",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_051daa73",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\u0027",
+      "range": {
+        "startLine": 154,
+        "startChar": 21,
+        "endLine": 154,
+        "endChar": 30
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

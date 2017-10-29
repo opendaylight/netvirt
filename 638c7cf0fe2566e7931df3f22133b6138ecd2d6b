@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_05364a03",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/RetryOnException.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 1,
+      "message": "\"Class is not derived from an Exception, even though it is named as such\". It is not meant to be an Exception so suppress it",
+      "revId": "638c7cf0fe2566e7931df3f22133b6138ecd2d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_45404256",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/VtyshCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 1,
+      "message": "\"Reliance on default encoding - perform a byte to String (or String to byte) conversion, and will assume that the default platform encoding is suitable.\" - this occurs for every PrintStream, BufferedReader et al instance that is created. This seems a bit pedantic - just suppress it.",
+      "range": {
+        "startLine": 24,
+        "startChar": 22,
+        "endLine": 24,
+        "endChar": 41
+      },
+      "revId": "638c7cf0fe2566e7931df3f22133b6138ecd2d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c52b9292",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/commands/Commands.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 1,
+      "message": "\"Write to static field from instance method\" - suppress for now",
+      "range": {
+        "startLine": 29,
+        "startChar": 8,
+        "endLine": 29,
+        "endChar": 18
+      },
+      "revId": "638c7cf0fe2566e7931df3f22133b6138ecd2d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_251a6e7d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/client/BgpRouter.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:12:25Z",
+      "side": 1,
+      "message": "\"Field not initialized in constructor but dereferenced without null check\" - all callers of this method set op.type but check for null above as a sanity check.",
+      "range": {
+        "startLine": 255,
+        "startChar": 16,
+        "endLine": 255,
+        "endChar": 23
+      },
+      "revId": "638c7cf0fe2566e7931df3f22133b6138ecd2d6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
