@@ -133,10 +133,10 @@ public class BgpThriftService {
                                       int l2label,
                                       String routermac,
                                       af_afi afi) {
-            try {
-                LOG.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
+            LOG.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
 
-                // l2label is ignored even in case of RT5. only l3label considered
+            // l2label is ignored even in case of RT5. only l3label considered
+            try {
                 bgpConfigManager.onUpdatePushRoute(
                         protocolType,
                         rd,
@@ -150,8 +150,7 @@ public class BgpThriftService {
                         l2label,
                         routermac,
                         afi);
-
-            } catch (Exception e) {
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
                 LOG.error("failed to handle update route ", e);
             }
         }

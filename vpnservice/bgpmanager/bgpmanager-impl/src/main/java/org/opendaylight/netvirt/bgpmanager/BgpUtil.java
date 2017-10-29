@@ -60,12 +60,6 @@ public class BgpUtil {
 
     private static DataBroker dataBroker;
 
-    public static final int PERIODICITY = 500;
-    public static final int BATCH_SIZE = 1000;
-
-    public static Integer batchSize;
-    public static Integer batchInterval;
-
     private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
 
     /**

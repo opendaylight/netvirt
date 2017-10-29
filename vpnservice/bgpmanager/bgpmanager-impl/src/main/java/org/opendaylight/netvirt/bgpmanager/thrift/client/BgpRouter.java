@@ -244,6 +244,11 @@ public class BgpRouter {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
         }
 
+        if (op.type == null) {
+            LOG.error("dispatchInternal called with op.type null", new Throwable("stack trace"));
+            return;
+        }
+
         af_afi afi = af_afi.findByValue(op.ints[0]);
         af_safi safi = af_safi.findByValue(op.ints[1]);
 

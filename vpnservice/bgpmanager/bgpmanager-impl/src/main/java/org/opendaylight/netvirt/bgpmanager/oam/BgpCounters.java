@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -38,7 +39,7 @@ import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@SuppressFBWarnings("DM_DEFAULT_ENCODING")
 public class BgpCounters implements Runnable, AutoCloseable {
     public static final String BGP_VPNV6_FILE = "cmd_ip_bgp_vpnv6_all.txt";
     public static final String BGP_VPNV4_FILE = "cmd_ip_bgp_vpnv4_all.txt";

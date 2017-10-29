@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.bgpmanager;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -331,7 +330,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
         if (ebgpMultihops != null) {
             try {
-                long val = Long.valueOf(ebgpMultihops);
+                long val = Long.parseLong(ebgpMultihops);
                 if (val < 1 || val > 255) {
                     session.getConsole().println("invalid ebgpMultihops number , valid range [1,255] ");
                     printAddNeighborHelp();
@@ -357,7 +356,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             session.getConsole().println("neighbor with ip " + ip + " already exists");
             return;
         }
-        bgpManager.addNeighbor(ip, Long.valueOf(asNumber), md5secret);
+        bgpManager.addNeighbor(ip, Long.parseLong(asNumber), md5secret);
         if (addressFamily != null) {
             bgpManager.addAddressFamily(ip, af_afi.AFI_IP,
                     af_safi.valueOf(addressFamily));
@@ -440,7 +439,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     private boolean validateAsNumber(String strAsnum) {
 
         try {
-            long asNum = Long.valueOf(strAsnum);
+            long asNum = Long.parseLong(strAsnum);
             if (asNum == 0L || asNum == 65535L || asNum == 23456L) {
                 session.getConsole().println("reserved AS Number supplied ");
                 return false;

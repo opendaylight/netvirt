@@ -100,7 +100,7 @@ public class Neighbor extends OsgiCommandSupport {
                     if (!Commands.isValid(session.getConsole(), asNum, Commands.Validators.INT, AS)) {
                         return null;
                     } else {
-                        asn = Long.valueOf(asNum);
+                        asn = Long.parseLong(asNum);
                     }
                 }
                 TcpMd5SignaturePasswordType md5Secret = null;
@@ -119,7 +119,7 @@ public class Neighbor extends OsgiCommandSupport {
                     if (!Commands.isValid(session.getConsole(), multiHops, Commands.Validators.INT, MH)) {
                         return null;
                     } else {
-                        hops = Integer.valueOf(multiHops);
+                        hops = Integer.parseInt(multiHops);
                     }
                     bm.addEbgpMultihop(nbrIp, hops);
                 }

@@ -10,10 +10,6 @@ package org.opendaylight.netvirt.bgpmanager;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.concurrent.GlobalEventExecutor;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -28,6 +24,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Callable;
@@ -152,7 +149,6 @@ public class BgpConfigurationManager {
     private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
     private static final String SDNC_BGP_MIP = "vpnservice.bgp.thrift.bgp.mip";
     private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.sdnc.mip";
-    private static final String CLUSTER_CONF_FILE = "/cluster/etc/cluster.conf";
     private static final Timer IP_ACTIVATION_CHECK_TIMER = new Timer();
     private static final int RESTART_DEFAULT_GR = 90;
     private static final int DS_RETRY_COUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
@@ -163,6 +159,8 @@ public class BgpConfigurationManager {
     private static final String DEL_WARN = "Config store updated; undo with Add if needed.";
     private static final String UPD_WARN = "Update operation not supported; Config store updated;"
             + " restore with another Update if needed.";
+    private static final int DEFAULT_BATCH_SIZE = 1000;
+    private static final int DEFAULT_BATCH_INTERVAL = 500;
 
     private static final Class<?>[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
@@ -178,7 +176,7 @@ public class BgpConfigurationManager {
     private final FibDSWriter fibDSWriter;
     private final IVpnLinkService vpnLinkService;
     private final BundleContext bundleContext;
-    private Bgp config;
+    private volatile Bgp config;
     private final BgpRouter bgpRouter;
     private final BgpSyncHandle bgpSyncHandle = new BgpSyncHandle();
     private BgpThriftService updateServer;
@@ -258,17 +256,11 @@ public class BgpConfigurationManager {
         LOG.info("BGP Configuration manager initialized");
         initer.countDown();
 
-        BgpUtil.batchSize = BgpUtil.BATCH_SIZE;
-        if (Integer.getInteger("batch.size") != null) {
-            BgpUtil.batchSize = Integer.getInteger("batch.size");
-        }
-        BgpUtil.batchInterval = BgpUtil.PERIODICITY;
-        if (Integer.getInteger("batch.wait.time") != null) {
-            BgpUtil.batchInterval = Integer.getInteger("batch.wait.time");
-        }
+        Integer batchSize = Integer.getInteger("batch.size", DEFAULT_BATCH_SIZE);
+
+        Integer batchInterval = Integer.getInteger("batch.wait.time", DEFAULT_BATCH_INTERVAL);
         BgpUtil.registerWithBatchManager(
-                new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, BgpUtil.batchSize,
-                        BgpUtil.batchInterval));
+                new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, batchSize, batchInterval));
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
             final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
@@ -414,7 +406,7 @@ public class BgpConfigurationManager {
 
     public class ConfigServerReactor
             extends AsyncDataTreeChangeListenerBase<ConfigServer, ConfigServerReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<ConfigServer> {
+            implements ClusteredDataTreeChangeListener<ConfigServer> {
         private static final String YANG_OBJ = "config-server ";
 
         public ConfigServerReactor() {
@@ -422,7 +414,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
+        protected void add(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp connect config host {}", val.getHost().getValue());
             if (!isBGPEntityOwner()) {
                 return;
@@ -457,7 +449,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
+        protected void remove(InstanceIdentifier<ConfigServer> iid, ConfigServer val) {
             LOG.trace("received bgp disconnect");
             if (!isBGPEntityOwner()) {
                 return;
@@ -491,7 +483,7 @@ public class BgpConfigurationManager {
 
     public class AsIdReactor
             extends AsyncDataTreeChangeListenerBase<AsId, AsIdReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<AsId> {
+            implements ClusteredDataTreeChangeListener<AsId> {
 
         private static final String YANG_OBJ = "as-id ";
 
@@ -500,7 +492,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<AsId> iid, AsId val) {
+        protected void add(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received bgp add asid {}", val);
             if (!isBGPEntityOwner()) {
                 return;
@@ -545,7 +537,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<AsId> iid, AsId val) {
+        protected void remove(InstanceIdentifier<AsId> iid, AsId val) {
             LOG.error("received delete router config asNum {}", val.getLocalAs());
             if (!isBGPEntityOwner()) {
                 return;
@@ -597,7 +589,7 @@ public class BgpConfigurationManager {
 
     public class GracefulRestartReactor
             extends AsyncDataTreeChangeListenerBase<GracefulRestart, GracefulRestartReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<GracefulRestart> {
+            implements ClusteredDataTreeChangeListener<GracefulRestart> {
 
         private static final String YANG_OBJ = "graceful-restart ";
 
@@ -606,7 +598,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
+        protected void add(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -637,7 +629,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
+        protected void remove(InstanceIdentifier<GracefulRestart> iid, GracefulRestart val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -683,7 +675,7 @@ public class BgpConfigurationManager {
 
     public class LoggingReactor
             extends AsyncDataTreeChangeListenerBase<Logging, LoggingReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<Logging> {
+            implements ClusteredDataTreeChangeListener<Logging> {
 
         private static final String YANG_OBJ = "logging ";
 
@@ -692,7 +684,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<Logging> iid, Logging val) {
+        protected void add(InstanceIdentifier<Logging> iid, Logging val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -722,7 +714,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<Logging> iid, Logging val) {
+        protected void remove(InstanceIdentifier<Logging> iid, Logging val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -766,7 +758,7 @@ public class BgpConfigurationManager {
 
     public class NeighborsReactor
             extends AsyncDataTreeChangeListenerBase<Neighbors, NeighborsReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<Neighbors> {
+            implements ClusteredDataTreeChangeListener<Neighbors> {
 
         private static final String YANG_OBJ = "neighbors ";
 
@@ -775,7 +767,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+        protected void add(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -811,7 +803,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
+        protected void remove(InstanceIdentifier<Neighbors> iid, Neighbors val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -850,7 +842,7 @@ public class BgpConfigurationManager {
 
     public class EbgpMultihopReactor
             extends AsyncDataTreeChangeListenerBase<EbgpMultihop, EbgpMultihopReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<EbgpMultihop> {
+            implements ClusteredDataTreeChangeListener<EbgpMultihop> {
 
         private static final String YANG_OBJ = "ebgp-multihop ";
 
@@ -859,7 +851,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
+        protected void add(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -891,7 +883,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
+        protected void remove(InstanceIdentifier<EbgpMultihop> iid, EbgpMultihop val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -924,7 +916,7 @@ public class BgpConfigurationManager {
 
     public class UpdateSourceReactor
             extends AsyncDataTreeChangeListenerBase<UpdateSource, UpdateSourceReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<UpdateSource> {
+            implements ClusteredDataTreeChangeListener<UpdateSource> {
 
         private static final String YANG_OBJ = "update-source ";
 
@@ -933,7 +925,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
+        protected void add(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -965,7 +957,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
+        protected void remove(InstanceIdentifier<UpdateSource> iid, UpdateSource val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -998,7 +990,7 @@ public class BgpConfigurationManager {
 
     public class AddressFamiliesReactor
             extends AsyncDataTreeChangeListenerBase<AddressFamilies, AddressFamiliesReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<AddressFamilies> {
+            implements ClusteredDataTreeChangeListener<AddressFamilies> {
 
         private static final String YANG_OBJ = "address-families ";
 
@@ -1007,7 +999,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
+        protected void add(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1041,7 +1033,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
+        protected void remove(InstanceIdentifier<AddressFamilies> iid, AddressFamilies val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1076,7 +1068,7 @@ public class BgpConfigurationManager {
 
     public class NetworksReactor
             extends AsyncDataTreeChangeListenerBase<Networks, NetworksReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<Networks> {
+            implements ClusteredDataTreeChangeListener<Networks> {
 
         private static final String YANG_OBJ = "networks ";
 
@@ -1090,7 +1082,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<Networks> iid, Networks val) {
+        protected void add(InstanceIdentifier<Networks> iid, Networks val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1135,7 +1127,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<Networks> iid, Networks val) {
+        protected void remove(InstanceIdentifier<Networks> iid, Networks val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1202,7 +1194,7 @@ public class BgpConfigurationManager {
                         add(iid, newval);
                     }
                 }
-            }, Integer.getInteger("bgp.nexthop.update.delay.in.secs", 5) * 1000);
+            }, Integer.getInteger("bgp.nexthop.update.delay.in.secs", 5) * 1000L);
         }
     }
 
@@ -1210,7 +1202,7 @@ public class BgpConfigurationManager {
 
     public class VrfsReactor
             extends AsyncDataTreeChangeListenerBase<Vrfs, VrfsReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<Vrfs> {
+            implements ClusteredDataTreeChangeListener<Vrfs> {
 
         private static final String YANG_OBJ = "vrfs ";
 
@@ -1219,7 +1211,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void add(InstanceIdentifier<Vrfs> iid, Vrfs vrfs) {
+        protected void add(InstanceIdentifier<Vrfs> iid, Vrfs vrfs) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1247,7 +1239,7 @@ public class BgpConfigurationManager {
 
                     for (AddressFamiliesVrf adf : vrfAddrFamilyListFromMap) {
                         if (vrfAddrFamilyList.contains(adf)) {
-                            mapNewAdFamily.remove(adf.getKey());
+                            mapNewAdFamily.remove(rd);
                         } else  if (adf != null) {
 
                             br.addVrf(BgpUtil.getLayerType(adf), rd, vrfs.getImportRts(), vrfs.getExportRts(),
@@ -1278,7 +1270,7 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
+        protected void remove(InstanceIdentifier<Vrfs> iid, Vrfs val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
@@ -1345,28 +1337,32 @@ public class BgpConfigurationManager {
                     adFamilyVrfToAdd.add(adVrf);
                 }
             }
-            String rd = newval.getRd();
-            BgpRouter br = getClient(YANG_OBJ);
-            if (br == null) {
-                LOG.debug("{} Unable to process add for rd {}; {}", YANG_OBJ, rd,
-                        BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
-                return;
-            }
-            for (AddressFamiliesVrf adfvrf : adFamilyVrfToAdd) {
-                try {
-                    LOG.debug("call addVRf rd {} afi {} safi {}", rd, adfvrf.getAfi(), adfvrf.getSafi());
-                    br.addVrf(BgpUtil.getLayerType(adfvrf), rd, newval.getImportRts(),
-                             newval.getExportRts(), adfvrf.getAfi(), adfvrf.getSafi());
-                } catch (TException | BgpRouterException e) {
-                    LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+            String rd = newval != null ? newval.getRd() : null;
+            if (rd != null) {
+                BgpRouter br = getClient(YANG_OBJ);
+                if (br == null) {
+                    LOG.debug("{} Unable to process add for rd {}; {}", YANG_OBJ, rd,
+                            BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
+                    return;
                 }
-            }
-            for (AddressFamiliesVrf adfToDel : adFamilyVrfToDel) {
-                try {
-                    LOG.debug("call delVRf rd {} afi {} safi {}", rd, adfToDel.getAfi(), adfToDel.getSafi());
-                    br.delVrf(rd);
-                } catch (TException | BgpRouterException e) {
-                    LOG.error("{} delVrf received exception; {}", YANG_OBJ, ADD_WARN, e);
+
+                for (AddressFamiliesVrf adfvrf : adFamilyVrfToAdd) {
+                    try {
+                        LOG.debug("call addVRf rd {} afi {} safi {}", rd, adfvrf.getAfi(), adfvrf.getSafi());
+                        br.addVrf(BgpUtil.getLayerType(adfvrf), rd, newval.getImportRts(),
+                                newval.getExportRts(), adfvrf.getAfi(), adfvrf.getSafi());
+                    } catch (TException | BgpRouterException e) {
+                        LOG.error("{} Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    }
+                }
+
+                for (AddressFamiliesVrf adfToDel : adFamilyVrfToDel) {
+                    try {
+                        LOG.debug("call delVRf rd {} afi {} safi {}", rd, adfToDel.getAfi(), adfToDel.getSafi());
+                        br.delVrf(rd);
+                    } catch (TException | BgpRouterException e) {
+                        LOG.error("{} delVrf received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    }
                 }
             }
         }
@@ -1386,7 +1382,7 @@ public class BgpConfigurationManager {
 
     public class BgpReactor
             extends AsyncDataTreeChangeListenerBase<Bgp, BgpReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<Bgp> {
+            implements ClusteredDataTreeChangeListener<Bgp> {
 
         private static final String YANG_OBJ = "Bgp ";
 
@@ -1396,7 +1392,7 @@ public class BgpConfigurationManager {
 
 
         @Override
-        protected synchronized void add(InstanceIdentifier<Bgp> iid, Bgp val) {
+        protected void add(InstanceIdentifier<Bgp> iid, Bgp val) {
             LOG.debug("received add Bgp config");
 
             try {
@@ -1424,14 +1420,13 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<Bgp> iid, Bgp val) {
+        protected void remove(InstanceIdentifier<Bgp> iid, Bgp val) {
             if (!isBGPEntityOwner()) {
                 return;
             }
             LOG.debug("received remove Bgp config");
-            synchronized (BgpConfigurationManager.this) {
-                config = null;
-            }
+
+            config = null;
         }
 
         @Override
@@ -1440,16 +1435,15 @@ public class BgpConfigurationManager {
             if (!isBGPEntityOwner()) {
                 return;
             }
-            synchronized (BgpConfigurationManager.this) {
-                config = newval;
-            }
+
+            config = newval;
         }
     }
 
     @SuppressWarnings("deprecation")
     public class MultipathReactor
             extends AsyncDataTreeChangeListenerBase<Multipath, MultipathReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<Multipath> {
+            implements ClusteredDataTreeChangeListener<Multipath> {
 
         private static final String YANG_OBJ = "multipath ";
 
@@ -1469,21 +1463,21 @@ public class BgpConfigurationManager {
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<Multipath> iid, Multipath val) {
-            executor.submit(new MultipathStatusChange(val));
+        protected void remove(InstanceIdentifier<Multipath> iid, Multipath val) {
+            executor.execute(new MultipathStatusChange(val));
         }
 
         @Override
         protected void update(InstanceIdentifier<Multipath> iid, Multipath oldval, Multipath newval) {
-            executor.submit(new MultipathStatusChange(newval));
+            executor.execute(new MultipathStatusChange(newval));
         }
 
         @Override
         protected void add(InstanceIdentifier<Multipath> key, Multipath dataObjectModification) {
-            executor.submit(new MultipathStatusChange(dataObjectModification));
+            executor.execute(new MultipathStatusChange(dataObjectModification));
         }
 
-        class MultipathStatusChange implements Callable<Void> {
+        class MultipathStatusChange implements Runnable {
 
             Multipath multipath;
 
@@ -1492,7 +1486,7 @@ public class BgpConfigurationManager {
             }
 
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 if (isBGPEntityOwner()) {
                     synchronized (BgpConfigurationManager.this) {
 
@@ -1514,7 +1508,6 @@ public class BgpConfigurationManager {
                         }
                     }
                 }
-                return null;
             }
 
         }
@@ -1528,7 +1521,7 @@ public class BgpConfigurationManager {
     @SuppressWarnings("deprecation")
     public class VrfMaxpathReactor
             extends AsyncDataTreeChangeListenerBase<VrfMaxpath, VrfMaxpathReactor>
-            implements AutoCloseable, ClusteredDataTreeChangeListener<VrfMaxpath> {
+            implements ClusteredDataTreeChangeListener<VrfMaxpath> {
 
         private static final String YANG_OBJ = "vrfMaxpath ";
 
@@ -1547,7 +1540,7 @@ public class BgpConfigurationManager {
             return InstanceIdentifier.create(Bgp.class).child(VrfMaxpath.class);
         }
 
-        class VrfMaxPathConfigurator implements Callable<Void> {
+        class VrfMaxPathConfigurator implements Runnable {
 
             VrfMaxpath vrfMaxpathVal;
 
@@ -1556,7 +1549,7 @@ public class BgpConfigurationManager {
             }
 
             @Override
-            public Void call() throws Exception {
+            public void run() {
                 if (isBGPEntityOwner()) {
                     synchronized (BgpConfigurationManager.this) {
                         BgpRouter br = getClient(YANG_OBJ);
@@ -1572,54 +1565,31 @@ public class BgpConfigurationManager {
                         }
                     }
                 }
-                return null;
             }
         }
 
         @Override
-        protected synchronized void remove(InstanceIdentifier<VrfMaxpath> iid, VrfMaxpath vrfMaxPathVal) {
-            executor.submit(new VrfMaxPathConfigurator(vrfMaxPathVal));
+        protected void remove(InstanceIdentifier<VrfMaxpath> iid, VrfMaxpath vrfMaxPathVal) {
+            executor.execute(new VrfMaxPathConfigurator(vrfMaxPathVal));
         }
 
         @Override
         protected void update(InstanceIdentifier<VrfMaxpath> iid,
                               VrfMaxpath oldval, VrfMaxpath newval) {
-            if (oldval.getMaxpaths() != newval.getMaxpaths()) {
-                executor.submit(new VrfMaxPathConfigurator(newval));
+            if (!Objects.equals(oldval.getMaxpaths(), newval.getMaxpaths())) {
+                executor.execute(new VrfMaxPathConfigurator(newval));
             }
         }
 
         @Override
         protected void add(InstanceIdentifier<VrfMaxpath> instanceIdentifier, VrfMaxpath vrfMaxpathVal) {
-            executor.submit(new VrfMaxPathConfigurator(vrfMaxpathVal));
+            executor.execute(new VrfMaxPathConfigurator(vrfMaxpathVal));
         }
 
         @Override
         public void close() {
             super.close();
         }
-    }
-
-    public String readThriftIpForCommunication(String mipAddr) {
-        File file = new File(CLUSTER_CONF_FILE);
-        if (!file.exists()) {
-            return DEF_CHOST;
-        }
-
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                if (line.contains(mipAddr)) {
-                    line = line.trim();
-                    return line.substring(line.lastIndexOf(" ") + 1);
-                }
-            }
-        } catch (FileNotFoundException e) {
-            return DEF_CHOST;
-        } catch (IOException e) {
-            LOG.error("Error reading {}", CLUSTER_CONF_FILE, e);
-        }
-        return DEF_CHOST;
     }
 
     public boolean isIpAvailable(String odlip) {
@@ -2278,7 +2248,7 @@ public class BgpConfigurationManager {
                     br.addPrefix(rd, pfxlen, nh, lbl, l3vni, l2vni,
                             BgpUtil.convertToThriftProtocolType(protocolType),
                             ethernetTag, esi, macaddress, BgpUtil.convertToThriftEncapType(encapType), routerMac);
-                } catch (Exception e) {
+                } catch (TException | BgpRouterException e) {
                     LOG.error("Replay:addPfx() received exception", e);
                 }
             }
