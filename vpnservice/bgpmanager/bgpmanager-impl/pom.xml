@@ -100,6 +100,26 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </configuration>
         </plugin>
         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>findbugs-maven-plugin</artifactId>
+            <configuration>
+                <failOnError>true</failOnError>
+                <!--
+                    We specifically include the packages to analyze since we don't want the
+                    thrift-generated classes analyzed since they yield violations. It would be
+                    better to specify the packages to exclude which can be done via an
+                    <excludeFilterFile> but then we wouldn't pick up the exclusions filter file
+                    from odlparent.
+
+                    NOTE: it would be nice to list each package on a separate line but FindBugs
+                    doesn't seem to trim WS between the commas.
+                -->
+                <onlyAnalyze>
+                  org.opendaylight.netvirt.bgpmanager.*,org.opendaylight.netvirt.bgpmanager.commands.*,org.opendaylight.netvirt.bgpmanager.oam.*,org.opendaylight.netvirt.bgpmanager.thrift.client.*,org.opendaylight.netvirt.bgpmanager.thrift.server.*
+                </onlyAnalyze>
+            </configuration>
+        </plugin>
+        <plugin>
             <groupId>org.apache.felix</groupId>
             <artifactId>maven-bundle-plugin</artifactId>
             <extensions>true</extensions>

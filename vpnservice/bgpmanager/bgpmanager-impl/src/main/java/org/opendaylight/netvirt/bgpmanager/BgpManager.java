@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -219,15 +220,16 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     }
 
     @Override
+    // This method doesn't actually do any real work currently but may at some point so suppress FindBugs violation.
+    @SuppressFBWarnings("UC_USELESS_VOID_METHOD")
     public synchronized void sendNotificationEvent(String pfx, int code, int subcode) {
-        BgpAlarmErrorCodes errorSubCode;
         if (code != BgpConstants.BGP_NOTIFY_CEASE_CODE) {
             // CEASE Notifications alone have to be reported to the CBA.
             // Silently return here. No need to log because tons
             // of non-alarm notifications will be sent to the SDNc.
             return;
         }
-        errorSubCode = BgpAlarmErrorCodes.checkErrorSubcode(subcode);
+        BgpAlarmErrorCodes errorSubCode = BgpAlarmErrorCodes.checkErrorSubcode(subcode);
         if (errorSubCode == BgpAlarmErrorCodes.ERROR_IGNORE) {
             // Need to report only those subcodes, defined in
             // BgpAlarmErrorCodes enum class.

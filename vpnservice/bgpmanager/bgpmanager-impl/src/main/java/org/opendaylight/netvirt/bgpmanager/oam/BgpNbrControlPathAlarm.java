@@ -13,54 +13,36 @@ package org.opendaylight.netvirt.bgpmanager.oam;
  */
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.management.AttributeChangeNotification;
 import javax.management.NotificationBroadcasterSupport;
 
 public class BgpNbrControlPathAlarm extends NotificationBroadcasterSupport implements BgpNbrControlPathAlarmMBean {
 
-    ArrayList<String> raiseAlarmObject = new ArrayList<>();
-    ArrayList<String> clearAlarmObject = new ArrayList<>();
-    private long sequenceNumber = 1;
+    private final AtomicLong sequenceNumber = new AtomicLong(1);
 
-    public void setRaiseAlarmObject(ArrayList<String> raiseAlarmObject) {
-        this.raiseAlarmObject = raiseAlarmObject;
-
-        sendNotification(new AttributeChangeNotification(this,
-                sequenceNumber++, System.currentTimeMillis(),
-                "raise alarm object notified ", "raiseAlarmObject", "ArrayList",
-                "", this.raiseAlarmObject));
-    }
-
-    public ArrayList<String> getRaiseAlarmObject() {
-        return raiseAlarmObject;
-    }
-
-    public void setClearAlarmObject(ArrayList<String> clearAlarmObject) {
-        this.clearAlarmObject = clearAlarmObject;
+    @Override
+    public void raiseAlarm(String alarmName, String additionalText, String source) {
+        List<String> alarm = new ArrayList<>();
+        alarm.add(alarmName);
+        alarm.add(additionalText);
+        alarm.add(source);
 
         sendNotification(new AttributeChangeNotification(this,
-                sequenceNumber++, System.currentTimeMillis(),
-                "clear alarm object notified ", "clearAlarmObject", "ArrayList",
-                "", this.clearAlarmObject));
+                sequenceNumber.incrementAndGet(), System.currentTimeMillis(),
+                "raise alarm object notified", "raiseAlarmObject", "List", "", alarm));
     }
 
-    public ArrayList<String> getClearAlarmObject() {
-        return clearAlarmObject;
-    }
+    @Override
+    public void clearAlarm(String alarmName, String additionalText, String source) {
+        List<String> alarm = new ArrayList<>();
+        alarm.add(alarmName);
+        alarm.add(additionalText);
+        alarm.add(source);
 
-    public synchronized void raiseAlarm(String alarmName, String additionalText, String source) {
-        raiseAlarmObject.add(alarmName);
-        raiseAlarmObject.add(additionalText);
-        raiseAlarmObject.add(source);
-        setRaiseAlarmObject(raiseAlarmObject);
-        raiseAlarmObject.clear();
-    }
-
-    public synchronized void clearAlarm(String alarmName, String additionalText, String source) {
-        clearAlarmObject.add(alarmName);
-        clearAlarmObject.add(additionalText);
-        clearAlarmObject.add(source);
-        setClearAlarmObject(clearAlarmObject);
-        clearAlarmObject.clear();
+        sendNotification(new AttributeChangeNotification(this,
+                sequenceNumber.incrementAndGet(), System.currentTimeMillis(),
+                "clear alarm object notified", "clearAlarmObject", "List", "", alarm));
     }
 }
