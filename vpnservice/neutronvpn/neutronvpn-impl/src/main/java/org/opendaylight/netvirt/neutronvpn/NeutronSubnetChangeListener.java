@@ -8,10 +8,8 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.base.Optional;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -35,20 +33,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase<Subnet, NeutronSubnetChangeListener>
-        implements AutoCloseable {
+public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase<Subnet, NeutronSubnetChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final NeutronExternalSubnetHandler externalSubnetHandler;
+    private final NeutronvpnUtils neutronvpnUtils;
 
     @Inject
     public NeutronSubnetChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
-            final NeutronExternalSubnetHandler externalSubnetHandler) {
+            final NeutronExternalSubnetHandler externalSubnetHandler, final NeutronvpnUtils neutronvpnUtils) {
         super(Subnet.class, NeutronSubnetChangeListener.class);
         this.dataBroker = dataBroker;
         this.nvpnManager = neutronvpnManager;
         this.externalSubnetHandler = externalSubnetHandler;
+        this.neutronvpnUtils = neutronvpnUtils;
     }
 
     @Override
@@ -74,14 +73,14 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         LOG.trace("Adding Subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
         Uuid subnetId = input.getUuid();
-        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
+        Network network = neutronvpnUtils.getNeutronNetwork(networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.warn("neutron vpn received a subnet add() for a network without a provider extension augmentation "
                             + "or with an unsupported network type for the subnet {} which is part of network {}",
                     subnetId.getValue(), network);
             return;
         }
-        NeutronvpnUtils.addToSubnetCache(input);
+        neutronvpnUtils.addToSubnetCache(input);
         handleNeutronSubnetCreated(input, network);
         externalSubnetHandler.handleExternalSubnetAdded(network, subnetId, null);
     }
@@ -91,7 +90,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         LOG.trace("Removing subnet : key: {}, value={}", identifier, input);
         Uuid networkId = input.getNetworkId();
         Uuid subnetId = input.getUuid();
-        Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, networkId);
+        Network network = neutronvpnUtils.getNeutronNetwork(networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.warn("neutron vpn received a subnet remove() for a network without a provider extension augmentation "
                             + "or with an unsupported network type for the subnet {} which is part of network {}",
@@ -100,13 +99,13 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         }
         handleNeutronSubnetDeleted(subnetId, networkId);
         externalSubnetHandler.handleExternalSubnetRemoved(network, subnetId);
-        NeutronvpnUtils.removeFromSubnetCache(input);
+        neutronvpnUtils.removeFromSubnetCache(input);
     }
 
     @Override
     protected void update(InstanceIdentifier<Subnet> identifier, Subnet original, Subnet update) {
         LOG.trace("Updating Subnet : key: {}, original value={}, update value={}", identifier, original, update);
-        NeutronvpnUtils.addToSubnetCache(update);
+        neutronvpnUtils.addToSubnetCache(update);
     }
 
     private void handleNeutronSubnetCreated(Subnet subnet, Network network) {
@@ -122,7 +121,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     }
 
     private void handleNeutronSubnetDeleted(Uuid subnetId, Uuid networkId) {
-        Uuid vpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, networkId);
+        Uuid vpnId = neutronvpnUtils.getVpnForNetwork(networkId);
         if (vpnId != null) {
             nvpnManager.removeSubnetFromVpn(vpnId, subnetId);
         }
@@ -136,7 +135,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void createSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
         try {
-            InstanceIdentifier networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
+            InstanceIdentifier<NetworkMap>  networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
             Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
             NetworkMapBuilder nwMapBuilder = null;
@@ -166,7 +165,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void deleteSubnetToNetworkMapping(Uuid subnetId, Uuid networkId) {
         try {
-            InstanceIdentifier networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
+            InstanceIdentifier<NetworkMap>  networkMapIdentifier = NeutronvpnUtils.buildNetworkMapIdentifier(networkId);
             Optional<NetworkMap> optionalNetworkMap = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
             if (optionalNetworkMap.isPresent()) {

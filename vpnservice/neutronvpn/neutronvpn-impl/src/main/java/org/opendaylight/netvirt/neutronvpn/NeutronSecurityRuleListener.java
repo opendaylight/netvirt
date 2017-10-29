@@ -32,7 +32,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttrBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.constants.rev150712.DirectionBase;
@@ -55,7 +54,6 @@ import org.slf4j.LoggerFactory;
 public class NeutronSecurityRuleListener
         extends AsyncDataTreeChangeListenerBase<SecurityRule, NeutronSecurityRuleListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSecurityRuleListener.class);
-    private final DataBroker dataBroker;
     private static final ImmutableBiMap<Class<? extends DirectionBase>,
         Class<?extends org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase>>
         DIRECTION_MAP = ImmutableBiMap.of(
@@ -66,6 +64,8 @@ public class NeutronSecurityRuleListener
             ProtocolTcp.class, NeutronSecurityRuleConstants.PROTOCOL_TCP,
             ProtocolUdp.class, NeutronSecurityRuleConstants.PROTOCOL_UDP,
             ProtocolIcmpV6.class, NeutronSecurityRuleConstants.PROTOCOL_ICMPV6);
+
+    private final DataBroker dataBroker;
 
     @Inject
     public NeutronSecurityRuleListener(final DataBroker dataBroker) {
@@ -113,7 +113,6 @@ public class NeutronSecurityRuleListener
     private AceBuilder toAceBuilder(SecurityRule securityRule) {
         AceIpBuilder aceIpBuilder = new AceIpBuilder();
         SecurityRuleAttrBuilder securityRuleAttrBuilder = new SecurityRuleAttrBuilder();
-        SourcePortRangeBuilder sourcePortRangeBuilder = new SourcePortRangeBuilder();
         DestinationPortRangeBuilder destinationPortRangeBuilder = new DestinationPortRangeBuilder();
         boolean isDirectionIngress = false;
         if (securityRule.getDirection() != null) {

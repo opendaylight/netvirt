@@ -24,10 +24,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 public class NeutronvpnManagerImpl implements INeutronVpnManager {
 
     private final NeutronvpnManager nvManager;
+    private final NeutronvpnUtils neutronvpnUtils;
 
     @Inject
-    public NeutronvpnManagerImpl(final NeutronvpnManager neutronvpnManager) {
+    public NeutronvpnManagerImpl(final NeutronvpnManager neutronvpnManager, final NeutronvpnUtils neutronvpnUtils) {
         this.nvManager = neutronvpnManager;
+        this.neutronvpnUtils = neutronvpnUtils;
     }
 
     @Override
@@ -87,7 +89,7 @@ public class NeutronvpnManagerImpl implements INeutronVpnManager {
 
     @Override
     public Collection<Uuid> getSubnetIdsForGatewayIp(IpAddress ipAddress) {
-        return  NeutronvpnUtils.getSubnetIdsForGatewayIp(ipAddress);
+        return neutronvpnUtils.getSubnetIdsForGatewayIp(ipAddress);
     }
 
     @Override

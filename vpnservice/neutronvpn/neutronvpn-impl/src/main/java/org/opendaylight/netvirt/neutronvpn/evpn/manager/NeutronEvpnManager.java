@@ -49,10 +49,13 @@ public class NeutronEvpnManager {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronEvpnManager.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager neutronvpnManager;
+    private final NeutronvpnUtils neutronvpnUtils;
 
-    public NeutronEvpnManager(DataBroker dataBroker, NeutronvpnManager neutronvpnManager) {
+    public NeutronEvpnManager(DataBroker dataBroker, NeutronvpnManager neutronvpnManager,
+            NeutronvpnUtils neutronvpnUtils) {
         this.dataBroker = dataBroker;
         this.neutronvpnManager = neutronvpnManager;
+        this.neutronvpnUtils = neutronvpnUtils;
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -62,7 +65,7 @@ public class NeutronEvpnManager {
         List<RpcError> errorList = new ArrayList<>();
         int failurecount = 0;
         int warningcount = 0;
-        List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
+        List<String> existingRDs = neutronvpnUtils.getExistingRDs();
 
         List<Evpn> vpns = input.getEvpn();
         for (Evpn vpn : vpns) {
@@ -151,8 +154,8 @@ public class NeutronEvpnManager {
         } else {
             String name = inputVpnId.getValue();
             VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, name);
-            if ((vpnInstance != null) && (vpnInstance.getIpv4Family().getRouteDistinguisher() != null)
-                    && (vpnInstance.getType() == VpnInstance.Type.L2)) {
+            if (vpnInstance != null && vpnInstance.getIpv4Family().getRouteDistinguisher() != null
+                    && vpnInstance.getType() == VpnInstance.Type.L2) {
                 vpns.add(vpnInstance);
             } else {
                 String message = String.format("GetEVPN failed because VPN %s is not present", name);
