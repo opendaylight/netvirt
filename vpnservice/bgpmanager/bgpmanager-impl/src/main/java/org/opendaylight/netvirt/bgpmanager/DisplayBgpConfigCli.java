@@ -31,35 +31,35 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
         BgpManager bm = Commands.getBgpManager();
 
         if (debug) {
-            ps.printf("\nis ODL Connected to Q-BGP: %s\n", bm.isBgpConnected() ? "TRUE" : "FALSE");
+            ps.printf("%nis ODL Connected to Q-BGP: %s%n", bm.isBgpConnected() ? "TRUE" : "FALSE");
             final TTransport transport = bm.getBgpConfigurationManager().getTransport();
             if (transport != null) {
-                ps.printf("\nODL BGP Router transport is open: %s\n",
+                ps.printf("%nODL BGP Router transport is open: %s%n",
                         transport.isOpen() ? "TRUE" : "FALSE");
             } else {
-                ps.printf("\nODL BGP Router transport is NULL\n");
+                ps.printf("%nODL BGP Router transport is NULL%n");
             }
             //last ODL connection attempted TS
-            ps.printf("Last ODL connection attempt TS: %s\n", new Date(bm.getConnectTS()));
+            ps.printf("Last ODL connection attempt TS: %s%n", new Date(bm.getConnectTS()));
             //last successful connected TS
-            ps.printf("Last Successful connection TS: %s\n", new Date(bm.getLastConnectedTS()));
+            ps.printf("Last Successful connection TS: %s%n", new Date(bm.getLastConnectedTS()));
             //last ODL started BGP due to configuration trigger TS
-            ps.printf("Last ODL started BGP at: %s\n", new Date(bm.getStartTS()));
+            ps.printf("Last ODL started BGP at: %s%n", new Date(bm.getStartTS()));
             //last Quagga attempted to RESTART the connection
-            ps.printf("Last Quagga BGP, sent reSync at: %s\n", new Date(bm.getQbgprestartTS()));
+            ps.printf("Last Quagga BGP, sent reSync at: %s%n", new Date(bm.getQbgprestartTS()));
 
             //stale cleanup start - end TS
-            ps.printf("Time taken to create stale fib : %s ms\n", bm.getStaleEndTime() - bm.getStaleStartTime());
+            ps.printf("Time taken to create stale fib : %s ms%n", bm.getStaleEndTime() - bm.getStaleStartTime());
 
             //Config replay start - end TS
-            ps.printf("Time taken to create replay configuration : %s ms\n",
+            ps.printf("Time taken to create replay configuration : %s ms%n",
                     bm.getCfgReplayEndTime() - bm.getCfgReplayStartTime());
 
             //Stale cleanup time
-            ps.printf("Time taken for Stale FIB cleanup : %s ms\n", bm.getStaleCleanupTime());
+            ps.printf("Time taken for Stale FIB cleanup : %s ms%n", bm.getStaleCleanupTime());
 
-            ps.printf("Total stale entries created %d \n", bm.getBgpConfigurationManager().getTotalStaledCount());
-            ps.printf("Total stale entries cleared %d \n", bm.getBgpConfigurationManager().getTotalCleared());
+            ps.printf("Total stale entries created %d %n", bm.getBgpConfigurationManager().getTotalStaledCount());
+            ps.printf("Total stale entries cleared %d %n", bm.getBgpConfigurationManager().getTotalCleared());
         }
         Cache cache = new Cache();
         return cache.show(session);

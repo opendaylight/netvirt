@@ -97,7 +97,7 @@ public class Network extends OsgiCommandSupport {
                     if (!Commands.isValid(session.getConsole(), lbl, Commands.Validators.INT, LB)) {
                         return null;
                     } else {
-                        label = Integer.valueOf(lbl);
+                        label = Integer.parseInt(lbl);
                     }
                 }
                 if (!Commands.isValid(session.getConsole(), afi, Commands.Validators.AFI, AFI)) {
