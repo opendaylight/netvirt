@@ -19,8 +19,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
@@ -46,11 +46,14 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
     private static final Logger LOG = LoggerFactory.getLogger(NeutronTrunkChangeListener.class);
     private final DataBroker dataBroker;
     private final IInterfaceManager ifMgr;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
-    public NeutronTrunkChangeListener(final DataBroker dataBroker, IInterfaceManager ifMgr) {
+    public NeutronTrunkChangeListener(final DataBroker dataBroker, final IInterfaceManager ifMgr,
+            final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.ifMgr = ifMgr;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -118,10 +121,9 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
         String portName = subPort.getPortId().getValue();
         String parentName = trunk.getPortId().getValue();
         InstanceIdentifier<Interface> interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
-        final DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
 
         // Should we use parentName?
-        dataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (iface == null) {
@@ -159,8 +161,7 @@ public class NeutronTrunkChangeListener extends AsyncDataTreeChangeListenerBase<
         String portName = subPort.getPortId().getValue();
         InstanceIdentifier<Interface> interfaceIdentifier =
                         NeutronvpnUtils.buildVlanInterfaceIdentifier(subPort.getPortId().getValue());
-        final DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             Interface iface = ifMgr.getInterfaceInfoFromConfigDataStore(portName);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (iface == null) {

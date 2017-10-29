@@ -14,7 +14,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
@@ -33,6 +33,7 @@ public class L2GwTransportZoneListener
     private static final Logger LOG = LoggerFactory.getLogger(L2GwTransportZoneListener.class);
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
+    private final JobCoordinator jobCoordinator;
 
     /**
      * Instantiates a new l2 gw transport zone listener.
@@ -41,10 +42,12 @@ public class L2GwTransportZoneListener
      * @param itmRpcService the itm rpc service
      */
     @Inject
-    public L2GwTransportZoneListener(final DataBroker dataBroker, final ItmRpcService itmRpcService) {
+    public L2GwTransportZoneListener(final DataBroker dataBroker, final ItmRpcService itmRpcService,
+            final JobCoordinator jobCoordinator) {
         super(TransportZone.class, L2GwTransportZoneListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -105,10 +108,9 @@ public class L2GwTransportZoneListener
     protected void add(InstanceIdentifier<TransportZone> key, TransportZone tzNew) {
         LOG.trace("Received Transport Zone Add Event: {}", tzNew);
         if (tzNew.getTunnelType().equals(TunnelTypeVxlan.class)) {
-            DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
             AddL2GwDevicesToTransportZoneJob job =
                     new AddL2GwDevicesToTransportZoneJob(itmRpcService, tzNew);
-            coordinator.enqueueJob(job.getJobKey(), job);
+            jobCoordinator.enqueueJob(job.getJobKey(), job);
         }
     }
 

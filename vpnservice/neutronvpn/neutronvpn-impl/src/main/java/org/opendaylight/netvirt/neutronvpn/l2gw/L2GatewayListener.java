@@ -25,13 +25,13 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -59,14 +59,17 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     private final ItmRpcService itmRpcService;
     private final IL2gwService l2gwService;
     private final EntityOwnershipUtils entityOwnershipUtils;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
-                             final ItmRpcService itmRpcService, IL2gwService l2gwService) {
+                             final ItmRpcService itmRpcService, final IL2gwService l2gwService,
+                             final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.itmRpcService = itmRpcService;
         this.l2gwService = l2gwService;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @PostConstruct
@@ -132,7 +135,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                 (connection) -> l2gwService.addL2GatewayConnection(connection));
             return;
         }
-        DataStoreJobCoordinator.getInstance().enqueueJob("l2gw.update", () -> {
+        jobCoordinator.enqueueJob("l2gw.update", () -> {
             ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
             DeviceInterfaces updatedDeviceInterfaces = new DeviceInterfaces(update);
             List<ListenableFuture<Void>> fts = new ArrayList<>();
@@ -210,7 +213,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                     InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(hwvtepId));
 
                     final Set<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
-                    DataStoreJobCoordinator.getInstance().enqueueJob(hwvtepId, () -> {
+                    jobCoordinator.enqueueJob(hwvtepId, () -> {
                         if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                                 HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
                             LOG.info("Deleting ITM Tunnels for {} connected to cluster node owner", l2DeviceName);

@@ -20,6 +20,8 @@
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
   <reference id="iVpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+  <reference id="jobCoordinator"
+             interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />

@@ -13,7 +13,6 @@ import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -26,20 +25,18 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
@@ -168,6 +165,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private final IVpnManager vpnManager;
     private final NeutronEvpnManager neutronEvpnManager;
     private final NeutronEvpnUtils neutronEvpnUtils;
+    private final JobCoordinator jobCoordinator;
     private static ConcurrentHashMap<Uuid, Uuid> unprocessedPortsMap = new ConcurrentHashMap<>();
 
     @Inject
@@ -175,7 +173,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             final DataBroker dataBroker, final NotificationPublishService notiPublishService,
             final NeutronvpnNatManager vpnNatMgr, final VpnRpcService vpnRpcSrv, final IElanService elanService,
             final NeutronFloatingToFixedIpMappingChangeListener neutronFloatingToFixedIpMappingChangeListener,
-            final NeutronvpnConfig neutronvpnConfig, final IVpnManager vpnManager) {
+            final NeutronvpnConfig neutronvpnConfig, final IVpnManager vpnManager,
+            final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
@@ -185,7 +184,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         this.neutronvpnConfig = neutronvpnConfig;
         this.vpnManager = vpnManager;
         neutronEvpnManager = new NeutronEvpnManager(dataBroker, this);
-        neutronEvpnUtils = new NeutronEvpnUtils(dataBroker, vpnManager);
+        neutronEvpnUtils = new NeutronEvpnUtils(dataBroker, vpnManager, jobCoordinator);
+        this.jobCoordinator = jobCoordinator;
 
         configureFeatures();
     }
@@ -1278,8 +1278,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (portList != null) {
             for (final Uuid portId : portList) {
                 LOG.debug("adding vpn-interface for port {}", portId.getValue());
-                final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
+                jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     createVpnInterface(vpnId, NeutronvpnUtils.getNeutronPort(dataBroker, portId), wrtConfigTxn);
@@ -1320,8 +1319,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             for (Uuid port : portList) {
                 LOG.debug("Updating vpn-interface for port {} isBeingAssociated {}",
                     port.getValue(), isBeingAssociated);
-                final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                portDataStoreCoordinator.enqueueJob("PORT-" + port.getValue(), () -> {
+                jobCoordinator.enqueueJob("PORT-" + port.getValue(), () -> {
                     WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     updateVpnInterface(newVpnId, oldVpnId, NeutronvpnUtils.getNeutronPort(dataBroker, port),
@@ -1668,8 +1666,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (portList != null) {
                 for (final Uuid portId : portList) {
                     LOG.debug("removing vpn-interface for port {}", portId.getValue());
-                    final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    portDataStoreCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
+                    jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
                         WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
                         Port port = NeutronvpnUtils.getNeutronPort(dataBroker, portId);
