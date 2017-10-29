@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_c030a0ea",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 356,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T06:04:16Z",
+      "side": 1,
+      "message": "EntityOwnerUtils is deprecated - https://git.opendaylight.org/gerrit/#/c/64828/ changes this to use the new EntityOwnershipUtils",
+      "revId": "e5e9a8ae4866848640521ac93f6a509bf3381842",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
