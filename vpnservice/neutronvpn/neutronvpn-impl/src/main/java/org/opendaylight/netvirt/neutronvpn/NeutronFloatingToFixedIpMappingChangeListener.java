@@ -34,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.Floatingips;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.floatingips.attributes.floatingips.Floatingip;
@@ -44,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTreeChangeListenerBase<Floatingip,
-        NeutronFloatingToFixedIpMappingChangeListener> implements AutoCloseable {
+        NeutronFloatingToFixedIpMappingChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingToFixedIpMappingChangeListener.class);
     private final DataBroker dataBroker;
 
@@ -317,7 +318,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
     @SuppressWarnings("checkstyle:IllegalCatch")
     // updates FloatingIPPortInfo to have isFloatingIPDeleted set to true on a floating IP delete
     private void updateFloatingIpPortInfo(Uuid floatingIpId, Uuid floatingIpPortId) {
-        InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        InstanceIdentifier<FloatingIpIdToPortMapping>  id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
             FloatingIpIdToPortMappingBuilder floatingIpIdToPortMappingBuilder = new
                     FloatingIpIdToPortMappingBuilder().setFloatingIpId(floatingIpId).setFloatingIpDeleted(true);
@@ -336,7 +337,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void removeFromFloatingIpPortInfo(Uuid floatingIpId) {
-        InstanceIdentifier id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
+        InstanceIdentifier<FloatingIpIdToPortMapping>  id = buildfloatingIpIdToPortMappingIdentifier(floatingIpId);
         try {
             LOG.debug("Deleting floating IP UUID {} to Floating IP neutron port mapping from Floating "
                 + "IP Port Info Config DS", floatingIpId.getValue());

@@ -42,23 +42,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBase<Network, NeutronNetworkChangeListener>
-        implements AutoCloseable {
+public class NeutronNetworkChangeListener
+        extends AsyncDataTreeChangeListenerBase<Network, NeutronNetworkChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronNetworkChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
     private final IElanService elanService;
+    private final NeutronvpnUtils neutronvpnUtils;
 
     @Inject
     public NeutronNetworkChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
                                         final NeutronvpnNatManager neutronvpnNatManager,
-                                        final IElanService elanService) {
+                                        final IElanService elanService, final NeutronvpnUtils neutronvpnUtils) {
         super(Network.class, NeutronNetworkChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         nvpnNatManager = neutronvpnNatManager;
         this.elanService = elanService;
+        this.neutronvpnUtils = neutronvpnUtils;
     }
 
     @Override
@@ -89,14 +91,14 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
         }
         Class<? extends NetworkTypeBase> networkType = input.getAugmentation(NetworkProviderExtension.class)
                 .getNetworkType();
-        if ((NeutronvpnUtils.isVlanOrVxlanNetwork(networkType))
+        if (NeutronvpnUtils.isVlanOrVxlanNetwork(networkType)
                 && NeutronUtils.getSegmentationIdFromNeutronNetwork(input, networkType) == null) {
             LOG.error("Segmentation ID is null for configured provider network {} of type {}. Abandoning any further "
                     + "processing for the network", input.getUuid().getValue(), networkType);
             return;
         }
 
-        NeutronvpnUtils.addToNetworkCache(input);
+        neutronvpnUtils.addToNetworkCache(input);
         // Create ELAN instance for this network
         ElanInstance elanInstance = createElanInstance(input);
 
@@ -134,13 +136,13 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
             elanService.deleteExternalElanNetwork(elanInstance);
             deleteElanInstance(elanInstanceName);
         }
-        NeutronvpnUtils.removeFromNetworkCache(input);
+        neutronvpnUtils.removeFromNetworkCache(input);
     }
 
     @Override
     protected void update(InstanceIdentifier<Network> identifier, Network original, Network update) {
         LOG.trace("Updating Network : key: {}, original value={}, update value={}", identifier, original, update);
-        NeutronvpnUtils.addToNetworkCache(update);
+        neutronvpnUtils.addToNetworkCache(update);
         String elanInstanceName = original.getUuid().getValue();
         Class<? extends SegmentTypeBase> origSegmentType = NeutronvpnUtils.getSegmentTypeFromNeutronNetwork(original);
         String origSegmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(original);

@@ -32,12 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListenerBase<Node,
-        NeutronHostConfigChangeListener> implements AutoCloseable {
+public class NeutronHostConfigChangeListener
+        extends AsyncDataTreeChangeListenerBase<Node,NeutronHostConfigChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronHostConfigChangeListener.class);
-    private final DataBroker dataBroker;
-    private final SouthboundUtils southboundUtils;
-    private final MdsalUtils mdsalUtils;
     private static final String OS_HOST_CONFIG_HOST_ID_KEY = "odl_os_hostconfig_hostid";
     private static final String OS_HOST_CONFIG_CONFIG_KEY_PREFIX = "odl_os_hostconfig_config_odl_";
     private static int HOST_TYPE_STR_LEN = 8;
@@ -47,6 +44,10 @@ public class NeutronHostConfigChangeListener extends AsyncDataTreeChangeListener
         UPDATE,
         DELETE
     }
+
+    private final DataBroker dataBroker;
+    private final SouthboundUtils southboundUtils;
+    private final MdsalUtils mdsalUtils;
 
     @Inject
     public NeutronHostConfigChangeListener(final DataBroker dataBroker) {

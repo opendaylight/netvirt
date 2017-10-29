@@ -42,21 +42,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase<Bgpvpn, NeutronBgpvpnChangeListener>
-        implements AutoCloseable {
+public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase<Bgpvpn, NeutronBgpvpnChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronBgpvpnChangeListener.class);
     private final DataBroker dataBroker;
     private final NeutronvpnManager nvpnManager;
     private final IdManagerService idManager;
+    private final NeutronvpnUtils neutronvpnUtils;
     private final String adminRDValue;
 
     @Inject
     public NeutronBgpvpnChangeListener(final DataBroker dataBroker, final NeutronvpnManager neutronvpnManager,
-                                       final IdManagerService idManager) {
+                                       final IdManagerService idManager, final NeutronvpnUtils neutronvpnUtils) {
         super(Bgpvpn.class, NeutronBgpvpnChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         this.idManager = idManager;
+        this.neutronvpnUtils = neutronvpnUtils;
         BundleContext bundleContext = FrameworkUtil.getBundle(NeutronBgpvpnChangeListener.class).getBundleContext();
         adminRDValue = bundleContext.getProperty(NeutronConstants.RD_PROPERTY_KEY);
     }
@@ -113,8 +114,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             if (inputExportRouteList != null && !inputExportRouteList.isEmpty()) {
                 inputExportRouteSet.addAll(inputExportRouteList);
             }
-            List<String> importRouteTargets = new ArrayList<String>();
-            List<String> exportRouteTargets = new ArrayList<String>();
+            List<String> importRouteTargets = new ArrayList<>();
+            List<String> exportRouteTargets = new ArrayList<>();
             importRouteTargets.addAll(inputImportRouteSet);
             exportRouteTargets.addAll(inputExportRouteSet);
 
@@ -130,7 +131,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                             + "encountered for BGPVPN {} with RD {}", vpnName, rd.get(0));
                     return;
                 }
-                List<String> existingRDs = NeutronvpnUtils.getExistingRDs(dataBroker);
+                List<String> existingRDs = neutronvpnUtils.getExistingRDs();
                 if (!Collections.disjoint(existingRDs, rd)) {
                     LOG.error("Failed to create VPN {} as another VPN with the same RD {} already exists.", vpnName,
                             rd);
@@ -160,7 +161,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
 
     private List<String> generateNewRD(Uuid vpn) {
         if (adminRDValue != null) {
-            Integer rdId = NeutronvpnUtils.getUniqueRDId(idManager, NeutronConstants.RD_IDPOOL_NAME, vpn.toString());
+            Integer rdId = neutronvpnUtils.getUniqueRDId(NeutronConstants.RD_IDPOOL_NAME, vpn.toString());
             if (rdId != null) {
                 String rd = adminRDValue + ":" + rdId;
                 LOG.debug("Generated RD {} for L3VPN {}", rd, vpn);
@@ -176,7 +177,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         if (isBgpvpnTypeL3(input.getType())) {
             nvpnManager.removeVpn(input.getUuid());
             // Release RD Id in pool
-            NeutronvpnUtils.releaseRDId(idManager, NeutronConstants.RD_IDPOOL_NAME, input.getUuid().toString());
+            neutronvpnUtils.releaseRDId(NeutronConstants.RD_IDPOOL_NAME, input.getUuid().toString());
         } else {
             LOG.warn("BGPVPN type for VPN {} is not L3", input.getUuid().getValue());
         }
@@ -269,7 +270,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         if (newRouters != null && !newRouters.isEmpty()) {
             if (oldRouters != null && !oldRouters.isEmpty()) {
                 if (oldRouters.size() > 1 || newRouters.size() > 1) {
-                    VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
+                    VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpnId);
                     if (vpnMap != null && vpnMap.getRouterId() != null) {
                         LOG.warn("Only single router association to a given bgpvpn is allowed. Kindly disassociate "
                                 + "router {} from vpn {} before proceeding with associate",
@@ -292,7 +293,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                 .setHigh(new BigInteger(NeutronConstants.RD_IDPOOL_SIZE).longValue()).build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPool);
-            if ((result != null) && (result.get().isSuccessful())) {
+            if (result != null && result.get().isSuccessful()) {
                 LOG.info("Created IdPool for Bgpvpn RD");
             } else {
                 LOG.error("Failed to create ID pool for BGPVPN RD, result future returned {}", result);
@@ -304,7 +305,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
 
     private boolean validateRouteInfo(Uuid routerID) {
         Uuid assocVPNId;
-        if ((assocVPNId = NeutronvpnUtils.getVpnForRouter(dataBroker, routerID, true)) != null) {
+        if ((assocVPNId = neutronvpnUtils.getVpnForRouter(routerID, true)) != null) {
             LOG.warn("VPN router association failed due to router {} already associated to another VPN {}",
                     routerID.getValue(), assocVPNId.getValue());
             return false;
