@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 
 public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnRdToNetwork, EvpnRdNetworkListener>
-        implements AutoCloseable, ClusteredDataTreeChangeListener<EvpnRdToNetwork> {
+        implements ClusteredDataTreeChangeListener<EvpnRdToNetwork> {
     private static final Logger LOG = LoggerFactory.getLogger(EvpnRdNetworkListener.class);
 
     private final DataBroker broker;

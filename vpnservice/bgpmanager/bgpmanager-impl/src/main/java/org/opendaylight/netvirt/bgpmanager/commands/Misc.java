@@ -23,22 +23,22 @@ public class Misc extends OsgiCommandSupport {
 
     @Argument(name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
-    private String action = null;
+    private final String action = null;
 
     @Option(name = LF, aliases = {"-f"},
             description = "Log file name",
             required = false, multiValued = false)
-    private String file = null;
+    private final String file = null;
 
     @Option(name = LL, aliases = {"-l"},
             description = "Log level", required = false,
             multiValued = false)
-    private String level = null;
+    private final String level = null;
 
     @Option(name = SP, aliases = {"-s"},
             description = "Stale-path time", required = false,
             multiValued = false)
-    private String spt = null;
+    private final String spt = null;
 
     private Object usage() {
         session.getConsole().println(
@@ -83,7 +83,7 @@ public class Misc extends OsgiCommandSupport {
         switch (action) {
             case "add":
                 if (spt != null && Commands.isValid(session.getConsole(), spt, Commands.Validators.INT, SP)) {
-                    bm.configureGR(Integer.valueOf(spt));
+                    bm.configureGR(Integer.parseInt(spt));
                 }
                 if (file != null && level != null) {
                     bm.setQbgpLog(file, level);
