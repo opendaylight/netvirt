@@ -414,6 +414,63 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e01e8462",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpNbrControlPathAlarm.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:43:05Z",
+      "side": 0,
+      "message": "\"Inconsistent synchronization of raiseAlarmObject and clearAlarmObject; locked 62% of time \"\n\nThese fields were removed along with the corresponding set/get methods from the interface - it\u0027s unclear how and if these methods were even used. Prior, the raise/clearAlarm methods populated an instance List field, called a set method with the instance field which just sets the same instance field to itself and constructs and sends an AttributeChangeNotification instance, then cleared the instance List field. The net result is that the instance List field was always empty which seems useless. The raise/clearAlarm methods were changed to simply create and populate a local List instance and directly invoke sendNotification.",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c019c07a",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpNbrControlPathAlarm.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:43:05Z",
+      "side": 0,
+      "message": "Needs to be thread-safe",
+      "range": {
+        "startLine": 23,
+        "startChar": 17,
+        "endLine": 23,
+        "endChar": 31
+      },
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_800fc82d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpNbrControlPathAlarmMBean.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-29T05:43:05Z",
+      "side": 0,
+      "message": "There\u0027s no javadoc comments but it seems only the\nraiseAlarm/clearAlarm methods are needed and used in the MBean interface. It doesn\u0027t seem to make sense why a user would invoke\nsetRaiseAlarmObject/setClearAlarmObject methods in lieu of\nraiseAlarm/clearAlarm.",
+      "revId": "b8a6baea0de4cd325bef440cea75d6e49447d769",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_051daa73",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/thrift/server/BgpThriftService.java",
         "patchSetId": 1
