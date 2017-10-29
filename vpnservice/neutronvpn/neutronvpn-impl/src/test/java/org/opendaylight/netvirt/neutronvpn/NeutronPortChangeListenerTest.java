@@ -17,6 +17,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.util.ArrayList;
 import java.util.List;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,6 +30,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.internal.JobCoordinatorImpl;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -77,6 +79,8 @@ public class NeutronPortChangeListenerTest {
     @Mock
     IInterfaceManager interfaceManager;
 
+    private final JobCoordinatorImpl jobCoordinator = new JobCoordinatorImpl();
+
     @Before
     public void setUp() {
         doReturn(mockWriteTx).when(dataBroker).newWriteOnlyTransaction();
@@ -85,12 +89,17 @@ public class NeutronPortChangeListenerTest {
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
         neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, neutronvpnManager, neutronvpnNatManager,
-                gwMacResolver, elanService);
+                gwMacResolver, elanService, jobCoordinator);
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
                         new ElanInstanceKey(new Uuid("12345678-1234-1234-1234-123456789012").getValue())).build();
         when(mockReadTx.read(any(LogicalDatastoreType.class), eq(elanIdentifierId)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(elanInstance)));
+    }
+
+    @After
+    public void cleanup() {
+        jobCoordinator.destroy();
     }
 
     @Test

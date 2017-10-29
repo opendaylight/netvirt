@@ -11,14 +11,13 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -47,10 +46,12 @@ public class NeutronEvpnUtils {
 
     private final DataBroker dataBroker;
     private final IVpnManager vpnManager;
+    private final JobCoordinator jobCoordinator;
 
-    public NeutronEvpnUtils(DataBroker broker, IVpnManager vpnManager) {
+    public NeutronEvpnUtils(DataBroker broker, IVpnManager vpnManager, JobCoordinator jobCoordinator) {
         this.dataBroker = broker;
         this.vpnManager = vpnManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public VpnInstance getVpnInstance(Uuid vpnId) {
@@ -114,8 +115,7 @@ public class NeutronEvpnUtils {
 
         InstanceIdentifier<EvpnRdToNetwork> rdToNetworkIdentifier = getRdToNetworkIdentifier(rd);
 
-        final DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("EVPN_ASSOCIATE-" + rd, () -> {
+        jobCoordinator.enqueueJob("EVPN_ASSOCIATE-" + rd, () -> {
             ReadWriteTransaction transaction = dataBroker.newReadWriteTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (operation == Operation.DELETE) {

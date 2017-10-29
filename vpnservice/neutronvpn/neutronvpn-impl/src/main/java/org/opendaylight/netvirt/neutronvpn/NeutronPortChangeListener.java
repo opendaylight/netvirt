@@ -12,7 +12,6 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -27,10 +26,10 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
@@ -71,19 +70,22 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
     private final IElanService elanService;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public NeutronPortChangeListener(final DataBroker dataBroker,
                                      final NeutronvpnManager neutronvpnManager,
                                      final NeutronvpnNatManager neutronvpnNatManager,
                                      final NeutronSubnetGwMacResolver gwMacResolver,
-                                     final IElanService elanService) {
+                                     final IElanService elanService,
+                                     final JobCoordinator jobCoordinator) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         nvpnManager = neutronvpnManager;
         nvpnNatManager = neutronvpnNatManager;
         this.gwMacResolver = gwMacResolver;
         this.elanService = elanService;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -207,8 +209,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
         if (origSecurityEnabled || updatedSecurityEnabled) {
             InstanceIdentifier interfaceIdentifier = NeutronvpnUtils.buildVlanInterfaceIdentifier(portName);
-            final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+            jobCoordinator.enqueueJob("PORT- " + portName, () -> {
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
                 try {
                     Optional<Interface> optionalInf =
@@ -237,7 +238,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     }
 
     private void handleFloatingIpPortUpdated(Port original, Port update) {
-        if (((original == null) || (original.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING)))
+        if ((original == null || original.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING))
             && !update.getDeviceId().equals(NeutronConstants.FLOATING_IP_DEVICE_ID_PENDING)) {
             // populate floating-ip uuid and floating-ip port attributes (uuid, mac and subnet id for the ONLY
             // fixed IP) to be used by NAT, depopulated in NATService once mac is retrieved in the removal path
@@ -357,11 +358,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
         final List<FixedIps> portIpAddrsList = port.getFixedIps();
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(port)) {
             return;
         }
-        portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             // add direct port to subnetMaps config DS
@@ -401,8 +401,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         final String portName = port.getUuid().getValue();
         final Uuid portId = port.getUuid();
         final List<FixedIps> portIpsList = port.getFixedIps();
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
+        jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             if (!NeutronUtils.isPortVnicTypeNormal(port)) {
@@ -455,8 +454,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                       + "during subnet deletion event.", portupdate.getUuid().getValue());
             return;
         }
-        final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("PORT- " + portupdate.getUuid().getValue(), () -> {
+        jobCoordinator.enqueueJob("PORT- " + portupdate.getUuid().getValue(), () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             final List<Uuid> originalSnMapsIds = portoriginalIps.stream().map(ip -> ip.getSubnetId())
                     .collect(Collectors.toList());
