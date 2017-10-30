@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f732c70e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "this is done, only for \"debugging puroposes\"\nindeed the flag removeFibTable is true only if it is called from bgp-vrf shell command.\nThis is a good feature to have , to be able to delete vrf entries from a specific family.",
+      "parentUuid": "9a245df4_7797f790",
+      "range": {
+        "startLine": 110,
+        "startChar": 8,
+        "endLine": 113,
+        "endChar": 9
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3743bf15",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 43
@@ -36,6 +60,30 @@
       "writtenOn": "2017-10-30T10:16:38Z",
       "side": 1,
       "message": "As per my comments in BgpManager, I dont think this method is required.\n\nIf you think otherwise, and have a reason why this method is needed, then please make the changes that I have mentioned within this method. Else, remove this method",
+      "range": {
+        "startLine": 206,
+        "startChar": 29,
+        "endLine": 206,
+        "endChar": 53
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ead49e21",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "i wish to keep it.",
+      "parentUuid": "9a245df4_3743bf15",
       "range": {
         "startLine": 206,
         "startChar": 29,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_2adfd63c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_f74e476e",
+      "range": {
+        "startLine": 214,
+        "startChar": 8,
+        "endLine": 228,
+        "endChar": 17
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3770dfa4",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 43
@@ -82,6 +154,30 @@
       "writtenOn": "2017-10-30T10:16:38Z",
       "side": 1,
       "message": "Use nested if..\nif (encapType) {\n   if () {\n}else if () {\n}\n}",
+      "range": {
+        "startLine": 231,
+        "startChar": 20,
+        "endLine": 240,
+        "endChar": 21
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4ae32a05",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_3770dfa4",
       "range": {
         "startLine": 231,
         "startChar": 20,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_8a9b6271",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 248,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_97470b4b",
+      "range": {
+        "startLine": 245,
+        "startChar": 20,
+        "endLine": 248,
+        "endChar": 102
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f775a798",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 43
@@ -128,6 +248,30 @@
       "writtenOn": "2017-10-30T10:16:38Z",
       "side": 1,
       "message": "Print rd",
+      "range": {
+        "startLine": 253,
+        "startChar": 49,
+        "endLine": 253,
+        "endChar": 72
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ea893e27",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_f775a798",
       "range": {
         "startLine": 253,
         "startChar": 49,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_d73503f8",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d7786391",
+      "range": {
+        "startLine": 256,
+        "startChar": 8,
+        "endLine": 257,
+        "endChar": 5
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d72fc3f4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 43
@@ -174,6 +342,30 @@
       "writtenOn": "2017-10-30T10:16:38Z",
       "side": 1,
       "message": "Should you also handle the case where ipversion\u003dIpVersionChoice.IpV6And6 ?",
+      "range": {
+        "startLine": 555,
+        "startChar": 0,
+        "endLine": 564,
+        "endChar": 13
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_373d7fdf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T12:52:24Z",
+      "side": 1,
+      "message": "no,\nbecause isIpVersionChosen() method handles this.",
+      "parentUuid": "9a245df4_d72fc3f4",
       "range": {
         "startLine": 555,
         "startChar": 0,
