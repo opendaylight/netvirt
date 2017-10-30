@@ -180,7 +180,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier,
                 routerPortsBuilder.build());
             LOG.debug("FloatingIpInfo DS updated for floating IP {} ", floatingIpAddress);
-        } catch (Exception e) {
+        } catch (ReadFailedException | RuntimeException e) {
             LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress, e);
         } finally {
             if (isLockAcquired) {
@@ -234,7 +234,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             } else {
                 LOG.warn("routerPorts for router {} - fixedIp {} not found", routerName, fixedIpAddress);
             }
-        } catch (Exception e) {
+        } catch (RuntimeException | ReadFailedException e) {
             LOG.error("Failed to delete internal-to-external-port-map from FloatingIpInfo DS for fixed Ip {}",
                     fixedIpAddress, e);
         }

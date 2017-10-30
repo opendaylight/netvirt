@@ -15,6 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -116,7 +117,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         nvpnManager.createSubnetmapNode(subnetId, String.valueOf(subnet.getCidr().getValue()),
                 subnet.getTenantId(), networkId,
                 providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
-                segmentationId != null ? Long.valueOf(segmentationId) : 0L);
+                segmentationId != null ? Long.parseLong(segmentationId) : 0L);
         createSubnetToNetworkMapping(subnetId, networkId);
     }
 
@@ -155,7 +156,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                     .build());
             LOG.debug("Created subnet-network mapping for subnet {} network {}", subnetId.getValue(),
                     networkId.getValue());
-        } catch (Exception e) {
+        } catch (ReadFailedException | RuntimeException e) {
             LOG.error("Create subnet-network mapping failed for subnet {} network {}", subnetId.getValue(),
                     networkId.getValue());
         }
@@ -189,7 +190,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             } else {
                 LOG.error("network {} not present for subnet {} ", networkId, subnetId);
             }
-        } catch (Exception e) {
+        } catch (ReadFailedException | RuntimeException e) {
             LOG.error("Delete subnet-network mapping failed for subnet {} network {}", subnetId.getValue(),
                     networkId.getValue());
         }

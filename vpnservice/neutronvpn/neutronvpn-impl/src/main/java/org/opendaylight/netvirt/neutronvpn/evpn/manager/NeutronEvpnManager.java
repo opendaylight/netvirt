@@ -69,34 +69,31 @@ public class NeutronEvpnManager {
 
         List<Evpn> vpns = input.getEvpn();
         for (Evpn vpn : vpns) {
-            RpcError error = null;
-            String msg;
-
             if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null) {
-                msg = String.format("Creation of EVPN failed for VPN %s due to absence of RD/iRT/eRT input",
+                String msg = String.format("Creation of EVPN failed for VPN %s due to absence of RD/iRT/eRT input",
                         vpn.getId().getValue());
                 LOG.warn(msg);
-                error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
+                RpcError error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
                 errorList.add(error);
                 warningcount++;
                 continue;
             }
             VpnInstance.Type vpnInstanceType = VpnInstance.Type.L2;
             if (vpn.getRouteDistinguisher().size() > 1) {
-                msg = String.format("Creation of EVPN failed for VPN %s due to multiple RD input %s",
+                String msg = String.format("Creation of EVPN failed for VPN %s due to multiple RD input %s",
                         vpn.getId().getValue(), vpn.getRouteDistinguisher());
                 LOG.warn(msg);
-                error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
+                RpcError error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
                 errorList.add(error);
                 warningcount++;
                 continue;
             }
             if (existingRDs.contains(vpn.getRouteDistinguisher().get(0))) {
-                msg = String.format("Creation of EVPN failed for VPN %s as another VPN with",
-                        "the same RD %s is already configured",
+                String msg = String.format("Creation of EVPN failed for VPN %s as another VPN with "
+                        + "the same RD %s is already configured",
                         vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
                 LOG.warn(msg);
-                error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
+                RpcError error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
                 errorList.add(error);
                 warningcount++;
                 continue;
@@ -106,9 +103,9 @@ public class NeutronEvpnManager {
                         vpn.getImportRT(), vpn.getExportRT(), null /*router-id*/, null /*network-id*/,
                         vpnInstanceType, 0 /*l2vni*/);
             } catch (Exception ex) {
-                msg = String.format("Creation of EVPN failed for VPN %s", vpn.getId().getValue());
+                String msg = String.format("Creation of EVPN failed for VPN %s", vpn.getId().getValue());
                 LOG.error(msg, ex);
-                error = RpcResultBuilder.newError(RpcError.ErrorType.APPLICATION, msg, ex.getMessage());
+                RpcError error = RpcResultBuilder.newError(RpcError.ErrorType.APPLICATION, msg, ex.getMessage());
                 errorList.add(error);
                 failurecount++;
             }
