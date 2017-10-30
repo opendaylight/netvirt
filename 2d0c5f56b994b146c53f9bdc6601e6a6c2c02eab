@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f713e7b5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 21
+      },
+      "lineNbr": 1718,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T10:18:55Z",
+      "side": 1,
+      "message": "this added code is derived from https://git.opendaylight.org/gerrit/#/c/64606/ for more inforamtion.",
+      "range": {
+        "startLine": 1708,
+        "startChar": 1,
+        "endLine": 1718,
+        "endChar": 13
+      },
+      "revId": "2d0c5f56b994b146c53f9bdc6601e6a6c2c02eab",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
