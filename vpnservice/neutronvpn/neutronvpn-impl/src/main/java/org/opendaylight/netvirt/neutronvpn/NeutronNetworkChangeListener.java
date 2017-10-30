@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -183,6 +184,7 @@ public class NeutronNetworkChangeListener
         }
     }
 
+    @Nonnull
     private List<ElanSegments> buildSegments(Network input) {
         Long numSegments = NeutronUtils.getNumberSegmentsFromNeutronNetwork(input);
         Long index = 0L;
@@ -238,9 +240,8 @@ public class NeutronNetworkChangeListener
                 elanInstanceBuilder.setPhysicalNetworkName(physicalNetworkName);
             }
         }
-        if (segments != null) {
-            elanInstanceBuilder.setElanSegments(segments);
-        }
+
+        elanInstanceBuilder.setElanSegments(segments);
         elanInstanceBuilder.setExternal(isExternal);
         elanInstanceBuilder.setKey(new ElanInstanceKey(elanInstanceName));
         return elanInstanceBuilder;

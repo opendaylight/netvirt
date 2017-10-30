@@ -28,8 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class L2GwTransportZoneListener
-        extends AsyncDataTreeChangeListenerBase<TransportZone, L2GwTransportZoneListener>
-        implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<TransportZone, L2GwTransportZoneListener> {
     private static final Logger LOG = LoggerFactory.getLogger(L2GwTransportZoneListener.class);
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
