@@ -131,27 +131,34 @@ public class ExternalNetworkGroupInstaller {
         LOG.info("installExtNetGroupEntries : Installing ext-net group {} entry for subnet {} with macAddress {} "
                 + "(extInterfaces: {})", groupId, subnetName, macAddress, Arrays.toString(extInterfaces.toArray()));
         for (String extInterface : extInterfaces) {
-            installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress);
+            BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
+            if (BigInteger.ZERO.equals(dpId)) {
+                LOG.info("installExtNetGroupEntries: No DPN for interface {}. NAT ext-net flow will not be installed "
+                    + "for subnet {}", extInterface, subnetName);
+                return;
+            }
+            installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpId);
         }
     }
 
-    private void installExtNetGroupEntry(Uuid networkId, Uuid subnetId, BigInteger dpnId, String macAddress) {
+    public void installExtNetGroupEntry(Uuid networkId, Uuid subnetId, BigInteger dpnId, String macAddress) {
         String subnetName = subnetId.getValue();
         String extInterface = elanService.getExternalElanInterface(networkId.getValue(), dpnId);
         if (extInterface == null) {
-            LOG.error("installExtNetGroupEntry : No external ELAN interface attached to network {} subnet {} DPN id {}",
+            LOG.warn("installExtNetGroupEntry : No external ELAN interface attached to network {} subnet {} DPN id {}",
                     networkId, subnetName, dpnId);
-            return;
+            //return;
         }
 
         long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(subnetName), idManager);
         LOG.info("installExtNetGroupEntry : Installing ext-net group {} entry for subnet {} with macAddress {} "
                 + "(extInterface: {})", groupId, subnetName, macAddress, extInterface);
-        installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress);
+        installExtNetGroupEntry(groupId, subnetName, extInterface, macAddress, dpnId);
     }
 
-    private void installExtNetGroupEntry(long groupId, String subnetName, String extInterface, String macAddress) {
-        GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface);
+    private void installExtNetGroupEntry(long groupId, String subnetName, String extInterface,
+            String macAddress, BigInteger dpnId) {
+        GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface, dpnId);
         if (groupEntity != null) {
             mdsalManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
         }
@@ -189,19 +196,15 @@ public class ExternalNetworkGroupInstaller {
     }
 
     private GroupEntity buildExtNetGroupEntity(String macAddress, String subnetName,
-                                               long groupId, String extInterface) {
-        BigInteger dpId = NatUtil.getDpnForInterface(interfaceManager, extInterface);
-        if (BigInteger.ZERO.equals(dpId)) {
-            LOG.info("buildExtNetGroupEntity: No DPN for interface {}. NAT ext-net flow will not be installed "
-                + "for subnet {}", extInterface, subnetName);
-            return null;
-        }
+                                               long groupId, String extInterface, BigInteger dpnId) {
 
         List<ActionInfo> actionList = new ArrayList<>();
         final int setFieldEthDestActionPos = 0;
-        List<ActionInfo> egressActionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null,
+        List<ActionInfo> egressActionList = new ArrayList<>();
+        if (extInterface != null) {
+            egressActionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null,
                 setFieldEthDestActionPos + 1);
-
+        }
         if (Strings.isNullOrEmpty(macAddress) || egressActionList.isEmpty()) {
             if (Strings.isNullOrEmpty(macAddress)) {
                 LOG.trace("buildExtNetGroupEntity : Building ext-net group {} entry with drop action since "
@@ -222,7 +225,7 @@ public class ExternalNetworkGroupInstaller {
 
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         listBucketInfo.add(new BucketInfo(actionList));
-        return MDSALUtil.buildGroupEntity(dpId, groupId, subnetName, GroupTypes.GroupAll, listBucketInfo);
+        return MDSALUtil.buildGroupEntity(dpnId, groupId, subnetName, GroupTypes.GroupAll, listBucketInfo);
     }
 
     private GroupEntity buildEmptyExtNetGroupEntity(String subnetName, long groupId, String extInterface) {

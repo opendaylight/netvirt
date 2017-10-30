@@ -171,6 +171,7 @@ public class RouterDpnChangeListener
                             removeFlowInvTx.cancel();
                             return futures;
                         }
+                        extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
                         Long vpnId;
                         if (vpnName == null) {
                             LOG.debug("add : Internal vpn associated to router {}", routerUuid);
@@ -206,7 +207,7 @@ public class RouterDpnChangeListener
                                     NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                             snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId, writeFlowInvTx);
                         }
-                        extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+
 
                         if (router.isEnableSnat()) {
                             LOG.info("add : SNAT enabled for router {}", routerUuid);
