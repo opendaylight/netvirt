@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f7648723",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 98
+      },
+      "lineNbr": 1825,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T10:49:45Z",
+      "side": 1,
+      "message": "I will change \n.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);\nto \n.put(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);",
+      "range": {
+        "startLine": 1825,
+        "startChar": 12,
+        "endLine": 1825,
+        "endChar": 31
+      },
+      "revId": "d9187a624d9e7633ed0d6523f5e1b2ebfa69f641",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d767c323",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 98
+      },
+      "lineNbr": 1860,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T10:49:45Z",
+      "side": 1,
+      "message": "I will change\n.merge(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);\nto\n.put(LogicalDatastoreType.OPERATIONAL, identifier, newVpnIntf, true);",
+      "range": {
+        "startLine": 1860,
+        "startChar": 28,
+        "endLine": 1860,
+        "endChar": 47
+      },
+      "revId": "d9187a624d9e7633ed0d6523f5e1b2ebfa69f641",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
