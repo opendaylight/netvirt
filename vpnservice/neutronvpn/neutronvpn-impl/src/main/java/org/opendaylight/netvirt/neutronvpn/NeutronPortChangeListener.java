@@ -49,6 +49,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
@@ -351,6 +353,28 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return;
         }
         gwMacResolver.sendArpRequestsToExtGateways(router);
+
+        setExternalGwMac(routerGwPort, routerId);
+    }
+
+    private void setExternalGwMac(Port routerGwPort, Uuid routerId) {
+        // During full-sync networking-odl syncs routers before ports. As such,
+        // the MAC of the router's gw port is not available to be set when the
+        // router is written. We catch that here.
+        InstanceIdentifier<Routers> routersId= NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
+        Optional<Routers> optionalRouter = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId);
+        if (!optionalRouter.isPresent()) {
+            return;
+        }
+
+        Routers extRouters = optionalRouter.get();
+        if (extRouters.getExtGwMacAddress() != null) {
+            return;
+        }
+
+        RoutersBuilder builder = new RoutersBuilder(extRouters);
+        builder.setExtGwMacAddress(routerGwPort.getMacAddress().getValue());
+        MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersId, builder.build());
     }
 
     private void handleNeutronPortCreated(final Port port) {
