@@ -37,7 +37,6 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
@@ -298,7 +297,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 String portInterfaceName = createOfPortInterface(routerPort, wrtConfigTxn);
                 createElanInterface(routerPort, portInterfaceName, wrtConfigTxn);
                 wrtConfigTxn.submit();
-                PhysAddress mac = new PhysAddress(routerPort.getMacAddress().getValue());
             } else {
                 LOG.error("Neutron network {} corresponding to router interface port {} for neutron router {}"
                     + " already associated to VPN {}", infNetworkId.getValue(), routerPort.getUuid().getValue(),
@@ -476,10 +474,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
     private void handleNeutronPortUpdated(final Port portoriginal, final Port portupdate) {
         final List<FixedIps> portoriginalIps = portoriginal.getFixedIps();
         final List<FixedIps> portupdateIps = portupdate.getFixedIps();
-        LOG.trace("PORT ORIGINAL: {} from network {} with fixed IPs: {}; "
-                    + "PORT UPDATE: {} from network {} with fixed IPs: {}",
-                    portoriginal.getName(), portoriginal.getNetworkId().toString(), portoriginalIps.toString(),
-                    portupdate.getName(), portupdate.getNetworkId().toString(), portupdateIps.toString());
         if (portoriginalIps == null || portoriginalIps.isEmpty()) {
             handleNeutronPortCreated(portupdate);
             return;
