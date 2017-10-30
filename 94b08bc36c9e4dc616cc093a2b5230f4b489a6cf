@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_346f3dff",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T08:46:59Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be shouldVpnHandleUpVersionChangeToAdd?",
+      "range": {
+        "startLine": 281,
+        "startChar": 40,
+        "endLine": 281,
+        "endChar": 78
+      },
+      "revId": "94b08bc36c9e4dc616cc093a2b5230f4b489a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5473d1e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 1398,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T08:46:59Z",
+      "side": 1,
+      "message": "synchronized() not required. Please remove this.",
+      "range": {
+        "startLine": 1398,
+        "startChar": 10,
+        "endLine": 1398,
+        "endChar": 38
+      },
+      "revId": "94b08bc36c9e4dc616cc093a2b5230f4b489a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b4820d92",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInstanceListener.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T08:46:59Z",
+      "side": 1,
+      "message": "Not required. Please revert this",
+      "range": {
+        "startLine": 183,
+        "startChar": 12,
+        "endLine": 183,
+        "endChar": 71
+      },
+      "revId": "94b08bc36c9e4dc616cc093a2b5230f4b489a6cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
