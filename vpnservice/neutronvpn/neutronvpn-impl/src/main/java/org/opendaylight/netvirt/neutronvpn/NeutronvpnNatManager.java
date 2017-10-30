@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -17,9 +18,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -157,7 +158,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (newExtGw != null) {
                 return true;
             }
-        } else if (newExtGw == null || origExtGw.isEnableSnat() != newExtGw.isEnableSnat()) {
+        } else if (newExtGw == null || !Objects.equal(origExtGw.isEnableSnat(), newExtGw.isEnableSnat())) {
             return true;
         }
         return false;
@@ -212,8 +213,6 @@ public class NeutronvpnNatManager implements AutoCloseable {
         return false;
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void addExternalNetwork(Network net) {
         Uuid extNetId = net.getUuid();
 
@@ -244,15 +243,14 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             LOG.trace("Creating externalnetworks {}", networkss);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
+                    networkss);
             LOG.trace("Wrote externalnetwork successfully to CONFIG Datastore");
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Creation of External Network {} failed", extNetId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void removeExternalNetwork(Network net) {
         Uuid extNetId = net.getUuid();
 
@@ -271,16 +269,14 @@ public class NeutronvpnNatManager implements AutoCloseable {
             }
             // Delete Networks object from the ExternalNetworks list
             LOG.trace("Deleting External Network {}", extNetId.getValue());
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier);
             LOG.trace("Deleted External Network {} successfully from CONFIG Datastore", extNetId.getValue());
 
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Deletion of External Network {} failed", extNetId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private void addExternalNetworkToRouter(Router update) {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
@@ -324,16 +320,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             LOG.trace("Updating externalnetworks {}", networkss);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
+                    networkss);
             LOG.trace("Updated externalnetworks successfully to CONFIG Datastore");
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Creation of externalnetworks failed for {}",
                 extNetId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void removeExternalNetworkFromRouter(Uuid origExtNetId, Router update,
             List<ExternalFixedIps> origExtFixedIps) {
         Uuid routerId = update.getUuid();
@@ -360,18 +355,17 @@ public class NeutronvpnNatManager implements AutoCloseable {
                     rtrList.remove(routerId);
                     builder.setRouterIds(rtrList);
                     Networks networkss = builder.build();
-                    MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+                    SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            netsIdentifier, networkss);
                     LOG.trace("Removed router {} from externalnetworks {}", routerId, origExtNetId.getValue());
                 }
             }
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Removing externalnetwork {} from router {} failed", origExtNetId.getValue(),
                     routerId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void addExternalNetworkToVpn(Network network, Uuid vpnId) {
         Uuid extNetId = network.getUuid();
 
@@ -395,16 +389,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             LOG.trace("Setting VPN-ID for externalnetworks {}", networkss);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
+                    networkss);
             LOG.trace("Wrote with VPN-ID successfully to CONFIG Datastore");
 
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Attaching VPN-ID to externalnetwork {} failed", extNetId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void removeExternalNetworkFromVpn(Network network) {
         Uuid extNetId = network.getUuid();
 
@@ -429,16 +422,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Networks networkss = builder.build();
             // Add Networks object to the ExternalNetworks list
             LOG.trace("Remove vpn-id for externalnetwork {}", networkss);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier, networkss);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
+                    networkss);
             LOG.trace("Updated extnetworks successfully to CONFIG Datastore");
 
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Removing VPN-ID from externalnetworks {} failed", extNetId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void addExternalRouter(Router update) {
         Uuid routerId = update.getUuid();
         Uuid extNetId = update.getExternalGatewayInfo().getExternalNetworkId();
@@ -487,10 +479,11 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Routers routers = builder.build();
             // Add Routers object to the ExtRouters list
             LOG.trace("Creating extrouters {}", routers);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, builder.build());
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier,
+                    builder.build());
             LOG.trace("Wrote successfully Routers to CONFIG Datastore");
 
-        } catch (Exception ex) {
+        } catch (ReadFailedException | TransactionCommitFailedException ex) {
             LOG.error("Creation of extrouters failed for router {} failed",
                 routerId.getValue(), ex);
         }
@@ -512,16 +505,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 RoutersBuilder builder = new RoutersBuilder(optionalRouters.get());
                 builder.setExternalIps(null);
                 builder.setSubnetIds(null);
-                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier);
+                SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        routersIdentifier);
                 LOG.trace("Removed router {} from extrouters", routerId.getValue());
             }
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Removing extrouter {} from extrouters failed", routerId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleExternalFixedIpsForRouter(Router update) {
         Uuid routerId = update.getUuid();
         InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
@@ -532,29 +524,26 @@ public class NeutronvpnNatManager implements AutoCloseable {
             LOG.trace("Updating External Fixed IPs Routers node {}", routerId.getValue());
             if (optionalRouters.isPresent()) {
                 RoutersBuilder builder = new RoutersBuilder(optionalRouters.get());
-                if (builder != null) {
-                    ArrayList<ExternalIps> externalIps = new ArrayList<>();
-                    for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps()) {
-                        addExternalFixedIpToExternalIpsList(externalIps, fixedIps);
-                    }
-
-                    builder.setExternalIps(externalIps);
+                List<ExternalIps> externalIps = new ArrayList<>();
+                for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps()) {
+                    addExternalFixedIpToExternalIpsList(externalIps, fixedIps);
                 }
+
+                builder.setExternalIps(externalIps);
 
                 updateExternalSubnetsForRouter(routerId, update.getExternalGatewayInfo().getExternalNetworkId(),
                         update.getExternalGatewayInfo().getExternalFixedIps());
                 Routers routerss = builder.build();
                 LOG.trace("Updating external fixed ips for router {} with value {}", routerId.getValue(), routerss);
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
+                SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                        routersIdentifier, routerss);
                 LOG.trace("Added External Fixed IPs successfully for Routers to CONFIG Datastore");
             }
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Updating extfixedips for {} in extrouters failed", routerId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void handleSubnetsForExternalRouter(Uuid routerId) {
         InstanceIdentifier<Routers> routersIdentifier = NeutronvpnUtils.buildExtRoutersIdentifier(routerId);
 
@@ -575,16 +564,15 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Routers routerss = builder.build();
             // Add Routers object to the ExtRouters list
             LOG.trace("Updating extrouters {}", routerss);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    routersIdentifier, routerss);
             LOG.trace("Updated successfully Routers to CONFIG Datastore");
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Updation of internal subnets for extrouters failed for router {}",
                 routerId.getValue(), ex);
         }
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleSnatSettingChangeForRouter(Router update) {
         Uuid routerId = update.getUuid();
 
@@ -606,10 +594,11 @@ public class NeutronvpnNatManager implements AutoCloseable {
             Routers routerss = builder.build();
             // Add Routers object to the ExtRouters list
             LOG.trace("Updating extrouters for snat change {}", routerss);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, routerss);
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    routersIdentifier, routerss);
             LOG.trace("Updated successfully Routers to CONFIG Datastore");
 
-        } catch (Exception ex) {
+        } catch (TransactionCommitFailedException | ReadFailedException ex) {
             LOG.error("Updation of snat for extrouters failed for router {}", routerId.getValue(), ex);
         }
     }
