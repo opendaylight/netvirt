@@ -1,0 +1,602 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_6a6eee30",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/FibHelper.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 215,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "doesPrefixBelongToSubnet",
+      "range": {
+        "startLine": 215,
+        "startChar": 26,
+        "endLine": 215,
+        "endChar": 49
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0d0e6c34",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatRouterInterfaceListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "either move this back to trace, or dont print interfaceInfo",
+      "range": {
+        "startLine": 67,
+        "startChar": 12,
+        "endLine": 67,
+        "endChar": 16
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_aae626b2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 292,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "retain this within createVpnInterface. anyways, the createPortIpAdjacencies gets the subnetMaps for each fixedIps for a port. THere youcan get the routerId and add the port to the routerInterfacesMap",
+      "range": {
+        "startLine": 292,
+        "startChar": 16,
+        "endLine": 292,
+        "endChar": 103
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8a16c2ef",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 301,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "you need to print the subnet here",
+      "range": {
+        "startLine": 301,
+        "startChar": 55,
+        "endLine": 301,
+        "endChar": 67
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2ab6b6fa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "Please retain removeVpnPortFixedIpToPort within deleteVpnInterface. It used be be deleted alongwith the vpnInterface as a single transaction.\nWith this change, it might happen that the vpnInterface might get removed, but the neutronvpnportipport data might fail during the delete, or vice versa.\nThis is dangerous.\n\nPlease retain it as it was before.\n\nTo summarize, deleteVpnInterface, removeVPnPortFixedIpToPort and RemoveFromNeutronRouterInterfacesMap must be handled by a single transaction.",
+      "range": {
+        "startLine": 338,
+        "startChar": 17,
+        "endLine": 339,
+        "endChar": 34
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8ac40260",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "this is already being done in 338. This one is not needed.",
+      "range": {
+        "startLine": 350,
+        "startChar": 12,
+        "endLine": 354,
+        "endChar": 13
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0a3ad235",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 411,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "use routerIds as a set, and you wont need this condition",
+      "range": {
+        "startLine": 411,
+        "startChar": 23,
+        "endLine": 411,
+        "endChar": 67
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6a038e42",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 424,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "same comment as in line292",
+      "range": {
+        "startLine": 420,
+        "startChar": 16,
+        "endLine": 424,
+        "endChar": 17
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4a3b2a38",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 456,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "change routerIds as a set. and you wont need thic condition",
+      "range": {
+        "startLine": 456,
+        "startChar": 29,
+        "endLine": 456,
+        "endChar": 75
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2a14f64c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "Even here, please take care that the deleteVpnInterface, removeFromVpnPortIpToPort and removeFromNeutronRouterInterfacesMap is submitted in the same transaction",
+      "range": {
+        "startLine": 465,
+        "startChar": 16,
+        "endLine": 470,
+        "endChar": 71
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0a177252",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "hashset to prevent the .contains call",
+      "range": {
+        "startLine": 508,
+        "startChar": 12,
+        "endLine": 508,
+        "endChar": 40
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_aa07461b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 528,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "use hashSet",
+      "range": {
+        "startLine": 526,
+        "startChar": 17,
+        "endLine": 528,
+        "endChar": 39
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8a024209",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 536,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "pass writecfgtxn here",
+      "range": {
+        "startLine": 536,
+        "startChar": 83,
+        "endLine": 536,
+        "endChar": 117
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ed003803",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "You will also have to removeVpnPortIpToPort before deleteVpnInterface, using the same writeCfgTxn.",
+      "range": {
+        "startLine": 539,
+        "startChar": 34,
+        "endLine": 539,
+        "endChar": 62
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2d0b7026",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 546,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "same comment as line 292",
+      "range": {
+        "startLine": 546,
+        "startChar": 35,
+        "endLine": 546,
+        "endChar": 82
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0a8812e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 742,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "neutronVpnManager: create config adjacencies for Port:",
+      "range": {
+        "startLine": 742,
+        "startChar": 19,
+        "endLine": 742,
+        "endChar": 38
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6a554e4f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "sn\u003d\u003dnull ||",
+      "range": {
+        "startLine": 746,
+        "startChar": 16,
+        "endLine": 746,
+        "endChar": 29
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6adc2ee5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 752,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "use a hashSet",
+      "range": {
+        "startLine": 752,
+        "startChar": 14,
+        "endLine": 752,
+        "endChar": 43
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2a8516d0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 777,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "use primitive. no need to initialize",
+      "range": {
+        "startLine": 777,
+        "startChar": 8,
+        "endLine": 777,
+        "endChar": 15
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8de37c32",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "use a set to avoid .contains call",
+      "range": {
+        "startLine": 810,
+        "startChar": 14,
+        "endLine": 810,
+        "endChar": 37
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cdd45449",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "no need to use portList and adjacency list and have separate iterations.\nInstead, directly iterate on adjList, get adj.ipAddress, check if it needs to be removed from vpnPortIpToPort, and also check if the adj needs to be removed from the original adjacency list",
+      "range": {
+        "startLine": 811,
+        "startChar": 8,
+        "endLine": 847,
+        "endChar": 9
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_edd15858",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 872,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "add this to writeCfgTxn().",
+      "range": {
+        "startLine": 872,
+        "startChar": 22,
+        "endLine": 872,
+        "endChar": 94
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cd861465",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 1398,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "retain the entire logic within createVpnInterface() as in original code. Anyways, in createVpnInterface, that calls createPortIpAdjacencies, iterates over the fixedIps and submits vpnInterface, routerInterfacesMap and NeutronVpnPortIpToPort creation.",
+      "range": {
+        "startLine": 1375,
+        "startChar": 16,
+        "endLine": 1398,
+        "endChar": 21
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6dde086f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 1400,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "you will only have to update the adjacencies tht are not present in the existing vpn interface. \nHere, you are passng all the adjacencies.\nEither update only those adjacencies that are not present, or call the createVpnInterface similar to what you would have done if there was no exisiting vpn interface",
+      "range": {
+        "startLine": 1399,
+        "startChar": 24,
+        "endLine": 1400,
+        "endChar": 100
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2df530ee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 2535,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "if adjacencies is null, return at the beginning of the method",
+      "range": {
+        "startLine": 2535,
+        "startChar": 17,
+        "endLine": 2535,
+        "endChar": 42
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cd51f40f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 37
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:24:02Z",
+      "side": 1,
+      "message": "why are the changes in this file required? subnet will always have a networkId.\n\nIs there a case where a subnet will not have a networkId? if so which is that scenario?",
+      "range": {
+        "startLine": 105,
+        "startChar": 19,
+        "endLine": 105,
+        "endChar": 48
+      },
+      "revId": "ff09c67a78f58126da617ae2cf0b7434751b87f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
