@@ -21,6 +21,7 @@ import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
+import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorTestModule;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
@@ -52,7 +53,7 @@ public class ElanServiceTest {
     public @Rule LogRule logRule = new LogRule();
     public @Rule LogCaptureRule logCaptureRule = new LogCaptureRule();
 
-    public @Rule MethodRule guice = new GuiceRule(
+    public @Rule MethodRule guice = new GuiceRule(JobCoordinatorTestModule.class,
             ElanServiceTestModule.class, TestableDataTreeChangeListenerModule.class);
 
     private @Inject DataBroker dataBroker;
