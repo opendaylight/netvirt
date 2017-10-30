@@ -28,6 +28,7 @@ Contents:
    Listener Dependency Helper, avoids waiting for dependent IID <listener-dependency-helper>
    Migrate the SFC classifier from the old to the new netvirt <new-sfc-classifier>
    Netvirt counters <netvirt-statistics-spec>
+   Neutron Port Allocation For DHCP Service <neutron-port-for-dhcp-service>
    Policy based path selection for multiple VxLAN tunnels <policy-based-path-selection>
    QoS Alert <qos-alert>
    Quality of Service <qos>
@@ -38,4 +39,4 @@ Contents:
    Temporary SMAC Learning <temporary-smac-learning>
    VLAN provider network enhancement <vlan-provider-enhancement>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
-   Neutron Port Allocation For DHCP Service <neutron-port-for-dhcp-service>
+   Weighted NAPT Selection <weighted-napt-selection>
