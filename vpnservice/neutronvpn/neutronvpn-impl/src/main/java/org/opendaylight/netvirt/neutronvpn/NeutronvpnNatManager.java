@@ -17,6 +17,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -157,7 +158,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             if (newExtGw != null) {
                 return true;
             }
-        } else if (newExtGw == null || origExtGw.isEnableSnat() != newExtGw.isEnableSnat()) {
+        } else if (newExtGw == null || !origExtGw.isEnableSnat().equals(newExtGw.isEnableSnat())) {
             return true;
         }
         return false;
@@ -490,7 +491,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routersIdentifier, builder.build());
             LOG.trace("Wrote successfully Routers to CONFIG Datastore");
 
-        } catch (Exception ex) {
+        } catch (ReadFailedException | RuntimeException ex) {
             LOG.error("Creation of extrouters failed for router {} failed",
                 routerId.getValue(), ex);
         }
@@ -532,14 +533,12 @@ public class NeutronvpnNatManager implements AutoCloseable {
             LOG.trace("Updating External Fixed IPs Routers node {}", routerId.getValue());
             if (optionalRouters.isPresent()) {
                 RoutersBuilder builder = new RoutersBuilder(optionalRouters.get());
-                if (builder != null) {
-                    ArrayList<ExternalIps> externalIps = new ArrayList<>();
-                    for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps()) {
-                        addExternalFixedIpToExternalIpsList(externalIps, fixedIps);
-                    }
-
-                    builder.setExternalIps(externalIps);
+                List<ExternalIps> externalIps = new ArrayList<>();
+                for (ExternalFixedIps fixedIps : update.getExternalGatewayInfo().getExternalFixedIps()) {
+                    addExternalFixedIpToExternalIpsList(externalIps, fixedIps);
                 }
+
+                builder.setExternalIps(externalIps);
 
                 updateExternalSubnetsForRouter(routerId, update.getExternalGatewayInfo().getExternalNetworkId(),
                         update.getExternalGatewayInfo().getExternalFixedIps());

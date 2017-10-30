@@ -121,10 +121,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
 
             List<String> rd = input.getRouteDistinguishers();
 
-            if (rd == null || rd.isEmpty()) {
-                // generate new RD
-                rd = generateNewRD(input.getUuid());
-            } else {
+            if (rd != null && !rd.isEmpty()) {
                 String[] rdParams = rd.get(0).split(":");
                 if (rdParams[0].trim().equals(adminRDValue)) {
                     LOG.error("AS specific part of RD should not be same as that defined by DC Admin. Error "
@@ -157,18 +154,6 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         } else {
             LOG.warn("BGPVPN type for VPN {} is not L3", vpnName);
         }
-    }
-
-    private List<String> generateNewRD(Uuid vpn) {
-        if (adminRDValue != null) {
-            Integer rdId = neutronvpnUtils.getUniqueRDId(NeutronConstants.RD_IDPOOL_NAME, vpn.toString());
-            if (rdId != null) {
-                String rd = adminRDValue + ":" + rdId;
-                LOG.debug("Generated RD {} for L3VPN {}", rd, vpn);
-                return Collections.singletonList(rd);
-            }
-        }
-        return Collections.emptyList();
     }
 
     @Override

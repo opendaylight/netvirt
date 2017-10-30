@@ -25,6 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -253,7 +254,7 @@ public class NeutronvpnUtils {
                 }
             }
         }
-        LOG.debug("getVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId.getValue());
+        LOG.debug("getVpnForRouter: Failed for router {} as no VPN present in VPNMaps DS", routerId);
         return null;
     }
 
@@ -269,7 +270,7 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected List<Uuid> getNetworksforVpn(Uuid vpnId) {
+    protected List<Uuid> getNetworksForVpn(Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
         Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
@@ -715,6 +716,7 @@ public class NeutronvpnUtils {
         return subnet;
     }
 
+    @Nonnull
     protected List<Uuid> getNeutronRouterSubnetIds(Uuid routerId) {
         LOG.debug("getNeutronRouterSubnetIds for {}", routerId.getValue());
         List<Uuid> subnetIdList = new ArrayList<>();
@@ -1269,7 +1271,7 @@ public class NeutronvpnUtils {
             if (sn.getSubnetIp() != null) {
                 IpVersionChoice ipVers = NeutronUtils.getIpVersion(sn.getSubnetIp());
                 if (rep.choice != ipVers.choice) {
-                    rep.addVersion(ipVers);
+                    rep = rep.addVersion(ipVers);
                 }
                 if (rep.choice == IpVersionChoice.IPV4AND6.choice) {
                     return rep;
