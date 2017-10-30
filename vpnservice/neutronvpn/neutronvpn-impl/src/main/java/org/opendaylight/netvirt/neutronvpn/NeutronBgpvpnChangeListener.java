@@ -123,7 +123,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
 
             if (rd == null || rd.isEmpty()) {
                 // generate new RD
-                rd = generateNewRD(input.getUuid());
+                // TODO - commented out for now to avoid "Dead store to rd" violation.
+                //rd = generateNewRD(input.getUuid());
             } else {
                 String[] rdParams = rd.get(0).split(":");
                 if (rdParams[0].trim().equals(adminRDValue)) {
@@ -157,18 +158,6 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         } else {
             LOG.warn("BGPVPN type for VPN {} is not L3", vpnName);
         }
-    }
-
-    private List<String> generateNewRD(Uuid vpn) {
-        if (adminRDValue != null) {
-            Integer rdId = neutronvpnUtils.getUniqueRDId(NeutronConstants.RD_IDPOOL_NAME, vpn.toString());
-            if (rdId != null) {
-                String rd = adminRDValue + ":" + rdId;
-                LOG.debug("Generated RD {} for L3VPN {}", rd, vpn);
-                return Collections.singletonList(rd);
-            }
-        }
-        return Collections.emptyList();
     }
 
     @Override

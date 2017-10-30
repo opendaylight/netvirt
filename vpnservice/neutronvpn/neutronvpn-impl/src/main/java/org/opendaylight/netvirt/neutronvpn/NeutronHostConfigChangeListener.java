@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -115,11 +116,11 @@ public class NeutronHostConfigChangeListener
                     // suffix OS_HOST_CONFIG_CONFIG_KEY_PREFIX.length()
                     String hostType = openvswitchExternalIds.getExternalIdKey().substring(
                             OS_HOST_CONFIG_CONFIG_KEY_PREFIX.length());
-                    if (null != hostType && hostType.length() > 0) {
+                    if (hostType.length() > 0) {
                         if (hostType.length() > HOST_TYPE_STR_LEN) {
                             hostType = hostType.substring(0, HOST_TYPE_STR_LEN);
                         }
-                        hostType = "ODL " + hostType.toUpperCase();
+                        hostType = "ODL " + hostType.toUpperCase(Locale.getDefault());
                         if (null != openvswitchExternalIds.getExternalIdValue()) {
                             config.put(hostType, openvswitchExternalIds.getExternalIdValue());
                         }

@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
@@ -243,21 +244,23 @@ public class NeutronvpnUtils {
 
     // @param external vpn - true if external vpn being fetched, false for internal vpn
     protected Uuid getVpnForRouter(Uuid routerId, Boolean externalVpn) {
+        if (routerId == null) {
+            return null;
+        }
+
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
         Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
-            if (routerId != null) {
-                for (VpnMap vpnMap : allMaps) {
-                    if (routerId.equals(vpnMap.getRouterId())) {
-                        if (externalVpn) {
-                            if (!routerId.equals(vpnMap.getVpnId())) {
-                                return vpnMap.getVpnId();
-                            }
-                        } else {
-                            if (routerId.equals(vpnMap.getVpnId())) {
-                                return vpnMap.getVpnId();
-                            }
+            for (VpnMap vpnMap : allMaps) {
+                if (routerId.equals(vpnMap.getRouterId())) {
+                    if (externalVpn) {
+                        if (!routerId.equals(vpnMap.getVpnId())) {
+                            return vpnMap.getVpnId();
+                        }
+                    } else {
+                        if (routerId.equals(vpnMap.getVpnId())) {
+                            return vpnMap.getVpnId();
                         }
                     }
                 }
@@ -279,7 +282,7 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected List<Uuid> getNetworksforVpn(Uuid vpnId) {
+    protected List<Uuid> getNetworksForVpn(Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
         Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
@@ -725,6 +728,7 @@ public class NeutronvpnUtils {
         return subnet;
     }
 
+    @Nonnull
     protected List<Uuid> getNeutronRouterSubnetIds(Uuid routerId) {
         LOG.debug("getNeutronRouterSubnetIds for {}", routerId.getValue());
         List<Uuid> subnetIdList = new ArrayList<>();
@@ -1277,7 +1281,7 @@ public class NeutronvpnUtils {
             if (sn.getSubnetIp() != null) {
                 IpVersionChoice ipVers = getIpVersionFromString(sn.getSubnetIp());
                 if (rep.choice != ipVers.choice) {
-                    rep.addVersion(ipVers);
+                    rep = rep.addVersion(ipVers);
                 }
                 if (rep.choice == IpVersionChoice.IPV4AND6.choice) {
                     return rep;
@@ -1335,7 +1339,7 @@ public class NeutronvpnUtils {
      */
     public static IpVersionChoice getIpVersionFromString(String ipAddress) {
         IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
-        if (ipAddress.indexOf("/") > 0) {
+        if (ipAddress.indexOf("/") >= 0) {
             ipAddress = ipAddress.substring(0, ipAddress.indexOf("/"));
         }
         try {
