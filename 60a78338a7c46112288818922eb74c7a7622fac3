@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_2a007666",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-30T13:26:34Z",
+      "side": 1,
+      "message": "When we are NOT using BGPVPN use-cases (i.e., FLAT/VLAN Provider Networks), what would be the value of this \"bgpVpnId\"?",
+      "range": {
+        "startLine": 41,
+        "startChar": 76,
+        "endLine": 41,
+        "endChar": 84
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ea05be7a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-30T13:26:34Z",
+      "side": 1,
+      "message": "nit: priority",
+      "range": {
+        "startLine": 57,
+        "startChar": 50,
+        "endLine": 57,
+        "endChar": 60
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8ad7e2ec",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-30T13:26:34Z",
+      "side": 1,
+      "message": "Do you plan to use the cookie (NwConstants.COOKIE_IPV6_TABLE) for all the IPv6 flows?",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 41
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6af9ce7f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-30T13:26:34Z",
+      "side": 1,
+      "message": "in the FIB Table.",
+      "range": {
+        "startLine": 67,
+        "startChar": 53,
+        "endLine": 67,
+        "endChar": 54
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0a03f273",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-30T13:26:34Z",
+      "side": 1,
+      "message": "nit: installs",
+      "range": {
+        "startLine": 67,
+        "startChar": 19,
+        "endLine": 67,
+        "endChar": 26
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8a4522b5",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 1936,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-30T13:26:34Z",
+      "side": 1,
+      "message": "It might be good to include \"IPv6\" string in the flowRef.",
+      "range": {
+        "startLine": 1935,
+        "startChar": 16,
+        "endLine": 1936,
+        "endChar": 54
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
