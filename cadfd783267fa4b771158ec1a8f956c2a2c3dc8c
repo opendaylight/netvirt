@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_6d4c4843",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 709,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-30T15:30:55Z",
+      "side": 1,
+      "message": "put it into a function in VpnUtil",
+      "range": {
+        "startLine": 698,
+        "startChar": 12,
+        "endLine": 709,
+        "endChar": 13
+      },
+      "revId": "cadfd783267fa4b771158ec1a8f956c2a2c3dc8c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
