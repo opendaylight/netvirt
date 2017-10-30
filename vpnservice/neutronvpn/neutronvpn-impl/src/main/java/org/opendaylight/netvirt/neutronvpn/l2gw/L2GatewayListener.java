@@ -46,14 +46,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev15071
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateways.attributes.l2gateways.L2gateway;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener>
-        implements AutoCloseable {
+public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<L2gateway, L2GatewayListener> {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayListener.class);
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
@@ -210,7 +208,6 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                     l2GwDevice.removeL2GatewayId(input.getUuid());
                     // Delete ITM tunnels
                     final String hwvtepId = l2GwDevice.getHwvtepNodeId();
-                    InstanceIdentifier<Node> iid = HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(hwvtepId));
 
                     final Set<IpAddress> tunnelIps = l2GwDevice.getTunnelIps();
                     jobCoordinator.enqueueJob(hwvtepId, () -> {
