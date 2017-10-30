@@ -1,0 +1,888 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_d451810f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Dead store to rd\" - it\u0027s assigned here but not used after that.",
+      "range": {
+        "startLine": 126,
+        "startChar": 16,
+        "endLine": 126,
+        "endChar": 34
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3459fd36",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "method is now unused",
+      "range": {
+        "startLine": 162,
+        "startChar": 25,
+        "endLine": 162,
+        "endChar": 38
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_145cb924",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7442553f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronFloatingToFixedIpMappingChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 237,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d49fc1b2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronHostConfigChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of hostType, which is known to be non-null\"",
+      "range": {
+        "startLine": 118,
+        "startChar": 32,
+        "endLine": 118,
+        "endChar": 40
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_34a73d0e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronHostConfigChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Use of non-localized String.toUpperCase()\"",
+      "range": {
+        "startLine": 122,
+        "startChar": 53,
+        "endLine": 122,
+        "endChar": 64
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_14aaf9d3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronNetworkChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of segments, which is known to be non-null\"",
+      "range": {
+        "startLine": 241,
+        "startChar": 12,
+        "endLine": 241,
+        "endChar": 20
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_74b09543",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_54abd1d5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Useless object stored in variable subnetMapList\"",
+      "range": {
+        "startLine": 309,
+        "startChar": 28,
+        "endLine": 309,
+        "endChar": 41
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b4ba0d21",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 447,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Nullcheck of portoriginalIps at line 447 of value previously dereferenced\" - portoriginalIps could be null here - no need to call toString.",
+      "range": {
+        "startLine": 447,
+        "startChar": 84,
+        "endLine": 447,
+        "endChar": 99
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_94b54933",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 448,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "...Same with portupdateIps",
+      "range": {
+        "startLine": 448,
+        "startChar": 80,
+        "endLine": 448,
+        "endChar": 93
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f483e553",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Boxing/unboxing to parse a primitive  - it is more efficient to just call the static parseXXX method\"",
+      "range": {
+        "startLine": 119,
+        "startChar": 46,
+        "endLine": 119,
+        "endChar": 53
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_543d91ba",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 158,
+        "startChar": 17,
+        "endLine": 158,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b44ccd71",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 192,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 192,
+        "startChar": 17,
+        "endLine": 192,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9447094b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 238,
+        "startChar": 17,
+        "endLine": 238,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f475a598",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 459,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 459,
+        "startChar": 17,
+        "endLine": 459,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d4786191",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 569,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 569,
+        "startChar": 17,
+        "endLine": 569,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3470dda4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 638,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 638,
+        "startChar": 17,
+        "endLine": 638,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_147319b2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 673,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 673,
+        "startChar": 29,
+        "endLine": 673,
+        "endChar": 38
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7469b5bd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 700,
+        "startChar": 21,
+        "endLine": 700,
+        "endChar": 30
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_546471e4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 725,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 725,
+        "startChar": 17,
+        "endLine": 725,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d486a164",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of erAdjList, which is known to be non-null\"",
+      "range": {
+        "startLine": 762,
+        "startChar": 24,
+        "endLine": 762,
+        "endChar": 33
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_347e1d6c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 939,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of failStrings, which is known to be non-null\"",
+      "range": {
+        "startLine": 939,
+        "startChar": 16,
+        "endLine": 939,
+        "endChar": 27
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7497f590",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Dead store to builder\"",
+      "range": {
+        "startLine": 1353,
+        "startChar": 44,
+        "endLine": 1353,
+        "endChar": 51
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1481594a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1354,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Useless object stored in variable interfaces\u003d\"",
+      "range": {
+        "startLine": 1354,
+        "startChar": 37,
+        "endLine": 1354,
+        "endChar": 47
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5492b19f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1502,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "range": {
+        "startLine": 1502,
+        "startChar": 41,
+        "endLine": 1502,
+        "endChar": 47
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b4916d9b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1702,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of routerSubnets, which is known to be non-null\"",
+      "range": {
+        "startLine": 1702,
+        "startChar": 12,
+        "endLine": 1702,
+        "endChar": 25
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_948c2981",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1730,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of routerSubnets, which is known to be non-null\"",
+      "range": {
+        "startLine": 1730,
+        "startChar": 12,
+        "endLine": 1730,
+        "endChar": 25
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f4eac50d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1771,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Nullcheck of network at line 1761 of value previously dereferenced\" - this is dead code",
+      "range": {
+        "startLine": 1771,
+        "startChar": 24,
+        "endLine": 1771,
+        "endChar": 31
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d4ed0127",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2155,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Confusing to have methods getNetworksForVpn(Uuid) and NeutronvpnUtils.getNetworksforVpn(Uuid)\"",
+      "range": {
+        "startLine": 2155,
+        "startChar": 31,
+        "endLine": 2155,
+        "endChar": 48
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_34f57dee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Suspicious comparison of Boolean references - use equals\"",
+      "range": {
+        "startLine": 160,
+        "startChar": 64,
+        "endLine": 160,
+        "endChar": 66
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b4632ddb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown - explicitly catch the specific exceptions that are thrown\"",
+      "range": {
+        "startLine": 493,
+        "startChar": 17,
+        "endLine": 493,
+        "endChar": 26
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_74ded56e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of builder, which is known to be non-null\"",
+      "range": {
+        "startLine": 535,
+        "startChar": 20,
+        "endLine": 535,
+        "endChar": 27
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b4e84d11",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Possible null pointer dereference of routerId \"",
+      "range": {
+        "startLine": 256,
+        "startChar": 91,
+        "endLine": 256,
+        "endChar": 99
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_34cc5dbc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1272,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Return value of IpVersionChoice.addVersion(IpVersionChoice) ignored, but method has no side effect\" - it seems we want to set rep to the return value of addVersion.",
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_14cf99b1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/manager/NeutronEvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "Declare variables where used",
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_74c5358d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/evpn/manager/NeutronEvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Format-string method String.format called with format string \"Creation of EVPN failed for VPN %s as another VPN with\" wants 1 arguments but is given 3 \" - the intention is to concatenate the strings and not pass the second string as an arg.",
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_54c0f17b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/l2gw/L2GatewayListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Class L2GatewayListener implements same interface as superclass\"",
+      "range": {
+        "startLine": 56,
+        "startChar": 19,
+        "endLine": 56,
+        "endChar": 32
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b4bfadfa",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/l2gw/L2GatewayListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Dead store to iid\"",
+      "range": {
+        "startLine": 213,
+        "startChar": 45,
+        "endLine": 213,
+        "endChar": 48
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_94ba6908",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/l2gw/L2GwTransportZoneListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-30T02:52:23Z",
+      "side": 0,
+      "message": "\"Class L2GwTransportZoneListener implements same interface as superclass\"",
+      "range": {
+        "startLine": 32,
+        "startChar": 19,
+        "endLine": 32,
+        "endChar": 32
+      },
+      "revId": "24c28e7f03d906decc735d7c4534bb775da86896",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
