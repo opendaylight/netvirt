@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_2d5a50f3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:36:48Z",
+      "side": 1,
+      "message": "Agreed. Thanks for the clarification:)",
+      "parentUuid": "9a245df4_f732c70e",
+      "range": {
+        "startLine": 110,
+        "startChar": 8,
+        "endLine": 113,
+        "endChar": 9
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3743bf15",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
         "patchSetId": 43
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "i wish to keep it.",
       "parentUuid": "9a245df4_3743bf15",
+      "range": {
+        "startLine": 206,
+        "startChar": 29,
+        "endLine": 206,
+        "endChar": 53
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0d5dcce9",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/FibDSWriter.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:36:48Z",
+      "side": 1,
+      "message": "okay:)",
+      "parentUuid": "9a245df4_ead49e21",
       "range": {
         "startLine": 206,
         "startChar": 29,
@@ -366,6 +414,30 @@
       "side": 1,
       "message": "no,\nbecause isIpVersionChosen() method handles this.",
       "parentUuid": "9a245df4_d72fc3f4",
+      "range": {
+        "startLine": 555,
+        "startChar": 0,
+        "endLine": 564,
+        "endChar": 13
+      },
+      "revId": "2d02c7f357c202c549482ba3a973abd381e248f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4d6ea497",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 43
+      },
+      "lineNbr": 564,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-30T15:36:48Z",
+      "side": 1,
+      "message": "got it",
+      "parentUuid": "9a245df4_373d7fdf",
       "range": {
         "startLine": 555,
         "startChar": 0,
