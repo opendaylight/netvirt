@@ -22,6 +22,30 @@
       "revId": "a284797afdcbd56e64418b785c3c732369e8aa5b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8a2b6293",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-10-30T14:31:11Z",
+      "side": 1,
+      "message": "Nope. It just doesn\u0027t set the value.",
+      "parentUuid": "9a245df4_4a85eaab",
+      "range": {
+        "startLine": 11,
+        "startChar": 46,
+        "endLine": 12,
+        "endChar": 46
+      },
+      "revId": "a284797afdcbd56e64418b785c3c732369e8aa5b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
