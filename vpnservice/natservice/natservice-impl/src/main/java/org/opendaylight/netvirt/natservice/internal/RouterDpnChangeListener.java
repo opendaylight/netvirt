@@ -171,6 +171,7 @@ public class RouterDpnChangeListener
                             removeFlowInvTx.cancel();
                             return futures;
                         }
+                        extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
                         Long vpnId;
                         if (vpnName == null) {
                             LOG.debug("add : Internal vpn associated to router {}", routerUuid);
@@ -185,7 +186,7 @@ public class RouterDpnChangeListener
                             //Install default entry in FIB to SNAT table
                             LOG.info("add : Installing default route in FIB on dpn {} for router {} with vpn {}",
                                     dpnId, routerUuid, vpnId);
-                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                            installDefaultNatRouteForRouterExternalSubnets(dpnId, networkId,
                                     NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                             snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, writeFlowInvTx);
                         } else {
@@ -202,11 +203,11 @@ public class RouterDpnChangeListener
                             //Install default entry in FIB to SNAT table
                             LOG.debug("add : Installing default route in FIB on dpn {} for routerId {} with "
                                     + "vpnId {}...", dpnId, routerUuid, vpnId);
-                            installDefaultNatRouteForRouterExternalSubnets(dpnId,
+                            installDefaultNatRouteForRouterExternalSubnets(dpnId, networkId,
                                     NatUtil.getExternalSubnetIdsFromExternalIps(router.getExternalIps()));
                             snatDefaultRouteProgrammer.installDefNATRouteInDPN(dpnId, vpnId, routerId, writeFlowInvTx);
                         }
-                        extNetGroupInstaller.installExtNetGroupEntries(networkId, dpnId);
+
 
                         if (router.isEnableSnat()) {
                             LOG.info("add : SNAT enabled for router {}", routerUuid);
@@ -506,7 +507,8 @@ public class RouterDpnChangeListener
         }
     }
 
-    private void installDefaultNatRouteForRouterExternalSubnets(BigInteger dpnId, Collection<Uuid> externalSubnetIds) {
+    private void installDefaultNatRouteForRouterExternalSubnets(BigInteger dpnId, Uuid networkId,
+            Collection<Uuid> externalSubnetIds) {
         if (externalSubnetIds == null) {
             LOG.error("installDefaultNatRouteForRouterExternalSubnets : No external subnets for router");
             return;
