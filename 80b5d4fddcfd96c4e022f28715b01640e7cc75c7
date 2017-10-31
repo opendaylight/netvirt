@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_6321f44c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 42
+      },
+      "lineNbr": 746,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-31T18:27:44Z",
+      "side": 1,
+      "message": "at the creation, the createPortAdjacencies does not need some filtering.\nthat is why I kept it like that.",
+      "range": {
+        "startLine": 746,
+        "startChar": 13,
+        "endLine": 746,
+        "endChar": 30
+      },
+      "revId": "80b5d4fddcfd96c4e022f28715b01640e7cc75c7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
