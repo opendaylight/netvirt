@@ -14,6 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -303,8 +304,8 @@ public class ElanL2GatewayUtils {
             String interfaceName) throws ElanException {
         String elanName = elan.getElanInstanceName();
 
-        List<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
-        if (l2gwDeviceLocalMacs != null && !l2gwDeviceLocalMacs.isEmpty()) {
+        Collection<LocalUcastMacs> l2gwDeviceLocalMacs = l2gwDevice.getUcastLocalMacs();
+        if (!l2gwDeviceLocalMacs.isEmpty()) {
             for (LocalUcastMacs localUcastMac : l2gwDeviceLocalMacs) {
                 elanDmacUtils.installDmacFlowsToExternalRemoteMacInBatch(dpnId, l2gwDevice.getHwvtepNodeId(),
                         elan.getElanTag(), ElanUtils.getVxlanSegmentationId(elan),
@@ -520,8 +521,8 @@ public class ElanL2GatewayUtils {
         if (l2gwDevice == null) {
             return macs;
         }
-        List<LocalUcastMacs> lstUcastLocalMacs = l2gwDevice.getUcastLocalMacs();
-        if (lstUcastLocalMacs != null && !lstUcastLocalMacs.isEmpty()) {
+        Collection<LocalUcastMacs> lstUcastLocalMacs = l2gwDevice.getUcastLocalMacs();
+        if (!lstUcastLocalMacs.isEmpty()) {
             macs = lstUcastLocalMacs.stream().filter(Objects::nonNull).map(
                     HwvtepMacTableGenericAttributes::getMacEntryKey).collect(Collectors.toList());
         }
@@ -660,17 +661,14 @@ public class ElanL2GatewayUtils {
                     continue;
                 }
                 if (!areMLAGDevices(l2GatewayDeviceToBeConfigured, otherDevice)) {
-                    List<LocalUcastMacs> lstUcastLocalMacs = otherDevice.getUcastLocalMacs();
-                    if (lstUcastLocalMacs != null) {
-                        for (LocalUcastMacs localUcastMac : lstUcastLocalMacs) {
-                            HwvtepPhysicalLocatorAugmentation physLocatorAug = HwvtepSouthboundUtils
-                                    .createHwvtepPhysicalLocatorAugmentation(
-                                            String.valueOf(otherDevice.getTunnelIp().getValue()));
-                            RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
-                                    localUcastMac.getMacEntryKey().getValue().toLowerCase(), localUcastMac.getIpaddr(),
-                                    logicalSwitchName, physLocatorAug);
-                            lstRemoteUcastMacs.add(remoteUcastMac);
-                        }
+                    for (LocalUcastMacs localUcastMac : otherDevice.getUcastLocalMacs()) {
+                        HwvtepPhysicalLocatorAugmentation physLocatorAug = HwvtepSouthboundUtils
+                                .createHwvtepPhysicalLocatorAugmentation(
+                                        String.valueOf(otherDevice.getTunnelIp().getValue()));
+                        RemoteUcastMacs remoteUcastMac = HwvtepSouthboundUtils.createRemoteUcastMac(hwVtepNodeId,
+                                localUcastMac.getMacEntryKey().getValue().toLowerCase(), localUcastMac.getIpaddr(),
+                                logicalSwitchName, physLocatorAug);
+                        lstRemoteUcastMacs.add(remoteUcastMac);
                     }
                 }
             }
