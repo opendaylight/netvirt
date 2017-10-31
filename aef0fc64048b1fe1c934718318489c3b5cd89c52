@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_461cbe13",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T22:02:54Z",
+      "side": 1,
+      "message": "Minor thing but can return Collections.emptyList()",
+      "range": {
+        "startLine": 205,
+        "startChar": 23,
+        "endLine": 205,
+        "endChar": 30
+      },
+      "revId": "aef0fc64048b1fe1c934718318489c3b5cd89c52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
