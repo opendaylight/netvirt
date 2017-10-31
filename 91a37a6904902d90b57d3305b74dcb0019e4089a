@@ -1,0 +1,273 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_235a5cf3",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "Should not be public or static",
+      "range": {
+        "startLine": 174,
+        "startChar": 4,
+        "endLine": 174,
+        "endChar": 17
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e31324b6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "should be private.",
+      "range": {
+        "startLine": 255,
+        "startChar": 4,
+        "endLine": 255,
+        "endChar": 10
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a3212cfd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "Since you never use the readLock, can just use Lock",
+      "range": {
+        "startLine": 255,
+        "startChar": 51,
+        "endLine": 255,
+        "endChar": 64
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_035d98e9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "Please define fields at the top of the class.",
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_031118ac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "locks is already concurrent and has atomic operations that obviate the need for external synchronization.",
+      "range": {
+        "startLine": 261,
+        "startChar": 12,
+        "endLine": 261,
+        "endChar": 24
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_637d741c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "return the value from tryLock",
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_03875810",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 275,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "This should return false instead of throwing RuntimeException",
+      "range": {
+        "startLine": 275,
+        "startChar": 26,
+        "endLine": 275,
+        "endChar": 42
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a3dc8c13",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "It seems the AtomicInteger is just used to clean up from the Map on unlock which is fine but is tricky to get right and requires additional atomicity. I don\u0027t think this is necessary as Lock objects are small and you can assume the same lockName will be locked/unlocked over and over (otherwise there\u0027s no point for locking).\n \nWithout the AtomicInteger, This code can be simplified:\n\n  private ConcurrentMap\u003cString, ImmutablePair\u003cLock,AtomicInteger\u003e\u003e locks \u003d new ConcurrentHashMap\u003c\u003e();\n  ...\n  public boolean lock(String lockName) {\n        final Lock lock \u003d locks.computeIfAbsent(lockName, \n            key -\u003e new ReentrantLock());\n        try {\n            return lock.tryLock(LOCK_WAIT_TIME, TimeUnit.SECONDS);\n        } catch (InterruptedException e) {\n            LOG.error(\"Unable to acquire lock for  {}\", lockName);\n            return false;\n        }\n    }",
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_03ec78c6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "Put this in a variable and use subsequently. get might return non-null here but null on line 297",
+      "range": {
+        "startLine": 295,
+        "startChar": 12,
+        "endLine": 295,
+        "endChar": 31
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_63d29401",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "unlock throws IllegalMonitorStateException so catch that to avoid the SuppressWarnings.",
+      "range": {
+        "startLine": 298,
+        "startChar": 21,
+        "endLine": 298,
+        "endChar": 30
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_43cdd05c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "No need for all of this since you\u0027ve already checked for 0 above - just: \n\n locks.remove(lockName);",
+      "range": {
+        "startLine": 303,
+        "startChar": 16,
+        "endLine": 307,
+        "endChar": 17
+      },
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_03d638c5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 310,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "With the new proposed lock method above, this becomes:\n\n  public boolean unlock(String lockName) {\n        final ReentrantLock lock \u003d locks.get(lockName);\n        if (lock !\u003d null) {\n            lock.unlock();\n            return true;\n        }\n\n        return false;\n    }",
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_230edc8d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T19:26:43Z",
+      "side": 1,
+      "message": "All the locking state and code above should not be static and doesn\u0027t really belong here.  Put it in a separate LockManager class that is instantiated and injected if need be. This also allows you to easily add unit tests. Avoid static state in a potentially dynamic env like OSGi.",
+      "revId": "91a37a6904902d90b57d3305b74dcb0019e4089a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
