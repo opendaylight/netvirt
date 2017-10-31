@@ -212,20 +212,25 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     removeRouterPortsOrPortsNode(routerName, routerPortsIdentifierBuilder, portsList,
                             fixedNeutronPortName, isLockAcquired);
                 } else {
-                    InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
-                            routerPortsIdentifierBuilder.child(Ports
-                            .class, new PortsKey(fixedNeutronPortName)).child(InternalToExternalPortMap.class, new
-                            InternalToExternalPortMapKey(fixedIpAddress)).build();
-                    try {
-                        // remove particular internal-to-external-port-map
-                        isLockAcquired = NeutronUtils.lock(fixedIpAddress);
-                        LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
-                        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, intExtPortMapIdentifier);
-                    } catch (Exception e) {
-                        LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap, e);
-                    } finally {
-                        if (isLockAcquired) {
-                            NeutronUtils.unlock(fixedIpAddress);
+                    for (InternalToExternalPortMap intToExtMap : intExtPortMap) {
+                        if (intToExtMap.getInternalIp().equals(fixedIpAddress)) {
+                            InstanceIdentifier<InternalToExternalPortMap> intExtPortMapIdentifier =
+                                    routerPortsIdentifierBuilder.child(Ports
+                                    .class, new PortsKey(fixedNeutronPortName)).child(InternalToExternalPortMap.class,
+                                            new InternalToExternalPortMapKey(fixedIpAddress)).build();
+                            try {
+                                // remove particular internal-to-external-port-map
+                                isLockAcquired = NeutronUtils.lock(fixedIpAddress);
+                                LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
+                                MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                        intExtPortMapIdentifier);
+                            } catch (Exception e) {
+                                LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap, e);
+                            } finally {
+                                if (isLockAcquired) {
+                                    NeutronUtils.unlock(fixedIpAddress);
+                                }
+                            }
                         }
                     }
                 }
