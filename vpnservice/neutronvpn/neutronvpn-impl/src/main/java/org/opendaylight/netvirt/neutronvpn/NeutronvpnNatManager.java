@@ -25,6 +25,7 @@ import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersBuilder;
@@ -38,6 +39,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPorts;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.RouterPortsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.external_gateway_info.ExternalFixedIps;
@@ -339,6 +342,9 @@ public class NeutronvpnNatManager implements AutoCloseable {
         // Remove the router to the ExtRouters list
         removeExternalRouter(origExtNetId, update, dataBroker);
 
+        //Remove router entry from floating-ip-info list
+        removeRouterFromFloatingIpInfo(update, dataBroker);
+
         // Remove the router from External Subnets
         removeRouterFromExternalSubnets(routerId, origExtNetId, origExtFixedIps);
 
@@ -518,6 +524,22 @@ public class NeutronvpnNatManager implements AutoCloseable {
         }
     }
 
+    @SuppressWarnings("deprecation")
+    private void removeRouterFromFloatingIpInfo(Router update, DataBroker broker) {
+        Uuid routerId = update.getUuid();
+        InstanceIdentifier.InstanceIdentifierBuilder<RouterPorts> routerPortsIdentifierBuilder = InstanceIdentifier
+                .builder(FloatingIpInfo.class).child(RouterPorts.class, new RouterPortsKey(routerId.getValue()));
+        try {
+            Optional<RouterPorts> optionalRouterPorts =
+                    SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                            routerPortsIdentifierBuilder.build());
+            if (optionalRouterPorts.isPresent()) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder.build());
+            }
+        } catch (Exception e) {
+            LOG.error("Failed to read from FloatingIpInfo DS for routerid {}", routerId, e);
+        }
+    }
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void handleExternalFixedIpsForRouter(Router update, DataBroker broker) {
