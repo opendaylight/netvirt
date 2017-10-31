@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_fd2aa12a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-31T12:23:47Z",
+      "side": 1,
+      "message": "Please iterate over the subnetIds first and create two DJCs, instead of one djc within which the two subnets are iterated over.",
+      "range": {
+        "startLine": 88,
+        "startChar": 20,
+        "endLine": 106,
+        "endChar": 27
+      },
+      "revId": "76c8be89a8ec15e15e0b4b0545b9fe48acbad434",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5d212d4c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 154,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-31T12:23:47Z",
+      "side": 1,
+      "message": "same comment as line 106",
+      "range": {
+        "startLine": 131,
+        "startChar": 15,
+        "endLine": 154,
+        "endChar": 29
+      },
+      "revId": "76c8be89a8ec15e15e0b4b0545b9fe48acbad434",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3d1c3913",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-31T12:23:47Z",
+      "side": 1,
+      "message": "same comment as line 106",
+      "range": {
+        "startLine": 183,
+        "startChar": 17,
+        "endLine": 220,
+        "endChar": 72
+      },
+      "revId": "76c8be89a8ec15e15e0b4b0545b9fe48acbad434",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9dba8521",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-31T12:23:47Z",
+      "side": 1,
+      "message": "if (subnet !\u003d null) {\nreturn subnet;\n}",
+      "range": {
+        "startLine": 244,
+        "startChar": 12,
+        "endLine": 247,
+        "endChar": 33
+      },
+      "revId": "76c8be89a8ec15e15e0b4b0545b9fe48acbad434",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7dffd1aa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-10-31T12:23:47Z",
+      "side": 1,
+      "message": "if (port.getFixedIps() !\u003d null) {\n for (portIps) {\n   listSubnetIds.add(portIp.getSubnetId);\n}\n}",
+      "range": {
+        "startLine": 256,
+        "startChar": 8,
+        "endLine": 261,
+        "endChar": 9
+      },
+      "revId": "76c8be89a8ec15e15e0b4b0545b9fe48acbad434",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
