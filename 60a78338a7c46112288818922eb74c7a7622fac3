@@ -167,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_dec078e2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-31T07:42:16Z",
+      "side": 1,
+      "message": "I will do it, then",
+      "parentUuid": "9a245df4_debeb8d3",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 41
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_6af9ce7f",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
         "patchSetId": 110
@@ -320,6 +344,30 @@
       "side": 1,
       "message": "I\u0027m not asking you to add a dependency to ipv6 service. My comment is to include \"IPv6\" in the String (i.e., flow ref). This will allow us to easily map the flows when we use REST API to dump config datastore.",
       "parentUuid": "9a245df4_0a401255",
+      "range": {
+        "startLine": 1935,
+        "startChar": 16,
+        "endLine": 1936,
+        "endChar": 54
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_be82e491",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 1936,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-31T07:42:16Z",
+      "side": 1,
+      "message": "I wanted to ensure that not making a dependency to ipv6 service was ok however :-)\nSo the change has been done:\nit will return \"L3.IPv6\" + dpnId....",
+      "parentUuid": "9a245df4_3eb6f4fa",
       "range": {
         "startLine": 1935,
         "startChar": 16,
