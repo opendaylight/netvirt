@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_fe4bbc84",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 113
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-31T07:45:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_7e96ac4d",
+      "range": {
+        "startLine": 13,
+        "startChar": 33,
+        "endLine": 13,
+        "endChar": 42
+      },
+      "revId": "b8e8bea82e75a1aebff971b2a1b2a806ba38509a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_1eb050f3",
         "filename": "/COMMIT_MSG",
         "patchSetId": 113
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9e544022",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 113
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-31T07:45:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_1eb050f3",
+      "range": {
+        "startLine": 18,
+        "startChar": 28,
+        "endLine": 18,
+        "endChar": 36
+      },
+      "revId": "b8e8bea82e75a1aebff971b2a1b2a806ba38509a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_bea024a0",
         "filename": "/COMMIT_MSG",
         "patchSetId": 113
@@ -59,6 +107,30 @@
       "writtenOn": "2017-10-31T05:39:29Z",
       "side": 1,
       "message": "nit: instead of \"non priority\", please use \"zero priority\"",
+      "range": {
+        "startLine": 21,
+        "startChar": 46,
+        "endLine": 21,
+        "endChar": 60
+      },
+      "revId": "b8e8bea82e75a1aebff971b2a1b2a806ba38509a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fe329c0e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 113
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-10-31T07:45:41Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_bea024a0",
       "range": {
         "startLine": 21,
         "startChar": 46,
