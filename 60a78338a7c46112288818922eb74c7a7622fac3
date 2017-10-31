@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_debeb8d3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-31T05:39:40Z",
+      "side": 1,
+      "message": "I guess so. Since you are programming the flow in the FIB Table, it might be good to use COOKIE_VM_FIB_TABLE.",
+      "parentUuid": "9a245df4_ca4efa95",
+      "range": {
+        "startLine": 61,
+        "startChar": 12,
+        "endLine": 61,
+        "endChar": 41
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_6af9ce7f",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
         "patchSetId": 110
@@ -272,6 +296,30 @@
       "side": 1,
       "message": "right now, i will not make a dependency to ipv6 service.",
       "parentUuid": "9a245df4_8a4522b5",
+      "range": {
+        "startLine": 1935,
+        "startChar": 16,
+        "endLine": 1936,
+        "endChar": 54
+      },
+      "revId": "60a78338a7c46112288818922eb74c7a7622fac3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3eb6f4fa",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 110
+      },
+      "lineNbr": 1936,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-10-31T05:39:40Z",
+      "side": 1,
+      "message": "I\u0027m not asking you to add a dependency to ipv6 service. My comment is to include \"IPv6\" in the String (i.e., flow ref). This will allow us to easily map the flows when we use REST API to dump config datastore.",
+      "parentUuid": "9a245df4_0a401255",
       "range": {
         "startLine": 1935,
         "startChar": 16,
