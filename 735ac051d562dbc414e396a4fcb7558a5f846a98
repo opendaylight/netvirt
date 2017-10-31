@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_40e30605",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T16:31:23Z",
+      "side": 1,
+      "message": "It\u0027s better to reference the interface Map - callers don\u0027t need to know implementation details (eg, what if you ever wanted to change it to TreeMap internally?).",
+      "range": {
+        "startLine": 72,
+        "startChar": 11,
+        "endLine": 72,
+        "endChar": 18
+      },
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e0d4ba21",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-10-31T16:31:23Z",
+      "side": 1,
+      "message": "So it looks like you add this instance as a NotificationListener to itself to update raiseAlarmObjectMap. Why not update it directly in raiseAlarm/clearAlarm?\n\nHowever raiseAlarmObjectMap is only used by unit tests. Why not add a NotificationListener in the unit tests instead of maintaining raiseAlarmObjectMap just for unit tests?",
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
