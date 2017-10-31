@@ -188,8 +188,8 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.BgpControlPlaneType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.EncapType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
-import org.opendaylight.genius.testutils.InterfaceDetails;
-import org.opendaylight.genius.testutils.TunnelInterfaceDetails;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails;
 //end
 
 /**
@@ -251,7 +251,7 @@ class ExpectedObjects {
         ]
     }
 
-    def static Flow checkSmac(String flowId, InterfaceDetails interfaceDetails, ElanInstance elanInstance) {
+    def static Flow checkSmac(String flowId, InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
         new FlowBuilder >> [
             flowName = ELAN1
             hardTimeout = 0
@@ -272,11 +272,11 @@ class ExpectedObjects {
             match = new MatchBuilder >> [
                 ethernetMatch = new EthernetMatchBuilder >> [
                     ethernetSource = new EthernetSourceBuilder >> [
-                        address = new MacAddress(interfaceDetails.mac)
+                        address = new MacAddress(interfaceInfo.macAddress)
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
-                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag(), interfaceDetails.lportTag)
+                    metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag(), interfaceInfo.interfaceTag)
                     metadataMask = ElanHelper.getElanMetadataMask()
                 ]
             ]
@@ -285,8 +285,8 @@ class ExpectedObjects {
         ]
     }
 
-    def static Flow checkDmacOfSameDpn(String flowId, InterfaceDetails interfaceDetails, ElanInstance elanInstance) {
-    val regvalue = MetaDataUtil.getReg6ValueForLPortDispatcher(interfaceDetails.lportTag, NwConstants.DEFAULT_SERVICE_INDEX);
+    def static Flow checkDmacOfSameDpn(String flowId, InterfaceInfo interfaceInfo, ElanInstance elanInstance) {
+    val regvalue = MetaDataUtil.getReg6ValueForLPortDispatcher(interfaceInfo.getInterfaceTag(), NwConstants.DEFAULT_SERVICE_INDEX);
         new FlowBuilder >> [
             flowName = ELAN1
             hardTimeout = 0
@@ -332,7 +332,7 @@ class ExpectedObjects {
             match = new MatchBuilder >> [
                 ethernetMatch = new EthernetMatchBuilder >> [
                     ethernetDestination = new EthernetDestinationBuilder >> [
-                        address = new MacAddress(interfaceDetails.mac)
+                        address = new MacAddress(interfaceInfo.getMacAddress())
                     ]
                 ]
                 metadata = new MetadataBuilder >> [
@@ -345,97 +345,75 @@ class ExpectedObjects {
         ]
     }
 
-  def static checkDmacOfOtherDPN(String flowId, InterfaceDetails interfaceDetails, TunnelInterfaceDetails tepDetails, ElanInstance elanInstance) {
-       val regvalue = MetaDataUtil.getReg6ValueForLPortDispatcher(tepDetails.lportTag, NwConstants.DEFAULT_SERVICE_INDEX);
-       val tunnelId = ElanUtils.getVxlanSegmentationId(elanInstance);
-       new FlowBuilder >> [
-         flowName = ELAN1
-         hardTimeout = 0
-         id = new FlowId(flowId)
-         idleTimeout = 0
-         instructions = new InstructionsBuilder >> [
-             instruction = #[
-                 new InstructionBuilder >> [
-                     instruction = new ApplyActionsCaseBuilder >> [
-                         applyActions = new ApplyActionsBuilder >> [
-                             action = #[
-                                 new ActionBuilder >> [
-                                     action = new NxActionRegLoadNodesNodeTableFlowApplyActionsCaseBuilder >> [
-                                         nxRegLoad = new NxRegLoadBuilder >> [
-                                             dst = new DstBuilder >> [
-                                                 dstChoice = new DstNxRegCaseBuilder >> [
-                                                     nxReg = NxmNxReg6
-                                                 ]
-                                                 end = 31
-                                                 start = 0
-                                             ]
-                                             value = new BigInteger(""+regvalue)
-                                         ]
-                                     ]
-                                     order = 1
-                                 ],
-                                 new ActionBuilder >> [
-                                     action = new NxActionResubmitNodesNodeTableFlowApplyActionsCaseBuilder >> [
-                                         nxResubmit = new NxResubmitBuilder >> [
-                                             inPort = 65528
-                                             table = 220 as short
-                                         ]
-                                     ]
-                                     order = 2
-                                 ],
-                                 new ActionBuilder >> [
-                                     action = new SetFieldCaseBuilder >> [
-                                         setField = new SetFieldBuilder >> [
-                                             tunnel = new TunnelBuilder >> [
-                                                 tunnelId = new BigInteger(""+interfaceDetails.lportTag)
-                                             ]
-                                         ]
-                                     ]
-                                     order = 0
-                                 ]
-                             ]
-                         ]
-                     ]
-                     order = 0
-                 ]
-             ]
-         ]
-         match = new MatchBuilder >> [
-             ethernetMatch = new EthernetMatchBuilder >> [
-                 ethernetDestination = new EthernetDestinationBuilder >> [
-                     address = new MacAddress(interfaceDetails.mac)
-                 ]
-             ]
-             metadata = new MetadataBuilder >> [
-                 metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag())
-                 metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
-             ]
-         ]
-         priority = 20
-         tableId = 51 as short
-     ]
-
+    def static Flow checkDmacOfOtherDPN(String flowId, InterfaceInfo interfaceInfo, TunnelInterfaceDetails tepDetails, ElanInstance elanInstance) {
+        val regvalue = MetaDataUtil.getReg6ValueForLPortDispatcher(tepDetails.getInterfaceInfo().getInterfaceTag(), NwConstants.DEFAULT_SERVICE_INDEX);
+        val tnlId = new BigInteger(""+interfaceInfo.getInterfaceTag())
+        new FlowBuilder >> [
+            flowName = ELAN1
+            hardTimeout = 0
+            id = new FlowId(flowId)
+            idleTimeout = 0
+            instructions = new InstructionsBuilder >> [
+                instruction = #[
+                    new InstructionBuilder >> [
+                        instruction = new ApplyActionsCaseBuilder >> [
+                            applyActions = new ApplyActionsBuilder >> [
+                                action = #[
+                                    new ActionBuilder >> [
+                                        action = new SetFieldCaseBuilder >> [
+                                            setField = new SetFieldBuilder >> [
+                                                tunnel = new TunnelBuilder >> [
+                                                    tunnelId = tnlId
+                                                ]
+                                            ]
+                                        ]
+                                        order = 0
+                                    ],
+                                    new ActionBuilder >> [
+                                        action = new NxActionRegLoadNodesNodeTableFlowApplyActionsCaseBuilder >> [
+                                            nxRegLoad = new NxRegLoadBuilder >> [
+                                                dst = new DstBuilder >> [
+                                                    dstChoice = new DstNxRegCaseBuilder >> [
+                                                        nxReg = NxmNxReg6
+                                                    ]
+                                                    end = 31
+                                                    start = 0
+                                                ]
+                                                value = new BigInteger(""+regvalue)
+                                            ]
+                                        ]
+                                        order = 1
+                                    ],
+                                    new ActionBuilder >> [
+                                        action = new NxActionResubmitNodesNodeTableFlowApplyActionsCaseBuilder >> [
+                                            nxResubmit = new NxResubmitBuilder >> [
+                                                inPort = 65528
+                                                table = 220 as short
+                                            ]
+                                        ]
+                                        order = 2
+                                    ]
+                                ]
+                            ]
+                        ]
+                        order = 0
+                    ]
+                ]
+            ]
+            match = new MatchBuilder >> [
+                ethernetMatch = new EthernetMatchBuilder >> [
+                    ethernetDestination = new EthernetDestinationBuilder >> [
+                        address = new MacAddress(interfaceInfo.getMacAddress())
+                    ]
+                ]
+                metadata = new MetadataBuilder >> [
+                         metadata = ElanHelper.getElanMetadataLabel(elanInstance.getElanTag())
+                         metadataMask = MetaDataUtil.METADATA_MASK_SERVICE
+                ]
+            ]
+            priority = 20
+            tableId = 51 as short
+        ]
     }
-
-  def static checkEvpnAdvertiseRoute(Long vni, String mac, String tepip, String prefix, String rd1) {
-       new NetworksBuilder >> [
-           bgpControlPlaneType = BgpControlPlaneType.PROTOCOLEVPN
-           encapType = EncapType.VXLAN
-           ethtag = 0L
-           l2vni = vni
-           l3vni = 0L
-           label = 0L
-           macaddress = mac
-           nexthop = new Ipv4Address(tepip)
-           prefixLen = prefix
-           rd = rd1
-       ]
-    }
-
-  def static Networks checkEvpnWithdrawRT2DelIntf() {
-        return null
-    }
-
-
 }
 

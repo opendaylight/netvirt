@@ -21,21 +21,19 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeListenerModule;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.testutils.InterfaceDetails;
-import org.opendaylight.genius.testutils.TunnelInterfaceDetails;
+import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.mdsal.binding.testutils.AssertDataObjects;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.evpn.listeners.ElanMacEntryListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -72,17 +70,12 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject EvpnElanInstanceListener evpnElanInstanceListener;
     private @Inject ElanMacEntryListener elanMacEntryListener;
     private @Inject MacVrfEntryListener macVrfEntryListener;
-    private @Inject IBgpManager bgpManager;
-    private @Inject IVpnManager vpnManager;
     private @Inject EvpnUtils evpnUtils;
 
     private SingleTransactionDataBroker singleTxdataBroker;
 
     @Before public void before() {
         singleTxdataBroker = new SingleTransactionDataBroker(dataBroker);
-        evpnUtils.setBgpManager(bgpManager);
-        evpnUtils.setVpnManager(vpnManager);
-
         try {
             setupItm();
         } catch (TransactionCommitFailedException e) {
@@ -100,8 +93,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         awaitForElanTag(ExpectedObjects.ELAN1);
 
         /*Add Elan interface*/
-        InterfaceDetails interfaceDetails = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1);
-        addElanInterface(ExpectedObjects.ELAN1, interfaceDetails);
+        InterfaceInfo interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft();
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
 
         /*Read Elan instance*/
         InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
@@ -113,8 +106,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
                 .append(NwConstants.ELAN_SMAC_TABLE)
                 .append(actualElanInstances.getElanTag())
                 .append(DPN1_ID)
-                .append(interfaceDetails.getLportTag())
-                .append(interfaceDetails.getMac())
+                .append(interfaceInfo.getInterfaceTag())
+                .append(interfaceInfo.getMacAddress())
                 .toString();
         InstanceIdentifier<Flow> flowInstanceIidSrc = getFlowIid(NwConstants.ELAN_SMAC_TABLE,
                 new FlowId(flowId), DPN1_ID);
@@ -123,8 +116,77 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         Flow flowSrc = singleTxdataBroker.syncRead(CONFIGURATION, flowInstanceIidSrc);
         flowSrc = getFlowWithoutCookie(flowSrc);
 
-        Flow expected = ExpectedObjects.checkSmac(flowId, interfaceDetails, actualElanInstances);
+        Flow expected = ExpectedObjects.checkSmac(flowId, interfaceInfo, actualElanInstances);
         AssertDataObjects.assertEqualBeans(expected, flowSrc);
+    }
+
+    @Test public void checkDmacSameDPN() throws Exception {
+        /*Create Elan instance*/
+        createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
+        awaitForElanTag(ExpectedObjects.ELAN1);
+
+        /*Add Elan interface in DPN1*/
+        InterfaceInfo interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft();
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
+
+        //*Read Elan instance*//*
+        InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
+                .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
+        ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
+
+        //*Read DMAC Flow in DPN1*//*
+        String flowId =  new StringBuffer()
+                .append(NwConstants.ELAN_DMAC_TABLE)
+                .append(actualElanInstances.getElanTag())
+                .append(DPN1_ID)
+                .append(interfaceInfo.getInterfaceTag())
+                .append(interfaceInfo.getMacAddress())
+                .toString();
+        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
+                new FlowId(flowId), DPN1_ID);
+        awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
+
+        Flow flowDst = singleTxdataBroker.syncRead(CONFIGURATION, flowInstanceIidDst);
+        flowDst = getFlowWithoutCookie(flowDst);
+
+        Flow expected = ExpectedObjects.checkDmacOfSameDpn(flowId, interfaceInfo, actualElanInstances);
+        AssertDataObjects.assertEqualBeans(expected, flowDst);
+    }
+
+    @Test public void checkDmacOfOtherDPN() throws Exception {
+        /*Create Elan instance*/
+        createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
+        awaitForElanTag(ExpectedObjects.ELAN1);
+
+        InterfaceInfo interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft();
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
+
+        /*Read Elan instance*/
+        InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
+                .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
+        ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
+
+        interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN2MAC1).getLeft();
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
+
+        /*Read and Compare DMAC flow in DPN1 for MAC1 of DPN2*/
+        String flowId = ElanUtils.getKnownDynamicmacFlowRef((short)51,
+                        DPN1_ID,
+                        DPN2_ID,
+                        interfaceInfo.getMacAddress().toString(),
+                        actualElanInstances.getElanTag());
+
+        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
+                new FlowId(flowId), DPN1_ID);
+        awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
+
+        Flow flowDst = singleTxdataBroker.syncRead(CONFIGURATION, flowInstanceIidDst);
+        flowDst = getFlowWithoutCookie(flowDst);
+
+        TunnelInterfaceDetails tepDetails = EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN2_ID_STR);
+        Flow expected = ExpectedObjects.checkDmacOfOtherDPN(flowId, interfaceInfo, tepDetails,
+                actualElanInstances);
+        AssertDataObjects.assertEqualBeans(getSortedActions(expected), getSortedActions(flowDst));
     }
 
     private void awaitForElanTag(String elanName) {
@@ -135,75 +197,4 @@ public class ElanServiceTest extends  ElanServiceTestBase {
             return elanInstance.isPresent() && elanInstance.get().getElanTag() != null;
         });
     }
-
-    @Test public void checkDmacSameDPN() throws Exception {
-        /*Create Elan instance*/
-        createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
-        awaitForElanTag(ExpectedObjects.ELAN1);
-
-        /*Add Elan interface in DPN1*/
-        InterfaceDetails interfaceDetails = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1);
-        addElanInterface(ExpectedObjects.ELAN1, interfaceDetails);
-
-        /*Read Elan instance*/
-        InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
-        ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
-
-        /*Read DMAC Flow in DPN1*/
-        String flowId =  new StringBuffer()
-                .append(NwConstants.ELAN_DMAC_TABLE)
-                .append(actualElanInstances.getElanTag())
-                .append(DPN1_ID)
-                .append(interfaceDetails.getLportTag())
-                .append(interfaceDetails.getMac())
-                .toString();
-        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE,
-                new FlowId(flowId), DPN1_ID);
-        awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
-
-        Flow flowDst = singleTxdataBroker.syncRead(CONFIGURATION, flowInstanceIidDst);
-        flowDst = getFlowWithoutCookie(flowDst);
-
-        Flow expected = ExpectedObjects.checkDmacOfSameDpn(flowId, interfaceDetails, actualElanInstances);
-        AssertDataObjects.assertEqualBeans(expected, flowDst);
-    }
-
-    @Test public void checkDmacOfOtherDPN() throws Exception {
-        /*Create Elan instance*/
-        createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
-        awaitForElanTag(ExpectedObjects.ELAN1);
-
-        /*Add Elan MAC1 in DPN1 */
-        InterfaceDetails interfaceDetails = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1);
-        addElanInterface(ExpectedObjects.ELAN1, interfaceDetails);
-
-        /*Add Elan MAC1 in DPN2 */
-        interfaceDetails = ELAN_INTERFACES.get(ELAN1 + ":" + DPN2MAC1);
-        addElanInterface(ExpectedObjects.ELAN1, interfaceDetails);
-
-        /*Read Elan Instance*/
-        InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
-        ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
-
-        /*Read and Compare DMAC flow in DPN1 for MAC1 of DPN2*/
-        FlowId flowId = new FlowId(
-                ElanUtils.getKnownDynamicmacFlowRef((short)51,
-                        DPN1_ID,
-                        DPN2_ID,
-                        interfaceDetails.getMac(),
-                        actualElanInstances.getElanTag()));
-        InstanceIdentifier<Flow> flowInstanceIidDst = getFlowIid(NwConstants.ELAN_DMAC_TABLE, flowId, DPN1_ID);
-        awaitForData(LogicalDatastoreType.CONFIGURATION, flowInstanceIidDst);
-
-        Flow flowDst = singleTxdataBroker.syncRead(CONFIGURATION, flowInstanceIidDst);
-        flowDst = getFlowWithoutCookie(flowDst);
-
-        TunnelInterfaceDetails tepDetails = EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN2_ID_STR);
-        Flow expected = ExpectedObjects.checkDmacOfOtherDPN(flowId.getValue(), interfaceDetails, tepDetails,
-                actualElanInstances);
-        AssertDataObjects.assertEqualBeans(getSortedActions(expected), getSortedActions(flowDst));
-    }
-
 }
