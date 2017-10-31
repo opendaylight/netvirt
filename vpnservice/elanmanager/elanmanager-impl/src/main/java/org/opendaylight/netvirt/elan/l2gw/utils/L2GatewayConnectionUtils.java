@@ -12,7 +12,6 @@ import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxla
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import com.google.common.util.concurrent.SettableFuture;
@@ -203,8 +202,7 @@ public class L2GatewayConnectionUtils {
         List<Devices> l2gwDevicesToBeDeleted = new ArrayList<>();
         for (L2GatewayDevice elanL2gwDevice : l2Devices) {
             if (elanL2gwDevice.getL2GatewayIds().contains(input.getKey().getUuid())) {
-                l2gwDevicesToBeDeleted.addAll(elanL2gwDevice.getL2gwConnectionIdToDevices()
-                        .get(input.getKey().getUuid()));
+                l2gwDevicesToBeDeleted.addAll(elanL2gwDevice.getDevicesForL2gwConnectionId(input.getKey().getUuid()));
             }
         }
         if (l2gwDevicesToBeDeleted.isEmpty()) {
@@ -312,9 +310,8 @@ public class L2GatewayConnectionUtils {
         String l2gwDeviceNodeId = l2GatewayDevice.getHwvtepNodeId();
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, l2gwDeviceNodeId);
         if (elanL2GwDevice == null) {
-            elanL2GwDevice = new L2GatewayDevice();
+            elanL2GwDevice = new L2GatewayDevice(l2GatewayDevice.getDeviceName());
             elanL2GwDevice.setHwvtepNodeId(l2gwDeviceNodeId);
-            elanL2GwDevice.setDeviceName(l2GatewayDevice.getDeviceName());
             elanL2GwDevice.setTunnelIps(l2GatewayDevice.getTunnelIps());
             ElanL2GwCacheUtils.addL2GatewayDeviceToCache(elanName, elanL2GwDevice);
             LOG.debug("Elan L2GwConn cache created for hwvtep id {}", l2gwDeviceNodeId);
@@ -323,8 +320,8 @@ public class L2GatewayConnectionUtils {
                     l2gwDeviceNodeId, l2GwConnId);
         }
         elanL2GwDevice.addL2GatewayId(l2GwConnId);
-        elanL2GwDevice.getL2gwConnectionIdToDevices()
-                .computeIfAbsent(l2GwConnId, key -> Sets.newConcurrentHashSet()).add(l2Device);
+        elanL2GwDevice.addL2gwConnectionIdToDevice(l2GwConnId, l2Device);
+
         //incase of cluster reboot scenario southbound device would have added more macs
         //while odl is down, pull them now
         readAndCopyLocalUcastMacsToCache(broker, elanL2GatewayUtils, elanName, l2GatewayDevice);
