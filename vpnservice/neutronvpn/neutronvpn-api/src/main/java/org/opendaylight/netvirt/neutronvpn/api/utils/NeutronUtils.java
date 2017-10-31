@@ -14,6 +14,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -51,7 +52,7 @@ public class NeutronUtils {
     public static final String PORT_STATUS_DOWN = "DOWN";
     public static final String PORT_STATUS_ERROR = "ERROR";
     public static final String PORT_STATUS_NOTAPPLICABLE = "N/A";
-    private static Pattern uuidPattern;
+    private static volatile Pattern uuidPattern;
 
     /**
      * Create a Neutron Port status entry in the operational data store.
@@ -126,7 +127,7 @@ public class NeutronUtils {
             // By default, VNIC_TYPE is NORMAL
             return true;
         }
-        String vnicType = portBinding.getVnicType().trim().toLowerCase();
+        String vnicType = portBinding.getVnicType().trim().toLowerCase(Locale.getDefault());
         return vnicType.equals(VNIC_TYPE_NORMAL);
     }
 
@@ -154,7 +155,7 @@ public class NeutronUtils {
     static <T extends NetworkTypeBase> boolean isNetworkSegmentType(Segments providerSegment,
             Class<T> expectedNetworkType) {
         Class<? extends NetworkTypeBase> networkType = providerSegment.getNetworkType();
-        return (networkType != null && networkType.isAssignableFrom(expectedNetworkType));
+        return networkType != null && networkType.isAssignableFrom(expectedNetworkType);
     }
 
     public static <T extends NetworkTypeBase> boolean isNetworkSegmentType(Network network, Long index,
@@ -172,7 +173,7 @@ public class NeutronUtils {
                 }
             }
         }
-        return (segmentType != null && segmentType.isAssignableFrom(expectedNetworkType));
+        return segmentType != null && segmentType.isAssignableFrom(expectedNetworkType);
     }
 
     public static Long getNumberSegmentsFromNeutronNetwork(Network network) {
@@ -228,8 +229,9 @@ public class NeutronUtils {
      */
     public static IpVersionChoice getIpVersion(String ipAddress) {
         IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
-        if (ipAddress.indexOf("/") > 0) {
-            ipAddress = ipAddress.substring(0, ipAddress.indexOf("/"));
+        final int indexOf = ipAddress.indexOf('/');
+        if (indexOf >= 0) {
+            ipAddress = ipAddress.substring(0, indexOf);
         }
         try {
             InetAddress address = InetAddress.getByName(ipAddress);
@@ -258,16 +260,14 @@ public class NeutronUtils {
     @SuppressWarnings("checkstyle:IllegalCatch")
     public static boolean lock(String lockName) {
         if (locks.get(lockName) != null) {
-            synchronized (locks) {
-                if (locks.get(lockName) == null) {
-                    locks.putIfAbsent(lockName, new ImmutablePair<>(new
-                            ReentrantReadWriteLock(), new AtomicInteger(0)));
-                }
-                locks.get(lockName).getRight().incrementAndGet();
+            if (locks.get(lockName) == null) {
+                locks.putIfAbsent(lockName, new ImmutablePair<>(new
+                        ReentrantReadWriteLock(), new AtomicInteger(0)));
             }
+            locks.get(lockName).getRight().incrementAndGet();
             try {
                 if (locks.get(lockName) != null) {
-                    locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+                    return locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
                 }
             } catch (InterruptedException e) {
                 locks.get(lockName).getRight().decrementAndGet();
@@ -279,7 +279,7 @@ public class NeutronUtils {
                     new AtomicInteger(0)));
             locks.get(lockName).getRight().incrementAndGet();
             try {
-                locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
+                return locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
             } catch (Exception e) {
                 locks.get(lockName).getRight().decrementAndGet();
                 LOG.error("Unable to acquire lock for  {}", lockName);
@@ -300,11 +300,7 @@ public class NeutronUtils {
                 return false;
             }
             if (0 == locks.get(lockName).getRight().decrementAndGet()) {
-                synchronized (locks) {
-                    if (locks.get(lockName).getRight().get() == 0) {
-                        locks.remove(lockName);
-                    }
-                }
+                locks.remove(lockName);
             }
         }
         return true;

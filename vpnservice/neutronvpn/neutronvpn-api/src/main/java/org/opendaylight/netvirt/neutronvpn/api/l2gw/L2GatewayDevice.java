@@ -8,15 +8,17 @@
 
 package org.opendaylight.netvirt.neutronvpn.api.l2gw;
 
+import com.google.common.collect.Sets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -27,13 +29,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
  */
 public class L2GatewayDevice {
 
-    String deviceName;
-    String hwvtepNodeId;
-    Set<IpAddress> tunnelIps = new HashSet<>();
-    Set<Uuid> l2GatewayIds = new HashSet<>();
-    List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<>());
-    AtomicBoolean connected = new AtomicBoolean(false);
-    Map<Uuid,Set<Devices>> l2gwConnectionIdToDevices = new HashMap<>();
+    private final String deviceName;
+    private final Set<IpAddress> tunnelIps = ConcurrentHashMap.newKeySet();
+    private final Set<Uuid> l2GatewayIds = ConcurrentHashMap.newKeySet();
+    private final List<LocalUcastMacs> ucastLocalMacs = Collections.synchronizedList(new ArrayList<>());
+    private final AtomicBoolean connected = new AtomicBoolean(false);
+    private final Map<Uuid,Set<Devices>> l2gwConnectionIdToDevices = new ConcurrentHashMap<>();
+    private volatile String hwvtepNodeId;
+
+    public L2GatewayDevice(String deviceName) {
+        this.deviceName = deviceName;
+    }
 
     /**
      * VTEP device name mentioned with L2 Gateway.
@@ -42,16 +48,6 @@ public class L2GatewayDevice {
      */
     public String getDeviceName() {
         return deviceName;
-    }
-
-    /**
-     * Sets the device name.
-     *
-     * @param deviceName
-     *            the new device name
-     */
-    public void setDeviceName(String deviceName) {
-        this.deviceName = deviceName;
     }
 
     /**
@@ -78,16 +74,19 @@ public class L2GatewayDevice {
      *
      * @return the tunnel ips
      */
+    @Nonnull
     public Set<IpAddress> getTunnelIps() {
         return tunnelIps;
     }
 
-    public Map<Uuid, Set<Devices>> getL2gwConnectionIdToDevices() {
-        return l2gwConnectionIdToDevices;
+    public void addL2gwConnectionIdToDevice(Uuid connectionId, Devices device) {
+        l2gwConnectionIdToDevices.computeIfAbsent(connectionId, key -> Sets.newConcurrentHashSet()).add(device);
     }
 
-    public void setL2gwConnectionIdToDevices(Map<Uuid, Set<Devices>> l2gwConnectionIdToDevices) {
-        this.l2gwConnectionIdToDevices = l2gwConnectionIdToDevices;
+    @Nonnull
+    public Collection<Devices> getDevicesForL2gwConnectionId(Uuid connectionId) {
+        final Set<Devices> devices = l2gwConnectionIdToDevices.get(connectionId);
+        return devices != null ? devices : Collections.emptyList();
     }
 
     /**
@@ -117,6 +116,7 @@ public class L2GatewayDevice {
      *
      * @return the l2 gateway ids
      */
+    @Nonnull
     public Set<Uuid> getL2GatewayIds() {
         return l2GatewayIds;
     }
@@ -156,7 +156,8 @@ public class L2GatewayDevice {
      *            the new tunnel ips
      */
     public void setTunnelIps(Set<IpAddress> tunnelIps) {
-        this.tunnelIps = tunnelIps;
+        this.tunnelIps.clear();
+        this.tunnelIps.addAll(tunnelIps);
     }
 
     /**
@@ -164,7 +165,8 @@ public class L2GatewayDevice {
      *
      * @return the ucast local macs
      */
-    public List<LocalUcastMacs> getUcastLocalMacs() {
+    @Nonnull
+    public Collection<LocalUcastMacs> getUcastLocalMacs() {
         return new ArrayList<>(ucastLocalMacs);
     }
 
@@ -205,11 +207,11 @@ public class L2GatewayDevice {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((deviceName == null) ? 0 : deviceName.hashCode());
-        result = prime * result + ((hwvtepNodeId == null) ? 0 : hwvtepNodeId.hashCode());
-        result = prime * result + ((l2GatewayIds == null) ? 0 : l2GatewayIds.hashCode());
-        result = prime * result + ((tunnelIps == null) ? 0 : tunnelIps.hashCode());
-        result = prime * result + ((ucastLocalMacs == null) ? 0 : ucastLocalMacs.hashCode());
+        result = prime * result + (deviceName == null ? 0 : deviceName.hashCode());
+        result = prime * result + (hwvtepNodeId == null ? 0 : hwvtepNodeId.hashCode());
+        result = prime * result + l2GatewayIds.hashCode();
+        result = prime * result + tunnelIps.hashCode();
+        result = prime * result + ucastLocalMacs.hashCode();
         return result;
     }
 
@@ -244,25 +246,13 @@ public class L2GatewayDevice {
         } else if (!hwvtepNodeId.equals(other.hwvtepNodeId)) {
             return false;
         }
-        if (l2GatewayIds == null) {
-            if (other.l2GatewayIds != null) {
-                return false;
-            }
-        } else if (!l2GatewayIds.equals(other.l2GatewayIds)) {
+        if (!l2GatewayIds.equals(other.l2GatewayIds)) {
             return false;
         }
-        if (tunnelIps == null) {
-            if (other.tunnelIps != null) {
-                return false;
-            }
-        } else if (!tunnelIps.equals(other.tunnelIps)) {
+        if (!tunnelIps.equals(other.tunnelIps)) {
             return false;
         }
-        if (ucastLocalMacs == null) {
-            if (other.ucastLocalMacs != null) {
-                return false;
-            }
-        } else if (!ucastLocalMacs.equals(other.ucastLocalMacs)) {
+        if (!ucastLocalMacs.equals(other.ucastLocalMacs)) {
             return false;
         }
         return true;
@@ -280,10 +270,8 @@ public class L2GatewayDevice {
     @Override
     public String toString() {
         List<String> lstTunnelIps = new ArrayList<>();
-        if (this.tunnelIps != null) {
-            for (IpAddress ip : this.tunnelIps) {
-                lstTunnelIps.add(String.valueOf(ip.getValue()));
-            }
+        for (IpAddress ip : this.tunnelIps) {
+            lstTunnelIps.add(String.valueOf(ip.getValue()));
         }
 
         List<String> lstMacs =
