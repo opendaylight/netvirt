@@ -8,36 +8,35 @@
 package org.opendaylight.netvirt.neutronvpn.api.utils;
 
 import java.util.function.Predicate;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 
-public class NeutronConstants {
+public interface NeutronConstants {
 
-    public static final String DEVICE_OWNER_GATEWAY_INF = "network:router_gateway";
-    public static final String DEVICE_OWNER_ROUTER_INF = "network:router_interface";
-    public static final String DEVICE_OWNER_FLOATING_IP = "network:floatingip";
-    public static final String DEVICE_OWNER_DHCP = "network:dhcp";
-    public static final String FLOATING_IP_DEVICE_ID_PENDING = "PENDING";
-    public static final String PREFIX_TAP = "tap";
-    public static final String PREFIX_VHOSTUSER = "vhu";
-    public static final String RD_IDPOOL_NAME = "RouteDistinguisherPool";
-    public static final String RD_IDPOOL_SIZE = "65535";// 16 bit AS specific part of RD
-    public static final long RD_IDPOOL_START = 1L;
-    public static final String RD_PROPERTY_KEY = "vpnservice.admin.rdvalue";//stored in etc/custom.properties
-    public static final String VIF_TYPE_VHOSTUSER = "vhostuser";
-    public static final String VIF_TYPE_UNBOUND = "unbound";
-    public static final String VIF_TYPE_BINDING_FAILED = "binding_failed";
-    public static final String VIF_TYPE_DISTRIBUTED = "distributed";
-    public static final String VIF_TYPE_OVS = "ovs";
-    public static final String VIF_TYPE_BRIDGE = "bridge";
-    public static final String VIF_TYPE_OTHER = "other";
-    public static final String VIF_TYPE_MACVTAP = "macvtap";
-    public static final String VNIC_TYPE_NORMAL = "normal";
+    String DEVICE_OWNER_GATEWAY_INF = "network:router_gateway";
+    String DEVICE_OWNER_ROUTER_INF = "network:router_interface";
+    String DEVICE_OWNER_FLOATING_IP = "network:floatingip";
+    String DEVICE_OWNER_DHCP = "network:dhcp";
+    String FLOATING_IP_DEVICE_ID_PENDING = "PENDING";
+    String PREFIX_TAP = "tap";
+    String PREFIX_VHOSTUSER = "vhu";
+    String RD_IDPOOL_NAME = "RouteDistinguisherPool";
+    String RD_IDPOOL_SIZE = "65535";// 16 bit AS specific part of RD
+    long RD_IDPOOL_START = 1L;
+    String RD_PROPERTY_KEY = "vpnservice.admin.rdvalue";//stored in etc/custom.properties
+    String VIF_TYPE_VHOSTUSER = "vhostuser";
+    String VIF_TYPE_UNBOUND = "unbound";
+    String VIF_TYPE_BINDING_FAILED = "binding_failed";
+    String VIF_TYPE_DISTRIBUTED = "distributed";
+    String VIF_TYPE_OVS = "ovs";
+    String VIF_TYPE_BRIDGE = "bridge";
+    String VIF_TYPE_OTHER = "other";
+    String VIF_TYPE_MACVTAP = "macvtap";
+    String VNIC_TYPE_NORMAL = "normal";
 
-    public static final Predicate<Port> IS_DHCP_PORT = port -> port != null
+    Predicate<Port> IS_DHCP_PORT = port -> port != null
             && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner());
 
-    public static final Predicate<Port> IS_ODL_DHCP_PORT = port -> port != null
+    Predicate<Port> IS_ODL_DHCP_PORT = port -> port != null
             && DEVICE_OWNER_DHCP.equals(port.getDeviceOwner()) && port.getDeviceId() != null
             && port.getDeviceId().startsWith("OpenDaylight");
 
