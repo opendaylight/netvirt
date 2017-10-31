@@ -73,7 +73,6 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
-        L2GatewayCacheUtils.createL2DeviceCache();
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
