@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f22488b0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronHostConfigChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-01T23:39:37Z",
+      "side": 1,
+      "message": "personally I usually use Locale.ENGLISH to satisfy FindBugs for what it says about this.. because with Locale.getDefault() you\u0027re just cheating ;) because that\u0027s what toUpperCase() does internally anyway.  The point of this FB warn is that it\u0027s usually dangerous and more often not what you want to rely on system\u0027s locale.. I\u0027ve been burnt by such a problem in the past IRL.",
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
