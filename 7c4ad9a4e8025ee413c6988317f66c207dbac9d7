@@ -16,6 +16,24 @@
       "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d29ce4c2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-01T23:59:12Z",
+      "side": 0,
+      "message": "Sorry, I misread this and saw something else - I\u0027m actually not clear why this is wong and what problem FindBugs had with it... input.getRouteDistinguishers() appears to be some YANG List which could well be null or empty, which this code seems to handle?  Tom, please do enlighten us what FindBugs told you about this that made you remove it...",
+      "parentUuid": "9a245df4_1222fca3",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
