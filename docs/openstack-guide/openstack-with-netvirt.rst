@@ -50,22 +50,15 @@ Optional - Advanced OpenDaylight Installation - Configurations and Clustering
 
        yum install -y http://rdoproject.org/repos/openstack-newton/rdo-release-newton.rpm
        yum install -y --nogpgcheck openvswitch
-
-* ACL Implementations - Alternative options:
-
-  * "learn" - semi-stateful implementation that does not require conntrack support. This is the most complete non-conntrack implementation.
-  * "stateless" - naive security group implementation for TCP connections only. UDP and ICMP packets are allowed by default.
-  * "transparent" - no security group support. all traffic is allowed, this is the recommended mode if you don't need to use security groups at all.
-
-  * To configure one of these alternative implementations, the following needs to be done prior to running OpenDaylight:
+  * To spwan a VM with security groups disabled:
 
     .. code-block:: bash
 
-       mkdir -p <ODL_FOLDER>/etc/opendaylight/datastore/initial/config/
-       export CONFFILE=\`find <ODL_FOLDER> -name "\*aclservice\*config.xml"\`
-       cp \CONFFILE <ODL_FOLDER>/etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml
-       sed -i s/stateful/<learn/transparent>/ <ODL_FOLDER>/etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml
-       cat <ODL_FOLDER>/etc/opendaylight/datastore/initial/config/netvirt-aclservice-config.xml
+       crudini --set /etc/neutron/plugins/dhcp_agent.ini ml2 extension_drivers port_security
+
+       openstack port create --network=net1 --disable-port-security port1
+       openstack server create --flavor m1.tiny --image cirros --port port1 vm1
+
 
 * Running multiple OpenDaylight controllers in a cluster:
 
@@ -144,7 +137,7 @@ on all hosts.
       systemctl stop neutron-server
       systemctl stop neutron-l3-agent
 
-* On each node in the cluster, shut down and disable Neutron's agent services to 
+* On each node in the cluster, shut down and disable Neutron's agent services to
   ensure that they do not restart after a reboot:
 
   .. code-block:: bash
