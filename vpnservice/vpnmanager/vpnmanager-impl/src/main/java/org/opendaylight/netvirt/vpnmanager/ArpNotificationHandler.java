@@ -289,14 +289,14 @@ public class ArpNotificationHandler implements OdlArputilListener {
         String ip = VpnUtil.getIpPrefix(prefix.getIpv4Address().getValue());
         LOG.trace("Removing {} adjacency from Old VPN Interface {} ", ip, vpnInterface);
         InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
-        InstanceIdentifier<Adjacencies> path = vpnIfId.augmentation(Adjacencies.class);
         synchronized (vpnInterface.intern()) {
-            Optional<Adjacencies> adjacencies = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, path);
-            if (adjacencies.isPresent()) {
-                InstanceIdentifier<Adjacency> adjacencyIdentifier =
+            InstanceIdentifier<Adjacency> adjacencyIdentifier =
                     InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,
                         new VpnInterfaceKey(vpnInterface)).augmentation(Adjacencies.class).child(Adjacency.class,
                         new AdjacencyKey(ip)).build();
+            Optional<Adjacency> adjacency = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    adjacencyIdentifier);
+            if (adjacency.isPresent()) {
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, adjacencyIdentifier);
                 LOG.info("Successfully deleted the learned-ip-adjacency for prefix {} on vpn {} for interface {}",
                         ip, vpnName, vpnInterface);
