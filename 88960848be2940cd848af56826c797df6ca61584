@@ -16,6 +16,114 @@
       "revId": "88960848be2940cd848af56826c797df6ca61584",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9cbefed2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronHostConfigChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 1,
+      "message": "I\u0027m trying not to change actual behavior in this patch as I don\u0027t know this code. getDefault()  at least preserves the existing behavior. I don\u0027t know where hostType comes from so unsure if Locale.ENGLISH would be correct or if it even matters.  I\u0027d rather a change to the Locale be done in a separate patch.",
+      "parentUuid": "9a245df4_f22488b0",
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bc0662cc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 442,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 1,
+      "message": "will do",
+      "parentUuid": "9a245df4_29f516cb",
+      "range": {
+        "startLine": 439,
+        "startChar": 8,
+        "endLine": 442,
+        "endChar": 84
+      },
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fcde1a3e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 570,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 1,
+      "message": "you\u0027re right - MDSALUtil.syncWrite simply delegates to SingleTransactionDataBroker.syncWrite anyway. I\u0027ll change it",
+      "parentUuid": "9a245df4_261c2513",
+      "range": {
+        "startLine": 570,
+        "startChar": 39,
+        "endLine": 570,
+        "endChar": 54
+      },
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3ce8b2e1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 1,
+      "message": "you\u0027re right - isEnableSnat() can return null - I\u0027ll change to Objects.equals.",
+      "parentUuid": "9a245df4_e62a0d2b",
+      "range": {
+        "startLine": 161,
+        "startChar": 40,
+        "endLine": 161,
+        "endChar": 64
+      },
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7cf22ad3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 1,
+      "message": "\"Possible null pointer dereference of routerId \" - FB reports this b/c routerId is checked for null on line 241. Perhaps routerId should be @Nonnull but there are many callers so such an analysis is beyond the scope of this patch. But I can check for null routerId at the top.",
+      "parentUuid": "9a245df4_46faf9bd",
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

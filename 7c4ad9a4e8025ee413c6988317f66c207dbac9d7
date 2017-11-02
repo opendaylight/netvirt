@@ -106,6 +106,114 @@
       "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5c680687",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 0,
+      "message": "that would make sense but I\u0027d rather not make such a code logic change with this patch - my intention here is to just fix violations. We should isolate that change in its own patch.",
+      "parentUuid": "9a245df4_c989da27",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_dc13560b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 0,
+      "message": "FB analysis reports getAdjacencyforExtraRoute never returns null in any code path and visual inspection confirms. I also annotated with @Nonnull to prevent potential future breakage.",
+      "parentUuid": "9a245df4_26e38506",
+      "range": {
+        "startLine": 762,
+        "startChar": 24,
+        "endLine": 762,
+        "endChar": 41
+      },
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bc2dc248",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 0,
+      "message": "Again I would rather not make such logic changes in this patch - it should be isolated in its own patch. Would you mind submitting a patch? I could as well but it\u0027s your proposed change - I don\u0027t know this code.",
+      "parentUuid": "9a245df4_e6eccd91",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9c30be9f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1772,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 0,
+      "message": "\"Nullcheck of network at line 1761 of value previously dereferenced\" - if we\u0027ve gotten here than network can\u0027t be null. If line 1760 returned null then 1761 would get an NPE. Looking at getNeutronNetwork it can return null so you\u0027re right, this null check is valid but should be above - I\u0027ll move it",
+      "parentUuid": "9a245df4_69ed4eef",
+      "range": {
+        "startLine": 1771,
+        "startChar": 20,
+        "endLine": 1772,
+        "endChar": 95
+      },
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_dce196ff",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 535,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T12:40:59Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of builder, which is known to be non-null\".  The new operator never returns null.",
+      "parentUuid": "9a245df4_4621594c",
+      "range": {
+        "startLine": 535,
+        "startChar": 16,
+        "endLine": 535,
+        "endChar": 38
+      },
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
