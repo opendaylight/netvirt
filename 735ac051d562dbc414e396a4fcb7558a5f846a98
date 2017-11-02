@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3fb0a442",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-02T14:42:32Z",
+      "side": 1,
+      "message": "Hi Tom, I agree. I will do it.\n\nActually we are expecting to get only the last alarm for each unique keys. So I have to replace the old list by the new one. And if I want the new list with the old list as new values I will have to get the mapCopy to find this old list to add it to the new list and call raiseAlarm again (but right now it is not the behavior expected). Thks",
+      "parentUuid": "9a245df4_3c40b2a4",
+      "range": {
+        "startLine": 93,
+        "startChar": 45,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_e0d4ba21",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 24
@@ -166,6 +190,24 @@
       "side": 1,
       "message": "hmm... NeutronvpnManager does not call getRaiseAlarmObjectMapCopy - it indirectly raiseAarm/clearAlarm. \n\n\"What is that? could you tell me.\" - I don\u0027t know what you\u0027re referring to here.\n\nSo raiseAlarmObjectMap will be used to store the last active \"alarm\" by source for reporting, correct? (Comments in the code to clarify intent would be useful) That\u0027s fine but why don\u0027t you just update raiseAlarmObjectMap directly in raiseAarm/clearAlarm. That\u0027s much simpler - no need to self-notify to do it.",
       "parentUuid": "9a245df4_80f85e4a",
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1f1cc012",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-02T14:42:32Z",
+      "side": 1,
+      "message": "Hi Tom, I agree, but I want to do more for future features.\n\n*) Yes mapCopy is not used now (except for test message, that is really not mandatory, but only helpful) but for my team we will expect to get the mapCopy for list alarm runing for example (and for other future treatments).\n\n*) about the listener (the notify), yes we are self-notify these events to do a few tasks for the future review.\n\nI will comment that in the code.\n\n\nThks",
+      "parentUuid": "9a245df4_9c08be92",
       "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
