@@ -1,0 +1,326 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_09593236",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "Please check my comments in VpnHelper.",
+      "range": {
+        "startLine": 810,
+        "startChar": 30,
+        "endLine": 810,
+        "endChar": 55
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e95bfe2b",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "Please check my comments in VpnHelper.",
+      "range": {
+        "startLine": 62,
+        "startChar": 25,
+        "endLine": 62,
+        "endChar": 59
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2936b6e7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "Is this a temprary method?\nIf not, then this concerns me. You cannot always return the first vpn name, it has to be the vpn name specific to the v4/v6 context that is quering the vpn name",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 5
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4914ca43",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
+        "patchSetId": 102
+      },
+      "lineNbr": 809,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "will it be helpful in your implementation, if you one more attribute of type v4/v6 to this list, to reduce the number of reads to query whether the routerId belongs to ipv4 or v6? Or is that not required in your implemetations?",
+      "range": {
+        "startLine": 805,
+        "startChar": 6,
+        "endLine": 809,
+        "endChar": 7
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a9674624",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "No need to check if config vpn interface is present.\nconfig vpn interface will always be presenet.\ncheck ArpNotifiactionHandler.processArpLearning().... It checks if a vpnInterface is present. If not present, the learned ip is not handled is not handled.\nSo, you just need to add a new adjacency to the vpn interface",
+      "range": {
+        "startLine": 215,
+        "startChar": 16,
+        "endLine": 233,
+        "endChar": 17
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_89824292",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpNotificationHandler.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "Again no need to check for the existence of vpn interface. Just add the new adjacency to the new interface",
+      "range": {
+        "startLine": 267,
+        "startChar": 20,
+        "endLine": 286,
+        "endChar": 21
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0946527c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRouteInterfaceStateChangeListener.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 211,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "This is not required. config vpn interface will never have dpId set. only operational Vpn Interface will have the dpId set.",
+      "range": {
+        "startLine": 205,
+        "startChar": 32,
+        "endLine": 211,
+        "endChar": 33
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bc2782b5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 1824,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "you need to add the new vpn interface op data here.",
+      "range": {
+        "startLine": 1818,
+        "startChar": 12,
+        "endLine": 1824,
+        "endChar": 93
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5c3006e8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 1858,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "you need to put the new operational vpn interface here.",
+      "range": {
+        "startLine": 1855,
+        "startChar": 28,
+        "endLine": 1858,
+        "endChar": 106
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a62f75f5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 229,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "This getVpnInterface method was originally used to construct operational  vpn interface data. If you dont need this anymore, please remove this method.\nsetting isSheduledtoRemove, vpnName, adjacencies, dpId is not needed for vpn interface config. That task is done in neutronVpn",
+      "range": {
+        "startLine": 219,
+        "startChar": 4,
+        "endLine": 229,
+        "endChar": 5
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0637614f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "This looks good.",
+      "range": {
+        "startLine": 231,
+        "startChar": 3,
+        "endLine": 238,
+        "endChar": 5
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e6716de1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 778,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "getVpnAssociatedWithInterface is being used in learning MIPs through ARP, so ideally you need to send the vpnName for the v4 subnet, if two routers are present in the list. Please check my comments in l3vpn.yang",
+      "range": {
+        "startLine": 778,
+        "startChar": 38,
+        "endLine": 778,
+        "endChar": 80
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_893522dc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 1407,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "Please dont do two reads here. Also, please check my comment in VpnHelper, regarding the getFirstVpnNameForVpnInterface method",
+      "range": {
+        "startLine": 1405,
+        "startChar": 45,
+        "endLine": 1407,
+        "endChar": 71
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6930aee8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 1419,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-02T10:35:46Z",
+      "side": 1,
+      "message": "Please read only once and use it everywhere",
+      "range": {
+        "startLine": 1419,
+        "startChar": 28,
+        "endLine": 1419,
+        "endChar": 71
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
