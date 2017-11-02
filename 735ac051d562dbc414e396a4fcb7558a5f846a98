@@ -96,6 +96,29 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3c40b2a4",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T13:28:28Z",
+      "side": 1,
+      "message": "So based on my understanding that raiseAlarmObjectMap will be used to store the last active alarm by source, should this be put or putIfAbsent? What if this sequence occurs:\n\n  raiseAlarm\n  raiseAlarm\n  clearAlarm\n\nIs this valid? It doesn\u0027t seem so however raiseAlarm would allow it. In this case 2 raiseAlarm notifications would go out but  raiseAlarmObjectMap would store the first and not the intended last with putIfAbsent. So if only one active alarm is valid, you could actually use raiseAlarmObjectMap.putIfAbsent to enforce that, ie if already present, reject the new alarm.",
+      "range": {
+        "startLine": 93,
+        "startChar": 45,
+        "endLine": 93,
+        "endChar": 56
+      },
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_e0d4ba21",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 24
@@ -125,6 +148,24 @@
       "side": 1,
       "message": "raiseAlarmObjectMap is not only use by unit test, NeutronvpnManager use it too (just to fill and clear it). What is that? could you tell me. so I agree, this map is not really used right now but in a future we will expect to use it  (for example : in odl console (to see trace of error for example) or in other ways (like a back, come from listener)). but let us do that in a future review please not right now. Thks",
       "parentUuid": "9a245df4_e0d4ba21",
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9c08be92",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T13:28:28Z",
+      "side": 1,
+      "message": "hmm... NeutronvpnManager does not call getRaiseAlarmObjectMapCopy - it indirectly raiseAarm/clearAlarm. \n\n\"What is that? could you tell me.\" - I don\u0027t know what you\u0027re referring to here.\n\nSo raiseAlarmObjectMap will be used to store the last active \"alarm\" by source for reporting, correct? (Comments in the code to clarify intent would be useful) That\u0027s fine but why don\u0027t you just update raiseAlarmObjectMap directly in raiseAarm/clearAlarm. That\u0027s much simpler - no need to self-notify to do it.",
+      "parentUuid": "9a245df4_80f85e4a",
       "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
