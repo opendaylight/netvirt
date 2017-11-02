@@ -34,6 +34,24 @@
       "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f2a928e0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-02T00:05:44Z",
+      "side": 0,
+      "message": "Ok, I think we see it now - rd in this block is never used, so just remove the block.",
+      "parentUuid": "9a245df4_d29ce4c2",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
