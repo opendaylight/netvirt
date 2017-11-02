@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_090bf225",
+        "filename": "vpnservice/alarm/alarm-impl/pom.xml",
+        "patchSetId": 24
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-02T10:21:25Z",
+      "side": 1,
+      "message": "Hi Tom, sorry this is just a test, but I am right with you it should be a bundle.\nThks",
+      "parentUuid": "9a245df4_c0c096e2",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 18
+      },
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_40e30605",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 24
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_6968ae87",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-02T10:21:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_40e30605",
+      "range": {
+        "startLine": 72,
+        "startChar": 11,
+        "endLine": 72,
+        "endChar": 18
+      },
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_e0d4ba21",
         "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
         "patchSetId": 24
@@ -59,6 +107,24 @@
       "writtenOn": "2017-10-31T16:31:23Z",
       "side": 1,
       "message": "So it looks like you add this instance as a NotificationListener to itself to update raiseAlarmObjectMap. Why not update it directly in raiseAlarm/clearAlarm?\n\nHowever raiseAlarmObjectMap is only used by unit tests. Why not add a NotificationListener in the unit tests instead of maintaining raiseAlarmObjectMap just for unit tests?",
+      "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_80f85e4a",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 97,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-02T10:21:25Z",
+      "side": 1,
+      "message": "raiseAlarmObjectMap is not only use by unit test, NeutronvpnManager use it too (just to fill and clear it). What is that? could you tell me. so I agree, this map is not really used right now but in a future we will expect to use it  (for example : in odl console (to see trace of error for example) or in other ways (like a back, come from listener)). but let us do that in a future review please not right now. Thks",
+      "parentUuid": "9a245df4_e0d4ba21",
       "revId": "735ac051d562dbc414e396a4fcb7558a5f846a98",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
