@@ -85,6 +85,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_bf19348a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 940,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T16:13:39Z",
+      "side": 1,
+      "message": "failStrings can\u0027t be null as associateNetworksToVpn never returns null and I also annotated it with @Nonnull to enforce.",
+      "parentUuid": "9a245df4_86f231d0",
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3ce8b2e1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
         "patchSetId": 3
