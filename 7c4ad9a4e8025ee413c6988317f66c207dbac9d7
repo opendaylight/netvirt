@@ -52,6 +52,24 @@
       "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_92ba6c21",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-02T00:08:09Z",
+      "side": 0,
+      "message": "Sam just figured it out.. that \"generate[d] new RD\" is actually never used... before just deleting it, I\u0027m wondering if someone who understand this code would instead like to change it - I\u0027m guessing, without understanding any of it, that it would probably mean to be without the else? Like if  if (rd \u003d\u003d null || rd.isEmpty()) then generateNewRD() and do that thing following it.. so remove the else block (and unindent) ?",
+      "parentUuid": "9a245df4_d29ce4c2",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
