@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_9a2a7e7c",
+        "filename": "vpnservice/alarm/alarm-impl/src/main/java/org/opendaylight/netvirt/alarm/NvpnNbrControlPathAlarm.java",
+        "patchSetId": 28
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T16:28:09Z",
+      "side": 1,
+      "message": "this could be simplified to :\n\n  return new HashMap\u003c\u003e(raiseAlarmObjectMap);\n\nor better yet, immutable:\n\n  return ImmutableMap.copyOf(raiseAlarmObjectMap);",
+      "range": {
+        "startLine": 75,
+        "startChar": 8,
+        "endLine": 77,
+        "endChar": 19
+      },
+      "revId": "d9f89ef5a4835c44bd2dc42f5fa49f7c1f238230",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
