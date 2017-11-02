@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_1aca0e6e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-02T18:33:49Z",
+      "side": 1,
+      "message": "you are right. this can be simplified.\ni just wonder if it is correct to have an empty catch() {}",
+      "parentUuid": "9a245df4_e687add5",
+      "range": {
+        "startLine": 1356,
+        "startChar": 12,
+        "endLine": 1356,
+        "endChar": 49
+      },
+      "revId": "aef0fc64048b1fe1c934718318489c3b5cd89c52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c6ef0986",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 44
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-02T09:04:27Z",
       "side": 1,
       "message": "I don\u0027t think we require warn here. A debug/info is sufficient.",
+      "range": {
+        "startLine": 1416,
+        "startChar": 16,
+        "endLine": 1416,
+        "endChar": 20
+      },
+      "revId": "aef0fc64048b1fe1c934718318489c3b5cd89c52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7ac98a77",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 1416,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-02T18:33:49Z",
+      "side": 1,
+      "message": "ok. wil change to debug",
+      "parentUuid": "9a245df4_c6ef0986",
       "range": {
         "startLine": 1416,
         "startChar": 16,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_faac5aa2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 1454,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-02T18:33:49Z",
+      "side": 1,
+      "message": "as L2 is not handled, it does not mean this is an error.\nI propose to put it at debug too.",
+      "parentUuid": "9a245df4_c6642924",
+      "range": {
+        "startLine": 1454,
+        "startChar": 16,
+        "endLine": 1454,
+        "endChar": 21
+      },
+      "revId": "aef0fc64048b1fe1c934718318489c3b5cd89c52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_461cbe13",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
         "patchSetId": 44
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_fa83ba01",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnOpStatusListener.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-02T18:33:49Z",
+      "side": 1,
+      "message": "Hi Tom,\nyes, I will do it.",
+      "parentUuid": "9a245df4_461cbe13",
+      "range": {
+        "startLine": 205,
+        "startChar": 23,
+        "endLine": 205,
+        "endChar": 30
+      },
+      "revId": "aef0fc64048b1fe1c934718318489c3b5cd89c52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_063da1de",
         "filename": "vpnservice/vpnmanager/vpnmanager-shell/src/main/java/org/opendaylight/netvirt/vpnmanager/shell/ShowVpn.java",
         "patchSetId": 44
@@ -105,6 +201,30 @@
       "writtenOn": "2017-11-02T09:04:27Z",
       "side": 1,
       "message": "nit: Family",
+      "range": {
+        "startLine": 99,
+        "startChar": 28,
+        "endLine": 99,
+        "endChar": 39
+      },
+      "revId": "aef0fc64048b1fe1c934718318489c3b5cd89c52",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1a916e52",
+        "filename": "vpnservice/vpnmanager/vpnmanager-shell/src/main/java/org/opendaylight/netvirt/vpnmanager/shell/ShowVpn.java",
+        "patchSetId": 44
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-02T18:33:49Z",
+      "side": 1,
+      "message": "yes. will do it.",
+      "parentUuid": "9a245df4_063da1de",
       "range": {
         "startLine": 99,
         "startChar": 28,
