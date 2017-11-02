@@ -88,6 +88,24 @@
       "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_52975490",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-02T00:19:07Z",
+      "side": 0,
+      "message": "I believe I looked back at the history and it was used at some point but as the code evolved, it was left in. I\u0027ve seen that in other cases - code evolves and unused code/branches/fields get left in.",
+      "parentUuid": "9a245df4_92ba6c21",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
