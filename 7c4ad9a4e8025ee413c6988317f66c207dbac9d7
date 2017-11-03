@@ -127,6 +127,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9a543900",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-03T12:26:34Z",
+      "side": 0,
+      "message": "I\u0027d have comment out 126 otherwise it won\u0027t pass FB :)",
+      "parentUuid": "9a245df4_5072a749",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dc13560b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 3
@@ -163,6 +181,24 @@
       "side": 0,
       "message": "Again I would rather not make such logic changes in this patch - it should be isolated in its own patch. Would you mind submitting a patch? I could as well but it\u0027s your proposed change - I don\u0027t know this code.",
       "parentUuid": "9a245df4_e6eccd91",
+      "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9aa279fb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1355,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-03T12:26:34Z",
+      "side": 0,
+      "message": "I can comment it out",
+      "parentUuid": "9a245df4_10cdcf5d",
       "revId": "7c4ad9a4e8025ee413c6988317f66c207dbac9d7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
