@@ -1,0 +1,22 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_ba849d5e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnNatManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 161,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-03T12:26:34Z",
+      "side": 1,
+      "message": "I meant to use  java util Objects.  \n\nif both are null, Objects.equal will return true but \u0027!\u0027 makes it false so we fall through to return false as it did before.",
+      "parentUuid": "9a245df4_d0b4d7d2",
+      "revId": "618e5727581d349ce3b043f953ab4e5da1131bc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
