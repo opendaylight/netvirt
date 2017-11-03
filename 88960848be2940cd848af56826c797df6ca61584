@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4b603501",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronHostConfigChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-03T23:36:22Z",
+      "side": 1,
+      "message": "But won\u0027t you most likely just forget about to do this.. or are you THAT well organized that you really won\u0027t? ;) I would just change it here, because you\u0027re enabling FindBugs, so fix what it tells you about instead of working around it, no?  The risk seems minimal to me, in this particular case.",
+      "parentUuid": "9a245df4_9cbefed2",
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_bc0662cc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
