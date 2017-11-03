@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_66974291",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-03T14:25:07Z",
+      "side": 0,
+      "message": "\"Use of non-localized String.toLowerCase()\"",
+      "revId": "a54fe6f505b5134a676f6ee93c26e6531fcb2363",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4692fe9f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-03T14:25:07Z",
+      "side": 0,
+      "message": "\"getIpVersion(String) checks to see if result of String.indexOf is positive\" - found match could be at index 0",
+      "revId": "a54fe6f505b5134a676f6ee93c26e6531fcb2363",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a6913a9b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 261,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-03T14:25:07Z",
+      "side": 0,
+      "message": "\"Synchronization performed on java.util.concurrent.ConcurrentHashMap\" - it\u0027s already thread-safe",
+      "revId": "a54fe6f505b5134a676f6ee93c26e6531fcb2363",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_868cf680",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 270,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-03T14:25:07Z",
+      "side": 0,
+      "message": "\"Return value of java.util.concurrent.locks.Lock.tryLock ignored\" - returns false if it times out",
+      "revId": "a54fe6f505b5134a676f6ee93c26e6531fcb2363",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
