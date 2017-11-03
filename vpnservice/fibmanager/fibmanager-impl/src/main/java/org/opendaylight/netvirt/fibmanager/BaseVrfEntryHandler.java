@@ -236,6 +236,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
 
         int priority = DEFAULT_FIB_FLOW_PRIORITY + prefixLength;
+        LOG.error("makeConnectedRoute: dpId {} rd {} priority {} destPrefix {}", dpId, rd, priority, destPrefix);
         String flowRef = FibUtil.getFlowRef(dpId, NwConstants.L3_FIB_TABLE, rd, priority, destPrefix);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_FIB_TABLE, flowRef, priority,
                 flowRef, 0, 0,
@@ -467,6 +468,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         mkMatches.add(new MatchEthernetDestination(new MacAddress(gwMacAddress)));
         List<InstructionInfo> mkInstructions = new ArrayList<>();
         mkInstructions.add(new InstructionGotoTable(NwConstants.L3_FIB_TABLE));
+        LOG.error("buildL3vpnGatewayFlow: dpId {} vpnId {} gwMacAddress {}", dpId, vpnId, gwMacAddress);
         String flowId = FibUtil.getL3VpnGatewayFlowRef(NwConstants.L3_GW_MAC_TABLE, dpId, vpnId, gwMacAddress);
         return MDSALUtil.buildFlowEntity(dpId, NwConstants.L3_GW_MAC_TABLE,
                 flowId, 20, flowId, 0, 0, NwConstants.COOKIE_L3_GW_MAC_TABLE, mkMatches, mkInstructions);
