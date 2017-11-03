@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_00345c48",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-11-03T17:52:21Z",
+      "side": 1,
+      "message": "do I understand this feature correctly?\n\nAssume I have 3 switches (A,B,C) and configured them with odl_base_weight of \n(0,1,2) respectively.\n\nthe 1st VRF will go on A making it\u0027s weight now 1.\nthe 2nd VRF will go on A or B making their weight now 2.\nthe 3rd VRF will go on A or B, whichever was still 1, now making A and B with\n  weight 2.\nfinally, a 4th VRF would be applied to either A, B or C (however it\u0027s chosen\n  when all weights are equal",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8047acbb",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-11-03T17:52:21Z",
+      "side": 1,
+      "message": "I can think of a lot more cases than this, but at least we should expand to\nadding up to 4 VRFs here somehow. that will at least cover what happens\nwhen one compute with base_weight 0 gets 2 VRFS making it\u0027s weight also\n2 and then the additional 2 more VRFs should give us an end state where\nboth computes are now having a weight of 3.\n\nunless I misunderstood how this all should work.",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
