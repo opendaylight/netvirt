@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_cb16ea54",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-03T10:55:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_e62df247",
+      "revId": "b3e6a5a22a51a24205f29d6f23b2243f22151565",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_c630aea0",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
         "patchSetId": 113
@@ -30,6 +48,24 @@
       "writtenOn": "2017-10-31T21:58:02Z",
       "side": 1,
       "message": "Avoid static instances - the singleton instance should be injected into whatever component needs ti",
+      "revId": "b3e6a5a22a51a24205f29d6f23b2243f22151565",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2b0d063f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-03T10:55:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_c630aea0",
       "revId": "b3e6a5a22a51a24205f29d6f23b2243f22151565",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
