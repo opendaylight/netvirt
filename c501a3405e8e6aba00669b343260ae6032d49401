@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5dbf5baa",
+        "filename": "vpnservice/ipv6service/shell/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-11-03T15:47:52Z",
+      "side": 1,
+      "message": "Looks like this section is required. When I removed this section all the subsequent patches were failing with this error.\n\nRunning org.opendaylight.odlparent.featuretest.SingleFeatureTest\nTests run: 1, Failures: 0, Errors: 1, Skipped: 0, Time elapsed: 15.18 sec \u003c\u003c\u003c FAILURE! - in org.opendaylight.odlparent.featuretest.SingleFeatureTest\ninstallFeatureCatchAndLog(org.opendaylight.odlparent.featuretest.SingleFeatureTest)[repoUrl: file:/w/workspace/netvirt-verify-carbon-mvn33-openjdk8/vpnservice/features/odl-netvirt-impl/target/feature/feature.xml, Feature: odl-netvirt-impl 0.4.3.SNAPSHOT]  Time elapsed: 14.379 sec  \u003c\u003c\u003c ERROR!\norg.osgi.service.resolver.ResolutionException: Unable to resolve root: missing requirement [root] osgi.identity; osgi.identity\u003dodl-netvirt-impl; type\u003dkaraf.feature; version\u003d\"[0.4.3.SNAPSHOT,0.4.3.SNAPSHOT]\"; filter:\u003d\"(\u0026(osgi.identity\u003dodl-netvirt-impl)(type\u003dkaraf.feature)(version\u003e\u003d0.4.3.SNAPSHOT)(version\u003c\u003d0.4.3.SNAPSHOT))\" [caused by: Unable to resolve odl-netvirt-impl/0.4.3.SNAPSHOT: missing requirement [odl-netvirt-impl/0.4.3.SNAPSHOT] osgi.identity; osgi.identity\u003dorg.opendaylight.netvirt.ipv6service-shell; type\u003dosgi.bundle; version\u003d\"[0.4.3.SNAPSHOT,0.4.3.SNAPSHOT]\"; resolution:\u003dmandatory [caused by: Unable to resolve org.opendaylight.netvirt.ipv6service-shell/0.4.3.SNAPSHOT: missing requirement [org.opendaylight.netvirt.ipv6service-shell/0.4.3.SNAPSHOT] osgi.wiring.package; filter:\u003d\"(\u0026(osgi.wiring.package\u003dorg.apache.karaf.shell.commands)(version\u003e\u003d3.0.0)(!(version\u003e\u003d4.0.0)))\"]]\n\tat org.apache.felix.resolver.ResolutionError.toException(ResolutionError.java:42)\n\tat org.apache.felix.resolver.ResolverImpl.doResolve(ResolverImpl.java:389)\n\tat org.apache.felix.resolver.ResolverImpl.resolve(ResolverImpl.java:375)\n\tat org.apache.felix.resolver.ResolverImpl.resolve(ResolverImpl.java:347)\n\tat org.apache.karaf.features.internal.region.SubsystemResolver.resolve(SubsystemResolver.java:216)\n\tat org.apache.karaf.features.internal.service.Deployer.deploy(Deployer.java:263)\n\tat org.apache.karaf.features.internal.service.FeaturesServiceImpl.doProvision(FeaturesServiceImpl.java:1176)\n\tat org.apache.karaf.features.internal.service.FeaturesServiceImpl$1.call(FeaturesServiceImpl.java:1074)\n\tat java.util.concurrent.FutureTask.run(FutureTask.java:266)\n\tat java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)\n\tat java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)\n\tat java.lang.Thread.run(Thread.java:748)\n\n\nResults :\n\nTests in error: \n  Unable to resolve root: missing requirement [root] osgi.identity; osgi.identity\u003dodl-netvirt-impl; type\u003dkaraf.feature; version\u003d\"[0.4.3.SNAPSHOT,0.4.3.SNAPSHOT]\"; filter:\u003d\"(\u0026(osgi.identity\u003dodl-netvirt-impl)(type\u003dkaraf.feature)(version\u003e\u003d0.4.3.SNAPSHOT)(version\u003c\u003d0.4.3.SNAPSHOT))\" [caused by: Unable to resolve odl-netvirt-impl/0.4.3.SNAPSHOT: missing requirement [odl-netvirt-impl/0.4.3.SNAPSHOT] osgi.identity; osgi.identity\u003dorg.opendaylight.netvirt.ipv6service-shell; type\u003dosgi.bundle; version\u003d\"[0.4.3.SNAPSHOT,0.4.3.SNAPSHOT]\"; resolution:\u003dmandatory [caused by: Unable to resolve org.opendaylight.netvirt.ipv6service-shell/0.4.3.SNAPSHOT: missing requirement [org.opendaylight.netvirt.ipv6service-shell/0.4.3.SNAPSHOT] osgi.wiring.package; filter:\u003d\"(\u0026(osgi.wiring.package\u003dorg.apache.karaf.shell.commands)(version\u003e\u003d3.0.0)(!(version\u003e\u003d4.0.0)))\"]]\n\nTests run: 1, Failures: 0, Errors: 1, Skipped: 0",
+      "parentUuid": "9a245df4_71c6ec4a",
+      "revId": "c501a3405e8e6aba00669b343260ae6032d49401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_eca69a0f",
         "filename": "vpnservice/ipv6service/shell/src/main/java/org/opendaylight/netvirt/ipv6service/shell/ShowIpv6Command.java",
         "patchSetId": 2
