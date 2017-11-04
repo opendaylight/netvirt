@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_2639b8d7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronHostConfigChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-04T00:03:45Z",
+      "side": 1,
+      "message": "I wasn\u0027t planning to change it as I don\u0027t know this code as I mentioned above. Plus it\u0027s been working fine all along with the default locale so why change it? If it ain\u0027t broke, don\u0027t fix it. If you feel strongly about it then analyze it and propose another patch - can we please just let this patch preserve the existing behavior?",
+      "parentUuid": "9a245df4_4b603501",
+      "revId": "88960848be2940cd848af56826c797df6ca61584",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_bc0662cc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
