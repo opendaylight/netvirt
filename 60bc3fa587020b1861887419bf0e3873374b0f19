@@ -95,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4c74cb67",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-06T08:30:18Z",
+      "side": 1,
+      "message": "making the entries in the list v4/v6 aware is upto you. If you think that it will help you in your implementation, you can do it.",
+      "parentUuid": "9a245df4_9a939e4e",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 5
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4914ca43",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
         "patchSetId": 102
