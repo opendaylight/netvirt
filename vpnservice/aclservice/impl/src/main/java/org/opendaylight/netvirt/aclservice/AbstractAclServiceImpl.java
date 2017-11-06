@@ -23,14 +23,18 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
@@ -53,6 +57,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected final AclDataUtil aclDataUtil;
     protected final AclServiceUtils aclServiceUtils;
 
+    protected final String direction;
+
     /**
      * Initialize the member variables.
      *
@@ -74,6 +80,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         this.serviceMode = serviceMode;
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServiceUtils;
+
+        this.direction = getServiceDirectionAsString();
     }
 
     @Override
@@ -313,7 +321,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     /**
      * Program the default specific rules.
      *
-     * @param dpid the dpid
+     * @param dpId the dpId
      * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
@@ -321,7 +329,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * @param action add/modify/remove action
      * @param addOrRemove addorRemove
      */
-    protected abstract void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
+    protected abstract void programSpecificFixedRules(BigInteger dpId, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove);
 
     /**
@@ -644,4 +652,136 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         return priority;
     }
+
+    /**
+     * Programs the port specific fixed rules.
+     *
+     * @param dpId the dp id
+     * @param allowedAddresses the allowed addresses
+     * @param lportTag the lport tag
+     * @param portId the portId
+     * @param action the action
+     * @param write whether to add or remove the flow.
+     */
+    protected void programAclPortSpecificFixedRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+            int lportTag, String portId, Action action, int write) {
+        programGotoClassifierTableRules(dpId, allowedAddresses, lportTag, write);
+        if (action == Action.ADD || action == Action.REMOVE) {
+            programConntrackRecircRules(dpId, allowedAddresses, lportTag, portId, write);
+            programPortSpecificDropRules(dpId, lportTag, write);
+        }
+        LOG.info("programAclPortSpecificFixedRules: flows for dpId={}, lportId={}, action={}, write={}", dpId, lportTag,
+                action, write);
+    }
+
+    protected abstract void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps,
+            int lportTag, int addOrRemove);
+
+    /**
+     * Adds the rule to send the packet to the netfilter to check whether it is a known packet.
+     *
+     * @param dpId the dpId
+     * @param aaps the allowed address pairs
+     * @param lportTag the lport tag
+     * @param portId the portId
+     * @param addOrRemove whether to add or remove the flow
+     */
+    protected void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> aaps, int lportTag,
+            String portId, int addOrRemove) {
+        if (AclServiceUtils.doesIpv4AddressExists(aaps)) {
+            programConntrackRecircRule(dpId, lportTag, portId, MatchEthernetType.IPV4, addOrRemove);
+        }
+        if (AclServiceUtils.doesIpv6AddressExists(aaps)) {
+            programConntrackRecircRule(dpId, lportTag, portId, MatchEthernetType.IPV6, addOrRemove);
+        }
+    }
+
+    protected void programConntrackRecircRule(BigInteger dpId, int lportTag, String portId,
+            MatchEthernetType matchEtherType, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(matchEtherType);
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
+            if (elanTag == null) {
+                LOG.error("ElanId not found for portId={}; Context: dpId={}, lportTag={}, addOrRemove={},", portId,
+                        dpId, lportTag, addOrRemove);
+                return;
+            }
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), getAclForExistingTrafficTable()));
+            instructions.add(new InstructionApplyActions(actionsInfos));
+        }
+
+        String flowName = this.direction + "_Fixed_Conntrk_" + dpId + "_" + lportTag + "_" + matchEtherType + "_Recirc";
+        syncFlow(dpId, getAclConntrackSenderTable(), flowName, AclConstants.PROTO_MATCH_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Adds the rules to drop the unknown/invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove whether to add or remove the flow
+     */
+    protected void programPortSpecificDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+        LOG.debug("Programming Drop Rules: DpId={}, lportTag={}, addOrRemove={}", dpId, lportTag, addOrRemove);
+        programConntrackInvalidDropRule(dpId, lportTag, addOrRemove);
+        programAclRuleMissDropRule(dpId, lportTag, addOrRemove);
+    }
+
+    /**
+     * Adds the rule to drop the conntrack invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove whether to add or remove the flow
+     */
+    protected void programConntrackInvalidDropRule(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag,
+                AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, serviceMode);
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+
+        String flowId = this.direction + "_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_Tracked_Invalid";
+        syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "ACL",
+                0, 0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Program ACL rule miss drop rule for a port.
+     *
+     * @param dpId the dp id
+     * @param lportTag the lport tag
+     * @param addOrRemove the add or remove
+     */
+    protected void programAclRuleMissDropRule(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+
+        String flowId = this.direction + "_Fixed_Acl_Rule_Miss_Drop_" + dpId + "_" + lportTag;
+        syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "ACL",
+                0, 0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+    }
+
+    protected abstract String getServiceDirectionAsString();
+
+    protected abstract short getAclAntiSpoofingTable();
+
+    protected abstract short getAclConntrackClassifierTable();
+
+    protected abstract short getAclConntrackSenderTable();
+
+    protected abstract short getAclForExistingTrafficTable();
+
+    protected abstract short getAclFilterCumDispatcherTable();
+
+    protected abstract short getAclRuleBasedFilterTable();
+
+    protected abstract short getAclRemoteAclTable();
+
+    protected abstract short getAclCommitterTable();
 }
