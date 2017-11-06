@@ -8,8 +8,10 @@
 package org.opendaylight.netvirt.aclservice.api.utils;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSortedSet;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.SortedSet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -18,9 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
  * The Class AclInterface.
  */
 public final class AclInterface {
-
-    /** The port security enabled. */
-    private final boolean portSecurityEnabled;
 
     /** The interface id. */
     private final String interfaceId;
@@ -34,8 +33,8 @@ public final class AclInterface {
     /** Elan tag of the interface. */
     private final Long elanId;
 
-    /** VPN Id of the interface. */
-    private final Long vpnId;
+    /** The port security enabled. */
+    private final boolean portSecurityEnabled;
 
     /** The security groups. */
     private final List<Uuid> securityGroups;
@@ -46,19 +45,26 @@ public final class AclInterface {
     /** The IP broadcast CIDRs. */
     private final List<IpPrefixOrAddress> subnetIpPrefixes;
 
+    /** The ingress remote acl tags. */
+    private final SortedSet<Integer> ingressRemoteAclTags;
+
+    /** The egress remote acl tags. */
+    private final SortedSet<Integer> egressRemoteAclTags;
+
     /** The port is marked for delete. */
     private volatile boolean isMarkedForDelete;
 
     private AclInterface(Builder builder) {
-        this.portSecurityEnabled = builder.portSecurityEnabled;
         this.interfaceId = builder.interfaceId;
         this.lportTag = builder.lportTag;
         this.dpId = builder.dpId;
         this.elanId = builder.elanId;
-        this.vpnId = builder.vpnId;
+        this.portSecurityEnabled = builder.portSecurityEnabled;
         this.securityGroups = builder.securityGroups;
         this.allowedAddressPairs = builder.allowedAddressPairs;
         this.subnetIpPrefixes = builder.subnetIpPrefixes;
+        this.ingressRemoteAclTags = builder.ingressRemoteAclTags;
+        this.egressRemoteAclTags = builder.egressRemoteAclTags;
         this.isMarkedForDelete = builder.isMarkedForDelete;
     }
 
@@ -108,15 +114,6 @@ public final class AclInterface {
     }
 
     /**
-     * Gets vpn id.
-     *
-     * @return VPN Id of the interface
-     */
-    public Long getVpnId() {
-        return vpnId;
-    }
-
-    /**
      * Gets the security groups.
      *
      * @return the security groups
@@ -141,6 +138,24 @@ public final class AclInterface {
      */
     public List<IpPrefixOrAddress> getSubnetIpPrefixes() {
         return subnetIpPrefixes;
+    }
+
+    /**
+     * Gets the egress remote acl tags.
+     *
+     * @return the egress remote acl tags
+     */
+    public SortedSet<Integer> getEgressRemoteAclTags() {
+        return egressRemoteAclTags;
+    }
+
+    /**
+     * Gets the ingress remote acl tags.
+     *
+     * @return the ingress remote acl tags
+     */
+    public SortedSet<Integer> getIngressRemoteAclTags() {
+        return ingressRemoteAclTags;
     }
 
     /**
@@ -235,13 +250,13 @@ public final class AclInterface {
         return true;
     }
 
-
     @Override
     public String toString() {
         return "AclInterface [interfaceId=" + interfaceId + ", lportTag=" + lportTag + ", dpId=" + dpId + ", elanId="
-                + elanId + ", vpnId=" + vpnId + ", securityGroups=" + securityGroups + ", allowedAddressPairs="
-                + allowedAddressPairs + ", subnetIpPrefixes=" + subnetIpPrefixes + ", portSecurityEnabled="
-                + portSecurityEnabled + ", isMarkedForDelete=" + isMarkedForDelete + "]";
+                + elanId + ", portSecurityEnabled=" + portSecurityEnabled + ", securityGroups=" + securityGroups
+                + ", allowedAddressPairs=" + allowedAddressPairs + ", subnetIpPrefixes=" + subnetIpPrefixes
+                + ", ingressRemoteAclTags=" + ingressRemoteAclTags + ", egressRemoteAclTags=" + egressRemoteAclTags
+                + ", isMarkedForDelete=" + isMarkedForDelete + "]";
     }
 
     public static Builder builder() {
@@ -253,30 +268,32 @@ public final class AclInterface {
     }
 
     public static final class Builder {
-        private boolean portSecurityEnabled;
         private String interfaceId;
         private Integer lportTag;
         private BigInteger dpId;
         private Long elanId;
-        private Long vpnId;
+        private boolean portSecurityEnabled;
         private List<Uuid> securityGroups;
         private List<AllowedAddressPairs> allowedAddressPairs;
         private List<IpPrefixOrAddress> subnetIpPrefixes;
+        private SortedSet<Integer> ingressRemoteAclTags;
+        private SortedSet<Integer> egressRemoteAclTags;
         private boolean isMarkedForDelete;
 
         private Builder() {
         }
 
         private Builder(AclInterface from) {
-            this.portSecurityEnabled = from.portSecurityEnabled;
             this.interfaceId = from.interfaceId;
             this.lportTag = from.lportTag;
             this.dpId = from.dpId;
             this.elanId = from.elanId;
-            this.vpnId = from.vpnId;
+            this.portSecurityEnabled = from.portSecurityEnabled;
             this.securityGroups = from.securityGroups;
             this.allowedAddressPairs = from.allowedAddressPairs;
             this.subnetIpPrefixes = from.subnetIpPrefixes;
+            this.ingressRemoteAclTags = from.ingressRemoteAclTags;
+            this.egressRemoteAclTags = from.egressRemoteAclTags;
             this.isMarkedForDelete = from.isMarkedForDelete;
         }
 
@@ -305,11 +322,6 @@ public final class AclInterface {
             return this;
         }
 
-        public Builder vpnId(Long value) {
-            this.vpnId = value;
-            return this;
-        }
-
         public Builder securityGroups(List<Uuid> list) {
             this.securityGroups = list == null ? null : ImmutableList.copyOf(list);
             return this;
@@ -322,6 +334,16 @@ public final class AclInterface {
 
         public Builder subnetIpPrefixes(List<IpPrefixOrAddress> list) {
             this.subnetIpPrefixes = list == null ? null : ImmutableList.copyOf(list);
+            return this;
+        }
+
+        public Builder ingressRemoteAclTags(SortedSet<Integer> list) {
+            this.ingressRemoteAclTags = list == null ? null : ImmutableSortedSet.copyOf(list);
+            return this;
+        }
+
+        public Builder egressRemoteAclTags(SortedSet<Integer> list) {
+            this.egressRemoteAclTags = list == null ? null : ImmutableSortedSet.copyOf(list);
             return this;
         }
 
