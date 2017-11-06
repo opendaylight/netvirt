@@ -31,7 +31,7 @@ public class AclDataUtil implements AclDataCache {
 
     private final ConcurrentMap<Uuid, ConcurrentMap<String, AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
     private final Map<Uuid, Set<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
-    private final Map<String, Integer> aclFlowPriorityMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> aclTagMap = new ConcurrentHashMap<>();
 
     public void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
@@ -125,40 +125,35 @@ public class AclDataUtil implements AclDataCache {
     }
 
     /**
-     * Adds the acl flow priority to the cache.
+     * Adds the ACL tag to the cache.
      *
-     * @param aclName the acl name
-     * @param flowPriority the flow priority
+     * @param aclName the ACL name
+     * @param aclTag the ACL tag
      */
-    public void addAclFlowPriority(final String aclName, final Integer flowPriority) {
-        this.aclFlowPriorityMap.put(aclName, flowPriority);
+    public void addAclTag(final String aclName, final Integer aclTag) {
+        this.aclTagMap.put(aclName, aclTag);
     }
 
     /**
-     * Removes the acl flow priority from the cache.
+     * Removes the acl tag from the cache.
      *
      * @param key the key
      * @return the previous value associated with key, or null if there was no
      *         mapping for key.
      */
-    public Integer removeAclFlowPriority(final String key) {
-        return this.aclFlowPriorityMap.remove(key);
+    public Integer removeAclTag(final String key) {
+        return this.aclTagMap.remove(key);
     }
 
     /**
-     * Gets the acl flow priority from the cache.
+     * Gets the acl tag from the cache.
      *
      * @param aclName the acl name
-     * @return the acl flow priority
+     * @return the acl tag
      */
     @Override
-    public Integer getAclFlowPriority(final String aclName) {
-        Integer priority = this.aclFlowPriorityMap.get(aclName);
-        if (priority == null) {
-            // Set to default value
-            priority = AclConstants.PROTO_MATCH_PRIORITY;
-        }
-        return priority;
+    public Integer getAclTag(final String aclName) {
+        return this.aclTagMap.get(aclName);
     }
 
     /**
@@ -188,8 +183,7 @@ public class AclDataUtil implements AclDataCache {
     }
 
     @Override
-    public Map<String, Integer> getAclFlowPriorityMap() {
-        return ImmutableMap.copyOf(aclFlowPriorityMap);
+    public Map<String, Integer> getAclTagMap() {
+        return ImmutableMap.copyOf(aclTagMap);
     }
-
 }

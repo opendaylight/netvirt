@@ -37,5 +37,4 @@
   <service ref="aclInterfaceCacheImpl"
            interface="org.opendaylight.netvirt.aclservice.api.AclInterfaceCache" />
 
-  <odl:notification-listener ref="aclVpnChangeListener" />
 </blueprint>
