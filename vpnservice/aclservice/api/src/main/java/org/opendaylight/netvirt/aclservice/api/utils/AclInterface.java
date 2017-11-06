@@ -9,7 +9,7 @@ package org.opendaylight.netvirt.aclservice.api.utils;
 
 import java.math.BigInteger;
 import java.util.List;
-
+import java.util.SortedSet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
@@ -19,11 +19,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
  */
 public class AclInterface {
 
-    /** The port security enabled. */
-    Boolean portSecurityEnabled = false;
-
     /** The interface id. */
     String interfaceId;
+
+    /** The port security enabled. */
+    Boolean portSecurityEnabled = false;
 
     /** The l port tag. */
     Integer lportTag;
@@ -34,9 +34,6 @@ public class AclInterface {
     /** Elan tag of the interface. */
     Long elanId;
 
-    /** VPN Id of the interface. */
-    Long vpnId;
-
     /** The security groups. */
     List<Uuid> securityGroups;
 
@@ -46,8 +43,33 @@ public class AclInterface {
     /** The IP broadcast CIDRs. */
     List<IpPrefixOrAddress> subnetIpPrefixes;
 
+    /** The ingress remote acl tags. */
+    SortedSet<Integer> ingressRemoteAclTags;
+
+    /** The egress remote acl tags. */
+    SortedSet<Integer> egressRemoteAclTags;
+
     /** The port is marked for delete. */
     Boolean isMarkedForDelete = false;
+
+    public AclInterface() {
+        // Default constructor
+    }
+
+    public AclInterface(AclInterface copyFrom) {
+        // TODO: write a builder class instead
+        setInterfaceId(copyFrom.getInterfaceId());
+        setPortSecurityEnabled(copyFrom.isPortSecurityEnabled());
+        setLPortTag(copyFrom.getLPortTag());
+        setDpId(copyFrom.getDpId());
+        setElanId(copyFrom.getElanId());
+        setSecurityGroups(copyFrom.getSecurityGroups());
+        setAllowedAddressPairs(copyFrom.getAllowedAddressPairs());
+        setSubnetIpPrefixes(copyFrom.getSubnetIpPrefixes());
+        setIngressRemoteAclTags(copyFrom.getIngressRemoteAclTags());
+        setEgressRemoteAclTags(copyFrom.getEgressRemoteAclTags());
+        setIsMarkedForDelete(copyFrom.isMarkedForDelete);
+    }
 
     /**
      * Checks if is port security enabled.
@@ -149,24 +171,6 @@ public class AclInterface {
     }
 
     /**
-     * Gets vpn id.
-     *
-     * @return VPN Id of the interface
-     */
-    public Long getVpnId() {
-        return vpnId;
-    }
-
-    /**
-     * Sets VPN Id of the interface.
-     *
-     * @param vpnId VPN Id of the interface
-     */
-    public void setVpnId(Long vpnId) {
-        this.vpnId = vpnId;
-    }
-
-    /**
      * Gets the security groups.
      *
      * @return the security groups
@@ -218,6 +222,42 @@ public class AclInterface {
      */
     public void setSubnetIpPrefixes(List<IpPrefixOrAddress> subnetIpPrefixes) {
         this.subnetIpPrefixes = subnetIpPrefixes;
+    }
+
+    /**
+     * Gets the egress remote acl tags.
+     *
+     * @return the egress remote acl tags
+     */
+    public SortedSet<Integer> getEgressRemoteAclTags() {
+        return egressRemoteAclTags;
+    }
+
+    /**
+     * Sets the egress remote acl tags.
+     *
+     * @param egressRemoteAclTags the new egress remote acl tags
+     */
+    public void setEgressRemoteAclTags(SortedSet<Integer> egressRemoteAclTags) {
+        this.egressRemoteAclTags = egressRemoteAclTags;
+    }
+
+    /**
+     * Gets the ingress remote acl tags.
+     *
+     * @return the ingress remote acl tags
+     */
+    public SortedSet<Integer> getIngressRemoteAclTags() {
+        return ingressRemoteAclTags;
+    }
+
+    /**
+     * Sets the ingress remote acl tags.
+     *
+     * @param ingressRemoteAclTags the new ingress remote acl tags
+     */
+    public void setIngressRemoteAclTags(SortedSet<Integer> ingressRemoteAclTags) {
+        this.ingressRemoteAclTags = ingressRemoteAclTags;
     }
 
     /**
@@ -320,13 +360,12 @@ public class AclInterface {
         return true;
     }
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "AclInterface [portSecurityEnabled=" + portSecurityEnabled + ", interfaceId=" + interfaceId
-                + ", lportTag=" + lportTag + ", dpId=" + dpId + ", securityGroups=" + securityGroups
-                + ", allowedAddressPairs=" + allowedAddressPairs + ", isMarkedForDelete=" + isMarkedForDelete + "]";
+                + ", lportTag=" + lportTag + ", dpId=" + dpId + ", elanId=" + elanId + ", securityGroups="
+                + securityGroups + ", allowedAddressPairs=" + allowedAddressPairs + ", subnetIpPrefixes="
+                + subnetIpPrefixes + ", ingressRemoteAclTags=" + ingressRemoteAclTags + ", egressRemoteAclTags="
+                + egressRemoteAclTags + ", isMarkedForDelete=" + isMarkedForDelete + "]";
     }
 }

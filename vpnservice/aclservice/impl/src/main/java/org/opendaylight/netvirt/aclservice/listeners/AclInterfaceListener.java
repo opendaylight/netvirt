@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
+import java.util.HashSet;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -25,8 +26,9 @@ import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,15 +42,17 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
     private final AclDataUtil aclDataUtil;
+    private final AclServiceUtils aclServiceUtils;
 
     @Inject
     public AclInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
-            DataBroker dataBroker, AclDataUtil aclDataUtil) {
+            DataBroker dataBroker, AclDataUtil aclDataUtil, AclServiceUtils aclServicUtils) {
         super(Interface.class, AclInterfaceListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.aclDataUtil = aclDataUtil;
+        this.aclServiceUtils = aclServicUtils;
     }
 
     @Override
@@ -85,26 +89,23 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         LOG.trace("Received AclInterface update event, portBefore={}, portAfter={}", portBefore, portAfter);
         InterfaceAcl aclInPortAfter = portAfter.getAugmentation(InterfaceAcl.class);
         InterfaceAcl aclInPortBefore = portBefore.getAugmentation(InterfaceAcl.class);
+
+        String interfaceId = portAfter.getName();
+        AclInterface oldAclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+        if (oldAclInterface == null || isPortSecurityEnabledNow(aclInPortBefore, aclInPortAfter)) {
+            // Updating cache now as it might have not updated when
+            // port-security-enable=false
+            oldAclInterface = addAclInterfaceToCache(interfaceId, aclInPortBefore);
+        }
         if (aclInPortAfter != null && aclInPortAfter.isPortSecurityEnabled()
                 || aclInPortBefore != null && aclInPortBefore.isPortSecurityEnabled()) {
-            String interfaceId = portAfter.getName();
-            AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-            if (aclInterface != null) {
-                aclInterface = updateAclInterfaceInCache(aclInterface, aclInPortAfter);
-            } else {
-                List<IpPrefixOrAddress> subnetIpPrefixes = AclServiceUtils.getSubnetIpPrefixes(dataBroker,
-                        portAfter.getName());
-                aclInterface = addAclInterfaceToCache(interfaceId, aclInPortAfter, subnetIpPrefixes);
-            }
+            AclInterface aclInterface = updateAclInterfaceInCache(interfaceId, aclInPortAfter);
+
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-                    .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker,
-                            portAfter.getName());
+                    .Interface interfaceState = AclServiceUtils.getInterfaceStateFromOperDS(dataBroker, interfaceId);
             if (aclInterface.getLPortTag() == null && interfaceState != null) {
                 updateAclInterfaceFromInterfaceState(aclInterface, interfaceState);
             }
-            AclInterface oldAclInterface = buildAclInterfaceFromCache(aclInterface, aclInPortBefore);
-            List<Uuid> deletedAclList = AclServiceUtils.getUpdatedAclList(oldAclInterface.getSecurityGroups(),
-                    aclInterface.getSecurityGroups());
             if (aclClusterUtil.isEntityOwner()) {
                 // Handle bind/unbind service irrespective of interface state (up/down)
                 boolean isPortSecurityEnable = aclInterface.getPortSecurityEnabled();
@@ -127,38 +128,58 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                     aclServiceManager.notify(aclInterface, oldAclInterface, AclServiceManager.Action.UPDATE);
                 }
             }
-
-            if (deletedAclList != null && !deletedAclList.isEmpty()) {
-                aclDataUtil.removeAclInterfaceMap(deletedAclList, aclInterface);
-            }
+            updateCacheWithAclChange(oldAclInterface, aclInterface);
         }
     }
 
-    private AclInterface updateAclInterfaceInCache(AclInterface aclInterface, InterfaceAcl aclInPortAfter) {
-        aclInterface.setPortSecurityEnabled(aclInPortAfter.isPortSecurityEnabled());
-        aclInterface.setSecurityGroups(aclInPortAfter.getSecurityGroups());
-        aclInterface.setAllowedAddressPairs(aclInPortAfter.getAllowedAddressPairs());
-        AclInterfaceCacheUtil.addAclInterfaceToCache(aclInterface.getInterfaceId(), aclInterface);
-
-        return buildAclInterfaceFromCache(aclInterface, aclInPortAfter);
+    private void updateCacheWithAclChange(AclInterface oldAclInterface, AclInterface aclInterface) {
+        List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(aclInterface.getSecurityGroups(),
+                oldAclInterface.getSecurityGroups());
+        List<Uuid> deletedAclList = AclServiceUtils.getUpdatedAclList(oldAclInterface.getSecurityGroups(),
+                aclInterface.getSecurityGroups());
+        if (deletedAclList != null && !deletedAclList.isEmpty()) {
+            aclDataUtil.removeAclInterfaceMap(deletedAclList, aclInterface);
+        }
+        if (addedAcls != null && addedAcls.isEmpty()) {
+            aclDataUtil.addOrUpdateAclInterfaceMap(addedAcls, aclInterface);
+        }
     }
 
-    private AclInterface buildAclInterfaceFromCache(AclInterface cachedAclInterface, InterfaceAcl aclInPort) {
-        AclInterface aclInterface = new AclInterface();
-        if (aclInPort == null) {
-            aclInterface.setPortSecurityEnabled(false);
-        } else {
-            aclInterface.setInterfaceId(cachedAclInterface.getInterfaceId());
-            aclInterface.setDpId(cachedAclInterface.getDpId());
-            aclInterface.setLPortTag(cachedAclInterface.getLPortTag());
-            aclInterface.setElanId(cachedAclInterface.getElanId());
-            aclInterface.setVpnId(cachedAclInterface.getVpnId());
+    private boolean isPortSecurityEnabledNow(InterfaceAcl aclInPortBefore, InterfaceAcl aclInPortAfter) {
+        return aclInPortBefore != null && !aclInPortBefore.isPortSecurityEnabled() && aclInPortAfter != null
+                && aclInPortAfter.isPortSecurityEnabled();
+    }
 
-            aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
-            aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
-            aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
+    private AclInterface updateAclInterfaceInCache(String interfaceId, InterfaceAcl aclInPortAfter) {
+        AclInterface oldAclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+
+        AclInterface newAclInterface = new AclInterface(oldAclInterface);
+        newAclInterface.setPortSecurityEnabled(aclInPortAfter.isPortSecurityEnabled());
+        newAclInterface.setAllowedAddressPairs(aclInPortAfter.getAllowedAddressPairs());
+
+        List<Uuid> portAfterSecurityGroups = aclInPortAfter.getSecurityGroups();
+        newAclInterface.setSecurityGroups(portAfterSecurityGroups);
+        if (isSecurityGroupsChanged(oldAclInterface.getSecurityGroups(), portAfterSecurityGroups)) {
+            newAclInterface.setIngressRemoteAclTags(
+                    aclServiceUtils.getRemoteAclTags(portAfterSecurityGroups, DirectionIngress.class, dataBroker));
+            newAclInterface.setEgressRemoteAclTags(
+                    aclServiceUtils.getRemoteAclTags(portAfterSecurityGroups, DirectionEgress.class, dataBroker));
         }
-        return aclInterface;
+        AclInterfaceCacheUtil.addAclInterfaceToCache(newAclInterface.getInterfaceId(), newAclInterface);
+        return newAclInterface;
+    }
+
+    private boolean isSecurityGroupsChanged(List<Uuid> oldSgs, List<Uuid> newSgs) {
+        if (oldSgs == null && newSgs == null) {
+            return false;
+        }
+        if ((oldSgs == null && newSgs != null) || (oldSgs != null && newSgs == null)) {
+            return true;
+        }
+        if (oldSgs != null && newSgs != null) {
+            return !(new HashSet<>(oldSgs)).equals(new HashSet<>(newSgs));
+        }
+        return true;
     }
 
     private void updateAclInterfaceFromInterfaceState(AclInterface aclInterface,
@@ -174,8 +195,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         LOG.trace("Received AclInterface add event, port={}", port);
         InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
         if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
-            List<IpPrefixOrAddress> subnetIpPrefixes = AclServiceUtils.getSubnetIpPrefixes(dataBroker, port.getName());
-            AclInterface aclInterface = addAclInterfaceToCache(port.getName(), aclInPort, subnetIpPrefixes);
+            AclInterface aclInterface = addAclInterfaceToCache(port.getName(), aclInPort);
             if (aclInterface.getElanId() == null) {
                 LOG.debug("On add event, skip BIND since ElanId is not updated");
                 return;
@@ -187,9 +207,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         }
     }
 
-    private AclInterface addAclInterfaceToCache(String interfaceId, InterfaceAcl aclInPort,
-            List<IpPrefixOrAddress> subnetIpPrefixes) {
-
+    private AclInterface addAclInterfaceToCache(String interfaceId, InterfaceAcl aclInPort) {
         // check if aclInterface exists in cache, update if exists
         AclInterface aclInterface = null;
         synchronized (AclServiceUtils.getAclKeyForSynchronization(interfaceId).intern()) {
@@ -202,9 +220,12 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
             aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
             aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
-            aclInterface.setSubnetIpPrefixes(subnetIpPrefixes);
+            aclInterface.setSubnetIpPrefixes(AclServiceUtils.getSubnetIpPrefixes(dataBroker, interfaceId));
             aclInterface.setElanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
-            aclInterface.setVpnId(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId));
+            aclInterface.setIngressRemoteAclTags(aclServiceUtils.getRemoteAclTags(aclInPort.getSecurityGroups(),
+                    DirectionIngress.class, dataBroker));
+            aclInterface.setEgressRemoteAclTags(
+                    aclServiceUtils.getRemoteAclTags(aclInPort.getSecurityGroups(), DirectionEgress.class, dataBroker));
         }
         return aclInterface;
     }
