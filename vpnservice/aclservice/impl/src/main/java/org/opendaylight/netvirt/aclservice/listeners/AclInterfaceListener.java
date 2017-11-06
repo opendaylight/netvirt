@@ -152,7 +152,6 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             aclInterface.setDpId(cachedAclInterface.getDpId());
             aclInterface.setLPortTag(cachedAclInterface.getLPortTag());
             aclInterface.setElanId(cachedAclInterface.getElanId());
-            aclInterface.setVpnId(cachedAclInterface.getVpnId());
 
             aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
             aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
@@ -204,7 +203,6 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
             aclInterface.setSubnetIpPrefixes(subnetIpPrefixes);
             aclInterface.setElanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
-            aclInterface.setVpnId(AclServiceUtils.getVpnIdFromInterface(dataBroker, interfaceId));
         }
         return aclInterface;
     }

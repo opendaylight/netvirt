@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -60,6 +61,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 public class AclLiveStatisticsRpcServiceTest {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsRpcServiceTest.class);
