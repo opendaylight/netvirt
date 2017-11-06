@@ -28,6 +28,7 @@ public class AclDataUtil {
     private final Map<Uuid, List<AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
     private final Map<Uuid, List<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
     private final Map<String, Integer> aclFlowPriorityMap = new ConcurrentHashMap<>();
+    private final Map<String, Integer> aclTagMap = new ConcurrentHashMap<>();
 
     public synchronized void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
@@ -177,6 +178,37 @@ public class AclDataUtil {
             priority = AclConstants.PROTO_MATCH_PRIORITY;
         }
         return priority;
+    }
+
+    /**
+     * Adds the ACL tag to the cache.
+     *
+     * @param aclName the ACL name
+     * @param aclTag the ACL tag
+     */
+    public void addAclTag(final String aclName, final Integer aclTag) {
+        this.aclTagMap.put(aclName, aclTag);
+    }
+
+    /**
+     * Removes the acl tag from the cache.
+     *
+     * @param key the key
+     * @return the previous value associated with key, or null if there was no
+     *         mapping for key.
+     */
+    public Integer removeAclTag(final String key) {
+        return this.aclTagMap.remove(key);
+    }
+
+    /**
+     * Gets the acl tag from the cache.
+     *
+     * @param aclName the acl name
+     * @return the acl tag
+     */
+    public Integer getAclTag(final String aclName) {
+        return this.aclTagMap.get(aclName);
     }
 
     /**
