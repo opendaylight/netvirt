@@ -10,7 +10,9 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 
 /**
  * The class to have ACL related constants.
@@ -42,6 +44,7 @@ public final class AclConstants {
     public static final Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
     public static final Integer CT_STATE_TRACKED_NEW_DROP_PRIORITY = 50;
     public static final Integer NO_PRIORITY = 50;
+    public static final Integer ACL_DEFAULT_PRIORITY = 100;
 
     public static final short DHCP_CLIENT_PORT_IPV4 = 68;
     public static final short DHCP_SERVER_PORT_IPV4 = 67;
@@ -108,12 +111,14 @@ public final class AclConstants {
     public static final int DEST_REMOTE_IP_PREFIX_SPECIFIED = 1;
     public static final int DEST_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
     public static final int INVALID_ACL_ID = -1;
-    public static final short EGRESS_ACL_DUMMY_TABLE = 239;
     public static final int TRACKED_CT_STATE = 0x20;
     public static final int TRACKED_CT_STATE_MASK = 0x20;
 
     public static final String ACL_ID_POOL_NAME = "ACL-ID-POOL";
     public static final String ACL_SYNC_KEY_EXT = "-acl";
+
+    public static final List<IPProtocols> PROTOCOLS_SUPPORTED_BY_CONNTRACK =
+            Arrays.asList(IPProtocols.TCP, IPProtocols.UDP, IPProtocols.ICMP, IPProtocols.IPV6ICMP);
 
     enum PacketHandlingType {
         PERMIT,
