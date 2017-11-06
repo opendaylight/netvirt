@@ -93,40 +93,26 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(interfaceName,
-            () -> {
-                int instructionKey = 0;
-                List<Instruction> instructions = new ArrayList<>();
-                Long vpnId = aclInterface.getVpnId();
-                if (vpnId != null) {
-                    instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getVpnIdMetadata(vpnId),
-                        MetaDataUtil.METADATA_MASK_VRFID, ++instructionKey));
-                    LOG.debug("Binding ACL service for interface {} with vpnId {}", interfaceName, vpnId);
-                } else {
-                    Long elanTag = aclInterface.getElanId();
-                    instructions.add(
-                        MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),
-                        MetaDataUtil.METADATA_MASK_SERVICE, ++instructionKey));
-                    LOG.debug("Binding ACL service for interface {} with ElanTag {}", interfaceName, elanTag);
-                }
-                instructions.add(
-                        MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_TABLE, ++instructionKey));
-                short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME,
-                        NwConstants.ACL_SERVICE_INDEX);
-                int flowPriority = AclConstants.EGRESS_ACL_DEFAULT_FLOW_PRIORITY;
-                BoundServices serviceInfo = AclServiceUtils.getBoundServices(
-                        String.format("%s.%s.%s", "acl", "egressacl", interfaceName), serviceIndex, flowPriority,
-                        AclConstants.COOKIE_ACL_BASE, instructions);
-                InstanceIdentifier<BoundServices> path =
+        dataStoreCoordinator.enqueueJob(interfaceName, () -> {
+            int instructionKey = 0;
+            List<Instruction> instructions = new ArrayList<>();
+            instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE,
+                    ++instructionKey));
+            short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
+            int flowPriority = AclConstants.EGRESS_ACL_DEFAULT_FLOW_PRIORITY;
+            BoundServices serviceInfo =
+                    AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "egressacl", interfaceName),
+                            serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
+            InstanceIdentifier<BoundServices> path =
                     AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
 
 
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
-                        WriteTransaction.CREATE_MISSING_PARENTS);
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
+                    WriteTransaction.CREATE_MISSING_PARENTS);
 
-                return Collections.singletonList(writeTxn.submit());
-            });
+            return Collections.singletonList(writeTxn.submit());
+        });
     }
 
     /**
