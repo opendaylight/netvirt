@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -88,8 +87,6 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
                 aclInterface.setElanId(elanId);
             }
             if (aclClusterUtil.isEntityOwner()) {
-                LOG.debug("On add event, notify ACL service manager to BIND ACL for interface: {}", aclInterface);
-                aclServiceManager.notify(aclInterface, null, Action.BIND);
                 // Notify ADD flows, if InterfaceStateListener has processed
                 // before ELanID getting populated
                 if (aclInterface.getDpId() != null) {
