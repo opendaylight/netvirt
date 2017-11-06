@@ -24,25 +24,25 @@ import org.slf4j.LoggerFactory;
 
 @Command(scope = "aclservice", name = "display-acl-data-cache", description = " ")
 public class DisplayAclDataCaches extends OsgiCommandSupport {
-    private static final Logger LOGGER = LoggerFactory.getLogger(DisplayAclDataCaches.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DisplayAclDataCaches.class);
     private AclDataCache aclDataCache;
     private AclInterfaceCache aclInterfaceCache;
     private static final String KEY_TAB = "   %-8s";
-    private static final String ACL_INT_TAB = "   %-4s  %-4s  %-4s  %-4s %-4s  %-4s  %-6s  %-20s  %-20s %-4s";
+    private static final String ACL_INT_TAB = "   %-4s  %-4s  %-4s  %-4s %-4s  %-6s  %-20s  %-20s %-4s";
     private static final String ACL_INT_TAB_FOR = KEY_TAB + ACL_INT_TAB;
     private static final String ACL_INT_HEAD = String.format(ACL_INT_TAB_FOR, "UUID", "PortSecurityEnabled",
-            "InterfaceId", "LPortTag", "DpId", "ElanId", "VpnId", "SecurityGroups", "AllowedAddressPairs",
-            "SubnetIpPrefixes", "MarkedForDelete")
+            "InterfaceId", "LPortTag", "DpId", "ElanId", "SecurityGroups", "AllowedAddressPairs", "SubnetIpPrefixes",
+            "MarkedForDelete")
             + "\n   -------------------------------------------------------------------------------------------------";
     private static final String REM_ID_TAB = "   %-20s  ";
     private static final String REM_ID_TAB_FOR = KEY_TAB + REM_ID_TAB;
     private static final String REM_ID_HEAD = String.format(REM_ID_TAB_FOR, "UUID", "Values")
             + "\n   -------------------------------------------------------------------------";
     private static final String ACL_DATA_TAB_FOR = "   %-8s %-8s  ";
-    private static final String ACL_DATA_HEAD = String.format(ACL_DATA_TAB_FOR, "Key", "Value")
+    private static final String ACL_DATA_HEAD = String.format(ACL_DATA_TAB_FOR, "ACL-ID", "ACL-TAG")
             + "\n   -------------------------------------------------------------------------";
     private final String exeCmdStr = "exec display-acl-data-cache -op ";
-    private final String opSelections = "[ aclInterface | remoteAclId | aclFlowPriority | aclInterfaceCache ]";
+    private final String opSelections = "[ aclInterface | remoteAclId | aclTag | aclInterfaceCache ]";
     private final String opSelStr = exeCmdStr + opSelections;
 
 
@@ -57,7 +57,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
     @Option(name = "--all", description = "display the complete selected map", required = false, multiValued = false)
     private String all ;
 
-    @Option(name = "--key", description = "key for aclFlowPriority/aclInterfaceCache", required = false,
+    @Option(name = "--key", description = "key for aclTag/aclInterfaceCache", required = false,
             multiValued = false)
     private String key;
 
@@ -89,8 +89,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             case "remoteAclId":
                 getRemoteAclIdMap();
                 break;
-            case "aclFlowPriority":
-                getAclFlowPriorityMap();
+            case "aclTag":
+                getAclTagMap();
                 break;
             case "aclInterfaceCache":
                 getAclInterfaceCache();
@@ -121,11 +121,11 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 exeCmdStr + "remoteAclId --all show | --uuid <uuid>");
     }
 
-    void printAclFlowPriorityMapHelp() {
+    void printAclTagMapHelp() {
         session.getConsole().println("invalid input");
         usage();
         session.getConsole().println(
-                exeCmdStr + "aclFlowPriority --all show | --key <key>");
+                exeCmdStr + "aclTag --all show | --key <ACL-ID>");
     }
 
     void printAclInterfaceCacheHelp() {
@@ -161,9 +161,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                     session.getConsole().println(String.format(ACL_INT_TAB,
                             aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                             aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                            aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                            aclInterface.isMarkedForDelete()));
+                            aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                            aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
                 }
             }
         } else if (uuidStr == null) {
@@ -183,9 +182,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                         session.getConsole().println(String.format(ACL_INT_TAB,
                                 aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                                 aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                                aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                                aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                                aclInterface.isMarkedForDelete()));
+                                aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                                aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
                     }
                 }
             }
@@ -235,27 +233,29 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 
-    protected void getAclFlowPriorityMap() throws Exception {
+    protected void getAclTagMap() throws Exception {
         if (all == null && key == null) {
-            printAclFlowPriorityMapHelp();
+            printAclTagMapHelp();
         } else if (all == null) {
-            Integer val = aclDataCache.getAclFlowPriority(key);
-            session.getConsole().println(ACL_DATA_HEAD);
-            session.getConsole().println(String.format(ACL_DATA_TAB_FOR, key, val));
-
-        } else if (key == null) {
-            if (!validateAll()) {
-                printAclFlowPriorityMapHelp();
+            Integer val = aclDataCache.getAclTag(key);
+            if (val == null) {
+                session.getConsole().println("No data found");
                 return;
             }
-            Map<String, Integer> map = aclDataCache.getAclFlowPriorityMap();
+            session.getConsole().println(ACL_DATA_HEAD);
+            session.getConsole().println(String.format(ACL_DATA_TAB_FOR, key, val));
+        } else if (key == null) {
+            if (!validateAll()) {
+                printAclTagMapHelp();
+                return;
+            }
+            Map<String, Integer> map = aclDataCache.getAclTagMap();
             if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
                 session.getConsole().println(ACL_DATA_HEAD);
-                for (Map.Entry<String, Integer> entry : map.entrySet()) {
-                    session.getConsole().println(String.format(ACL_DATA_TAB_FOR, entry.getKey(), entry.getValue()));
-                }
+                map.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(entry -> session.getConsole()
+                        .println(String.format(ACL_DATA_TAB_FOR, entry.getKey(), entry.getValue())));
             }
         }
     }
@@ -275,9 +275,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             session.getConsole().println(String.format(ACL_INT_TAB_FOR, key,
                     aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                     aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                    aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                    aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                    aclInterface.isMarkedForDelete()));
+                    aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                    aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
 
         } else if (key == null) {
             if (!validateAll()) {
@@ -294,9 +293,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                     session.getConsole().println(String.format(ACL_INT_TAB_FOR, entry.getKey(),
                             aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                             aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                            aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                            aclInterface.isMarkedForDelete()));
+                            aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                            aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
                 }
             }
         }

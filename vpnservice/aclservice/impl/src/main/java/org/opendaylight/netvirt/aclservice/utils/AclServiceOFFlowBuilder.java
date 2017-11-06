@@ -20,6 +20,7 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv4;
 import org.opendaylight.genius.mdsalutil.matches.MatchIcmpv6;
@@ -341,7 +342,10 @@ public final class AclServiceOFFlowBuilder {
         return instructions;
     }
 
-    /** Returns resubmit instruction info to the given table ID.
+    /**
+     * Returns resubmit instruction info to the given table ID.
+     *
+     * @param tableId the table id
      * @return resubmit list of InstructionInfo objects
      */
     public static List<InstructionInfo> getResubmitInstructionInfo(short tableId) {
@@ -349,6 +353,19 @@ public final class AclServiceOFFlowBuilder {
         List<ActionInfo> actionsInfos = new ArrayList<>();
         actionsInfos.add(new ActionNxResubmit(tableId));
         instructions.add(new InstructionApplyActions(actionsInfos));
+        return instructions;
+    }
+
+    /**
+     * Gets the goto instruction info which specifies goto to the specified
+     * table.
+     *
+     * @param gotoTableId the goto table id
+     * @return the goto instruction info
+     */
+    public static List<InstructionInfo> getGotoInstructionInfo(short gotoTableId) {
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionGotoTable(gotoTableId));
         return instructions;
     }
 
