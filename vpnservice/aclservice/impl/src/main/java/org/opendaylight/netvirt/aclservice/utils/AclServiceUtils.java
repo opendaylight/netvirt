@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -44,6 +46,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
@@ -608,6 +611,20 @@ public final class AclServiceUtils {
         } else {
             return new MatchMetadata(MetaDataUtil.getLportTagMetaData(lportTag), MetaDataUtil.METADATA_MASK_LPORT_TAG);
         }
+    }
+
+    public static InstructionWriteMetadata getWriteMetadataForAclClassifierType(
+            AclConntrackClassifierType conntrackClassifierType) {
+        return new InstructionWriteMetadata(
+                MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()),
+                MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
+    }
+
+    public static MatchInfoBase buildAclConntrackClassifierTypeMatch(
+            AclConntrackClassifierType conntrackSupportedType) {
+        return new MatchMetadata(
+                MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackSupportedType.getValue()),
+                MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
     }
 
     public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
@@ -1213,10 +1230,22 @@ public final class AclServiceUtils {
 
     /**
      * Returns ACL specific key for synchronization.
+     *
      * @param key the generic key
      * @return ACL key that can be used with synchronization
      */
     public static String getAclKeyForSynchronization(String key) {
         return key + AclConstants.ACL_SYNC_KEY_EXT;
+    }
+
+    /**
+     * Builds the ip protocol matches.
+     *
+     * @param etherType the ether type
+     * @param protocol the protocol
+     * @return the list of matches.
+     */
+    public static List<MatchInfoBase> buildIpProtocolMatches(MatchEthernetType etherType, IPProtocols protocol) {
+        return Lists.newArrayList(etherType, new MatchIpProtocol(protocol.shortValue()));
     }
 }

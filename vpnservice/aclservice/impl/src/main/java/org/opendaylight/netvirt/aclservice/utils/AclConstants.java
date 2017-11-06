@@ -10,7 +10,9 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 
 /**
  * The class to have ACL related constants.
@@ -114,6 +116,9 @@ public final class AclConstants {
 
     public static final String ACL_ID_POOL_NAME = "ACL-ID-POOL";
     public static final String ACL_SYNC_KEY_EXT = "-acl";
+
+    public static final List<IPProtocols> PROTOCOLS_SUPPORTED_BY_CONNTRACK =
+            Arrays.asList(IPProtocols.TCP, IPProtocols.UDP, IPProtocols.ICMP, IPProtocols.IPV6ICMP);
 
     enum PacketHandlingType {
         PERMIT,
