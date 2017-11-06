@@ -174,7 +174,7 @@ public final class AclLiveStatisticsHelper {
 
         for (FlowAndStatisticsMapList flowStats : flowAndStatisticsMapList) {
             switch (flowStats.getTableId()) {
-                case NwConstants.INGRESS_ACL_FILTER_TABLE:
+                case NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE:
                     if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
                         portEgressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portEgressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
@@ -182,9 +182,10 @@ public final class AclLiveStatisticsHelper {
                         portEgressBytesBuilder.setDropCount(flowStats.getByteCount().getValue());
                         portEgressPacketsBuilder.setDropCount(flowStats.getPacketCount().getValue());
                     }
+                    // TODO: Update stats for other drops
                     break;
 
-                case NwConstants.EGRESS_ACL_FILTER_TABLE:
+                case NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE:
                     if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
                         portIngressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portIngressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
@@ -192,6 +193,7 @@ public final class AclLiveStatisticsHelper {
                         portIngressBytesBuilder.setDropCount(flowStats.getByteCount().getValue());
                         portIngressPacketsBuilder.setDropCount(flowStats.getPacketCount().getValue());
                     }
+                    // TODO: Update stats for other drops
                     break;
 
                 default:
@@ -249,10 +251,10 @@ public final class AclLiveStatisticsHelper {
     private static Short getTableId(Direction direction) {
         Short tableId;
         if (direction == Direction.Egress) {
-            tableId = NwConstants.INGRESS_ACL_FILTER_TABLE;
+            tableId = NwConstants.INGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE;
         } else {
             // in case of ingress
-            tableId = NwConstants.EGRESS_ACL_FILTER_TABLE;
+            tableId = NwConstants.EGRESS_ACL_FILTER_CUM_DISPATCHER_TABLE;
         }
         return tableId;
     }
