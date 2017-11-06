@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.SortedSet;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -23,22 +24,32 @@ import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.netvirt.aclservice.utils.AclConntrackClassifierType;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.slf4j.Logger;
@@ -56,8 +67,19 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected final JobCoordinator jobCoordinator;
     protected final AclInterfaceCache aclInterfaceCache;
 
+    protected final Class<? extends DirectionBase> direction;
+    protected final String directionString;
+
     /**
      * Initialize the member variables.
+     *
+     * @param serviceMode the service mode
+     * @param dataBroker the data broker instance.
+     * @param mdsalManager the mdsal manager instance.
+     * @param aclDataUtil the acl data util.
+     * @param aclServiceUtils the acl service util.
+     * @param jobCoordinator the job coordinator
+     * @param aclInterfaceCache the acl interface cache
      */
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
             IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils,
@@ -69,6 +91,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         this.aclServiceUtils = aclServiceUtils;
         this.jobCoordinator = jobCoordinator;
         this.aclInterfaceCache = aclInterfaceCache;
+
+        this.direction =
+                this.serviceMode.equals(ServiceModeEgress.class) ? DirectionIngress.class : DirectionEgress.class;
+        this.directionString = this.direction.equals(DirectionEgress.class) ? "Egress" : "Ingress";
     }
 
     @Override
@@ -87,7 +113,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         LOG.debug("Applying ACL on port {} with DpId {}", port, dpId);
-        programAclWithAllowedAddress(port, port.getAllowedAddressPairs(), Action.ADD, NwConstants.ADD_FLOW);
+        programAcl(port, Action.ADD, NwConstants.ADD_FLOW);
         updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
         return true;
     }
@@ -147,76 +173,110 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     private void processInterfaceUpdate(AclInterface portBefore, AclInterface portAfter) {
         BigInteger dpId = portAfter.getDpId();
-        List<AllowedAddressPairs> addedAllowedAddressPairs =
-                AclServiceUtils.getUpdatedAllowedAddressPairs(portAfter.getAllowedAddressPairs(),
-                        portBefore.getAllowedAddressPairs());
-        List<AllowedAddressPairs> deletedAllowedAddressPairs =
-                AclServiceUtils.getUpdatedAllowedAddressPairs(portBefore.getAllowedAddressPairs(),
-                        portAfter.getAllowedAddressPairs());
-        if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
-            programAclWithAllowedAddress(portAfter, deletedAllowedAddressPairs, Action.UPDATE, NwConstants.DEL_FLOW);
+        List<AllowedAddressPairs> addedAaps = AclServiceUtils
+                .getUpdatedAllowedAddressPairs(portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
+        List<AllowedAddressPairs> deletedAaps = AclServiceUtils
+                .getUpdatedAllowedAddressPairs(portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
+        if (deletedAaps != null && !deletedAaps.isEmpty()) {
+            programAclWithAllowedAddress(portBefore, deletedAaps, Action.UPDATE, NwConstants.DEL_FLOW);
+            updateRemoteAclFilterTable(portBefore, portBefore.getSecurityGroups(), deletedAaps, NwConstants.DEL_FLOW);
         }
-        if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
-            programAclWithAllowedAddress(portAfter, addedAllowedAddressPairs, Action.UPDATE, NwConstants.ADD_FLOW);
+        if (addedAaps != null && !addedAaps.isEmpty()) {
+            programAclWithAllowedAddress(portAfter, addedAaps, Action.UPDATE, NwConstants.ADD_FLOW);
+            updateRemoteAclFilterTable(portAfter, portAfter.getSecurityGroups(), addedAaps, NwConstants.ADD_FLOW);
         }
-        updateArpForAllowedAddressPairs(dpId, portAfter.getLPortTag(), deletedAllowedAddressPairs,
-                portAfter.getAllowedAddressPairs());
+        updateArpForAllowedAddressPairs(dpId, portAfter.getLPortTag(), deletedAaps, portAfter.getAllowedAddressPairs());
         if (portAfter.getSubnetIpPrefixes() != null && portBefore.getSubnetIpPrefixes() == null) {
             programBroadcastRules(portAfter, NwConstants.ADD_FLOW);
         }
 
-        updateAclInterfaceInCache(portBefore);
-        // Have to delete and add all rules because there can be following scenario: Interface1 with SG1, Interface2
-        // with SG2 (which has ACE with remote SG1). Now When we add SG3 to Interface1, the rule for Interface2 which
-        // match the IP of Interface1 will not be installed (but it have to be because Interface1 has more than one SG).
-        // So we need to remove all rules and install them from 0, and we cannot handle only the delta.
-        updateCustomRules(portBefore, portBefore.getSecurityGroups(), NwConstants.DEL_FLOW,
-                portAfter.getAllowedAddressPairs());
-        updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW);
-
-        updateAclInterfaceInCache(portAfter);
-
-        updateCustomRules(portAfter, portAfter.getSecurityGroups(), NwConstants.ADD_FLOW,
-                portAfter.getAllowedAddressPairs());
-        updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW);
-    }
-
-    private void updateAclInterfaceInCache(AclInterface aclInterfaceNew) {
-        aclDataUtil.addOrUpdateAclInterfaceMap(aclInterfaceNew.getSecurityGroups(), aclInterfaceNew);
-    }
-
-    private void updateCustomRules(AclInterface port, List<Uuid> aclUuidList, int action,
-            List<AllowedAddressPairs> syncAllowedAddresses) {
-        programAclRules(port, aclUuidList, action);
-        syncRemoteAclRules(aclUuidList, action, port.getInterfaceId(), syncAllowedAddresses);
-    }
-
-    private void syncRemoteAclRules(List<Uuid> aclUuidList, int action, String currentPortId,
-            List<AllowedAddressPairs> syncAllowedAddresses) {
-        if (aclUuidList == null) {
-            LOG.warn("security groups are null");
+        List<Uuid> addedAcls = AclServiceUtils.getUpdatedAclList(portAfter.getSecurityGroups(),
+                portBefore.getSecurityGroups());
+        List<Uuid> deletedAcls = AclServiceUtils.getUpdatedAclList(portBefore.getSecurityGroups(),
+                portAfter.getSecurityGroups());
+        if (deletedAcls.isEmpty() && addedAcls.isEmpty()) {
+            LOG.trace("No change w.r.t ACL list for port={}", portAfter.getInterfaceId());
             return;
         }
 
-        for (Uuid remoteAclId : aclUuidList) {
-            Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(remoteAclId);
-            if (mapAclWithPortSet == null) {
+        handleAclChange(portBefore, deletedAcls, NwConstants.DEL_FLOW);
+        handleAclChange(portAfter, addedAcls, NwConstants.ADD_FLOW);
+    }
+
+    private void handleAclChange(AclInterface port, List<Uuid> aclList, int addOrRemove) {
+        programAclRules(port, aclList, addOrRemove);
+        updateRemoteAclFilterTable(port, aclList, port.getAllowedAddressPairs(), addOrRemove);
+        programAclDispatcherTable(port, addOrRemove);
+    }
+
+    protected SortedSet<Integer> getRemoteAclTags(AclInterface port) {
+        return this.direction == DirectionIngress.class ? port.getIngressRemoteAclTags()
+                : port.getEgressRemoteAclTags();
+    }
+
+    protected void programAclDispatcherTable(AclInterface port, int addOrRemove) {
+        SortedSet<Integer> remoteAclTags = getRemoteAclTags(port);
+        if (remoteAclTags.isEmpty()) {
+            LOG.debug("No {} rules with remote group id for port={}", this.directionString, port.getInterfaceId());
+            return;
+        }
+        Integer firstRemoteAclTag = remoteAclTags.first();
+        Integer lastRemoteAclTag = remoteAclTags.last();
+
+        programFirstRemoteAclEntryInDispatcherTable(port, firstRemoteAclTag, addOrRemove);
+        programLastRemoteAclEntryInDispatcherTable(port, lastRemoteAclTag, addOrRemove);
+
+        Integer previousRemoteAclTag = firstRemoteAclTag;
+        for (Integer remoteAclTag : remoteAclTags) {
+            if (remoteAclTag.equals(firstRemoteAclTag)) {
                 continue;
             }
-            for (Entry<String, Set<AclInterface>> entry : mapAclWithPortSet.entrySet()) {
-                String aclName = entry.getKey();
-                for (AclInterface port : entry.getValue()) {
-                    if (currentPortId.equals(port.getInterfaceId())
-                            || port.getSecurityGroups() != null && port.getSecurityGroups().size() == 1) {
-                        continue;
-                    }
-                    List<Ace> remoteAceList = AclServiceUtils.getAceWithRemoteAclId(dataBroker, port, remoteAclId);
-                    for (Ace ace : remoteAceList) {
-                        programAceRule(port, action, aclName, ace, syncAllowedAddresses);
-                    }
-                }
-            }
+            List<MatchInfoBase> matches = new ArrayList<>();
+            matches.addAll(AclServiceUtils.buildMatchesForLPortTagAndRemoteAclTag(port.getLPortTag(),
+                    previousRemoteAclTag, serviceMode));
+            String flowId = this.directionString + "_ACL_Dispatcher_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                    + remoteAclTag;
+
+            List<InstructionInfo> instructions =
+                    AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclRuleBasedFilterTable());
+            instructions.add(AclServiceUtils.getWriteMetadataForRemoteAclTag(remoteAclTag));
+            syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId,
+                    AclConstants.ACE_GOTO_NEXT_REMOTE_ACL_PRIORITY, "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+                    instructions, addOrRemove);
+
+            previousRemoteAclTag = remoteAclTag;
         }
+    }
+
+    protected void programFirstRemoteAclEntryInDispatcherTable(AclInterface port, Integer firstRemoteAclTag,
+            int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(AclServiceUtils.buildLPortTagMatch(port.getLPortTag(), serviceMode));
+        String flowId = this.directionString + "_ACL_Dispatcher_First_" + port.getDpId() + "_" + port.getLPortTag()
+                + "_" + firstRemoteAclTag;
+
+        List<InstructionInfo> instructions =
+                AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclRuleBasedFilterTable());
+        instructions.add(AclServiceUtils.getWriteMetadataForRemoteAclTag(firstRemoteAclTag));
+        syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId, AclConstants.ACE_FIRST_REMOTE_ACL_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    protected void programLastRemoteAclEntryInDispatcherTable(AclInterface port, Integer lastRemoteAclTag,
+            int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.addAll(AclServiceUtils.buildMatchesForLPortTagAndRemoteAclTag(port.getLPortTag(), lastRemoteAclTag,
+                serviceMode));
+        String flowId = this.directionString + "_ACL_Dispatcher_Last_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                + lastRemoteAclTag;
+
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+        syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId, AclConstants.ACE_LAST_REMOTE_ACL_PRIORITY,
+                "ACL", 0, 0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+    }
+
+    private void programAcl(AclInterface port, Action action, int addOrRemove) {
+        programAclWithAllowedAddress(port, port.getAllowedAddressPairs(), action, addOrRemove);
     }
 
     private void programAclWithAllowedAddress(AclInterface port, List<AllowedAddressPairs> allowedAddresses,
@@ -224,16 +284,125 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
         LOG.debug("Applying ACL Allowed Address on DpId {}, lportTag {}, Action {}", dpId, lportTag, action);
-        List<Uuid> aclUuidList = port.getSecurityGroups();
         String portId = port.getInterfaceId();
         programGeneralFixedRules(port, "", allowedAddresses, action, addOrRemove);
-        programSpecificFixedRules(dpId, "", allowedAddresses, lportTag, portId, action, addOrRemove);
+        programAclPortSpecificFixedRules(dpId, allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
-            programAclRules(port, aclUuidList, addOrRemove);
+            programAclRules(port, port.getSecurityGroups(), addOrRemove);
+            programAclDispatcherTable(port, addOrRemove);
         }
-        syncRemoteAclRules(aclUuidList, addOrRemove, portId, allowedAddresses);
     }
 
+
+    /**
+     * Programs the acl custom rules.
+     *
+     * @param port acl interface
+     * @param aclUuidList the list of acl uuid to be applied
+     * @param addOrRemove whether to delete or add flow
+     * @return program succeeded
+     */
+    protected boolean programAclRules(AclInterface port, List<Uuid> aclUuidList, int addOrRemove) {
+        BigInteger dpId = port.getDpId();
+        LOG.debug("Applying custom rules on DpId {}, lportTag {}", dpId, port.getLPortTag());
+        if (aclUuidList == null || dpId == null) {
+            LOG.warn("{} ACL parameters can not be null. dpId={}, aclUuidList={}", this.directionString, dpId,
+                    aclUuidList);
+            return false;
+        }
+        for (Uuid aclUuid : aclUuidList) {
+            Acl acl = AclServiceUtils.getAcl(dataBroker, aclUuid.getValue());
+            if (null == acl) {
+                LOG.warn("The ACL {} not found in config DS", aclUuid.getValue());
+                continue;
+            }
+            AccessListEntries accessListEntries = acl.getAccessListEntries();
+            List<Ace> aceList = accessListEntries.getAce();
+            for (Ace ace: aceList) {
+                programAceRule(port, ace, addOrRemove);
+            }
+        }
+        return true;
+    }
+
+    /**
+     * Programs the ace specific rule.
+     *
+     * @param port acl interface
+     * @param ace rule to be program
+     * @param addOrRemove whether to delete or add flow
+     */
+    protected void programAceRule(AclInterface port, Ace ace, int addOrRemove) {
+        SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
+        if (!isValidDirection(aceAttr.getDirection())) {
+            LOG.trace("Ignoring {} direction while processing for {} ACE Rule {}", aceAttr.getDirection(),
+                    this.directionString, ace.getRuleName());
+            return;
+        }
+        LOG.debug("Program {} ACE rule for dpId={}, lportTag={}, addOrRemove={}, ace={}, portId={}",
+                this.directionString, port.getDpId(), port.getLPortTag(), addOrRemove, ace.getRuleName(),
+                port.getInterfaceId());
+
+        Matches matches = ace.getMatches();
+        Map<String, List<MatchInfoBase>> flowMap = null;
+        if (matches.getAceType() instanceof AceIp) {
+            flowMap = AclServiceOFFlowBuilder.programIpFlow(matches);
+            if (!AclServiceUtils.doesAceHaveRemoteGroupId(aceAttr)) {
+                // programming for ACE which doesn't have any remote group Id
+                programForAceNotHavingRemoteAclId(port, ace, flowMap, addOrRemove);
+            } else {
+                Uuid remoteAclId = aceAttr.getRemoteGroupId();
+                // programming for ACE which have remote group Id
+                programAceSpecificFlows(port, ace, flowMap, remoteAclId, addOrRemove);
+            }
+        }
+    }
+
+    protected void programForAceNotHavingRemoteAclId(AclInterface port, Ace ace,
+            Map<String, List<MatchInfoBase>> flowMap, int addOrRemove) {
+        if (null == flowMap) {
+            return;
+        }
+
+        MatchInfoBase lportTagMatch = AclServiceUtils.buildLPortTagMatch(port.getLPortTag(), serviceMode);
+        for (Entry<String, List<MatchInfoBase>> entry : flowMap.entrySet()) {
+            String flowName = entry.getKey();
+            List<MatchInfoBase> matches = entry.getValue();
+            matches.add(lportTagMatch);
+            String flowId = flowName + this.directionString + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                    + ace.getKey().getRuleName();
+
+            List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
+            syncFlow(port.getDpId(), getAclFilterCumDispatcherTable(), flowId,
+                    AclConstants.ACE_WITHOUT_REMOTE_ACL_PRIORITY, "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches,
+                    instructions, addOrRemove);
+        }
+    }
+
+    protected void programAceSpecificFlows(AclInterface port, Ace ace, Map<String, List<MatchInfoBase>> flowMap,
+            Uuid remoteAclId, int addOrRemove) {
+        if (null == flowMap) {
+            return;
+        }
+        Integer remoteAclTag = this.aclServiceUtils.getAclTag(remoteAclId);
+        if (remoteAclTag == null || remoteAclTag == AclConstants.INVALID_ACL_TAG) {
+            LOG.error("Failed building metadata match for ACL={}. Failed to allocate id", remoteAclId.getValue());
+            return;
+        }
+
+        for (Entry<String, List<MatchInfoBase>> entry : flowMap.entrySet()) {
+            String flowName = entry.getKey();
+            List<MatchInfoBase> matches = entry.getValue();
+            matches.addAll(AclServiceUtils.buildMatchesForLPortTagAndRemoteAclTag(port.getLPortTag(),
+                    remoteAclTag, serviceMode));
+            String flowId = flowName + this.directionString + "_" + port.getDpId() + "_" + port.getLPortTag() + "_"
+                    + ace.getKey().getRuleName();
+
+            List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclRemoteAclTable());
+            syncFlow(port.getDpId(), getAclRuleBasedFilterTable(), flowId, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0,
+                    0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+        }
+    }
 
     @Override
     public boolean removeAcl(AclInterface port) {
@@ -242,8 +411,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
-        programAclWithAllowedAddress(port, port.getAllowedAddressPairs(), Action.REMOVE, NwConstants.DEL_FLOW);
-        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW, true);
+        programAcl(port, Action.REMOVE, NwConstants.DEL_FLOW);
+        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
         return true;
     }
 
@@ -252,8 +421,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled() || port.getDpId() == null) {
             return false;
         }
-        programAceRule(port, NwConstants.ADD_FLOW, aclName, ace, null);
-        updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
+        programAceRule(port, ace, NwConstants.ADD_FLOW);
+        // TODO: If this is the first port on the DPN for a remote ACL, add
+        // remote ACL flows.
+        // updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
         return true;
     }
 
@@ -262,8 +433,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled() || port.getDpId() == null) {
             return false;
         }
-        programAceRule(port, NwConstants.DEL_FLOW, aclName, ace, null);
-        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
+        programAceRule(port, ace, NwConstants.DEL_FLOW);
+        // TODO: If this is the last port on the DPN for a remote ACL, delete
+        // remote ACL flows.
+        // updateRemoteAclFilterTable(port, NwConstants.ADD_FLOW);
         return true;
     }
 
@@ -303,42 +476,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      */
     protected abstract void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag,
             List<AllowedAddressPairs> deletedAAP, List<AllowedAddressPairs> addedAAP);
-
-    /**
-     * Program the default specific rules.
-     *
-     * @param dpid the dpid
-     * @param dhcpMacAddress the dhcp mac address.
-     * @param allowedAddresses the allowed addresses
-     * @param lportTag the lport tag
-     * @param portId the port id
-     * @param action add/modify/remove action
-     * @param addOrRemove addorRemove
-     */
-    protected abstract void programSpecificFixedRules(BigInteger dpid, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, int lportTag, String portId, Action action, int addOrRemove);
-
-    /**
-     * Programs the acl custom rules.
-     *
-     * @param port acl interface
-     * @param aclUuidList the list of acl uuid to be applied
-     * @param addOrRemove whether to delete or add flow
-     * @return program succeeded
-     */
-    protected abstract boolean programAclRules(AclInterface port, List<Uuid> aclUuidList, int addOrRemove);
-
-    /**
-     * Programs the ace custom rule.
-     *
-     * @param port acl interface
-     * @param addOrRemove whether to delete or add flow
-     * @param aclName the acl name
-     * @param ace rule to be program
-     * @param syncAllowedAddresses the allowed addresses
-     */
-    protected abstract void programAceRule(AclInterface port, int addOrRemove, String aclName, Ace ace,
-            List<AllowedAddressPairs> syncAllowedAddresses);
 
     /**
      * Programs broadcast rules.
@@ -394,6 +531,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         });
     }
 
+    protected List<InstructionInfo> getDispatcherTableResubmitInstructions() {
+        return getDispatcherTableResubmitInstructions(new ArrayList<>());
+    }
+
     /**
      * Gets the dispatcher table resubmit instructions based on ingress/egress service mode w.r.t switch.
      *
@@ -414,42 +555,35 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     private void updateRemoteAclFilterTable(AclInterface port, int addOrRemove) {
-        updateRemoteAclFilterTable(port, addOrRemove, false);
+        updateRemoteAclFilterTable(port, port.getSecurityGroups(), port.getAllowedAddressPairs(), addOrRemove);
     }
 
-    private void updateRemoteAclFilterTable(AclInterface port, int addOrRemove, boolean isAclDeleted) {
-        if (port.getSecurityGroups() == null) {
+    private void updateRemoteAclFilterTable(AclInterface port, List<Uuid> aclList, List<AllowedAddressPairs> aaps,
+            int addOrRemove) {
+        if (aclList == null) {
             LOG.debug("Port {} without SGs", port.getInterfaceId());
             return;
         }
-
-        if (AclServiceUtils.exactlyOneAcl(port)) {
-            Uuid acl = port.getSecurityGroups().get(0);
-            BigInteger aclId = aclServiceUtils.buildAclId(acl);
+        for (Uuid acl : aclList) {
             if (aclDataUtil.getRemoteAcl(acl) != null) {
                 Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
                 Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
+                Integer aclTag = aclServiceUtils.getAclTag(acl);
 
-                for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
+                for (AllowedAddressPairs ip : aaps) {
                     if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
                         continue;
                     }
                     for (BigInteger dpId : dpns) {
-                        updateRemoteAclTableForPort(port, acl, addOrRemove, ip, aclId, dpId);
+                        programRemoteAclTableFlow(dpId, aclTag, ip, addOrRemove);
                     }
                 }
-                syncRemoteAclTableFromOtherDpns(port, acl, aclId, addOrRemove);
-            } else {
-                LOG.debug("Port {} with more than one SG ({}). Don't change ACL filter table", port.getInterfaceId(),
-                        port.getSecurityGroups().size());
+                syncRemoteAclTableFromOtherDpns(port, acl, aclTag, addOrRemove);
             }
-        } else if (port.getSecurityGroups() != null && port.getSecurityGroups().size() > 1) {
-            updateRemoteAclTableForMultipleAcls(port, addOrRemove, port.getInterfaceId());
         }
-        syncRemoteAclTable(port, addOrRemove, port.getInterfaceId(), isAclDeleted);
     }
 
-    private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid acl, BigInteger aclId, int addOrRemove) {
+    private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid acl, Integer aclTag, int addOrRemove) {
         Collection<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(acl);
         BigInteger dpId = port.getDpId();
         boolean isFirstPortInDpn = true;
@@ -469,111 +603,15 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         continue;
                     }
                     for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
-                        updateRemoteAclTableForPort(aclInterface, acl, addOrRemove, ip, aclId, port.getDpId());
+                        programRemoteAclTableFlow(port.getDpId(), aclTag, ip, addOrRemove);
                     }
                 }
             }
         }
     }
 
-    private void syncRemoteAclTable(AclInterface port, int addOrRemove, String ignorePort, boolean isAclDeleted) {
-        for (Uuid aclUuid : port.getSecurityGroups()) {
-            if (aclDataUtil.getRemoteAcl(aclUuid) == null) {
-                continue;
-            }
-            Collection<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(aclUuid);
-            if (aclInterfaces != null) {
-                for (AclInterface aclInterface : aclInterfaces) {
-                    if (aclInterface.getInterfaceId().equals(port.getInterfaceId())
-                            || AclServiceUtils.exactlyOneAcl(aclInterface)) {
-                        continue;
-                    }
-                    boolean allMultipleAcls = true;
-                    List<Uuid> remoteInterfaceRemoteAcls = aclInterface.getSecurityGroups();
-                    if (remoteInterfaceRemoteAcls != null) {
-                        for (Uuid remoteInterfaceRemoteAcl : remoteInterfaceRemoteAcls) {
-                            if (aclDataUtil.getRemoteAcl(remoteInterfaceRemoteAcl) == null) {
-                                continue;
-                            }
-                            Collection<AclInterface> aclInterfaces2 =
-                                    aclDataUtil.getInterfaceList(remoteInterfaceRemoteAcl);
-                            if (aclInterfaces2 != null) {
-                                for (AclInterface aclInterface2 : aclInterfaces2) {
-                                    if (aclInterface2.getInterfaceId().equals(aclInterface.getInterfaceId())) {
-                                        continue;
-                                    }
-                                    if (aclInterface2.getSecurityGroups().size() == 1) {
-                                        allMultipleAcls = false;
-                                        break;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    int addRremove = allMultipleAcls ? NwConstants.DEL_FLOW : NwConstants.ADD_FLOW;
-                    addRremove = isAclDeleted ? NwConstants.DEL_FLOW : addRremove;
-                    for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
-                        if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
-                            continue;
-                        }
-                        updateRemoteAclTableForPort(aclInterface, aclUuid, addRremove, ip,
-                                aclServiceUtils.buildAclId(aclUuid), aclInterface.getDpId());
-                    }
-                }
-            }
-        }
-    }
-
-    private void updateRemoteAclTableForMultipleAcls(AclInterface port, int addOrRemove, String ignorePort) {
-        for (Uuid aclUuid : port.getSecurityGroups()) {
-            if (aclDataUtil.getRemoteAcl(aclUuid) == null) {
-                continue;
-            }
-            Acl acl = AclServiceUtils.getAcl(dataBroker, aclUuid.getValue());
-            if (null == acl) {
-                LOG.debug("The ACL {} is empty", aclUuid);
-                return;
-            }
-
-            Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(aclUuid);
-            Set<BigInteger> dpns = collectDpns(mapAclWithPortSet);
-
-            AccessListEntries accessListEntries = acl.getAccessListEntries();
-            List<Ace> aceList = accessListEntries.getAce();
-            for (Ace ace : aceList) {
-                SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
-                if (aceAttr.getRemoteGroupId() == null) {
-                    continue;
-                }
-                Collection<AclInterface> interfaceList = aclDataUtil.getInterfaceList(aceAttr.getRemoteGroupId());
-                if (interfaceList == null) {
-                    continue;
-                }
-
-                for (AclInterface inter : interfaceList) {
-                    if (ignorePort.equals(inter.getInterfaceId())) {
-                        continue;
-                    }
-                    if (inter.getSecurityGroups() != null && inter.getSecurityGroups().size() == 1) {
-                        BigInteger aclId = aclServiceUtils.buildAclId(aceAttr.getRemoteGroupId());
-                        for (AllowedAddressPairs ip : port.getAllowedAddressPairs()) {
-                            if (!AclServiceUtils.isNotIpv4AllNetwork(ip)) {
-                                continue;
-                            }
-                            for (BigInteger dpnId : dpns) {
-                                updateRemoteAclTableForPort(port, aceAttr.getRemoteGroupId(), addOrRemove, ip, aclId,
-                                        dpnId);
-                            }
-                        }
-                        syncRemoteAclTableFromOtherDpns(port, aclUuid, aclId, addOrRemove);
-                    }
-                }
-            }
-        }
-    }
-
-    protected abstract void updateRemoteAclTableForPort(AclInterface port, Uuid acl, int addOrRemove,
-            AllowedAddressPairs ip, BigInteger aclId, BigInteger dpId);
+    protected abstract void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs ip,
+            int addOrRemove);
 
     protected String getOperAsString(int flowOper) {
         String oper;
@@ -610,24 +648,188 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     /**
-     * Gets the priority of acl flow which is to be either removed or added.
+     * Programs the port specific fixed rules.
      *
-     * @param poolName
-     *            the acl pool name
-     * @param flowName
-     *            the flow name
-     * @param addOrRemove
-     *            add or remove the entries.
-     * @return the acl flow priority
+     * @param dpId the dp id
+     * @param allowedAddresses the allowed addresses
+     * @param lportTag the lport tag
+     * @param portId the portId
+     * @param action the action
+     * @param write whether to add or remove the flow.
      */
-    protected int getAclFlowPriority(String poolName, String flowName, int addOrRemove) {
-        int priority;
-        if (addOrRemove == NwConstants.DEL_FLOW) {
-            priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(poolName, flowName);
-        } else {
-            priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(poolName, flowName);
+    protected void programAclPortSpecificFixedRules(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+            int lportTag, String portId, Action action, int write) {
+        programGotoClassifierTableRules(dpId, allowedAddresses, lportTag, write);
+        if (action == Action.ADD || action == Action.REMOVE) {
+            programConntrackRecircRules(dpId, allowedAddresses, lportTag, portId, write);
+            programPortSpecificDropRules(dpId, lportTag, write);
+            programAclCommitRules(dpId, lportTag, portId, write);
         }
-        return priority;
+        LOG.info("programAclPortSpecificFixedRules: flows for dpId={}, lportId={}, action={}, write={}", dpId, lportTag,
+                action, write);
+    }
+
+    protected abstract void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps,
+            int lportTag, int addOrRemove);
+
+    /**
+     * Adds the rule to send the packet to the netfilter to check whether it is a known packet.
+     *
+     * @param dpId the dpId
+     * @param aaps the allowed address pairs
+     * @param lportTag the lport tag
+     * @param portId the portId
+     * @param addOrRemove whether to add or remove the flow
+     */
+    protected void programConntrackRecircRules(BigInteger dpId, List<AllowedAddressPairs> aaps, int lportTag,
+            String portId, int addOrRemove) {
+        if (AclServiceUtils.doesIpv4AddressExists(aaps)) {
+            programConntrackRecircRule(dpId, lportTag, portId, MatchEthernetType.IPV4, addOrRemove);
+        }
+        if (AclServiceUtils.doesIpv6AddressExists(aaps)) {
+            programConntrackRecircRule(dpId, lportTag, portId, MatchEthernetType.IPV6, addOrRemove);
+        }
+    }
+
+    protected void programConntrackRecircRule(BigInteger dpId, int lportTag, String portId,
+            MatchEthernetType matchEtherType, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(matchEtherType);
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            Long elanTag = getElanIdFromAclInterface(portId);
+            if (elanTag == null) {
+                LOG.error("ElanId not found for portId={}; Context: dpId={}, lportTag={}, addOrRemove={},", portId,
+                        dpId, lportTag, addOrRemove);
+                return;
+            }
+            List<ActionInfo> actionsInfos = new ArrayList<>();
+            actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(), getAclForExistingTrafficTable()));
+            instructions.add(new InstructionApplyActions(actionsInfos));
+        }
+
+        String flowName =
+                this.directionString + "_Fixed_Conntrk_" + dpId + "_" + lportTag + "_" + matchEtherType + "_Recirc";
+        syncFlow(dpId, getAclConntrackSenderTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Adds the rules to drop the unknown/invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove whether to add or remove the flow
+     */
+    protected void programPortSpecificDropRules(BigInteger dpId, int lportTag, int addOrRemove) {
+        LOG.debug("Programming Drop Rules: DpId={}, lportTag={}, addOrRemove={}", dpId, lportTag, addOrRemove);
+        programConntrackInvalidDropRule(dpId, lportTag, addOrRemove);
+        programAclRuleMissDropRule(dpId, lportTag, addOrRemove);
+    }
+
+    /**
+     * Adds the rule to drop the conntrack invalid packets .
+     *
+     * @param dpId the dpId
+     * @param lportTag the lport tag
+     * @param addOrRemove whether to add or remove the flow
+     */
+    protected void programConntrackInvalidDropRule(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = AclServiceOFFlowBuilder.addLPortTagMatches(lportTag,
+                AclConstants.TRACKED_INV_CT_STATE, AclConstants.TRACKED_INV_CT_STATE_MASK, serviceMode);
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+
+        String flowId = this.directionString + "_Fixed_Conntrk_Drop" + dpId + "_" + lportTag + "_Tracked_Invalid";
+        syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY, "ACL",
+                0, 0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Program ACL rule miss drop rule for a port.
+     *
+     * @param dpId the dp id
+     * @param lportTag the lport tag
+     * @param addOrRemove the add or remove
+     */
+    protected void programAclRuleMissDropRule(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getDropInstructionInfo();
+
+        String flowId = this.directionString + "_Fixed_Acl_Rule_Miss_Drop_" + dpId + "_" + lportTag;
+        syncFlow(dpId, getAclFilterCumDispatcherTable(), flowId, AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY, "ACL",
+                0, 0, AclConstants.COOKIE_ACL_DROP_FLOW, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Program acl commit rules.
+     *
+     * @param dpId the dp id
+     * @param lportTag the lport tag
+     * @param portId the port id
+     * @param addOrRemove the add or remove
+     */
+    protected void programAclCommitRules(BigInteger dpId, int lportTag, String portId, int addOrRemove) {
+        programAclCommitRuleForConntrack(dpId, lportTag, portId, MatchEthernetType.IPV4, addOrRemove);
+        programAclCommitRuleForConntrack(dpId, lportTag, portId, MatchEthernetType.IPV6, addOrRemove);
+        programAclCommitRuleForNonConntrack(dpId, lportTag, addOrRemove);
+    }
+
+    /**
+     * Program acl commit rule for conntrack.
+     *
+     * @param dpId the dp id
+     * @param lportTag the lport tag
+     * @param portId the port id
+     * @param matchEtherType the match ether type
+     * @param addOrRemove the add or remove
+     */
+    protected void programAclCommitRuleForConntrack(BigInteger dpId, int lportTag, String portId,
+            MatchEthernetType matchEtherType, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(matchEtherType);
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+        matches.add(
+                AclServiceUtils.buildAclConntrackClassifierTypeMatch(AclConntrackClassifierType.CONNTRACK_SUPPORTED));
+
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            Long elanId = getElanIdFromAclInterface(portId);
+            if (elanId == null) {
+                LOG.error("ElanId not found for portId={}; Context: dpId={}, lportTag={}, addOrRemove={}", portId, dpId,
+                        lportTag, addOrRemove);
+                return;
+            }
+            actionsInfos.add(new ActionNxConntrack(2, 1, 0, elanId.intValue(), (short) 255));
+        }
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions(actionsInfos);
+
+        String flowName = directionString + "_Acl_Commit_Conntrack_" + dpId + "_" + lportTag + "_" + matchEtherType;
+        // Flow for conntrack traffic to commit and resubmit to dispatcher
+        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
+    }
+
+    /**
+     * Program acl commit rule for non conntrack.
+     *
+     * @param dpId the dp id
+     * @param lportTag the lport tag
+     * @param addOrRemove the add or remove
+     */
+    protected void programAclCommitRuleForNonConntrack(BigInteger dpId, int lportTag, int addOrRemove) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+        matches.add(AclServiceUtils
+                .buildAclConntrackClassifierTypeMatch(AclConntrackClassifierType.NON_CONNTRACK_SUPPORTED));
+
+        List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
+        String flowName = this.directionString + "_Acl_Commit_Non_Conntrack_" + dpId + "_" + lportTag;
+        // Flow for non-conntrack traffic to resubmit to dispatcher
+        syncFlow(dpId, getAclCommitterTable(), flowName, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
+                AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
 
     protected Long getElanIdFromAclInterface(String elanInterfaceName) {
@@ -637,4 +839,22 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
         return null;
     }
+
+    protected abstract boolean isValidDirection(Class<? extends DirectionBase> direction);
+
+    protected abstract short getAclAntiSpoofingTable();
+
+    protected abstract short getAclConntrackClassifierTable();
+
+    protected abstract short getAclConntrackSenderTable();
+
+    protected abstract short getAclForExistingTrafficTable();
+
+    protected abstract short getAclFilterCumDispatcherTable();
+
+    protected abstract short getAclRuleBasedFilterTable();
+
+    protected abstract short getAclRemoteAclTable();
+
+    protected abstract short getAclCommitterTable();
 }
