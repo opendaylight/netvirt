@@ -346,7 +346,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE)
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
                     ])
                 ]
                 matchInfoList = #[
@@ -354,7 +354,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchEthernetType(2048L)
                 ]
                 priority = 61010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -392,7 +392,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -433,7 +433,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE)
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
                     ])
                 ]
                 matchInfoList = #[
@@ -442,7 +442,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIpv4Source("10.0.0.100", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -470,7 +470,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                 flowName = "ACL"
                 instructionInfoList = #[
                     new InstructionApplyActions(#[
-                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE)
+                        new ActionNxConntrack(2, 0, 0, 5000, NwConstants.INGRESS_ACL_FOR_EXISTING_TRAFFIC_TABLE)
                     ])
                 ]
                 matchInfoList = #[
@@ -479,7 +479,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchIpv4Source("10.0.0.101", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -518,7 +518,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -538,7 +538,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi

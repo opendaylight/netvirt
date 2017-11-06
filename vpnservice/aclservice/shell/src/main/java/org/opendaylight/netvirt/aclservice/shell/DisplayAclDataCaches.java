@@ -28,11 +28,11 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(DisplayAclDataCaches.class);
     private AclDataCache aclDataCache;
     private static final String KEY_TAB = "   %-8s";
-    private static final String ACL_INT_TAB = "   %-4s  %-4s  %-4s  %-4s %-4s  %-4s  %-6s  %-20s  %-20s %-4s";
+    private static final String ACL_INT_TAB = "   %-4s  %-4s  %-4s  %-4s %-4s  %-6s  %-20s  %-20s %-4s";
     private static final String ACL_INT_TAB_FOR = KEY_TAB + ACL_INT_TAB;
     private static final String ACL_INT_HEAD = String.format(ACL_INT_TAB_FOR, "UUID", "PortSecurityEnabled",
-            "InterfaceId", "LPortTag", "DpId", "ElanId", "VpnId", "SecurityGroups", "AllowedAddressPairs",
-            "SubnetIpPrefixes", "MarkedForDelete")
+            "InterfaceId", "LPortTag", "DpId", "ElanId", "SecurityGroups", "AllowedAddressPairs", "SubnetIpPrefixes",
+            "MarkedForDelete")
             + "\n   -------------------------------------------------------------------------------------------------";
     private static final String REM_ID_TAB = "   %-20s  ";
     private static final String REM_ID_TAB_FOR = KEY_TAB + REM_ID_TAB;
@@ -163,9 +163,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                     session.getConsole().println(String.format(ACL_INT_TAB,
                             aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                             aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                            aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                            aclInterface.isMarkedForDelete()));
+                            aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                            aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
                 }
                 return;
             }
@@ -189,9 +188,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                         session.getConsole().println(String.format(ACL_INT_TAB,
                                 aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                                 aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                                aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                                aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                                aclInterface.isMarkedForDelete()));
+                                aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                                aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
                     }
                 }
                 return;
@@ -301,9 +299,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             session.getConsole().println(String.format(ACL_INT_TAB_FOR, key,
                     aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                     aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                    aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                    aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                    aclInterface.isMarkedForDelete()));
+                    aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                    aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
 
             return;
         }
@@ -324,9 +321,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                     session.getConsole().println(String.format(ACL_INT_TAB_FOR, entry.getKey(),
                             aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                             aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
-                            aclInterface.getVpnId(), aclInterface.getSecurityGroups(),
-                            aclInterface.getAllowedAddressPairs(), aclInterface.getSubnetIpPrefixes(),
-                            aclInterface.isMarkedForDelete()));
+                            aclInterface.getSecurityGroups(), aclInterface.getAllowedAddressPairs(),
+                            aclInterface.getSubnetIpPrefixes(), aclInterface.isMarkedForDelete()));
                 }
             }
             return;

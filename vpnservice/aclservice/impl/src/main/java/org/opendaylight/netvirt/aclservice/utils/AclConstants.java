@@ -10,7 +10,9 @@ package org.opendaylight.netvirt.aclservice.utils;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 
 /**
  * The class to have ACL related constants.
@@ -36,12 +38,19 @@ public interface AclConstants {
     Integer PROTO_MATCH_SYN_ACK_ALLOW_PRIORITY = 61004;
     Integer PROTO_MATCH_SYN_DROP_PRIORITY = 61003;
     Integer PROTO_VM_IP_MAC_MATCH_PRIORITY = 36001;
-    Integer CT_STATE_UNTRACKED_PRIORITY = 62030;
-    Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62020;
-    Integer CT_STATE_TRACKED_INVALID_PRIORITY = 62015;
-    Integer CT_STATE_TRACKED_NEW_PRIORITY = 62010;
+    Integer CT_STATE_UNTRACKED_PRIORITY = 340;
+    Integer CT_STATE_TRACKED_EXIST_PRIORITY = 330;
+    Integer CT_STATE_TRACKED_INVALID_PRIORITY = 320;
+    Integer CT_STATE_TRACKED_NEW_PRIORITY = 310;
     Integer CT_STATE_TRACKED_NEW_DROP_PRIORITY = 50;
     Integer NO_PRIORITY = 50;
+
+    Integer ACE_WITHOUT_REMOTE_ACL_PRIORITY = 240;
+    Integer ACE_LAST_REMOTE_ACL_PRIORITY = 230;
+    Integer ACE_GOTO_NEXT_REMOTE_ACL_PRIORITY = 220;
+    Integer ACE_FIRST_REMOTE_ACL_PRIORITY = 210;
+    Integer ACL_DEFAULT_PRIORITY = 100;
+    Integer ACL_PORT_SPECIFIC_DROP_PRIORITY = 50;
 
     short DHCP_CLIENT_PORT_IPV4 = 68;
     short DHCP_SERVER_PORT_IPV4 = 67;
@@ -107,13 +116,15 @@ public interface AclConstants {
     int SOURCE_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
     int DEST_REMOTE_IP_PREFIX_SPECIFIED = 1;
     int DEST_REMOTE_IP_PREFIX_UNSPECIFIED = -1;
-    int INVALID_ACL_ID = -1;
-    short EGRESS_ACL_DUMMY_TABLE = 239;
+    int INVALID_ACL_TAG = -1;
     int TRACKED_CT_STATE = 0x20;
     int TRACKED_CT_STATE_MASK = 0x20;
 
-    String ACL_ID_POOL_NAME = "ACL-ID-POOL";
+    String ACL_TAG_POOL_NAME = "ACL-TAG-POOL";
     String ACL_SYNC_KEY_EXT = "-acl";
+
+    List<IPProtocols> PROTOCOLS_SUPPORTED_BY_CONNTRACK =
+            Arrays.asList(IPProtocols.TCP, IPProtocols.UDP, IPProtocols.ICMP, IPProtocols.IPV6ICMP);
 
     enum PacketHandlingType {
         PERMIT,
