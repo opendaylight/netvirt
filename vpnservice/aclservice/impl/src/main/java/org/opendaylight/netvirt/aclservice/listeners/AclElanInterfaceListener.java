@@ -92,8 +92,6 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
         }
 
         if (aclClusterUtil.isEntityOwner()) {
-            LOG.debug("On add event, notify ACL service manager to BIND ACL for interface: {}", aclInterface);
-            aclServiceManager.notify(aclInterface, null, Action.BIND);
             // Notify ADD flows, if InterfaceStateListener has processed
             // before ELanID getting populated
             if (aclInterface.getDpId() != null) {
