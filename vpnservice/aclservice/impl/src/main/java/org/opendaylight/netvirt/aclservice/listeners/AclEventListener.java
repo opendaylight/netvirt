@@ -21,6 +21,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
+import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -77,7 +78,7 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         }
 
         LOG.trace("On remove event, remove ACL: {}", acl);
-        this.aclServiceUtils.releaseAclId(acl.getAclName());
+        this.aclServiceUtils.releaseAclTag(acl.getAclName());
         updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.REMOVE);
     }
 
@@ -105,7 +106,6 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
             updateAceRules(interfaceList, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
         }
         updateRemoteAclCache(deletedAceRules, aclName, AclServiceManager.Action.REMOVE);
-
     }
 
     private void updateAceRules(Collection<AclInterface> interfaceList, String aclName, List<Ace> aceList,
@@ -122,13 +122,19 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void add(InstanceIdentifier<Acl> key, Acl acl) {
+        String aclName = acl.getAclName();
         if (!AclServiceUtils.isOfAclInterest(acl)) {
-            LOG.trace("{} does not have SecurityRuleAttr augmentation", acl.getAclName());
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclName);
             return;
         }
 
         LOG.trace("On add event, add ACL: {}", acl);
-        updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.ADD);
+        Integer aclTag = this.aclServiceUtils.allocateAclTag(aclName);
+        if (aclTag != null && aclTag != AclConstants.INVALID_ACL_TAG) {
+            this.aclDataUtil.addAclTag(aclName, aclTag);
+        }
+
+        updateRemoteAclCache(acl.getAccessListEntries().getAce(), aclName, AclServiceManager.Action.ADD);
     }
 
     /**

@@ -63,6 +63,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Ignore
 public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
