@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.aclservice.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -31,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
@@ -44,11 +46,10 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
-import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
-import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -610,6 +611,20 @@ public final class AclServiceUtils {
         }
     }
 
+    public static InstructionWriteMetadata getWriteMetadataForAclClassifierType(
+            AclConntrackClassifierType conntrackClassifierType) {
+        return new InstructionWriteMetadata(
+                MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()),
+                MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
+    }
+
+    public static MatchInfoBase buildAclConntrackClassifierTypeMatch(
+            AclConntrackClassifierType conntrackSupportedType) {
+        return new MatchMetadata(
+                MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackSupportedType.getValue()),
+                MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
+    }
+
     public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
         List<Ace> remoteAclRuleList = new ArrayList<>();
         List<Uuid> aclList = port.getSecurityGroups();
@@ -801,14 +816,6 @@ public final class AclServiceUtils {
         InstanceIdentifier<PortSubnetIpPrefixes> id = InstanceIdentifier.builder(PortsSubnetIpPrefixes.class)
                     .child(PortSubnetIpPrefixes.class, new PortSubnetIpPrefixesKey(portId)).build();
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, id);
-    }
-
-    public static Long getVpnIdFromInterface(DataBroker broker, String vpnInterfaceName) {
-        VpnInterface vpnInterface = VpnHelper.getVpnInterface(broker, vpnInterfaceName);
-        if (vpnInterface != null) {
-            return VpnHelper.getVpnId(broker, vpnInterface.getVpnInstanceName());
-        }
-        return null;
     }
 
     private static List<MatchInfoBase> updateAAPMatches(boolean isSourceIpMacMatch, List<MatchInfoBase> flows,
@@ -1098,16 +1105,10 @@ public final class AclServiceUtils {
     }
 
     public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(long elanTag, AllowedAddressPairs ip,
-            DataBroker dataBroker, Long vpnId) {
+            DataBroker dataBroker) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        MatchMetadata metadatMatch = null;
-        if (vpnId == null) {
-            metadatMatch =
-                    new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
-        } else {
-            metadatMatch =
-                    new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID);
-        }
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
         flowMatches.add(metadatMatch);
         if (ip.getIpAddress().getIpAddress() != null) {
             if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
@@ -1140,16 +1141,10 @@ public final class AclServiceUtils {
     }
 
     public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Long elanTag, AllowedAddressPairs ip,
-            DataBroker dataBroker, Long vpnId) {
+            DataBroker dataBroker) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        MatchMetadata metadatMatch = null;
-        if (vpnId == null) {
-            metadatMatch =
-                    new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
-        } else {
-            metadatMatch =
-                    new MatchMetadata(MetaDataUtil.getVpnIdMetadata(vpnId), MetaDataUtil.METADATA_MASK_VRFID);
-        }
+        MatchMetadata metadatMatch =
+                new MatchMetadata(MetaDataUtil.getElanTagMetadata(elanTag), MetaDataUtil.METADATA_MASK_SERVICE);
         flowMatches.add(metadatMatch);
 
         if (ip.getIpAddress().getIpAddress() != null) {
@@ -1213,10 +1208,22 @@ public final class AclServiceUtils {
 
     /**
      * Returns ACL specific key for synchronization.
+     *
      * @param key the generic key
      * @return ACL key that can be used with synchronization
      */
     public static String getAclKeyForSynchronization(String key) {
         return key + AclConstants.ACL_SYNC_KEY_EXT;
+    }
+
+    /**
+     * Builds the ip protocol matches.
+     *
+     * @param etherType the ether type
+     * @param protocol the protocol
+     * @return the list of matches.
+     */
+    public static List<MatchInfoBase> buildIpProtocolMatches(MatchEthernetType etherType, IPProtocols protocol) {
+        return Lists.newArrayList(etherType, new MatchIpProtocol(protocol.shortValue()));
     }
 }
