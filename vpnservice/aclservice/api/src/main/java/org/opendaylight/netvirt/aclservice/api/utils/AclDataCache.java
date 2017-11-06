@@ -22,8 +22,8 @@ public interface AclDataCache {
     @Nullable
     Collection<Uuid> getRemoteAcl(Uuid remoteAclId);
 
-    @Nonnull
-    Integer getAclFlowPriority(String aclName);
+    @Nullable
+    Integer getAclTag(String aclId);
 
     @Nonnull
     Map<Uuid, Collection<AclInterface>> getAclInterfaceMap();
@@ -32,6 +32,6 @@ public interface AclDataCache {
     Map<Uuid, Collection<Uuid>> getRemoteAclIdMap();
 
     @Nonnull
-    Map<String, Integer> getAclFlowPriorityMap();
+    Map<String, Integer> getAclTagMap();
 
 }
