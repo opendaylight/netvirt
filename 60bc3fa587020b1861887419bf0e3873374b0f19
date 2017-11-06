@@ -119,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_167bfd7b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 102
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-06T16:59:21Z",
+      "side": 1,
+      "message": "as you see in next change, I will open the possiblity to use an attribute for each vpnName.",
+      "parentUuid": "9a245df4_4c74cb67",
+      "range": {
+        "startLine": 102,
+        "startChar": 4,
+        "endLine": 109,
+        "endChar": 5
+      },
+      "revId": "60bc3fa587020b1861887419bf0e3873374b0f19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_4914ca43",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/l3vpn.yang",
         "patchSetId": 102
