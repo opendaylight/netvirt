@@ -560,6 +560,7 @@ public class NatUtil {
         if (optionalVpnMap.isPresent()) {
             Uuid routerId = optionalVpnMap.get().getRouterId();
             if (routerId != null) {
+                LOG.info("getRouterIdfromVpnInstance : Router found for vpn : {}", vpnName);
                 return routerId.getValue();
             }
         }
@@ -1248,11 +1249,12 @@ public class NatUtil {
             RpcResult<GetDpidFromInterfaceOutput> dpIdResult = dpIdOutput.get();
             if (dpIdResult.isSuccessful()) {
                 nodeId = dpIdResult.getResult().getDpid();
+                LOG.info("getDpnForInterface: retrieve DPN Id {} for interface {}", nodeId, ifName);
             } else {
-                LOG.debug("removeFromDpnRoutersMap : Could not retrieve DPN Id for interface {}", ifName);
+                LOG.info("getDpnForInterface: Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("removeFromDpnRoutersMap : Exception when getting dpn for interface {}", ifName, e);
+            LOG.info("getDpnForInterface: Exception when getting dpn for interface {}", ifName, e);
         }
         return nodeId;
     }

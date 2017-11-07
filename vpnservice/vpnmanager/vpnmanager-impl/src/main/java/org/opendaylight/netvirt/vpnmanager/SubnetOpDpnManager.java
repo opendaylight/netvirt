@@ -132,6 +132,7 @@ public class SubnetOpDpnManager {
 
     public void addPortOpDataEntry(String intfName, Uuid subnetId, BigInteger dpnId) {
         try {
+            LOG.info("addPortOpDataEntry: for intfName {} subnetId {} dpnId {}" + intfName, subnetId, dpnId);
             // Add to PortOpData as well.
             PortOpDataEntryBuilder portOpBuilder = null;
             PortOpDataEntry portOpEntry = null;

@@ -110,11 +110,11 @@ public class NatInterfaceStateChangeListener
     }
 
     void handleRouterInterfacesUpEvent(String routerName, String interfaceName, WriteTransaction writeOperTxn) {
-        LOG.debug("handleRouterInterfacesUpEvent : Handling UP event for router interface {} in Router {}",
+        LOG.info("handleRouterInterfacesUpEvent : Handling UP event for router interface {} in Router {}",
                 interfaceName, routerName);
         BigInteger dpId = NatUtil.getDpnForInterface(odlInterfaceRpcService, interfaceName);
         if (dpId.equals(BigInteger.ZERO)) {
-            LOG.warn("handleRouterInterfacesUpEvent : Could not retrieve dp id for interface {} to handle router {} "
+            LOG.info("handleRouterInterfacesUpEvent : Could not retrieve dp id for interface {} to handle router {} "
                     + "association model", interfaceName, routerName);
             return;
         }
@@ -151,7 +151,7 @@ public class NatInterfaceStateChangeListener
                 RouterInterface routerInterface = NatUtil.getConfiguredRouterInterface(dataBroker, interfaceName);
                 if (routerInterface != null) {
                     String routerName = routerInterface.getRouterName();
-                    LOG.debug("call : Router Name {} ", routerInterface.getRouterName());
+                    LOG.info("call : Router Name {} ", routerInterface.getRouterName());
                     WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                     handleRouterInterfacesUpEvent(routerName, interfaceName, writeOperTxn);
                     futures.add(writeOperTxn.submit());
