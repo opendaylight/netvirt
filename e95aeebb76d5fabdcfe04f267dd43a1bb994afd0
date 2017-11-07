@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_89b22b92",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-11-07T14:50:24Z",
+      "side": 1,
+      "message": "portCreated",
+      "parentUuid": "9a245df4_8718c785",
+      "revId": "e95aeebb76d5fabdcfe04f267dd43a1bb994afd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_0725f7c1",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 4
@@ -65,6 +83,30 @@
       "writtenOn": "2017-10-10T16:35:01Z",
       "side": 1,
       "message": "why skipping creation?",
+      "range": {
+        "startLine": 145,
+        "startChar": 22,
+        "endLine": 145,
+        "endChar": 50
+      },
+      "revId": "e95aeebb76d5fabdcfe04f267dd43a1bb994afd0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e9512737",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-11-07T14:50:24Z",
+      "side": 1,
+      "message": "Sorry, this sentence wasn\u0027t intended to be committed (my bad...).\nthe point was made in the previous sentence.\nif all conditions are met (port is a direct type, direct is supported by host config, and \"switchdev\" capability is passed in port\u0027s profile) then we treat the port (add to subnet map and add an openflow rule).",
+      "parentUuid": "9a245df4_0725f7c1",
       "range": {
         "startLine": 145,
         "startChar": 22,
