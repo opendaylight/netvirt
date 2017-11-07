@@ -14,7 +14,7 @@ import org.opendaylight.daexim.DataImportBootReady;
 import org.opendaylight.genius.idmanager.IdManager;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.interfacemanager.rpcservice.InterfaceManagerRpcService;
-import org.opendaylight.genius.lockmanager.LockManager;
+import org.opendaylight.genius.lockmanager.impl.LockManagerServiceImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
@@ -48,7 +48,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
         // Bindings for external services to "real" implementations
         bind(IdManagerService.class).to(IdManager.class);
-        bind(LockManagerService.class).to(LockManager.class);
+        bind(LockManagerService.class).to(LockManagerServiceImpl.class);
         bind(OdlInterfaceRpcService.class).to(InterfaceManagerRpcService.class);
         bind(ElanConfig.class).toInstance(new ElanConfigBuilder().setIntBridgeGenMac(true)
                         .setTempSmacLearnTimeout(10).build());
