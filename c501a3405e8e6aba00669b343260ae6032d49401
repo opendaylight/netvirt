@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_cfbc2309",
+        "filename": "vpnservice/ipv6service/shell/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-07T18:51:37Z",
+      "side": 1,
+      "message": "Oups.. good to know - thanks for having tried; we\u0027ll keep them then! ;)",
+      "parentUuid": "9a245df4_5dbf5baa",
+      "revId": "c501a3405e8e6aba00669b343260ae6032d49401",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_eca69a0f",
         "filename": "vpnservice/ipv6service/shell/src/main/java/org/opendaylight/netvirt/ipv6service/shell/ShowIpv6Command.java",
         "patchSetId": 2
