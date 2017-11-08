@@ -26,7 +26,6 @@ import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeLi
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
-import org.opendaylight.infrautils.testutils.LogCaptureRule;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.mdsal.binding.testutils.AssertDataObjects;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -51,7 +50,10 @@ public class ElanServiceTest {
     // public @Rule RunUntilFailureRule repeater = new RunUntilFailureRule(classRepeater);
 
     public @Rule LogRule logRule = new LogRule();
-    public @Rule LogCaptureRule logCaptureRule = new LogCaptureRule();
+    // TODO re-enable after we can await completion of listeners and DJC:
+    // Otherwise this too frequently causes spurious test failures, e.g. due to error
+    // logs Caused by: java.lang.RuntimeException: java.util.concurrent.ExecutionException: Operation was interrupted
+    // public @Rule LogCaptureRule logCaptureRule = new LogCaptureRule();
 
     public @Rule MethodRule guice = new GuiceRule(JobCoordinatorTestModule.class,
             ElanServiceTestModule.class, TestableDataTreeChangeListenerModule.class);
