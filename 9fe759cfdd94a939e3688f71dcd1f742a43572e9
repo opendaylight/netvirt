@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_a3ec68f4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1252,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-11-08T17:09:22Z",
+      "side": 1,
+      "message": "in the gate csit, \u0027getDpnForInterface: retrieve DPN Id\u0027 showed up 1k times.",
+      "range": {
+        "startLine": 1252,
+        "startChar": 16,
+        "endLine": 1252,
+        "endChar": 100
+      },
+      "revId": "9fe759cfdd94a939e3688f71dcd1f742a43572e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_03bd74d8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1254,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-11-08T17:09:22Z",
+      "side": 1,
+      "message": "443 times in gate csit log",
+      "range": {
+        "startLine": 1254,
+        "startChar": 16,
+        "endLine": 1254,
+        "endChar": 99
+      },
+      "revId": "9fe759cfdd94a939e3688f71dcd1f742a43572e9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
