@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b2a5d448",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2017-11-08T05:57:05Z",
+      "side": 1,
+      "message": "In ConntrackSNAT  we do use a Weighted switch selection algorithm but with an initial weight 1 for all switches. Can we enhance it with a configured initial weight, given that we have plans to make conntrack based SNAT the default.",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8047acbb",
         "filename": "docs/specs/weighted-napt-selection.rst",
         "patchSetId": 2
