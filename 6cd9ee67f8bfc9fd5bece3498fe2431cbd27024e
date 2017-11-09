@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f2ef47e7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/diagstatus/ElanDiagStatusProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-11-09T04:49:47Z",
+      "side": 1,
+      "message": "won\u0027t this work better as PostConstruct?",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 52
+      },
+      "revId": "6cd9ee67f8bfc9fd5bece3498fe2431cbd27024e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
