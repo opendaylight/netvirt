@@ -918,6 +918,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_45dc9973",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 87
+      },
+      "lineNbr": 1512,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-09T07:47:58Z",
+      "side": 1,
+      "message": "I understand the issue.\nIndeed, it will simplify the algorithm.\nThe following is done:\n- I added code for handling point 2.\n- the case 1 is handled also.\n\nFor case 3, I am not sure this happens, since because you remove all the vpn instances from the list, the remove action should be called.\n\nThe complex case, if i understand well, is already implemented.",
+      "parentUuid": "9a245df4_63dd5de0",
+      "range": {
+        "startLine": 1512,
+        "startChar": 9,
+        "endLine": 1512,
+        "endChar": 65
+      },
+      "revId": "c62e8aa3c61d8ca9eb1b406a442a070a6d8c7f48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_83e05197",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 87
@@ -1164,6 +1188,30 @@
       "writtenOn": "2017-11-06T14:24:50Z",
       "side": 1,
       "message": "Please see if the comments given in add() and addVpnInterface() will affect this method. If so, please make the appropriate changes.",
+      "range": {
+        "startLine": 2293,
+        "startChar": 3,
+        "endLine": 2307,
+        "endChar": 5
+      },
+      "revId": "c62e8aa3c61d8ca9eb1b406a442a070a6d8c7f48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e5d2ed5a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 87
+      },
+      "lineNbr": 2307,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-09T07:47:58Z",
+      "side": 1,
+      "message": "some changes have been done ( function renaming).\nplease review",
+      "parentUuid": "9a245df4_d6284588",
       "range": {
         "startLine": 2293,
         "startChar": 3,
