@@ -46,6 +46,30 @@
       "revId": "6cd9ee67f8bfc9fd5bece3498fe2431cbd27024e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ab28bae2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/diagstatus/ElanDiagStatusProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-09T17:33:55Z",
+      "side": 1,
+      "message": "Yeah. Vishal, IMHO there\u0027s really no need, typically.  FYI I wrote up the conclusion of the detailed discussion that Faseela is referring to on https://wiki.opendaylight.org/view/BestPractices/DI_Guidelines#Guidelines",
+      "parentUuid": "9a245df4_d29a036d",
+      "range": {
+        "startLine": 41,
+        "startChar": 8,
+        "endLine": 44,
+        "endChar": 52
+      },
+      "revId": "6cd9ee67f8bfc9fd5bece3498fe2431cbd27024e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
