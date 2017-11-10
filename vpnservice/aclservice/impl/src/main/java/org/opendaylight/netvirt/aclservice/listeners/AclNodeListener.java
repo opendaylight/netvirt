@@ -12,12 +12,15 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -32,7 +35,6 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
-import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceOFFlowBuilder;
@@ -64,13 +66,12 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private final AclServiceUtils aclServiceUtils;
     private final AclDataUtil aclDataUtil;
     private final int dummyTag = 0;
-    private final JobCoordinator jobCoordinator;
 
     private SecurityGroupMode securityGroupMode = null;
 
     @Inject
     public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config,
-            AclServiceUtils aclServiceUtils, AclDataUtil aclDataUtil, JobCoordinator jobCoordinator) {
+            AclServiceUtils aclServiceUtils, AclDataUtil aclDataUtil) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
         this.mdsalManager = mdsalManager;
@@ -78,7 +79,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         this.config = config;
         this.aclServiceUtils = aclServiceUtils;
         this.aclDataUtil = aclDataUtil;
-        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -110,7 +110,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         if (!aclDataUtil.doesDpnHaveAclInterface(dpnId)) {
             // serialize ACL pool deletion per switch
-            jobCoordinator.enqueueJob(String.valueOf(dpnId), () -> {
+            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+            dataStoreCoordinator.enqueueJob(String.valueOf(dpnId), () -> {
                 this.aclServiceUtils.deleteAclIdPools(dpnId);
                 return Collections.emptyList();
             });
@@ -134,7 +135,8 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeKey.getId());
         createTableDefaultEntries(dpnId);
         // serialize ACL pool creation per switch
-        jobCoordinator.enqueueJob(String.valueOf(dpnId), () -> {
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(String.valueOf(dpnId), () -> {
             this.aclServiceUtils.createAclIdPools(dpnId);
             return Collections.emptyList();
         });

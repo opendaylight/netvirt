@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -30,7 +31,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchArpSha;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -73,14 +73,15 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
      *
      * @param dataBroker the data broker instance.
      * @param mdsalManager the mdsal manager instance.
-     * @param aclDataUtil the acl data util.
-     * @param aclServiceUtils the acl service util.
-     * @param jobCoordinator the JobCoordinator
+     * @param aclDataUtil
+     *            the acl data util.
+     * @param aclServiceUtils
+     *            the acl service util.
      */
     public AbstractEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
-            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator) {
+            AclServiceUtils aclServiceUtils) {
         // Service mode is w.rt. switch
-        super(ServiceModeIngress.class, dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator);
+        super(ServiceModeIngress.class, dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
     /**
@@ -91,7 +92,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
     @Override
     public void bindService(AclInterface aclInterface) {
         String interfaceName = aclInterface.getInterfaceId();
-        jobCoordinator.enqueueJob(interfaceName,
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
+        dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 int instructionKey = 0;
                 List<Instruction> instructions = new ArrayList<>();
@@ -140,8 +142,9 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                         ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX),
                         ServiceModeIngress.class);
 
+        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         LOG.debug("UnBinding ACL service for interface {}", interfaceName);
-        jobCoordinator.enqueueJob(interfaceName,
+        dataStoreCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);

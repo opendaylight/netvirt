@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -21,7 +22,6 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
-import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -50,8 +50,8 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);
 
     public StatefulEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
-            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator) {
-        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator);
+            AclServiceUtils aclServiceUtils) {
+        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils);
     }
 
     /**
