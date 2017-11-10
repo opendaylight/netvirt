@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_8195d788",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/diagstatus/ElanDiagStatusProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-11-10T05:39:12Z",
+      "side": 1,
+      "message": "Some reviewers are enforcing that we add authors, and some are saying we should not :) I am okay with both the ways, Do you have any other comments? If not, I will address this and push a new patchset.",
+      "parentUuid": "9a245df4_e16013d1",
+      "revId": "6cd9ee67f8bfc9fd5bece3498fe2431cbd27024e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f2ef47e7",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/diagstatus/ElanDiagStatusProvider.java",
         "patchSetId": 7
