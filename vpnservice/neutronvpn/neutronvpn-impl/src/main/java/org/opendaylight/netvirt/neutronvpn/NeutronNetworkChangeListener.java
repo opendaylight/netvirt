@@ -160,7 +160,7 @@ public class NeutronNetworkChangeListener
                 || !Objects.equals(origSegmentationId, updateSegmentationId)
                 || !Objects.equals(origPhysicalNetwork, updatePhysicalNetwork)
                 || !Objects.equals(origExternal, updateExternal)) {
-            if (origExternal && origIsFlatOrVlanNetwork && !updateExternal) {
+            if (origExternal && origIsFlatOrVlanNetwork && (!updateExternal || !updateIsFlatOrVlanNetwork)) {
                 nvpnManager.removeExternalVpnInterfaces(original.getUuid());
                 nvpnManager.removeVpn(original.getUuid());
                 nvpnNatManager.removeExternalNetwork(original);

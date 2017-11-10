@@ -171,11 +171,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                         }
                     }
                 }
-                if (del.getDpnId() != null) {
-                    vpnFootprintService.updateVpnToDpnMapping(del.getDpnId(), del.getVpnInstanceName(), rd,
-                            interfaceName, null /*ipAddressSourceValuePair*/,
-                            false /* do delete */);
-                }
+            }
+            if (del.getDpnId() != null) {
+                vpnFootprintService.updateVpnToDpnMapping(del.getDpnId(), del.getVpnInstanceName(), rd,
+                        interfaceName, null /*ipAddressSourceValuePair*/,
+                        false /* do delete */);
             }
             LOG.info("postProcessVpnInterfaceRemoval: Removed vpn operational data and updated vpn footprint"
                     + " for interface {} on dpn {} vpn {}", interfaceName, del.getDpnId(), vpnName);
