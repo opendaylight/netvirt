@@ -1701,10 +1701,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
-        if (vrfTable.isPresent()) {
-            jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
-                () -> {
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
+        jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, dpnId),
+            () -> {
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                if (vrfTable.isPresent()) {
                     synchronized (vpnInstance.getVpnInstanceName().intern()) {
                         WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                         for (final VrfEntry vrfEntry : vrfTable.get().getVrfEntry()) {
@@ -1769,14 +1769,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             }
                         }
                         futures.add(tx.submit());
-                        if (callback != null) {
-                            ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
-                            Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
-                        }
                     }
-                    return futures;
-                });
-        }
+                    if (callback != null) {
+                        ListenableFuture<List<Void>> listenableFuture = Futures.allAsList(futures);
+                        Futures.addCallback(listenableFuture, callback, MoreExecutors.directExecutor());
+                    }
+                }
+                return futures;
+            });
+
     }
 
     public void cleanUpExternalRoutesOnDpn(final BigInteger dpnId, final long vpnId, final String rd,
