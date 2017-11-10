@@ -214,6 +214,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_01be07b4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 42
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-10T08:41:05Z",
+      "side": 1,
+      "message": "leaf-list has historically been unstable for updates. I am unable to find mail references, to share it with you unfortunately.\nLet us retain leaf-list for now. We can change it to list later",
+      "parentUuid": "9a245df4_1252db3a",
+      "range": {
+        "startLine": 128,
+        "startChar": 8,
+        "endLine": 128,
+        "endChar": 17
+      },
+      "revId": "528ed19a4273cb07e34060595c65d1c7a20d0e9f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_a9fe0fac",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronBgpvpnChangeListener.java",
         "patchSetId": 42
