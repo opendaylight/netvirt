@@ -2416,25 +2416,33 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void removeExternalVpnInterfaces(Uuid extNetId) {
-        Collection<String> extElanInterfaces = elanService.getExternalElanInterfaces(extNetId.getValue());
-        if (extElanInterfaces == null || extElanInterfaces.isEmpty()) {
-            LOG.error("No external ports attached for external network {}", extNetId.getValue());
-            return;
-        }
         try {
+            Optional<VpnInterfaces> extElanInterfaces = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, buildVpnInterfacesIdentifier());
 
+            if (!extElanInterfaces.isPresent()) {
+                LOG.error("No external ports attached for external network {}", extNetId.getValue());
+                return;
+            }
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            for (String elanInterface : extElanInterfaces) {
-                InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils
-                        .buildVpnInterfaceIdentifier(elanInterface);
-                LOG.info("Removing vpn interface {}", elanInterface);
-                wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+            for (VpnInterface elanInterface : extElanInterfaces.get().getVpnInterface()) {
+                if (elanInterface.getVpnInstanceName().equals(extNetId.getValue())) {
+                    InstanceIdentifier<VpnInterface> vpnIfIdentifier = NeutronvpnUtils
+                            .buildVpnInterfaceIdentifier(elanInterface.getName());
+                    LOG.info("Removing vpn interface {}", elanInterface);
+                    wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+                }
             }
             wrtConfigTxn.submit();
 
         } catch (Exception ex) {
-            LOG.error("Removal of vpninterfaces {} failed", extElanInterfaces, ex);
+            LOG.error("Removal of vpninterfaces {} failed", extNetId, ex);
         }
+    }
+
+    static InstanceIdentifier<VpnInterfaces> buildVpnInterfacesIdentifier() {
+        InstanceIdentifier<VpnInterfaces> id = InstanceIdentifier.builder(VpnInterfaces.class).build();
+        return id;
     }
 
     private void createExternalVpnInterface(Uuid vpnId, String infName, WriteTransaction wrtConfigTxn) {
