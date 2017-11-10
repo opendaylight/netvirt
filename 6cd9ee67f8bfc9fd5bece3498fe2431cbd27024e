@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a245df4_e16013d1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/diagstatus/ElanDiagStatusProvider.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-10T05:13:56Z",
+      "side": 1,
+      "message": "would rather not propagate these author tags in the code. We are supposed to go to a contributors file. These tags here become a mess and we have git history that can find the author.",
+      "revId": "6cd9ee67f8bfc9fd5bece3498fe2431cbd27024e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f2ef47e7",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/diagstatus/ElanDiagStatusProvider.java",
         "patchSetId": 7
