@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_191e77bb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 48
+      },
+      "lineNbr": 1483,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-12T23:04:52Z",
+      "side": 1,
+      "message": "This code creates and submits a write-only transaction to the data store. There\u0027s nothing blocking or expensive here so why does it enqueue a job to off-load it?",
+      "range": {
+        "startLine": 1465,
+        "startChar": 7,
+        "endLine": 1483,
+        "endChar": 11
+      },
+      "revId": "84ee97b7ae91d1f7f491d78add8808b5511ae3bc",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
