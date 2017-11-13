@@ -34,6 +34,24 @@
       "revId": "c93a29bf36a4728cd2581248c4ffb5f191553d13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ad5605cc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T13:01:40Z",
+      "side": 1,
+      "message": "FindBugs has a maven plugin so we enable it to run and fail the build if a violation occurs. See https://git.opendaylight.org/gerrit/#/c/64861/5/vpnservice/neutronvpn/neutronvpn-impl/pom.xml. It also has a plugin for Eclipse as well that can be run when you save a file (same as Checkstyle). \n\nThis error is reported by the Eclipse compiler as well and I\u0027d think IntelliJ  \nand any other good IDE would as well. Are you using any IDE or just using an editor like vi? If the latter I would strongly suggest using an IDE (Eclipse is free).\n\nIt\u0027s possible FindBugs can flag something that really isn\u0027t an issue (sometimes it can\u0027t tell for sure but warns to be safe) in which case you can use @SuppressFBWarning(\"...\").",
+      "parentUuid": "9a245df4_fcf6f15b",
+      "revId": "c93a29bf36a4728cd2581248c4ffb5f191553d13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
