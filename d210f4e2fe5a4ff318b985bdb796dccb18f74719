@@ -202,6 +202,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_fc1a6c6d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T14:55:23Z",
+      "side": 1,
+      "message": "Hello Tom\n\n\nI have see your exemple about thread deallocking, but in our case this is not the same.\nour aim is for an specific String name get a specific wait on synchonized, only for critical action on this dataStore object as vpnName (in this example).\nindeed if we change the state of this vpn(Name) we are expecting that any other thread (in this JVM) make an action on this in the same time.\nbut we are excepting that other action on other vpnName, subnet, router etc... could be play in other parralel threads.\nthat why, we are creating a objectlock from the string UUid (vpnname) unique in data base to get its lock (in JVM only) and make our action.\nbecause this action could never be deadthread(mdsal throw an exception id error), we have not to make a reeantrant lock with timeout.\n\nThat is why I propose to keep the changes for an other review.\nthk",
+      "parentUuid": "9a245df4_4de4a9e0",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 38
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_194cb7c7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 89
