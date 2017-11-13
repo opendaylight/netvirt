@@ -1,0 +1,256 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_9958a78b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "If the operFuture above fails then the other 2 transactions (writeConfigTxn and writeInvTxn) would need to be cancelled. However, why is writeOperTxn handled in a blocking manner yet the other 2 transactions are handled async? If the intention is to not submit the other 2 if writeOperTxn fails then this can (and should) be done async:\n\n  ListenableFuture\u003cVoid\u003e operFuture \u003d writeOperTxn.submit();\n  Futures.addCallback(operFuture, new FutureCallback\u003cVoid\u003e() {\n      @Override\n      public void onSuccess(Void success) {\n          ListenableFutures.addErrorLogging(Futures.allAsList(\n              writeConfigTxn.submit(), writeInvTxn.submit),\n              LOG, \"Write transaction failed\");\n      }\n\n     @Override\n     public void onFailure(Throwable failure) { \n         LOG.error(\"Failed to....\", failure);\n         writeConfigTxn.cancel();\n         writeInvTxn.cancel();\n     }\n  }, MoreExecutors.directExecutor());",
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_795df378",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "This should be \u0027\u003d\u003d\u0027 otherwise guaranteed NPE on line 172.",
+      "range": {
+        "startLine": 168,
+        "startChar": 44,
+        "endLine": 168,
+        "endChar": 46
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d955ff50",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "!vpnInterfaceChanged",
+      "range": {
+        "startLine": 288,
+        "startChar": 32,
+        "endLine": 288,
+        "endChar": 60
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b952cb64",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "Should never synchronize on a String.",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 38
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_194cb7c7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "Why is this caught? NullPointerException should *never* be caught.",
+      "range": {
+        "startLine": 309,
+        "startChar": 49,
+        "endLine": 309,
+        "endChar": 69
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_59c90f25",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 1202,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "How can success be declared here if the transaction hasn\u0027t been successfully committed?",
+      "range": {
+        "startLine": 1202,
+        "startChar": 24,
+        "endLine": 1202,
+        "endChar": 28
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f948c3b4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 1206,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "Same as above - however isn\u0027t this redundant with the info log above?",
+      "range": {
+        "startLine": 1206,
+        "startChar": 24,
+        "endLine": 1206,
+        "endChar": 28
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_39cedb2e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 1207,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "Why is this code off-loaded to a separate thread on the DJC? It seems all it does is build a transaction to be committed async.",
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_99cf0729",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 1227,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "Again - *never* catch NullPointerException",
+      "range": {
+        "startLine": 1227,
+        "startChar": 45,
+        "endLine": 1227,
+        "endChar": 65
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d9dcdfe6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 1587,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "This method is quite long (over 180 lines - should be split into smaller method(s).",
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_79d4d3bc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "if (interfaceIsRemoved)",
+      "range": {
+        "startLine": 1658,
+        "startChar": 20,
+        "endLine": 1658,
+        "endChar": 51
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b9d92bf5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 1704,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T00:17:53Z",
+      "side": 1,
+      "message": "This method is quite long - should be split up",
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
