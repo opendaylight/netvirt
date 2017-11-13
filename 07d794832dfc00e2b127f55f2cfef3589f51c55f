@@ -600,6 +600,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3feb5614",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_39389bee",
+      "range": {
+        "startLine": 823,
+        "startChar": 24,
+        "endLine": 823,
+        "endChar": 45
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f929e39b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 113
@@ -611,6 +635,24 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "If writeOperTxn fails then writeConfigTxn should be cancelled. writeOperTxn should be async - see comment for similar code in https://git.opendaylight.org/gerrit/#/c/59700/89/vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java@131",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bfde266b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 2531,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "I assume Kiran\u0027s comment at https://git.opendaylight.org/gerrit/#/c/59700/89/vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java@131\napplies too.",
+      "parentUuid": "9a245df4_f929e39b",
       "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -640,6 +682,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_7ff14e00",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 2537,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d9269fcd",
+      "range": {
+        "startLine": 2536,
+        "startChar": 36,
+        "endLine": 2537,
+        "endChar": 51
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_591aaf7d",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 113
@@ -651,6 +717,24 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "Thus should be a proper javadoc",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3f84f65c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "remove comment for now.\njava doc populating will be part of an other review",
+      "parentUuid": "9a245df4_591aaf7d",
       "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -674,6 +758,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5f7f2a66",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "Done\nmaybe due to successive rebase..",
+      "parentUuid": "9a245df4_b90acb23",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d90dff3f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 113
@@ -685,6 +787,30 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "so this means sm \u003d\u003d null which means !isExternalVpn. Why is this logged as an error? isExternalVpn is passed by the caller so an error will be logged every time false is passed - doesn\u0027t seem right.",
+      "range": {
+        "startLine": 333,
+        "startChar": 24,
+        "endLine": 333,
+        "endChar": 29
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bf97468f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "this error is not displayed. no need.",
+      "parentUuid": "9a245df4_d90dff3f",
       "range": {
         "startLine": 333,
         "startChar": 24,
@@ -720,6 +846,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9f94028c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_1904b716",
+      "range": {
+        "startLine": 364,
+        "startChar": 8,
+        "endLine": 368,
+        "endChar": 9
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f900c303",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 113
@@ -731,6 +881,30 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "redundant check - can\u0027t be null here due to prior check",
+      "range": {
+        "startLine": 1838,
+        "startChar": 50,
+        "endLine": 1838,
+        "endChar": 79
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5fa8cada",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 1838,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_f900c303",
       "range": {
         "startLine": 1838,
         "startChar": 50,
@@ -782,6 +956,54 @@
         "startChar": 35,
         "endLine": 1899,
         "endChar": 36
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bfb0e643",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_3c06c91d",
+      "range": {
+        "startLine": 1899,
+        "startChar": 35,
+        "endLine": 1899,
+        "endChar": 36
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9fad22ec",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T17:52:42Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_5c01fd03",
+      "range": {
+        "startLine": 1899,
+        "startChar": 30,
+        "endLine": 1899,
+        "endChar": 33
       },
       "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
