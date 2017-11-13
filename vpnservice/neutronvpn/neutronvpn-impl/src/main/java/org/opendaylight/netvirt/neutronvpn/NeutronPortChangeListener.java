@@ -109,6 +109,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void add(InstanceIdentifier<Port> identifier, Port input) {
+        if (!NeutronUtils.isPortBinded(input)) {
+            return;
+        }
         String portName = input.getUuid().getValue();
         LOG.trace("Adding Port : key: {}, value={}", identifier, input);
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, input.getNetworkId());
@@ -172,6 +175,13 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
 
     @Override
     protected void update(InstanceIdentifier<Port> identifier, Port original, Port update) {
+        if (!NeutronUtils.isPortBinded(original) && NeutronUtils.isPortBinded(update)) {
+            handleNeutronPortCreated(update);
+            return;
+        } else if (NeutronUtils.isPortBinded(original) && !NeutronUtils.isPortBinded(update)) {
+            handleNeutronPortDeleted(update);
+            return;
+        }
         final String portName = update.getUuid().getValue();
         LOG.info("Update port {} from network {}", portName, update.getNetworkId().toString());
         Network network = NeutronvpnUtils.getNeutronNetwork(dataBroker, update.getNetworkId());
