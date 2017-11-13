@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_dfdf9ad4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 114
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T18:46:25Z",
+      "side": 1,
+      "message": "This is redundant. See my previous comment",
+      "range": {
+        "startLine": 307,
+        "startChar": 20,
+        "endLine": 307,
+        "endChar": 30
+      },
+      "revId": "a3bb225d891649111c21594fa9bb55ee35decef3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5febaa77",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 114
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T18:46:25Z",
+      "side": 1,
+      "message": "sm \u003d\u003d null means isExternalVpn \u003d\u003d false - should this emit the error below? Doesn\u0027t seem right. Again see my previous comment",
+      "range": {
+        "startLine": 311,
+        "startChar": 20,
+        "endLine": 311,
+        "endChar": 31
+      },
+      "revId": "a3bb225d891649111c21594fa9bb55ee35decef3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9f008235",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 114
+      },
+      "lineNbr": 1900,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T18:46:25Z",
+      "side": 1,
+      "message": "You\u0027ve already computed this on line 1899 - put in local var.",
+      "range": {
+        "startLine": 1900,
+        "startChar": 47,
+        "endLine": 1900,
+        "endChar": 69
+      },
+      "revId": "a3bb225d891649111c21594fa9bb55ee35decef3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
