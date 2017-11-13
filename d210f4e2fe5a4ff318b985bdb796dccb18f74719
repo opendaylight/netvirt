@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_a77aa674",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T09:49:40Z",
+      "side": 1,
+      "message": "operTxn is done in a blocking manner, because the events triggered by the configTxn submit will need the data written by the oper txn. Hence, the config and inventory txn is submitted only after the operTxn is successful.\n\nBut, yes I agree that we can use approach that you have described.\nWe can make this change in a new review, as this review does not depend-upon/modify this piece of code.",
+      "parentUuid": "9a245df4_9958a78b",
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_795df378",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
         "patchSetId": 89
