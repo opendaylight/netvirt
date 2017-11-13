@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_1f7bf28c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-13T16:58:47Z",
+      "side": 1,
+      "message": "I am guessing this would break something so need to understand why thsi is removed.",
+      "revId": "4b384b3f29efbfb9238b3712a3b4c75c2470afec",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
