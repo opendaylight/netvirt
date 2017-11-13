@@ -1,0 +1,233 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_5c073dca",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "This is redundant.  Should this return here? What\u0027s the intended criteria for unbinding below? All VpnInstanceNames must have sfc info present? Or only 1?  As the code stands now only the last VpnInstanceNames instance will have an effect outside the loop which doesn\u0027t seem right.",
+      "range": {
+        "startLine": 68,
+        "startChar": 16,
+        "endLine": 68,
+        "endChar": 25
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7c5b21f6",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "Shouldn\u0027t it return here? Otherwise the checking above is useless.",
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_dcfa0dbc",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "This does not seeml consistent with the remove method above.  This method will call bindScfOnVpnInterface multiple times for the same VpnInterface per VpnInstanceName sfc tag. It seems unbindScfOnVpnInterface should mirror that.",
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bcf759d2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "This can return null - need to handle that.",
+      "range": {
+        "startLine": 339,
+        "startChar": 33,
+        "endLine": 339,
+        "endChar": 49
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1c0145af",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 897,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 897,
+        "startChar": 37,
+        "endLine": 897,
+        "endChar": 53
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fcfd51b2",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 1289,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "It looks like this is only used here so declare here instead of above - otherwise it\u0027s a bit confusing.",
+      "range": {
+        "startLine": 1289,
+        "startChar": 16,
+        "endLine": 1289,
+        "endChar": 30
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5c2e1d44",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 1317,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "What if this is null at this point?",
+      "range": {
+        "startLine": 1317,
+        "startChar": 59,
+        "endLine": 1317,
+        "endChar": 66
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3c3369ac",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "Declare here instead of above",
+      "range": {
+        "startLine": 214,
+        "startChar": 16,
+        "endLine": 214,
+        "endChar": 42
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7c296136",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 230,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "You should do the writes in bulk, ie use 1 WriteTransaction with multiple puts and submit after the loop. Also the returned Future should be checked so at least use ListenableFutures.addErrorLogging(...).",
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_dc216d4e",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 327,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "same here - write in bulk.",
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fc1431ea",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatInterfaceStateChangeListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:15:03Z",
+      "side": 1,
+      "message": "Looks like this code is duplicated in 3 places - would be nice to reuse...",
+      "range": {
+        "startLine": 245,
+        "startChar": 16,
+        "endLine": 271,
+        "endChar": 17
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
