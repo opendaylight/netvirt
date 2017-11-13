@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a245df4_6728ae86",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "Let us retain the legacy functionality for now.\nIf there exists a vpnName for this vpnInterface, that handles iether ipv4, or ipv4\u00266 subnet, then please call unbindScfOnVPnIterface() only for that vpn. Ignore all other vpns",
+      "range": {
+        "startLine": 61,
+        "startChar": 19,
+        "endLine": 61,
+        "endChar": 83
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0718d273",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnInstance",
+      "range": {
+        "startLine": 63,
+        "startChar": 31,
+        "endLine": 63,
+        "endChar": 53
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_5c073dca",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
         "patchSetId": 82
@@ -42,6 +88,29 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_472daa94",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "same comment as line 61.",
+      "range": {
+        "startLine": 83,
+        "startChar": 10,
+        "endLine": 83,
+        "endChar": 71
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dcfa0dbc",
         "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/listeners/CloudScVpnInterfaceListener.java",
         "patchSetId": 82
@@ -53,6 +122,144 @@
       "writtenOn": "2017-11-13T05:15:03Z",
       "side": 1,
       "message": "This does not seeml consistent with the remove method above.  This method will call bindScfOnVpnInterface multiple times for the same VpnInterface per VpnInstanceName sfc tag. It seems unbindScfOnVpnInterface should mirror that.",
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e7149e45",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 297,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "you need to pass vpnName here. Not vpnId",
+      "range": {
+        "startLine": 297,
+        "startChar": 80,
+        "endLine": 297,
+        "endChar": 100
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c7119a53",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/EvpnVrfEntryHandler.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "you need to pass vpnName here. Not vpnId",
+      "range": {
+        "startLine": 250,
+        "startChar": 88,
+        "endLine": 250,
+        "endChar": 108
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a7074617",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "use getAdjListPathOp here and then do a .child",
+      "range": {
+        "startLine": 127,
+        "startChar": 15,
+        "endLine": 135,
+        "endChar": 69
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6701ce04",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "use getVpnInterfaceOpDataEntryIdentifier here. then do a .augmentation",
+      "range": {
+        "startLine": 154,
+        "startChar": 15,
+        "endLine": 159,
+        "endChar": 102
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1c04a516",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "Please dont use the entire package name here. Use only the class name, after importing it",
+      "range": {
+        "startLine": 190,
+        "startChar": 19,
+        "endLine": 191,
+        "endChar": 41
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fc00b103",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 192,
+        "startChar": 20,
+        "endLine": 193,
+        "endChar": 69
+      },
       "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -75,6 +282,29 @@
         "startChar": 33,
         "endLine": 339,
         "endChar": 49
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_872322a6",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 339,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "Abort execution of vpnName is null.",
+      "range": {
+        "startLine": 339,
+        "startChar": 15,
+        "endLine": 339,
+        "endChar": 22
       },
       "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -105,6 +335,29 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e73bfece",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 897,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "same comment as line 339",
+      "range": {
+        "startLine": 897,
+        "startChar": 19,
+        "endLine": 897,
+        "endChar": 26
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_fcfd51b2",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
         "patchSetId": 82
@@ -121,6 +374,52 @@
         "startChar": 16,
         "endLine": 1289,
         "endChar": 30
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_47548afe",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 1292,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnName",
+      "range": {
+        "startLine": 1292,
+        "startChar": 72,
+        "endLine": 1292,
+        "endChar": 88
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_072f3289",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 1310,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnName",
+      "range": {
+        "startLine": 1310,
+        "startChar": 77,
+        "endLine": 1310,
+        "endChar": 93
       },
       "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -151,6 +450,52 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e742de3c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnInstance",
+      "range": {
+        "startLine": 212,
+        "startChar": 34,
+        "endLine": 212,
+        "endChar": 57
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c73fdab2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnName",
+      "range": {
+        "startLine": 213,
+        "startChar": 23,
+        "endLine": 213,
+        "endChar": 32
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3c3369ac",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
         "patchSetId": 82
@@ -167,6 +512,29 @@
         "startChar": 16,
         "endLine": 214,
         "endChar": 42
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_477bea8b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "These are not used anywhere now.Please remove them.",
+      "range": {
+        "startLine": 215,
+        "startChar": 16,
+        "endLine": 216,
+        "endChar": 83
       },
       "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
@@ -191,6 +559,75 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e7693ebf",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 320,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "not required. Please make use of floatingIpInterface variable",
+      "range": {
+        "startLine": 320,
+        "startChar": 12,
+        "endLine": 320,
+        "endChar": 76
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c766baec",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 321,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnInstance",
+      "range": {
+        "startLine": 321,
+        "startChar": 34,
+        "endLine": 321,
+        "endChar": 57
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_276076ce",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnName",
+      "range": {
+        "startLine": 322,
+        "startChar": 23,
+        "endLine": 322,
+        "endChar": 32
+      },
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dc216d4e",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
         "patchSetId": 82
@@ -202,6 +639,29 @@
       "writtenOn": "2017-11-13T05:15:03Z",
       "side": 1,
       "message": "same here - write in bulk.",
+      "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_27bcf605",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 434,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 1,
+      "message": "vpnInstance",
+      "range": {
+        "startLine": 434,
+        "startChar": 46,
+        "endLine": 434,
+        "endChar": 69
+      },
       "revId": "a9b92fc378a7f6401953dddc6234189d82c96285",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false

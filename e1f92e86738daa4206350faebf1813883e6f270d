@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_c7db5a7a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/InterfaceStateEventListener.java",
+        "patchSetId": 82
+      },
+      "lineNbr": 266,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-13T10:10:38Z",
+      "side": 0,
+      "message": "retain this log",
+      "range": {
+        "startLine": 264,
+        "startChar": 19,
+        "endLine": 266,
+        "endChar": 48
+      },
+      "revId": "e1f92e86738daa4206350faebf1813883e6f270d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
