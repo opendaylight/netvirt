@@ -1,0 +1,130 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_9ca9b592",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 68
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:35:02Z",
+      "side": 1,
+      "message": "This call has no effect - it just populates the passed Transaction instance but the caller must submit it. Same below",
+      "range": {
+        "startLine": 239,
+        "startChar": 12,
+        "endLine": 240,
+        "endChar": 91
+      },
+      "revId": "ca9a2864eeb9a206bd6e50d9b8fd1804de95ba92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7cae8199",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 68
+      },
+      "lineNbr": 857,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:35:02Z",
+      "side": 1,
+      "message": "use boolean here",
+      "range": {
+        "startLine": 857,
+        "startChar": 43,
+        "endLine": 857,
+        "endChar": 50
+      },
+      "revId": "ca9a2864eeb9a206bd6e50d9b8fd1804de95ba92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_dc968d4b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 68
+      },
+      "lineNbr": 859,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:35:02Z",
+      "side": 1,
+      "message": "Boolean.valueOf(isSheduledForRemove)",
+      "range": {
+        "startLine": 859,
+        "startChar": 12,
+        "endLine": 859,
+        "endChar": 31
+      },
+      "revId": "ca9a2864eeb9a206bd6e50d9b8fd1804de95ba92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bc93d959",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 68
+      },
+      "lineNbr": 1663,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:35:02Z",
+      "side": 1,
+      "message": "Same as above - these calls have no effect",
+      "revId": "ca9a2864eeb9a206bd6e50d9b8fd1804de95ba92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5c8a9d1b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 68
+      },
+      "lineNbr": 2381,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:35:02Z",
+      "side": 1,
+      "message": "You don\u0027t need to read so use WriteTransaction.",
+      "range": {
+        "startLine": 2381,
+        "startChar": 63,
+        "endLine": 2381,
+        "endChar": 86
+      },
+      "revId": "ca9a2864eeb9a206bd6e50d9b8fd1804de95ba92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bc7ab921",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 68
+      },
+      "lineNbr": 2391,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:35:02Z",
+      "side": 1,
+      "message": "This code has no real effect b/c writeOpertxn isn\u0027t submitted. Also reuse  writeOpertxn for each  vpnIfOpList entry, ie create writeOpertxn before the loop and submit after.",
+      "revId": "ca9a2864eeb9a206bd6e50d9b8fd1804de95ba92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
