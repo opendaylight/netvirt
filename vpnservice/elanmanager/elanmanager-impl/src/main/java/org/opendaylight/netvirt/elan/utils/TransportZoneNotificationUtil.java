@@ -171,6 +171,56 @@ public class TransportZoneNotificationUtil {
         }
     }
 
+    private void deleteTransportZone(TransportZone zone, BigInteger dpnId, WriteTransaction tx)
+            throws TransactionCommitFailedException {
+        InstanceIdentifier<TransportZone> path = InstanceIdentifier.builder(TransportZones.class)
+                .child(TransportZone.class, new TransportZoneKey(zone.getZoneName())).build();
+
+        if (tx == null) {
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, path);
+        } else {
+            tx.delete(LogicalDatastoreType.CONFIGURATION, path);
+        }
+        LOG.info("Transport zone {} deleted due to dpn {} handling.", zone.getZoneName(), dpnId);
+    }
+
+    public void deleteTransportZone(String zoneNamePrefix, BigInteger dpnId) {
+        Map<String, String> localIps = getDpnLocalIps(dpnId);
+        if (localIps != null && !localIps.isEmpty()) {
+            LOG.debug("Will use local_ips for transport zone delete for dpn {} and zone name prefix {}", dpnId,
+                    zoneNamePrefix);
+            for (String localIp : localIps.keySet()) {
+                String underlayNetworkName = localIps.get(localIp);
+                String zoneName = getTzNameForUnderlayNetwork(zoneNamePrefix, underlayNetworkName);
+                deleteTransportZone(zoneName, dpnId, localIp);
+            }
+        } else {
+            deleteTransportZone(zoneNamePrefix, dpnId, getDpnLocalIp(dpnId));
+        }
+    }
+
+    private void deleteTransportZone(String zoneName, BigInteger dpnId, String localIp) {
+        deleteTransportZone(zoneName, dpnId, localIp, null);
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    private void deleteTransportZone(String zoneName, BigInteger dpnId, String localIp, WriteTransaction tx) {
+        InstanceIdentifier<TransportZone> inst = InstanceIdentifier.create(TransportZones.class)
+                .child(TransportZone.class, new TransportZoneKey(zoneName));
+
+        // FIXME: Read this through a cache
+        TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
+        if (zone != null) {
+            try {
+                removeVtep(zone.getZoneName(), dpnId, localIp, null);
+                deleteTransportZone(zone, dpnId, tx);
+            } catch (Exception e) {
+                LOG.error("Failed to remove tunnels for dpn {} in zone {}", dpnId, zoneName, e);
+            }
+        }
+    }
+
+
     /**
      * Update transport zones based on local_ips TEP ips mapping to underlay
      * networks.<br>
