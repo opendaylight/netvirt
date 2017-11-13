@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_bf6e262d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 77
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T18:27:23Z",
+      "side": 1,
+      "message": "You don\u0027t need all this for FindBugs. Plus I\u0027m enabling FindBugs in https://git.opendaylight.org/gerrit/#/c/64861/5/vpnservice/neutronvpn/neutronvpn-impl/pom.xml and fixing all the current violations (there are many) so please remove this.",
+      "revId": "ce26e12479c401738bab3abb42c1411852ab9a30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
