@@ -16,6 +16,24 @@
       "revId": "c93a29bf36a4728cd2581248c4ffb5f191553d13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fcf6f15b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 46
+      },
+      "lineNbr": 826,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-13T07:32:46Z",
+      "side": 1,
+      "message": "Hi Tom,\n\ngood match. again, your tool seems to be very efficient.\nI just looked at findbugs web page.\no when you say \"cease pushing any more new code until findbugs is enabled\", you mean automate it in the \"compilation process\", so that if findbugs is firing an alarm, then code is considered as bad. I was wondering if that tool could fire any false positive alarms ?\no when you say \"cease pushing any more new code until findbugs is enabled\", you mean use it. Then how could people that are not using eclipse could use it. Is there a procedure to use it by command line ?\nThanks,",
+      "parentUuid": "9a245df4_79ae9399",
+      "revId": "c93a29bf36a4728cd2581248c4ffb5f191553d13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
