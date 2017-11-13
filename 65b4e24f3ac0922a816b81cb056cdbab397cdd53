@@ -1,0 +1,360 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f9df23d4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 404,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "Make vpnIdList a Set to avoid the contains check (and walking a List).",
+      "range": {
+        "startLine": 404,
+        "startChar": 52,
+        "endLine": 404,
+        "endChar": 60
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_59f0ef66",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 412,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "vpnIdList can\u0027t be null here so don\u0027t check",
+      "range": {
+        "startLine": 412,
+        "startChar": 16,
+        "endLine": 412,
+        "endChar": 33
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_39f53b57",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 508,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "Similar to above - make oldVpnIds a Set...",
+      "range": {
+        "startLine": 508,
+        "startChar": 38,
+        "endLine": 508,
+        "endChar": 46
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_99e6e7ae",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "...and same with newVpnId.  Also should be \"newVpnIds\"",
+      "range": {
+        "startLine": 516,
+        "startChar": 23,
+        "endLine": 516,
+        "endChar": 31
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_79eb3378",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 530,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "oldVpnIds can\u0027t be null here...",
+      "range": {
+        "startLine": 530,
+        "startChar": 16,
+        "endLine": 530,
+        "endChar": 25
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d9033f40",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 539,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "... and neither can newVpnId",
+      "range": {
+        "startLine": 539,
+        "startChar": 16,
+        "endLine": 539,
+        "endChar": 24
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b9000b35",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 783,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "Make this Collection",
+      "range": {
+        "startLine": 783,
+        "startChar": 38,
+        "endLine": 783,
+        "endChar": 42
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_19faf742",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 909,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "listVpn cpmes from an object read from the data store. It seems fishy to mutate it. It would be safer/better to create a new List from the one read:\n\n  List\u003cVpnInstanceNames\u003e newVpnList \u003d new ArrayList\u003c\u003e();\n  List\u003cVpnInstanceNames\u003e oldVpnList \u003d \n                             optionalVpnInterface.get().getVpnInstanceNames();\n  if (oldVpnList !\u003d null) {\n      newVpnList.addAll(oldVpnList);\n  }\n\n  ...\n\n  VpnInterfaceBuilder vpnIfBuilder \u003d new VpnInterfaceBuilder(\n        optionalVpnInterface.get()).setVpnInstanceNames(newVpnList);",
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f9f6035c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 1388,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "Can be simplified to Collections.singletonList(vpnId)",
+      "range": {
+        "startLine": 1388,
+        "startChar": 46,
+        "endLine": 1388,
+        "endChar": 53
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_59974fec",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 1641,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "This comment is actually useless since vpnId was removed - remove the comment",
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_399c1b0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 2470,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "Collections.singletonList(vpnId)",
+      "range": {
+        "startLine": 2470,
+        "startChar": 30,
+        "endLine": 2470,
+        "endChar": 37
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_999d470d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 2476,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "Make this Collection.",
+      "range": {
+        "startLine": 2476,
+        "startChar": 39,
+        "endLine": 2476,
+        "endChar": 43
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_79a2134c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 2479,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "this shouldn\u0027t be null on entry so remove check and annotate with @Nonnull (javax.annotation) - it will be enforced once FindBugs is enabled.",
+      "range": {
+        "startLine": 2479,
+        "startChar": 13,
+        "endLine": 2479,
+        "endChar": 22
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b9876bb4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 2560,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "It\u0027s safer not to mutate the List returned from the read. This can be simplified to:\n\n  VpnInstanceNames vpnInstance \u003d VpnHelper...\n  List\u003cVpnInstanceNames\u003e newVpnInstances \u003d new ArrayList\u003c\u003e();\n  List\u003cVpnInstanceNames\u003e oldVpnInstances \u003d \n                    optionalVpnInterface.get().getVpnInstanceNames();\n  if (oldVpnInstances !\u003d null ) {\n      newVpnInstances.addAll(oldVpnInstances);\n  }\n\n  if (!VpnHelper.vpnInterfaceVpnInstanceNamesContainsVpnName(\n               vpnId.getValue(), newVpnInstances) {\n      newVpnInstances.add(vpnInstance);\n  }\n\n  vpnIfBuilder.setVpnInstanceNames(newVpnInstances);",
+      "range": {
+        "startLine": 2544,
+        "startChar": 16,
+        "endLine": 2560,
+        "endChar": 17
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f98d63d4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "This will search the list again - use the Iterator to iterate and remove",
+      "range": {
+        "startLine": 131,
+        "startChar": 32,
+        "endLine": 131,
+        "endChar": 38
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_199157f1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 45
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T01:19:03Z",
+      "side": 1,
+      "message": "return is implied - remove",
+      "range": {
+        "startLine": 135,
+        "startChar": 8,
+        "endLine": 135,
+        "endChar": 14
+      },
+      "revId": "65b4e24f3ac0922a816b81cb056cdbab397cdd53",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
