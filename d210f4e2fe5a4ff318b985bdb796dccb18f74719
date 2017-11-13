@@ -178,6 +178,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4de4a9e0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T13:22:35Z",
+      "side": 1,
+      "message": "I know it\u0027s pre-existing and used elsewhere. It\u0027s just not good practice - you can search the internet, eg https://stackoverflow.com/questions/348985/deadlock-on-synchronized-string-intern. \n\nI\u0027m not familiar with this code so I can\u0027t really say exactly what it should synchronize on or if synchronization is necessary at all here. Perhaps it should use the new KeyLocks class I just added in infrautils (https://git.opendaylight.org/gerrit/#/c/64980/).",
+      "parentUuid": "9a245df4_67bc2edd",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 38
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_194cb7c7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 89
