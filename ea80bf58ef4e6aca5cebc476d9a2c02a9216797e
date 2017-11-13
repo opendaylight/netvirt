@@ -1,0 +1,90 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_9c7a5575",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 263,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T04:11:00Z",
+      "side": 1,
+      "message": "return Collections.emptyList();",
+      "range": {
+        "startLine": 262,
+        "startChar": 12,
+        "endLine": 263,
+        "endChar": 27
+      },
+      "revId": "ea80bf58ef4e6aca5cebc476d9a2c02a9216797e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7c7fa166",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 1356,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T04:11:00Z",
+      "side": 1,
+      "message": "return Collections.emptyList();",
+      "range": {
+        "startLine": 1355,
+        "startChar": 12,
+        "endLine": 1356,
+        "endChar": 27
+      },
+      "revId": "ea80bf58ef4e6aca5cebc476d9a2c02a9216797e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1cb7853b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 1904,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T04:11:00Z",
+      "side": 1,
+      "message": "This method has no effect by itself - I believe you want to re-assign ipVersion:\n\n  ipVersion \u003d ipVersion.addVersion(...);",
+      "range": {
+        "startLine": 1904,
+        "startChar": 22,
+        "endLine": 1904,
+        "endChar": 32
+      },
+      "revId": "ea80bf58ef4e6aca5cebc476d9a2c02a9216797e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fcb3914a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 18
+      },
+      "lineNbr": 1907,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T04:11:00Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "ea80bf58ef4e6aca5cebc476d9a2c02a9216797e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
