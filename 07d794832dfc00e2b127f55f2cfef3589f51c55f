@@ -1,0 +1,497 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_d9b17f90",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "vpnName could be null here...",
+      "range": {
+        "startLine": 345,
+        "startChar": 77,
+        "endLine": 345,
+        "endChar": 84
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_19a8371f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "move this check after line 66 above.",
+      "range": {
+        "startLine": 76,
+        "startChar": 12,
+        "endLine": 78,
+        "endChar": 13
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f9a4434c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "Long.valueOf(0)",
+      "range": {
+        "startLine": 134,
+        "startChar": 23,
+        "endLine": 134,
+        "endChar": 35
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_396a5bee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "Declare as boolean here and remove line 155. Also rename to something  meaningful",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 156,
+        "endChar": 20
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_996b87f0",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "Declare as boolean here and remove line 161. Also rename to something  meaningful",
+      "range": {
+        "startLine": 162,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 20
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d9785fc6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "!returnValue2 \u0026\u0026 !returnValue1",
+      "range": {
+        "startLine": 164,
+        "startChar": 12,
+        "endLine": 164,
+        "endChar": 58
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_99426766",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "should be private",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f97ba3bb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be true?",
+      "range": {
+        "startLine": 204,
+        "startChar": 19,
+        "endLine": 204,
+        "endChar": 24
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_197f97ac",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "boolean",
+      "range": {
+        "startLine": 208,
+        "startChar": 12,
+        "endLine": 208,
+        "endChar": 19
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3951bb36",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "shouldn\u0027t this do a similar \"isBgpVpn\" check as above?",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_594c6f9e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be false? I assume the return value is intended to indicate if something was actually updated, otherwise it\u0027s confusing.",
+      "range": {
+        "startLine": 220,
+        "startChar": 15,
+        "endLine": 220,
+        "endChar": 19
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7947b377",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "Why was this moved here? intfName is null here and will likely result in an NPE. It also renders the 2 loops below useless. Doesn\u0027t make sense...",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d95fbf3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "This check makes no sense here either...",
+      "range": {
+        "startLine": 352,
+        "startChar": 12,
+        "endLine": 352,
+        "endChar": 37
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_39389bee",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 823,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "this can\u0027t be null here. Do you mean this ? :\n\n  if (sn !\u003d null \u0026\u0026 (sn.getVpnId() \u003d\u003d null\n          || !sn.getVpnId().getValue().equals(vpnName)))",
+      "range": {
+        "startLine": 823,
+        "startChar": 24,
+        "endLine": 823,
+        "endChar": 45
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f929e39b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 2531,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "If writeOperTxn fails then writeConfigTxn should be cancelled. writeOperTxn should be async - see comment for similar code in https://git.opendaylight.org/gerrit/#/c/59700/89/vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java@131",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d9269fcd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 2537,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "return Collections.emptyList();",
+      "range": {
+        "startLine": 2536,
+        "startChar": 36,
+        "endLine": 2537,
+        "endChar": 51
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_591aaf7d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "Thus should be a proper javadoc",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b90acb23",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "The read is performed twice on lines 306 and 310.  This code should be:\n\n  Optional\u003cSubnetmap\u003e sm \u003d null;\n  if (isExternalVpn) {\n      sm \u003d VpnUtil.read(...);\n  }\n\nHowever this code is a bit confusing. It seems this block should only be executed if isExternalVpn is true and a Subnetmap exists in the config DS. Therefore:\n\n  if (isExternalVpn) {\n      Optional\u003cSubnetmap\u003e sm \u003d VpnUtil.read...\n      if (!sm.isPresent()) {\n          LOG.error(...);\n      } else {\n          ...\n      }\n  }",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d90dff3f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 333,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "so this means sm \u003d\u003d null which means !isExternalVpn. Why is this logged as an error? isExternalVpn is passed by the caller so an error will be logged every time false is passed - doesn\u0027t seem right.",
+      "range": {
+        "startLine": 333,
+        "startChar": 24,
+        "endLine": 333,
+        "endChar": 29
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1904b716",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "String vpnName \u003d isExternalVpn ? subnetmap.getVpnId().getValue() :\n        subnetmap.getInternetVpnId().getValue()",
+      "range": {
+        "startLine": 364,
+        "startChar": 8,
+        "endLine": 368,
+        "endChar": 9
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f900c303",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 1838,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "redundant check - can\u0027t be null here due to prior check",
+      "range": {
+        "startLine": 1838,
+        "startChar": 50,
+        "endLine": 1838,
+        "endChar": 79
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5c01fd03",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "\u0027/\u0027",
+      "range": {
+        "startLine": 1899,
+        "startChar": 30,
+        "endLine": 1899,
+        "endChar": 33
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3c06c91d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 1899,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T02:40:27Z",
+      "side": 1,
+      "message": "\u003e\u003d",
+      "range": {
+        "startLine": 1899,
+        "startChar": 35,
+        "endLine": 1899,
+        "endChar": 36
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
