@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_5f3e0adb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T19:15:46Z",
+      "side": 1,
+      "message": "You\u0027ve just submitted the transaction at this point - you don\u0027t know if it\u0027s success.",
+      "revId": "85981e1b8628dc5c9555aeecb9ed395776d11f6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
