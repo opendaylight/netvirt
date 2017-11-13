@@ -115,6 +115,20 @@ public class NeutronUtils {
         return true;
     }
 
+    private String getPortHostId(final Port port) {
+        PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
+        if (portBinding == null) {
+            LOG.warn(">>>> getPortHostId: port binding is null");
+            return null;
+        }
+        return portBinding.getHostId();
+    }
+
+    private boolean isPortBinded(final Port port) {
+        String hostId = getPortHostId(port);
+        return hostId != null && !hostId.isEmpty();
+    }
+
     public static boolean isPortVnicTypeNormal(Port port) {
         PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
         if (portBinding == null || portBinding.getVnicType() == null) {
