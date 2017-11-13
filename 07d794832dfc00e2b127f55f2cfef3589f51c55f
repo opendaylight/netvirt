@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_fc554c1e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d9b17f90",
+      "range": {
+        "startLine": 345,
+        "startChar": 77,
+        "endLine": 345,
+        "endChar": 84
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_19a8371f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 113
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "move this check after line 66 above.",
+      "range": {
+        "startLine": 76,
+        "startChar": 12,
+        "endLine": 78,
+        "endChar": 13
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3c336415",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_19a8371f",
       "range": {
         "startLine": 76,
         "startChar": 12,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5c3e18db",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_f9a4434c",
+      "range": {
+        "startLine": 134,
+        "startChar": 23,
+        "endLine": 134,
+        "endChar": 35
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_396a5bee",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 113
@@ -82,6 +154,30 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "Declare as boolean here and remove line 155. Also rename to something  meaningful",
+      "range": {
+        "startLine": 156,
+        "startChar": 8,
+        "endLine": 156,
+        "endChar": 20
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bc2634cc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_396a5bee",
       "range": {
         "startLine": 156,
         "startChar": 8,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_fc2c2cae",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_996b87f0",
+      "range": {
+        "startLine": 162,
+        "startChar": 8,
+        "endLine": 162,
+        "endChar": 20
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d9785fc6",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 113
@@ -128,6 +248,30 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "!returnValue2 \u0026\u0026 !returnValue1",
+      "range": {
+        "startLine": 164,
+        "startChar": 12,
+        "endLine": 164,
+        "endChar": 58
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1c1f806d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d9785fc6",
       "range": {
         "startLine": 164,
         "startChar": 12,
@@ -157,6 +301,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9c0a5024",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_99426766",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f97ba3bb",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 113
@@ -168,6 +330,30 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "shouldn\u0027t this be true?",
+      "range": {
+        "startLine": 204,
+        "startChar": 19,
+        "endLine": 204,
+        "endChar": 24
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1f06521d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_f97ba3bb",
       "range": {
         "startLine": 204,
         "startChar": 19,
@@ -203,6 +389,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_df179a43",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 208,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_197f97ac",
+      "range": {
+        "startLine": 208,
+        "startChar": 12,
+        "endLine": 208,
+        "endChar": 19
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3951bb36",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 113
@@ -214,6 +424,24 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "shouldn\u0027t this do a similar \"isBgpVpn\" check as above?",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_df2e7a8b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "it is not exactly the same thing. here could have an update of subnetmap or other parametrers",
+      "parentUuid": "9a245df4_3951bb36",
       "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -243,6 +471,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3f4fd66c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 220,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_594c6f9e",
+      "range": {
+        "startLine": 220,
+        "startChar": 15,
+        "endLine": 220,
+        "endChar": 19
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_7947b377",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 113
@@ -260,6 +512,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_7fa30e00",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_7947b377",
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_d95fbf3f",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 113
@@ -271,6 +541,30 @@
       "writtenOn": "2017-11-13T02:40:27Z",
       "side": 1,
       "message": "This check makes no sense here either...",
+      "range": {
+        "startLine": 352,
+        "startChar": 12,
+        "endLine": 352,
+        "endChar": 37
+      },
+      "revId": "07d794832dfc00e2b127f55f2cfef3589f51c55f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_1f893275",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 113
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-11-13T17:18:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d95fbf3f",
       "range": {
         "startLine": 352,
         "startChar": 12,
