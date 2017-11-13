@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_9c97f539",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 700,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:54:47Z",
+      "side": 1,
+      "message": "You shouldn\u0027t synchronize on a String. Why are you synchronizing here anyway?",
+      "revId": "fc77a65e21018daa91dbeed8658df456e51b7bcb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_dca4cda7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 780,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:54:47Z",
+      "side": 1,
+      "message": "Why are you catching NPE - you should never do this",
+      "range": {
+        "startLine": 780,
+        "startChar": 25,
+        "endLine": 780,
+        "endChar": 45
+      },
+      "revId": "fc77a65e21018daa91dbeed8658df456e51b7bcb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3cbd29b8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1791,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T05:54:47Z",
+      "side": 1,
+      "message": "Never catch NPE",
+      "range": {
+        "startLine": 1791,
+        "startChar": 25,
+        "endLine": 1791,
+        "endChar": 45
+      },
+      "revId": "fc77a65e21018daa91dbeed8658df456e51b7bcb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
