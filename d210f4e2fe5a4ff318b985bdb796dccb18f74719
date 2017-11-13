@@ -226,6 +226,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_1f65b2b4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 89
+      },
+      "lineNbr": 210,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-13T17:35:12Z",
+      "side": 1,
+      "message": "Not sure I follow all that. I\u0027m just pointing out that it\u0027s generally not good practice to synchronize on interned global Strings. It\u0027s always possible a vpnName could match some other string somewhere else in some code that you aren\u0027t aware of. That said, it\u0027s pre-existing and out of scope of this patch to fix it.",
+      "parentUuid": "9a245df4_fc1a6c6d",
+      "range": {
+        "startLine": 210,
+        "startChar": 22,
+        "endLine": 210,
+        "endChar": 38
+      },
+      "revId": "d210f4e2fe5a4ff318b985bdb796dccb18f74719",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_194cb7c7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 89
