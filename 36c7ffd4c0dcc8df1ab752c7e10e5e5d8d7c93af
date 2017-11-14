@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_cb5fdc3f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-11-14T15:21:50Z",
+      "side": 1,
+      "message": "EntityOwnershipUtils is not present in Nitrogen",
+      "revId": "36c7ffd4c0dcc8df1ab752c7e10e5e5d8d7c93af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
