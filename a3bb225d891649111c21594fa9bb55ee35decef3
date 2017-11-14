@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_50bc39dc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 114
+      },
+      "lineNbr": 307,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T11:30:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_dfdf9ad4",
+      "range": {
+        "startLine": 307,
+        "startChar": 20,
+        "endLine": 307,
+        "endChar": 30
+      },
+      "revId": "a3bb225d891649111c21594fa9bb55ee35decef3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_5febaa77",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 114
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-13T18:46:25Z",
       "side": 1,
       "message": "sm \u003d\u003d null means isExternalVpn \u003d\u003d false - should this emit the error below? Doesn\u0027t seem right. Again see my previous comment",
+      "range": {
+        "startLine": 311,
+        "startChar": 20,
+        "endLine": 311,
+        "endChar": 31
+      },
+      "revId": "a3bb225d891649111c21594fa9bb55ee35decef3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f0be0dad",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 114
+      },
+      "lineNbr": 311,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T11:30:20Z",
+      "side": 1,
+      "message": "indeed.\nyou are right to mention that the error message is not consistent with the intent.\nI added a specific error message for that.\nFor the design perspective, this function may be called twice because a subnetmap owns two kind of VPN. \nFor that, some contexts must not be cleaned immediately.\nThat is why the subnetmap field is set to null.",
+      "parentUuid": "9a245df4_5febaa77",
       "range": {
         "startLine": 311,
         "startChar": 20,
