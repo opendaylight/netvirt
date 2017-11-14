@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_2654effd",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-11-14T16:35:36Z",
+      "side": 1,
+      "message": "please add some brief workflows on what changes are done for port create, and port update, for unbound ports etc.",
+      "revId": "caacd7de56b52f6b5241da5c5b03f4ba285c6595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e62e578b",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-11-14T16:35:36Z",
+      "side": 1,
+      "message": "will this be received during a port update typically?",
+      "revId": "caacd7de56b52f6b5241da5c5b03f4ba285c6595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_464f636b",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2017-11-14T16:35:36Z",
+      "side": 1,
+      "message": "i guess we assume presence of vnic\u003d direct in the ovsdb itself is sufficient to assume h/w offload is supported by the switch",
+      "revId": "caacd7de56b52f6b5241da5c5b03f4ba285c6595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
