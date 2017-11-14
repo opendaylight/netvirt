@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeListenerBase<L2gatewayConnection,
-        L2GatewayConnectionListener> implements AutoCloseable {
+        L2GatewayConnectionListener> {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionListener.class);
 
     private final DataBroker broker;

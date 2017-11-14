@@ -8,22 +8,12 @@
 package org.opendaylight.netvirt.elan.statisitcs;
 
 import com.google.common.util.concurrent.Futures;
-import java.math.BigInteger;
-import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
-import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
-import org.opendaylight.genius.interfacemanager.globals.VlanInterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.MatchInfo;
-import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.ServicesInfo;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.ElanStatisticsService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.GetElanInterfaceStatisticsInput;
@@ -64,10 +54,7 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
                     String.format("Interface %s is not a ELAN interface", interfaceName));
         }
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
-        long elanTag = elanInfo.getElanTag();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-        ServicesInfo serviceInfo = ElanUtils.getServiceInfo(elanInstanceName, elanTag, interfaceName);
         //FIXME [ELANBE] Get this API Later
         short tableId = 0;
 //        try {
@@ -95,21 +82,21 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
 
     private GetElanInterfaceStatisticsOutput queryforElanInterfaceStatistics(short tableId, String elanInstanceName,
             InterfaceInfo interfaceInfo) {
-        BigInteger dpId = interfaceInfo.getDpId();
-        List<MatchInfo> matches = null;
-        String interfaceName = interfaceInfo.getInterfaceName();
-        if (tableId == NwConstants.VLAN_INTERFACE_INGRESS_TABLE) {
-            VlanInterfaceInfo vlanInterfaceInfo = (VlanInterfaceInfo)interfaceInfo;
-            matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
-                InterfaceServiceUtil.getVlanId(interfaceName, dataBroker), vlanInterfaceInfo.isVlanTransparent());
-        } else {
-            matches = InterfaceServiceUtil.getLPortDispatcherMatches(
-                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX),
-                    interfaceInfo.getInterfaceTag());
-        }
-        long groupId = interfaceInfo.getGroupId();
-        Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches,
-                String.format("%s.%s", elanInstanceName, interfaceName), groupId);
+//        BigInteger dpId = interfaceInfo.getDpId();
+//        List<MatchInfo> matches;
+//        String interfaceName = interfaceInfo.getInterfaceName();
+//        if (interfaceInfo instanceof VlanInterfaceInfo) {
+//            VlanInterfaceInfo vlanInterfaceInfo = (VlanInterfaceInfo)interfaceInfo;
+//            matches = InterfaceServiceUtil.getMatchInfoForVlanLPort(dpId, interfaceInfo.getPortNo(),
+//                InterfaceServiceUtil.getVlanId(interfaceName, dataBroker), vlanInterfaceInfo.isVlanTransparent());
+//        } else {
+//            matches = InterfaceServiceUtil.getLPortDispatcherMatches(
+//                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX),
+//                    interfaceInfo.getInterfaceTag());
+//        }
+//        long groupId = interfaceInfo.getGroupId();
+//        Set<Object> statRequestKeys = InterfaceServiceUtil.getStatRequestKeys(dpId, tableId, matches,
+//                String.format("%s.%s", elanInstanceName, interfaceName), groupId);
         // StatisticsInfo statsInfo = new StatisticsInfo(statRequestKeys);
 //        org.opendaylight.vpnservice.ericsson.mdsalutil.statistics.StatResult statResult
 //            = mdsalMgr.queryForStatistics(interfaceName, statsInfo);

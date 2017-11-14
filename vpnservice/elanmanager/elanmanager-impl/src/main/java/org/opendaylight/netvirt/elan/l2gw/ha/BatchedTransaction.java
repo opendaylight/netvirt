@@ -90,6 +90,6 @@ public class BatchedTransaction implements ReadWriteTransaction {
 
     @Override
     public Object getIdentifier() {
-        return null;
+        return "BatchedTransaction";
     }
 }
