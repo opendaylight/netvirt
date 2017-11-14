@@ -46,7 +46,7 @@ public class ConfigureL3VpnCommand extends OsgiCommandSupport {
         this.neutronVpnManager = neutronVpnManager;
     }
 
-    public void setRpcRegistry(RpcProviderRegistry rpcProviderRegistry) {
+    public void setRpcProviderRegistry(RpcProviderRegistry rpcProviderRegistry) {
         this.rpcProviderRegistry = rpcProviderRegistry;
     }
 

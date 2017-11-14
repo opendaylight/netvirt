@@ -14,6 +14,7 @@ import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 
+@SuppressWarnings("checkstyle:HideUtilityClassConstructor")
 public class Commands {
     private static BgpManager bm;
     private static final long AS_MIN = 0;

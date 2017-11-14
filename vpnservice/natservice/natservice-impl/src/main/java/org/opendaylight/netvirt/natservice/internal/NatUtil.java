@@ -210,10 +210,12 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NatUtil {
+public final class NatUtil {
 
     private static String OF_URI_SEPARATOR = ":";
     private static final Logger LOG = LoggerFactory.getLogger(NatUtil.class);
+
+    private NatUtil() { }
 
     /*
      getCookieSnatFlow() computes and returns a unique cookie value for the NAT flows using the router ID as the

@@ -38,7 +38,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 
-public class FibHelper {
+public final class FibHelper {
+
+    private FibHelper() { }
 
     public static RoutePaths buildRoutePath(String nextHop, Long label) {
         RoutePathsBuilder builder = new RoutePathsBuilder()

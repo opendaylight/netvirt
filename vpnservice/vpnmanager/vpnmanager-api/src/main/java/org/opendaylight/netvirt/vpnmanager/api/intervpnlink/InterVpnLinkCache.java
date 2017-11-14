@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * Manages some utility caches in order to speed (avoid) reads from MD-SAL.
  * InterVpnLink is something that rarely changes and is frequently queried.
  */
-public class InterVpnLinkCache {
+public final class InterVpnLinkCache {
 
     // Cache that maps endpoints with their respective InterVpnLinkComposite
     public static final String ENDPOINT_2_IVPNLINK_CACHE_NAME = "EndpointToInterVpnLinkCache";
@@ -40,6 +40,8 @@ public class InterVpnLinkCache {
     public static final String IVPNLINK_NAME_2_IVPNLINK_CACHE_NAME = "NameToInterVpnLinkCache";
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCache.class);
+
+    private InterVpnLinkCache() { }
 
     ///////////////////////////////////
     //  Initialization / Destruction  //

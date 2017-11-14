@@ -119,7 +119,7 @@ public class ClearBgpCli extends OsgiCommandSupport {
         return readUntilPrompt(in, promptChar, null);
     }
 
-    private static boolean readUntilPrompt(BufferedReader in, char promptChar, String passwordCheckStr)
+    private static boolean readUntilPrompt(BufferedReader in, char promptChar, String checkString)
             throws IOException {
         StringBuilder sb = new StringBuilder();
         int ret = 0;
@@ -132,8 +132,8 @@ public class ClearBgpCli extends OsgiCommandSupport {
             }
 
             sb.append((char) ret);
-            if (passwordCheckStr != null) {
-                if (sb.toString().contains(passwordCheckStr)) {
+            if (checkString != null) {
+                if (sb.toString().contains(checkString)) {
                     break;
                 }
             }

@@ -15,10 +15,12 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
 
-public class L2GatewayCacheUtils {
+public final class L2GatewayCacheUtils {
     public static final String L2GATEWAY_CACHE_NAME = "L2GW";
 
     private static final ConcurrentMap<String, L2GatewayDevice> CACHE = new ConcurrentHashMap<>();
+
+    private L2GatewayCacheUtils() { }
 
     public static void addL2DeviceToCache(String devicename, L2GatewayDevice l2GwDevice) {
         CACHE.put(devicename, l2GwDevice);

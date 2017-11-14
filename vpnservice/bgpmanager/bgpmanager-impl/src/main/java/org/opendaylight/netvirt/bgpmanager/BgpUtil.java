@@ -59,13 +59,15 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpUtil {
+public final class BgpUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
 
     private static DataBroker dataBroker;
 
     private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
+
+    private BgpUtil() { }
 
     /**
      * get a translation from prefix ipv6 to afi<br>.

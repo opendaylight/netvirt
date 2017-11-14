@@ -66,7 +66,7 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
             LOG.trace("tunnel {} is not a internal vxlan tunnel", add);
             return;
         }
-        if (elanUtils.isTunnelInLogicalGroup(add.getTunnelInterfaceName(), dataBroker)) {
+        if (elanUtils.isTunnelInLogicalGroup(add.getTunnelInterfaceName())) {
             LOG.trace("MULTIPLE_VxLAN_TUNNELS: ignoring the tunnel event for {}", add.getTunnelInterfaceName());
             return;
         }

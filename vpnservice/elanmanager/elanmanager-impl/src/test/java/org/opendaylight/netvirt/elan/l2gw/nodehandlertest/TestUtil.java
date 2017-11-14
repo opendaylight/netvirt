@@ -33,8 +33,10 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by eaksahu on 8/12/2016.
  */
-public class TestUtil {
+public final class TestUtil {
     static Logger LOG = LoggerFactory.getLogger(TestUtil.class);
+
+    private TestUtil() { }
 
     public static void deleteNode(ReadWriteTransaction tx, InstanceIdentifier<Node> id) throws Exception {
         tx.delete(OPERATIONAL, id);

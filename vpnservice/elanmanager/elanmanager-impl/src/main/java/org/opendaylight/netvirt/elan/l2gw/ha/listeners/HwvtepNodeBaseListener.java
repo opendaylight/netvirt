@@ -46,11 +46,8 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
         db = dataBroker;
-        registerListener(datastoreType, db);
-    }
 
-    public void registerListener(LogicalDatastoreType dsType, final DataBroker db) throws Exception {
-        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(dsType, getWildcardPath());
+        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
                 db.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));

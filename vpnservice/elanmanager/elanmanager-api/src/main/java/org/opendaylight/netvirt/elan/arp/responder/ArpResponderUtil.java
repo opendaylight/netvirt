@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -383,23 +382,25 @@ public final class ArpResponderUtil {
         return cookie.add(BigInteger.valueOf(lportTag));
     }
 
-    private static BiFunction<Short, Integer, BigInteger> cookie = (tableId,
-            arpOpType) -> NwConstants.COOKIE_ARP_RESPONDER.add(BigInteger.ONE).add(BigInteger.valueOf(tableId))
-                    .add(BigInteger.valueOf(arpOpType));
+    private static BigInteger buildCookie(short tableId, int arpOpType) {
+        return NwConstants.COOKIE_ARP_RESPONDER.add(BigInteger.ONE).add(
+                BigInteger.valueOf(tableId).add(BigInteger.valueOf(arpOpType)));
+    }
 
-    private static BiFunction<Short, Integer, String> flowRef = (tableId,
-            arpOpType) -> (tableId == NwConstants.ARP_CHECK_TABLE
-                    ? ArpResponderConstant.FLOWID_PREFIX_FOR_ARP_CHECK.value()
-                    : ArpResponderConstant.FLOWID_PREFIX_FOR_MY_GW_MAC.value()) + tableId + NwConstants.FLOWID_SEPARATOR
-                    + (arpOpType == NwConstants.ARP_REQUEST ? "arp.request" : "arp.replay");
+    private static String buildFlowRef(short tableId, int arpOpType) {
+        return (tableId == NwConstants.ARP_CHECK_TABLE
+                ? ArpResponderConstant.FLOWID_PREFIX_FOR_ARP_CHECK.value()
+                : ArpResponderConstant.FLOWID_PREFIX_FOR_MY_GW_MAC.value()) + tableId + NwConstants.FLOWID_SEPARATOR
+                + (arpOpType == NwConstants.ARP_REQUEST ? "arp.request" : "arp.replay");
+    }
 
     public static FlowEntity createArpDefaultFlow(BigInteger dpId, short tableId, int arpOpType,
             Supplier<List<MatchInfo>> matches, Supplier<List<ActionInfo>> actions) {
 
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actions.get()));
-        return MDSALUtil.buildFlowEntity(dpId, tableId, flowRef.apply(tableId, arpOpType),
-                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, flowRef.apply(tableId, arpOpType), 0, 0,
-                cookie.apply(tableId, arpOpType), matches.get(), instructions);
+        return MDSALUtil.buildFlowEntity(dpId, tableId, buildFlowRef(tableId, arpOpType),
+                NwConstants.DEFAULT_ARP_FLOW_PRIORITY, buildFlowRef(tableId, arpOpType), 0, 0,
+                buildCookie(tableId, arpOpType), matches.get(), instructions);
     }
 
     /**
