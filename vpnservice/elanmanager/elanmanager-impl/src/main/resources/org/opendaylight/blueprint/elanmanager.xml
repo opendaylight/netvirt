@@ -48,6 +48,10 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="entityOwnershipUtils" class="org.opendaylight.genius.utils.clustering.EntityOwnershipUtils">
+    <argument ref="entityOwnershipService" />
+  </bean>
+
   <bean id="elanInterfaceManager"
     class="org.opendaylight.netvirt.elan.internal.ElanInterfaceManager"
     init-method="init" destroy-method="close">
@@ -186,6 +190,7 @@
     <argument ref="entityOwnershipService" />
     <argument ref="elanUtils" />
     <argument ref="elanL2GatewayUtils" />
+    <argument ref="entityOwnershipUtils" />
   </bean>
 
   <bean id="elanVpnPortIpToPortListener"
