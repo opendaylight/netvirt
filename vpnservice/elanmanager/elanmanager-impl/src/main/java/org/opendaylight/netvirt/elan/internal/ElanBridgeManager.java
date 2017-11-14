@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -19,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
-
 import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -300,8 +298,6 @@ public class ElanBridgeManager implements IElanBridgeManager {
     }
 
     private List<BridgeOtherConfigs> buildBridgeOtherConfigs(Node ovsdbNode, String bridgeName, String mac) {
-        List<BridgeOtherConfigs> otherConfigs = null;
-
         // First attempt to extract the bridge augmentation from operational...
         Node bridgeNode = southboundUtils.getBridgeNode(ovsdbNode, bridgeName);
         OvsdbBridgeAugmentation bridgeAug = null;
@@ -312,6 +308,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
         // ...if present, it means this bridge already exists and we need to take
         // care not to change the datapath id. We do this by explicitly setting
         // other_config:datapath-id to the value reported in the augmentation.
+        List<BridgeOtherConfigs> otherConfigs;
         if (bridgeAug != null) {
             DatapathId dpId = bridgeAug.getDatapathId();
             if (dpId != null) {
@@ -327,6 +324,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
                                     .setBridgeOtherConfigKey(OTHER_CONFIG_DATAPATH_ID)
                                     .setBridgeOtherConfigValue(dpIdVal).build());
                 }
+            } else {
+                otherConfigs = Lists.newArrayList();
             }
         } else  {
             otherConfigs = Lists.newArrayList();
