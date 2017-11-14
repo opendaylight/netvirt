@@ -22,8 +22,7 @@ import org.slf4j.LoggerFactory;
  * Listens to changes in the Vpn instance Operational data so that this data can be updated if needed.
  */
 public class VpnOpInstanceCacheManager
-    extends AsyncClusteredDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpInstanceCacheManager>
-    implements AutoCloseable {
+    extends AsyncClusteredDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpInstanceCacheManager> {
 
     private final DataBroker dataBroker;
 

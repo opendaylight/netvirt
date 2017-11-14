@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -160,13 +161,17 @@ public class InterVpnLinkLocator {
         return getRts(vpnInstance, VpnTarget.VrfRTType.ImportExtcommunity);
     }
 
+    @SuppressFBWarnings("NP_NULL_ON_SOME_PATH_MIGHT_BE_INFEASIBLE")
     private boolean haveSameIRTs(List<String> irts1, List<String> irts2) {
         if (irts1 == null && irts2 == null) {
             return true;
         }
-        if ((irts1 == null && irts2 != null) || (irts1 != null && irts2 == null)) {
+        if (irts1 == null && irts2 != null || irts1 != null && irts2 == null) {
             return false;
         }
+
+        // FindBugs reports "Possible null pointer dereference of irts1 on branch that might be infeasible" but irts1
+        // can't be null here.
         if (irts1.size() != irts2.size()) {
             return false;
         }
@@ -192,8 +197,8 @@ public class InterVpnLinkLocator {
             }
             List<String> vpn1IRTs = getIRTsByVpnName(vpn1Name);
             List<String> vpn2IRTs = getIRTsByVpnName(vpn2Name);
-            return (haveSameIRTs(vpn1IRTs, vpnToMatch1IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch2IRTs)
-                || (haveSameIRTs(vpn1IRTs, vpnToMatch2IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch1IRTs)));
+            return haveSameIRTs(vpn1IRTs, vpnToMatch1IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch2IRTs)
+                || haveSameIRTs(vpn1IRTs, vpnToMatch2IRTs) && haveSameIRTs(vpn2IRTs, vpnToMatch1IRTs);
         };
 
         return interVpnLinks.stream().filter(areSameGroup).collect(Collectors.toList());

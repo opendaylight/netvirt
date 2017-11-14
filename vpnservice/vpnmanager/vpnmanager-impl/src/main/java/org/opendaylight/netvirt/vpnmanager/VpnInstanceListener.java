@@ -12,7 +12,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,7 +19,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -62,8 +60,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener>
-    implements AutoCloseable {
+public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
     private static final String LOGGING_PREFIX_ADD = "VPN-ADD:";
     private static final String LOGGING_PREFIX_DELETE = "VPN-REMOVE:";
@@ -154,22 +151,19 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         final String vpnName = value.getVpnInstanceName();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPN-" + vpnName,
-            new AddVpnInstanceWorker(idManager, vpnInterfaceManager, dataBroker, value));
+            new AddVpnInstanceWorker(idManager, dataBroker, value));
     }
 
     private class AddVpnInstanceWorker implements Callable<List<ListenableFuture<Void>>> {
         private final Logger log = LoggerFactory.getLogger(AddVpnInstanceWorker.class);
         IdManagerService idManager;
-        VpnInterfaceManager vpnInterfaceManager;
         VpnInstance vpnInstance;
         DataBroker broker;
 
         AddVpnInstanceWorker(IdManagerService idManager,
-            VpnInterfaceManager vpnInterfaceManager,
             DataBroker broker,
             VpnInstance value) {
             this.idManager = idManager;
-            this.vpnInterfaceManager = vpnInterfaceManager;
             this.broker = broker;
             this.vpnInstance = value;
         }
