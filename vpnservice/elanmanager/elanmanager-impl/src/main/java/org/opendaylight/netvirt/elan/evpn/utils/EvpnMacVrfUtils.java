@@ -148,11 +148,6 @@ public class EvpnMacVrfUtils {
         }
 
         List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
-        if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
-            return;
-        }
-
         if (checkEvpnAttachedToNet(elanName)) {
             //TODO(Riyaz) : Check if accessing first nexthop address is right solution
             String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
@@ -186,10 +181,6 @@ public class EvpnMacVrfUtils {
             return;
         }
         List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
-        if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
-            return;
-        }
 
         //if (checkEvpnAttachedToNet(elanName)) {
         //TODO(Riyaz) : Check if accessing first nexthop address is right
@@ -222,10 +213,6 @@ public class EvpnMacVrfUtils {
 
         String elanName = elanInstance.getElanInstanceName();
         List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
-        if (dpnInterfaceLists == null) {
-            LOG.error("Error : dpnInterfaceLists is null for elan {}", elanName);
-            return;
-        }
 
         if (checkEvpnAttachedToNet(elanName)) {
             String nexthopIP = getRoutePathNexthopIp(macVrfEntry);
