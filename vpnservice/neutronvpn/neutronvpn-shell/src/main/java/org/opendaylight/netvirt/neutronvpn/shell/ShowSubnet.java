@@ -60,21 +60,21 @@ public class ShowSubnet extends OsgiCommandSupport {
         if (subnetmap == null && subnetopdata == null) {
             getSubnet();
             System.out.println("Following subnetId is present in both subnetMap and subnetOpDataEntry\n");
-            for (Subnetmap subnetmap : subnetmapList) {
-                SubnetOpDataEntry data = subnetOpDataEntryMap.get(subnetmap.getId());
+            for (Subnetmap candidateSubnetmap : subnetmapList) {
+                SubnetOpDataEntry data = subnetOpDataEntryMap.get(candidateSubnetmap.getId());
                 if (data != null) {
-                    System.out.println(subnetmap.getId().toString() + "\n");
+                    System.out.println(candidateSubnetmap.getId().toString() + "\n");
                 }
             }
             System.out.println("\n\nFollowing subnetId is present in subnetMap but not in subnetOpDataEntry\n");
-            for (Subnetmap subnetmap : subnetmapList) {
-                SubnetOpDataEntry data = subnetOpDataEntryMap.get(subnetmap.getId());
+            for (Subnetmap candidateSubnetmap : subnetmapList) {
+                SubnetOpDataEntry data = subnetOpDataEntryMap.get(candidateSubnetmap.getId());
                 if (data == null) {
-                    System.out.println(subnetmap.getId().toString() + "\n");
+                    System.out.println(candidateSubnetmap.getId().toString() + "\n");
                 }
             }
             getshowVpnCLIHelp();
-        } else if (subnetmap == null && subnetopdata != null) {
+        } else if (subnetmap == null) {
             InstanceIdentifier<SubnetOpDataEntry> subOpIdentifier = InstanceIdentifier.builder(SubnetOpData.class)
                 .child(SubnetOpDataEntry.class, new SubnetOpDataEntryKey(new Uuid(subnetopdata))).build();
             Optional<SubnetOpDataEntry> optionalSubs = syncReadOptional(dataBroker, OPERATIONAL, subOpIdentifier);
@@ -86,7 +86,7 @@ public class ShowSubnet extends OsgiCommandSupport {
                 + data.getRouteAdvState() + "\n" + "SubnetCidr: " + data.getSubnetCidr() + "\n"
                 + "SubnetToDpnList: " + data.getSubnetToDpn() + "\n" + "VpnName: " + data.getVpnName() + "\n");
             System.out.println("------------------------------------------------------------------------------");
-        } else if (subnetmap != null && subnetopdata == null) {
+        } else if (subnetopdata == null) {
             InstanceIdentifier<Subnetmap> id = InstanceIdentifier.builder(Subnetmaps.class)
                     .child(Subnetmap.class, new SubnetmapKey(new Uuid(subnetmap))).build();
             Optional<Subnetmap> sn = syncReadOptional(dataBroker, CONFIGURATION, id);

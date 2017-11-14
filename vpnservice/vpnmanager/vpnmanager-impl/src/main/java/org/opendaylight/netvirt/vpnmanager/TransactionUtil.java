@@ -21,7 +21,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class TransactionUtil {
+public final class TransactionUtil {
     private static final Logger LOG = LoggerFactory.getLogger(TransactionUtil.class);
 
     private TransactionUtil() {
@@ -70,7 +70,7 @@ public class TransactionUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("syncWrite: Error writing VPN instance to ID info to datastore (path, data) : ({}, {})", path,
                     data);
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 }

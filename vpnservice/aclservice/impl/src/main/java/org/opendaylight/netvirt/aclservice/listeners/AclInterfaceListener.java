@@ -150,7 +150,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         } else {
             aclInterface.setInterfaceId(cachedAclInterface.getInterfaceId());
             aclInterface.setDpId(cachedAclInterface.getDpId());
-            aclInterface.setLPortTag(cachedAclInterface.getLPortTag());
+            aclInterface.setLportTag(cachedAclInterface.getLPortTag());
             aclInterface.setElanId(cachedAclInterface.getElanId());
             aclInterface.setVpnId(cachedAclInterface.getVpnId());
 
@@ -165,7 +165,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
                 .Interface interfaceState) {
         aclInterface.setDpId(AclServiceUtils.getDpIdFromIterfaceState(interfaceState));
-        aclInterface.setLPortTag(interfaceState.getIfIndex());
+        aclInterface.setLportTag(interfaceState.getIfIndex());
         aclInterface.setIsMarkedForDelete(false);
     }
 

@@ -14,7 +14,7 @@ import org.opendaylight.netvirt.elan.l2gw.ha.commands.RemoteMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.RemoteUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 
-public class GlobalAugmentationMerger
+public final class GlobalAugmentationMerger
         extends MergeCommandsAggregator {
 
     private GlobalAugmentationMerger() {
