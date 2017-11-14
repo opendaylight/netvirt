@@ -54,7 +54,7 @@ import org.slf4j.LoggerFactory;
  * Class will convert OpenStack Port Pair API yang models present in
  * neutron northbound project to OpenDaylight SFC yang models.
  */
-public class PortPairGroupTranslator {
+public final class PortPairGroupTranslator {
     private static final Logger LOG = LoggerFactory.getLogger(PortPairGroupTranslator.class);
     private static final String OPT_FLOW_STR = "flow";
     private static final String OPT_GPE_STR = "gpe";
@@ -64,6 +64,8 @@ public class PortPairGroupTranslator {
     private static final String SFF_DEFAULT_NAME = "sff";
     private static final String SFF_DPL_SUFFIX = "-dpl";
     private static final String SFF_DPL_FIX_NAME = "vxgpe";
+
+    private PortPairGroupTranslator() { }
 
     public static ServiceFunctionForwarderBuilder buildServiceFunctionForwarder(
             PortPairGroup portPairGroup,

@@ -664,7 +664,7 @@ public class ElanUtils {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                 writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
-                broker, writeFlowGroupTx);
+                    writeFlowGroupTx);
         }
     }
 
@@ -846,7 +846,7 @@ public class ElanUtils {
 
     private void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
                                     boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager,
-                                    DataBroker broker, WriteTransaction writeFlowGroupTx)
+                                    WriteTransaction writeFlowGroupTx)
                                     throws ElanException {
         BigInteger dpId = interfaceInfo.getDpId();
         String ifName = interfaceInfo.getInterfaceName();
@@ -1542,7 +1542,7 @@ public class ElanUtils {
      * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables
      * Install SMAC and DMAC flows.
      */
-    public void addMacEntryToDsAndSetupFlows(IInterfaceManager interfaceManager, String interfaceName,
+    public void addMacEntryToDsAndSetupFlows(String interfaceName,
             String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx, int macTimeOut)
             throws ElanException {
         LOG.trace("Adding mac address {} and interface name {} to ElanInterfaceForwardingEntries and "
@@ -1566,7 +1566,7 @@ public class ElanUtils {
      * Remove Mac Address from ElanInterfaceForwardingEntries and ElanForwardingTables
      * Remove SMAC and DMAC flows.
      */
-    public void deleteMacEntryFromDsAndRemoveFlows(IInterfaceManager interfaceManager, String interfaceName,
+    public void deleteMacEntryFromDsAndRemoveFlows(String interfaceName,
             String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx) {
         LOG.trace("Deleting mac address {} and interface name {} from ElanInterfaceForwardingEntries "
                 + "and ElanForwardingTables DS", macAddress, interfaceName);
@@ -1733,7 +1733,7 @@ public class ElanUtils {
         return macTable.getMacEntry();
     }
 
-    public boolean isTunnelInLogicalGroup(String interfaceName, DataBroker broker) {
+    public boolean isTunnelInLogicalGroup(String interfaceName) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang
             .ietf.interfaces.rev140508.interfaces.Interface configIface =
             interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);

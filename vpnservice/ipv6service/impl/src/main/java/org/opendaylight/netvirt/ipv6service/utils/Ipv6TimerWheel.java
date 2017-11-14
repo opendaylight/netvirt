@@ -14,7 +14,7 @@ import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-public class Ipv6TimerWheel {
+public final class Ipv6TimerWheel {
     private Timer ipv6PeriodicRATimerWheel;
     public static final Ipv6TimerWheel INSTANCE = new Ipv6TimerWheel();
 

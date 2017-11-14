@@ -19,7 +19,7 @@ import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CountersUtils {
+public final class CountersUtils {
 
     public static final String BYTE_COUNTER_NAME = "byteCount";
     public static final String BYTES_GROUP_NAME = "Bytes";
@@ -48,6 +48,8 @@ public class CountersUtils {
 
     private static final List<String> UNACCUMULATED_COUNTER_GROUPS = new ArrayList<String>(Arrays.asList("Duration"));
     protected static final Logger LOG = LoggerFactory.getLogger(CountersUtils.class);
+
+    private CountersUtils() { }
 
     public static String getNodeId(BigInteger dpId) {
         return IfmConstants.OF_URI_PREFIX + dpId;

@@ -2117,8 +2117,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
     }
 
-    public void updateVpnInterfacesForUnProcessAdjancencies(DataBroker dataBroker,
-                                                                   String vpnName) {
+    public void updateVpnInterfacesForUnProcessAdjancencies(String vpnName) {
         String primaryRd = VpnUtil.getVpnRd(dataBroker, vpnName);
         VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpData(dataBroker, primaryRd);
         if (vpnInstanceOpData == null) {

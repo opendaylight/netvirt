@@ -34,9 +34,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.a
  * Class will convert OpenStack Port Chain API yang models present in
  * neutron northbound project to OpenDaylight SFC yang models.
  */
-public class PortChainTranslator {
+public final class PortChainTranslator {
     private static final String SYMMETRIC_PARAM = "symmetric";
     private static final String SFP_NAME_PREFIX = "Path-";
+
+    private PortChainTranslator() { }
 
     public static ServiceFunctionChain buildServiceFunctionChain(
             PortChain portChain, List<ServiceFunction> sfList) {

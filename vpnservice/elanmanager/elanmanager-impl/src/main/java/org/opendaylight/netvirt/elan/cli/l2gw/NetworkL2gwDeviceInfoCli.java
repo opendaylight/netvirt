@@ -68,12 +68,12 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             required = false, multiValued = false)
     String nodeId;
 
-    InstanceIdentifier<Topology> createHwvtepTopologyInstanceIdentifier() {
+    private static InstanceIdentifier<Topology> createHwvtepTopologyInstanceIdentifier() {
         return InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID));
     }
 
-    InstanceIdentifier<Node> createInstanceIdentifier(NodeId nodeId) {
+    private static InstanceIdentifier<Node> createInstanceIdentifier(NodeId nodeId) {
         return InstanceIdentifier.create(NetworkTopology.class).child(Topology.class,
                 new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node.class, new NodeKey(nodeId));
     }
@@ -131,7 +131,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
             }
             Node hwvtepConfigNode =
                     HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION, node.getNodeId());
-            Node hwvtepOpPsNode = getPSnode(dataBroker, node, LogicalDatastoreType.OPERATIONAL);
+            Node hwvtepOpPsNode = getPSnode(node, LogicalDatastoreType.OPERATIONAL);
             Node hwvtepConfigPsNode = null;
             if (hwvtepOpPsNode != null) {
                 hwvtepConfigPsNode = HwvtepUtils.getHwVtepNode(dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -158,6 +158,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         return null;
     }
 
+    @SuppressWarnings("checkstyle:HiddenField")
     void process(NodeId hwvtepNodeId, String elanName) {
         Node hwvtepConfigNode = configNodes.get(hwvtepNodeId);
         session.getConsole().println("Config Data >>");
@@ -185,6 +186,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
         printVlanBindings(hwvtepOpPsNode, elanName);
     }
 
+    @SuppressWarnings("checkstyle:HiddenField")
     void printRemoteUcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("RemoteUCast macs :");
         session.getConsole().println(HEADINGUCAST);
@@ -208,6 +210,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
 
     }
 
+    @SuppressWarnings("checkstyle:HiddenField")
     void printLocalUcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("LocalUCast macs :");
         session.getConsole().println(HEADINGUCAST);
@@ -231,6 +234,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
 
     }
 
+    @SuppressWarnings("checkstyle:HiddenField")
     void printLocalMcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("LocalMcast macs :");
         session.getConsole().println(HEADINGMCAST);
@@ -257,6 +261,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
 
     }
 
+    @SuppressWarnings("checkstyle:HiddenField")
     void printRemoteMcastMacs(Node hwvtepNode, String elanName) {
         session.getConsole().println("RemoteMCast macs :");
         session.getConsole().println(HEADINGMCAST);
@@ -283,6 +288,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
 
     }
 
+    @SuppressWarnings("checkstyle:HiddenField")
     void printVlanBindings(Node psNode, String elanName) {
         session.getConsole().println("Vlan Bindings :");
         session.getConsole().println(HEADINGVLAN);
@@ -328,7 +334,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
                 .firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
     }
 
-    Node getPSnode(DataBroker dataBroker, Node hwvtepNode, LogicalDatastoreType datastoreType) {
+    Node getPSnode(Node hwvtepNode, LogicalDatastoreType datastoreType) {
         if (hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class) != null
                 && hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches() != null) {
             for (Switches switches : hwvtepNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches()) {

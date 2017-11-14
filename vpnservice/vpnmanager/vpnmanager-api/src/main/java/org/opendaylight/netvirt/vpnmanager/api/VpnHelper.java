@@ -36,7 +36,9 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 
-public class VpnHelper {
+public final class VpnHelper {
+    private VpnHelper() { }
+
     //FIXME: Implement caches for DS reads
     public static VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
         InstanceIdentifier<VpnInstance> id = InstanceIdentifier.builder(VpnInstances.class).child(VpnInstance.class,

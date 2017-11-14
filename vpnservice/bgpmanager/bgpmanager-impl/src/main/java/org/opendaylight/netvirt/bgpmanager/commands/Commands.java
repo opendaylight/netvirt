@@ -25,6 +25,7 @@ public class Commands {
 
     // Suppress this for now - BgpManager should be injected instead of accessing statically
     @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
+    @SuppressWarnings("checkstyle:HideUtilityClassConstructor")
     public Commands(BgpManager bgpm) {
         bm = bgpm;
     }

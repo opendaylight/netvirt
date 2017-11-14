@@ -230,7 +230,7 @@ public class NaptEventHandler {
                         return;
                     }
 
-                    Long vpnIdFromExternalSubnet = getVpnIdFromExternalSubnet(dataBroker, routerId,
+                    Long vpnIdFromExternalSubnet = getVpnIdFromExternalSubnet(routerId,
                             externalAddress.getIpAddress());
                     if (vpnIdFromExternalSubnet != NatConstants.INVALID_ID) {
                         vpnId = vpnIdFromExternalSubnet;
@@ -648,7 +648,7 @@ public class NaptEventHandler {
         return interfaceName;
     }
 
-    private long getVpnIdFromExternalSubnet(DataBroker dataBroker, Long routerId, String externalIpAddress) {
+    private long getVpnIdFromExternalSubnet(Long routerId, String externalIpAddress) {
         String routerName = NatUtil.getRouterName(dataBroker, routerId);
         if (routerName != null) {
             Routers extRouter = NatUtil.getRoutersFromConfigDS(dataBroker, routerName);

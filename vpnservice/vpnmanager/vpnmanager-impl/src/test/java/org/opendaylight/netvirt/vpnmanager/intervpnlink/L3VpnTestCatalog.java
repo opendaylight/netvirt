@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 /**
  * Gathers a collections of 'fake' L3VPN objects that can be used in JUnits.
  */
-public class L3VpnTestCatalog {
+public final class L3VpnTestCatalog {
 
     static class L3VpnComposite {
         VpnInstance vpnCfgData;
@@ -39,6 +39,8 @@ public class L3VpnTestCatalog {
             this.vpnOpData = vpnOpData;
         }
     }
+
+    private L3VpnTestCatalog() { }
 
     static VpnTargets makeVpnTargets(List<String> irts, List<String> erts) {
         List<String> commonRT = new ArrayList<>(irts);

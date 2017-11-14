@@ -53,7 +53,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IfMgr {
+public final class IfMgr {
     static final Logger LOG = LoggerFactory.getLogger(IfMgr.class);
 
     private final Map<Uuid, VirtualRouter> vrouters = new HashMap<>();
@@ -83,8 +83,8 @@ public class IfMgr {
         return ifMgr;
     }
 
-    public static void setIfMgrInstance(IfMgr ifMgr) {
-        IfMgr.ifMgr = ifMgr;
+    public static void setIfMgrInstance(IfMgr ifMgrInstance) {
+        IfMgr.ifMgr = ifMgrInstance;
     }
 
     public void setElanProvider(IElanService elanProvider) {
@@ -95,8 +95,8 @@ public class IfMgr {
         this.dataBroker = dataBroker;
     }
 
-    public void setMdsalUtilManager(IMdsalApiManager mdsalUtil) {
-        this.mdsalUtil = mdsalUtil;
+    public void setMdsalUtilManager(IMdsalApiManager mdsalUtilManager) {
+        this.mdsalUtil = mdsalUtilManager;
     }
 
     public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {

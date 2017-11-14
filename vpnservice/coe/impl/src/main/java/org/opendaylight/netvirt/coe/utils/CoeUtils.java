@@ -39,7 +39,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CoeUtils {
+public final class CoeUtils {
     private static final Logger LOG = LoggerFactory.getLogger(CoeUtils.class);
     public static final ImmutableBiMap<NetworkAttributes.NetworkType, Class<? extends SegmentTypeBase>>
             NETWORK_MAP =
@@ -49,6 +49,8 @@ public class CoeUtils {
                     .put(NetworkAttributes.NetworkType.VLAN, SegmentTypeVlan.class)
                     .put(NetworkAttributes.NetworkType.VXLAN, SegmentTypeVxlan.class)
                     .build();
+
+    private CoeUtils() { }
 
     public static InstanceIdentifier<Interface> buildVlanInterfaceIdentifier(String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
