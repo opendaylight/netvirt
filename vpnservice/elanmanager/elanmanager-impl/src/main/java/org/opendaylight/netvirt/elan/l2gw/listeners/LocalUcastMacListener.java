@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -67,21 +67,17 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
         return HwvtepHACache.getInstance().isHAEnabledDevice(iid);
     };
 
-    private ListenerRegistration<LocalUcastMacListener> registration;
-    private ElanL2GatewayUtils elanL2GatewayUtils;
-    private ElanUtils elanUtils;
-    private Map<InstanceIdentifier<Node>, ScheduledFuture> staleCleanupJobsByNodeId = new ConcurrentHashMap<>();
-    private Map<InstanceIdentifier<Node>, List<InstanceIdentifier<LocalUcastMacs>>> staleCandidateMacsByNodeId
+    private final ElanL2GatewayUtils elanL2GatewayUtils;
+    private final Map<InstanceIdentifier<Node>, ScheduledFuture> staleCleanupJobsByNodeId = new ConcurrentHashMap<>();
+    private final Map<InstanceIdentifier<Node>, List<InstanceIdentifier<LocalUcastMacs>>> staleCandidateMacsByNodeId
             = new ConcurrentHashMap<>();
-    private HAOpClusteredListener haOpClusteredListener;
+    private final HAOpClusteredListener haOpClusteredListener;
 
 
     public LocalUcastMacListener(final DataBroker dataBroker,
-                                 final ElanUtils elanUtils,
                                  final HAOpClusteredListener haOpClusteredListener,
                                  final ElanL2GatewayUtils elanL2GatewayUtils) {
         super(dataBroker, false);
-        this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.haOpClusteredListener = haOpClusteredListener;
     }
@@ -125,7 +121,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
     public void removed(final InstanceIdentifier<LocalUcastMacs> identifier, final LocalUcastMacs macRemoved) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        String macAddress = macRemoved.getMacEntryKey().getValue().toLowerCase();
+        String macAddress = macRemoved.getMacEntryKey().getValue().toLowerCase(Locale.getDefault());
 
         LOG.trace("LocalUcastMacs {} removed from {}", macAddress, hwvtepNodeId);
 
@@ -162,7 +158,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 identifier, macAdded);
 
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase();
+        String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase(Locale.getDefault());
         String elanName = getElanName(macAdded);
 
         LOG.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
@@ -199,19 +195,17 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 HwvtepGlobalAugmentation.class);
         if (aug != null && getModificationType(aug) != null) {
             Collection<DataObjectModification<? extends DataObject>> children = aug.getModifiedChildren();
-            if (children != null) {
-                children.stream()
-                        .filter(childMod -> getModificationType(childMod) != null)
-                        .filter(childMod -> childMod.getDataType() == LocalUcastMacs.class)
-                        .forEach(childMod -> {
-                            LocalUcastMacs afterMac = (LocalUcastMacs) childMod.getDataAfter();
-                            LocalUcastMacs mac = afterMac != null ? afterMac : (LocalUcastMacs)childMod.getDataBefore();
-                            InstanceIdentifier<LocalUcastMacs> iid = parentIid
-                                    .augmentation(HwvtepGlobalAugmentation.class)
-                                    .child(LocalUcastMacs.class, mac.getKey());
-                            result.put(iid, (DataObjectModification<LocalUcastMacs>) childMod);
-                        });
-            }
+            children.stream()
+                .filter(childMod -> getModificationType(childMod) != null)
+                .filter(childMod -> childMod.getDataType() == LocalUcastMacs.class)
+                .forEach(childMod -> {
+                    LocalUcastMacs afterMac = (LocalUcastMacs) childMod.getDataAfter();
+                    LocalUcastMacs mac = afterMac != null ? afterMac : (LocalUcastMacs)childMod.getDataBefore();
+                    InstanceIdentifier<LocalUcastMacs> iid = parentIid
+                        .augmentation(HwvtepGlobalAugmentation.class)
+                        .child(LocalUcastMacs.class, mac.getKey());
+                    result.put(iid, (DataObjectModification<LocalUcastMacs>) childMod);
+                });
         }
         return result;
     }
@@ -247,12 +241,13 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
         if (node.isPresent()) {
             HwvtepGlobalAugmentation augmentation = node.get().getAugmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
-                return new HashSet(augmentation.getLocalUcastMacs());
+                return new HashSet<>(augmentation.getLocalUcastMacs());
             }
         }
-        return Collections.EMPTY_SET;
+        return Collections.emptySet();
     }
 
+    @Override
     protected void onParentRemoved(InstanceIdentifier<Node> parent) {
         if (IS_PS_NODE_IID.test(parent)) {
             return;
