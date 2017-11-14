@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b0493533",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 83
+      },
+      "lineNbr": 243,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T10:12:20Z",
+      "side": 1,
+      "message": "This is my understanding.\nI raised a question to Kiran.\nhe should get me an answer.",
+      "parentUuid": "9a245df4_1f6ad2ed",
+      "range": {
+        "startLine": 243,
+        "startChar": 16,
+        "endLine": 243,
+        "endChar": 22
+      },
+      "revId": "fade7a516e3fa3b452027bfc6305a96cec14096f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dfa4ba4c",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
         "patchSetId": 83
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_d04ca944",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 83
+      },
+      "lineNbr": 247,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T10:12:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_dfa4ba4c",
+      "revId": "fade7a516e3fa3b452027bfc6305a96cec14096f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_9f7522cd",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
         "patchSetId": 83
@@ -53,6 +95,24 @@
       "writtenOn": "2017-11-13T19:11:01Z",
       "side": 1,
       "message": "You shouldn\u0027t ignore the returned Future - at least use ListenableFutures.addErrorLogging(...)",
+      "revId": "fade7a516e3fa3b452027bfc6305a96cec14096f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5060b9a4",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/EvpnDnatFlowProgrammer.java",
+        "patchSetId": 83
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T10:12:20Z",
+      "side": 1,
+      "message": "ok.\nplease note that allnetvirt uses ListenableFutures from google ( com.google.common.util.concurrent.ListenableFuture )\nwhereas the addErrorLogging facility is in infrautils.\n\nso I defined locally the infrautils ListEnable facility I want to use",
+      "parentUuid": "9a245df4_9f7522cd",
       "revId": "fade7a516e3fa3b452027bfc6305a96cec14096f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
