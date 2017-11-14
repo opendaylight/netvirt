@@ -108,6 +108,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_8b5684cc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T13:06:49Z",
+      "side": 1,
+      "message": "yeah - this pertains to another patch before it in the chain - this patch was rebased on top.",
+      "parentUuid": "9a245df4_5006f986",
+      "revId": "d616836952083e95aa5c4362d9d4d8d86eb47b7c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_1f9c920e",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
