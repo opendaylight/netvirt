@@ -34,6 +34,24 @@
       "revId": "85981e1b8628dc5c9555aeecb9ed395776d11f6b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_abdb887a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T12:56:10Z",
+      "side": 1,
+      "message": "You don\u0027t want to do a blocking get. There is no addSuccessLogging - it  would be useful to have a general addLogging method. I can add that.",
+      "parentUuid": "9a245df4_3006e51d",
+      "revId": "85981e1b8628dc5c9555aeecb9ed395776d11f6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
