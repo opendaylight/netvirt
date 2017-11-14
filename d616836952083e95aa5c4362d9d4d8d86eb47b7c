@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_10d92122",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T11:41:13Z",
+      "side": 1,
+      "message": "I am really sorry.\nI fix it.",
+      "parentUuid": "9a245df4_dff67a5c",
+      "range": {
+        "startLine": 362,
+        "startChar": 44,
+        "endLine": 362,
+        "endChar": 63
+      },
+      "revId": "d616836952083e95aa5c4362d9d4d8d86eb47b7c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3f97d6ed",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 19
@@ -36,6 +60,24 @@
       "writtenOn": "2017-11-13T18:58:43Z",
       "side": 1,
       "message": "Avoid blocking on the commit - handle it async. Does the code below depend on this transaction successfully completing? If so then execute the subsequent code in the async callback. Otherwise use our new ListenableFutures.addErrorLogging(...)",
+      "revId": "d616836952083e95aa5c4362d9d4d8d86eb47b7c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5006f986",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 371,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T11:41:13Z",
+      "side": 1,
+      "message": "I am not sure it is so new.\nin https://github.com/opendaylight/infrautils/blob/master/common/util/src/main/java/org/opendaylight/infrautils/utils/concurrent/ListenableFutures.java, \n\nplease. this comment is out of scope of that review, since this line has not changed.",
+      "parentUuid": "9a245df4_3f97d6ed",
       "revId": "d616836952083e95aa5c4362d9d4d8d86eb47b7c",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f0d56de5",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 2536,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T11:41:13Z",
+      "side": 1,
+      "message": "please. this comment is out of scope of that review, since this line has not changed.",
+      "parentUuid": "9a245df4_1f9c920e",
+      "revId": "d616836952083e95aa5c4362d9d4d8d86eb47b7c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_7f9dce09",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 19
@@ -70,6 +130,30 @@
       "writtenOn": "2017-11-13T18:58:43Z",
       "side": 1,
       "message": "store in local var to avoid computing twice.",
+      "range": {
+        "startLine": 1951,
+        "startChar": 47,
+        "endLine": 1951,
+        "endChar": 69
+      },
+      "revId": "d616836952083e95aa5c4362d9d4d8d86eb47b7c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_300b858f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 1951,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T11:41:13Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_7f9dce09",
       "range": {
         "startLine": 1951,
         "startChar": 47,
