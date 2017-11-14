@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_4bbc8cdc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 91
+      },
+      "lineNbr": 329,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T13:27:42Z",
+      "side": 1,
+      "message": "You don\u0027t want to do a blocking get - keep it async the way it was.  The logging doesn\u0027t really matter - you can just log \"Router Interface {} for vpn {} on dpn {} is being added\". If it fails an error will be logged anyway.",
+      "revId": "36318520d426f4e746cb8597914317620b6a7559",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2bc15854",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 91
+      },
+      "lineNbr": 1215,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T13:27:42Z",
+      "side": 1,
+      "message": "same here - keep it async",
+      "revId": "36318520d426f4e746cb8597914317620b6a7559",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
