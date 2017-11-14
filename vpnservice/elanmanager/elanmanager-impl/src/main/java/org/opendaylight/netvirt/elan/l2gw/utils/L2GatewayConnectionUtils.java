@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -57,7 +58,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2GatewayConnectionUtils {
+public class L2GatewayConnectionUtils implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionUtils.class);
 
     private final DataBroker broker;
@@ -66,6 +67,7 @@ public class L2GatewayConnectionUtils {
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
                                     EntityOwnershipUtils entityOwnershipUtils, ElanUtils elanUtils,
@@ -76,6 +78,18 @@ public class L2GatewayConnectionUtils {
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
+    }
+
+    @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void close() {
+        closeables.forEach(c -> {
+            try {
+                c.close();
+            } catch (Exception e) {
+                LOG.warn("Error closing {}", c, e);
+            }
+        });
     }
 
     public static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
@@ -193,7 +207,6 @@ public class L2GatewayConnectionUtils {
 
         Uuid networkUuid = input.getNetworkId();
         String elanName = networkUuid.getValue();
-        Uuid l2GatewayId = input.getL2gatewayId();
         disAssociateHwvtepsFromElan(elanName, input);
     }
 
@@ -224,7 +237,7 @@ public class L2GatewayConnectionUtils {
             String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
             boolean isLastL2GwConnDeleted = false;
             L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
-            if (isLastL2GwConnBeingDeleted(elanL2GwDevice)) {
+            if (elanL2GwDevice != null && isLastL2GwConnBeingDeleted(elanL2GwDevice)) {
                 // Delete L2 Gateway device from 'ElanL2GwDevice' cache
                 LOG.debug("Elan L2Gw Conn cache removed for id {}", hwvtepNodeId);
                 ElanL2GwCacheUtils.removeL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
@@ -286,6 +299,7 @@ public class L2GatewayConnectionUtils {
                             elanL2GatewayUtils, entityOwnershipUtils, elanUtils, elanL2GatewayMulticastUtils,
                             l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId);
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
+                    closeables.add(hwVTEPLogicalSwitchListener);
                     createLogicalSwitch = true;
                 } else {
                     addL2DeviceToElanL2GwCache(broker, elanName, elanL2GatewayUtils, l2GatewayDevice, l2GwConnId,
@@ -337,7 +351,7 @@ public class L2GatewayConnectionUtils {
         return l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null;
     }
 
-    protected static boolean isLastL2GwConnBeingDeleted(L2GatewayDevice l2GwDevice) {
+    protected static boolean isLastL2GwConnBeingDeleted(@Nonnull L2GatewayDevice l2GwDevice) {
         return l2GwDevice.getL2GatewayIds().size() == 1;
     }
 
@@ -351,10 +365,9 @@ public class L2GatewayConnectionUtils {
         DataStoreJobCoordinator.getInstance().enqueueJob(elanName + ":" + l2GatewayDevice.getDeviceName(), () -> {
             final SettableFuture settableFuture = SettableFuture.create();
             Futures.addCallback(broker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
-                    nodeIid),
-                                new SettableFutureCallback<Optional<Node>>(settableFuture) {
+                    nodeIid), new SettableFutureCallback<Optional<Node>>(settableFuture) {
                         @Override
-                        public void onSuccess(Optional<Node> resultNode) {
+                        public void onSuccess(@Nonnull Optional<Node> resultNode) {
                             HwvtepLocalUcastMacListener localUcastMacListener =
                                     new HwvtepLocalUcastMacListener(broker, elanL2GatewayUtils);
                             settableFuture.set(resultNode);
@@ -385,19 +398,16 @@ public class L2GatewayConnectionUtils {
 
     /**
      * Gets the associated l2 gw connections.
-     *
-     * @param broker      the broker
      * @param l2GatewayId the l2 gateway id
+     *
      * @return the associated l2 gw connections
      */
-    public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(DataBroker broker, Uuid l2GatewayId) {
+    public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(Uuid l2GatewayId) {
         List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
-        if (allL2GwConns != null) {
-            for (L2gatewayConnection l2GwConn : allL2GwConns) {
-                if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
-                    l2GwConnections.add(l2GwConn);
-                }
+        for (L2gatewayConnection l2GwConn : allL2GwConns) {
+            if (l2GwConn.getL2gatewayId().equals(l2GatewayId)) {
+                l2GwConnections.add(l2GwConn);
             }
         }
         return l2GwConnections;
@@ -412,5 +422,4 @@ public class L2GatewayConnectionUtils {
     static InstanceIdentifier<LocalUcastMacs> getMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
         return nodeIid.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, mac.getKey());
     }
-
 }

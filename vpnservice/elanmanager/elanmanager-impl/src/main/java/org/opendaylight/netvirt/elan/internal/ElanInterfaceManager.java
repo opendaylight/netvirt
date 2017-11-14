@@ -27,6 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -129,8 +130,7 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 @SuppressWarnings("deprecation")
-public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager>
-        implements AutoCloseable {
+public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager> {
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
@@ -251,7 +251,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     || dpnInterfaces.getInterfaces().isEmpty()) {
                 // No more Elan Interfaces in this DPN
                 LOG.debug("deleting the elan: {} present on dpId: {}", elanInfo.getElanInstanceName(), dpId);
-                if (!elanUtils.isOpenStackVniSemanticsEnforced()) {
+                if (!elanUtils.isOpenstackVniSemanticsEnforced()) {
                     removeDefaultTermFlow(dpId, elanInfo.getElanTag());
                 }
                 removeUnknownDmacFlow(dpId, elanInfo, flowTx, elanInfo.getElanTag());
@@ -260,7 +260,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 removeLocalBroadcastGroup(elanInfo, interfaceInfo, flowTx);
                 removeEtreeBroadcastGrups(elanInfo, interfaceInfo, flowTx);
                 if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
-                    if (elanUtils.isOpenStackVniSemanticsEnforced()) {
+                    if (elanUtils.isOpenstackVniSemanticsEnforced()) {
                         elanUtils.removeTerminatingServiceAction(dpId, elanInfo.getSegmentationId().intValue());
                     }
                     unsetExternalTunnelTable(dpId, elanInfo);
@@ -449,12 +449,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
         if (dpnInterfaces != null) {
             List<String> interfaceLists = dpnInterfaces.getInterfaces();
-            interfaceLists.remove(interfaceName);
-
             if (interfaceLists == null || interfaceLists.isEmpty()) {
                 deleteAllRemoteMacsInADpn(elanName, dpId, elanTag);
                 deleteElanDpnInterface(elanName, dpId, tx);
             } else {
+                interfaceLists.remove(interfaceName);
                 dpnInterfaces = updateElanDpnInterfacesList(elanName, dpId, interfaceLists, tx);
             }
         }
@@ -825,7 +824,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             return;
         }
         BigInteger dpId = interfaceInfo.getDpId();
-        if (!elanUtils.isOpenStackVniSemanticsEnforced()) {
+        if (!elanUtils.isOpenstackVniSemanticsEnforced()) {
             elanUtils.setupTermDmacFlows(interfaceInfo, mdsalManager, writeFlowGroupTx);
         }
         setupFilterEqualsTable(elanInstance, interfaceInfo, writeFlowGroupTx);
@@ -921,6 +920,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         return getRemoteBCGroupBuckets(elanInfo, null, interfaceInfo.getDpId(), bucketKeyStart, elanTag);
     }
 
+    @Nonnull
     public List<Bucket> getRemoteBCGroupBuckets(ElanInstance elanInfo, DpnInterfaces dpnInterfaces, BigInteger dpnId,
                                                 int bucketId, long elanTag) {
         List<Bucket> listBucketInfo = new ArrayList<>();
@@ -928,7 +928,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
         if (isVxlan(elanInfo)) {
             listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId,
-                    elanUtils.isOpenStackVniSemanticsEnforced() ? elanInfo.getSegmentationId() : elanTag));
+                    elanUtils.isOpenstackVniSemanticsEnforced() ? elanInfo.getSegmentationId() : elanTag));
         }
         listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,
             getNextAvailableBucketId(listBucketInfo.size())));
@@ -1037,7 +1037,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             try {
                                 List<Action> remoteListActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(
                                         dpnInterface.getDpId(), otherFes.getDpId(),
-                                        elanUtils.isOpenStackVniSemanticsEnforced() ? elanInfo.getSegmentationId()
+                                        elanUtils.isOpenstackVniSemanticsEnforced() ? elanInfo.getSegmentationId()
                                                 : elanTag);
                                 if (!remoteListActionInfo.isEmpty()) {
                                     remoteListBucketInfo.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil
@@ -1388,7 +1388,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<? extends MatchInfoBase> listMatchInfoBase;
         List<InstructionInfo> instructionInfos;
         long serviceId;
-        if (!elanUtils.isOpenStackVniSemanticsEnforced()) {
+        if (!elanUtils.isOpenstackVniSemanticsEnforced()) {
             serviceId = elanTag;
             listMatchInfoBase = ElanUtils.getTunnelMatchesForServiceId((int) elanTag);
             instructionInfos = getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag));
@@ -1533,10 +1533,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private boolean isStandardElanService(ElanInterface elanInterface) {
         return elanInterface.getAugmentation(EtreeInterface.class) == null;
-    }
-
-    private boolean isStandardElanService(ElanInstance elanInstance) {
-        return elanInstance.getAugmentation(EtreeInstance.class) == null;
     }
 
     protected void unbindService(String interfaceName, WriteTransaction tx) {
@@ -1867,9 +1863,6 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     public void updateRemoteBroadcastGroupForAllElanDpns(ElanInstance elanInfo) {
         List<DpnInterfaces> dpns = elanUtils.getInvolvedDpnsInElan(elanInfo.getElanInstanceName());
-        if (dpns == null) {
-            return;
-        }
         for (DpnInterfaces dpn : dpns) {
             setupElanBroadcastGroups(elanInfo, dpn.getDpId());
         }

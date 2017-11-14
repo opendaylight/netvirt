@@ -11,16 +11,16 @@ import com.google.common.base.Optional;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
-
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -136,8 +136,9 @@ public class TransportZoneNotificationUtil {
         if (localIps != null && !localIps.isEmpty()) {
             LOG.debug("Will use local_ips for transport zone update for dpn {} and zone name prefix {}", dpnId,
                     zoneNamePrefix);
-            for (String localIp : localIps.keySet()) {
-                String underlayNetworkName = localIps.get(localIp);
+            for (Entry<String, String> entry : localIps.entrySet()) {
+                String localIp = entry.getKey();
+                String underlayNetworkName = entry.getValue();
                 String zoneName = getTzNameForUnderlayNetwork(zoneNamePrefix, underlayNetworkName);
                 updateTransportZone(zoneName, dpnId, localIp);
             }
@@ -325,7 +326,12 @@ public class TransportZoneNotificationUtil {
      * @return Whether a vtep was added or not.
      */
     private boolean addVtep(TransportZone zone, String subnetIp, BigInteger dpnId, String localIp) {
-        Subnets subnets = getOrAddSubnet(zone.getSubnets(), subnetIp);
+        List<Subnets> zoneSubnets = zone.getSubnets();
+        if (zoneSubnets == null) {
+            return false;
+        }
+
+        Subnets subnets = getOrAddSubnet(zoneSubnets, subnetIp);
         for (Vteps existingVtep : subnets.getVteps()) {
             if (existingVtep.getDpnId().equals(dpnId)) {
                 return false;
@@ -361,14 +367,12 @@ public class TransportZoneNotificationUtil {
 
     // search for relevant subnets for the given subnetIP, add one if it is
     // necessary
-    private Subnets getOrAddSubnet(List<Subnets> subnets, String subnetIp) {
+    private Subnets getOrAddSubnet(@Nonnull List<Subnets> subnets, @Nonnull String subnetIp) {
         IpPrefix subnetPrefix = new IpPrefix(subnetIp.toCharArray());
 
-        if (subnets != null) {
-            for (Subnets subnet : subnets) {
-                if (subnet.getPrefix().equals(subnetPrefix)) {
-                    return subnet;
-                }
+        for (Subnets subnet : subnets) {
+            if (subnet.getPrefix().equals(subnetPrefix)) {
+                return subnet;
             }
         }
 

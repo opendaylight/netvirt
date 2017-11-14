@@ -300,10 +300,6 @@ public class ElanDmacUtils {
                 ElanConstants.COOKIE_ELAN_KNOWN_DMAC.add(BigInteger.valueOf(elanTag)), mkMatches, mkInstructions);
     }
 
-    private static String getDmacDropFlowId(Long elanTag, String dstMacAddress) {
-        return NwConstants.ELAN_DMAC_TABLE + elanTag + dstMacAddress + "Drop";
-    }
-
     private void buildEtreeDmacFlowForExternalRemoteMacWithBatch(
             BigInteger dpnId, String extDeviceNodeId, Long vni, String macAddress, String displayName,
             String interfaceName, EtreeLeafTagName etreeLeafTag)throws ElanException {

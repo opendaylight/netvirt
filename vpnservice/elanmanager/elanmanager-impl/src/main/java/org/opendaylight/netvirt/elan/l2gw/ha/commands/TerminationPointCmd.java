@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
+import java.io.Serializable;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,12 +22,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPointBuilder;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.LoggerFactory;
 
 public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuilder, Node> {
 
     public TerminationPointCmd() {
-        LOG = LoggerFactory.getLogger(TerminationPointCmd.class);
     }
 
     @Override
@@ -121,7 +120,9 @@ public class TerminationPointCmd extends MergeCommand<TerminationPoint, NodeBuil
 
     static BindingsComparator bindingsComparator = new BindingsComparator();
 
-    static class BindingsComparator implements Comparator<VlanBindings> {
+    static class BindingsComparator implements Comparator<VlanBindings>, Serializable {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int compare(VlanBindings updated, VlanBindings orig) {
             if (updated == null && orig == null) {
