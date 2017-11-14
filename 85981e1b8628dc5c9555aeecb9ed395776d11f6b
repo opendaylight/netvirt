@@ -16,6 +16,24 @@
       "revId": "85981e1b8628dc5c9555aeecb9ed395776d11f6b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3006e51d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1205,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T09:56:03Z",
+      "side": 1,
+      "message": "Just to be sure,\nI intend to use futures.get().\nI don\u0027t think this may cause a lock issue.\nhowever, do you have a method like addSuccessLogging to provide me in infrautils ?\n\nsource:\nhttps://github.com/opendaylight/infrautils/blob/master/common/util/src/main/java/org/opendaylight/infrautils/utils/concurrent/ListenableFutures.java",
+      "parentUuid": "9a245df4_5f3e0adb",
+      "revId": "85981e1b8628dc5c9555aeecb9ed395776d11f6b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
