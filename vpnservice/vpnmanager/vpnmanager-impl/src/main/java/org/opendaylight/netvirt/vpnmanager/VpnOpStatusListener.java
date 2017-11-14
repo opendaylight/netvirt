@@ -32,8 +32,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpStatusListener>
-    implements AutoCloseable {
+public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpStatusListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnOpStatusListener.class);
     private final DataBroker dataBroker;
     private final IBgpManager bgpManager;
@@ -137,7 +136,6 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             final String vpnName = update.getVpnInstanceName();
             final List<String> rds = update.getRd();
             String primaryRd = update.getVrfId();
-            final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
             if (!VpnUtil.isBgpVpn(vpnName, primaryRd)) {
                 return;
             }

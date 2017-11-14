@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
  * Listens for Nodes going down, in order to check if the InterVpnLink must be
  * moved to some other DPN.
  */
-public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<Node, InterVpnLinkNodeListener>
-    implements AutoCloseable {
+public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<Node, InterVpnLinkNodeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
 
     public static final TopologyId FLOW_TOPOLOGY_ID = new TopologyId(new Uri("flow:1"));

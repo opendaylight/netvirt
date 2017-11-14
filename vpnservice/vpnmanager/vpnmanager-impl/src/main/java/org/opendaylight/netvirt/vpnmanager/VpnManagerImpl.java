@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
@@ -109,7 +111,7 @@ public class VpnManagerImpl implements IVpnManager {
                 .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPseudoLporTagPool);
-            if (result != null && result.get().isSuccessful()) {
+            if (result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for Pseudo Port tags");
             } else {
                 Collection<RpcError> errors = result.get().getErrors();
@@ -246,7 +248,8 @@ public class VpnManagerImpl implements IVpnManager {
 
         LOG.info("{} router GW MAC flow for router-id {} on switch {}", operation, routerName, dpnId);
         if (writeTx == null) {
-            txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> consumer.process(vpnId.getValue(), tx));
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> consumer.process(vpnId.getValue(), tx)), LOG, "Commit transaction");
         } else {
             consumer.process(vpnId.getValue(), writeTx);
         }
@@ -303,13 +306,14 @@ public class VpnManagerImpl implements IVpnManager {
         LOG.info("Installing ARP responder flows for {} fixed-ips {} on switch {}", id, fixedIps, dpnId);
 
         if (writeTx == null) {
-            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
                 tx -> {
                     for (String fixedIp : fixedIps) {
                         installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
                                 vpnId,fixedIp, tx);
                     }
                 });
+            ListenableFutures.addErrorLogging(future, LOG, "Commit transaction");
         } else {
             for (String fixedIp : fixedIps) {
                 installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
@@ -431,14 +435,17 @@ public class VpnManagerImpl implements IVpnManager {
         vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn);
     }
 
+    @Override
     public VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
         return VpnUtil.getVpnInstance(broker, vpnInstanceName);
     }
 
+    @Override
     public String getVpnRd(DataBroker broker, String vpnName) {
         return VpnUtil.getVpnRd(broker, vpnName);
     }
 
+    @Override
     public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         return VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnName, fixedIp);
     }

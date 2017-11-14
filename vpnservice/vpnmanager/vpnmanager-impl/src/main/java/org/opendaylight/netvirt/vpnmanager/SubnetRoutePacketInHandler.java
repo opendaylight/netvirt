@@ -9,13 +9,11 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.primitives.Ints;
-
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.liblldp.HexEncode;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.Packet;
@@ -28,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider;
 import org.opendaylight.netvirt.vpnmanager.utilities.VpnManagerCounters;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
@@ -69,8 +68,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
     }
 
     @Override
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     public void onPacketReceived(PacketReceived notification) {
 
         short tableId = notification.getTableId().getValue();
@@ -146,7 +143,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                         return;
                     }
 
-                    if (!(vpnIdsOptional.get()).isExternalVpn()) {
+                    if (!vpnIdsOptional.get().isExternalVpn()) {
                         handleInternalVpnSubnetRoutePacket(metadata, dstIp, srcIpStr, dstIpStr,
                                 ipv4.getDestinationAddress(), vpnIdVpnInstanceName, elanTag);
                         return;
@@ -155,7 +152,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     byte[] srcMac = res.getSourceMACAddress();
                     handleBgpVpnSubnetRoute(ipv4, srcMac, dstIp, dstIpStr, srcIpStr, elanTag);
                 }
-            } catch (Exception ex) {
+            } catch (UnknownHostException | InterruptedException | ExecutionException ex) {
                 // Failed to handle packet
                 VpnManagerCounters.subnet_route_packet_failed.inc();
                 LOG.error("{} onPacketReceived: Failed to handle subnetroute packet.", LOGGING_PREFIX, ex);
@@ -217,7 +214,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         long groupid = VpnUtil.getRemoteBCGroup(elanTag);
         TransmitPacketInput arpRequestInput = ArpUtils.createArpRequestInput(dpnId, groupid,
                 HexEncode.bytesFromHexString(sourceMac), InetAddress.getByName(sourceIpAddress).getAddress(), dstIp);
-        packetService.transmitPacket(arpRequestInput);
+
+        JdkFutures.addErrorLogging(packetService.transmitPacket(arpRequestInput), LOG, "Transmit packet");
     }
 
     private void handlePacketToInternalNetwork(byte[] dstIp, String dstIpStr, int destinationAddress, long elanTag)
