@@ -20,12 +20,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.LoggerFactory;
 
 public class TunnelCmd  extends MergeCommand<Tunnels, PhysicalSwitchAugmentationBuilder, PhysicalSwitchAugmentation> {
 
     public TunnelCmd() {
-        LOG = LoggerFactory.getLogger(TunnelCmd.class);
     }
 
     @Override

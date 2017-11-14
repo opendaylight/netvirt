@@ -21,70 +21,47 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
-import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.managers.ManagerOtherConfigs;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTreeChangeListener<Node>, AutoCloseable {
-
-    public static final Logger LOG = LoggerFactory.getLogger(HAOpNodeListener.class);
-
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+public class HAOpNodeListener extends HwvtepNodeBaseListener {
 
     private final IHAEventHandler haEventHandler;
 
     private final Map<String, Boolean> availableGlobalNodes = new HashMap<>();
     private final Map<String, Boolean> availablePsNodes = new HashMap<>();
-    private ManagerListener managerListener;
+
+    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
+        super(OPERATIONAL, db);
+        this.haEventHandler = haEventHandler;
+        LOG.info("Registering HwvtepDataChangeListener for operational nodes");
+    }
 
     void clearNodeAvailability(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
-        String psId = null;
-        String globalId = null;
-
-        if (id.indexOf(HwvtepHAUtil.PHYSICALSWITCH) > 0) {
-            psId = id;
-            globalId = id.substring(0, id.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
-            availablePsNodes.remove(globalId);
+        if (id.indexOf(HwvtepHAUtil.PHYSICALSWITCH) >= 0) {
+            availablePsNodes.remove(id.substring(0, id.indexOf(HwvtepHAUtil.PHYSICALSWITCH)));
         } else {
-            globalId = id;
-            availableGlobalNodes.remove(globalId);
+            availableGlobalNodes.remove(id);
         }
     }
 
     void updateNodeAvailability(InstanceIdentifier<Node> key) {
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
-        String psId = null;
-        String globalId = null;
-
-        if (id.indexOf(HwvtepHAUtil.PHYSICALSWITCH) > 0) {
-            psId = id;
-            globalId = id.substring(0, id.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
-            availablePsNodes.put(globalId, Boolean.TRUE);
+        if (id.indexOf(HwvtepHAUtil.PHYSICALSWITCH) >= 0) {
+            availablePsNodes.put(id.substring(0, id.indexOf(HwvtepHAUtil.PHYSICALSWITCH)), Boolean.TRUE);
         } else {
-            globalId = id;
-            availableGlobalNodes.put(globalId, Boolean.TRUE);
+            availableGlobalNodes.put(id, Boolean.TRUE);
         }
     }
 
@@ -92,27 +69,12 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         String id = key.firstKeyOf(Node.class).getNodeId().getValue();
         String globalId;
 
-        if (id.indexOf(HwvtepHAUtil.PHYSICALSWITCH) > 0) {
+        if (id.indexOf(HwvtepHAUtil.PHYSICALSWITCH) >= 0) {
             globalId = id.substring(0, id.indexOf(HwvtepHAUtil.PHYSICALSWITCH));
         } else {
             globalId = id;
         }
         return availableGlobalNodes.containsKey(globalId) && availablePsNodes.containsKey(globalId);
-    }
-
-    public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
-        super(OPERATIONAL, db);
-        this.haEventHandler = haEventHandler;
-        //this.managerListener = new ManagerListener(Managers.class, ManagerListener.class);
-        LOG.info("Registering HwvtepDataChangeListener for operational nodes");
-    }
-
-    @Override
-    public void close() throws Exception {
-        super.close();
-        if (managerListener != null) {
-            managerListener.close();
-        }
     }
 
     @Override
@@ -224,9 +186,8 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
         ListenableFuture<Optional<Node>> ft = tx.read(CONFIGURATION, haNodePath);
         Futures.addCallback(ft, new FutureCallback<Optional<Node>>() {
             @Override
-            public void onSuccess(final Optional<Node> haGlobalCfg) {
+            public void onSuccess(@Nonnull final Optional<Node> haGlobalCfg) {
                 if (haGlobalCfg.isPresent()) {
-                    Node haConfigNode = haGlobalCfg.get();
                     if (childNode.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
                         List<Switches> switches =
                                 childNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches();
@@ -273,9 +234,8 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                 LOG.trace("Ha child connected handleNodeConnected {}", childNode.getNodeId().getValue());
                 ReadWriteTransaction tx = getTx();
                 haEventHandler.handleChildNodeConnected(childNode, childPath, haNodePath, tx);
-                tx.submit().checkedGet();
-            } catch (InterruptedException | ExecutionException | ReadFailedException
-                    | TransactionCommitFailedException e) {
+                tx.submit().get();
+            } catch (InterruptedException | ExecutionException | ReadFailedException e) {
                 LOG.error("Failed to process ", e);
             }
         });
@@ -292,78 +252,10 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                 ReadWriteTransaction tx = getTx();
                 haEventHandler.handleChildNodeReConnected(childNode, childPath,
                         haNodePath, haGlobalCfg, haPSCfg, tx);
-                tx.submit().checkedGet();
-            } catch (InterruptedException | ExecutionException | ReadFailedException
-                    | TransactionCommitFailedException e) {
+                tx.submit().get();
+            } catch (InterruptedException | ExecutionException | ReadFailedException e) {
                 LOG.error("Failed to process ", e);
             }
         });
-    }
-
-    /**
-     * ManagerListeners listens to manager updated and act in case non-ha node get converted to ha node.
-     */
-    class ManagerListener extends AsyncDataTreeChangeListenerBase<Managers, ManagerListener> {
-
-        ManagerListener(Class<Managers> clazz, Class<ManagerListener> eventClazz) {
-            super(clazz, eventClazz);
-            registerListener(LogicalDatastoreType.OPERATIONAL, db);
-        }
-
-        @Override
-        protected InstanceIdentifier<Managers> getWildCardPath() {
-            return InstanceIdentifier.create(NetworkTopology.class)
-                    .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID)).child(Node
-                            .class).augmentation(HwvtepGlobalAugmentation.class).child(clazz);
-        }
-
-        @Override
-        protected void remove(InstanceIdentifier<Managers> instanceIdentifier, Managers managers) {
-
-        }
-
-        String getHaId(Managers managers) {
-            if (managers.getManagerOtherConfigs() == null) {
-                return null;
-            }
-            for (ManagerOtherConfigs configs : managers.getManagerOtherConfigs()) {
-                if (configs.getOtherConfigKey().equals(HwvtepHAUtil.HA_ID)) {
-                    return configs.getOtherConfigValue();
-                }
-            }
-            return null;
-        }
-
-        @Override
-        protected void update(InstanceIdentifier<Managers> instanceIdentifier, Managers oldData, Managers newData) {
-            String oldHAId = getHaId(oldData);
-            if (Strings.isNullOrEmpty(oldHAId)) {
-                String newHAID = getHaId(newData);
-                if (!Strings.isNullOrEmpty(newHAID)) {
-                    InstanceIdentifier<Node> nodeIid = instanceIdentifier.firstIdentifierOf(Node.class);
-                    ReadWriteTransaction tx = db.newReadWriteTransaction();
-                    try {
-                        Node node = tx.read(LogicalDatastoreType.OPERATIONAL, nodeIid).checkedGet().get();
-                        HAOpClusteredListener.addToCacheIfHAChildNode(nodeIid, node);
-                        HAJobScheduler.getInstance().submitJob(() -> onGlobalNodeAdd(nodeIid, node, tx));
-                    } catch (ReadFailedException e) {
-                        LOG.error("Read failed {}",e.getMessage());
-                    }
-                }
-            }
-        }
-
-        //The add manager will be called once a new node connects which is handled by the base
-        //HA node listener . In case the node been converted from non-ha to ha or vice versa
-        //it will come as an update and has been handled above.
-        //Hence no functionality has been added to add function here.
-        @Override
-        protected void add(InstanceIdentifier<Managers> instanceIdentifier, Managers managers) {
-        }
-
-        @Override
-        protected ManagerListener getDataTreeChangeListener() {
-            return ManagerListener.this;
-        }
     }
 }
