@@ -90,7 +90,7 @@ public class ElanDpnInterfaceClusteredListener
                     elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
                 }
             } finally {
-                ElanUtils.addDPNInterfaceToElanInCache(getElanName(identifier), dpnInterfaces);
+                ElanUtils.removeDPNInterfaceFromElanInCache(getElanName(identifier), dpnInterfaces);
             }
 
             return null;
