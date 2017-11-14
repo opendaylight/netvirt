@@ -24,8 +24,8 @@ public enum L3VPNTransportTypes {
         transportType = type;
     }
 
-    public void setL3VPNTransportTypes(String transportType) {
-        this.transportType = transportType;
+    public void setL3VPNTransportTypes(String l3VPNTransportTypes) {
+        this.transportType = l3VPNTransportTypes;
     }
 
     private static final Map<String, L3VPNTransportTypes> STR_TO_TYPE_MAP = new HashMap<>();

@@ -28,7 +28,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VirtualPort implements IVirtualPort  {
+public final class VirtualPort implements IVirtualPort  {
     static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
 
     private final Uuid intfUUID;

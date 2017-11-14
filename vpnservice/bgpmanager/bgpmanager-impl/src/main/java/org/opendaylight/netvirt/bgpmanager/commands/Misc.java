@@ -47,7 +47,7 @@ public class Misc extends OsgiCommandSupport {
         return null;
     }
 
-    private boolean isValidLevel(String level) {
+    private boolean isValidLevel() {
         switch (level) {
             case "emergencies":
             case "alerts":
@@ -75,7 +75,7 @@ public class Misc extends OsgiCommandSupport {
         if (file != null ^ level != null) {
             return usage();
         }
-        if (level != null && !isValidLevel(level)) {
+        if (level != null && !isValidLevel()) {
             session.getConsole().println("error: invalid value for " + LL);
             return null;
         }

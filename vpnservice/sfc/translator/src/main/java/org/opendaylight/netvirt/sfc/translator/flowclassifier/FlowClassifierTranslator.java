@@ -43,11 +43,13 @@ import org.slf4j.LoggerFactory;
  * Class will convert OpenStack Flow Classifier API yang models to
  * OpenDaylight ACL yang models.
  */
-public class FlowClassifierTranslator {
+public final class FlowClassifierTranslator {
     private static final Logger LOG = LoggerFactory.getLogger(FlowClassifierTranslator.class);
     private static final Short PROTO_TCP = 6;
     private static final Short PROTO_UDP = 17;
     private static final String RULE = "_rule";
+
+    private FlowClassifierTranslator() { }
 
     public static Acl buildAcl(SfcFlowClassifier flowClassifier) {
         return buildAcl(flowClassifier, null);

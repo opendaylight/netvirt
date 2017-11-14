@@ -397,7 +397,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             }
         } else {
             LOG.info("In updateHostIntf, removing service binding for portId {}", portId);
-            ipv6ServiceUtils.unbindIpv6Service(dataBroker, portId.getValue());
+            ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
             intf.setServiceBindingStatus(true);
         }
     }
@@ -457,7 +457,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             } else {
                 LOG.info("In removePort for host interface, portId {}", portId);
                 // Remove the serviceBinding entry for the port.
-                ipv6ServiceUtils.unbindIpv6Service(dataBroker, portId.getValue());
+                ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
                 // Remove the portId from the (network <--> List[dpnIds, List <ports>]) cache.
                 VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
                 if (null != vnet) {

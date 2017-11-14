@@ -32,7 +32,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NeutronUtils {
+public final class NeutronUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronUtils.class);
 
     public static final String VNIC_TYPE_NORMAL = "normal";
@@ -42,6 +42,8 @@ public class NeutronUtils {
     public static final String PORT_STATUS_ERROR = "ERROR";
     public static final String PORT_STATUS_NOTAPPLICABLE = "N/A";
     private static volatile Pattern uuidPattern;
+
+    private NeutronUtils() { }
 
     /**
      * Create a Neutron Port status entry in the operational data store.

@@ -57,8 +57,6 @@ public class ExternalNetworksChangeListenerTest {
     @Mock
     IMdsalApiManager mdsalManager;
     @Mock
-    FlowEntity flowMock;
-    @Mock
     GroupEntity groupMock;
     InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111
         .external.networks.Networks> id = null;

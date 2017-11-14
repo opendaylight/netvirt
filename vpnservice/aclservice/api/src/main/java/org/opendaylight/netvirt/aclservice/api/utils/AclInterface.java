@@ -108,7 +108,7 @@ public class AclInterface {
      *
      * @param lportTag the new l port tag
      */
-    public void setLPortTag(Integer lportTag) {
+    public void setLportTag(Integer lportTag) {
         this.lportTag = lportTag;
     }
 

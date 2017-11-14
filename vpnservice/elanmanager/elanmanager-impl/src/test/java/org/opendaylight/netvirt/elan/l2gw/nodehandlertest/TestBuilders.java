@@ -53,7 +53,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 /**
  * Created by ekvsver on 8/6/2016.
  */
-public class TestBuilders {
+public final class TestBuilders {
+    private TestBuilders() { }
+
     public static HwvtepLogicalSwitchRef buildLogicalSwitchesRef(InstanceIdentifier<Node> nodeIid,
                                                                  String logicalSwitchName) {
         InstanceIdentifier<LogicalSwitches> logicalSwitchInstanceIid =

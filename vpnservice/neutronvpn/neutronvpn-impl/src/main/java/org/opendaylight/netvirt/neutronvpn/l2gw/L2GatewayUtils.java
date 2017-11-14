@@ -22,8 +22,10 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2GatewayUtils {
+public final class L2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayUtils.class);
+
+    private L2GatewayUtils() { }
 
     protected static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
         return (l2GwDevice.getL2GatewayIds().size() > 0);

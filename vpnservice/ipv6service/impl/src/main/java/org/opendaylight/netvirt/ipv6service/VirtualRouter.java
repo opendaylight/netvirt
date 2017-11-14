@@ -15,7 +15,7 @@ import org.opendaylight.netvirt.ipv6service.api.IVirtualRouter;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualSubnet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
-public class VirtualRouter implements IVirtualRouter  {
+public final class VirtualRouter implements IVirtualRouter  {
     private final Uuid routerUUID;
     private final Uuid tenantID;
     private final String name;

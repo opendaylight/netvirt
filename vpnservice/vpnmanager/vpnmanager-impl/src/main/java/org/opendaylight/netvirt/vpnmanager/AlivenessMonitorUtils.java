@@ -46,10 +46,12 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AlivenessMonitorUtils {
+public final class AlivenessMonitorUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AlivenessMonitorUtils.class);
     private static Map<Long, MacEntry> alivenessCache = new ConcurrentHashMap<>();
+
+    private AlivenessMonitorUtils() { }
 
     public static void startArpMonitoring(MacEntry macEntry, Long arpMonitorProfileId,
         AlivenessMonitorService alivenessMonitorService, DataBroker dataBroker,
