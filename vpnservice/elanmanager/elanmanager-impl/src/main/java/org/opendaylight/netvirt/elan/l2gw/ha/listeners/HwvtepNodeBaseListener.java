@@ -8,8 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -41,19 +39,20 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    private ListenerRegistration<HwvtepNodeBaseListener> registration;
-    DataBroker db;
+    private final ListenerRegistration<HwvtepNodeBaseListener> registration;
+    private final DataBroker dataBroker;
 
     public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
-        db = dataBroker;
-        registerListener(datastoreType, db);
-    }
+        this.dataBroker = dataBroker;
 
-    public void registerListener(LogicalDatastoreType dsType, final DataBroker db) throws Exception {
-        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(dsType, getWildcardPath());
+        final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
-                db.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
+        dataBroker.registerDataTreeChangeListener(treeId, HwvtepNodeBaseListener.this));
+    }
+
+    protected DataBroker getDataBroker() {
+        return dataBroker;
     }
 
     @Override
@@ -85,12 +84,10 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node updated = HwvtepHAUtil.getUpdated(mod);
             Node original = HwvtepHAUtil.getOriginal(mod);
             if (updated != null && original != null) {
-                if (updated != null && original != null) {
-                    if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
-                        onGlobalNodeUpdate(key, updated, original, tx);
-                    } else {
-                        onPsNodeUpdate(key, updated, original, tx);
-                    }
+                if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
+                    onGlobalNodeUpdate(key, updated, original, tx);
+                } else {
+                    onPsNodeUpdate(key, updated, original, tx);
                 }
             }
         }
@@ -121,7 +118,6 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
                                ReadWriteTransaction tx)
             throws ReadFailedException, ExecutionException,
         InterruptedException {
-        Map<String, Boolean> processedNodes = new HashMap<>();
         for (DataTreeModification<Node> change : changes) {
             InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             DataObjectModification<Node> mod = change.getRootNode();
@@ -155,7 +151,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     ReadWriteTransaction getTx() {
-        return new BatchedTransaction(db);
+        return new BatchedTransaction(dataBroker);
     }
 
     //default methods

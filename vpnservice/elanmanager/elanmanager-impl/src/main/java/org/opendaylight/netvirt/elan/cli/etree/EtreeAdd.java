@@ -16,16 +16,16 @@ import org.slf4j.LoggerFactory;
 
 @Command(scope = "etree", name = "add", description = "adding Etree Instance")
 public class EtreeAdd extends OsgiCommandSupport {
+    private static final int MAX_LENGTH = 31;
 
     @Argument(index = 0, name = "etreeName", description = "ETREE-NAME", required = true, multiValued = false)
     private String etreeName;
     @Argument(index = 1, name = "macTimeOut", description = "MAC Time-Out", required = false, multiValued = false)
-    private long macTimeOut = 30;
+    private final long macTimeOut = 30;
     @Argument(index = 2, name = "elanDescr", description = "ELAN-Description", required = false, multiValued = false)
     private String etreeDescr;
     private static final Logger LOG = LoggerFactory.getLogger(EtreeAdd.class);
     private IElanService elanProvider;
-    public static int MAX_LENGTH = 31;
 
     public void setElanProvider(IElanService elanServiceProvider) {
         this.elanProvider = elanServiceProvider;
