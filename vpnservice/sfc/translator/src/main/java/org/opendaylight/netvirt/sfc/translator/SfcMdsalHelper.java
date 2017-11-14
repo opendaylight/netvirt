@@ -8,7 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.translator;
 
-import java.util.Objects;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -30,7 +30,6 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev1407
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,13 +39,14 @@ import org.slf4j.LoggerFactory;
  */
 public class SfcMdsalHelper {
     private static final Logger LOG = LoggerFactory.getLogger(SfcMdsalHelper.class);
-    private static InstanceIdentifier<AccessLists> accessListIid = InstanceIdentifier.create(AccessLists.class);
-    private static InstanceIdentifier<ServiceFunctions> sfIid = InstanceIdentifier.create(ServiceFunctions.class);
-    private static InstanceIdentifier<ServiceFunctionForwarders> sffIid =
+    private static final InstanceIdentifier<AccessLists> ACCESS_LIST_IID = InstanceIdentifier.create(AccessLists.class);
+    private static final InstanceIdentifier<ServiceFunctions> SF_IID =
+            InstanceIdentifier.create(ServiceFunctions.class);
+    private static final InstanceIdentifier<ServiceFunctionForwarders> SFF_IID =
             InstanceIdentifier.create(ServiceFunctionForwarders.class);
-    private static InstanceIdentifier<ServiceFunctionChains> sfcIid =
+    private static final InstanceIdentifier<ServiceFunctionChains> SFC_IID =
             InstanceIdentifier.create(ServiceFunctionChains.class);
-    private static InstanceIdentifier<ServiceFunctionPaths> sfpIid
+    private static final InstanceIdentifier<ServiceFunctionPaths> SFP_IID
             = InstanceIdentifier.create(ServiceFunctionPaths.class);
     public static final String NETVIRT_LOGICAL_SFF_NAME = "Netvirt-Logical-SFF";
 
@@ -195,38 +195,42 @@ public class SfcMdsalHelper {
         }
     }
 
-    private InstanceIdentifier<Acl> getAclPath(AclKey aclKey) {
-        return accessListIid.builder().child(Acl.class, aclKey).build();
+    private static InstanceIdentifier<Acl> getAclPath(AclKey aclKey) {
+        return ACCESS_LIST_IID.builder().child(Acl.class, aclKey).build();
     }
 
-    private InstanceIdentifier<ServiceFunction> getSFPath(ServiceFunctionKey key) {
-        return sfIid.builder().child(ServiceFunction.class, key).build();
+    private static InstanceIdentifier<ServiceFunction> getSFPath(ServiceFunctionKey key) {
+        return SF_IID.builder().child(ServiceFunction.class, key).build();
     }
 
-    private InstanceIdentifier<ServiceFunctionForwarder> getSFFPath(ServiceFunctionForwarderKey key) {
-        return sffIid.builder().child(ServiceFunctionForwarder.class, key).build();
+    private static InstanceIdentifier<ServiceFunctionForwarder> getSFFPath(ServiceFunctionForwarderKey key) {
+        return SFF_IID.builder().child(ServiceFunctionForwarder.class, key).build();
     }
 
-    private InstanceIdentifier<ServiceFunctionChain> getSFCPath(ServiceFunctionChainKey key) {
-        return sfcIid.builder().child(ServiceFunctionChain.class, key).build();
+    private static InstanceIdentifier<ServiceFunctionChain> getSFCPath(ServiceFunctionChainKey key) {
+        return SFC_IID.builder().child(ServiceFunctionChain.class, key).build();
     }
 
-    private InstanceIdentifier<ServiceFunctionPath> getSFPPath(ServiceFunctionPathKey key) {
-        return sfpIid.builder().child(ServiceFunctionPath.class, key).build();
+    private static InstanceIdentifier<ServiceFunctionPath> getSFPPath(ServiceFunctionPathKey key) {
+        return SFP_IID.builder().child(ServiceFunctionPath.class, key).build();
     }
 
+    @Nullable
     public ServiceFunctionForwarder getExistingSFF(String ipAddress) {
         ServiceFunctionForwarders existingSffs =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, sffIid).orNull();
+                        LogicalDatastoreType.CONFIGURATION, SFF_IID).orNull();
 
-        return existingSffs == null || existingSffs.getServiceFunctionForwarder() == null
-                ? null
-                : existingSffs.getServiceFunctionForwarder().stream()
-                    .filter(sff -> Objects.nonNull(sff.getIpMgmtAddress()))
-                    .filter(sff -> new Ipv4Address(ipAddress).equals(sff.getIpMgmtAddress().getIpv4Address()))
-                    .findFirst()
-                    .orElse(null);
+        if (existingSffs != null && existingSffs.getServiceFunctionForwarder() != null) {
+            for (ServiceFunctionForwarder forwarder : existingSffs.getServiceFunctionForwarder()) {
+                if (forwarder.getIpMgmtAddress() != null && ipAddress.equals(
+                        forwarder.getIpMgmtAddress().getIpv4Address().getValue())) {
+                    return forwarder;
+                }
+            }
+        }
+
+        return null;
     }
 
     public void addNetvirLogicalSff() {

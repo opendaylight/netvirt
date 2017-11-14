@@ -387,6 +387,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
     /**
      * Gets the associated l2 gw connections.
+     *
      * @param l2GatewayId the l2 gateway id
      *
      * @return the associated l2 gw connections

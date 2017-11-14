@@ -44,10 +44,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by eaksahu on 8/8/2016.
  */
-public class PhysicalSwitchHelper {
+public final class PhysicalSwitchHelper {
     static Logger LOG = LoggerFactory.getLogger(PhysicalSwitchHelper.class);
 
     static InstanceIdentifier<Node> dId;
+
+    private PhysicalSwitchHelper() { }
 
     public static InstanceIdentifier<Node> getPhysicalSwitchInstanceIdentifier(InstanceIdentifier<Node> iid,
                                                                                String switchName) {

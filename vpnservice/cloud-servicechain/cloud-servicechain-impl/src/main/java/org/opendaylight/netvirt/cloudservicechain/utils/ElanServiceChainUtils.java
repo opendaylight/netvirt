@@ -48,10 +48,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanServiceChainUtils {
+public final class ElanServiceChainUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceChainUtils.class);
 
+    private ElanServiceChainUtils() { }
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceConfigDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class,

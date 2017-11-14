@@ -203,9 +203,9 @@ public final class QosAlertManager implements Runnable {
         writeConfigDataStore(alertEnabled, alertThresholdSupplier.get().shortValue(), pollInterval);
     }
 
-    public void setEnable(boolean alertEnabled) {
-        LOG.debug("setting QoS poll to {} in config data store", alertEnabled);
-        writeConfigDataStore(alertEnabled, alertThresholdSupplier.get().shortValue(), pollInterval);
+    public void setEnable(boolean enable) {
+        LOG.debug("setting QoS poll to {} in config data store", enable);
+        writeConfigDataStore(enable, alertThresholdSupplier.get().shortValue(), pollInterval);
     }
 
     public void addToQosAlertCache(Port port) {
@@ -320,14 +320,14 @@ public final class QosAlertManager implements Runnable {
         Futures.addCallback(tx.submit(), callback, MoreExecutors.directExecutor());
     }
 
-    private void writeConfigDataStore(boolean alertEnabled, short threshold, int pollInterval) {
+    private void writeConfigDataStore(boolean qosAlertEnabled, short dropPacketThreshold, int alertPollInterval) {
 
         InstanceIdentifier<QosalertConfig> path = InstanceIdentifier.builder(QosalertConfig.class).build();
 
         QosalertConfig qosAlertConfig = new QosalertConfigBuilder()
-                .setQosDropPacketThreshold(threshold)
-                .setQosAlertEnabled(alertEnabled)
-                .setQosAlertPollInterval(pollInterval)
+                .setQosDropPacketThreshold(dropPacketThreshold)
+                .setQosAlertEnabled(qosAlertEnabled)
+                .setQosAlertPollInterval(alertPollInterval)
                 .build();
 
         asyncWrite(LogicalDatastoreType.CONFIGURATION, path, qosAlertConfig, dataBroker,

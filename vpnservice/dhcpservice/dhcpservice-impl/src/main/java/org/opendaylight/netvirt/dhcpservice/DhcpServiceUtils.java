@@ -90,7 +90,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DhcpServiceUtils {
+public final class DhcpServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpServiceUtils.class);
     private static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
@@ -104,6 +104,8 @@ public class DhcpServiceUtils {
             LOG.error("Error in Datastore write operation", error);
         }
     };
+
+    private DhcpServiceUtils() { }
 
     public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
                                           IMdsalApiManager mdsalUtil, WriteTransaction tx) {

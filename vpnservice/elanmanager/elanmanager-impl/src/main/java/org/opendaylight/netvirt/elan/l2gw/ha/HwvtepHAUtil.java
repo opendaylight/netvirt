@@ -64,7 +64,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HwvtepHAUtil {
+public final class HwvtepHAUtil {
 
     static Logger LOG = LoggerFactory.getLogger(HwvtepHAUtil.class);
 
@@ -82,6 +82,8 @@ public class HwvtepHAUtil {
     public static final String L2GW_JOB_KEY = ":l2gw";
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+
+    private HwvtepHAUtil() { }
 
     public static HwvtepPhysicalLocatorRef buildLocatorRef(InstanceIdentifier<Node> nodeIid, String tepIp) {
         InstanceIdentifier<TerminationPoint> tepId = buildTpId(nodeIid, tepIp);

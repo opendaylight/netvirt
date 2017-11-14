@@ -77,6 +77,6 @@ public interface Ipv6Constants {
     enum Ipv6RtrAdvertType {
         UNSOLICITED_ADVERTISEMENT,
         SOLICITED_ADVERTISEMENT,
-        CEASE_ADVERTISEMENT;
+        CEASE_ADVERTISEMENT
     }
 }

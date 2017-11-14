@@ -375,6 +375,8 @@ public class DHCP extends Packet {
      * <p>Note: Copied from org.opendaylight.controller.sal.packet.Packet</p>
      */
     @Override
+    // We can’t do much about PacketException (yet; see https://git.opendaylight.org/gerrit/65837)
+    @SuppressWarnings("checkstyle:AvoidHidingCauseException")
     public Packet deserialize(byte[] data, int bitOffset, int size)
             throws PacketException {
 
