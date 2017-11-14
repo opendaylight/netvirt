@@ -13,13 +13,13 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
@@ -1059,7 +1059,7 @@ public final class VpnUtil {
             LearntVpnVipToPortBuilder builder =
                     new LearntVpnVipToPortBuilder().setKey(new LearntVpnVipToPortKey(fixedIp, vpnName)).setVpnName(
                             vpnName).setPortFixedip(fixedIp).setPortName(portName)
-                            .setMacAddress(macAddress.toLowerCase())
+                            .setMacAddress(macAddress.toLowerCase(Locale.getDefault()))
                             .setCreationTime(new SimpleDateFormat("MM/dd/yyyy h:mm:ss a").format(new Date()));
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
             LOG.debug("createLearntVpnVipToPort: ARP learned for fixedIp: {}, vpn {}, interface {}, mac {},"
@@ -1100,7 +1100,7 @@ public final class VpnUtil {
     }
 
     public static VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
-        InstanceIdentifier id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
+        InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         Optional<VpnPortipToPort> vpnPortipToPortData = read(broker, LogicalDatastoreType.CONFIGURATION, id);
         if (vpnPortipToPortData.isPresent()) {
             return vpnPortipToPortData.get();
@@ -1109,7 +1109,7 @@ public final class VpnUtil {
     }
 
     static LearntVpnVipToPort getLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp) {
-        InstanceIdentifier id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
+        InstanceIdentifier<LearntVpnVipToPort> id = buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
         Optional<LearntVpnVipToPort> learntVpnVipToPort = read(broker, LogicalDatastoreType.OPERATIONAL, id);
         if (learntVpnVipToPort.isPresent()) {
             return learntVpnVipToPort.get();
@@ -1338,7 +1338,8 @@ public final class VpnUtil {
             if (dpnToVpns != null) {
                 for (VpnToDpnList dpn : dpnToVpns) {
                     if (dpn.getDpnId().equals(dpnId)) {
-                        return dpn.getVpnInterfaces().contains(vpnInterface.getName());
+                        return dpn.getVpnInterfaces().stream().anyMatch(
+                            vpnInterfaces -> vpnInterface.getName().equals(vpnInterfaces.getInterfaceName()));
                     }
                     LOG.info("isVpnIntfPresentInVpnToDpnList: VpnInterface {} not present in DpnId {} vpn {}",
                             vpnInterface.getName(), dpn.getDpnId(), vpnInterface.getVpnInstanceName());

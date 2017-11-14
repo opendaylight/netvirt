@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -32,7 +33,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
-    SubnetRouteInterfaceStateChangeListener> implements AutoCloseable {
+    SubnetRouteInterfaceStateChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
     private static final String LOGGING_PREFIX = "SUBNETROUTE:";
     private final DataBroker dataBroker;
@@ -74,13 +75,12 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
         LOG.trace("{} add: Received interface {} up event", LOGGING_PREFIX, intrf);
-        final List<Uuid> subnetIdList;
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.trace("SubnetRouteInterfaceListener add: Received interface {} up event", intrf);
                 if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
-                    subnetIdList = getSubnetId(intrf);
-                    if (subnetIdList == null || subnetIdList.isEmpty()) {
+                    List<Uuid> subnetIdList = getSubnetId(intrf);
+                    if (subnetIdList.isEmpty()) {
                         LOG.trace("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
                                 intrf.getName());
                         return;
@@ -117,12 +117,11 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @SuppressWarnings("checkstyle:IllegalCatch")
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface intrf) {
-        final List<Uuid> subnetIdList;
         try {
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
-                subnetIdList = getSubnetId(intrf);
-                if (subnetIdList == null || subnetIdList.isEmpty()) {
+                List<Uuid> subnetIdList = getSubnetId(intrf);
+                if (subnetIdList.isEmpty()) {
                     LOG.trace("SubnetRouteInterfaceListener remove: Port {} doesnt exist in configDS",
                             intrf.getName());
                     return;
@@ -169,14 +168,13 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     @Override
     protected void update(InstanceIdentifier<Interface> identifier,
         Interface original, Interface update) {
-        final List<Uuid> subnetIdList;
         try {
             String interfaceName = update.getName();
             if (L2vlan.class.equals(update.getType())) {
                 LOG.trace("{} update: Operation Interface update event - Old: {}, New: {}", LOGGING_PREFIX,
                     original, update);
-                subnetIdList = getSubnetId(update);
-                if ((subnetIdList == null) || (subnetIdList.isEmpty())) {
+                List<Uuid> subnetIdList = getSubnetId(update);
+                if (subnetIdList.isEmpty()) {
                     LOG.error("SubnetRouteInterfaceListener update: Port {} doesnt exist in configDS",
                             update.getName());
                     return;
@@ -229,8 +227,9 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
         }
     }
 
+    @Nonnull
     protected List<Uuid> getSubnetId(Interface intrf) {
-        List<Uuid> listSubnetIds = new ArrayList<Uuid>();
+        List<Uuid> listSubnetIds = new ArrayList<>();
         if (!NeutronUtils.isUuid(intrf.getName())) {
             LOG.debug("SubnetRouteInterfaceListener: Interface {} doesnt have valid uuid pattern", intrf.getName());
             return listSubnetIds;

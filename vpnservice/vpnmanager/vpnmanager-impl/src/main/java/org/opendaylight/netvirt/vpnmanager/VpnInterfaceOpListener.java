@@ -31,13 +31,12 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceOpListener>
-    implements AutoCloseable {
+public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnInterface, VpnInterfaceOpListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceOpListener.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnFootprintService vpnFootprintService;
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /*public VpnInterfaceOpListener(final DataBroker dataBroker) {
         super(VpnInterface.class);
@@ -72,7 +71,6 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     protected void remove(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface del) {
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
-        final String vpnName = del.getVpnInstanceName();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
@@ -106,7 +104,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             VpnInstanceOpDataEntry vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
 
             Adjacencies adjs = del.getAugmentation(Adjacencies.class);
-            List<Adjacency> adjList = (adjs != null) ? adjs.getAdjacency() : null;
+            List<Adjacency> adjList = adjs != null ? adjs.getAdjacency() : null;
 
             if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
                 /*
@@ -190,11 +188,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     }
 
     private boolean isMatchedPrefixToInterface(Prefixes prefix, VpnInterface vpnInterface) {
-        if ((prefix != null) && (vpnInterface != null)) {
+        if (prefix != null && vpnInterface != null) {
             if (prefix.getDpnId() != null && vpnInterface.getDpnId() != null) {
                 if (prefix.getVpnInterfaceName() != null && vpnInterface.getName() != null) {
-                    return ((prefix.getDpnId().equals(vpnInterface.getDpnId()))
-                            && (prefix.getVpnInterfaceName().equalsIgnoreCase(vpnInterface.getName())));
+                    return prefix.getDpnId().equals(vpnInterface.getDpnId())
+                            && prefix.getVpnInterfaceName().equalsIgnoreCase(vpnInterface.getName());
                 }
             }
         }
@@ -221,7 +219,6 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             return;
         }
 
-        final String vpnName = update.getVpnInstanceName();
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
@@ -252,10 +249,9 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
 
             Adjacencies adjs = original.getAugmentation(Adjacencies.class);
-            List<Adjacency> adjList = (adjs != null) ? adjs.getAdjacency() : null;
+            List<Adjacency> adjList = adjs != null ? adjs.getAdjacency() : null;
 
             if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
-                List<Prefixes> prefixToInterfaceList = new ArrayList<>();
                 for (Adjacency adjacency : adjs.getAdjacency()) {
                     List<Prefixes> prefixToInterfaceListLocal = new ArrayList<>();
                     if (adjacency.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {

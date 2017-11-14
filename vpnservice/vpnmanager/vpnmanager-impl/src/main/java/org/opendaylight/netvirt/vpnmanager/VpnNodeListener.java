@@ -8,15 +8,12 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -43,8 +40,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<Node, VpnNodeListener>
-    implements AutoCloseable {
+public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<Node, VpnNodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnNodeListener.class);
     private static final String FLOWID_PREFIX = "L3.";
@@ -53,7 +49,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManagerService;
-    private List<BigInteger> connectedDpnIds;
+    private final List<BigInteger> connectedDpnIds;
 
     public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager,
         final IdManagerService idManagerService) {
@@ -103,27 +99,24 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     public boolean isConnectedNode(BigInteger nodeId) {
-        return ((nodeId != null) && (connectedDpnIds.contains(nodeId)));
+        return nodeId != null && connectedDpnIds.contains(nodeId);
     }
 
     private void processNodeAdd(BigInteger dpId) {
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
-            new Callable<List<ListenableFuture<Void>>>() {
-                @Override
-                public List<ListenableFuture<Void>> call() throws Exception {
-                    WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
-                    LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
-                    makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    createTableMissForVpnGwFlow(writeFlowTx, dpId);
-                    createL3GwMacArpFlows(writeFlowTx, dpId);
-                    programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                    List<ListenableFuture<Void>> futures = new ArrayList<ListenableFuture<Void>>();
-                    futures.add(writeFlowTx.submit());
-                    return futures;
-                }
+            () -> {
+                WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
+                LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
+                makeTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                makeL3IntfTblMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                makeSubnetRouteTableMissFlow(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                createTableMissForVpnGwFlow(writeFlowTx, dpId);
+                createL3GwMacArpFlows(writeFlowTx, dpId);
+                programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
+                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                futures.add(writeFlowTx.submit());
+                return futures;
             });
     }
 
@@ -152,7 +145,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         // Instruction to goto L3 InterfaceTable
 
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionNxResubmit((NwConstants.LPORT_DISPATCHER_TABLE)));
+        actionsInfos.add(new ActionNxResubmit(NwConstants.LPORT_DISPATCHER_TABLE));
         instructions.add(new InstructionApplyActions(actionsInfos));
         //instructions.add(new InstructionGotoTable(NwConstants.LPORT_DISPATCHER_TABLE));
 
@@ -190,7 +183,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants
                 .LPORT_DISPATCHER_TABLE));
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         String flowRef = getTableMissFlowRef(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,
                 NwConstants.TABLE_MISS_FLOW);
         FlowEntity flowEntity = MDSALUtil.buildFlowEntity(dpnId, NwConstants.L3VNI_EXTERNAL_TUNNEL_DEMUX_TABLE,

@@ -26,6 +26,10 @@ import org.slf4j.LoggerFactory;
 public class ArpUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ArpUtils.class);
 
+    private static final byte[] ETHERNETDESTINATION_BROADCAST = new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
+    private static final byte[] MAC_BROADCAST = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
+
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, long groupId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
         return createArpRequestInput(dpnId, groupId, abySenderMAC, abySenderIpAddress, abyTargetIpAddress, null);
@@ -56,9 +60,9 @@ public class ArpUtils {
             byte[] arpPacket;
             byte[] ethPacket;
 
-            byte[] targetMac = abyTargetMAC != null ? abyTargetMAC : VpnConstants.MAC_Broadcast;
+            byte[] targetMac = abyTargetMAC != null ? abyTargetMAC : MAC_BROADCAST;
             arpPacket = createARPPacket(ARP.REQUEST, abySenderMAC, abySenderIpAddress, targetMac, abyTargetIpAddress);
-            ethPacket = createEthernetPacket(abySenderMAC, VpnConstants.EthernetDestination_Broadcast, arpPacket);
+            ethPacket = createEthernetPacket(abySenderMAC, ETHERNETDESTINATION_BROADCAST, arpPacket);
             if (groupId != null) {
                 lstActionInfo.add(new ActionGroup(groupId));
             }
