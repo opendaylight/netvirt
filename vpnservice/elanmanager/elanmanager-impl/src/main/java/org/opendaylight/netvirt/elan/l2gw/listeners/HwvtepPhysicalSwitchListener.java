@@ -37,7 +37,6 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -54,10 +53,29 @@ import org.slf4j.LoggerFactory;
  */
 public class HwvtepPhysicalSwitchListener
         extends HwvtepAbstractDataTreeChangeListener<PhysicalSwitchAugmentation, HwvtepPhysicalSwitchListener>
-        implements ClusteredDataTreeChangeListener<PhysicalSwitchAugmentation>, AutoCloseable {
+        implements ClusteredDataTreeChangeListener<PhysicalSwitchAugmentation> {
 
     /** The Constant LOG. */
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepPhysicalSwitchListener.class);
+
+    private static final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> DEVICE_NOT_CACHED_OR_PARENT_CONNECTED =
+        (l2GatewayDevice, globalIid) -> {
+            return l2GatewayDevice == null || l2GatewayDevice.getHwvtepNodeId() == null
+                    || !Objects.equals(l2GatewayDevice.getHwvtepNodeId(),
+                            globalIid.firstKeyOf(Node.class).getNodeId().getValue());
+        };
+
+    private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_AVAILABLE =
+        phySwitch -> !HwvtepHAUtil.isEmpty(phySwitch.getTunnelIps());
+
+    private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_NOT_AVAILABLE = TUNNEL_IP_AVAILABLE.negate();
+
+    private static final BiPredicate<PhysicalSwitchAugmentation, L2GatewayDevice> TUNNEL_IP_CHANGED =
+        (phySwitchAfter, existingDevice) -> {
+            return TUNNEL_IP_AVAILABLE.test(phySwitchAfter)
+                    && !Objects.equals(
+                            existingDevice.getTunnelIp(),  phySwitchAfter.getTunnelIps().get(0).getTunnelIpsKey());
+        };
 
     /** The data broker. */
     private final DataBroker dataBroker;
@@ -67,35 +85,26 @@ public class HwvtepPhysicalSwitchListener
 
     private final EntityOwnershipUtils entityOwnershipUtils;
 
-    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
-
     private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
-    protected final L2gwServiceProvider l2gwServiceProvider;
+    private final L2gwServiceProvider l2gwServiceProvider;
 
-    private final L2GatewayUtils l2GatewayUtils;
-
-    static BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> DEVICE_NOT_CACHED_OR_PARENT_CONNECTED =
-        (l2GatewayDevice, globalIid) -> {
-            return l2GatewayDevice == null || l2GatewayDevice.getHwvtepNodeId() == null
-                    || !Objects.equals(l2GatewayDevice.getHwvtepNodeId(),
-                    globalIid.firstKeyOf(Node.class).getNodeId().getValue());
-        };
-
-    BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> childConnectedAfterParent =
+    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> childConnectedAfterParent =
         (l2GwDevice, globalIid) -> {
             return !hwvtepHACache.isHAParentNode(globalIid)
-                    && l2GwDevice != null
-                    && !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid);
+                    && l2GwDevice != null;
+                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
+                    // thus will always return false. I don't know what the intention is here so commented out for now.
+                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid);
         };
 
-    Predicate<L2GatewayDevice> alreadyHasL2Gwids =
+    private final Predicate<L2GatewayDevice> alreadyHasL2Gwids =
         (l2GwDevice) -> {
             return l2GwDevice != null && HwvtepHAUtil.isEmpty(l2GwDevice.getL2GatewayIds());
         };
 
 
-    BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> parentConnectedAfterChild =
+    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> parentConnectedAfterChild =
         (l2GwDevice, globalIid) -> {
             InstanceIdentifier<Node> existingIid = globalIid;
             if (l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null) {
@@ -103,25 +112,14 @@ public class HwvtepPhysicalSwitchListener
             }
             return hwvtepHACache.isHAParentNode(globalIid)
                     && l2GwDevice != null
-                    && !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid)
+                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
+                    // thus will always return false. I don't know what the intention is here so commented out for now.
+                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid)
                     && Objects.equals(globalIid, hwvtepHACache.getParent(existingIid));
         };
 
-    static Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_AVAILABLE =
-        phySwitch -> !HwvtepHAUtil.isEmpty(phySwitch.getTunnelIps());
 
-    static Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_NOT_AVAILABLE =
-        TUNNEL_IP_AVAILABLE.negate();
-
-    static BiPredicate<PhysicalSwitchAugmentation, L2GatewayDevice> TUNNEL_IP_CHANGED =
-        (phySwitchAfter, existingDevice) -> {
-            return TUNNEL_IP_AVAILABLE.test(phySwitchAfter)
-                    && !Objects.equals(
-                    existingDevice.getTunnelIp(),  phySwitchAfter.getTunnelIps().get(0).getTunnelIpsKey());
-        };
-
-
-    HAOpClusteredListener haOpClusteredListener;
+    private final HAOpClusteredListener haOpClusteredListener;
 
     /**
      * Instantiates a new hwvtep physical switch listener.
@@ -130,23 +128,18 @@ public class HwvtepPhysicalSwitchListener
      *            the data broker
      * @param itmRpcService itm rpc
      * @param entityOwnershipUtils entity ownership utils
-     * @param l2GatewayConnectionUtils l2gw connection utils
      * @param l2gwServiceProvider l2gw service Provider
-     * @param l2GatewayUtils utils
      * @param haListener HA Op node listners
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipUtils entityOwnershipUtils,
-                                        L2GatewayConnectionUtils l2GatewayConnectionUtils,
                                         L2gwServiceProvider l2gwServiceProvider,
-                                        L2GatewayUtils l2GatewayUtils, HAOpClusteredListener haListener) {
+                                        HAOpClusteredListener haListener) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipUtils = entityOwnershipUtils;
-        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
-        this.l2GatewayUtils = l2GatewayUtils;
         this.haOpClusteredListener = haListener;
     }
 
@@ -255,7 +248,6 @@ public class HwvtepPhysicalSwitchListener
                          final PhysicalSwitchAugmentation phySwitchAdded) {
         String globalNodeId = getManagedByNodeId(identifier);
         final InstanceIdentifier<Node> globalNodeIid = getManagedByNodeIid(identifier);
-        final InstanceIdentifier<Node> wildCard = globalNodeIid.firstIdentifierOf(Topology.class).child(Node.class);
         NodeId nodeId = getNodeId(identifier);
         if (TUNNEL_IP_NOT_AVAILABLE.test(phySwitchAdded)) {
             LOG.error("Could not find the /tunnel ips for node {}", nodeId.getValue());
@@ -341,33 +333,6 @@ public class HwvtepPhysicalSwitchListener
      */
     private NodeId getNodeId(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {
         return identifier.firstKeyOf(Node.class).getNodeId();
-    }
-
-    /**
-     * Checks if is tunnel ip newly configured.
-     *
-     * @param phySwitchBefore
-     *            the phy switch before
-     * @param phySwitchAfter
-     *            the phy switch after
-     * @return true, if is tunnel ip newly configured
-     */
-    private boolean isTunnelIpNewlyConfigured(PhysicalSwitchAugmentation phySwitchBefore,
-            PhysicalSwitchAugmentation phySwitchAfter) {
-        return (phySwitchBefore.getTunnelIps() == null || phySwitchBefore.getTunnelIps().isEmpty())
-                && phySwitchAfter.getTunnelIps() != null && !phySwitchAfter.getTunnelIps().isEmpty();
-    }
-
-    /**
-     * Gets the managed by node id.
-     *
-     * @param globalRef
-     *            the global ref
-     * @return the managed by node id
-     */
-    private String getManagedByNodeId(HwvtepGlobalRef globalRef) {
-        InstanceIdentifier<?> instId = globalRef.getValue();
-        return instId.firstKeyOf(Node.class).getNodeId().getValue();
     }
 
     private String getManagedByNodeId(InstanceIdentifier<PhysicalSwitchAugmentation> identifier) {

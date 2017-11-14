@@ -51,7 +51,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanNodeListener> implements AutoCloseable {
+public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanNodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
     private static final int LEARN_MATCH_REG4_VALUE = 1;

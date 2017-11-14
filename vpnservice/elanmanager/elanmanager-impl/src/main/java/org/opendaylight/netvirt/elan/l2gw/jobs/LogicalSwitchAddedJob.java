@@ -11,7 +11,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
-
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -26,16 +25,16 @@ import org.slf4j.LoggerFactory;
  */
 public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Void>>> {
     /** The logical switch name. */
-    private String logicalSwitchName;
+    private final String logicalSwitchName;
 
     /** The physical device. */
-    private Devices physicalDevice;
+    private final Devices physicalDevice;
 
     /** The l2 gateway device. */
-    private L2GatewayDevice elanL2GwDevice;
+    private final L2GatewayDevice elanL2GwDevice;
 
     /** The default vlan id. */
-    private Integer defaultVlanId;
+    private final Integer defaultVlanId;
 
     private static final Logger LOG = LoggerFactory.getLogger(LogicalSwitchAddedJob.class);
 
@@ -65,7 +64,6 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
         LOG.debug("running logical switch added job for {} {}", logicalSwitchName,
                 elanL2GwDevice.getHwvtepNodeId());
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        String elan = ElanL2GatewayUtils.getElanFromLogicalSwitch(logicalSwitchName);
 
         LOG.info("creating vlan bindings for {} {}", logicalSwitchName, elanL2GwDevice.getHwvtepNodeId());
         futures.add(elanL2GatewayUtils.updateVlanBindingsInL2GatewayDevice(

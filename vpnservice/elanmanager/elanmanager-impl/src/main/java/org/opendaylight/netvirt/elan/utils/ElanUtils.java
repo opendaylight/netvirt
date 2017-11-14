@@ -17,7 +17,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,7 +28,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -66,6 +64,7 @@ import org.opendaylight.genius.mdsalutil.packet.ARP;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
@@ -233,7 +232,7 @@ public class ElanUtils {
         return elanL2GatewayMulticastUtils;
     }
 
-    public final Boolean isOpenStackVniSemanticsEnforced() {
+    public final Boolean isOpenstackVniSemanticsEnforced() {
         return elanConfig.isOpenstackVniSemanticsEnforced();
     }
 
@@ -295,7 +294,7 @@ public class ElanUtils {
 
     public static void releaseId(IdManagerService idManager, String poolName, String idKey) {
         ReleaseIdInput releaseIdInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
-        idManager.releaseId(releaseIdInput);
+        JdkFutures.addErrorLogging(idManager.releaseId(releaseIdInput), LOG, "Release Id");
     }
 
     /**
@@ -550,6 +549,7 @@ public class ElanUtils {
      *            the elan instance name
      * @return list of dpIds
      */
+    @Nonnull
     public List<BigInteger> getParticipatingDpnsInElanInstance(String elanInstanceName) {
         List<BigInteger> dpIds = new ArrayList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationDataPath(elanInstanceName);
@@ -865,10 +865,6 @@ public class ElanUtils {
         }
 
         List<DpnInterfaces> elanDpns = getInvolvedDpnsInElan(elanInstanceName);
-        if (elanDpns == null) {
-            return;
-        }
-
         for (DpnInterfaces elanDpn : elanDpns) {
 
             if (elanDpn.getDpId().equals(dpId)) {
@@ -896,6 +892,7 @@ public class ElanUtils {
         // TODO: Make sure that the same is performed against the ElanDevices.
     }
 
+    @Nonnull
     public List<DpnInterfaces> getInvolvedDpnsInElan(String elanName) {
         return elanInstanceManager.getElanDPNByName(elanName);
     }
@@ -999,7 +996,7 @@ public class ElanUtils {
         Flow flowEntity;
         // if openstack-vni-semantics are enforced, segmentation ID is passed as network VNI for VxLAN based provider
         // networks, 0 otherwise
-        long lportTagOrVni = !isOpenStackVniSemanticsEnforced() ? lportTag : isVxlan(elanInstance)
+        long lportTagOrVni = !isOpenstackVniSemanticsEnforced() ? lportTag : isVxlan(elanInstance)
                 ? elanInstance.getSegmentationId() : 0;
         flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName,
                 elanInstance);
@@ -1227,8 +1224,8 @@ public class ElanUtils {
         // elanTag
         ElanInstanceBuilder elanInstanceBuilder = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
                 .setDescription(elanInstanceAdded.getDescription())
-                .setMacTimeout(elanInstanceAdded.getMacTimeout() == null ? ElanConstants.DEFAULT_MAC_TIME_OUT
-                        : elanInstanceAdded.getMacTimeout())
+                .setMacTimeout(elanInstanceAdded.getMacTimeout() == null
+                        ? Long.valueOf(ElanConstants.DEFAULT_MAC_TIME_OUT) : elanInstanceAdded.getMacTimeout())
                 .setKey(elanInstanceAdded.getKey()).setElanTag(elanTag);
         if (isEtreeInstance(elanInstanceAdded)) {
             EtreeInstance etreeInstance = new EtreeInstanceBuilder().setEtreeLeafTagVal(new EtreeLeafTag(etreeLeafTag))
@@ -1482,8 +1479,11 @@ public class ElanUtils {
 
     public static Long getVxlanSegmentationId(ElanInstance elanInstance) {
         Long segmentationId = 0L;
+        if (elanInstance == null) {
+            return segmentationId;
+        }
 
-        if (elanInstance != null && elanInstance.getSegmentType() != null
+        if (elanInstance.getSegmentType() != null
                 && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVxlan.class)
                 && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId().longValue() != 0) {
             segmentationId = elanInstance.getSegmentationId();

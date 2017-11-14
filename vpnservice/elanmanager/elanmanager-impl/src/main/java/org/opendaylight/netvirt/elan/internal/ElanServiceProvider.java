@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -19,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.function.BiFunction;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -149,8 +151,10 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
+    // Confusing with isOpenstackVniSemanticsEnforced but this is an interface method so can't change it.
+    @SuppressFBWarnings("NM_CONFUSING")
     public Boolean isOpenStackVniSemanticsEnforced() {
-        return elanUtils.isOpenStackVniSemanticsEnforced();
+        return elanUtils.isOpenstackVniSemanticsEnforced();
     }
 
     private void createIdPool() throws Exception {
@@ -251,7 +255,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         boolean isSuccess = false;
         ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
         if (existingElanInstance == null) {
-            LOG.debug("Elan Instance is not present {}", existingElanInstance);
+            LOG.debug("Elan Instance is not present for {}", elanInstanceName);
             return isSuccess;
         }
         LOG.debug("Deletion of the existing Elan Instance {}", existingElanInstance);
@@ -428,6 +432,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
+    @Nonnull
     public List<String> getElanInterfaces(String elanInstanceName) {
         List<String> elanInterfaces = new ArrayList<>();
         InstanceIdentifier<ElanInterfaces> elanInterfacesIdentifier = InstanceIdentifier.builder(ElanInterfaces.class)
@@ -637,7 +642,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     public Collection<String> getExternalElanInterfaces(String elanInstanceName) {
         List<String> elanInterfaces = getElanInterfaces(elanInstanceName);
-        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
+        if (elanInterfaces.isEmpty()) {
             LOG.trace("No ELAN interfaces defined for {}", elanInstanceName);
             return Collections.emptySet();
         }
@@ -680,7 +685,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         }
 
         List<BigInteger> dpnsIdsForElanInstance = elanUtils.getParticipatingDpnsInElanInstance(elanInstanceName);
-        if (dpnsIdsForElanInstance == null || dpnsIdsForElanInstance.isEmpty()) {
+        if (dpnsIdsForElanInstance.isEmpty()) {
             LOG.warn("No DPNs for elan instance {}", elanInstance);
             return;
         }
