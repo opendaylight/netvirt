@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -101,7 +100,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
         //Will be handled appropriately with the iRT patch for EVPN
         if (input.getEncapType().equals(VrfEntryBase.EncapType.Mplsgre)) {
             long vpnId = VpnUtil.getVpnId(broker, vpnName);
-            vpnInterfaceManager.addToLabelMapper((long) label, dpnId, prefix, Collections.singletonList(nextHop),
+            vpnInterfaceManager.addToLabelMapper(label, dpnId, prefix, Collections.singletonList(nextHop),
                     vpnId, null, elantag, true, rd);
             List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
             if (vpnsToImportRoute.size() > 0) {
@@ -145,7 +144,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
             LOG.info("ADD: addPrefixToBGP: Added Fib entry rd {} prefix {} nextHop {} label {} gwMac {}", rd, prefix,
                     nextHopList, label, gatewayMac);
             // Advertise the prefix to BGP only if nexthop ip is available
-            if (nextHopList != null && !nextHopList.isEmpty()) {
+            if (!nextHopList.isEmpty()) {
                 bgpManager.advertisePrefix(rd, macAddress, prefix, nextHopList, encapType, (int)label,
                         l3vni, 0 /*l2vni*/, gatewayMac);
             } else {

@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-
 import java.math.BigInteger;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -18,7 +17,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -233,7 +231,7 @@ public class ArpNotificationHandler implements OdlArputilListener {
                     String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
                     long label =
                         VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ip));
+                            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ip));
                     if (label == 0) {
                         LOG.error("Unable to fetch label from Id Manager. Bailing out of adding MIP adjacency {} "
                             + "to vpn interface {} for vpn {}", ip, vpnInterface, vpnName);
@@ -288,7 +286,6 @@ public class ArpNotificationHandler implements OdlArputilListener {
     private void removeMipAdjacency(String vpnName, String vpnInterface, IpAddress prefix) {
         String ip = VpnUtil.getIpPrefix(prefix.getIpv4Address().getValue());
         LOG.trace("Removing {} adjacency from Old VPN Interface {} ", ip, vpnInterface);
-        InstanceIdentifier<VpnInterface> vpnIfId = VpnUtil.getVpnInterfaceIdentifier(vpnInterface);
         synchronized (vpnInterface.intern()) {
             InstanceIdentifier<Adjacency> adjacencyIdentifier =
                     InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface.class,

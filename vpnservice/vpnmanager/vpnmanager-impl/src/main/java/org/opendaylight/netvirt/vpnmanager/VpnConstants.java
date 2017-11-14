@@ -9,43 +9,38 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import java.math.BigInteger;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg3;
 
-public class VpnConstants {
-    public static final String VPN_IDPOOL_NAME = "vpnservices";
-    public static final long VPN_IDPOOL_LOW = 100000L;
-    public static final long VPN_IDPOOL_HIGH = 130000L;
-    public static final short DEFAULT_FLOW_PRIORITY = 10;
-    public static final int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
-    public static final int VPN_ID_LENGTH = 24;
-    public static final long INVALID_ID = -1;
-    public static final String SEPARATOR = ".";
-    public static final BigInteger COOKIE_L3_BASE = new BigInteger("8000000", 16);
-    public static final String FLOWID_PREFIX = "L3.";
-    public static final long MIN_WAIT_TIME_IN_MILLISECONDS = 10000;
-    public static final long MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
-    public static final long PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS = 4000;
-    public static final long PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS = 90000;
-    public static final long PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
-    public static final int ELAN_GID_MIN = 200000;
-    public static final int INVALID_LABEL = 0;
-    public static final String VPN_OP_INSTANCE_CACHE_NAME = "VpnOpInstanceCache";
-    public static final String ARP_MONITORING_ENTITY = "arpmonitoring";
+public interface VpnConstants {
+    String VPN_IDPOOL_NAME = "vpnservices";
+    long VPN_IDPOOL_LOW = 100000L;
+    long VPN_IDPOOL_HIGH = 130000L;
+    short DEFAULT_FLOW_PRIORITY = 10;
+    int DEFAULT_LPORT_DISPATCHER_FLOW_PRIORITY = 1;
+    int VPN_ID_LENGTH = 24;
+    long INVALID_ID = -1;
+    String SEPARATOR = ".";
+    BigInteger COOKIE_L3_BASE = new BigInteger("8000000", 16);
+    String FLOWID_PREFIX = "L3.";
+    long MIN_WAIT_TIME_IN_MILLISECONDS = 10000;
+    long MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
+    long PER_INTERFACE_MAX_WAIT_TIME_IN_MILLISECONDS = 4000;
+    long PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS = 90000;
+    long PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
+    int ELAN_GID_MIN = 200000;
+    int INVALID_LABEL = 0;
+    String VPN_OP_INSTANCE_CACHE_NAME = "VpnOpInstanceCache";
+    String ARP_MONITORING_ENTITY = "arpmonitoring";
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
     // These lportTags must be higher than 170000 to avoid collision with interface LportTags and
     // also VPN related IDs (vrfTags and labels)
-    public static final String PSEUDO_LPORT_TAG_ID_POOL_NAME = System.getProperty("lport.gid.name", "lporttag");
-    public static final long LOWER_PSEUDO_LPORT_TAG = Long.getLong("lower.lport.gid", 170001);
-    public static final long UPPER_PSEUDO_LPORT_TAG = Long.getLong("upper.lport.gid", 270000);
+    String PSEUDO_LPORT_TAG_ID_POOL_NAME = System.getProperty("lport.gid.name", "lporttag");
+    long LOWER_PSEUDO_LPORT_TAG = Long.getLong("lower.lport.gid", 170001);
+    long UPPER_PSEUDO_LPORT_TAG = Long.getLong("upper.lport.gid", 270000);
 
-    public static byte[] EthernetDestination_Broadcast = new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
-        (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
-    public static byte[] MAC_Broadcast = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
-
-    public enum ITMTunnelLocType {
+    enum ITMTunnelLocType {
         Invalid(0), Internal(1), External(2), Hwvtep(3);
 
         private final int type;
@@ -59,7 +54,7 @@ public class VpnConstants {
         }
     }
 
-    public enum DCGWPresentStatus {
+    enum DCGWPresentStatus {
         Invalid(0), Present(1), Absent(2);
 
         private final int status;
@@ -73,6 +68,6 @@ public class VpnConstants {
         }
     }
 
-    public static final String DEFAULT_GATEWAY_MAC_ADDRESS = "de:ad:be:ef:00:01";
-    public static final Class<? extends NxmNxReg> VPN_REG_ID = NxmNxReg3.class;
+    String DEFAULT_GATEWAY_MAC_ADDRESS = "de:ad:be:ef:00:01";
+    Class<? extends NxmNxReg> VPN_REG_ID = NxmNxReg3.class;
 }

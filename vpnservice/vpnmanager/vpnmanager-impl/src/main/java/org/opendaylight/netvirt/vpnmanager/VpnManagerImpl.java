@@ -105,7 +105,7 @@ public class VpnManagerImpl implements IVpnManager {
                 .build();
         try {
             Future<RpcResult<Void>> result = idManager.createIdPool(createPseudoLporTagPool);
-            if (result != null && result.get().isSuccessful()) {
+            if (result.get().isSuccessful()) {
                 LOG.debug("Created IdPool for Pseudo Port tags");
             } else {
                 Collection<RpcError> errors = result.get().getErrors();
@@ -235,7 +235,7 @@ public class VpnManagerImpl implements IVpnManager {
             return;
         }
 
-        long vpnId = (addOrRemove == NwConstants.ADD_FLOW) ? getVpnIdFromExtNetworkId(extNetworkId)
+        long vpnId = addOrRemove == NwConstants.ADD_FLOW ? getVpnIdFromExtNetworkId(extNetworkId)
                 : VpnConstants.INVALID_ID;
         setupArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, vpnId, extInterfaceName, lportTag,
                 writeTx, addOrRemove);
@@ -333,14 +333,17 @@ public class VpnManagerImpl implements IVpnManager {
         vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmap, isBgpVpn);
     }
 
+    @Override
     public VpnInstance getVpnInstance(DataBroker broker, String vpnInstanceName) {
         return VpnUtil.getVpnInstance(broker, vpnInstanceName);
     }
 
+    @Override
     public String getVpnRd(DataBroker broker, String vpnName) {
         return VpnUtil.getVpnRd(broker, vpnName);
     }
 
+    @Override
     public VpnPortipToPort getNeutronPortFromVpnPortFixedIp(DataBroker broker, String vpnName, String fixedIp) {
         return VpnUtil.getNeutronPortFromVpnPortFixedIp(broker, vpnName, fixedIp);
     }

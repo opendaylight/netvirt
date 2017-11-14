@@ -10,13 +10,11 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -331,7 +329,7 @@ public class InterVpnLinkUtil {
         Optional<InterVpnLinkStates> interVpnLinkStateOpData =
             MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, interVpnLinkStateIid);
 
-        return (interVpnLinkStateOpData.isPresent()) ? interVpnLinkStateOpData.get().getInterVpnLinkState()
+        return interVpnLinkStateOpData.isPresent() ? interVpnLinkStateOpData.get().getInterVpnLinkState()
             : new ArrayList<>();
     }
 
@@ -443,9 +441,9 @@ public class InterVpnLinkUtil {
                 bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, newVrfEntry.getDestPrefix(), nexthops,
                         VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
                         null /*gatewayMacAddress*/);
-            } catch (Exception exc) {
+            } catch (Exception ex) {
                 LOG.error("Could not advertise prefix {} with label {} to VPN rd={}",
-                    newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd);
+                    newVrfEntry.getDestPrefix(), label.intValue(), dstVpnRd, ex);
             }
         } else {
             LOG.warn("Error when advertising leaked routes: Could not find State for InterVpnLink={}",
