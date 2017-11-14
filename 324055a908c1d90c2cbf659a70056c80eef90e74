@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_7047bd77",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-14T12:25:16Z",
+      "side": 1,
+      "message": "Remove the \u003e\u003e\u003e\u003e part.\n\nDo ports always have the port binding? Or is it just those use pseudoagent? Or is it normal to not have the binding and then transition to bound? If the latter, then lower this to a INFO. Use DBEUG if this is a given and happens often such that we really don\u0027t need the log.",
+      "revId": "324055a908c1d90c2cbf659a70056c80eef90e74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_903991f4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-14T12:25:16Z",
+      "side": 1,
+      "message": "isPortBound?",
+      "revId": "324055a908c1d90c2cbf659a70056c80eef90e74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_102da1a8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-14T12:25:16Z",
+      "side": 1,
+      "message": "something about this change, similar to the other gerrit, is that exiting early from these methods doesn\u0027t seem right.",
+      "revId": "324055a908c1d90c2cbf659a70056c80eef90e74",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
