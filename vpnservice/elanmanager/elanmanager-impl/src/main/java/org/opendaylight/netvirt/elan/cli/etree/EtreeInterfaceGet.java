@@ -29,9 +29,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     @Argument(index = 0, name = "etreeName", description = "ETREE-NAME", required = false, multiValued = false)
     private String etreeName;
     private IInterfaceManager interfaceManager;
-    public static int MAX_LENGTH = 31;
     private IElanService elanProvider;
-    public static boolean isDisplay = true;
 
     public void setElanProvider(IElanService elanServiceProvider) {
         this.elanProvider = elanServiceProvider;

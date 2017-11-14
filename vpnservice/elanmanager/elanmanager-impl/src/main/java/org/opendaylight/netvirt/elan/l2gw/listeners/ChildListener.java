@@ -21,7 +21,6 @@ import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +43,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
     protected final DataBroker dataBroker;
-    private ListenerRegistration<ChildListener> registration;
+    private ListenerRegistration<?> registration;
     private final boolean processParentDeletes;
 
     public ChildListener(DataBroker dataBroker, boolean processParentDeletes) {
@@ -56,7 +55,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
         registration = registerListener(LogicalDatastoreType.OPERATIONAL, getParentWildCardPath());
     }
 
-    public ListenerRegistration registerListener(final LogicalDatastoreType dsType,
+    private ListenerRegistration<?> registerListener(final LogicalDatastoreType dsType,
                                                  final InstanceIdentifier wildCard) throws Exception {
         DataTreeIdentifier<P> treeId = new DataTreeIdentifier<>(dsType, wildCard);
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
@@ -181,21 +180,20 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
         Map<InstanceIdentifier<C>, DataObjectModification<C>> children = getChildMod(key, parentModification);
         for (Map.Entry<InstanceIdentifier<C>, DataObjectModification<C>> entry : children.entrySet()) {
             DataObjectModification<C> childMod = entry.getValue();
-            InstanceIdentifier childIid = entry.getKey();
+            InstanceIdentifier<C> childIid = entry.getKey();
             DataObjectModification.ModificationType modificationType = getModificationType(childMod);
-            Class<? extends Identifiable> childClass = (Class<? extends Identifiable>) childMod.getDataType();
             G group;
             C dataBefore = childMod.getDataBefore();
             C dataAfter = childMod.getDataAfter();
             switch (modificationType) {
                 case WRITE:
                 case SUBTREE_MODIFIED:
-                    group = (G)getGroup(childIid, dataAfter);
+                    group = getGroup(childIid, dataAfter);
                     updatedMacsGrouped.computeIfAbsent(group, (grp) -> new ConcurrentHashMap<>());
                     updatedMacsGrouped.get(group).put(childIid, dataAfter);
                     break;
                 case DELETE:
-                    group = (G)getGroup(childIid, dataBefore);
+                    group = getGroup(childIid, dataBefore);
                     deletedMacsGrouped.computeIfAbsent(group, (grp) -> new ConcurrentHashMap<>());
                     deletedMacsGrouped.get(group).put(childIid, dataBefore);
                     break;

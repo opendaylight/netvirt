@@ -11,11 +11,8 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -34,7 +31,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -114,15 +110,6 @@ public class NodeConnectedHandler {
         deleteChildPSConfigIfHAPSConfigIsMissing(haGlobalCfg, childNode, tx);
     }
 
-    private void deleteChildConfigIfHAConfigIsMissing(Optional<Node> haGlobalCfg,
-                                                      InstanceIdentifier<Node> childNodePath,
-                                                      ReadWriteTransaction tx) throws ReadFailedException {
-        if (!haGlobalCfg.isPresent()) {
-            LOG.info("HA global node not present cleaning up child {}" , childNodePath);
-            HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, childNodePath);
-        }
-    }
-
     private void deleteChildPSConfigIfHAPSConfigIsMissing(Optional<Node> haPSCfg,
                                                           Node childNode,
                                                           ReadWriteTransaction tx) throws ReadFailedException {
@@ -198,10 +185,6 @@ public class NodeConnectedHandler {
         }
         NodeBuilder nodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(childPath);
         HwvtepGlobalAugmentationBuilder dstBuilder = new HwvtepGlobalAugmentationBuilder();
-
-        NodeId nodeId = srcNode.getNodeId();
-        Set<NodeId> nodeIds = new HashSet<>();
-        nodeIds.add(nodeId);
 
         globalAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
         globalNodeMerger.mergeConfigData(nodeBuilder, srcNode, childPath);

@@ -8,11 +8,13 @@
 
 package org.opendaylight.netvirt.elan.cli.l2gw;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -31,7 +33,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
 
     @Option(name = "-cache", aliases = {"--cache"}, description = "cache name",
             required = false, multiValued = false)
-    String cacheName = null;
+    String cacheName;
 
     @Option(name = "-elan", aliases = {"--elan"}, description = "elan name",
             required = false, multiValued = false)
@@ -66,6 +68,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
         return null;
     }
 
+    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     private void dumpHACacheEvents() throws IOException {
         try (FileOutputStream fileOutputStream = new FileOutputStream(new File("hwvtep.events.txt"))) {
             session.getConsole().println("Dumping to file hwvtep.events.txt");
@@ -96,10 +99,10 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
 
         printStream.println("Connected Nodes");
         Map<String, Boolean> nodes = HwvtepHACache.getInstance().getConnectedNodes();
-        for (String nodeId : nodes.keySet()) {
-            printStream.print(nodeId);
+        for (Entry<String, Boolean> entry : nodes.entrySet()) {
+            printStream.print(entry.getKey());
             printStream.print("    : connected : ");
-            printStream.println(nodes.get(nodeId));
+            printStream.println(entry.getValue());
         }
     }
 
@@ -110,8 +113,8 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
             session.getConsole().println("no devices are present in cache");
             return;
         }
-        for (String deviceName : devices.keySet()) {
-            session.getConsole().println("device " + devices.get(deviceName));
+        for (L2GatewayDevice device : devices.values()) {
+            session.getConsole().println("device " + device);
         }
     }
 
@@ -122,11 +125,12 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
                             cacheName);
             if (cache == null) {
                 session.getConsole().println("no devices are present in elan cache");
-            }
-            for (String elan : cache.keySet()) {
-                print(elan, cache.get(elan));
-                session.getConsole().println(DEMARCATION);
-                session.getConsole().println(DEMARCATION);
+            } else {
+                for (Entry<String, ConcurrentMap<String, L2GatewayDevice>> entry : cache.entrySet()) {
+                    print(entry.getKey(), entry.getValue());
+                    session.getConsole().println(DEMARCATION);
+                    session.getConsole().println(DEMARCATION);
+                }
             }
             return;
         }
@@ -138,8 +142,8 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     private void print(String elan, ConcurrentMap<String, L2GatewayDevice> devices) {
         session.getConsole().println("Elan name : " + elan);
         session.getConsole().println("No of devices in elan " + devices.keySet().size());
-        for (String deviceName : devices.keySet()) {
-            session.getConsole().println("device " + devices.get(deviceName));
+        for (L2GatewayDevice device : devices.values()) {
+            session.getConsole().println("device " + device);
         }
     }
 }

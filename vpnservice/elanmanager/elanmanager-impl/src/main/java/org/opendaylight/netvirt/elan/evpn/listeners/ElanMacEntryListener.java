@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.elan.evpn.listeners;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -44,6 +45,8 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     }
 
     @Override
+    // Confusing with CacheElanInstanceListener.getWildcardPath but this method is implemented from an interface.
+    @SuppressFBWarnings("NM_CONFUSING")
     protected InstanceIdentifier<MacEntry> getWildCardPath() {
         return InstanceIdentifier.builder(ElanForwardingTables.class)
                 .child(MacTable.class).child(MacEntry.class).build();

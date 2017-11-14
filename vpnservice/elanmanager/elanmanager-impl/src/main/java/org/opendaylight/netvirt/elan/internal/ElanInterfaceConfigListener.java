@@ -8,11 +8,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.util.Collections;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -30,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanInterfaceConfigListener
-    extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceConfigListener> implements AutoCloseable {
+    extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceConfigListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceConfigListener.class);
 
@@ -67,11 +65,12 @@ public class ElanInterfaceConfigListener
         // Sometimes elan service is not unbound on the interface when the user does nova delete followed
         // by neutron port delete since interface config is deleted a bit later. so adding logic to
         // unbind service for interface config removal.
-        String interfaceName = intrf.getName();
         if (intrf == null || intrf.getAugmentation(IfL2vlan.class) == null) {
-            LOG.debug("The interface {} is not a L2 interface. Ignoring it", interfaceName);
+            LOG.debug("The interface {} is not a L2 interface. Ignoring it", intrf);
             return;
         }
+
+        String interfaceName = intrf.getName();
         ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(dataBroker, interfaceName);
         if (elanInterface == null) {
             LOG.debug("There is no ELAN service for interface {}. Ignoring it", interfaceName);

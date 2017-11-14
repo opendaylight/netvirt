@@ -228,6 +228,13 @@
         <groupId>org.eclipse.xtend</groupId>
         <artifactId>xtend-maven-plugin</artifactId>
       </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+        <configuration>
+          <failOnError>true</failOnError>
+        </configuration>
+      </plugin>
     </plugins>
   </build>
 

@@ -9,20 +9,17 @@ package org.opendaylight.netvirt.elan.l2gw.ha.commands;
 
 import java.util.List;
 import java.util.Objects;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.LoggerFactory;
 
 public class TunnelIpCmd extends
         MergeCommand<TunnelIps, PhysicalSwitchAugmentationBuilder, PhysicalSwitchAugmentation> {
 
     public TunnelIpCmd() {
-        LOG = LoggerFactory.getLogger(TunnelIpCmd.class);
     }
 
     @Override
