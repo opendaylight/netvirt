@@ -8,9 +8,13 @@
 
 package org.opendaylight.netvirt.vpnmanager;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// This class invokes notifyAll() but doesn't actually do anything hence the "Naked notify" violation. Perhaps it is
+// intended to do something in the future so suppress the violation.
+@SuppressFBWarnings("NN_NAKED_NOTIFY")
 class VpnNotifyTask implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(VpnNotifyTask.class);
 

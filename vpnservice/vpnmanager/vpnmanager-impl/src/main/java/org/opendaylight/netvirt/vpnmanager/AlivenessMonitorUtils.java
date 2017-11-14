@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -111,7 +112,9 @@ public class AlivenessMonitorUtils {
     public static void stopArpMonitoring(AlivenessMonitorService alivenessMonitorService,
         Long monitorId) {
         MonitorStopInput input = new MonitorStopInputBuilder().setMonitorId(monitorId).build();
-        alivenessMonitorService.monitorStop(input);
+
+        JdkFutures.addErrorLogging(alivenessMonitorService.monitorStop(input), LOG, "Stop monitoring");
+
         alivenessCache.remove(monitorId);
         return;
     }
@@ -188,7 +191,7 @@ public class AlivenessMonitorUtils {
             .setMonitorWindow(monitorWindow)
             .setProtocolType(protocolType);
         buildGetProfile.setProfile(profileBuilder.build());
-        return (buildGetProfile.build());
+        return buildGetProfile.build();
     }
 
     public static MacEntry getMacEntryFromMonitorId(Long monitorId) {

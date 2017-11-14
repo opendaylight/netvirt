@@ -12,10 +12,10 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 
 public class MacEntry {
     private String vpnName;
-    private MacAddress macAddress;
-    private InetAddress ipAddress;
+    private final MacAddress macAddress;
+    private final InetAddress ipAddress;
     private String interfaceName;
-    private String createdTime;
+    private final String createdTime;
 
     public MacEntry(String vpnName, MacAddress macAddress, InetAddress inetAddress,
                     String interfaceName, String createdTime) {
@@ -59,12 +59,16 @@ public class MacEntry {
         final int prime = 31;
         int result = 1;
         result = prime * result
-            + ((macAddress == null) ? 0 : macAddress.hashCode());
+            + (macAddress == null ? 0 : macAddress.hashCode());
         return result;
     }
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+
         if (getClass() != obj.getClass()) {
             return false;
         } else {

@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
  * caches updated.
  */
 public class InterVpnLinkCacheFeeder
-    extends AsyncClusteredDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkCacheFeeder>
-    implements AutoCloseable {
+    extends AsyncClusteredDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkCacheFeeder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCacheFeeder.class);
 

@@ -9,11 +9,13 @@ package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
-import java.util.Iterator;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -34,15 +36,11 @@ public class VpnOpDataSyncer {
         vpnOpData,
     }
 
-    // Maps a VpnName with a list of Task to be executed once the the Vpn is fully ready.
-    private final ConcurrentHashMap<String, List<Runnable>> vpnInst2IdSynchronizerMap = new ConcurrentHashMap<>();
-    private final ConcurrentHashMap<String, List<Runnable>> vpnInst2OpDataSynchronizerMap = new ConcurrentHashMap<>();
-
-    // The only purpose of this map is being able to reuse code
-    private final Map<VpnOpDataType, ConcurrentHashMap<String, List<Runnable>>> mapOfMaps =
-        ImmutableMap.<VpnOpDataType, ConcurrentHashMap<String, List<Runnable>>>builder()
-            .put(VpnOpDataType.vpnInstanceToId, vpnInst2IdSynchronizerMap)
-            .put(VpnOpDataType.vpnOpData,       vpnInst2OpDataSynchronizerMap)
+    // Maps VpnOpDataType to a Map of VpnName to a list of tasks to be executed once the the Vpn is fully ready.
+    private final Map<VpnOpDataType, ConcurrentMap<String, List<Runnable>>> mapOfMaps =
+        ImmutableMap.<VpnOpDataType, ConcurrentMap<String, List<Runnable>>>builder()
+            .put(VpnOpDataType.vpnInstanceToId, new ConcurrentHashMap<>())
+            .put(VpnOpDataType.vpnOpData, new ConcurrentHashMap<>())
             .build();
 
 
@@ -64,26 +62,30 @@ public class VpnOpDataSyncer {
         return isDataReady;
     }
 
+    // "Unconditional wait" and "Wait not in loop" wrt the VpnNotifyTask below - suppressing the FB violation -
+    // see comments below.
+    @SuppressFBWarnings({"UW_UNCOND_WAIT", "WA_NOT_IN_LOOP"})
     public boolean waitForVpnDataReady(VpnOpDataType dataType, String vpnName, long maxWaitMillis) {
         //TODO(vivek) This waiting business to be removed in carbon
         boolean dataReady = false;
-        ConcurrentHashMap<String, List<Runnable>> listenerMap = mapOfMaps.get(dataType);
+        ConcurrentMap<String, List<Runnable>> listenerMap = mapOfMaps.get(dataType);
         Runnable notifyTask = new VpnNotifyTask();
-        List<Runnable> notifieeList = null;
         try {
-            synchronized (listenerMap) {
-                listenerMap.computeIfAbsent(vpnName, k -> new ArrayList<>()).add(notifyTask);
-            }
+            List<Runnable> notifyList = listenerMap.computeIfAbsent(vpnName,
+                k -> Collections.synchronizedList(new ArrayList<>()));
 
             synchronized (notifyTask) {
+                // Per FB's "Unconditional wait" violation, the code should really verify that the condition it intends
+                // to wait for is not already satisfied before calling wait. However the VpnNotifyTask is published
+                // here while holding the lock on it so this path will hit the wait before notify can be invoked.
+                notifyList.add(notifyTask);
+
                 long t0 = System.nanoTime();
-                long elapsedTimeNs = t0;
                 try {
-
                     notifyTask.wait(maxWaitMillis);
-                    elapsedTimeNs = System.nanoTime() - t0;
+                    long elapsedTimeNs = System.nanoTime() - t0;
 
-                    if (elapsedTimeNs < (maxWaitMillis * 1000000)) {
+                    if (elapsedTimeNs < maxWaitMillis * 1000000) {
                         // Thread woken up before timeout
                         LOG.debug("Its been reported that VPN {} is now ready", vpnName);
                         dataReady = true;
@@ -97,11 +99,11 @@ public class VpnOpDataSyncer {
                 }
             }
         } finally {
-            synchronized (listenerMap) {
-                notifieeList = listenerMap.get(vpnName);
-                if (notifieeList != null) {
-                    notifieeList.remove(notifyTask);
-                    if (notifieeList.isEmpty()) {
+            List<Runnable> notifyTaskList = listenerMap.get(vpnName);
+            if (notifyTaskList != null) {
+                synchronized (notifyTaskList) {
+                    notifyTaskList.remove(notifyTask);
+                    if (notifyTaskList.isEmpty()) {
                         listenerMap.remove(vpnName);
                     }
                 }
@@ -112,19 +114,21 @@ public class VpnOpDataSyncer {
 
     public void notifyVpnOpDataReady(VpnOpDataType dataType, String vpnName) {
         LOG.debug("Reporting that vpn {} is ready", vpnName);
-        ConcurrentHashMap<String, List<Runnable>> listenerMap = mapOfMaps.get(dataType);
-        synchronized (listenerMap) {
-            List<Runnable> notifieeList = listenerMap.remove(vpnName);
-            if (notifieeList == null) {
-                LOG.trace(" No notify tasks found for vpnName {}", vpnName);
-                return;
-            }
-            Iterator<Runnable> notifieeIter = notifieeList.iterator();
-            while (notifieeIter.hasNext()) {
-                Runnable notifyTask = notifieeIter.next();
-                executorService.execute(notifyTask);
-                notifieeIter.remove();
-            }
+        ConcurrentMap<String, List<Runnable>> listenerMap = mapOfMaps.get(dataType);
+        List<Runnable> notifyTaskList = listenerMap.remove(vpnName);
+        if (notifyTaskList == null) {
+            LOG.trace(" No notify tasks found for vpnName {}", vpnName);
+            return;
+        }
+
+        Runnable[] notifyTasks;
+        synchronized (notifyTaskList) {
+            notifyTasks = notifyTaskList.toArray(new Runnable[notifyTaskList.size()]);
+            notifyTaskList.clear();
+        }
+
+        for (Runnable notifyTask : notifyTasks) {
+            executorService.execute(notifyTask);
         }
     }
 }

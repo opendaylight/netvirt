@@ -27,6 +27,7 @@ import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -70,8 +71,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkListener>
-    implements AutoCloseable {
+public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkListener.class);
 
@@ -391,7 +391,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private void releaseVpnLinkLPortTag(String idKey) {
         ReleaseIdInput releaseIdInput =
             new ReleaseIdInputBuilder().setPoolName(VpnConstants.PSEUDO_LPORT_TAG_ID_POOL_NAME).setIdKey(idKey).build();
-        idManager.releaseId(releaseIdInput);
+
+        JdkFutures.addErrorLogging(idManager.releaseId(releaseIdInput), LOG, "Release Id");
     }
 
     @Override
