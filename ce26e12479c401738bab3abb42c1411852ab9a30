@@ -16,6 +16,24 @@
       "revId": "ce26e12479c401738bab3abb42c1411852ab9a30",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_70121d0a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 77
+      },
+      "lineNbr": 168,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-14T10:53:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_bf6e262d",
+      "revId": "ce26e12479c401738bab3abb42c1411852ab9a30",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
