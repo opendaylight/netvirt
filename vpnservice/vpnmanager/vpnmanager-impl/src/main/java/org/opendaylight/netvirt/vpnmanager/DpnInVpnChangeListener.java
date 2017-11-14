@@ -76,7 +76,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                         writeTxn.submit().get();
                     } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
-                        throw new RuntimeException(e.getMessage());
+                        throw new RuntimeException(e.getMessage(), e);
                     }
                 }
             }

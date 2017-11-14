@@ -13,7 +13,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class Ipv6PeriodicRAThread implements Runnable {
+public final class Ipv6PeriodicRAThread implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6PeriodicRAThread.class);
     public static final Ipv6PeriodicRAThread INSTANCE = new Ipv6PeriodicRAThread();
     private static final int SLEEP_TIME = 1000; //timeunit in ms

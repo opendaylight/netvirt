@@ -24,8 +24,8 @@ public class ElementCountersRequest {
         filters = new HashMap<>();
     }
 
-    public void setElementCountersDirection(ElementCountersDirection direction) {
-        this.direction = direction;
+    public void setElementCountersDirection(ElementCountersDirection elementCountersDirection) {
+        this.direction = elementCountersDirection;
     }
 
     public String getPortId() {

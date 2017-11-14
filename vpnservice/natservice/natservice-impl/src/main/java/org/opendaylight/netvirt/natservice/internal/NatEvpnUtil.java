@@ -51,9 +51,11 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NatEvpnUtil {
+public final class NatEvpnUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatEvpnUtil.class);
+
+    private NatEvpnUtil() { }
 
     static long getLPortTagForRouter(String routerIdKey, IdManagerService idManager) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder()

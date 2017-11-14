@@ -60,7 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @SuppressWarnings("deprecation")
-public class CountersServiceUtils {
+public final class CountersServiceUtils {
 
     public static final Long COUNTERS_PULL_END = Long.valueOf(100000);
     public static final Long COUNTERS_PULL_START = Long.valueOf(1);
@@ -87,6 +87,8 @@ public class CountersServiceUtils {
             InstanceIdentifier.builder(IngressElementCountersRequestConfig.class).build();
 
     private static AtomicLong flowIdInc = new AtomicLong(2);
+
+    private CountersServiceUtils() { }
 
     public static BoundServices getBoundServices(String serviceName, short servicePriority, int flowPriority,
             BigInteger cookie, List<Instruction> instructions) {

@@ -16,8 +16,10 @@ import java.util.Map;
  */
 // Disabling checkstyle:linelength for readability purpose.
 @SuppressWarnings("checkstyle:linelength")
-public class IdHelper {
+public final class IdHelper {
     private static Map<String, Integer> idCacheMap = new HashMap<>();
+
+    private IdHelper() { }
 
     static {
         idCacheMap.put("UDP_DESTINATION_1_0Ingress98785cc3048-abc3-43cc-89b3-377341426ac7", 1001);

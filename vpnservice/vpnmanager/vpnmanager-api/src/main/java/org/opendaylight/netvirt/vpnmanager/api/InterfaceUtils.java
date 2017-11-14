@@ -47,9 +47,11 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class InterfaceUtils {
+public final class InterfaceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceUtils.class);
     private static String OF_URI_SEPARATOR = ":";
+
+    private InterfaceUtils() { }
 
     public static BigInteger getDpnForInterface(OdlInterfaceRpcService interfaceManagerRpcService, String ifName) {
         BigInteger nodeId = BigInteger.ZERO;

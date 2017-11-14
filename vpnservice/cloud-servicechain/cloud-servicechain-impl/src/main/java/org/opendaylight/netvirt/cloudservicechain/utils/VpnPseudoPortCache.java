@@ -22,10 +22,12 @@ import org.slf4j.LoggerFactory;
  * listener.
  *
  */
-public class VpnPseudoPortCache {
+public final class VpnPseudoPortCache {
 
     public static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortCache.class);
     public static final String VPNPSEUDOPORT_CACHE_NAME = "VrfToVpnPseudoPortCache";
+
+    private VpnPseudoPortCache() { }
 
     public static void createVpnPseudoPortCache(DataBroker broker) {
         if (CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME) == null) {

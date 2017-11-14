@@ -23,12 +23,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Tr
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ArpUtils {
+public final class ArpUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ArpUtils.class);
 
     private static final byte[] ETHERNETDESTINATION_BROADCAST = new byte[] {(byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
         (byte) 0xFF, (byte) 0xFF, (byte) 0xFF};
     private static final byte[] MAC_BROADCAST = new byte[] {(byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0, (byte) 0};
+
+    private ArpUtils() { }
 
     public static TransmitPacketInput createArpRequestInput(BigInteger dpnId, long groupId, byte[] abySenderMAC,
         byte[] abySenderIpAddress, byte[] abyTargetIpAddress) {
