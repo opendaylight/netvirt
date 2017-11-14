@@ -28,6 +28,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+// This class needs to be overridden by Mockito
+@SuppressWarnings("checkstyle:FinalClass")
 public class VirtualPort implements IVirtualPort  {
     static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
 

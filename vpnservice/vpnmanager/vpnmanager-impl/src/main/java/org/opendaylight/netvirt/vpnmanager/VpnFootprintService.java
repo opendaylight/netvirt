@@ -155,7 +155,7 @@ public class VpnFootprintService implements IVpnFootprintService {
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("createOrUpdateVpnToDpnList: Error adding to dpnToVpnList for vpn {} vpnId {} interface {}"
                         + " dpn {}", vpnName, vpnId, intfName, dpnId, e);
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         LOG.info("createOrUpdateVpnToDpnList: Created/Updated vpn footprint for vpn {} vpnId {} interfacName{}"
@@ -216,7 +216,7 @@ public class VpnFootprintService implements IVpnFootprintService {
             } catch (InterruptedException | ExecutionException e) {
                 LOG.error("Error adding to dpnToVpnList for vpn {} ipAddresses {} dpn {}", vpnName,
                         ipAddressSourceValuePair.getValue(), dpnId, e);
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         /*
@@ -276,7 +276,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("removeOrUpdateVpnToDpnList: Error removing from dpnToVpnList for vpn {} vpnId {}"
                             + " interface {} dpn {}", vpnName, vpnId, intfName, dpnId, e);
-                    throw new RuntimeException(e.getMessage());
+                    throw new RuntimeException(e.getMessage(), e);
                 }
             }
         } // Ends synchronized block
@@ -335,7 +335,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 } catch (InterruptedException | ExecutionException e) {
                     LOG.error("Error removing from dpnToVpnList for vpn {} Ipaddress {} dpn {}", vpnName,
                             ipAddressSourceValuePair.getValue(), dpnId, e);
-                    throw new RuntimeException(e.getMessage());
+                    throw new RuntimeException(e.getMessage(), e);
                 }
             }
         } // Ends synchronized block

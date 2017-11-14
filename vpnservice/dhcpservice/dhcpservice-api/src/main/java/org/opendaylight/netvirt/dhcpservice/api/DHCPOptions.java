@@ -151,13 +151,13 @@ public class DHCPOptions {
     }
 
     public byte[] serialize() {
-        byte[] options = new byte[0];
+        byte[] serializedOptions = new byte[0];
         for (DhcpOption dhcpOption: this.options.values()) {
-            options = ArrayUtils.addAll(options, dhcpOption.serialize());
+            serializedOptions = ArrayUtils.addAll(serializedOptions, dhcpOption.serialize());
         }
         byte[] end = new byte[] {(byte)255};
-        options = ArrayUtils.addAll(options, end);
-        return options;
+        serializedOptions = ArrayUtils.addAll(serializedOptions, end);
+        return serializedOptions;
     }
 
     private byte[] getOptionValArray(byte[] opt, int pos, int len) {
@@ -168,23 +168,23 @@ public class DHCPOptions {
         return val;
     }
 
-    public void deserialize(byte[] options) {
+    public void deserialize(byte[] serializedOptions) {
         int pos = 0;
         byte code;
         byte len;
         byte[] value;
-        if (options != null) {
-            while (pos < options.length) {
-                code = options[pos++];
+        if (serializedOptions != null) {
+            while (pos < serializedOptions.length) {
+                code = serializedOptions[pos++];
                 if (code == OPT_END) {
                     break;
                 }
-                len = options[pos++];
-                if (len + pos > options.length) {
+                len = serializedOptions[pos++];
+                if (len + pos > serializedOptions.length) {
                     // Throw exception???
                     break;
                 }
-                value = getOptionValArray(options, pos, len);
+                value = getOptionValArray(serializedOptions, pos, len);
                 setOption(code, value);
                 pos += len;
             }

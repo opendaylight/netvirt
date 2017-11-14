@@ -67,10 +67,11 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnServiceChainUtils {
+public final class VpnServiceChainUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnServiceChainUtils.class);
 
+    private VpnServiceChainUtils() { }
 
     public static BigInteger getMetadataSCF(long scfTag) { // TODO: Move to a common place
         return new BigInteger("FF", 16).and(BigInteger.valueOf(scfTag)).shiftLeft(32);

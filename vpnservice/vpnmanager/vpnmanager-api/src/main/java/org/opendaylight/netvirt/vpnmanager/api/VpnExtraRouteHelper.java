@@ -43,8 +43,10 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VpnExtraRouteHelper {
+public final class VpnExtraRouteHelper {
     private static final Logger LOG = LoggerFactory.getLogger(VpnExtraRouteHelper.class);
+
+    private VpnExtraRouteHelper() { }
 
     public static  List<Routes> getVpnExtraroutes(DataBroker broker, String vpnName, String vpnRd) {
         InstanceIdentifier<ExtraRoutes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd);

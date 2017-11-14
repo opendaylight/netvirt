@@ -81,9 +81,9 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         if (createLogicalSwitch) {
             LOG.info("creating logical switch {} for {} ", elanInstanceName, hwvtepNodeId);
 
-            return Collections.singletonList(createLogicalSwitch(l2GatewayDevice, elanInstance));
+            return Collections.singletonList(createLogicalSwitch());
         } else {
-            createLogicalSwitch(l2GatewayDevice, elanInstance);
+            createLogicalSwitch();
             String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(elanInstanceName);
             LOG.info("{} is already created in {}; adding remaining configurations", logicalSwitchName, hwvtepNodeId);
 
@@ -95,7 +95,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
         }
     }
 
-    private ListenableFuture<Void> createLogicalSwitch(L2GatewayDevice l2GatewayDevice, ElanInstance elanInstance) {
+    private ListenableFuture<Void> createLogicalSwitch() {
         final String logicalSwitchName = ElanL2GatewayUtils.getLogicalSwitchFromElan(
                 elanInstance.getElanInstanceName());
         String segmentationId = ElanUtils.getVxlanSegmentationId(elanInstance).toString();

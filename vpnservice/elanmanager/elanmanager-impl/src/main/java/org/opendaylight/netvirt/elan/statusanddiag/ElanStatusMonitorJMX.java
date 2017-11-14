@@ -56,7 +56,7 @@ public class ElanStatusMonitorJMX implements ElanStatusMonitor, ElanStatusMonito
 
     @Override
     @SuppressWarnings("hiding")
-    public void reportStatus(String serviceStatus) {
-        this.serviceStatus = serviceStatus;
+    public void reportStatus(String reportStatus) {
+        this.serviceStatus = reportStatus;
     }
 }

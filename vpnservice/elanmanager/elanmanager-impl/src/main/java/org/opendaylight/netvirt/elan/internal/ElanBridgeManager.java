@@ -56,6 +56,8 @@ import org.slf4j.LoggerFactory;
  * This class provides functions for creating bridges via OVSDB, specifically the br-int bridge.
  */
 @Singleton
+// Checkstyle expects the first sentence to end with a period, question marks don’t count
+@SuppressWarnings("checkstyle:SummaryJavadoc")
 public class ElanBridgeManager implements IElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 

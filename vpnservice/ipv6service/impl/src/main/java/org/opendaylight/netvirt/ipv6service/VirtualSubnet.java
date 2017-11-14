@@ -15,7 +15,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
-public class VirtualSubnet implements IVirtualSubnet  {
+public final class VirtualSubnet implements IVirtualSubnet  {
 
     private final Uuid subnetUUID;
     private final Uuid tenantID;

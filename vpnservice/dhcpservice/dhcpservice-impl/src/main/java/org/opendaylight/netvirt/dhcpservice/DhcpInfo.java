@@ -55,8 +55,8 @@ public class DhcpInfo  {
         return this;
     }
 
-    protected DhcpInfo setDnsServersIpAddrs(List<IpAddress> dnsServers) {
-        for (IpAddress ipAddr: dnsServers) {
+    protected DhcpInfo setDnsServersIpAddrs(List<IpAddress> dnsServersIpAddrs) {
+        for (IpAddress ipAddr: dnsServersIpAddrs) {
             addDnsServer(ipAddr.getIpv4Address().getValue());
         }
         return this;

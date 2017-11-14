@@ -19,8 +19,10 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2GatewayUtils {
+public final class L2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayUtils.class);
+
+    private L2GatewayUtils() { }
 
     public static void deleteItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
                                         IpAddress tunnelIp) {

@@ -305,9 +305,9 @@ public class NeutronvpnUtils {
         Optional<Subnetmaps> subnetmaps = read(LogicalDatastoreType.CONFIGURATION, subnetmapsid);
         if (subnetmaps.isPresent() && subnetmaps.get().getSubnetmap() != null) {
             List<Subnetmap> subnetMapList = subnetmaps.get().getSubnetmap();
-            for (Subnetmap subnetMap : subnetMapList) {
-                if (subnetMap.getVpnId() != null && subnetMap.getVpnId().equals(vpnid)) {
-                    subnets.add(subnetMap.getId());
+            for (Subnetmap candidateSubnetMap : subnetMapList) {
+                if (candidateSubnetMap.getVpnId() != null && candidateSubnetMap.getVpnId().equals(vpnid)) {
+                    subnets.add(candidateSubnetMap.getId());
                 }
             }
         }
