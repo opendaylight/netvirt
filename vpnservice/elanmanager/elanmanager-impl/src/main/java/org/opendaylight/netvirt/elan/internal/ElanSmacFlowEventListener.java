@@ -14,7 +14,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Locale;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -72,7 +72,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 return;
             }
             final String srcMacAddress = flowRemoved.getMatch().getEthernetMatch()
-                    .getEthernetSource().getAddress().getValue().toUpperCase();
+                    .getEthernetSource().getAddress().getValue().toUpperCase(Locale.getDefault());
             int portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             if (portTag == 0) {
                 LOG.debug(String.format("Flow removed event on SMAC flow entry. But having port Tag as 0 "));
