@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import java.util.Collections;
+import java.util.Locale;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
@@ -36,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * belongs.
  */
 public class HwvtepLocalUcastMacListener extends
-        HwvtepClusteredDataTreeChangeListener<LocalUcastMacs, HwvtepLocalUcastMacListener> implements AutoCloseable {
+        HwvtepClusteredDataTreeChangeListener<LocalUcastMacs, HwvtepLocalUcastMacListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepLocalUcastMacListener.class);
 
@@ -58,7 +59,7 @@ public class HwvtepLocalUcastMacListener extends
     @Override
     protected void removed(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macRemoved) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        String macAddress = macRemoved.getMacEntryKey().getValue().toLowerCase();
+        String macAddress = macRemoved.getMacEntryKey().getValue().toLowerCase(Locale.getDefault());
 
         LOG.trace("LocalUcastMacs {} removed from {}", macAddress, hwvtepNodeId);
 
@@ -75,7 +76,7 @@ public class HwvtepLocalUcastMacListener extends
         elanL2GwDevice.removeUcastLocalMac(macRemoved);
 
         elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elan, elanL2GwDevice,
-                Collections.singletonList(new MacAddress(macAddress.toLowerCase())));
+                Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
     }
 
     protected String getElanName(LocalUcastMacs mac) {
@@ -93,7 +94,7 @@ public class HwvtepLocalUcastMacListener extends
     @Override
     public void added(InstanceIdentifier<LocalUcastMacs> identifier, LocalUcastMacs macAdded) {
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
-        String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase();
+        String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase(Locale.getDefault());
 
         LOG.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
 
@@ -113,7 +114,8 @@ public class HwvtepLocalUcastMacListener extends
         // Cache MAC for furthur processing later
         elanL2GwDevice.addUcastLocalMac(macAdded);
 
-        elanL2GatewayUtils.installL2GwUcastMacInElan(elan, elanL2GwDevice, macAddress.toLowerCase(), macAdded, null);
+        elanL2GatewayUtils.installL2GwUcastMacInElan(elan, elanL2GwDevice, macAddress.toLowerCase(Locale.getDefault()),
+                macAdded, null);
     }
 
     @Override

@@ -66,7 +66,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
 
     @Override
     public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(Uuid l2GatewayId) {
-        return l2GatewayConnectionUtils.getL2GwConnectionsByL2GatewayId(dataBroker, l2GatewayId);
+        return l2GatewayConnectionUtils.getL2GwConnectionsByL2GatewayId(l2GatewayId);
     }
 
     @Override

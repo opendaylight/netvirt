@@ -11,11 +11,13 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil.isEmptyList;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z extends DataObject>
         extends BaseCommand<T> implements IMergeCommand<T, Y, Z> {
 
-    static Logger LOG = LoggerFactory.getLogger(MergeCommand.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MergeCommand.class);
 
     public List<T> transformOpData(List<T> existingData, List<T> src, InstanceIdentifier<Node> nodePath) {
         if (isEmptyList(src)) {
@@ -54,6 +56,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
         return transform(nodePath, updatedSrc);
     }
 
+    @Nonnull
     public List<T> diffByKey(List<T> updated, final List<T> original) {
         if (updated == null) {
             return new ArrayList<>();
@@ -96,7 +99,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
         added.removeAll(orig);
         added = diffOf(added, existing);//do not add the existing data again
-        if (added != null && added.size() > 0) {
+        if (added.size() > 0) {
             for (T addedItem : added) {
                 InstanceIdentifier<T> transformedId = generateId(nodePath, addedItem);
                 T transformedItem = transform(nodePath, addedItem);
@@ -115,7 +118,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
         List<T> skip = diffByKey(removedTransformed, existing);//skip the ones which are not present in cfg ds
         removedTransformed = diffByKey(removedTransformed, skip);
-        if (removedTransformed != null && removedTransformed.size() > 0) {
+        if (removedTransformed.size() > 0) {
             for (T removedItem : removedTransformed) {
                 InstanceIdentifier<T> transformedId = generateId(nodePath, removedItem);
                 String nodeId = transformedId.firstKeyOf(Node.class).getNodeId().getValue();
@@ -196,7 +199,9 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
     static LocatorSetComparator locatorSetComparator = new LocatorSetComparator();
 
-    static class LocatorSetComparator implements Comparator<LocatorSet> {
+    static class LocatorSetComparator implements Comparator<LocatorSet>, Serializable {
+        private static final long serialVersionUID = 1L;
+
         @Override
         public int compare(final LocatorSet updatedLocatorSet, final LocatorSet origLocatorSet) {
             InstanceIdentifier<?> updatedLocatorRefIndentifier = updatedLocatorSet.getLocatorRef().getValue();
