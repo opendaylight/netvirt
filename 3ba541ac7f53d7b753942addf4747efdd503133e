@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_61e091fa",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/AlivenessMonitorUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T22:40:25Z",
+      "side": 1,
+      "message": "yeah - that just got merged - we can follow up with a patch to convert. There\u0027s other places where it could be used too. Might as well convert them all at once. In future patches I\u0027ll use the new utils",
+      "parentUuid": "9a245df4_01b7153b",
+      "revId": "3ba541ac7f53d7b753942addf4747efdd503133e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_41390da3",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
         "patchSetId": 2
