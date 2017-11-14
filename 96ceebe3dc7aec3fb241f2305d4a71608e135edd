@@ -70,6 +70,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_662387a7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1112,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T16:00:21Z",
+      "side": 1,
+      "message": "Because no checked Exception is thrown and avoids FB violation",
+      "parentUuid": "9a245df4_cb0d1c40",
+      "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_555a6b2a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNotifyTask.java",
         "patchSetId": 1
