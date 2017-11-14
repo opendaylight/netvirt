@@ -40,7 +40,8 @@ public class ElanGet extends OsgiCommandSupport {
             } else {
                 session.getConsole().println(getElanHeaderOutput());
                 session.getConsole()
-                        .println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(),
+                        .println(String.format(ElanCLIUtils.ELAN_INTERFACE_CLI_FORMAT,
+                                elanInstance.getElanInstanceName(),
                                 elanInstance.getMacTimeout(), elanInstance.getElanTag(),
                                 elanInstance.getDescription()));
             }
@@ -51,7 +52,8 @@ public class ElanGet extends OsgiCommandSupport {
                 session.getConsole().println(getElanHeaderOutput());
                 for (ElanInstance elanInstance : elanInstanceList) {
                     session.getConsole()
-                            .println(String.format(ElanCLIUtils.ELAN_CLI_FORMAT, elanInstance.getElanInstanceName(),
+                            .println(String.format(ElanCLIUtils.ELAN_INTERFACE_CLI_FORMAT,
+                                    elanInstance.getElanInstanceName(),
                                     elanInstance.getMacTimeout(), elanInstance.getElanTag(),
                                     elanInstance.getDescription()));
                 }

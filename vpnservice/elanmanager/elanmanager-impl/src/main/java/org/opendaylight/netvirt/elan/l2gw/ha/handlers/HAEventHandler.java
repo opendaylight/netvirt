@@ -17,17 +17,15 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class HAEventHandler implements IHAEventHandler {
 
-    NodeConnectedHandler nodeConnectedHandler;
-    ConfigNodeUpdatedHandler configNodeUpdatedHandler = new ConfigNodeUpdatedHandler();
-    OpNodeUpdatedHandler opNodeUpdatedHandler = new OpNodeUpdatedHandler();
-    DataBroker db;
+    private final NodeConnectedHandler nodeConnectedHandler;
+    private final ConfigNodeUpdatedHandler configNodeUpdatedHandler = new ConfigNodeUpdatedHandler();
+    private final OpNodeUpdatedHandler opNodeUpdatedHandler = new OpNodeUpdatedHandler();
 
     public HAEventHandler(DataBroker db) {
-        this.db = db;
         nodeConnectedHandler = new NodeConnectedHandler(db);
     }
 
-    public void close() throws Exception {
+    public void close() {
     }
 
     @Override

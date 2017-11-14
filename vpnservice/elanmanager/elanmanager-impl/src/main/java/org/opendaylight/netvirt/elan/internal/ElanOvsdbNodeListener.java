@@ -25,8 +25,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured.
  */
-public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanOvsdbNodeListener>
-        implements AutoCloseable {
+public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanOvsdbNodeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanOvsdbNodeListener.class);
     private final DataBroker dataBroker;
     private final ElanBridgeManager bridgeMgr;

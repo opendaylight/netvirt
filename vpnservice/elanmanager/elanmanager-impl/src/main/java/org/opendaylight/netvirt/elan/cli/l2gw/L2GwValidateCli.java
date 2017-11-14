@@ -12,7 +12,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
@@ -21,8 +21,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -101,6 +101,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
         this.dataBroker = dataBroker;
     }
 
+    @Override
+    @SuppressFBWarnings("DM_DEFAULT_ENCODING")
     public Object doExecute() throws Exception {
         try {
             pw = new PrintWriter(new FileOutputStream(new File("l2gw.validation.txt")));
@@ -309,8 +311,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             data1 = Lists.transform(data1, withoutUuidTransformer);
             data2 = Lists.transform(data2, withoutUuidTransformer);
 
-            Map<Identifier, DataObject> map1 = new HashMap<>();
-            Map<Identifier, DataObject> map2 = new HashMap<>();
+            Map<Identifier<?>, DataObject> map1 = new HashMap<>();
+            Map<Identifier<?>, DataObject> map2 = new HashMap<>();
             for (DataObject dataObject : data1) {
                 map1.put(cmd.getKey(dataObject), dataObject);
             }
@@ -319,9 +321,9 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
             Set<DataObject> diff = Sets.newHashSet();
 
-            for (Identifier key : map1.keySet()) {
-                DataObject obj1 = map1.get(key);
-                DataObject obj2 = map2.get(key);
+            for (Entry<Identifier<?>, DataObject> entry : map1.entrySet()) {
+                DataObject obj1 = entry.getValue();
+                DataObject obj2 = map2.get(entry.getKey());
                 if (obj2 == null || !cmd.areEqual(obj1, obj2)) {
                     diff.add(obj1);
                 }
@@ -344,9 +346,9 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             }
 
             diff = Sets.newHashSet();
-            for (Identifier key : map2.keySet()) {
-                DataObject obj1 = map2.get(key);
-                DataObject obj2 = map1.get(key);
+            for (Entry<Identifier<?>, DataObject> entry : map2.entrySet()) {
+                DataObject obj1 = entry.getValue();
+                DataObject obj2 = map1.get(entry.getKey());
                 if (globalNodes || parentChildComparison) {
                     if (obj2 == null || !cmd.areEqual(obj1, obj2)) {
                         diff.add(obj1);
@@ -372,9 +374,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     }
 
     private void verifyL2GatewayConnections() {
-        if (l2gatewayConnections == null) {
-            //print
-        }
         boolean isValid = true;
         for (L2gatewayConnection l2gatewayConnection : l2gatewayConnections) {
 
@@ -391,8 +390,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 }
                 NodeId nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
                 InstanceIdentifier<Node> nodeIid = topoIid.child(Node.class, new NodeKey(nodeId));
-                Node configNode = configNodes.get(nodeIid);
-                Node opNode = operationalNodes.get(nodeIid);
 
                 isValid = verfiyLogicalSwitch(logicalSwitchName, nodeIid);
                 if (isValid) {
@@ -423,8 +420,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             pw.println("L2gateway cache is not updated with tunnel ip for device " + device.getDeviceName());
             return false;
         }
-        if (l2GatewayDevice.getL2GatewayIds() == null
-                || !l2GatewayDevice.getL2GatewayIds().contains(l2gateway.getUuid())) {
+        if (!l2GatewayDevice.getL2GatewayIds().contains(l2gateway.getUuid())) {
             pw.println("L2gateway cache is not updated with l2gw id for device " + device.getDeviceName());
             return false;
         }
@@ -459,7 +455,6 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private boolean verifyMcastMac(String logicalSwitchName,
                                    L2GatewayDevice l2GatewayDevice,
                                    InstanceIdentifier<Node> nodeIid) {
-        ElanInstance elanInstance = elanInstanceMap.get(logicalSwitchName);
         NodeId nodeId = nodeIid.firstKeyOf(Node.class).getNodeId();
 
         HwvtepLogicalSwitchRef lsRef = new HwvtepLogicalSwitchRef(HwvtepSouthboundUtils
