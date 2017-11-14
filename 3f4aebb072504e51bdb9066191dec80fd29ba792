@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_ebfd80b2",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 20
+      },
+      "lineNbr": 1919,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T13:15:57Z",
+      "side": 1,
+      "message": "As I\u0027ve commented before, this call has no effect. You want to re-assign ipVersion. Same below",
+      "range": {
+        "startLine": 1919,
+        "startChar": 22,
+        "endLine": 1919,
+        "endChar": 32
+      },
+      "revId": "3f4aebb072504e51bdb9066191dec80fd29ba792",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
