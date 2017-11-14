@@ -119,6 +119,23 @@
       "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8124a560",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/intervpnlink/InterVpnLinkListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-14T22:32:25Z",
+      "side": 1,
+      "message": "could use https://git.opendaylight.org/gerrit/#/c/65383/ here",
+      "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
