@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_d229519c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T03:13:32Z",
+      "side": 1,
+      "message": "These were moved here from VpnConstants as they\u0027re only used in the class and it avoids FindBugs potential malicious code vulnerability violation w.r.t. public references to mutable arrays",
+      "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_121f696d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/MacEntry.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T03:13:32Z",
+      "side": 1,
+      "message": "\"equals(Object) does not check for null argument\"",
+      "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_920a3924",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetRoutePacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T03:13:32Z",
+      "side": 1,
+      "message": "Catch specific exceptions instead of Exception",
+      "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_555a6b2a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnNotifyTask.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T03:13:32Z",
+      "side": 1,
+      "message": "\"Naked notify in run() - a call to notifyAll() was made without any (apparent) accompanying modification to mutable object state.\"",
+      "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_157bd38c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-14T03:13:32Z",
+      "side": 1,
+      "message": "Avoids null pointer dereference violation on line 203 et al.",
+      "revId": "96ceebe3dc7aec3fb241f2305d4a71608e135edd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
