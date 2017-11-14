@@ -147,7 +147,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         VpnInstance original, VpnInstance update) {
         LOG.trace("VPN-UPDATE: update: VPN event key: {}, value: {}. Ignoring", identifier, update);
         String vpnName = update.getVpnInstanceName();
-        vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(dataBroker,vpnName);
+        vpnInterfaceManager.updateVpnInterfacesForUnProcessAdjancencies(vpnName);
     }
 
     @Override
@@ -183,7 +183,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                 writeOperTxn.submit().get();
             } catch (InterruptedException | ExecutionException e) {
                 log.error("{} call: Error creating vpn {} ", LOGGING_PREFIX_ADD, vpnInstance.getVpnInstanceName());
-                throw new RuntimeException(e.getMessage());
+                throw new RuntimeException(e.getMessage(), e);
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(writeConfigTxn.submit());

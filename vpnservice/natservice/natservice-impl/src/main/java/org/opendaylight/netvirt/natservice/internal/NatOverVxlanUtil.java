@@ -35,9 +35,11 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class NatOverVxlanUtil {
+public final class NatOverVxlanUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatOverVxlanUtil.class);
+
+    private NatOverVxlanUtil() { }
 
     public static BigInteger getInternetVpnVni(IdManagerService idManager, String vpnUuid, long vpnid) {
         BigInteger internetVpnVni = getVNI(vpnUuid, idManager);

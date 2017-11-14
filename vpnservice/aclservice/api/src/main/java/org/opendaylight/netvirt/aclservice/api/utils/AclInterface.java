@@ -17,7 +17,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev16060
 /**
  * The Class AclInterface.
  */
-public class AclInterface {
+public final class AclInterface {
 
     /** The port security enabled. */
     private final boolean portSecurityEnabled;
@@ -252,7 +252,7 @@ public class AclInterface {
         return new Builder(from);
     }
 
-    public static class Builder {
+    public static final class Builder {
         private boolean portSecurityEnabled;
         private String interfaceId;
         private Integer lportTag;

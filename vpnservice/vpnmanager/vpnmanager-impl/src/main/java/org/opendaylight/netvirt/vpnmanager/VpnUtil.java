@@ -871,7 +871,7 @@ public final class VpnUtil {
             tx.submit().get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("syncWrite: Error writing to datastore (path, data) : ({}, {})", path, data);
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -884,7 +884,7 @@ public final class VpnUtil {
             tx.submit().get();
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("syncUpdate: Error writing to datastore (path, data) : ({}, {})", path, data);
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
@@ -1304,10 +1304,12 @@ public final class VpnUtil {
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error(errMsg);
-            throw new RuntimeException(errMsg, e.getCause());
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
+    // We store the cause, which is what we really care about
+    @SuppressWarnings("checkstyle:AvoidHidingCauseException")
     public static void unlockSubnet(LockManagerService lockManager, String subnetId) {
         UnlockInput input = new UnlockInputBuilder().setLockName(subnetId).build();
         Future<RpcResult<Void>> result = lockManager.unlock(input);

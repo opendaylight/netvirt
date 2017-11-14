@@ -115,7 +115,7 @@ public class VtyshCli extends OsgiCommandSupport {
         return serverName;
     }
 
-    public void handleCommand(String arg, String cmd) throws IOException {
+    public void handleCommand(String arg, String command) throws IOException {
         char[] cbuf = new char[10];
         Socket socket;
         PrintWriter outToSocket;
@@ -228,7 +228,7 @@ public class VtyshCli extends OsgiCommandSupport {
         }
         sb.setLength(0);
 
-        String inputCmd = "show " + cmd;
+        String inputCmd = "show " + command;
         outToSocket.println(inputCmd);
         StringBuffer output = new StringBuffer();
         String errorMsg = "";

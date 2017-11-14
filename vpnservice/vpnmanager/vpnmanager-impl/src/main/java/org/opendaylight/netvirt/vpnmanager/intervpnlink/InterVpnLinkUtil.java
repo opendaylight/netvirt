@@ -60,9 +60,11 @@ import org.slf4j.LoggerFactory;
 /**
  * This class contains methods to be used as utilities related with inter-vpn-link.
  */
-public class InterVpnLinkUtil {
+public final class InterVpnLinkUtil {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkUtil.class);
+
+    private InterVpnLinkUtil() { }
 
     /**
      * Retrieves the Instance Identifier that points to an InterVpnLink object

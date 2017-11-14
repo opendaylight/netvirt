@@ -471,7 +471,7 @@ public class Ipv6ServiceUtils {
                 buildServiceId(interfaceName, serviceIndex), serviceInfo);
     }
 
-    public void unbindIpv6Service(DataBroker broker, String interfaceName) {
+    public void unbindIpv6Service(String interfaceName) {
         MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION,
                 buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME,
                         NwConstants.IPV6_SERVICE_INDEX)));

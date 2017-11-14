@@ -39,7 +39,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  *
  * <p>These class deals with those classes usually considered for the Operational DS.</p>
  */
-public class VpnOperDsUtils {
+public final class VpnOperDsUtils {
+
+    private VpnOperDsUtils() { }
 
     public static InstanceIdentifier<VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
 

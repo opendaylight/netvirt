@@ -59,7 +59,7 @@ public class BgpSyncHandle {
         return 96;
     }
 
-    public int setState(int state) {
-        return this.state.getAndSet(state);
+    public int setState(int newState) {
+        return this.state.getAndSet(newState);
     }
 }

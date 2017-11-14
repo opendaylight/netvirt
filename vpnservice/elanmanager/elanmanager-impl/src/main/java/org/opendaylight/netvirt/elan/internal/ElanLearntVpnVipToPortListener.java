@@ -106,7 +106,7 @@ public class ElanLearntVpnVipToPortListener extends
             }
             WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
             WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            elanUtils.addMacEntryToDsAndSetupFlows(interfaceManager, interfaceName, macAddress,
+            elanUtils.addMacEntryToDsAndSetupFlows(interfaceName, macAddress,
                     elanInterface.getElanInstanceName(), interfaceTx, flowTx, ElanConstants.STATIC_MAC_TIMEOUT);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(interfaceTx.submit());
@@ -133,7 +133,7 @@ public class ElanLearntVpnVipToPortListener extends
             }
             WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
             WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            elanUtils.deleteMacEntryFromDsAndRemoveFlows(interfaceManager, interfaceName, macAddress,
+            elanUtils.deleteMacEntryFromDsAndRemoveFlows(interfaceName, macAddress,
                     elanInterface.getElanInstanceName(), interfaceTx, flowTx);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(interfaceTx.submit());
