@@ -15,10 +15,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.arputil.api.ArpConstants;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
@@ -44,6 +44,7 @@ public class ArpMonitoringHandler
     private final INeutronVpnManager neutronVpnService;
     private final IInterfaceManager interfaceManager;
     private final EntityOwnershipUtils entityOwnershipUtils;
+    private final JobCoordinator jobCoordinator;
 
     private Long arpMonitorProfileId = 0L;
     private EntityOwnershipCandidateRegistration candidateRegistration;
@@ -51,7 +52,7 @@ public class ArpMonitoringHandler
     public ArpMonitoringHandler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
             IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager,
             INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
-            EntityOwnershipService entityOwnershipService) {
+            EntityOwnershipService entityOwnershipService, JobCoordinator jobCoordinator) {
         super(LearntVpnVipToPort.class, ArpMonitoringHandler.class);
         this.dataBroker = dataBroker;
         this.interfaceRpc = interfaceRpc;
@@ -60,6 +61,7 @@ public class ArpMonitoringHandler
         this.neutronVpnService = neutronVpnService;
         this.interfaceManager = interfaceManager;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
+        this.jobCoordinator = jobCoordinator;
     }
 
     public void start() {
@@ -135,8 +137,7 @@ public class ArpMonitoringHandler
                 String vpnName =  value.getVpnName();
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, value.getPortName(),
                         value.getCreationTime());
-                DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
+                jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpMonitorStartTask(macEntry, arpMonitorProfileId, dataBroker, alivenessManager,
                                 interfaceRpc, neutronVpnService, interfaceManager));
             } catch (UnknownHostException e) {
@@ -166,8 +167,7 @@ public class ArpMonitoringHandler
                 String interfaceName =  value.getPortName();
                 MacEntry macEntry = new MacEntry(vpnName, srcMacAddress, srcInetAddr, interfaceName,
                         value.getCreationTime());
-                DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                coordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
+                jobCoordinator.enqueueJob(buildJobKey(srcInetAddr.toString(), vpnName),
                         new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
             } catch (UnknownHostException e) {
                 LOG.error("Error in deserializing packet {} with exception", value, e);
@@ -177,7 +177,7 @@ public class ArpMonitoringHandler
 
     private void runOnlyInOwnerNode(String jobDesc, final Runnable job) {
         entityOwnershipUtils.runOnlyInOwnerNode(VpnConstants.ARP_MONITORING_ENTITY, VpnConstants.ARP_MONITORING_ENTITY,
-                DataStoreJobCoordinator.getInstance(), jobDesc, job);
+                jobCoordinator, jobDesc, job);
     }
 
     static String buildJobKey(String ip, String vpnName) {

@@ -9,7 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.AlivenessMonitorService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.alivenessmonitor.rev160411.LivenessState;
@@ -24,12 +24,15 @@ import org.slf4j.LoggerFactory;
  */
 public class ArpMonitorEventListener implements AlivenessMonitorListener {
     private static final Logger LOG = LoggerFactory.getLogger(ArpMonitorEventListener.class);
-    private AlivenessMonitorService alivenessManager;
-    private DataBroker dataBroker;
+    private final AlivenessMonitorService alivenessManager;
+    private final DataBroker dataBroker;
+    private final JobCoordinator jobCoordinator;
 
-    public ArpMonitorEventListener(DataBroker dataBroker, AlivenessMonitorService alivenessManager) {
+    public ArpMonitorEventListener(DataBroker dataBroker, AlivenessMonitorService alivenessManager,
+            JobCoordinator jobCoordinator) {
         this.alivenessManager = alivenessManager;
         this.dataBroker = dataBroker;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -46,8 +49,7 @@ public class ArpMonitorEventListener implements AlivenessMonitorListener {
             String learntIp = macEntry.getIpAddress().getHostAddress();
             LearntVpnVipToPort vpnVipToPort = VpnUtil.getLearntVpnVipToPort(dataBroker, vpnName, learntIp);
             if (vpnVipToPort != null && macEntry.getCreatedTime().equals(vpnVipToPort.getCreationTime())) {
-                DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-                coordinator.enqueueJob(ArpMonitoringHandler.buildJobKey(macEntry.getIpAddress().getHostAddress(),
+                jobCoordinator.enqueueJob(ArpMonitoringHandler.buildJobKey(macEntry.getIpAddress().getHostAddress(),
                         macEntry.getVpnName()), new ArpMonitorStopTask(macEntry, dataBroker, alivenessManager));
             }
 

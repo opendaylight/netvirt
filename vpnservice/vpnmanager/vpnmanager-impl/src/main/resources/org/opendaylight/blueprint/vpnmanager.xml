@@ -26,6 +26,8 @@
              availability="optional" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
+  <reference id="jobCoordinator"
+             interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
@@ -72,7 +74,6 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="bgpmanager" />
-    <argument ref="odlArputilService" />
     <argument ref="idManagerService" />
     <argument ref="mdsalUtils" />
     <argument ref="fibManager" />
@@ -82,6 +83,7 @@
     <argument ref="vpnManager" />
     <argument ref="interVpnLinkService" />
     <argument ref="arpResponderHandler" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="interfaceStateChangeListener"
@@ -89,6 +91,7 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="vpnInterfaceOpListener"
@@ -97,12 +100,14 @@
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="vpnFootprintService" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="arpMonitorEventListener"
         class="org.opendaylight.netvirt.vpnmanager.ArpMonitorEventListener">
     <argument ref="dataBroker" />
     <argument ref="alivenessManager" />
+    <argument ref="jobCoordinator" />
   </bean>
   <odl:notification-listener ref="arpMonitorEventListener" />
 
@@ -116,6 +121,7 @@
     <argument ref="neutronVpnService" />
     <argument ref="interfaceManager" />
     <argument ref="entityOwnershipService" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="subnetRoutePacketInHandler"
@@ -151,10 +157,10 @@
         class="org.opendaylight.netvirt.vpnmanager.SubnetRouteInterfaceStateChangeListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="vpnInterfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
     <argument ref="subnetOpDpnManager" />
     <argument ref="neutronVpnService" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="vpnSubnetRouteHandler"
@@ -177,6 +183,7 @@
     <argument ref="odlInterfaceRpcService"/>
     <argument ref="vpnInterfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="subnetOpDpnManager" class="org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager">
@@ -202,12 +209,12 @@
         class="org.opendaylight.netvirt.vpnmanager.VpnInstanceListener"
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="bgpmanager" />
     <argument ref="idManagerService" />
     <argument ref="vpnInterfaceManager" />
     <argument ref="fibManager" />
     <argument ref="vpnOpDataSyncer" />
     <argument ref="mdsalUtils" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="fibEntriesListener" class="org.opendaylight.netvirt.vpnmanager.FibEntriesListener"
@@ -257,6 +264,7 @@
     <argument ref="interVpnLinkLocator" />
     <argument ref="vpnFootprintService" />
     <argument ref="vpnOpDataSyncer" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="interVpnLinkStateListener"
@@ -272,6 +280,7 @@
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
     <argument ref="vpnFootprintService" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="tunnelEndPointChangeListener"
@@ -279,6 +288,7 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="vpnInterfaceManager" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="VpnNodeListener"
@@ -286,7 +296,7 @@
         init-method="start" destroy-method="close">
     <argument ref="dataBroker" />
     <argument ref="mdsalUtils" />
-    <argument ref="idManagerService" />
+    <argument ref="jobCoordinator" />
   </bean>
 
   <bean id="vpnElanInterfaceChangeListener"
@@ -356,5 +366,6 @@
     <argument ref="fibManager" />
     <argument ref="mdsalUtils" />
     <argument ref="vpnFootprintService" />
+    <argument ref="jobCoordinator" />
   </bean>
 </blueprint>
