@@ -23,14 +23,12 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -47,6 +45,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
@@ -1552,9 +1551,8 @@ public final class VpnUtil {
     }
 
     static void bindService(final String vpnInstanceName, final String interfaceName, DataBroker dataBroker,
-                            boolean isTunnelInterface) {
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob(interfaceName,
+                            boolean isTunnelInterface, JobCoordinator jobCoordinator) {
+        jobCoordinator.enqueueJob(interfaceName,
             () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 BoundServices serviceInfo = isTunnelInterface
@@ -1599,10 +1597,10 @@ public final class VpnUtil {
         return serviceInfo;
     }
 
-    static void unbindService(DataBroker dataBroker, final String vpnInterfaceName, boolean isInterfaceStateDown) {
+    static void unbindService(DataBroker dataBroker, final String vpnInterfaceName, boolean isInterfaceStateDown,
+            JobCoordinator jobCoordinator) {
         if (!isInterfaceStateDown) {
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob(vpnInterfaceName,
+            jobCoordinator.enqueueJob(vpnInterfaceName,
                 () -> {
                     WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                     writeTxn.delete(LogicalDatastoreType.CONFIGURATION,
