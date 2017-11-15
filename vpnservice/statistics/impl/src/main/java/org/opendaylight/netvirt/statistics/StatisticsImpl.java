@@ -396,11 +396,12 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
 
     @Override
     public void handleInterfaceRemoval(String interfaceId) {
-        ReadOnlyTransaction tx = db.newReadOnlyTransaction();
-        CheckedFuture<Optional<IngressElementCountersRequestConfig>, ReadFailedException> iecrc =
-                tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.IECRC_IDENTIFIER);
-        CheckedFuture<Optional<EgressElementCountersRequestConfig>, ReadFailedException> eecrc =
-                tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.EECRC_IDENTIFIER);
+        CheckedFuture<Optional<IngressElementCountersRequestConfig>, ReadFailedException> iecrc;
+        CheckedFuture<Optional<EgressElementCountersRequestConfig>, ReadFailedException> eecrc;
+        try (ReadOnlyTransaction tx = db.newReadOnlyTransaction()) {
+            iecrc = tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.IECRC_IDENTIFIER);
+            eecrc = tx.read(LogicalDatastoreType.CONFIGURATION, CountersServiceUtils.EECRC_IDENTIFIER);
+        }
 
         try {
             Optional<IngressElementCountersRequestConfig> iecrcOpt = iecrc.get();
