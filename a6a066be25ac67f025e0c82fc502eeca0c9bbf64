@@ -16,6 +16,24 @@
       "revId": "a6a066be25ac67f025e0c82fc502eeca0c9bbf64",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f47558cb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwValidateCli.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T22:41:15Z",
+      "side": 1,
+      "message": "I don\u0027t think so. It pertains to the PrintWriter below. Not sure what alternative there is anyway.  I don\u0027t think there\u0027s any byte[] \u003c-\u003e String conversions anyway. Plus this is just karaf CLI code.",
+      "parentUuid": "9a245df4_14b2ac93",
+      "revId": "a6a066be25ac67f025e0c82fc502eeca0c9bbf64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
