@@ -22,6 +22,30 @@
       "revId": "2303e14841618a01be80e1b2f8a1574751a5f292",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_992ed541",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-11-15T16:33:25Z",
+      "side": 1,
+      "message": "Mohamed, there is a catch here, if POD uuid does not come in external-id from southbound, interface-state in genius will not get populated, and that might be exactly why you are seeing ARP not working. How do we solve this then?",
+      "parentUuid": "9a245df4_b912b906",
+      "range": {
+        "startLine": 141,
+        "startChar": 3,
+        "endLine": 142,
+        "endChar": 23
+      },
+      "revId": "2303e14841618a01be80e1b2f8a1574751a5f292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
