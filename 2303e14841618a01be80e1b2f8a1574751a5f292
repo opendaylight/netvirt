@@ -46,6 +46,30 @@
       "revId": "2303e14841618a01be80e1b2f8a1574751a5f292",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_59abbd74",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 4013
+      },
+      "writtenOn": "2017-11-15T17:17:44Z",
+      "side": 1,
+      "message": "okay, so the trick here. when the pod is created it send a favour ARP request to subent gw. AS we already have the Pod IP-Address in mdsal we suppose to be able to relate the port that send the ARP request with the Pod. This why  we need to program the gw port to forward the traffic to ODL.",
+      "parentUuid": "9a245df4_992ed541",
+      "range": {
+        "startLine": 141,
+        "startChar": 3,
+        "endLine": 142,
+        "endChar": 23
+      },
+      "revId": "2303e14841618a01be80e1b2f8a1574751a5f292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
