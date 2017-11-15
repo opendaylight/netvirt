@@ -54,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_0e88ddc3",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T14:48:43Z",
+      "side": 0,
+      "message": "yeah it should be looked at someone familiar with it.\n\nI know there\u0027s a MD_FLOW but the param is addOrRemove so I assume ADD/DEL. Plus there\u0027s similar code elsewhere that does syncRemoveFlow in the else. Also looking back in the history, it used to be remove but https://git.opendaylight.org/gerrit/#/c/64381/ recently broke.\n\nAnd yes I agree int over enum is not ideal :)",
+      "parentUuid": "9a245df4_4e1bf5c9",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_880cc5ee",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
         "patchSetId": 1

@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_aebef162",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T14:48:43Z",
+      "side": 1,
+      "message": "Fair enough. However the dead store doesn\u0027t really hurt anything. What\u0027s suspicious is the increment - I suspect it really should be:\n\n  actionKey \u003d action.getKey().getOrder() + actionKey\n\nI think the increment is the cause of the dead store.",
+      "parentUuid": "9a245df4_8e804dc1",
+      "revId": "e59ef970908cee456916396007a24466cbb1e28a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_88da054a",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 1
@@ -65,6 +83,24 @@
       "writtenOn": "2017-11-15T14:17:25Z",
       "side": 1,
       "message": "shall we use \"TODO\" instead of \"FIXME\" everywhere?",
+      "revId": "e59ef970908cee456916396007a24466cbb1e28a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8ec32dec",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T14:48:43Z",
+      "side": 1,
+      "message": "It doesn\u0027t matter - I\u0027ve addressed it in a follow-up.",
+      "parentUuid": "9a245df4_ee8109c4",
       "revId": "e59ef970908cee456916396007a24466cbb1e28a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
