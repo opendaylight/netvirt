@@ -37,9 +37,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -175,11 +175,14 @@ public class NeutronvpnUtils {
 
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
-    public NeutronvpnUtils(final DataBroker dataBroker, final IdManagerService idManager) {
+    public NeutronvpnUtils(final DataBroker dataBroker, final IdManagerService idManager,
+            final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     protected Subnetmap getSubnetmap(Uuid subnetId) {
@@ -1455,8 +1458,7 @@ public class NeutronvpnUtils {
                 .isIpVersionChosen(IpVersionChoice.IPV4) ? true : false;
         final boolean finalIsIpv4Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) ? add : false;
         final boolean finalIsIpv6Configured = ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) ? add : false;
-        DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
-        djc.enqueueJob("VPN-" + vpnName, () -> {
+        jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
             VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder(vpnInstanceOpDataEntry);
             if (isFinalVpnInstanceIpv4Changed) {
                 builder.setIpv4Configured(finalIsIpv4Configured);
