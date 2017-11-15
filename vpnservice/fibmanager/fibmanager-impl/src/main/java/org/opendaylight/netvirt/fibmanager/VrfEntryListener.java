@@ -16,6 +16,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -25,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -102,8 +104,7 @@ import org.slf4j.LoggerFactory;
 
 
 @Singleton
-public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfEntryListener>
-    implements AutoCloseable {
+public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfEntryListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfEntryListener.class);
     private static final String FLOWID_PREFIX = "L3.";
@@ -123,8 +124,11 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final BaseVrfEntryHandler baseVrfEntryHandler;
     private final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler;
     private final JobCoordinator jobCoordinator;
+    private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
-    protected static boolean isOpenStackVniSemanticsEnforced;
+    // FXIME: This should not be a static here - will be fixed later
+    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
+    static boolean isOpenStackVniSemanticsEnforced;
 
     @Inject
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
@@ -152,6 +156,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+    }
+
+    @Override
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public void close() {
+        closeables.forEach(c -> {
+            try {
+                c.close();
+            } catch (Exception e) {
+                LOG.warn("Error closing {}", c, e);
+            }
+        });
     }
 
     @Override
@@ -220,6 +236,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             EvpnVrfEntryHandler evpnVrfEntryHandler =
                     new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler, nextHopManager, jobCoordinator);
             evpnVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
+            closeables.add(evpnVrfEntryHandler);
             return;
         }
         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
@@ -239,6 +256,9 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     @Override
+    // "Redundant nullcheck of originalRoutePath, which is known to be non-null" - the null checking for
+    // originalRoutePath is a little dicey - safest to keep the checking even if not needed.
+    @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
         if (original.equals(update)) {
@@ -873,12 +893,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     }
 
     private boolean deleteLabelRouteInfo(LabelRouteInfo lri, String vpnInstanceName, WriteTransaction tx) {
-        LOG.debug("deleting LRI : for label {} vpninstancename {}", lri.getLabel(), vpnInstanceName);
-        InstanceIdentifier<LabelRouteInfo> lriId = InstanceIdentifier.builder(LabelRouteMap.class)
-            .child(LabelRouteInfo.class, new LabelRouteInfoKey(lri.getLabel())).build();
         if (lri == null) {
             return true;
         }
+
+        LOG.debug("deleting LRI : for label {} vpninstancename {}", lri.getLabel(), vpnInstanceName);
+        InstanceIdentifier<LabelRouteInfo> lriId = InstanceIdentifier.builder(LabelRouteMap.class)
+            .child(LabelRouteInfo.class, new LabelRouteInfoKey(lri.getLabel())).build();
+
         List<String> vpnInstancesList = lri.getVpnInstanceList() != null
             ? lri.getVpnInstanceList() : new ArrayList<>();
         if (vpnInstancesList.contains(vpnInstanceName)) {
@@ -1098,7 +1120,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 vrfEntry.getDestPrefix(), rd, remoteDpnId);
 
         List<AdjacencyResult> adjacencyResults = baseVrfEntryHandler.resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
-        if (adjacencyResults == null || adjacencyResults.isEmpty()) {
+        if (adjacencyResults.isEmpty()) {
             LOG.error("Could not get interface for route-paths: {} in vpn {} on DPN {}",
                     vrfEntry.getRoutePaths(), rd, remoteDpnId);
             LOG.error("Failed to add Route: {} in vpn: {}", vrfEntry.getDestPrefix(), rd);
@@ -1157,11 +1179,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
      */
         LOG.debug("Cleanup of prefix {} in VPN {}", vrfEntry.getDestPrefix(), vpnId);
         Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
-        Routes extraRoute = null;
         if (prefixInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
             String usedRd = usedRds.isEmpty() ? primaryRd : usedRds.get(0);
-            extraRoute = baseVrfEntryHandler.getVpnToExtraroute(vpnId, usedRd, vrfEntry.getDestPrefix());
+            Routes extraRoute = baseVrfEntryHandler.getVpnToExtraroute(vpnId, usedRd, vrfEntry.getDestPrefix());
             if (extraRoute != null) {
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.debug("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
@@ -1196,7 +1217,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
             }
         } else {
-            checkCleanUpOpDataForFib(prefixInfo, vpnId, primaryRd, vrfEntry, extraRoute);
+            checkCleanUpOpDataForFib(prefixInfo, vpnId, primaryRd, vrfEntry, null /*Routes*/);
         }
     }
 
