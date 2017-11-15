@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "9a245df4_99a375b1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-11-15T17:14:19Z",
+      "side": 1,
+      "message": "Shall I add EntityOwnershipUtils class in nitrogen or make the changes for the time being with EntityOwnershipService?",
+      "range": {
+        "startLine": 21,
+        "startChar": 37,
+        "endLine": 21,
+        "endChar": 47
+      },
+      "revId": "36c7ffd4c0dcc8df1ab752c7e10e5e5d8d7c93af",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_cb5fdc3f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
         "patchSetId": 1
