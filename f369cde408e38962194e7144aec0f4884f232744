@@ -1,0 +1,1694 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_014715bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/ElanAdd.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "should be private and final",
+      "range": {
+        "startLine": 28,
+        "startChar": 4,
+        "endLine": 28,
+        "endChar": 10
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_41146d9f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/ElanGet.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Format-string method String.format(String, Object[]) called with format string \"%-35s %-20s %-20s \" wants 3 arguments but is given 4\" - interesting one. Not sure the intent here but needs another %s so ELAN_INTERFACE_CLI_FORMAT fits the bill.",
+      "range": {
+        "startLine": 43,
+        "startChar": 60,
+        "endLine": 43,
+        "endChar": 75
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_211979d7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/ElanGet.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "same here",
+      "range": {
+        "startLine": 54,
+        "startChar": 64,
+        "endLine": 54,
+        "endChar": 79
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_810ae576",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/ElanInterfaceGet.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_610ff188",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeAdd.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "private and final",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_011ef5ba",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeGet.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Format-string method String.format(String, Object[]) called with format string ... wants 4 arguments but is given 5\" -again not sure of the intent here but  ETREE_INTERFACE_CLI_FORMAT fits the bill.",
+      "range": {
+        "startLine": 55,
+        "startChar": 80,
+        "endLine": 55,
+        "endChar": 96
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_218059bf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeInterfaceGet.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c16e9d2e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwUtilsCacheCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "This is injected so removing assignment to null avoids null check violation.",
+      "range": {
+        "startLine": 34,
+        "startChar": 21,
+        "endLine": 34,
+        "endChar": 26
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e171210d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwUtilsCacheCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "FB complains about use of default encoding in case any String \u003c-\u003e byte[] conversion is done with the PrintStream - says you should use some other APi but which one...",
+      "range": {
+        "startLine": 72,
+        "startChar": 34,
+        "endLine": 72,
+        "endChar": 45
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_615d3179",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwUtilsCacheCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\". Same below as well.",
+      "range": {
+        "startLine": 99,
+        "startChar": 35,
+        "endLine": 99,
+        "endChar": 41
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_41c90d25",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwValidateCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 322,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "range": {
+        "startLine": 322,
+        "startChar": 39,
+        "endLine": 322,
+        "endChar": 45
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_61d411bd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwValidateCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 377,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Useless control flow\"",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a1d9e9f4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwValidateCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_01e395a4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/NetworkL2gwDeviceInfoCli.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_41f0ed66",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 151,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of dpnInterfaceLists, which is known to be non-null\"",
+      "range": {
+        "startLine": 151,
+        "startChar": 12,
+        "endLine": 151,
+        "endChar": 29
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_21f5f956",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/evpn/utils/EvpnMacVrfUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "same here",
+      "range": {
+        "startLine": 189,
+        "startChar": 12,
+        "endLine": 189,
+        "endChar": 29
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_01fa7542",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanBridgeManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 340,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Possible null pointer dereference of otherConfigs\" - make sure it\u0027s initialized in all code paths",
+      "range": {
+        "startLine": 340,
+        "startChar": 12,
+        "endLine": 340,
+        "endChar": 24
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e1f6415c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanDpnInterfaceClusteredListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "Redundant implements",
+      "range": {
+        "startLine": 32,
+        "startChar": 19,
+        "endLine": 32,
+        "endChar": 32
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_219cd90e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceConfigListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Nullcheck of intrf at line 71 of value previously dereferenced \"",
+      "range": {
+        "startLine": 70,
+        "startChar": 31,
+        "endLine": 70,
+        "endChar": 36
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c18a1dbe",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 452,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Nullcheck of interfaceLists at line 452 of value previously dereferenced\"",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a18729b4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1543,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0191d5f0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1876,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_41be2d66",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Load of known null value\"",
+      "range": {
+        "startLine": 254,
+        "startChar": 57,
+        "endLine": 254,
+        "endChar": 77
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_21c339ee",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "range": {
+        "startLine": 640,
+        "startChar": 12,
+        "endLine": 640,
+        "endChar": 26
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_81b4a582",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 683,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "same here",
+      "range": {
+        "startLine": 683,
+        "startChar": 12,
+        "endLine": 683,
+        "endChar": 34
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a1ae092c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanSmacFlowEventListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Use of non-localized String.toUpperCase() or String.toLowerCase() \" - we have no context as to what Locale to use so preserving existing behavior with Locale.getDefault(). However it looks like an ethernet or MAC address so would only have hex digits so woild work with any Locale.",
+      "range": {
+        "startLine": 75,
+        "startChar": 65,
+        "endLine": 75,
+        "endChar": 76
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_61153148",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/HwvtepHAUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Found reliance on default encoding\" - UTF-8 should be safe",
+      "range": {
+        "startLine": 94,
+        "startChar": 61,
+        "endLine": 94,
+        "endChar": 69
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a10a8923",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/HwvtepHAUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 249,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"uses the same code for two switch clauses\"",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_01043516",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/HwvtepHAUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 572,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "range": {
+        "startLine": 572,
+        "startChar": 43,
+        "endLine": 572,
+        "endChar": 49
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e1000104",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/LocalMcastCmd.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Write to static field MergeCommand.LOG from instance method\" - this is bad. Every other sub-class does the same thing.  So MergeCommand.LOG woild be set to the last instance created. Make MaMergeCommand.LOG private static final.",
+      "range": {
+        "startLine": 32,
+        "startChar": 8,
+        "endLine": 32,
+        "endChar": 11
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a501f406",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "range": {
+        "startLine": 99,
+        "startChar": 12,
+        "endLine": 99,
+        "endChar": 17
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8506701b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "same here",
+      "range": {
+        "startLine": 118,
+        "startChar": 12,
+        "endLine": 118,
+        "endChar": 30
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c50ce83d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/HAEventHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "range": {
+        "startLine": 23,
+        "startChar": 15,
+        "endLine": 23,
+        "endChar": 17
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25150440",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeConnectedHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_05128056",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeConnectedHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Useless object stored in variable nodeIds\"",
+      "range": {
+        "startLine": 203,
+        "startChar": 20,
+        "endLine": 203,
+        "endChar": 27
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_651b7c73",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAConfigNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4518f874",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "Should be static class",
+      "range": {
+        "startLine": 80,
+        "startChar": 4,
+        "endLine": 80,
+        "endChar": 9
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a528d486",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "Seems useless unparameterized - overkill",
+      "range": {
+        "startLine": 81,
+        "startChar": 46,
+        "endLine": 81,
+        "endChar": 60
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c52348a5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpClusteredListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "all unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_452f5888",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "effective unused - it is closed in the close method but instantiation is commented out in the constructor on line 106 below.  It was used initially but then commented out shortly after, unfortunately patches don\u0027t explain why.",
+      "range": {
+        "startLine": 59,
+        "startChar": 28,
+        "endLine": 59,
+        "endChar": 43
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8554b0ff",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e555acfa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unneeded",
+      "range": {
+        "startLine": 64,
+        "startChar": 15,
+        "endLine": 64,
+        "endChar": 23
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c55a2829",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 79,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "same here",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25434443",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "moved ctor before all other methods as it should be",
+      "range": {
+        "startLine": 103,
+        "startChar": 11,
+        "endLine": 103,
+        "endChar": 27
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6549bc5f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "no longer needed",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_45463850",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "deprecated - can use get here instead",
+      "range": {
+        "startLine": 276,
+        "startChar": 28,
+        "endLine": 276,
+        "endChar": 38
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a57614a2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "same here",
+      "range": {
+        "startLine": 295,
+        "startChar": 28,
+        "endLine": 295,
+        "endChar": 38
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_256a24b3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "No instance is created so class isn\u0027t needed. Removing saves having to fix FB violations in it :)",
+      "range": {
+        "startLine": 306,
+        "startChar": 10,
+        "endLine": 306,
+        "endChar": 25
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a59d74be",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\u0027db\u0027 isn\u0027t very meaningful name",
+      "range": {
+        "startLine": 45,
+        "startChar": 15,
+        "endLine": 45,
+        "endChar": 17
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e5a3ecfd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "only called from ctor so inline so registration can be final",
+      "range": {
+        "startLine": 52,
+        "startChar": 16,
+        "endLine": 52,
+        "endChar": 32
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25b18447",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "redundant checks",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_65b7fc3a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e57acc75",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DisAssociateHwvtepFromElanJob.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "can be null so can\u0027t deference",
+      "range": {
+        "startLine": 55,
+        "startChar": 16,
+        "endLine": 55,
+        "endChar": 31
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c57fc864",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/LogicalSwitchAddedJob.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_259864bf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ChildListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_05956086",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanGroupListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "range": {
+        "startLine": 85,
+        "startChar": 12,
+        "endLine": 85,
+        "endChar": 16
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_658edc7a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanGroupListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "same here....",
+      "range": {
+        "startLine": 120,
+        "startChar": 12,
+        "endLine": 120,
+        "endChar": 16
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e5f12c02",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "range": {
+        "startLine": 70,
+        "startChar": 43,
+        "endLine": 70,
+        "endChar": 67
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c5f6a8f8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "range": {
+        "startLine": 76,
+        "startChar": 33,
+        "endLine": 76,
+        "endChar": 47
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_05c3a089",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 370,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_853e708a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/LocalUcastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "range": {
+        "startLine": 70,
+        "startChar": 56,
+        "endLine": 70,
+        "endChar": 68
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a539f4a5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/LocalUcastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "range": {
+        "startLine": 72,
+        "startChar": 22,
+        "endLine": 72,
+        "endChar": 31
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e53f6c85",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/LocalUcastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "range": {
+        "startLine": 202,
+        "startChar": 16,
+        "endLine": 202,
+        "endChar": 24
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c544e81c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 354,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "range": {
+        "startLine": 354,
+        "startChar": 12,
+        "endLine": 354,
+        "endChar": 20
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_254d043f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 390,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_054a8025",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 453,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "range": {
+        "startLine": 453,
+        "startChar": 16,
+        "endLine": 453,
+        "endChar": 24
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_65537ce2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 740,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Load of known null value\" - pass in null directly",
+      "range": {
+        "startLine": 740,
+        "startChar": 71,
+        "endLine": 740,
+        "endChar": 80
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4550f8d3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 762,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "never catch NPE",
+      "range": {
+        "startLine": 762,
+        "startChar": 17,
+        "endLine": 762,
+        "endChar": 37
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_8565d0b6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 763,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Load of known null value\"",
+      "range": {
+        "startLine": 763,
+        "startChar": 76,
+        "endLine": 763,
+        "endChar": 80
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e5564ccd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 793,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c55b48f4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1030,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Return value of putIfAbsent is ignored, but logicalSwitchDeleteTask is reused\" - only call schedule if the mapping didn\u0027t already exists, ie putIfAbsent returns null.",
+      "range": {
+        "startLine": 1030,
+        "startChar": 34,
+        "endLine": 1030,
+        "endChar": 45
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_656a5c82",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused param",
+      "range": {
+        "startLine": 393,
+        "startChar": 80,
+        "endLine": 393,
+        "endChar": 86
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_456758b7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 396,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value which is known to be non-null\"",
+      "range": {
+        "startLine": 396,
+        "startChar": 12,
+        "endLine": 396,
+        "endChar": 24
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a50734c9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statisitcs/ElanStatisticsImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "unused",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_850cb0ee",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statisitcs/ElanStatisticsImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "With the code below commented out, all the code above is pointless so comment out all of it",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e50dace9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 868,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "Can\u0027t be null",
+      "range": {
+        "startLine": 868,
+        "startChar": 12,
+        "endLine": 868,
+        "endChar": 20
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c5122808",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1230,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Boxed value is unboxed and then immediately reboxed\"",
+      "range": {
+        "startLine": 1230,
+        "startChar": 75,
+        "endLine": 1230,
+        "endChar": 109
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25fb44c2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Possible null pointer dereference of elanInstance\"",
+      "range": {
+        "startLine": 1491,
+        "startChar": 39,
+        "endLine": 1491,
+        "endChar": 51
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_05f8c0c1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 328,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "getOrAddSubnet cannot take null",
+      "range": {
+        "startLine": 328,
+        "startChar": 46,
+        "endLine": 328,
+        "endChar": 56
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6501bcae",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/TransportZoneNotificationUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 376,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 0,
+      "message": "\"Possible null pointer dereference of subnets in getOrAddSubnet\"",
+      "range": {
+        "startLine": 376,
+        "startChar": 8,
+        "endLine": 376,
+        "endChar": 15
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

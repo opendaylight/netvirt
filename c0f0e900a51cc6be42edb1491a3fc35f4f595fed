@@ -1,0 +1,262 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_211fb96d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/BatchedTransaction.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "Gotta return something non-null to satisfy the interface",
+      "range": {
+        "startLine": 93,
+        "startChar": 15,
+        "endLine": 93,
+        "endChar": 35
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e5076c16",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "\"implements Comparator but not Serializable\" - Comparators can be passed to instances like TreeSet that are Serializable so the Comparator needs to be as well. Even if nit used in that manner Comparators typically have no state so might as well make it Serializable to be safe.",
+      "range": {
+        "startLine": 202,
+        "startChar": 73,
+        "endLine": 202,
+        "endChar": 85
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_852dd097",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "Pass this in so class can n\u003dbe static",
+      "range": {
+        "startLine": 102,
+        "startChar": 69,
+        "endLine": 102,
+        "endChar": 80
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e51e4c5e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "This cast should unnecessary since this class is an HwvtepNodeDataListener\u003cTerminationPoint\u003e but the base class would have to take \u003c? extends HwvtepNodeDataListener\u003cT\u003e\u003e but that would other cascading changes",
+      "range": {
+        "startLine": 103,
+        "startChar": 50,
+        "endLine": 103,
+        "endChar": 57
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_85895077",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DisAssociateHwvtepFromElanJob.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "made this Nullable for clarity and to satisfy null checks in the local caller.",
+      "range": {
+        "startLine": 43,
+        "startChar": 42,
+        "endLine": 43,
+        "endChar": 50
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_458bd867",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "order statics first",
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c5cd08b9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "\"Call to equals() comparing different types\" - I have no idea what the intention is/was and what should be compared. It will always return false so commenting it out preserves original behavior, whether correct or not.",
+      "range": {
+        "startLine": 98,
+        "startChar": 26,
+        "endLine": 98,
+        "endChar": 81
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25c6a49a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_45b91814",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepTerminationPointListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "\"resultNode must be non-null but is marked as nullable\" - the interface annotates the param with @Nullable but it can\u0027t be null in this case on the success path.",
+      "range": {
+        "startLine": 189,
+        "startChar": 42,
+        "endLine": 189,
+        "endChar": 50
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a560d4a5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 757,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "Shouldn\u0027t be null but just in case",
+      "range": {
+        "startLine": 757,
+        "startChar": 16,
+        "endLine": 757,
+        "endChar": 25
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2574e466",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 240,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "This could be null here",
+      "range": {
+        "startLine": 240,
+        "startChar": 16,
+        "endLine": 240,
+        "endChar": 30
+      },
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0571e075",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 302,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T01:45:35Z",
+      "side": 1,
+      "message": "Creates and registers a DTCL so should be closed",
+      "revId": "c0f0e900a51cc6be42edb1491a3fc35f4f595fed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
