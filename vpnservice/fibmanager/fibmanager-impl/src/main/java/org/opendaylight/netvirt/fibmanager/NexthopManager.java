@@ -127,6 +127,9 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class NexthopManager implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NexthopManager.class);
+    private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
+    private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
+
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalApiManager;
     private final OdlInterfaceRpcService interfaceManager;
@@ -135,8 +138,7 @@ public class NexthopManager implements AutoCloseable {
     private final IElanService elanService;
     private final SalGroupService salGroupService;
     private final JobCoordinator jobCoordinator;
-    private static final String NEXTHOP_ID_POOL_NAME = "nextHopPointerPool";
-    private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
+    private final FibUtil fibUtil;
     private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
 
     /**
@@ -157,7 +159,8 @@ public class NexthopManager implements AutoCloseable {
                           final ItmRpcService itmManager,
                           final IElanService elanService,
                           final SalGroupService salGroupService,
-                          final JobCoordinator jobCoordinator) {
+                          final JobCoordinator jobCoordinator,
+                          final FibUtil fibUtil) {
         this.dataBroker = dataBroker;
         this.mdsalApiManager = mdsalApiManager;
         this.idManager = idManager;
@@ -166,6 +169,7 @@ public class NexthopManager implements AutoCloseable {
         this.elanService = elanService;
         this.salGroupService = salGroupService;
         this.jobCoordinator = jobCoordinator;
+        this.fibUtil = fibUtil;
         createIdPool();
     }
 
@@ -325,7 +329,7 @@ public class NexthopManager implements AutoCloseable {
 
     public long createLocalNextHop(long vpnId, BigInteger dpnId, String ifName,
             String ipNextHopAddress, String ipPrefixAddress, String gwMacAddress, String jobKey) {
-        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefixAddress);
+        String macAddress = fibUtil.getMacAddressFromPrefix(ifName, ipPrefixAddress);
         String ipAddress = macAddress != null ? ipPrefixAddress : ipNextHopAddress;
 
         long groupId = createNextHopPointer(getNextHopKey(vpnId, ipAddress));
@@ -342,7 +346,7 @@ public class NexthopManager implements AutoCloseable {
                         ipAddress, ifName, dpnId);
                 if (nexthop == null) {
                     String encMacAddress = macAddress == null
-                            ? FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipAddress) : macAddress;
+                            ? fibUtil.getMacAddressFromPrefix(ifName, ipAddress) : macAddress;
                     List<BucketInfo> listBucketInfo = new ArrayList<>();
                     List<ActionInfo> listActionInfo = new ArrayList<>();
                     int actionKey = 0;
@@ -698,11 +702,11 @@ public class NexthopManager implements AutoCloseable {
 
     private ElanInstance getElanInstanceForPrefix(long vpnId, String prefixIp) {
         ElanInstance elanInstance = null;
-        Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefixIp);
+        Prefixes prefix = fibUtil.getPrefixToInterface(vpnId, prefixIp);
         if (prefix != null) {
             Uuid subnetId = prefix.getSubnetId();
             if (subnetId != null) {
-                Subnetmap subnetMap = FibUtil.getSubnetMap(dataBroker, subnetId);
+                Subnetmap subnetMap = fibUtil.getSubnetMap(subnetId);
                 if (subnetMap != null && subnetMap.getNetworkId() != null) {
                     elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
                 }
@@ -812,7 +816,7 @@ public class NexthopManager implements AutoCloseable {
             } else {
                 localNextHopIP = nextHopIp + NwConstants.IPV6PREFIX;
             }
-            Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, localNextHopIP);
+            Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, localNextHopIP);
             if (localNextHopInfo != null) {
                 long groupId = getLocalNextHopGroup(vpnId, localNextHopIP);
                 if (groupId == FibConstants.INVALID_GROUP_ID) {
@@ -842,7 +846,7 @@ public class NexthopManager implements AutoCloseable {
             } else {
                 nextHopPrefixIp = nextHopIp + NwConstants.IPV6PREFIX;
             }
-            List<String> tepIpAddresses = FibUtil.getNextHopAddresses(dataBroker, rd, nextHopPrefixIp);
+            List<String> tepIpAddresses = fibUtil.getNextHopAddresses(rd, nextHopPrefixIp);
             if (tepIpAddresses.isEmpty()) {
                 return;
             }
@@ -860,7 +864,7 @@ public class NexthopManager implements AutoCloseable {
             Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
                     .getTunnelType(interfaceManager,
                             egressInterface);
-            Interface ifState = FibUtil.getInterfaceStateFromOperDS(dataBroker, egressInterface);
+            Interface ifState = fibUtil.getInterfaceStateFromOperDS(egressInterface);
             if (ifState == null || ifState.getOperStatus() != OperStatus.Up) {
                 LOG.trace("Tunnel not up {}", egressInterface);
                 return;
@@ -869,12 +873,11 @@ public class NexthopManager implements AutoCloseable {
                 return;
             }
             Long label = FibUtil.getLabelFromRoutePaths(vrfEntry).get();
-            Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopPrefixIp);
+            Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, nextHopPrefixIp);
             BigInteger tunnelId;
-            if (FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, prefixInfo.getSubnetId(),
-                    vpnId, rd)) {
-                java.util.Optional<Long> optionalVni = FibUtil.getVniForVxlanNetwork(dataBroker,
-                        prefixInfo.getSubnetId());
+            if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
+                    rd)) {
+                java.util.Optional<Long> optionalVni = fibUtil.getVniForVxlanNetwork(prefixInfo.getSubnetId());
                 if (!optionalVni.isPresent()) {
                     LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
                             vrfEntry, prefixInfo.getSubnetId());
@@ -887,7 +890,7 @@ public class NexthopManager implements AutoCloseable {
             List<ActionInfo> actionInfos = new ArrayList<>();
             actionInfos.add(new ActionSetFieldTunnelId(tunnelId));
             String ifName = prefixInfo.getVpnInterfaceName();
-            String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, nextHopPrefixIp);
+            String macAddress = fibUtil.getMacAddressFromPrefix(ifName, nextHopPrefixIp);
             actionInfos.add(new ActionSetFieldEthernetDestination(actionInfos.size(),
                     new MacAddress(macAddress)));
             List<ActionInfo> egressActions;
@@ -989,13 +992,13 @@ public class NexthopManager implements AutoCloseable {
         }
         // TODO : Place the logic to construct all possible DC-GW combination here.
         int bucketId = availableDcGws.indexOf(destinationIp);
-        Optional<DpnLbNexthops> dpnLbNextHops = FibUtil.getDpnLbNexthops(dataBroker, dpnId, destinationIp);
+        Optional<DpnLbNexthops> dpnLbNextHops = fibUtil.getDpnLbNexthops(dpnId, destinationIp);
         if (!dpnLbNextHops.isPresent()) {
             return;
         }
         List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
         nextHopKeys.forEach(nextHopKey -> {
-            Optional<Nexthops> optionalNextHops = FibUtil.getNexthops(dataBroker, nextHopKey);
+            Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
             if (!optionalNextHops.isPresent()) {
                 return;
             }
@@ -1032,13 +1035,13 @@ public class NexthopManager implements AutoCloseable {
         WriteTransaction configTx = dataBroker.newWriteOnlyTransaction();
         // TODO : Place the logic to construct all possible DC-GW combination here.
         int bucketId = availableDcGws.indexOf(destinationIp);
-        Optional<DpnLbNexthops> dpnLbNextHops = FibUtil.getDpnLbNexthops(dataBroker, dpnId, destinationIp);
+        Optional<DpnLbNexthops> dpnLbNextHops = fibUtil.getDpnLbNexthops(dpnId, destinationIp);
         if (!dpnLbNextHops.isPresent()) {
             return;
         }
         List<String> nextHopKeys = dpnLbNextHops.get().getNexthopKey();
         nextHopKeys.forEach(nextHopKey -> {
-            Optional<Nexthops> optionalNextHops = FibUtil.getNexthops(dataBroker, nextHopKey);
+            Optional<Nexthops> optionalNextHops = fibUtil.getNexthops(nextHopKey);
             if (!optionalNextHops.isPresent()) {
                 return;
             }

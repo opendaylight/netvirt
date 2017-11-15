@@ -75,7 +75,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -119,36 +118,33 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final NexthopManager nextHopManager;
-    private final IdManagerService idManager;
     private final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler;
     private final BaseVrfEntryHandler baseVrfEntryHandler;
     private final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler;
     private final JobCoordinator jobCoordinator;
+    private final IElanService elanManager;
+    private final FibUtil fibUtil;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
-
-    // FXIME: This should not be a static here - will be fixed later
-    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
-    static boolean isOpenStackVniSemanticsEnforced;
 
     @Inject
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
-                            final NexthopManager nexthopManager, final IdManagerService idManager,
+                            final NexthopManager nexthopManager,
                             final IElanService elanManager,
                             final BaseVrfEntryHandler vrfEntryHandler,
                             final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
                             final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler,
-                            final JobCoordinator jobCoordinator) {
+                            final JobCoordinator jobCoordinator,
+                            final FibUtil fibUtil) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalApiManager;
         this.nextHopManager = nexthopManager;
-        this.idManager = idManager;
+        this.elanManager = elanManager;
         this.baseVrfEntryHandler = vrfEntryHandler;
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
         this.routerInterfaceVrfEntryHandler = routerInterfaceVrfEntryHandler;
         this.jobCoordinator = jobCoordinator;
-
-        isOpenStackVniSemanticsEnforced = elanManager.isOpenStackVniSemanticsEnforced();
+        this.fibUtil = fibUtil;
     }
 
     @Override
@@ -200,9 +196,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows need to be programmed.");
-            EvpnVrfEntryHandler evpnVrfEntryHandler =
-                    new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler, nextHopManager, jobCoordinator);
+            EvpnVrfEntryHandler evpnVrfEntryHandler = new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler,
+                    nextHopManager, jobCoordinator, elanManager, fibUtil);
             evpnVrfEntryHandler.createFlows(identifier, vrfEntry, rd);
+            closeables.add(evpnVrfEntryHandler);
             return;
         }
         RouterInterface routerInt = vrfEntry.getAugmentation(RouterInterface.class);
@@ -233,8 +230,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private void removeFibEntries(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         if (VrfEntry.EncapType.Vxlan.equals(vrfEntry.getEncapType())) {
             LOG.info("EVPN flows to be deleted");
-            EvpnVrfEntryHandler evpnVrfEntryHandler =
-                    new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler, nextHopManager, jobCoordinator);
+            EvpnVrfEntryHandler evpnVrfEntryHandler = new EvpnVrfEntryHandler(dataBroker, this, bgpRouteVrfEntryHandler,
+                    nextHopManager, jobCoordinator, elanManager, fibUtil);
             evpnVrfEntryHandler.removeFlows(identifier, vrfEntry, rd);
             closeables.add(evpnVrfEntryHandler);
             return;
@@ -283,7 +280,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
             //Updates need to be handled for extraroute even if original vrf entry route path is null or
             //updated vrf entry route path is null. This can happen during tunnel events.
-            Optional<VpnInstanceOpDataEntry> optVpnInstance = FibUtil.getVpnInstanceOpData(dataBroker, rd);
+            Optional<VpnInstanceOpDataEntry> optVpnInstance = fibUtil.getVpnInstanceOpData(rd);
             List<String> usedRds = new ArrayList<>();
             if (optVpnInstance.isPresent()) {
                 usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,optVpnInstance.get().getVpnId(),
@@ -313,9 +310,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             nextHopsRemoved.removeAll(FibHelper.getNextHopListFromRoutePaths(update));
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             nextHopsRemoved.parallelStream()
-                    .forEach(nextHopRemoved -> FibUtil.updateUsedRdAndVpnToExtraRoute(
-                             writeOperTxn, dataBroker, nextHopRemoved, rd,
-                             update.getDestPrefix()));
+                    .forEach(nextHopRemoved -> fibUtil.updateUsedRdAndVpnToExtraRoute(
+                             writeOperTxn, nextHopRemoved, rd, update.getDestPrefix()));
             CheckedFuture<Void, TransactionCommitFailedException> operFuture = writeOperTxn.submit();
             try {
                 operFuture.get();
@@ -341,7 +337,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final VpnInstanceOpDataEntry vpnInstance =
-                FibUtil.getVpnInstance(dataBroker, vrfTableKey.getRouteDistinguisher());
+                fibUtil.getVpnInstance(vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
                 + " has null vpnId!");
@@ -349,7 +345,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (vrfEntry.getParentVpnRd() != null
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
             // This block MUST BE HIT only for PNF (Physical Network Function) FIB Entries.
-            VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
+            VpnInstanceOpDataEntry parentVpnInstance = fibUtil.getVpnInstance(vrfEntry.getParentVpnRd());
             vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
                 vpnInstance.getVpnToDpnList();
             LOG.info("createFibEntries: Processing creation of PNF FIB entry with rd {} prefix {}",
@@ -412,7 +408,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }, DJC_MAX_RETRIES);
         }
 
-        Optional<String> optVpnUuid = FibUtil.getVpnNameFromRd(dataBroker, rd);
+        Optional<String> optVpnUuid = fibUtil.getVpnNameFromRd(rd);
         if (optVpnUuid.isPresent()) {
             String vpnUuid = optVpnUuid.get();
             InterVpnLinkDataComposite interVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnUuid).orNull();
@@ -477,7 +473,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
                     if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
                         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
-                                FibUtil.getVpnInstanceOpData(dataBroker, rd);
+                                fibUtil.getVpnInstanceOpData(rd);
                         if (vpnInstanceOpDataEntryOptional.isPresent()) {
                             String vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
                             if (!lri.getVpnInstanceList().contains(vpnInstanceName)) {
@@ -701,8 +697,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private List<BigInteger> createLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
         String localNextHopIP = vrfEntry.getDestPrefix();
-        Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, localNextHopIP);
-        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, localNextHopIP);
+        String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (localNextHopInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, localNextHopIP);
             List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
@@ -716,8 +712,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 } else {
                     ipPrefix = vpnExtraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
                 }
-                Prefixes localNextHopInfoLocal = FibUtil.getPrefixToInterface(dataBroker,
-                    vpnId, ipPrefix);
+                Prefixes localNextHopInfoLocal = fibUtil.getPrefixToInterface(vpnId,
+                    ipPrefix);
                 if (localNextHopInfoLocal != null) {
                     localNextHopSeen = true;
                     BigInteger dpnId =
@@ -735,7 +731,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         LabelRouteInfo lri = getLabelRouteInfo(label);
                         if (isPrefixAndNextHopPresentInLri(localNextHopIP, nextHopAddressList, lri)) {
                             Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
-                                    FibUtil.getVpnInstanceOpData(dataBroker, rd);
+                                    fibUtil.getVpnInstanceOpData(rd);
                             if (vpnInstanceOpDataEntryOptional.isPresent()) {
                                 String vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
                                 if (lri.getVpnInstanceList().contains(vpnInstanceName)) {
@@ -784,7 +780,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                                 final Long vpnId, final String rd,
                                                 final VrfEntry vrfEntry, Long parentVpnId,
                                                 Routes routes, List<Routes> vpnExtraRoutes) {
-        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (localNextHopInfo != null) {
             long groupId;
             long localGroupId;
@@ -845,8 +841,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                 baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions,
                         NwConstants.ADD_FLOW, tx, null);
-                if (!FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker,
-                        localNextHopInfo.getSubnetId(), vpnName, rd)) {
+                if (!fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(localNextHopInfo.getSubnetId(),
+                        vpnName, rd)) {
                     optLabel.ifPresent(label -> {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                             LOG.debug("Installing LFIB and tunnel table entry on dpn {} for interface {} with label "
@@ -989,8 +985,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     public List<BigInteger> deleteLocalFibEntry(Long vpnId, String rd, VrfEntry vrfEntry) {
         List<BigInteger> returnLocalDpnId = new ArrayList<>();
-        Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
-        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        Prefixes localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
+        String vpnName = fibUtil.getVpnNameFromId(vpnId);
         boolean isExtraroute = false;
         if (localNextHopInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
@@ -1012,7 +1008,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 } else {
                     ipPrefix = extraRoute.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
                 }
-                localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, ipPrefix);
+                localNextHopInfo = fibUtil.getPrefixToInterface(vpnId, ipPrefix);
                 if (localNextHopInfo != null) {
                     String localNextHopIP = localNextHopInfo.getIpAddress();
                     BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
@@ -1083,8 +1079,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     baseVrfEntryHandler.makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null,
                             NwConstants.DEL_FLOW, tx, null);
-                    if (!FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker,
-                            localNextHopInfo.getSubnetId(), vpnId, rd)) {
+                    if (!fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(localNextHopInfo.getSubnetId(),
+                            vpnId, rd)) {
                         if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.SELF_IMPORTED) {
                             FibUtil.getLabelFromRoutePaths(vrfEntry).ifPresent(label -> {
                                 makeLFibTableEntry(dpnId, label, null /* instructions */, DEFAULT_FIB_FLOW_PRIORITY,
@@ -1115,7 +1111,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             tx = dataBroker.newWriteOnlyTransaction();
         }
 
-        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        String vpnName = fibUtil.getVpnNameFromId(vpnId);
         LOG.debug("createremotefibentry: adding route {} for rd {} on remoteDpnId {}",
                 vrfEntry.getDestPrefix(), rd, remoteDpnId);
 
@@ -1139,8 +1135,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             java.util.Optional<Routes> routes = vpnExtraRoutes
                     .stream()
                     .filter(route -> {
-                        Prefixes prefixToInterface = FibUtil.getPrefixToInterface(dataBroker,
-                                vpnId, FibUtil.getIpPrefix(route.getNexthopIpList().get(0)));
+                        Prefixes prefixToInterface = fibUtil.getPrefixToInterface(vpnId,
+                                fibUtil.getIpPrefix(route.getNexthopIpList().get(0)));
                         if (prefixToInterface == null) {
                             return false;
                         }
@@ -1178,7 +1174,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
          - vpn interface op DS
      */
         LOG.debug("Cleanup of prefix {} in VPN {}", vrfEntry.getDestPrefix(), vpnId);
-        Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+        Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
         if (prefixInfo == null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
             String usedRd = usedRds.isEmpty() ? primaryRd : usedRds.get(0);
@@ -1193,7 +1189,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         } else {
                             ipPrefix = nextHopIp + NwConstants.IPV6PREFIX;
                         }
-                        prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, ipPrefix);
+                        prefixInfo = fibUtil.getPrefixToInterface(vpnId, ipPrefix);
                         checkCleanUpOpDataForFib(prefixInfo, vpnId, primaryRd, vrfEntry, extraRoute);
                     }
                 }
@@ -1274,7 +1270,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         if (lri != null && lri.getPrefix().equals(vrfEntry.getDestPrefix())
                                 && nextHopAddressList.contains(lri.getNextHopIpList().get(0))) {
                             Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
-                                    FibUtil.getVpnInstanceOpData(dataBroker, rd);
+                                    fibUtil.getVpnInstanceOpData(rd);
                             String vpnInstanceName = "";
                             if (vpnInstanceOpDataEntryOptional.isPresent()) {
                                 vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
@@ -1282,12 +1278,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             boolean lriRemoved = deleteLabelRouteInfo(lri, vpnInstanceName, writeOperTxn);
                             if (lriRemoved) {
                                 String parentRd = lri.getParentVpnRd();
-                                FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
-                                        FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
+                                fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
+                                        parentRd, vrfEntry.getDestPrefix()));
                             }
                         } else {
-                            FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
-                                    FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                            fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
+                                    rd, vrfEntry.getDestPrefix()));
                         }
                     }
                 });
@@ -1298,13 +1294,13 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             if (Prefixes.PrefixCue.PhysNetFunc.equals(prefixInfo.getPrefixCue())) {
                 /*Get vpnId for rd = networkId since op vpnInterface will be pointing to rd = networkId
                 * */
-                Optional<String> vpnName = FibUtil.getVpnNameFromRd(dataBroker, vrfEntry.getParentVpnRd());
+                Optional<String> vpnName = fibUtil.getVpnNameFromRd(vrfEntry.getParentVpnRd());
                 if (vpnName.isPresent()) {
-                    vpnId = FibUtil.getVpnId(dataBroker, vpnName.get());
+                    vpnId = fibUtil.getVpnId(vpnName.get());
                 }
             }
             if (optvpnInterface.isPresent()) {
-                long associatedVpnId = FibUtil.getVpnId(dataBroker, optvpnInterface.get().getVpnInstanceName());
+                long associatedVpnId = fibUtil.getVpnId(optvpnInterface.get().getVpnInstanceName());
                 if (vpnId != associatedVpnId) {
                     LOG.warn("Prefixes {} are associated with different vpn instance with id : {} rather than {}",
                         vrfEntry.getDestPrefix(), associatedVpnId, vpnId);
@@ -1316,7 +1312,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 }
             }
             if (extraRoute != null) {
-                Optional<String> optVpnName = FibUtil.getVpnNameFromRd(dataBroker, rd);
+                Optional<String> optVpnName = fibUtil.getVpnNameFromRd(rd);
                 List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
                 //Only one used Rd present in case of removal event
                 String usedRd = usedRds.get(0);
@@ -1355,8 +1351,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private void deleteFibEntries(final InstanceIdentifier<VrfEntry> identifier, final VrfEntry vrfEntry) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         final String rd = vrfTableKey.getRouteDistinguisher();
-        final VpnInstanceOpDataEntry vpnInstance =
-                FibUtil.getVpnInstance(dataBroker, vrfTableKey.getRouteDistinguisher());
+        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(vrfTableKey.getRouteDistinguisher());
         if (vpnInstance == null) {
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
@@ -1365,7 +1360,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (vrfEntry.getParentVpnRd() != null
                 && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
             // This block MUST BE HIT only for PNF (Physical Network Function) FIB Entries.
-            VpnInstanceOpDataEntry parentVpnInstance = FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
+            VpnInstanceOpDataEntry parentVpnInstance = fibUtil.getVpnInstance(vrfEntry.getParentVpnRd());
             vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList() :
                     vpnInstance.getVpnToDpnList();
             LOG.info("deleteFibEntries: Processing deletion of PNF FIB entry with rd {} prefix {}",
@@ -1377,7 +1372,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         SubnetRoute subnetRoute = vrfEntry.getAugmentation(SubnetRoute.class);
         final java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
         List<String> nextHopAddressList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
-        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId());
+        String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
         if (subnetRoute != null) {
             long elanTag = subnetRoute.getElantag();
             LOG.trace("SUBNETROUTE: deleteFibEntries: SubnetRoute augmented vrfentry found for rd {} prefix {}"
@@ -1409,7 +1404,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     LabelRouteInfo lri = getLabelRouteInfo(label);
                     if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopAddressList, lri)) {
                         Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
-                                FibUtil.getVpnInstanceOpData(dataBroker, rd);
+                                fibUtil.getVpnInstanceOpData(rd);
                         String vpnInstanceName = "";
                         if (vpnInstanceOpDataEntryOptional.isPresent()) {
                             vpnInstanceName = vpnInstanceOpDataEntryOptional.get().getVpnInstanceName();
@@ -1417,14 +1412,14 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         boolean lriRemoved = this.deleteLabelRouteInfo(lri, vpnInstanceName, null);
                         if (lriRemoved) {
                             String parentRd = lri.getParentVpnRd();
-                            FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
-                                    FibUtil.getNextHopLabelKey(parentRd, vrfEntry.getDestPrefix()));
+                            fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
+                                    parentRd, vrfEntry.getDestPrefix()));
                             LOG.trace("SUBNETROUTE: deleteFibEntries: Released subnetroute label {} for rd {} prefix {}"
                                     + " as labelRouteInfo cleared", label, rd, vrfEntry.getDestPrefix());
                         }
                     } else {
-                        FibUtil.releaseId(idManager, FibConstants.VPN_IDPOOL_NAME,
-                                FibUtil.getNextHopLabelKey(rd, vrfEntry.getDestPrefix()));
+                        fibUtil.releaseId(FibConstants.VPN_IDPOOL_NAME, FibUtil.getNextHopLabelKey(
+                                rd, vrfEntry.getDestPrefix()));
                         LOG.trace("SUBNETROUTE: deleteFibEntries: Released subnetroute label {} for rd {} prefix {}",
                                 label, rd, vrfEntry.getDestPrefix());
                     }
@@ -1488,7 +1483,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         // Remove all fib entries configured due to interVpnLink, when nexthop is the opposite endPoint
         // of the interVpnLink.
-        Optional<String> optVpnUuid = FibUtil.getVpnNameFromRd(this.dataBroker, rd);
+        Optional<String> optVpnUuid = fibUtil.getVpnNameFromRd(rd);
         if (optVpnUuid.isPresent()) {
             String vpnUuid = optVpnUuid.get();
             FibUtil.getFirstNextHopAddress(vrfEntry).ifPresent(routeNexthop -> {
@@ -1550,7 +1545,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     final FutureCallback<List<Void>> callback) {
         LOG.trace("New dpn {} for vpn {} : populateFibOnNewDpn", dpnId, rd);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
+        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         if (!vrfTable.isPresent()) {
@@ -1630,7 +1625,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         LOG.trace("populateExternalRoutesOnDpn : dpn {}, vpn {}, rd {}, localNexthopIp {} , remoteNextHopIp {} ",
             dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
+        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
@@ -1657,7 +1652,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                        final String destPrefix,
                                        final String destTepIp,
                                        final long label) {
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
+        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
 
         if (vpnInstance == null) {
             LOG.error("VpnInstance for rd {} not present for prefix {}", rd, destPrefix);
@@ -1703,7 +1698,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         Optional<Routes> extraRouteOptional = Optional.absent();
                         if (usedRds.size() != 0) {
                             extraRouteOptional = VpnExtraRouteHelper.getVpnExtraroutes(dataBroker,
-                                    FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId()),
+                                    fibUtil.getVpnNameFromId(vpnInstance.getVpnId()),
                                     usedRds.get(0), vrfEntry.getDestPrefix());
                         }
                         baseVrfEntryHandler.deleteRemoteRoute(null, localDpnId, vpnId, vrfTablesKey, modVrfEntry,
@@ -1719,7 +1714,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                  final FutureCallback<List<Void>> callback) {
         LOG.trace("cleanUpDpnForVpn: Remove dpn {} for vpn {} : cleanUpDpnForVpn", dpnId, rd);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
+        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
@@ -1765,7 +1760,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             // to which prefix is attached at this point
                             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnInstance.getVpnId(),
                                     vrfEntry.getDestPrefix());
-                            String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId());
+                            String vpnName = fibUtil.getVpnNameFromId(vpnInstance.getVpnId());
                             Optional<Routes> extraRouteOptional;
                             //Is this fib route an extra route? If yes, get the nexthop which would be
                             //an adjacency in the vpn
@@ -1806,7 +1801,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 + " localNexthopIp {} , remoteNexhtHopIp {}",
             dpnId, vpnId, rd, localNextHopIp, remoteNextHopIp);
         InstanceIdentifier<VrfTables> id = buildVrfId(rd);
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
+        final VpnInstanceOpDataEntry vpnInstance = fibUtil.getVpnInstance(rd);
         List<SubTransaction> txnObjects =  new ArrayList<>();
         final Optional<VrfTables> vrfTable = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, id);
         if (vrfTable.isPresent()) {
@@ -1912,7 +1907,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             return true;
         }
 
-        Prefixes prefix = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+        Prefixes prefix = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
         if (prefix != null) {
             BigInteger prefixDpnId = prefix.getDpnId();
             if (dpnId.equals(prefixDpnId)) {
