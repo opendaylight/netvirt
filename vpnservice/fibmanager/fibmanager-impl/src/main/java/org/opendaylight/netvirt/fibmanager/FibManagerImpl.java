@@ -36,15 +36,18 @@ public class FibManagerImpl implements IFibManager {
     private final VrfEntryListener vrfEntryListener;
     private IVpnManager vpnmanager;
     private final DataBroker dataBroker;
+    private final FibUtil fibUtil;
 
     @Inject
     public FibManagerImpl(final DataBroker dataBroker,
                           final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
-                          final BundleContext bundleContext) {
+                          final BundleContext bundleContext,
+                          final FibUtil fibUtil) {
         this.dataBroker = dataBroker;
         this.nexthopManager = nexthopManager;
         this.vrfEntryListener = vrfEntryListener;
+        this.fibUtil = fibUtil;
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
             final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
@@ -128,37 +131,37 @@ public class FibManagerImpl implements IFibManager {
                                     List<String> nextHopList, VrfEntry.EncapType encapType, long label,
                                     long l3vni, String gwMacAddress, String parentVpnRd, RouteOrigin origin,
                                     WriteTransaction writeConfigTxn) {
-        FibUtil.addOrUpdateFibEntry(broker, rd, macAddress, prefix , nextHopList, encapType, label, l3vni,
-                gwMacAddress, parentVpnRd, origin, writeConfigTxn);
+        fibUtil.addOrUpdateFibEntry(rd, macAddress, prefix, nextHopList , encapType, label, l3vni, gwMacAddress,
+                parentVpnRd, origin, writeConfigTxn);
     }
 
     @Override
     public void addFibEntryForRouterInterface(DataBroker broker, String rd, String prefix,
                                               RouterInterface routerInterface, long label,
                                               WriteTransaction writeConfigTxn) {
-        FibUtil.addFibEntryForRouterInterface(broker, rd, prefix, routerInterface, label, writeConfigTxn);
+        fibUtil.addFibEntryForRouterInterface(rd, prefix, routerInterface, label, writeConfigTxn);
     }
 
     @Override
     public void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix,
                                        String nextHopToRemove, WriteTransaction writeConfigTxn) {
-        FibUtil.removeOrUpdateFibEntry(broker, rd, prefix, nextHopToRemove, writeConfigTxn);
+        fibUtil.removeOrUpdateFibEntry(rd, prefix, nextHopToRemove, writeConfigTxn);
     }
 
     @Override
     public void removeFibEntry(DataBroker broker, String rd, String prefix, WriteTransaction writeConfigTxn) {
-        FibUtil.removeFibEntry(broker, rd, prefix, writeConfigTxn);
+        fibUtil.removeFibEntry(rd, prefix, writeConfigTxn);
     }
 
     @Override
     public void updateRoutePathForFibEntry(DataBroker broker, String rd, String prefix, String nextHop,
                                long label, boolean nextHopAdd, WriteTransaction writeConfigTxn) {
-        FibUtil.updateRoutePathForFibEntry(broker, rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
+        fibUtil.updateRoutePathForFibEntry(rd, prefix, nextHop, label, nextHopAdd, writeConfigTxn);
     }
 
     @Override
     public void removeVrfTable(DataBroker broker, String rd, WriteTransaction writeConfigTxn) {
-        FibUtil.removeVrfTable(broker, rd, writeConfigTxn);
+        fibUtil.removeVrfTable(rd, writeConfigTxn);
     }
 
     @Override
@@ -177,7 +180,7 @@ public class FibManagerImpl implements IFibManager {
             return;
         }
         InterVpnLinkDataComposite interVpnLink = optInterVpnLink.get();
-        String vpnName = (isVpnFirstEndPoint) ? interVpnLink.getFirstEndpointVpnUuid().get()
+        String vpnName = isVpnFirstEndPoint ? interVpnLink.getFirstEndpointVpnUuid().get()
                                               : interVpnLink.getSecondEndpointVpnUuid().get();
 
         vrfEntryListener.removeInterVPNLinkRouteFlows(interVpnLink, vpnName, vrfEntry);
