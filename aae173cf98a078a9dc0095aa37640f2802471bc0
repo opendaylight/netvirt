@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_d46bf4ee",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-15T22:49:43Z",
+      "side": 1,
+      "message": "what\u0027s the findbugs problem without interface? Seems like using interface is matter of preference.",
+      "revId": "aae173cf98a078a9dc0095aa37640f2802471bc0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
