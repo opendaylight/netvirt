@@ -17,9 +17,9 @@ import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -38,12 +38,15 @@ public class InterfaceStateChangeListener
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final VpnInterfaceManager vpnInterfaceManager;
+    private final JobCoordinator jobCoordinator;
 
-    public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager) {
+    public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
+            final JobCoordinator jobCoordinator) {
         super(Interface.class, InterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnInterfaceManager = vpnInterfaceManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public void start() {
@@ -71,8 +74,7 @@ public class InterfaceStateChangeListener
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
                                 intrf.getName());
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(), () -> {
+                jobCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(), () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
                         futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
@@ -142,8 +144,7 @@ public class InterfaceStateChangeListener
                             + " {}. Fetching from vpn interface op data store. ", ifName, e);
                 }
                 final BigInteger inputDpId = dpId;
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
+                jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
                         futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
@@ -198,8 +199,7 @@ public class InterfaceStateChangeListener
             if (L2vlan.class.equals(update.getType())) {
                 LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
                         update.getName());
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
+                jobCoordinator.enqueueJob("VPNINTERFACE-" + ifName, () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>(3);
                     futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
                         futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {

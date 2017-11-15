@@ -25,9 +25,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -71,6 +71,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     private final OdlInterfaceRpcService intfRpcService;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
+    private final JobCoordinator jobCoordinator;
 
     protected enum UpdateRouteAction {
         ADVERTISE_ROUTE, WITHDRAW_ROUTE
@@ -89,13 +90,15 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         final IFibManager fibManager,
         final OdlInterfaceRpcService ifaceMgrRpcService,
         final VpnInterfaceManager vpnInterfaceManager,
-        final VpnSubnetRouteHandler vpnSubnetRouteHandler) {
+        final VpnSubnetRouteHandler vpnSubnetRouteHandler,
+        final JobCoordinator jobCoordinator) {
         super(StateTunnelList.class, TunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.fibManager = fibManager;
         this.intfRpcService = ifaceMgrRpcService;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public void start() {
@@ -301,9 +304,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 intfName = interfacelistIter.next();
                 final VpnInterface vpnInterface = VpnUtil.getOperationalVpnInterface(dataBroker, intfName);
                 if (vpnInterface != null) {
-
-                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intfName,
+                    jobCoordinator.enqueueJob("VPNINTERFACE-" + intfName,
                             new UpdateVpnInterfaceOnTunnelEvent(tunnelAction,
                                     vpnInterface,
                                     stateTunnelList,

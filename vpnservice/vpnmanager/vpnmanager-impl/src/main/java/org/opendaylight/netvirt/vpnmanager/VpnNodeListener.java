@@ -18,7 +18,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -32,8 +31,8 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -44,29 +43,22 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnNodeListener.class);
     private static final String FLOWID_PREFIX = "L3.";
-    private static final String FLOWID_PREFIX_FOR_ARP = "L3.GW_MAC_TABLE.ARP.";
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
-    private final IdManagerService idManagerService;
+    private final JobCoordinator jobCoordinator;
     private final List<BigInteger> connectedDpnIds;
 
-    public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager,
-        final IdManagerService idManagerService) {
+    public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator) {
         super(Node.class, VpnNodeListener.class);
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
-        this.idManagerService = idManagerService;
+        this.jobCoordinator = jobCoordinator;
         this.connectedDpnIds = new CopyOnWriteArrayList<>();
     }
 
     public void start() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
-    }
-
-    @Override
-    public void close() {
-        super.close();
     }
 
     @Override
@@ -103,8 +95,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     }
 
     private void processNodeAdd(BigInteger dpId) {
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
+        jobCoordinator.enqueueJob("VPNNODE-" + dpId.toString(),
             () -> {
                 WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
                 LOG.debug("Received notification to install TableMiss entries for dpn {} ", dpId);
