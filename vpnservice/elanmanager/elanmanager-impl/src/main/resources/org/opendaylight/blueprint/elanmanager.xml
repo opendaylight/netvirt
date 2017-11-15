@@ -52,6 +52,11 @@
     <argument ref="dataBroker" />
   </bean>
 
+  <bean id="nodeCopier"
+        class="org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeCopier">
+    <argument ref="dataBroker" />
+  </bean>
+
   <bean id="elanInterfaceManager"
     class="org.opendaylight.netvirt.elan.internal.ElanInterfaceManager"
     init-method="init" destroy-method="close">
@@ -310,6 +315,8 @@
     class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener">
     <argument ref="dataBroker" />
     <argument ref="haEventHandler" />
+    <argument ref="haOpClusteredListener" />
+    <argument ref="nodeCopier" />
   </bean>
 
   <bean id="ElanOvsdbNodeListener"
