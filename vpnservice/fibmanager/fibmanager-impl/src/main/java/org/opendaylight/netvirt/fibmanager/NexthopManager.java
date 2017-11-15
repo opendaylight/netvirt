@@ -11,11 +11,13 @@ import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
@@ -185,19 +187,8 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    private BigInteger getDpnId(String ofPortId) {
-        String[] fields = ofPortId.split(":");
-        BigInteger dpn = new BigInteger(fields[1]);
-        LOG.debug("DpnId: {}", dpn);
-        return dpn;
-    }
-
     private String getNextHopKey(long vpnId, String ipAddress) {
         return "nexthop." + vpnId + ipAddress;
-    }
-
-    private String getNextHopKey(String ifName, String ipAddress) {
-        return "nexthop." + ifName + ipAddress;
     }
 
     public OdlInterfaceRpcService getInterfaceManager() {
@@ -235,6 +226,8 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
+    // "Dead store to actionKey"
+    @SuppressFBWarnings("DLS_DEAD_LOCAL_STORE")
     protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey) {
         List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
@@ -249,6 +242,7 @@ public class NexthopManager implements AutoCloseable {
                 List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions =
                     rpcResult.getResult().getAction();
                 for (Action action : actions) {
+                    // This looks suspicious - actionKey is incremented then added to and re-assigned to actionKey.
                     actionKey = action.getKey().getOrder() + actionKey++;
                     org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
                         actionClass = action.getAction();
@@ -282,7 +276,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     protected String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {
-        Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase());
+        Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase(Locale.getDefault()));
         Future<RpcResult<GetTunnelInterfaceNameOutput>> result;
         try {
             result = itmManager.getTunnelInterfaceName(new GetTunnelInterfaceNameInputBuilder()
@@ -304,7 +298,7 @@ public class NexthopManager implements AutoCloseable {
 
     protected String getTunnelInterfaceName(BigInteger srcDpId, org.opendaylight.yang.gen.v1.urn.ietf.params
         .xml.ns.yang.ietf.inet.types.rev130715.IpAddress dstIp) {
-        Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase());
+        Class<? extends TunnelTypeBase> tunType = getReqTunType(getReqTransType().toUpperCase(Locale.getDefault()));
         Future<RpcResult<GetInternalOrExternalInterfaceNameOutput>> result;
         try {
             result = itmManager.getInternalOrExternalInterfaceName(new GetInternalOrExternalInterfaceNameInputBuilder()
@@ -572,7 +566,8 @@ public class NexthopManager implements AutoCloseable {
             return;
         }
 
-        L3VPNTransportTypes transType = L3VPNTransportTypes.validateTransportType(transportType.toUpperCase());
+        L3VPNTransportTypes transType = L3VPNTransportTypes.validateTransportType(transportType
+                .toUpperCase(Locale.getDefault()));
 
         if (transType != L3VPNTransportTypes.Invalid) {
             configuredTransportTypeL3VPN = transType;
@@ -762,6 +757,10 @@ public class NexthopManager implements AutoCloseable {
 
         @Override
         public boolean equals(Object obj) {
+            if (obj == null) {
+                return false;
+            }
+
             boolean result = false;
             if (getClass() != obj.getClass()) {
                 return result;
@@ -1007,10 +1006,11 @@ public class NexthopManager implements AutoCloseable {
             }
             Nexthops nexthops = optionalNextHops.get();
             final String groupId = nexthops.getGroupId();
+            final long groupIdValue = Long.parseLong(groupId);
             if (noOfDcGws > 1) {
-                mdsalApiManager.removeBucketToTx(dpnId, Long.valueOf(groupId), bucketId, configTx);
+                mdsalApiManager.removeBucketToTx(dpnId, groupIdValue, bucketId, configTx);
             } else {
-                Group group = MDSALUtil.buildGroup(Long.valueOf(groupId), nextHopKey, GroupTypes.GroupSelect,
+                Group group = MDSALUtil.buildGroup(groupIdValue, nextHopKey, GroupTypes.GroupSelect,
                         MDSALUtil.buildBucketLists(Collections.emptyList()));
                 LOG.trace("Removed LB group {} on dpn {}", group, dpnId);
                 mdsalApiManager.removeGroupToTx(dpnId, group, configTx);
@@ -1049,13 +1049,14 @@ public class NexthopManager implements AutoCloseable {
             }
             Nexthops nexthops = optionalNextHops.get();
             final String groupId = nexthops.getGroupId();
+            final long groupIdValue = Long.parseLong(groupId);
             if (isTunnelUp) {
                 Bucket bucket = buildBucketForDcGwLbGroup(destinationIp, dpnId, bucketId);
                 LOG.trace("Added bucket {} to group {} on dpn {}.", bucket, groupId, dpnId);
-                mdsalApiManager.addBucketToTx(dpnId, Long.valueOf(groupId), bucket , configTx);
+                mdsalApiManager.addBucketToTx(dpnId, groupIdValue, bucket , configTx);
             } else {
                 LOG.trace("Removed bucketId {} from group {} on dpn {}.", bucketId, groupId, dpnId);
-                mdsalApiManager.removeBucketToTx(dpnId, Long.valueOf(groupId), bucketId, configTx);
+                mdsalApiManager.removeBucketToTx(dpnId, groupIdValue, bucketId, configTx);
             }
         });
         configTx.submit();
