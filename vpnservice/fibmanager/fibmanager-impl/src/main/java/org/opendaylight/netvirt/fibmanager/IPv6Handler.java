@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.fibmanager;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
@@ -79,9 +78,9 @@ public class IPv6Handler {
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.syncInstallFlow(flowEntity, 1);
+            mdsalManager.syncInstallFlow(flowEntity);
         } else {
-            mdsalManager.syncInstallFlow(flowEntity, 1);
+            mdsalManager.syncRemoveFlow(flowEntity);
         }
     }
 }

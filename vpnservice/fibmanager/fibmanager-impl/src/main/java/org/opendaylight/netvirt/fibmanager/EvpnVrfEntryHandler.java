@@ -194,7 +194,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             vrfEntry.getDestPrefix(), rd, vrfEntry.getRoutePaths(), vrfEntry.getL3vni());
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         if (vpnToDpnList != null) {
-            jobCoordinator.enqueueJob("FIB" + rd.toString() + vrfEntry.getDestPrefix(),
+            jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -235,9 +235,9 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             String prefix = adjacencyResult.getPrefix();
             Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefix);
             String interfaceName = prefixInfo.getVpnInterfaceName();
-            if (vrfEntry.getOrigin().equals(RouteOrigin.BGP) || isNatPrefix) {
+            if (vrfEntry.getOrigin().equals(RouteOrigin.BGP.getValue()) || isNatPrefix) {
                 tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
-            } else if (vrfEntryListener.isOpenStackVniSemanticsEnforced) {
+            } else if (VrfEntryListener.isOpenStackVniSemanticsEnforced) {
                 tunnelId = BigInteger.valueOf(FibUtil.getVniForVxlanNetwork(dataBroker,
                         prefixInfo.getSubnetId()).get());
             } else {
@@ -272,7 +272,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         List<SubTransaction> subTxns =  new ArrayList<>();
         if (vpnToDpnList != null) {
-            jobCoordinator.enqueueJob("FIB" + rd.toString() + vrfEntry.getDestPrefix(),
+            jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
                     final Optional<Routes> extraRouteOptional = Optional.absent();

@@ -11,7 +11,6 @@ import static java.util.stream.Collectors.toList;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -20,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -63,7 +61,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
-        implements AutoCloseable, ResourceHandler, IVrfEntryHandler {
+        implements ResourceHandler, IVrfEntryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouteVrfEntryHandler.class);
     private final DataBroker dataBroker;
@@ -292,7 +290,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
 
         List<NexthopManager.AdjacencyResult> adjacencyResults =
                 resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
-        if (adjacencyResults == null || adjacencyResults.isEmpty()) {
+        if (adjacencyResults.isEmpty()) {
             LOG.error("Could not get interface for route-paths: {} in vpn {}", vrfEntry.getRoutePaths(), rd);
             LOG.warn("Failed to add Route: {} in vpn: {}", vrfEntry.getDestPrefix(), rd);
             return;

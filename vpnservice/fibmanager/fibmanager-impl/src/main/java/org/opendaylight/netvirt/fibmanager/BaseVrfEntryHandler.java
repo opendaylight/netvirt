@@ -11,7 +11,6 @@ import static java.util.stream.Collectors.toList;
 import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -19,7 +18,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -126,12 +125,13 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         }
     }
 
+    @Nonnull
     protected List<AdjacencyResult> resolveAdjacency(final BigInteger remoteDpnId, final long vpnId,
                                                      final VrfEntry vrfEntry, String rd) {
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
         FibHelper.sortIpAddress(routePaths);
         List<AdjacencyResult> adjacencyList = new ArrayList<>();
-        List<String> prefixIpList = new ArrayList<>();
+        List<String> prefixIpList;
         LOG.trace("resolveAdjacency called with remotedDpnId {}, vpnId{}, VrfEntry {}",
                 remoteDpnId, vpnId, vrfEntry);
         try {
@@ -510,9 +510,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 0, 0, NwConstants.COOKIE_VM_FIB_TABLE, matches, instructions);
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            mdsalManager.syncInstallFlow(flowEntity, 1);
+            mdsalManager.syncInstallFlow(flowEntity);
         } else {
-            mdsalManager.syncInstallFlow(flowEntity, 1);
+            mdsalManager.syncRemoveFlow(flowEntity);
         }
     }
 }

@@ -12,7 +12,6 @@ import static org.opendaylight.genius.mdsalutil.NWUtil.isIpv4Address;
 import com.google.common.base.Preconditions;
 import java.math.BigInteger;
 import java.util.Collection;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -31,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implements AutoCloseable, IVrfEntryHandler {
+public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceVrfEntryHandler.class);
     private final DataBroker dataBroker;
