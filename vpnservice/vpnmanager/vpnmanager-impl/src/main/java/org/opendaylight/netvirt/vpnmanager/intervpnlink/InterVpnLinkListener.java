@@ -18,15 +18,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -71,6 +74,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkListener.class);
@@ -87,15 +91,17 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final InterVpnLinkLocator ivpnLinkLocator;
     private final VpnFootprintService vpnFootprintService;
     private final VpnOpDataSyncer vpnOpDataSyncer;
+    private final JobCoordinator jobCoordinator;
 
-
+    @Inject
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
                                 final IMdsalApiManager mdsalManager, final IBgpManager bgpManager,
                                 final IFibManager fibManager, final NotificationPublishService notifService,
                                 final IVpnLinkService interVpnLinkService,
                                 final InterVpnLinkLocator interVpnLinkLocator,
                                 final VpnFootprintService vpnFootprintService,
-                                final VpnOpDataSyncer vpnOpDataSyncer) {
+                                final VpnOpDataSyncer vpnOpDataSyncer,
+                                final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
@@ -106,9 +112,10 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.ivpnLinkLocator = interVpnLinkLocator;
         this.vpnFootprintService = vpnFootprintService;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
+        this.jobCoordinator = jobCoordinator;
     }
 
-
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -408,10 +415,9 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
             update.getSecondEndpoint().getVpnUuid(), update.getSecondEndpoint().getIpAddress());
 
         String specificJobKey = "InterVpnLink.update." + original.getName();
-        DataStoreJobCoordinator dsJobCoordinator = DataStoreJobCoordinator.getInstance();
-        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkRemoverTask(dataBroker, identifier));
-        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCleanedCheckerTask(dataBroker, original));
-        dsJobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCreatorTask(dataBroker, update));
+        jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkRemoverTask(dataBroker, identifier));
+        jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCleanedCheckerTask(dataBroker, original));
+        jobCoordinator.enqueueJob(specificJobKey, new InterVpnLinkCreatorTask(dataBroker, update));
     }
 
     private Long allocateVpnLinkLportTag(String idKey) {

@@ -12,11 +12,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -28,19 +31,25 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class TunnelEndPointChangeListener
     extends AsyncDataTreeChangeListenerBase<TunnelEndPoints, TunnelEndPointChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelEndPointChangeListener.class);
 
     private final DataBroker broker;
     private final VpnInterfaceManager vpnInterfaceManager;
+    private final JobCoordinator jobCoordinator;
 
-    public TunnelEndPointChangeListener(final DataBroker broker, final VpnInterfaceManager vpnInterfaceManager) {
+    @Inject
+    public TunnelEndPointChangeListener(final DataBroker broker, final VpnInterfaceManager vpnInterfaceManager,
+            final JobCoordinator jobCoordinator) {
         super(TunnelEndPoints.class, TunnelEndPointChangeListener.class);
         this.broker = broker;
         this.vpnInterfaceManager = vpnInterfaceManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
@@ -76,8 +85,6 @@ public class TunnelEndPointChangeListener
             return;
         }
 
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-
         for (VpnInstance vpnInstance : vpnInstances) {
             final String vpnName = vpnInstance.getVpnInstanceName();
             final long vpnId = VpnUtil.getVpnId(broker, vpnName);
@@ -88,7 +95,7 @@ public class TunnelEndPointChangeListener
                 if (vpnInterfaces != null) {
                     for (VpnInterfaces vpnInterface : vpnInterfaces) {
                         String vpnInterfaceName = vpnInterface.getInterfaceName();
-                        dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
+                        jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
                             () -> {
                                 WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                                 WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
