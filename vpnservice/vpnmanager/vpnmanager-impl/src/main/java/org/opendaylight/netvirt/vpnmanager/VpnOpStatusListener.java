@@ -12,13 +12,14 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.PostConstruct;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -40,10 +41,12 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final IFibManager fibManager;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
+    private final JobCoordinator jobCoordinator;
 
     public VpnOpStatusListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager, final IFibManager fibManager,
-                               final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService) {
+                               final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService,
+                               final JobCoordinator jobCoordinator) {
         super(VpnInstanceOpDataEntry.class, VpnOpStatusListener.class);
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
@@ -51,8 +54,10 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.fibManager = fibManager;
         this.mdsalManager = mdsalManager;
         this.vpnFootprintService = vpnFootprintService;
+        this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -85,8 +90,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
             final List<String> rds = update.getRd();
             String primaryRd = update.getVrfId();
             final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
-            djc.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
+            jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 // Clean up VpnInstanceToVpnId from Config DS
                 VpnUtil.removeVpnIdToVpnInstance(dataBroker, vpnId, writeTxn);
@@ -170,8 +174,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
                       + " VPN {} RD {}", vpnName, primaryRd);
                 return;
             }
-            DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
-            djc.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
+            jobCoordinator.enqueueJob("VPN-" + update.getVpnInstanceName(), () -> {
                 WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                 long primaryRdAddFailed = rds.parallelStream().filter(rd -> {
                     try {

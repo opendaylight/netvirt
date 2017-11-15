@@ -13,11 +13,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import javax.annotation.PostConstruct;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
@@ -36,6 +37,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnFootprintService vpnFootprintService;
+    private final JobCoordinator jobCoordinator;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /*public VpnInterfaceOpListener(final DataBroker dataBroker) {
@@ -44,13 +46,15 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     }*/
 
     public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
-        final VpnFootprintService vpnFootprintService) {
+        final VpnFootprintService vpnFootprintService, final JobCoordinator jobCoordinator) {
         super(VpnInterface.class, VpnInterfaceOpListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnFootprintService = vpnFootprintService;
+        this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -71,8 +75,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     protected void remove(final InstanceIdentifier<VpnInterface> identifier, final VpnInterface del) {
         final VpnInterfaceKey key = identifier.firstKeyOf(VpnInterface.class, VpnInterfaceKey.class);
         final String interfaceName = key.getName();
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
+        jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
                 WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                 postProcessVpnInterfaceRemoval(identifier, del, writeOperTxn);
@@ -219,8 +222,7 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
             return;
         }
 
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
+        jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
                 postProcessVpnInterfaceUpdate(identifier, original, update);
                 LOG.info("update: vpn interface {} on dpn {} vpn {} processed successfully", update.getName(),

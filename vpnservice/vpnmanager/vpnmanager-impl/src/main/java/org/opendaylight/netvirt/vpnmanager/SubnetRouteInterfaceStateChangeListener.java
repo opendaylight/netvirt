@@ -13,10 +13,11 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
@@ -37,24 +38,23 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
     private static final String LOGGING_PREFIX = "SUBNETROUTE:";
     private final DataBroker dataBroker;
-    private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnSubnetRouteHandler vpnSubnetRouteHandler;
     private final SubnetOpDpnManager subOpDpnManager;
     private final INeutronVpnManager neutronVpnManager;
+    private final JobCoordinator jobCoordinator;
 
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
-        final VpnInterfaceManager vpnInterfaceManager,
-        final VpnSubnetRouteHandler vpnSubnetRouteHandler,
-        final SubnetOpDpnManager subnetOpDpnManager,
-        final INeutronVpnManager neutronVpnService) {
+            final VpnSubnetRouteHandler vpnSubnetRouteHandler, final SubnetOpDpnManager subnetOpDpnManager,
+            final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator) {
         super(Interface.class, SubnetRouteInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
-        this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnSubnetRouteHandler = vpnSubnetRouteHandler;
         this.subOpDpnManager = subnetOpDpnManager;
         this.neutronVpnManager = neutronVpnService;
+        this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -86,8 +86,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                         return;
                     }
                     for (Uuid subnetId : subnetIdList) {
-                        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                        dataStoreCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
+                        jobCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                             () -> {
                                 String interfaceName = intrf.getName();
                                 LOG.info("{} add: Received port UP event for interface {} subnetId {}",
@@ -127,8 +126,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                     return;
                 }
                 for (Uuid subnetId : subnetIdList) {
-                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
+                    jobCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                         () -> {
                             String interfaceName = intrf.getName();
                             BigInteger dpnId = BigInteger.ZERO;
@@ -180,8 +178,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                     return;
                 }
                 for (Uuid subnetId : subnetIdList) {
-                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
+                    jobCoordinator.enqueueJob("SUBNETROUTE-" + subnetId,
                         () -> {
                             List<ListenableFuture<Void>> futures = new ArrayList<>();
                             BigInteger dpnId = BigInteger.ZERO;

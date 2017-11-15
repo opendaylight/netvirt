@@ -33,15 +33,16 @@ import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -61,7 +62,6 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
@@ -118,13 +118,13 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final IFibManager fibManager;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManager;
-    private final OdlArputilService arpManager;
     private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final VpnFootprintService vpnFootprintService;
     private final IInterfaceManager interfaceManager;
     private final IVpnManager vpnManager;
     private final IVpnLinkService ivpnLinkService;
     private final ArpResponderHandler arpResponderHandler;
+    private final JobCoordinator jobCoordinator;
 
     private final ConcurrentHashMap<String, Runnable> vpnIntfMap = new ConcurrentHashMap<>();
 
@@ -137,7 +137,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
     public VpnInterfaceManager(final DataBroker dataBroker,
                                final IBgpManager bgpManager,
-                               final OdlArputilService arpManager,
                                final IdManagerService idManager,
                                final IMdsalApiManager mdsalManager,
                                final IFibManager fibManager,
@@ -146,12 +145,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                final IInterfaceManager interfaceManager,
                                final IVpnManager vpnManager,
                                final IVpnLinkService ivpnLnkSrvce,
-                               final ArpResponderHandler arpResponderHandler) {
+                               final ArpResponderHandler arpResponderHandler,
+                               final JobCoordinator jobCoordinator) {
         super(VpnInterface.class, VpnInterfaceManager.class);
 
         this.dataBroker = dataBroker;
         this.bgpManager = bgpManager;
-        this.arpManager = arpManager;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
         this.fibManager = fibManager;
@@ -161,6 +160,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         this.vpnManager = vpnManager;
         this.ivpnLinkService = ivpnLnkSrvce;
         this.arpResponderHandler = arpResponderHandler;
+        this.jobCoordinator = jobCoordinator;
         vpnInfUpdateTaskExecutor.scheduleWithFixedDelay(new VpnInterfaceUpdateTimerTask(),
             0, VPN_INF_UPDATE_TIMER_TASK_DELAY, TIME_UNIT);
     }
@@ -169,6 +169,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         return vpnIntfMap.remove(intfName);
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -223,8 +224,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 try {
                     final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(interfaceState);
                     final int ifIndex = interfaceState.getIfIndex();
-                    DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                    dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName, () -> {
+                    jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName, () -> {
                         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
@@ -272,8 +272,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     return;
                 }
             } else if (Boolean.TRUE.equals(vpnInterface.isRouterInterface())) {
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
+                jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                     () -> {
                         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                         createFibEntryForRouterInterface(primaryRd, vpnInterface, interfaceName, writeConfigTxn);
@@ -364,7 +363,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, primaryRd, interfaceName,
                         null/*ipAddressSourceValuePair*/,
                         true /* add */);
-                VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/);
+                VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/, jobCoordinator);
                 processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                         vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                 LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {}", interfaceName,
@@ -410,7 +409,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, primaryRd, interfaceName,
                     null/*ipAddressSourceValuePair*/,
                     true /* add */);
-            VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/);
+            VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/, jobCoordinator);
             processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
                     vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
             LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {} after waiting for"
@@ -1153,8 +1152,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
 
             final int ifIndex = interfaceState.getIfIndex();
             final BigInteger dpnId = dpId;
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
+            jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                 () -> {
                     WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                     WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
@@ -1191,8 +1189,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 });
 
         } else if (Boolean.TRUE.equals(vpnInterface.isRouterInterface())) {
-            DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
+            jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getName(),
                 () -> {
                     WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                     deleteFibEntryForRouterInterface(vpnInterface, writeConfigTxn);
@@ -1236,7 +1233,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     processExternalVpnInterface(vpnOpInterface, vpnId, dpId, lportTag, writeInvTxn,
                             NwConstants.DEL_FLOW);
                 }
-                VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown);
+                VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown, jobCoordinator);
                 LOG.info("processVpnInterfaceDown: Unbound vpn service from interface {} on dpn {} for vpn {}"
                         + " successful", interfaceName, dpId, vpnName);
             } else {
@@ -1447,8 +1444,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         String primaryRd = VpnUtil.getPrimaryRd(dataBroker, newVpnName);
         if (!VpnUtil.isVpnPendingDelete(dataBroker, primaryRd)) {
-            final DataStoreJobCoordinator vpnInfAdjUpdateDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-            vpnInfAdjUpdateDataStoreCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName, () -> {
+            jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName, () -> {
                 WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                 WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                 LOG.info("VPN Interface update event - intfName {} onto vpnName {} running config-driven",
@@ -2287,8 +2283,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     operationalAdjacency.getIpAddress().equals(adjacency.getIpAddress())))
                     .forEach(adjacency -> {
                         LOG.debug("Processing the vpnInterface{} for the Ajacency:{}", vpnInterface, adjacency);
-                        DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
-                        dataStoreJobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getInterfaceName(),
+                        jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterface.getInterfaceName(),
                             () -> {
                                 WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                                 WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
