@@ -16,6 +16,24 @@
       "revId": "aae173cf98a078a9dc0095aa37640f2802471bc0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_54042417",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclConstants.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-15T23:00:58Z",
+      "side": 1,
+      "message": "There\u0027s actually no violation the way it was. There would be if there was a \"public static\" that wasn\u0027t final - seen that\u0027s elsewhere. Using an interface for constants is a pattern and simpler b/c vars are automatically \"public static final\" and avoids mistakes. Also if using a class, you don\u0027t really want to instantiate it so to be complete you make the class final with a private ctor, of course don\u0027t need to with interface.",
+      "parentUuid": "9a245df4_d46bf4ee",
+      "revId": "aae173cf98a078a9dc0095aa37640f2802471bc0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
