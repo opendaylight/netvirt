@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_4e1bf5c9",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-15T14:17:25Z",
+      "side": 0,
+      "message": "I think this would be worth to be looked over by someone more familiar with what this code is really supposed to do, because:\n\nNwConstants has ADD_FLOW, DEL_FLOW, MOD_FLOW.\n\nThis code seems buggy for when addOrRemove is MOD_FLOW.\n\nPS: It\u0027s a bad idea to use an int instead of enum for this!",
+      "parentUuid": "9a245df4_48676db7",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_880cc5ee",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
         "patchSetId": 1
