@@ -12,6 +12,8 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -38,14 +40,16 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnRpcServiceImpl implements VpnRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(VpnRpcServiceImpl.class);
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceMgr;
-    private IFibManager fibManager;
-    private IBgpManager bgpManager;
+    private final IFibManager fibManager;
+    private final IBgpManager bgpManager;
 
+    @Inject
     public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
         final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager, IBgpManager bgpManager) {
         this.dataBroker = dataBroker;
@@ -54,11 +58,6 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
     }
-
-    public void setFibManager(IFibManager fibMgr) {
-        this.fibManager = fibMgr;
-    }
-
 
     /**
      * Generate label for the given ip prefix from the associated VPN.
@@ -70,7 +69,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         if (label == 0) {
             String msg = "Could not retrieve the label for prefix " + ipPrefix + " in VPN " + vpnName;
             LOG.error(msg);
@@ -93,7 +92,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
         VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         futureResult.set(RpcResultBuilder.<Void>success().build());
         return futureResult;
     }
