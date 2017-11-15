@@ -92,21 +92,32 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     private static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
 
     private final DataBroker dataBroker;
-    final NexthopManager nextHopManager;
+    private final NexthopManager nextHopManager;
     private final IMdsalApiManager mdsalManager;
+    private final FibUtil fibUtil;
 
     @Inject
     public BaseVrfEntryHandler(final DataBroker dataBroker,
                                final NexthopManager nexthopManager,
-                               final IMdsalApiManager mdsalManager) {
+                               final IMdsalApiManager mdsalManager,
+                               final FibUtil fibUtil) {
         this.dataBroker = dataBroker;
         this.nextHopManager = nexthopManager;
         this.mdsalManager = mdsalManager;
+        this.fibUtil = fibUtil;
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} closed", getClass().getSimpleName());
+    }
+
+    protected FibUtil getFibUtil() {
+        return fibUtil;
+    }
+
+    protected NexthopManager getNextHopManager() {
+        return nextHopManager;
     }
 
     private void addAdjacencyResultToList(List<AdjacencyResult> adjacencyList, AdjacencyResult adjacencyResult) {
@@ -138,9 +149,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             if (RouteOrigin.value(vrfEntry.getOrigin()) != RouteOrigin.BGP) {
                 List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnId, vrfEntry.getDestPrefix());
                 List<Routes> vpnExtraRoutes = VpnExtraRouteHelper.getAllVpnExtraRoutes(dataBroker,
-                        FibUtil.getVpnNameFromId(dataBroker, vpnId), usedRds, vrfEntry.getDestPrefix());
+                        fibUtil.getVpnNameFromId(vpnId), usedRds, vrfEntry.getDestPrefix());
                 if (vpnExtraRoutes.isEmpty()) {
-                    Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+                    Prefixes prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
                     // We don't want to provide an adjacencyList for an extra-route-prefix.
                     if (prefixInfo == null) {
                         LOG.debug("The extra route {} in rd {} for vpn {} has been removed from all the next hops",
@@ -281,7 +292,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             return;
         }
         if (prefixInfo == null) {
-            prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
             //Checking PrefixtoInterface again as it is populated later in some cases
             if (prefixInfo == null) {
                 LOG.debug("No prefix info found for prefix {}", vrfEntry.getDestPrefix());
@@ -294,7 +305,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             LOG.debug("Failed to get VPN interface for prefix {}", ipPrefix);
             return;
         }
-        String macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, ifName, ipPrefix);
+        String macAddress = fibUtil.getMacAddressFromPrefix(ifName, ipPrefix);
         if (macAddress == null) {
             LOG.warn("No MAC address found for VPN interface {} prefix {}", ifName, ipPrefix);
             return;
@@ -326,10 +337,10 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         // FIXME vxlan vni bit set is not working properly with OVS.need to
         // revisit
         if (tunnelType.equals(TunnelTypeVxlan.class)) {
-            prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, vrfEntry.getDestPrefix());
+            prefixInfo = fibUtil.getPrefixToInterface(vpnId, vrfEntry.getDestPrefix());
             //For extra route, the prefixInfo is fetched from the primary adjacency
             if (prefixInfo == null) {
-                prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, adjacencyResult.getPrefix());
+                prefixInfo = fibUtil.getPrefixToInterface(vpnId, adjacencyResult.getPrefix());
             }
             // Internet VPN VNI will be used as tun_id for NAT use-cases
             if (Prefixes.PrefixCue.Nat.equals(prefixInfo.getPrefixCue())) {
@@ -337,10 +348,9 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
                 }
             } else {
-                if (FibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(dataBroker, prefixInfo.getSubnetId(),
-                        vpnId, rd)) {
-                    java.util.Optional<Long> optionalVni = FibUtil.getVniForVxlanNetwork(dataBroker,
-                            prefixInfo.getSubnetId());
+                if (fibUtil.enforceVxlanDatapathSemanticsforInternalRouterVpn(prefixInfo.getSubnetId(), vpnId,
+                        rd)) {
+                    java.util.Optional<Long> optionalVni = fibUtil.getVniForVxlanNetwork(prefixInfo.getSubnetId());
                     if (!optionalVni.isPresent()) {
                         LOG.error("VNI not found for nexthop {} vrfEntry {} with subnetId {}", nextHopIp,
                                 vrfEntry, prefixInfo.getSubnetId());
@@ -452,7 +462,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     public Routes getVpnToExtraroute(Long vpnId, String vpnRd, String destPrefix) {
-        String optVpnName = FibUtil.getVpnNameFromId(dataBroker, vpnId);
+        String optVpnName = fibUtil.getVpnNameFromId(vpnId);
         if (optVpnName != null) {
             InstanceIdentifier<Routes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(
                     optVpnName, vpnRd, destPrefix);

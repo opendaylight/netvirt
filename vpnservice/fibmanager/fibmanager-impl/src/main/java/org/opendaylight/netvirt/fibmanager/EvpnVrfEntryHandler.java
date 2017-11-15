@@ -25,6 +25,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -49,23 +50,25 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     private final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler;
     private final NexthopManager nexthopManager;
     private final JobCoordinator jobCoordinator;
+    private final IElanService elanManager;
 
     EvpnVrfEntryHandler(DataBroker broker, VrfEntryListener vrfEntryListener,
-                          BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
-                          NexthopManager nexthopManager, JobCoordinator jobCoordinator) {
-        super(broker, nexthopManager, null);
+            BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler, NexthopManager nexthopManager,
+            JobCoordinator jobCoordinator, IElanService elanManager, FibUtil fibUtil) {
+        super(broker, nexthopManager, null, fibUtil);
         this.dataBroker = broker;
         this.vrfEntryListener = vrfEntryListener;
         this.bgpRouteVrfEntryHandler = bgpRouteVrfEntryHandler;
         this.nexthopManager = nexthopManager;
         this.jobCoordinator = jobCoordinator;
+        this.elanManager = elanManager;
     }
 
     @Override
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         LOG.info("Initiating creation of Evpn Flows");
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstanceOpData(dataBroker,
+        final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
                 vrfTableKey.getRouteDistinguisher()).get();
         Long vpnId = vpnInstance.getVpnId();
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
@@ -94,8 +97,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             }
             return;
         }
-        Prefixes localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnInstance.getVpnId(),
-                vrfEntry.getDestPrefix());
+        Prefixes localNextHopInfo = getFibUtil().getPrefixToInterface(vpnInstance.getVpnId(), vrfEntry.getDestPrefix());
         List<BigInteger> localDpnId = new ArrayList<>();
         boolean isNatPrefix = false;
         if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
@@ -113,7 +115,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     @Override
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstanceOpData(dataBroker,
+        final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
                 vrfTableKey.getRouteDistinguisher()).get();
         if (vpnInstance == null) {
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
@@ -142,7 +144,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                 for (String nextHopIp : extraRoute.getNexthopIpList()) {
                     LOG.info("NextHop IP for destination {} is {}", vrfEntry.getDestPrefix(), nextHopIp);
                     if (nextHopIp != null) {
-                        localNextHopInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, nextHopIp + "/32");
+                        localNextHopInfo = getFibUtil().getPrefixToInterface(vpnId, nextHopIp + "/32");
                         if (localNextHopInfo != null) {
                             localNextHopIP = nextHopIp + "/32";
                             BigInteger dpnId = checkCreateLocalEvpnFlows(localNextHopInfo, localNextHopIP, vpnId,
@@ -233,21 +235,20 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             List<ActionInfo> actionInfos = new ArrayList<>();
             BigInteger tunnelId;
             String prefix = adjacencyResult.getPrefix();
-            Prefixes prefixInfo = FibUtil.getPrefixToInterface(dataBroker, vpnId, prefix);
+            Prefixes prefixInfo = getFibUtil().getPrefixToInterface(vpnId, prefix);
             String interfaceName = prefixInfo.getVpnInterfaceName();
             if (vrfEntry.getOrigin().equals(RouteOrigin.BGP.getValue()) || isNatPrefix) {
                 tunnelId = BigInteger.valueOf(vrfEntry.getL3vni());
-            } else if (VrfEntryListener.isOpenStackVniSemanticsEnforced) {
-                tunnelId = BigInteger.valueOf(FibUtil.getVniForVxlanNetwork(dataBroker,
-                        prefixInfo.getSubnetId()).get());
+            } else if (elanManager.isOpenStackVniSemanticsEnforced()) {
+                tunnelId = BigInteger.valueOf(getFibUtil().getVniForVxlanNetwork(prefixInfo.getSubnetId()).get());
             } else {
-                Interface interfaceState = FibUtil.getInterfaceStateFromOperDS(dataBroker, interfaceName);
+                Interface interfaceState = getFibUtil().getInterfaceStateFromOperDS(interfaceName);
                 tunnelId = BigInteger.valueOf(interfaceState.getIfIndex());
             }
             LOG.debug("adding set tunnel id action for label {}", tunnelId);
             String macAddress = null;
             if (interfaceName != null) {
-                macAddress = FibUtil.getMacAddressFromPrefix(dataBroker, interfaceName, prefix);
+                macAddress = getFibUtil().getMacAddressFromPrefix(interfaceName, prefix);
                 actionInfos.add(new ActionSetFieldEthernetDestination(new MacAddress(macAddress)));
             }
             actionInfos.add(new ActionSetFieldTunnelId(tunnelId));

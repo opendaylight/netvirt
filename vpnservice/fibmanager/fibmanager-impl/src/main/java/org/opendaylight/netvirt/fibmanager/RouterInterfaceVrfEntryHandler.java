@@ -33,21 +33,19 @@ import org.slf4j.LoggerFactory;
 public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterInterfaceVrfEntryHandler.class);
-    private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final IPv6Handler ipv6Handler;
 
     @Inject
     public RouterInterfaceVrfEntryHandler(final DataBroker dataBroker, final NexthopManager nexthopManager,
-            final IMdsalApiManager mdsalManager, final IPv6Handler ipv6Handler) {
-        super(dataBroker, nexthopManager, mdsalManager);
-        this.dataBroker = dataBroker;
+            final IMdsalApiManager mdsalManager, final IPv6Handler ipv6Handler, final FibUtil fibUtil) {
+        super(dataBroker, nexthopManager, mdsalManager, fibUtil);
         this.mdsalManager = mdsalManager;
         this.ipv6Handler = ipv6Handler;
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
@@ -70,7 +68,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
 
     private Boolean installRouterFibEntries(VrfEntry vrfEntry, String rd, int addOrRemove,
             RouterInterface routerInterface) {
-        final VpnInstanceOpDataEntry vpnInstance = FibUtil.getVpnInstance(dataBroker, rd);
+        final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstance(rd);
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + rd);
         Preconditions.checkNotNull(vpnInstance.getVpnId(),
                 "Vpn Instance with rd " + vpnInstance.getVrfId() + " has null vpnId!");
@@ -79,7 +77,7 @@ public class RouterInterfaceVrfEntryHandler extends BaseVrfEntryHandler implemen
             if (vrfEntry.getParentVpnRd() != null
                     && FibHelper.isControllerManagedNonSelfImportedRoute(RouteOrigin.value(vrfEntry.getOrigin()))) {
                 VpnInstanceOpDataEntry parentVpnInstance =
-                        FibUtil.getVpnInstance(dataBroker, vrfEntry.getParentVpnRd());
+                        getFibUtil().getVpnInstance(vrfEntry.getParentVpnRd());
                 vpnToDpnList = parentVpnInstance != null ? parentVpnInstance.getVpnToDpnList()
                         : vpnInstance.getVpnToDpnList();
             } else {

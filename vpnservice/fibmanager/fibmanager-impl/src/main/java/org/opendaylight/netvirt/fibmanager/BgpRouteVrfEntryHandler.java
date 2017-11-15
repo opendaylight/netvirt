@@ -64,18 +64,19 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         implements ResourceHandler, IVrfEntryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouteVrfEntryHandler.class);
-    private final DataBroker dataBroker;
-
     private static final int BATCH_INTERVAL = 500;
     private static final int BATCH_SIZE = 1000;
+
+    private final DataBroker dataBroker;
     private final BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
     private final ResourceBatchingManager resourceBatchingManager;
     private final NexthopManager nexthopManager;
 
     @Inject
     public BgpRouteVrfEntryHandler(final DataBroker dataBroker,
-                                   final NexthopManager nexthopManager) {
-        super(dataBroker, nexthopManager, null);
+                                   final NexthopManager nexthopManager,
+                                   final FibUtil fibUtil) {
+        super(dataBroker, nexthopManager, null, fibUtil);
         this.dataBroker = dataBroker;
         this.nexthopManager = nexthopManager;
 
@@ -89,7 +90,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
@@ -175,7 +176,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
 
         final VpnInstanceOpDataEntry vpnInstance =
-                FibUtil.getVpnInstance(dataBroker, vrfTableKey.getRouteDistinguisher());
+                getFibUtil().getVpnInstance(vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + vrfTableKey.getRouteDistinguisher());
         Preconditions.checkNotNull(vpnInstance.getVpnId(), "Vpn Instance with rd " + vpnInstance.getVrfId()
                 + " has null vpnId!");
@@ -201,12 +202,12 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         String rd = vrfTableKey.getRouteDistinguisher();
         final VpnInstanceOpDataEntry vpnInstance =
-                FibUtil.getVpnInstance(dataBroker, vrfTableKey.getRouteDistinguisher());
+                getFibUtil().getVpnInstance(vrfTableKey.getRouteDistinguisher());
         if (vpnInstance == null) {
             LOG.debug("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
         }
-        String vpnName = FibUtil.getVpnNameFromId(dataBroker, vpnInstance.getVpnId());
+        String vpnName = getFibUtil().getVpnNameFromId(vpnInstance.getVpnId());
         final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
         if (vpnToDpnList != null) {
             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker,
@@ -387,7 +388,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     protected void addTunnelInterfaceActions(NexthopManager.AdjacencyResult adjacencyResult, long vpnId,
             VrfEntry vrfEntry, List<ActionInfo> actionInfos, String rd) {
         Class<? extends TunnelTypeBase> tunnelType =
-                VpnExtraRouteHelper.getTunnelType(nextHopManager.getInterfaceManager(),
+                VpnExtraRouteHelper.getTunnelType(getNextHopManager().getInterfaceManager(),
                         adjacencyResult.getInterfaceName());
         if (tunnelType == null) {
             LOG.debug("Tunnel type not found for vrfEntry {}", vrfEntry);
