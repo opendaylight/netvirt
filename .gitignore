@@ -34,3 +34,4 @@ maven-metadata-local.xml
 .metadata
 .recommenders
 /.gitignore
+.fbExcludeFilterFile
