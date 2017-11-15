@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f9ad51ea",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-11-15T15:42:15Z",
+      "side": 1,
+      "message": "commented out because profile attribute is not yet handled in odl-neutron.\nsee: https://git.opendaylight.org/gerrit/#/c/65551/",
+      "range": {
+        "startLine": 167,
+        "startChar": 8,
+        "endLine": 178,
+        "endChar": 12
+      },
+      "revId": "2634e9ffd1d4e0a24f4065274c9a4fe48504ed80",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
