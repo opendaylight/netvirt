@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -88,6 +89,11 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
                 return Collections.emptyList();
             }
         }
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        // Support for VM migration use cases.
+        WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
+        DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
+        futures.add(unbindTx.submit());
         Port port = dhcpManager.getNeutronPort(interfaceName);
         java.util.Optional<String> subnetId = DhcpServiceUtils.getNeutronSubnetId(port);
         if (subnetId.isPresent()) {
@@ -101,7 +107,8 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
                 elanService.removeArpResponderFlow(arpInput);
             }
         }
-        return unInstallDhcpEntries(interfaceDel.getName(), dpnId);
+        futures.addAll(unInstallDhcpEntries(interfaceDel.getName(), dpnId));
+        return futures;
     }
 
     private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, BigInteger dpId) {
