@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_14b2ac93",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/l2gw/L2GwValidateCli.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-15T22:34:07Z",
+      "side": 1,
+      "message": "for the suppressions, are these things we will want to clean up? If so, can you add a TODO comment.",
+      "revId": "a6a066be25ac67f025e0c82fc502eeca0c9bbf64",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
