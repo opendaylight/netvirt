@@ -16,6 +16,7 @@ import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
@@ -81,6 +82,10 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
                 return Collections.emptyList();
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
+            // Support for VM migration use cases.
+            WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
+            DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
+            futures.add(bindServiceTx.submit());
             LOG.info("DhcpInterfaceEventListener add isEnableDhcp:{}", subnet.isEnableDhcp());
             futures.addAll(installDhcpEntries(interfaceAdd.getName(), dpnId));
             LOG.trace("Checking ElanDpnInterface {} for dpn {} ", interfaceName, dpnId);
