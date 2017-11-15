@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 ,2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
+import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -186,7 +187,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
             });
             return;
         }
-        waitingJobs.putIfAbsent(iid, ConcurrentHashMap.newKeySet());
+        waitingJobs.putIfAbsent(iid, Sets.newConcurrentHashSet());
         waitingJobs.get(iid).add(consumer);
     }
 }
