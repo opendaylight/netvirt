@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_b912b906",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 4013
+      },
+      "writtenOn": "2017-11-15T16:25:25Z",
+      "side": 1,
+      "message": "this is not quit right. the CNI will create a tap port with the Pod network NS and the ovs bridge. we cannot set the pod uuid as external-id cause at the CNI level we have the container-id not the Pod uuid. One more thing the CNI is doing, For each Node subnet the CNI create the default gw-port for the subnet and set it with the proper IP-address.",
+      "range": {
+        "startLine": 141,
+        "startChar": 3,
+        "endLine": 142,
+        "endChar": 23
+      },
+      "revId": "2303e14841618a01be80e1b2f8a1574751a5f292",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
