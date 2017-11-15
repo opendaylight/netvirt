@@ -13,11 +13,14 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -28,18 +31,24 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class InterfaceStateChangeListener
     extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
+    private final JobCoordinator jobCoordinator;
 
-    public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager) {
+    @Inject
+    public InterfaceStateChangeListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
+            final JobCoordinator jobCoordinator) {
         super(Interface.class, InterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -65,8 +74,7 @@ public class InterfaceStateChangeListener
             if (L2vlan.class.equals(intrf.getType())) {
                 LOG.info("VPN Interface add event - intfName {} from InterfaceStateChangeListener",
                                 intrf.getName());
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
+                jobCoordinator.enqueueJob("VPNINTERFACE-" + intrf.getName(),
                     () -> {
                         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
@@ -146,8 +154,7 @@ public class InterfaceStateChangeListener
                             + " {}. Fetching from vpn interface op data store. ", interfaceName, e);
                 }
                 final BigInteger inputDpId = dpId;
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
+                jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                     () -> {
                         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
@@ -212,8 +219,7 @@ public class InterfaceStateChangeListener
             if (L2vlan.class.equals(update.getType())) {
                 LOG.info("VPN Interface update event - intfName {} from InterfaceStateChangeListener",
                         update.getName());
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-                dataStoreCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
+                jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
                     () -> {
                         WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
                         WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();

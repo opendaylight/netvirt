@@ -17,6 +17,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -49,6 +53,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(IVpnLinkServiceImpl.class);
@@ -62,7 +67,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     private InterVpnLinkCacheFeeder ivpnLinkCacheFeeder;
     private InterVpnLinkStateCacheFeeder ivpnLinkStateCacheFeeder;
 
-
+    @Inject
     public IVpnLinkServiceImpl(final DataBroker dataBroker, final IdManagerService idMgr, final IBgpManager bgpMgr,
                                final IFibManager fibMgr) {
         this.dataBroker = dataBroker;
@@ -71,6 +76,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
         this.fibManager = fibMgr;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
@@ -79,8 +85,17 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     }
 
     @Override
-    public void close() throws Exception {
+    @PreDestroy
+    public void close() {
         InterVpnLinkCache.destroyCaches();
+
+        if (ivpnLinkCacheFeeder != null) {
+            ivpnLinkCacheFeeder.close();
+        }
+
+        if (ivpnLinkStateCacheFeeder != null) {
+            ivpnLinkStateCacheFeeder.close();
+        }
     }
 
     @Override
@@ -158,7 +173,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                                     dstVpnUuid, ivpnLinkName);
 
         String endpointIp = interVpnLink.getOtherEndpointIpAddr(dstVpnUuid);
-        String leakedOrigin = (forcedOrigin != null) ? forcedOrigin.getValue() : RouteOrigin.INTERVPN.getValue();
+        String leakedOrigin = forcedOrigin != null ? forcedOrigin.getValue() : RouteOrigin.INTERVPN.getValue();
         FibHelper.buildRoutePath(endpointIp, label);
         VrfEntry newVrfEntry =
             new VrfEntryBuilder().setKey(new VrfEntryKey(prefix)).setDestPrefix(prefix)
@@ -185,7 +200,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
                   dstVpnRd, newVrfEntry.getDestPrefix(), label.intValue(), nexthops);
         try {
             bgpManager.advertisePrefix(dstVpnRd, null /*macAddress*/, prefix, nexthops,
-                                       VrfEntry.EncapType.Mplsgre, (int)label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
+                                       VrfEntry.EncapType.Mplsgre, label.intValue(), 0 /*l3vni*/, 0 /*l2vni*/,
                                        null /*gwMacAddress*/);
         } catch (Exception e) {
             LOG.error("Exception while advertising prefix {} on vpnRd {} for intervpn link", prefix, dstVpnRd, e);
@@ -398,7 +413,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     private void handleStaticRoute(String vpnId, Routes route, InterVpnLinkDataComposite ivpnLink) {
 
         IpAddress nhIpAddr = route.getNexthop();
-        String routeNextHop = (nhIpAddr.getIpv4Address() != null) ? nhIpAddr.getIpv4Address().getValue()
+        String routeNextHop = nhIpAddr.getIpv4Address() != null ? nhIpAddr.getIpv4Address().getValue()
                                                                   : nhIpAddr.getIpv6Address().getValue();
         String destination = String.valueOf(route.getDestination().getValue());
 

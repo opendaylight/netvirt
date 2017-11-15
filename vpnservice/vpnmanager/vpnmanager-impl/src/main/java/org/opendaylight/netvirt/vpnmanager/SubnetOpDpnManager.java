@@ -11,6 +11,8 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -34,12 +36,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Singleton
 public class SubnetOpDpnManager {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetOpDpnManager.class);
 
     private final DataBroker broker;
 
+    @Inject
     public SubnetOpDpnManager(final DataBroker db) {
         broker = db;
     }
@@ -152,7 +155,7 @@ public class SubnetOpDpnManager {
                 List<Uuid> listSubnet = optionalPortOp.get().getSubnetIds();
                 portOpBuilder = new PortOpDataEntryBuilder(optionalPortOp.get());
                 if (listSubnet == null) {
-                    listSubnet = new ArrayList<Uuid>();
+                    listSubnet = new ArrayList<>();
                 }
                 if (!listSubnet.contains(subnetId)) {
                     listSubnet.add(subnetId);
@@ -228,7 +231,7 @@ public class SubnetOpDpnManager {
             portOpEntry = optionalPortOp.get();
             List<Uuid> listSubnet = portOpEntry.getSubnetIds();
             if (listSubnet == null) {
-                listSubnet = new ArrayList<Uuid>();
+                listSubnet = new ArrayList<>();
             }
             if (subnetId != null && listSubnet.contains(subnetId)) {
                 listSubnet.remove(subnetId);

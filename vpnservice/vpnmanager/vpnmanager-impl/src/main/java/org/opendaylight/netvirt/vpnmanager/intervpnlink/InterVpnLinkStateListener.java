@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import com.google.common.base.Optional;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -24,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * Class responsible for listening to changes in the State of an InterVpnLink,
  * specially for when the InterVpnLink becomes active.
  */
+@Singleton
 public class InterVpnLinkStateListener
     extends AsyncDataTreeChangeListenerBase<InterVpnLinkState, InterVpnLinkStateListener> {
 
@@ -32,11 +36,13 @@ public class InterVpnLinkStateListener
     private final DataBroker dataBroker;
     private final IVpnLinkService ivpnLinkService;
 
+    @Inject
     public InterVpnLinkStateListener(final DataBroker dataBroker, final IVpnLinkService interVpnLinkService) {
         this.dataBroker = dataBroker;
         this.ivpnLinkService = interVpnLinkService;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);

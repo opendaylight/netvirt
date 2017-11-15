@@ -19,12 +19,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -38,7 +40,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.SystemPropertyReader;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnAfConfig;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
@@ -60,31 +62,35 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance, VpnInstanceListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInstanceListener.class);
     private static final String LOGGING_PREFIX_ADD = "VPN-ADD:";
     private static final String LOGGING_PREFIX_DELETE = "VPN-REMOVE:";
     private final DataBroker dataBroker;
-    private final IBgpManager bgpManager;
     private final IdManagerService idManager;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final IFibManager fibManager;
     private final VpnOpDataSyncer vpnOpDataNotifier;
     private final IMdsalApiManager mdsalManager;
+    private final JobCoordinator jobCoordinator;
 
-    public VpnInstanceListener(final DataBroker dataBroker, final IBgpManager bgpManager,
-        final IdManagerService idManager, final VpnInterfaceManager vpnInterfaceManager, final IFibManager fibManager,
-        final VpnOpDataSyncer vpnOpDataSyncer, final IMdsalApiManager mdsalManager) {
+    @Inject
+    public VpnInstanceListener(final DataBroker dataBroker, final IdManagerService idManager,
+            final VpnInterfaceManager vpnInterfaceManager, final IFibManager fibManager,
+            final VpnOpDataSyncer vpnOpDataSyncer, final IMdsalApiManager mdsalManager,
+            final JobCoordinator jobCoordinator) {
         super(VpnInstance.class, VpnInstanceListener.class);
         this.dataBroker = dataBroker;
-        this.bgpManager = bgpManager;
         this.idManager = idManager;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.fibManager = fibManager;
         this.vpnOpDataNotifier = vpnOpDataSyncer;
         this.mdsalManager = mdsalManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
@@ -122,8 +128,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
                     vpnName);
             return;
         } else {
-            DataStoreJobCoordinator djc = DataStoreJobCoordinator.getInstance();
-            djc.enqueueJob("VPN-" + vpnName, () -> {
+            jobCoordinator.enqueueJob("VPN-" + vpnName, () -> {
                 VpnInstanceOpDataEntryBuilder builder = new VpnInstanceOpDataEntryBuilder().setVrfId(primaryRd)
                         .setVpnState(VpnInstanceOpDataEntry.VpnState.PendingDelete);
                 InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(primaryRd);
@@ -149,8 +154,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     protected void add(final InstanceIdentifier<VpnInstance> identifier, final VpnInstance value) {
         LOG.trace("{} add: Add VPN event key: {}, value: {}", LOGGING_PREFIX_ADD, identifier, value);
         final String vpnName = value.getVpnInstanceName();
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("VPN-" + vpnName,
+        jobCoordinator.enqueueJob("VPN-" + vpnName,
             new AddVpnInstanceWorker(idManager, dataBroker, value));
     }
 
@@ -333,7 +337,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
             if (VpnUtil.isL3VpnOverVxLan(vpnInstance.getL3vni())) { //Handled for L3VPN Over VxLAN
                 for (String tunnelInterfaceName: getDcGatewayTunnelInterfaceNameList()) {
                     VpnUtil.bindService(vpnInstance.getVpnInstanceName(), tunnelInterfaceName, dataBroker,
-                            true/*isTunnelInterface*/);
+                            true/*isTunnelInterface*/, jobCoordinator);
                 }
 
                 // install flow
