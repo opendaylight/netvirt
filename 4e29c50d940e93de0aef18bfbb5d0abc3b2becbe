@@ -46,6 +46,30 @@
       "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5156f12a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-16T14:30:37Z",
+      "side": 1,
+      "message": "I didn\u0027t mean to leave this in - I was attempting to convert all of it to use the injection annotations but that proved to be problematic with circular dependencies (need to break the circular - but that\u0027s too much for this patch). But PostConstruct here doesn\u0027t hurt anything - in fact the base class uses @PostConstruct and @PreDestroy. These only come into play if you have BP annotation plugin, or some tool that uses them, enabled. Even then you need @Singleton as well.",
+      "parentUuid": "9a245df4_11b2b993",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 18
+      },
+      "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
