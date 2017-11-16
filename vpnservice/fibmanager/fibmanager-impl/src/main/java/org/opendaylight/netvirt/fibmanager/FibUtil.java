@@ -468,7 +468,11 @@ public final class FibUtil {
         if (writeConfigTxn != null) {
             writeConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vrfTableId);
         } else {
-            MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
+            Optional<VrfTables> ifStateOptional = MDSALUtil.read(broker,
+                    LogicalDatastoreType.CONFIGURATION, vrfTableId);
+            if (ifStateOptional.isPresent()) {
+                MDSALUtil.syncDelete(broker, LogicalDatastoreType.CONFIGURATION, vrfTableId);
+            }
         }
     }
 
