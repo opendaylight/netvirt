@@ -15,7 +15,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
-import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
@@ -29,9 +28,8 @@ import org.slf4j.LoggerFactory;
 public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnOverVxlanPopulator.class);
 
-    public L3vpnOverVxlanPopulator(DataBroker dataBroker, VpnInterfaceManager vpnInterfaceManager,
-                                   IBgpManager bgpManager, IFibManager fibManager) {
-        super(dataBroker, vpnInterfaceManager, bgpManager, fibManager);
+    public L3vpnOverVxlanPopulator(DataBroker dataBroker, IBgpManager bgpManager, IFibManager fibManager) {
+        super(dataBroker, bgpManager, fibManager);
     }
 
     public void init() {
@@ -73,8 +71,8 @@ public class L3vpnOverVxlanPopulator extends L3vpnPopulator {
         String rd = input.getRd();
         String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
         List<String> adjNextHop = nextHop.getNextHopIpList();
-        List<String> nextHopList = (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop
-                : (nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp));
+        List<String> nextHopList = adjNextHop != null && !adjNextHop.isEmpty() ? adjNextHop
+                : nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp);
 
         return new AdjacencyBuilder(nextHop).setNextHopIpList(nextHopList).setIpAddress(prefix).setVrfId(rd)
                 .setKey(new AdjacencyKey(prefix)).setAdjacencyType(nextHop.getAdjacencyType())
