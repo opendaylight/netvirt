@@ -38,6 +38,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -114,6 +116,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner managedNewTransactionRunner;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final IMdsalApiManager mdsalManager;
@@ -150,6 +153,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         super(VpnInterface.class, VpnInterfaceManager.class);
 
         this.dataBroker = dataBroker;
+        this.managedNewTransactionRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.bgpManager = bgpManager;
         this.arpManager = arpManager;
         this.idManager = idManager;
@@ -1585,45 +1589,45 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             Preconditions.checkNotNull(nextHopIpList, "addToLabelMapper: nextHopIp cannot be null or empty!");
         }
         synchronized (label.toString().intern()) {
-            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-            LOG.info("addToLabelMapper: label {} dpn {} prefix {} nexthoplist {} vpnid {} vpnIntfcName {} rd {}"
-                    + " elanTag {}", label, dpnId, prefix, nextHopIpList, vpnId, vpnInterfaceName, rd, elanTag);
-            if (dpnId != null) {
-                LabelRouteInfoBuilder lriBuilder = new LabelRouteInfoBuilder();
-                lriBuilder.setLabel(label).setDpnId(dpnId).setPrefix(prefix).setNextHopIpList(nextHopIpList)
-                    .setParentVpnid(vpnId).setIsSubnetRoute(isSubnetRoute);
-                if (elanTag != null) {
-                    lriBuilder.setElanTag(elanTag);
+            managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                LOG.info("addToLabelMapper: label {} dpn {} prefix {} nexthoplist {} vpnid {} vpnIntfcName {} rd {}"
+                        + " elanTag {}", label, dpnId, prefix, nextHopIpList, vpnId, vpnInterfaceName, rd, elanTag);
+                if (dpnId != null) {
+                    LabelRouteInfoBuilder lriBuilder = new LabelRouteInfoBuilder();
+                    lriBuilder.setLabel(label).setDpnId(dpnId).setPrefix(prefix).setNextHopIpList(nextHopIpList)
+                        .setParentVpnid(vpnId).setIsSubnetRoute(isSubnetRoute);
+                    if (elanTag != null) {
+                        lriBuilder.setElanTag(elanTag);
+                    } else {
+                        LOG.warn("addToLabelMapper: elanTag is null for label {} prefix {} rd {} vpnId {}",
+                                label, prefix, rd, vpnId);
+                    }
+                    if (vpnInterfaceName != null) {
+                        lriBuilder.setVpnInterfaceName(vpnInterfaceName);
+                    } else {
+                        LOG.warn("addToLabelMapper: vpn interface is null for label {} prefix {} rd {} vpnId {}",
+                                label, prefix, rd, vpnId);
+                    }
+                    lriBuilder.setParentVpnRd(rd);
+                    VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
+                    if (vpnInstanceOpDataEntry != null) {
+                        List<String> vpnInstanceNames = Collections
+                                .singletonList(vpnInstanceOpDataEntry.getVpnInstanceName());
+                        lriBuilder.setVpnInstanceList(vpnInstanceNames);
+                    }
+                    LabelRouteInfo lri = lriBuilder.build();
+                    InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
+                            .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
+                    tx.merge(LogicalDatastoreType.OPERATIONAL, lriIid, lri, true);
+                    LOG.info("addToLabelMapper: Added label route info to label {} prefix {} nextHopList {} vpnId {}"
+                            + " interface {} rd {} elantag {}", label, prefix, nextHopIpList, vpnId, vpnInterfaceName,
+                            rd, elanTag);
                 } else {
-                    LOG.warn("addToLabelMapper: elanTag is null for label {} prefix {} rd {} vpnId {}",
-                            label, prefix, rd, vpnId);
+                    LOG.warn("addToLabelMapper: Can't add entry to label map for label {} prefix {} nextHopList {}"
+                            + " vpnId {} interface {} rd {} elantag {}, dpnId is null", label, prefix, nextHopIpList,
+                            vpnId, vpnInterfaceName, rd, elanTag);
                 }
-                if (vpnInterfaceName != null) {
-                    lriBuilder.setVpnInterfaceName(vpnInterfaceName);
-                } else {
-                    LOG.warn("addToLabelMapper: vpn interface is null for label {} prefix {} rd {} vpnId {}",
-                            label, prefix, rd, vpnId);
-                }
-                lriBuilder.setParentVpnRd(rd);
-                VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-                if (vpnInstanceOpDataEntry != null) {
-                    List<String> vpnInstanceNames = Collections
-                            .singletonList(vpnInstanceOpDataEntry.getVpnInstanceName());
-                    lriBuilder.setVpnInstanceList(vpnInstanceNames);
-                }
-                LabelRouteInfo lri = lriBuilder.build();
-                InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
-                        .child(LabelRouteInfo.class, new LabelRouteInfoKey(label)).build();
-                tx.merge(LogicalDatastoreType.OPERATIONAL, lriIid, lri, true);
-                tx.submit();
-                LOG.info("addToLabelMapper: Added label route info to label {} prefix {} nextHopList {} vpnId {}"
-                        + " interface {} rd {} elantag {}", label, prefix, nextHopIpList, vpnId, vpnInterfaceName, rd,
-                        elanTag);
-            } else {
-                LOG.warn("addToLabelMapper: Can't add entry to label map for label {} prefix {} nextHopList {}"
-                        + " vpnId {} interface {} rd {} elantag {}, dpnId is null", label, prefix, nextHopIpList,
-                        vpnId, vpnInterfaceName, rd, elanTag);
-            }
+            });
         }
     }
 
