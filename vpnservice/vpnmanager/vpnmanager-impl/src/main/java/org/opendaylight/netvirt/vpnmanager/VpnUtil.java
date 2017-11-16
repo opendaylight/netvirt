@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.vpnmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterators;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -16,12 +17,16 @@ import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -133,8 +138,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnTargets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstanceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.Vpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.VpnKey;
@@ -301,7 +308,7 @@ public final class VpnUtil {
         return vpnInstance.isPresent() ? vpnInstance.get() : null;
     }
 
-    static List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData(DataBroker broker) {
+    public static List<VpnInstanceOpDataEntry> getAllVpnInstanceOpData(DataBroker broker) {
         InstanceIdentifier<VpnInstanceOpData> id = InstanceIdentifier.builder(VpnInstanceOpData.class).build();
         Optional<VpnInstanceOpData> vpnInstanceOpDataOptional =
             VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL, id);
@@ -1714,5 +1721,69 @@ public final class VpnUtil {
             isVpnPendingDelete = true;
         }
         return isVpnPendingDelete;
+    }
+
+    public static List<VpnInstanceOpDataEntry> getVpnsImportingMyRoute(final DataBroker broker, final String vpnName) {
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = new ArrayList<>();
+
+        final String vpnRd = getVpnRd(broker, vpnName);
+        final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(broker, vpnRd);
+        if (vpnInstanceOpDataEntry == null) {
+            LOG.error("getVpnsImportingMyRoute: Could not retrieve vpn instance op data for {}"
+                    + " to check for vpns importing the routes", vpnName);
+            return vpnsToImportRoute;
+        }
+
+        Predicate<VpnInstanceOpDataEntry> excludeVpn = input -> {
+            if (input.getVpnInstanceName() == null) {
+                LOG.error("getVpnsImportingMyRoute.excludeVpn: Received vpn instance with rd {} without a name.",
+                        input.getVrfId());
+                return false;
+            }
+            return !input.getVpnInstanceName().equals(vpnName);
+        };
+
+        Predicate<VpnInstanceOpDataEntry> matchRTs = input -> {
+            Iterable<String> commonRTs =
+                intersection(getRts(vpnInstanceOpDataEntry, VpnTarget.VrfRTType.ExportExtcommunity),
+                    getRts(input, VpnTarget.VrfRTType.ImportExtcommunity));
+            return Iterators.size(commonRTs.iterator()) > 0;
+        };
+
+        vpnsToImportRoute = getAllVpnInstanceOpData(broker)
+                .stream()
+                .filter(excludeVpn)
+                .filter(matchRTs)
+                .collect(Collectors.toList());
+        return vpnsToImportRoute;
+    }
+
+    public static List<String> getRts(VpnInstanceOpDataEntry vpnInstance, VpnTarget.VrfRTType rtType) {
+        String name = vpnInstance.getVpnInstanceName();
+        List<String> rts = new ArrayList<>();
+        VpnTargets targets = vpnInstance.getVpnTargets();
+        if (targets == null) {
+            LOG.info("getRts: vpn targets not available for {}", name);
+            return rts;
+        }
+        List<VpnTarget> vpnTargets = targets.getVpnTarget();
+        if (vpnTargets == null) {
+            LOG.info("getRts: vpnTarget values not available for {}", name);
+            return rts;
+        }
+        for (VpnTarget target : vpnTargets) {
+            //TODO: Check for RT type is Both
+            if (target.getVrfRTType().equals(rtType) || target.getVrfRTType().equals(VpnTarget.VrfRTType.Both)) {
+                String rtValue = target.getVrfRTValue();
+                rts.add(rtValue);
+            }
+        }
+        return rts;
+    }
+
+    public static <T> Iterable<T> intersection(final Collection<T> collection1, final Collection<T> collection2) {
+        Set<T> intersection = new HashSet<>(collection1);
+        intersection.retainAll(collection2);
+        return intersection;
     }
 }

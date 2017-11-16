@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.InterVpnLinkUtil;
@@ -42,23 +43,18 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private static final Logger LOG = LoggerFactory.getLogger(VpnRpcServiceImpl.class);
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
-    private final VpnInterfaceManager vpnInterfaceMgr;
-    private IFibManager fibManager;
-    private IBgpManager bgpManager;
+    private final IFibManager fibManager;
+    private final IBgpManager bgpManager;
+    private final IVpnManager vpnManager;
 
     public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
-        final VpnInterfaceManager vpnIfaceMgr, final IFibManager fibManager, IBgpManager bgpManager) {
+            final IFibManager fibManager, IBgpManager bgpManager, final IVpnManager vpnManager) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
-        this.vpnInterfaceMgr = vpnIfaceMgr;
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
+        this.vpnManager = vpnManager;
     }
-
-    public void setFibManager(IFibManager fibMgr) {
-        this.fibManager = fibMgr;
-    }
-
 
     /**
      * Generate label for the given ip prefix from the associated VPN.
@@ -70,7 +66,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         SettableFuture<RpcResult<GenerateVpnLabelOutput>> futureResult = SettableFuture.create();
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         if (label == 0) {
             String msg = "Could not retrieve the label for prefix " + ipPrefix + " in VPN " + vpnName;
             LOG.error(msg);
@@ -93,7 +89,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         String rd = VpnUtil.getVpnRd(dataBroker, vpnName);
         SettableFuture<RpcResult<Void>> futureResult = SettableFuture.create();
         VpnUtil.releaseId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-            VpnUtil.getNextHopLabelKey((rd != null) ? rd : vpnName, ipPrefix));
+            VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         futureResult.set(RpcResultBuilder.<Void>success().build());
         return futureResult;
     }
@@ -174,7 +170,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                 return result;
             }
         } else {
-            vpnInterfaceMgr.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
+            vpnManager.addExtraRoute(vpnInstanceName, destination, nexthop, vpnRd, null /* routerId */,
                     label.intValue(), vpnOpEntry.getL3vni(), RouteOrigin.STATIC, null /* intfName */,
                             null /*Adjacency*/, encapType, null);
         }
@@ -232,7 +228,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, /*writeTx*/ null);
             bgpManager.withdrawPrefix(vpnRd, destination);
         } else {
-            vpnInterfaceMgr.delExtraRoute(vpnInstanceName, destination,
+            vpnManager.delExtraRoute(vpnInstanceName, destination,
                     nexthop, vpnRd, null /* routerId */, null /* intfName */, null);
         }
         result.set(RpcResultBuilder.<Void>success().build());

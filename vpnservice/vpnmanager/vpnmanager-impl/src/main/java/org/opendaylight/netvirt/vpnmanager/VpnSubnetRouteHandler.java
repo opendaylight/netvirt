@@ -22,6 +22,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnOpDataSyncer.VpnOpDataType;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
@@ -44,6 +45,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -60,24 +62,24 @@ public class VpnSubnetRouteHandler {
     private final DataBroker dataBroker;
     private final SubnetOpDpnManager subOpDpnManager;
     private final IBgpManager bgpManager;
-    private final VpnInterfaceManager vpnInterfaceManager;
     private final IdManagerService idManager;
     private final LockManagerService lockManager;
     private final VpnOpDataSyncer vpnOpDataSyncer;
     private final VpnNodeListener vpnNodeListener;
+    private final IFibManager fibManager;
 
     public VpnSubnetRouteHandler(final DataBroker dataBroker, final SubnetOpDpnManager subnetOpDpnManager,
-        final IBgpManager bgpManager, final VpnInterfaceManager vpnIntfManager, final IdManagerService idManager,
-        LockManagerService lockManagerService, final VpnOpDataSyncer vpnOpDataSyncer,
-        final VpnNodeListener vpnNodeListener) {
+            final IBgpManager bgpManager, final IdManagerService idManager,
+            LockManagerService lockManagerService, final VpnOpDataSyncer vpnOpDataSyncer,
+        final VpnNodeListener vpnNodeListener, final IFibManager fibManager) {
         this.dataBroker = dataBroker;
         this.subOpDpnManager = subnetOpDpnManager;
         this.bgpManager = bgpManager;
-        this.vpnInterfaceManager = vpnIntfManager;
         this.idManager = idManager;
         this.lockManager = lockManagerService;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
         this.vpnNodeListener = vpnNodeListener;
+        this.fibManager = fibManager;
     }
 
     // TODO Clean up the exception handling
@@ -864,7 +866,7 @@ public class VpnSubnetRouteHandler {
                 LOGGING_PREFIX + " deleteSubnetRouteFromFib: RouteDistinguisher cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp,
                 LOGGING_PREFIX +  " deleteSubnetRouteFromFib: SubnetRouteIp cannot be null or empty!");
-        vpnInterfaceManager.deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
+        deleteSubnetRouteFibEntryFromDS(rd, subnetIp, vpnName);
         if (isBgpVpn) {
             try {
                 bgpManager.withdrawPrefix(rd, subnetIp);
@@ -875,6 +877,19 @@ public class VpnSubnetRouteHandler {
             }
         }
         return true;
+    }
+
+    public void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName) {
+        fibManager.removeFibEntry(dataBroker, rd, prefix, null);
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(dataBroker, vpnName);
+        for (VpnInstanceOpDataEntry vpnInstance : vpnsToImportRoute) {
+            String importingRd = vpnInstance.getVrfId();
+            fibManager.removeFibEntry(dataBroker, importingRd, prefix, null);
+            LOG.info("SUBNETROUTE: deleteSubnetRouteFibEntryFromDS: Deleted imported subnet route rd {} prefix {}"
+                    + " from vpn {} importingRd {}", rd, prefix, vpnInstance.getVpnInstanceName(), importingRd);
+        }
+        LOG.info("SUBNETROUTE: deleteSubnetRouteFibEntryFromDS: Removed subnetroute FIB for prefix {} rd {}"
+                + " vpnName {}", prefix, rd, vpnName);
     }
 
     // TODO Clean up the exception handling

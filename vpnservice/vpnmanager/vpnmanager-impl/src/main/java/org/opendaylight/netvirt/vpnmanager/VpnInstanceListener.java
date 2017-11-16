@@ -393,21 +393,6 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
         }
     }
 
-    public boolean isVPNConfigured() {
-
-        InstanceIdentifier<VpnInstances> vpnsIdentifier = InstanceIdentifier.builder(VpnInstances.class).build();
-        Optional<VpnInstances> optionalVpns = TransactionUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-            vpnsIdentifier);
-        if (!optionalVpns.isPresent()
-            || optionalVpns.get().getVpnInstance() == null
-            || optionalVpns.get().getVpnInstance().isEmpty()) {
-            LOG.trace("isVPNConfigured: No VPNs configured.");
-            return false;
-        }
-        LOG.trace("isVPNConfigured: VPNs are configured on the system.");
-        return true;
-    }
-
     protected VpnInstanceOpDataEntry getVpnInstanceOpData(String rd) {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
         Optional<VpnInstanceOpDataEntry> vpnInstanceOpData =
