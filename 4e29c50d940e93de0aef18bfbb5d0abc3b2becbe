@@ -22,6 +22,30 @@
       "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_71517535",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-16T14:26:57Z",
+      "side": 1,
+      "message": "I picked up on this as well... actually, you cannot; this just happens to not cause any damage because vpnmanager-impl/pom.xml does not currently have the blueprint plugin, and even if it did it would cause no effect until this class was annotated @Singleton.  It could cause confusing in the future though, so I would prefer if this patch would not add @PostConstruct everywhere - as it\u0027s got nothing to do with the DJC -\u003e JC migration, right?\n\nPS: If you would like to migrate vpnmanager-impl (and everything else!) from BP XML to annotations, then I\u0027m all for that, but I would do it as a separate change.",
+      "parentUuid": "9a245df4_11b2b993",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 18
+      },
+      "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
