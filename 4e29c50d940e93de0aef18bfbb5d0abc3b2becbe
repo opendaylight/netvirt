@@ -118,6 +118,30 @@
       "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_42abc174",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-16T22:52:02Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/#/c/65631/ gets rid of the circular dependencies.",
+      "parentUuid": "9a245df4_c28051f9",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 18
+      },
+      "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
