@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.neutronvpn;
 
+import static java.util.Collections.singletonList;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 import static org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker.syncReadOptional;
 
@@ -38,6 +39,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.alarm.NeutronvpnAlarms;
@@ -160,6 +163,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     private static final Logger LOG = LoggerFactory.getLogger(NeutronvpnManager.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner managedNewTransactionRunner;
     private final NeutronvpnNatManager nvpnNatManager;
     private final NotificationPublishService notificationPublishService;
     private final VpnRpcService vpnRpcService;
@@ -181,6 +185,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             final NeutronvpnConfig neutronvpnConfig, final IVpnManager vpnManager,
             final JobCoordinator jobCoordinator, final NeutronvpnUtils neutronvpnUtils) {
         this.dataBroker = dataBroker;
+        this.managedNewTransactionRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         nvpnNatManager = vpnNatMgr;
         notificationPublishService = notiPublishService;
         vpnRpcService = vpnRpcSrv;
@@ -1348,24 +1353,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
                 final Boolean isRouterInterface = port.getDeviceOwner()
                         .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) ? true : false;
-                jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> {
-                    WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    Adjacencies portAdj = createPortIpAdjacencies(vpnId, port, isRouterInterface,
-                              wrtConfigTxn, sn, vpnIface);
-                    if (vpnIface == null) {
-                        LOG.trace("create new VpnInterface for Port {}", vpnInfName);
-                        writeVpnInterfaceToDs(vpnId, vpnInfName, portAdj, isRouterInterface, wrtConfigTxn);
-                        if (sn.getRouterId() != null) {
-                            addToNeutronRouterInterfacesMap(sn.getRouterId(),portId.getValue());
+                jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> singletonList(
+                    managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit(wrtConfigTxn -> {
+                        Adjacencies portAdj = createPortIpAdjacencies(vpnId, port, isRouterInterface, wrtConfigTxn, sn,
+                                vpnIface);
+                        if (vpnIface == null) {
+                            LOG.trace("create new VpnInterface for Port {}", vpnInfName);
+                            writeVpnInterfaceToDs(vpnId, vpnInfName, portAdj, isRouterInterface, wrtConfigTxn);
+                            if (sn.getRouterId() != null) {
+                                addToNeutronRouterInterfacesMap(sn.getRouterId(),portId.getValue());
+                            }
+                        } else {
+                            LOG.trace("update VpnInterface for Port {} with adj {}", vpnInfName, portAdj);
+                            updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
                         }
-                    } else {
-                        LOG.trace("update VpnInterface for Port {} with adj {}", vpnInfName, portAdj);
-                        updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
-                    }
-                    futures.add(wrtConfigTxn.submit());
-                    return futures;
-                });
+                    }))
+                );
             }
         }
     }
