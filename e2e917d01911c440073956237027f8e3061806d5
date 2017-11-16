@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_7a966f40",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-11-16T07:59:14Z",
+      "side": 1,
+      "message": "Jamo, weight as configured here and in code has an inverse relationship. Think of weight as priority, an indicator of extra carrying capacity of the switch. Going by your example:\n\n1. The 1st VRF goes to C as C is 1 above B.\n2. The 2nd one can go to B or C as at this point C is equal to B.\n3. The 3rd VRF goes to C or B, i.e. the one not chosen in 2 as that one would be higher priority.\n4. At this point A,B,C are equals and next VRF can go to any of these.\n\nMaybe we should call it priority instead of weight? Or alternative is to set base at 0 and then configure -1, -2. Most common use case would be to select a switch to take more load, than lesser. So wanted to prefer positive numbers for most common use case, though it sounds a bit counter-intuitive.",
+      "parentUuid": "9a245df4_00345c48",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b2a5d448",
         "filename": "docs/specs/weighted-napt-selection.rst",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3a719744",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-11-16T07:59:14Z",
+      "side": 1,
+      "message": "This is exactly what this code is doing, you can extend it to Conntrack SNAT too. Instead of 1, you can use this od_base_weight+1 for that switch.",
+      "parentUuid": "9a245df4_b2a5d448",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8047acbb",
         "filename": "docs/specs/weighted-napt-selection.rst",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-11-03T17:52:21Z",
       "side": 1,
       "message": "I can think of a lot more cases than this, but at least we should expand to\nadding up to 4 VRFs here somehow. that will at least cover what happens\nwhen one compute with base_weight 0 gets 2 VRFS making it\u0027s weight also\n2 and then the additional 2 more VRFs should give us an end state where\nboth computes are now having a weight of 3.\n\nunless I misunderstood how this all should work.",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_ba9c675e",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-11-16T07:59:14Z",
+      "side": 1,
+      "message": "you did misunderstand what weight means, but get your point on test case and agree. I think may work better with 3 computes.",
+      "parentUuid": "9a245df4_8047acbb",
       "revId": "e2e917d01911c440073956237027f8e3061806d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
