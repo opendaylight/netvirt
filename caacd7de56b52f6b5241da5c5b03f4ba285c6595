@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_1122b951",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-11-16T14:18:33Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_2654effd",
+      "revId": "caacd7de56b52f6b5241da5c5b03f4ba285c6595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_e62e578b",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 6
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_da979b38",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-11-16T14:18:33Z",
+      "side": 1,
+      "message": "No, this should be available in port create.\nBut currently, odl-neutron is not passing this attribute at all.\nsee: https://git.opendaylight.org/gerrit/#/c/65551/\nfor more info.",
+      "parentUuid": "9a245df4_e62e578b",
+      "revId": "caacd7de56b52f6b5241da5c5b03f4ba285c6595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_464f636b",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 6
@@ -47,6 +83,24 @@
       "writtenOn": "2017-11-14T16:35:36Z",
       "side": 1,
       "message": "i guess we assume presence of vnic\u003d direct in the ovsdb itself is sufficient to assume h/w offload is supported by the switch",
+      "revId": "caacd7de56b52f6b5241da5c5b03f4ba285c6595",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_713335ab",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 6
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-11-16T14:18:33Z",
+      "side": 1,
+      "message": "only if it\u0027s in \"supported_vnic_types\" list",
+      "parentUuid": "9a245df4_464f636b",
       "revId": "caacd7de56b52f6b5241da5c5b03f4ba285c6595",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
