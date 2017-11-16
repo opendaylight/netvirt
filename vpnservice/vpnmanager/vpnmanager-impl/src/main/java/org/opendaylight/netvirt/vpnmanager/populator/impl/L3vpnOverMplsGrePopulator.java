@@ -11,14 +11,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.vpnmanager.VpnConstants;
-import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
 import org.opendaylight.netvirt.vpnmanager.populator.input.L3vpnInput;
 import org.opendaylight.netvirt.vpnmanager.populator.registry.L3vpnRegistry;
@@ -35,9 +33,9 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
     private final IdManagerService idManager;
     private static final Logger LOG = LoggerFactory.getLogger(L3vpnOverMplsGrePopulator.class);
 
-    public L3vpnOverMplsGrePopulator(DataBroker dataBroker, VpnInterfaceManager vpnInterfaceManager,
-                                     IBgpManager bgpManager, IFibManager fibManager, IdManagerService idManager) {
-        super(dataBroker, vpnInterfaceManager, bgpManager, fibManager);
+    public L3vpnOverMplsGrePopulator(DataBroker dataBroker, IBgpManager bgpManager, IFibManager fibManager,
+            IdManagerService idManager) {
+        super(dataBroker, bgpManager, fibManager);
         this.idManager = idManager;
     }
 
@@ -65,7 +63,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         String nextHopIp = input.getNextHopIp();
         VrfEntry.EncapType encapType = input.getEncapType();
         LOG.info("populateFib : Found Interface Adjacency with prefix {} rd {}", nextHop.getIpAddress(), primaryRd);
-        List<VpnInstanceOpDataEntry> vpnsToImportRoute = vpnInterfaceManager.getVpnsImportingMyRoute(vpnName);
+        List<VpnInstanceOpDataEntry> vpnsToImportRoute = VpnUtil.getVpnsImportingMyRoute(broker, vpnName);
         long vpnId = VpnUtil.getVpnId(broker, vpnName);
         String nextHopIpAddress = nextHop.getIpAddress(); // it is a valid case for nextHopIpAddress to be null
         // Not advertising the prefix to BGP for InternalVpn (where rd is vpnName),
@@ -73,7 +71,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         // and internalVpnForExtraRoute (where rd is DpnId)
         if (VpnUtil.isEligibleForBgp(rd, input.getVpnName(), input.getDpnId(), input.getNetworkName())) {
             // the DpnId is set as rd in case of extra routes present in router based VPN
-            vpnInterfaceManager.addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
+            addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
                     primaryRd);
             Objects.requireNonNull(input.getRouteOrigin(), "RouteOrigin is mandatory");
@@ -119,8 +117,8 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
                     + "vpn interface adjacency " + prefix + "for vpn " + vpnName;
             throw new NullPointerException(error);
         }
-        List<String> nextHopList = (adjNextHop != null && !adjNextHop.isEmpty()) ? adjNextHop
-                : (nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp));
+        List<String> nextHopList = adjNextHop != null && !adjNextHop.isEmpty() ? adjNextHop
+                : nextHopIp == null ? Collections.emptyList() : Collections.singletonList(nextHopIp);
 
         return new AdjacencyBuilder(nextHop).setLabel(label).setNextHopIpList(nextHopList)
                 .setIpAddress(prefix).setVrfId(rd).setKey(new AdjacencyKey(prefix))

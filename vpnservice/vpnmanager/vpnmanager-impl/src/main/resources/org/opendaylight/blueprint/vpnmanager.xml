@@ -21,9 +21,6 @@
   <reference id="neutronVpnService"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager"
              availability="optional" />
-  <reference id="vpnManager"
-             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager"
-             availability="optional" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
   <reference id="jobCoordinator"
@@ -80,8 +77,7 @@
     <argument ref="odlInterfaceRpcService" />
     <argument ref="vpnFootprintService" />
     <argument ref="interfaceManager" />
-    <argument ref="vpnManager" />
-    <argument ref="interVpnLinkService" />
+    <argument ref="vpnManagerImpl" />
     <argument ref="arpResponderHandler" />
     <argument ref="jobCoordinator" />
   </bean>
@@ -168,11 +164,11 @@
     <argument ref="dataBroker" />
     <argument ref="subnetOpDpnManager" />
     <argument ref="bgpmanager" />
-    <argument ref="vpnInterfaceManager" />
     <argument ref="idManagerService" />
     <argument ref="lockManagerService" />
     <argument ref="vpnOpDataSyncer"/>
     <argument ref="VpnNodeListener"/>
+    <argument ref="fibManager" />
   </bean>
 
   <bean id="tunnelInterfaceStateListener"
@@ -194,13 +190,15 @@
         init-method="start">
     <argument ref="dataBroker" />
     <argument ref="idManagerService" />
-    <argument ref="vpnInstanceListener" />
-    <argument ref="vpnInterfaceManager" />
     <argument ref="mdsalUtils" />
     <argument ref="vpnFootprintService" />
     <argument ref="elanService" />
     <argument ref="interfaceManager" />
     <argument ref="vpnSubnetRouteHandler" />
+    <argument ref="odlInterfaceRpcService" />
+    <argument ref="interVpnLinkService" />
+    <argument ref="fibManager" />
+    <argument ref="bgpmanager" />
   </bean>
   <service ref="vpnManagerImpl"
            interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
@@ -228,9 +226,9 @@
         class="org.opendaylight.netvirt.vpnmanager.VpnRpcServiceImpl">
     <argument ref="dataBroker" />
     <argument ref="idManagerService" />
-    <argument ref="vpnInterfaceManager" />
     <argument ref="fibManager" />
     <argument ref="bgpmanager" />
+    <argument ref="vpnManagerImpl" />
   </bean>
   <service ref="vpnRpcServiceImpl"
            interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
@@ -323,7 +321,7 @@
         class="org.opendaylight.netvirt.vpnmanager.CentralizedSwitchChangeListener"
         init-method="init" destroy-method="close">
         <argument ref="dataBroker" />
-        <argument ref="vpnManager" />
+        <argument ref="vpnManagerImpl" />
   </bean>
 
   <bean id="l3vpnRegistry"
@@ -335,7 +333,6 @@
         class="org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnOverMplsGrePopulator"
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="vpnInterfaceManager" />
     <argument ref="bgpmanager" />
     <argument ref="fibManager" />
     <argument ref="idManagerService" />
@@ -345,7 +342,6 @@
         class="org.opendaylight.netvirt.vpnmanager.populator.impl.L3vpnOverVxlanPopulator"
         init-method="init" destroy-method="close">
     <argument ref="dataBroker" />
-    <argument ref="vpnInterfaceManager" />
     <argument ref="bgpmanager" />
     <argument ref="fibManager" />
   </bean>
