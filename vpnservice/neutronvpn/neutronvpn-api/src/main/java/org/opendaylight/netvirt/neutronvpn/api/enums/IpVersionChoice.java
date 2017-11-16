@@ -38,6 +38,9 @@ public enum IpVersionChoice {
         if (this.choice == UNDEFINED.choice) {
             return ipVers;
         }
+        if (this.choice == IPV4AND6.choice || ipVers.choice == IPV4AND6.choice) {
+            return IPV4AND6;
+        }
         int newChoice = this.choice + ipVers.choice;
         switch (newChoice) {
             case 4:  return IpVersionChoice.IPV4;
