@@ -94,6 +94,30 @@
       "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c28051f9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/ArpMonitoringHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2017-11-16T22:39:56Z",
+      "side": 1,
+      "message": "yeah, there are 3 bundles or so that we couldn\u0027t convert yet because of the circular dependencies. Some of the work skitt was doing to split stuff out is supposed to help I think. It would be good to see where we are now.",
+      "parentUuid": "9a245df4_5156f12a",
+      "range": {
+        "startLine": 68,
+        "startChar": 4,
+        "endLine": 68,
+        "endChar": 18
+      },
+      "revId": "4e29c50d940e93de0aef18bfbb5d0abc3b2becbe",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
