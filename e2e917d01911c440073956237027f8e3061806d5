@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_a25b9df4",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-11-16T21:45:35Z",
+      "side": 1,
+      "message": "so it\u0027s a dynamic prority type of thing?\n\nmeaning if I start with priority of 10 and I get a VRF, then my\npriority is moved to 9?\n\nif not dynamic, then I don\u0027t see how any other switch gets chosen\nover one with a higher priority.",
+      "parentUuid": "9a245df4_7a966f40",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b2a5d448",
         "filename": "docs/specs/weighted-napt-selection.rst",
         "patchSetId": 2
