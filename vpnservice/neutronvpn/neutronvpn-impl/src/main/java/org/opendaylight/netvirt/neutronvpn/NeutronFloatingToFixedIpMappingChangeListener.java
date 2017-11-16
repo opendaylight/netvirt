@@ -12,6 +12,7 @@ import static org.opendaylight.netvirt.neutronvpn.NeutronvpnUtils.buildfloatingI
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,7 +22,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.infrautils.utils.concurrent.KeyedLocks;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpInfo;
@@ -47,7 +48,10 @@ import org.slf4j.LoggerFactory;
 public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTreeChangeListenerBase<Floatingip,
         NeutronFloatingToFixedIpMappingChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronFloatingToFixedIpMappingChangeListener.class);
+    private static long LOCK_WAIT_TIME = 10L;
+
     private final DataBroker dataBroker;
+    private final KeyedLocks<String> routerLock = new KeyedLocks<>();
 
     @Inject
     public NeutronFloatingToFixedIpMappingChangeListener(final DataBroker dataBroker) {
@@ -174,7 +178,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 portsList.add(fixedNeutronPortBuilder.build());
                 routerPortsBuilder.setPorts(portsList);
             }
-            isLockAcquired = NeutronUtils.lock(routerName);
+            isLockAcquired = routerLock.tryLock(routerName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
             LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
                 + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier,
@@ -184,7 +188,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             LOG.error("addToFloatingIpInfo failed for floating IP: {} ", floatingIpAddress, e);
         } finally {
             if (isLockAcquired) {
-                NeutronUtils.unlock(routerName);
+                routerLock.unlock(routerName);
             }
         }
     }
@@ -221,7 +225,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                                             new InternalToExternalPortMapKey(fixedIpAddress)).build();
                             try {
                                 // remove particular internal-to-external-port-map
-                                isLockAcquired = NeutronUtils.lock(fixedIpAddress);
+                                isLockAcquired = routerLock.tryLock(fixedIpAddress, LOCK_WAIT_TIME, TimeUnit.SECONDS);
                                 LOG.debug("removing particular internal-to-external-port-map {}", intExtPortMap);
                                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                         intExtPortMapIdentifier);
@@ -229,7 +233,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                                 LOG.error("Failure in deletion of internal-to-external-port-map {}", intExtPortMap, e);
                             } finally {
                                 if (isLockAcquired) {
-                                    NeutronUtils.unlock(fixedIpAddress);
+                                    routerLock.unlock(fixedIpAddress);
                                 }
                             }
                         }
@@ -297,14 +301,14 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             if (portsList.size() == 1) {
                 // remove entire routerPorts node
                 lockName = routerName;
-                isLockAcquired = NeutronUtils.lock(lockName);
+                isLockAcquired = routerLock.tryLock(lockName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
                 LOG.debug("removing routerPorts node: {} ", routerName);
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifierBuilder
                         .build());
             } else {
                 // remove entire ports node under this routerPorts node
                 lockName = fixedNeutronPortName;
-                isLockAcquired = NeutronUtils.lock(lockName);
+                isLockAcquired = routerLock.tryLock(lockName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
                 LOG.debug("removing ports node {} under routerPorts node {}", fixedNeutronPortName, routerName);
                 InstanceIdentifier.InstanceIdentifierBuilder<Ports> portsIdentifierBuilder =
                     routerPortsIdentifierBuilder.child(Ports.class, new PortsKey(fixedNeutronPortName));
@@ -314,7 +318,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
             LOG.error("Failure in deletion of routerPorts node {}", routerName, e);
         } finally {
             if (isLockAcquired) {
-                NeutronUtils.unlock(lockName);
+                routerLock.unlock(lockName);
             }
         }
     }
