@@ -5,8 +5,10 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.neutronvpn;
+
+import static java.util.Objects.requireNonNull;
+import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
@@ -34,6 +36,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -136,7 +139,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.link.states.InterVpnLinkStateKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.netvirt.inter.vpn.link.rev160311.inter.vpn.links.InterVpnLink;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -185,9 +187,9 @@ public class NeutronvpnUtils {
         this.jobCoordinator = jobCoordinator;
     }
 
-    protected Subnetmap getSubnetmap(Uuid subnetId) {
+    private Subnetmap getSubnetmap(ReadTransaction tx, Uuid subnetId) throws ReadFailedException {
         InstanceIdentifier<Subnetmap> id = buildSubnetMapIdentifier(subnetId);
-        Optional<Subnetmap> sn = read(LogicalDatastoreType.CONFIGURATION, id);
+        Optional<Subnetmap> sn = tx.read(CONFIGURATION, id).checkedGet();
 
         if (sn.isPresent()) {
             return sn.get();
@@ -196,10 +198,10 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    public VpnMap getVpnMap(Uuid id) {
+    public VpnMap getVpnMap(ReadTransaction tx, Uuid id) throws ReadFailedException {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(id)).build();
-        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        Optional<VpnMap> optionalVpnMap = tx.read(CONFIGURATION, vpnMapIdentifier).checkedGet();
         if (optionalVpnMap.isPresent()) {
             return optionalVpnMap.get();
         }
@@ -207,9 +209,9 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected Uuid getVpnForNetwork(Uuid network) {
+    private Uuid getVpnForNetwork(ReadTransaction tx, Uuid network) throws ReadFailedException {
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        Optional<VpnMaps> optionalVpnMaps = tx.read(CONFIGURATION, vpnMapsIdentifier).checkedGet();
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
@@ -223,10 +225,9 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected Uuid getVpnForSubnet(Uuid subnetId) {
+    private Uuid getVpnForSubnet(ReadTransaction tx, Uuid subnetId) throws ReadFailedException {
         InstanceIdentifier<Subnetmap> subnetmapIdentifier = buildSubnetMapIdentifier(subnetId);
-        Optional<Subnetmap> optionalSubnetMap = read(LogicalDatastoreType.CONFIGURATION,
-                subnetmapIdentifier);
+        Optional<Subnetmap> optionalSubnetMap = tx.read(CONFIGURATION, subnetmapIdentifier).checkedGet();
         if (optionalSubnetMap.isPresent()) {
             return optionalSubnetMap.get().getVpnId();
         }
@@ -234,10 +235,9 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected Uuid getNetworkForSubnet(Uuid subnetId) {
+    private Uuid getNetworkForSubnet(ReadTransaction tx, Uuid subnetId) throws ReadFailedException {
         InstanceIdentifier<Subnetmap> subnetmapIdentifier = buildSubnetMapIdentifier(subnetId);
-        Optional<Subnetmap> optionalSubnetMap = read(LogicalDatastoreType.CONFIGURATION,
-                subnetmapIdentifier);
+        Optional<Subnetmap> optionalSubnetMap = tx.read(CONFIGURATION, subnetmapIdentifier).checkedGet();
         if (optionalSubnetMap.isPresent()) {
             return optionalSubnetMap.get().getNetworkId();
         }
@@ -246,13 +246,13 @@ public class NeutronvpnUtils {
     }
 
     // @param external vpn - true if external vpn being fetched, false for internal vpn
-    protected Uuid getVpnForRouter(Uuid routerId, Boolean externalVpn) {
+    private Uuid getVpnForRouter(ReadTransaction tx, Uuid routerId, Boolean externalVpn) throws ReadFailedException {
         if (routerId == null) {
             return null;
         }
 
         InstanceIdentifier<VpnMaps> vpnMapsIdentifier = InstanceIdentifier.builder(VpnMaps.class).build();
-        Optional<VpnMaps> optionalVpnMaps = read(LogicalDatastoreType.CONFIGURATION, vpnMapsIdentifier);
+        Optional<VpnMaps> optionalVpnMaps = tx.read(CONFIGURATION, vpnMapsIdentifier).checkedGet();
         if (optionalVpnMaps.isPresent() && optionalVpnMaps.get().getVpnMap() != null) {
             List<VpnMap> allMaps = optionalVpnMaps.get().getVpnMap();
             for (VpnMap vpnMap : allMaps) {
@@ -273,10 +273,10 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected Uuid getRouterforVpn(Uuid vpnId) {
+    private Uuid getRouterforVpn(ReadTransaction tx, Uuid vpnId) throws ReadFailedException {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
-        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        Optional<VpnMap> optionalVpnMap = tx.read(CONFIGURATION, vpnMapIdentifier).checkedGet();
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
             return vpnMap.getRouterId();
@@ -285,10 +285,10 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected List<Uuid> getNetworksForVpn(Uuid vpnId) {
+    private List<Uuid> getNetworksForVpn(ReadTransaction tx, Uuid vpnId) throws ReadFailedException {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
-        Optional<VpnMap> optionalVpnMap = read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        Optional<VpnMap> optionalVpnMap = tx.read(CONFIGURATION, vpnMapIdentifier).checkedGet();
         if (optionalVpnMap.isPresent()) {
             VpnMap vpnMap = optionalVpnMap.get();
             return vpnMap.getNetworkIds();
@@ -297,11 +297,11 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected List<Uuid> getSubnetsforVpn(Uuid vpnid) {
+    private List<Uuid> getSubnetsforVpn(ReadTransaction tx, Uuid vpnid) throws ReadFailedException {
         List<Uuid> subnets = new ArrayList<>();
         // read subnetmaps
         InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> subnetmaps = read(LogicalDatastoreType.CONFIGURATION, subnetmapsid);
+        Optional<Subnetmaps> subnetmaps = tx.read(CONFIGURATION, subnetmapsid).checkedGet();
         if (subnetmaps.isPresent() && subnetmaps.get().getSubnetmap() != null) {
             List<Subnetmap> subnetMapList = subnetmaps.get().getSubnetmap();
             for (Subnetmap subnetMap : subnetMapList) {
@@ -313,9 +313,10 @@ public class NeutronvpnUtils {
         return subnets;
     }
 
-    protected String getNeutronPortNameFromVpnPortFixedIp(String vpnName, String fixedIp) {
+    private String getNeutronPortNameFromVpnPortFixedIp(ReadTransaction tx, String vpnName, String fixedIp)
+            throws ReadFailedException {
         InstanceIdentifier<VpnPortipToPort> id = buildVpnPortipToPortIdentifier(vpnName, fixedIp);
-        Optional<VpnPortipToPort> vpnPortipToPortData = read(LogicalDatastoreType.CONFIGURATION, id);
+        Optional<VpnPortipToPort> vpnPortipToPortData = tx.read(CONFIGURATION, id).checkedGet();
         if (vpnPortipToPortData.isPresent()) {
             return vpnPortipToPortData.get().getPortName();
         }
@@ -324,9 +325,9 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected List<Uuid> getSubnetIdsFromNetworkId(Uuid networkId) {
+    private List<Uuid> getSubnetIdsFromNetworkId(ReadTransaction tx, Uuid networkId) throws ReadFailedException {
         InstanceIdentifier<NetworkMap> id = buildNetworkMapIdentifier(networkId);
-        Optional<NetworkMap> optionalNetworkMap = read(LogicalDatastoreType.CONFIGURATION, id);
+        Optional<NetworkMap> optionalNetworkMap = tx.read(CONFIGURATION, id).checkedGet();
         if (optionalNetworkMap.isPresent()) {
             return optionalNetworkMap.get().getSubnetIdList();
         }
@@ -334,30 +335,30 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected List<Uuid> getPortIdsFromSubnetId(Uuid subnetId) {
+    private List<Uuid> getPortIdsFromSubnetId(ReadTransaction tx, Uuid subnetId) throws ReadFailedException {
         InstanceIdentifier<Subnetmap> id = buildSubnetMapIdentifier(subnetId);
-        Optional<Subnetmap> optionalSubnetmap = read(LogicalDatastoreType.CONFIGURATION, id);
+        Optional<Subnetmap> optionalSubnetmap = tx.read(LogicalDatastoreType.CONFIGURATION, id).checkedGet();
         if (optionalSubnetmap.isPresent()) {
             return optionalSubnetmap.get().getPortList();
         }
         return null;
     }
 
-    protected Router getNeutronRouter(Uuid routerId) {
+    private Router getNeutronRouter(ReadTransaction tx, Uuid routerId) throws ReadFailedException {
         Router router = routerMap.get(routerId);
         if (router != null) {
             return router;
         }
         InstanceIdentifier<Router> inst = InstanceIdentifier.create(Neutron.class).child(Routers.class).child(Router
                 .class, new RouterKey(routerId));
-        Optional<Router> rtr = read(LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Router> rtr = tx.read(LogicalDatastoreType.CONFIGURATION, inst).checkedGet();
         if (rtr.isPresent()) {
             router = rtr.get();
         }
         return router;
     }
 
-    protected Network getNeutronNetwork(Uuid networkId) {
+    private Network getNeutronNetwork(ReadTransaction tx, Uuid networkId) throws ReadFailedException {
         Network network = null;
         network = networkMap.get(networkId);
         if (network != null) {
@@ -366,14 +367,14 @@ public class NeutronvpnUtils {
         LOG.debug("getNeutronNetwork for {}", networkId.getValue());
         InstanceIdentifier<Network> inst = InstanceIdentifier.create(Neutron.class).child(Networks.class)
             .child(Network.class, new NetworkKey(networkId));
-        Optional<Network> net = read(LogicalDatastoreType.CONFIGURATION, inst);
+        Optional<Network> net = tx.read(CONFIGURATION, inst).checkedGet();
         if (net.isPresent()) {
             network = net.get();
         }
         return network;
     }
 
-    protected Port getNeutronPort(Uuid portId) {
+    private Port getNeutronPort(Uuid portId) {
         Port prt = portMap.get(portId);
         if (prt != null) {
             return prt;
@@ -394,7 +395,7 @@ public class NeutronvpnUtils {
      * @param port the port
      * @return port_security_enabled status
      */
-    protected static boolean getPortSecurityEnabled(Port port) {
+    private static boolean getPortSecurityEnabled(Port port) {
         String deviceOwner = port.getDeviceOwner();
         if (deviceOwner != null && deviceOwner.startsWith("network:")) {
             // port with device owner of network:xxx is created by
@@ -416,7 +417,7 @@ public class NeutronvpnUtils {
      * @param port2SecurityGroups the port 2 security groups
      * @return the security groups delta
      */
-    protected static List<Uuid> getSecurityGroupsDelta(List<Uuid> port1SecurityGroups,
+    private static List<Uuid> getSecurityGroupsDelta(List<Uuid> port1SecurityGroups,
             List<Uuid> port2SecurityGroups) {
         if (port1SecurityGroups == null) {
             return null;
@@ -447,7 +448,7 @@ public class NeutronvpnUtils {
      * @param port2FixedIps the port 2 fixed ips
      * @return the fixed ips delta
      */
-    protected static List<FixedIps> getFixedIpsDelta(List<FixedIps> port1FixedIps, List<FixedIps> port2FixedIps) {
+    private static List<FixedIps> getFixedIpsDelta(List<FixedIps> port1FixedIps, List<FixedIps> port2FixedIps) {
         if (port1FixedIps == null) {
             return null;
         }
@@ -477,7 +478,7 @@ public class NeutronvpnUtils {
      * @param port2AllowedAddressPairs the port 2 allowed address pairs
      * @return the allowed address pairs delta
      */
-    protected static List<AllowedAddressPairs> getAllowedAddressPairsDelta(
+    private static List<AllowedAddressPairs> getAllowedAddressPairsDelta(
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
             .AllowedAddressPairs> port1AllowedAddressPairs,
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
@@ -519,7 +520,7 @@ public class NeutronvpnUtils {
      * @param ipAddress the ip address
      * @return the acl allowed address pairs
      */
-    protected static AllowedAddressPairs getAclAllowedAddressPairs(MacAddress macAddress,
+    private static AllowedAddressPairs getAclAllowedAddressPairs(MacAddress macAddress,
             org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress ipAddress) {
         AllowedAddressPairsBuilder aclAllowedAdressPairBuilder = new AllowedAddressPairsBuilder();
         aclAllowedAdressPairBuilder.setMacAddress(macAddress);
@@ -540,7 +541,7 @@ public class NeutronvpnUtils {
      * @param fixedIps the fixed ips
      * @return the allowed address pairs for acl service
      */
-    protected static List<AllowedAddressPairs> getAllowedAddressPairsForAclService(MacAddress macAddress,
+    private static List<AllowedAddressPairs> getAllowedAddressPairsForAclService(MacAddress macAddress,
             List<FixedIps> fixedIps) {
         List<AllowedAddressPairs> aclAllowedAddressPairs = new ArrayList<>();
         for (FixedIps fixedIp : fixedIps) {
@@ -557,7 +558,7 @@ public class NeutronvpnUtils {
      * @param portAllowedAddressPairs the port allowed address pairs
      * @return the allowed address pairs for acl service
      */
-    protected static List<AllowedAddressPairs> getAllowedAddressPairsForAclService(
+    private static List<AllowedAddressPairs> getAllowedAddressPairsForAclService(
         List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
             .AllowedAddressPairs> portAllowedAddressPairs) {
         List<AllowedAddressPairs> aclAllowedAddressPairs = new ArrayList<>();
@@ -575,7 +576,7 @@ public class NeutronvpnUtils {
      * @param macAddress the mac address
      * @return the allowed address pairs for acl service which includes the MAC + IPv6LLA
      */
-    protected static AllowedAddressPairs updateIPv6LinkLocalAddressForAclService(MacAddress macAddress) {
+    private static AllowedAddressPairs updateIPv6LinkLocalAddressForAclService(MacAddress macAddress) {
         IpAddress ipv6LinkLocalAddress = getIpv6LinkLocalAddressFromMac(macAddress);
         return getAclAllowedAddressPairs(macAddress,
                 new org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress(
@@ -590,7 +591,7 @@ public class NeutronvpnUtils {
      * @param newSecurityGroups the new security groups
      * @return the updated security groups
      */
-    protected static List<Uuid> getUpdatedSecurityGroups(List<Uuid> aclInterfaceSecurityGroups,
+    private static List<Uuid> getUpdatedSecurityGroups(List<Uuid> aclInterfaceSecurityGroups,
             List<Uuid> origSecurityGroups, List<Uuid> newSecurityGroups) {
         List<Uuid> addedGroups = getSecurityGroupsDelta(newSecurityGroups, origSecurityGroups);
         List<Uuid> deletedGroups = getSecurityGroupsDelta(origSecurityGroups, newSecurityGroups);
@@ -614,7 +615,7 @@ public class NeutronvpnUtils {
      * @param newFixedIps the new fixed ips
      * @return the allowed address pairs for fixed ips
      */
-    protected static List<AllowedAddressPairs> getAllowedAddressPairsForFixedIps(
+    private static List<AllowedAddressPairs> getAllowedAddressPairsForFixedIps(
             List<AllowedAddressPairs> aclInterfaceAllowedAddressPairs, MacAddress portMacAddress,
             List<FixedIps> origFixedIps, List<FixedIps> newFixedIps) {
         List<FixedIps> addedFixedIps = getFixedIpsDelta(newFixedIps, origFixedIps);
@@ -639,7 +640,7 @@ public class NeutronvpnUtils {
      * @param newAllowedAddressPairs the new allowed address pairs
      * @return the updated allowed address pairs
      */
-    protected static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(
+    private static List<AllowedAddressPairs> getUpdatedAllowedAddressPairs(
             List<AllowedAddressPairs> aclInterfaceAllowedAddressPairs,
             List<org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes
                 .AllowedAddressPairs> origAllowedAddressPairs,
@@ -667,7 +668,7 @@ public class NeutronvpnUtils {
      * @param interfaceAclBuilder the interface acl builder
      * @param port the port
      */
-    protected static void populateInterfaceAclBuilder(InterfaceAclBuilder interfaceAclBuilder, Port port) {
+    private static void populateInterfaceAclBuilder(InterfaceAclBuilder interfaceAclBuilder, Port port) {
         // Handle security group enabled
         List<Uuid> securityGroups = port.getSecurityGroups();
         if (securityGroups != null) {
@@ -685,7 +686,7 @@ public class NeutronvpnUtils {
         interfaceAclBuilder.setAllowedAddressPairs(aclAllowedAddressPairs);
     }
 
-    protected void populateSubnetIpPrefixes(Port port) {
+    private void populateSubnetIpPrefixes(Port port) {
         List<IpPrefixOrAddress> subnetIpPrefixes = getSubnetIpPrefixes(port);
         if (subnetIpPrefixes != null) {
             String portId = port.getUuid().getValue();
@@ -700,7 +701,7 @@ public class NeutronvpnUtils {
         }
     }
 
-    protected List<IpPrefixOrAddress> getSubnetIpPrefixes(Port port) {
+    private List<IpPrefixOrAddress> getSubnetIpPrefixes(Port port) {
         List<Uuid> subnetIds = getSubnetIdsFromNetworkId(port.getNetworkId());
         if (subnetIds == null) {
             LOG.error("Failed to get Subnet Ids for the Network {}", port.getNetworkId());
@@ -716,7 +717,7 @@ public class NeutronvpnUtils {
         return subnetIpPrefixes;
     }
 
-    protected Subnet getNeutronSubnet(Uuid subnetId) {
+    private Subnet getNeutronSubnet(Uuid subnetId) {
         Subnet subnet = subnetMap.get(subnetId);
         if (subnet != null) {
             return subnet;
@@ -732,7 +733,7 @@ public class NeutronvpnUtils {
     }
 
     @Nonnull
-    protected List<Uuid> getNeutronRouterSubnetIds(Uuid routerId) {
+    private List<Uuid> getNeutronRouterSubnetIds(Uuid routerId) {
         LOG.debug("getNeutronRouterSubnetIds for {}", routerId.getValue());
         List<Uuid> subnetIdList = new ArrayList<>();
         Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION,
@@ -750,7 +751,7 @@ public class NeutronvpnUtils {
 
     // TODO Clean up the exception handling and the console output
     @SuppressWarnings({"checkstyle:IllegalCatch", "checkstyle:RegexpSinglelineJava"})
-    protected Short getIPPrefixFromPort(Port port) {
+    private Short getIPPrefixFromPort(Port port) {
         try {
             Uuid subnetUUID = port.getFixedIps().get(0).getSubnetId();
             SubnetKey subnetkey = new SubnetKey(subnetUUID);
@@ -776,32 +777,21 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void createVpnPortFixedIpToPort(String vpnName, String fixedIp, String portName, String macAddress,
+    private void createVpnPortFixedIpToPort(String vpnName, String fixedIp, String portName, String macAddress,
             boolean isSubnetIp, WriteTransaction writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         VpnPortipToPortBuilder builder = new VpnPortipToPortBuilder()
             .setKey(new VpnPortipToPortKey(fixedIp, vpnName))
             .setVpnName(vpnName).setPortFixedip(fixedIp)
             .setPortName(portName).setMacAddress(macAddress).setSubnetIp(isSubnetIp);
-        try {
-            if (writeConfigTxn != null) {
-                writeConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, builder.build());
-            } else {
-                MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, builder.build());
-            }
-            LOG.trace("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to "
-                + "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
-        } catch (Exception e) {
-            LOG.error("Failure while creating VPNPortFixedIpToPort map for vpn {} - fixedIP {}", vpnName, fixedIp,
-                    e);
-        }
+        requireNonNull(writeConfigTxn, "writeConfigTxn").put(CONFIGURATION, id, builder.build());
+        LOG.trace("Neutron port with fixedIp: {}, vpn {}, interface {}, mac {}, isSubnetIp {} added to "
+            + "VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress, isSubnetIp);
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeVpnPortFixedIpToPort(String vpnName, String fixedIp, WriteTransaction writeConfigTxn) {
+    private void removeVpnPortFixedIpToPort(String vpnName, String fixedIp, WriteTransaction writeConfigTxn) {
         InstanceIdentifier<VpnPortipToPort> id = NeutronvpnUtils.buildVpnPortipToPortIdentifier(vpnName, fixedIp);
         try {
             if (writeConfigTxn != null) {
@@ -819,7 +809,7 @@ public class NeutronvpnUtils {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    protected void removeLearntVpnVipToPort(String vpnName, String fixedIp) {
+    private void removeLearntVpnVipToPort(String vpnName, String fixedIp) {
         InstanceIdentifier<LearntVpnVipToPort> id = NeutronvpnUtils.buildLearntVpnVipToPortIdentifier(vpnName, fixedIp);
         try {
             synchronized ((vpnName + fixedIp).intern()) {
@@ -1012,16 +1002,6 @@ public class NeutronvpnUtils {
         return id;
     }
 
-    // TODO Remove this method entirely
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    private <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-        try {
-            return SingleTransactionDataBroker.syncReadOptional(dataBroker, datastoreType, path);
-        } catch (ReadFailedException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static Class<? extends NetworkTypeBase> getNetworkType(Network network) {
         NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
         return providerExtension != null ? providerExtension.getNetworkType() : null;
@@ -1080,10 +1060,11 @@ public class NeutronvpnUtils {
      * @param vpnLinkName VPN link name
      * @return Optional of InterVpnLinkState
      */
-    public Optional<InterVpnLinkState> getInterVpnLinkState(String vpnLinkName) {
+    public Optional<InterVpnLinkState> getInterVpnLinkState(ReadTransaction tx, String vpnLinkName)
+            throws ReadFailedException {
         InstanceIdentifier<InterVpnLinkState> vpnLinkStateIid = InstanceIdentifier.builder(InterVpnLinkStates.class)
                 .child(InterVpnLinkState.class, new InterVpnLinkStateKey(vpnLinkName)).build();
-        return read(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid);
+        return tx.read(LogicalDatastoreType.CONFIGURATION, vpnLinkStateIid).checkedGet();
     }
 
     /**
@@ -1131,7 +1112,7 @@ public class NeutronvpnUtils {
         return ret;
     }
 
-    protected Integer getUniqueRDId(String poolName, String idKey) {
+    private Integer getUniqueRDId(String poolName, String idKey) {
         AllocateIdInput getIdInput = new AllocateIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
             Future<RpcResult<AllocateIdOutput>> result = idManager.allocateId(getIdInput);
@@ -1149,7 +1130,7 @@ public class NeutronvpnUtils {
         return null;
     }
 
-    protected void releaseRDId(String poolName, String idKey) {
+    private void releaseRDId(String poolName, String idKey) {
         ReleaseIdInput idInput = new ReleaseIdInputBuilder().setPoolName(poolName).setIdKey(idKey).build();
         try {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
@@ -1165,7 +1146,7 @@ public class NeutronvpnUtils {
         }
     }
 
-    protected static IpAddress getIpv6LinkLocalAddressFromMac(MacAddress mac) {
+    private static IpAddress getIpv6LinkLocalAddressFromMac(MacAddress mac) {
         byte[] octets = bytesFromHexString(mac.getValue());
 
         /* As per the RFC2373, steps involved to generate a LLA include
@@ -1193,7 +1174,7 @@ public class NeutronvpnUtils {
         return ipAddress;
     }
 
-    protected static byte[] bytesFromHexString(String values) {
+    private static byte[] bytesFromHexString(String values) {
         String target = "";
         if (values != null) {
             target = values;
@@ -1225,13 +1206,13 @@ public class NeutronvpnUtils {
         return existingRDs;
     }
 
-    protected boolean doesVpnExist(Uuid vpnId) {
+    private boolean doesVpnExist(ReadTransaction tx, Uuid vpnId) {
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class).child(VpnMap.class,
                 new VpnMapKey(vpnId)).build();
-        return read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier).isPresent();
+        tx.read(LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier).get().isPresent();
     }
 
-    protected Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
+    private Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external
         .subnets.Subnets> getOptionalExternalSubnets(Uuid subnetId) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
             .rev160111.external.subnets.Subnets> subnetsIdentifier =
@@ -1298,7 +1279,7 @@ public class NeutronvpnUtils {
      * @param routerId the Uuid of router for which subnetmap is find out
      * @return a list of Subnetmap associated to the router. it could be empty if any
      */
-    protected List<Subnetmap> getNeutronRouterSubnetMaps(Uuid routerId) {
+    private List<Subnetmap> getNeutronRouterSubnetMaps(Uuid routerId) {
         List<Subnetmap> subnetIdList = new ArrayList<>();
         Optional<Subnetmaps> subnetMaps = read(LogicalDatastoreType.CONFIGURATION,
             InstanceIdentifier.builder(Subnetmaps.class).build());
@@ -1312,7 +1293,7 @@ public class NeutronvpnUtils {
         return subnetIdList;
     }
 
-    static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
+    private static InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
         .instance.to.vpn.id.VpnInstance> getVpnInstanceToVpnIdIdentifier(String vpnName) {
         return InstanceIdentifier.builder(VpnInstanceToVpnId.class)
             .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn

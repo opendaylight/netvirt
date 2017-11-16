@@ -184,14 +184,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             final JobCoordinator jobCoordinator, final NeutronvpnUtils neutronvpnUtils) {
         this.dataBroker = dataBroker;
         this.managedNewTransactionRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
-        nvpnNatManager = vpnNatMgr;
-        notificationPublishService = notiPublishService;
-        vpnRpcService = vpnRpcSrv;
+        this.nvpnNatManager = vpnNatMgr;
+        this.notificationPublishService = notiPublishService;
+        this.vpnRpcService = vpnRpcSrv;
         this.elanService = elanService;
-        floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
+        this.floatingIpMapListener = neutronFloatingToFixedIpMappingChangeListener;
         this.neutronvpnConfig = neutronvpnConfig;
-        neutronEvpnManager = new NeutronEvpnManager(dataBroker, this, neutronvpnUtils);
-        neutronEvpnUtils = new NeutronEvpnUtils(dataBroker, vpnManager, jobCoordinator);
+        this.neutronEvpnManager = new NeutronEvpnManager(dataBroker, this, neutronvpnUtils);
+        this.neutronEvpnUtils = new NeutronEvpnUtils(dataBroker, vpnManager, jobCoordinator);
         this.jobCoordinator = jobCoordinator;
         this.neutronvpnUtils = neutronvpnUtils;
 
@@ -1352,18 +1352,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 final Boolean isRouterInterface = port.getDeviceOwner()
                         .equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF) ? true : false;
                 jobCoordinator.enqueueJob("PORT-" + portId.getValue(), () -> singletonList(
-                    managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit(wrtConfigTxn -> {
-                        Adjacencies portAdj = createPortIpAdjacencies(vpnId, port, isRouterInterface, wrtConfigTxn, sn,
+                    managedNewTransactionRunner.callWithNewReadWriteTransactionAndSubmit(readWriteTx -> {
+                        Adjacencies portAdj = createPortIpAdjacencies(vpnId, port, isRouterInterface, readWriteTx, sn,
                                 vpnIface);
                         if (vpnIface == null) {
                             LOG.trace("create new VpnInterface for Port {}", vpnInfName);
-                            writeVpnInterfaceToDs(vpnId, vpnInfName, portAdj, isRouterInterface, wrtConfigTxn);
+                            writeVpnInterfaceToDs(vpnId, vpnInfName, portAdj, isRouterInterface, readWriteTx);
                             if (sn.getRouterId() != null) {
                                 addToNeutronRouterInterfacesMap(sn.getRouterId(),portId.getValue());
                             }
                         } else {
                             LOG.trace("update VpnInterface for Port {} with adj {}", vpnInfName, portAdj);
-                            updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, wrtConfigTxn);
+                            updateVpnInterfaceWithAdjacencies(vpnId, vpnInfName, portAdj, readWriteTx);
                         }
                     }))
                 );
