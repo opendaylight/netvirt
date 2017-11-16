@@ -12,13 +12,7 @@ import com.google.common.base.Preconditions;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -216,59 +210,5 @@ public class NeutronUtils {
         } else {
             return Boolean.FALSE;
         }
-    }
-
-    private static long LOCK_WAIT_TIME = 10L;
-    private static TimeUnit secUnit = TimeUnit.SECONDS;
-    static ConcurrentHashMap<String, ImmutablePair<ReadWriteLock,AtomicInteger>> locks = new ConcurrentHashMap<>();
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static boolean lock(String lockName) {
-        if (locks.get(lockName) != null) {
-            if (locks.get(lockName) == null) {
-                locks.putIfAbsent(lockName, new ImmutablePair<>(new
-                        ReentrantReadWriteLock(), new AtomicInteger(0)));
-            }
-            locks.get(lockName).getRight().incrementAndGet();
-            try {
-                if (locks.get(lockName) != null) {
-                    return locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
-                }
-            } catch (InterruptedException e) {
-                locks.get(lockName).getRight().decrementAndGet();
-                LOG.error("Unable to acquire lock for  {}", lockName);
-                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
-            }
-        } else {
-            locks.putIfAbsent(lockName, new ImmutablePair<>(new ReentrantReadWriteLock(),
-                    new AtomicInteger(0)));
-            locks.get(lockName).getRight().incrementAndGet();
-            try {
-                return locks.get(lockName).getLeft().writeLock().tryLock(LOCK_WAIT_TIME, secUnit);
-            } catch (Exception e) {
-                locks.get(lockName).getRight().decrementAndGet();
-                LOG.error("Unable to acquire lock for  {}", lockName);
-                throw new RuntimeException(String.format("Unable to acquire lock for %s", lockName), e.getCause());
-            }
-        }
-        return true;
-    }
-
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
-    public static boolean unlock(String lockName) {
-        if (locks.get(lockName) != null) {
-            try {
-                locks.get(lockName).getLeft().writeLock().unlock();
-            } catch (Exception e) {
-                LOG.error("Unable to un-lock for " + lockName, e);
-                return false;
-            }
-            if (0 == locks.get(lockName).getRight().decrementAndGet()) {
-                locks.remove(lockName);
-            }
-        }
-        return true;
     }
 }
