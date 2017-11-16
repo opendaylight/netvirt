@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_11dd99e0",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 245,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-16T14:10:45Z",
+      "side": 1,
+      "message": "I verified the post-increment is the cause of the dead store. It doesn\u0027t do anything, ie you get the same result with or without it (verified in unit test). It\u0027s equivalent to:\n\n  int temp \u003d action.getKey().getOrder() + actionKey;\n  actionKey \u003d actionKey + 1;\n  actionKey \u003d temp;\n\nThe middles increment gets overwritten.",
+      "parentUuid": "9a245df4_aebef162",
+      "revId": "e59ef970908cee456916396007a24466cbb1e28a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_88da054a",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 1
