@@ -32,6 +32,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.SubnetOpDpnManager;
 import org.opendaylight.netvirt.vpnmanager.VpnInterfaceManager;
 import org.opendaylight.netvirt.vpnmanager.VpnNodeListener;
@@ -179,6 +180,8 @@ public class VpnSubnetRouteHandlerTest {
     VpnOpDataSyncer vpnOpDataSyncer;
     @Mock
     VpnNodeListener vpnNodeListener;
+    @Mock
+    IFibManager fibManager;
 
     VpnSubnetRouteHandler vpnSubnetRouteHandler;
 
@@ -200,7 +203,7 @@ public class VpnSubnetRouteHandlerTest {
         setupMocks();
 
         vpnSubnetRouteHandler = new VpnSubnetRouteHandler(dataBroker, subnetOpDpnManager, bgpManager,
-            vpnInterfaceManager, idManager, lockManagerService, vpnOpDataSyncer, vpnNodeListener);
+            idManager, lockManagerService, vpnOpDataSyncer, vpnNodeListener, fibManager);
         final Future<RpcResult<AllocateIdOutput>> idOutputOptional =
             RpcResultBuilder.success(allocateIdOutput).buildFuture();
 

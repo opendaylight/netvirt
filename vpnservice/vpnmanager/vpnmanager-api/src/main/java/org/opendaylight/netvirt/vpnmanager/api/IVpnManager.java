@@ -17,6 +17,8 @@ import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 
@@ -25,7 +27,17 @@ public interface IVpnManager {
     void addExtraRoute(String vpnName, String destination, String nextHop,
             String rd, String routerID, int label, RouteOrigin origin);
 
+    void addExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
+            int label, Long l3vni, RouteOrigin origin, String intfName, Adjacency operationalAdj,
+            VrfEntry.EncapType encapType, WriteTransaction writeConfigTxn);
+
     void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID);
+
+    void delExtraRoute(String vpnName, String destination, String nextHop, String rd, String routerID,
+            String intfName, WriteTransaction writeConfigTxn);
+
+    void removePrefixFromBGP(String primaryRd, String rd, String vpnName, String prefix, String nextHop,
+            String tunnelIp, BigInteger dpnId, WriteTransaction writeConfigTxn);
 
     /**
      * Returns true if the specified VPN exists.
