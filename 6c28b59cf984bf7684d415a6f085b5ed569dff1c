@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_c4a341fe",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 173,
+      "author": {
+        "id": 7374
+      },
+      "writtenOn": "2017-11-16T14:50:06Z",
+      "side": 1,
+      "message": "whitespace",
+      "range": {
+        "startLine": 173,
+        "startChar": 68,
+        "endLine": 173,
+        "endChar": 69
+      },
+      "revId": "6c28b59cf984bf7684d415a6f085b5ed569dff1c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
