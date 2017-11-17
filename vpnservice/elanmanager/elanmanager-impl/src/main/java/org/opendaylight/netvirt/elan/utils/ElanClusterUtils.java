@@ -7,65 +7,33 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.SettableFuture;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.function.Function;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
-import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 
+@Singleton
 public final class ElanClusterUtils {
-    private static final Logger LOG = LoggerFactory.getLogger(ElanClusterUtils.class);
+    private final EntityOwnershipUtils entityOwnershipUtils;
+    private final JobCoordinator jobCoordinator;
 
-    private ElanClusterUtils() {
+    @Inject
+    public ElanClusterUtils(EntityOwnershipUtils entityOwnershipUtils, JobCoordinator jobCoordinator) {
+        this.entityOwnershipUtils = entityOwnershipUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
-    public static void runOnlyInOwnerNode(EntityOwnershipUtils entityOwnershipUtils, String jobDesc, Runnable job) {
+    public void runOnlyInOwnerNode(String jobDesc, Runnable job) {
         entityOwnershipUtils.runOnlyInOwnerNode(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-            HwvtepSouthboundConstants.ELAN_ENTITY_NAME, DataStoreJobCoordinator.getInstance(), jobDesc, job);
+            HwvtepSouthboundConstants.ELAN_ENTITY_NAME, jobCoordinator, jobDesc, job);
     }
 
-    public static void runOnlyInOwnerNode(EntityOwnershipUtils entityOwnershipUtils, String jobKey, String jobDesc,
-            Callable<List<ListenableFuture<Void>>> job) {
+    public void runOnlyInOwnerNode(String jobKey, String jobDesc, Callable<List<ListenableFuture<Void>>> job) {
         entityOwnershipUtils.runOnlyInOwnerNode(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
-            HwvtepSouthboundConstants.ELAN_ENTITY_NAME, DataStoreJobCoordinator.getInstance(), jobKey, jobDesc, job);
-    }
-
-    public static <T extends DataObject> void asyncReadAndExecute(final DataBroker broker,
-                                                                  final LogicalDatastoreType datastoreType,
-                                                                  final InstanceIdentifier<T> iid,
-                                                                  final String jobKey,
-                                                                  final Function<Optional<T>, Void> function) {
-        DataStoreJobCoordinator.getInstance().enqueueJob(jobKey, () -> {
-            SettableFuture settableFuture = SettableFuture.create();
-            List<ListenableFuture<Void>> futures = Collections.singletonList(settableFuture);
-
-            ReadWriteTransaction tx = broker.newReadWriteTransaction();
-
-            Futures.addCallback(tx.read(datastoreType, iid),
-                                new SettableFutureCallback<Optional<T>>(settableFuture) {
-                        @Override
-                        public void onSuccess(Optional<T> data) {
-                            function.apply(data);
-                            super.onSuccess(data);
-                        }
-                    }, MoreExecutors.directExecutor());
-
-            return futures;
-        }, ElanConstants.JOB_MAX_RETRIES);
+            HwvtepSouthboundConstants.ELAN_ENTITY_NAME, jobCoordinator, jobKey, jobDesc, job);
     }
 }

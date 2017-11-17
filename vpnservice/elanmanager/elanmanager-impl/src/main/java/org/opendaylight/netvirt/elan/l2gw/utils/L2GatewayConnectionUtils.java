@@ -23,11 +23,10 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
@@ -63,20 +62,20 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final DataBroker broker;
     private final ElanInstanceManager elanInstanceManager;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final EntityOwnershipUtils entityOwnershipUtils;
-    private final ElanUtils elanUtils;
+    private final ElanClusterUtils elanClusterUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final JobCoordinator jobCoordinator;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
-                                    EntityOwnershipUtils entityOwnershipUtils, ElanUtils elanUtils,
-                                    ElanL2GatewayUtils elanL2GatewayUtils) {
+            ElanClusterUtils elanClusterUtils, ElanUtils elanUtils, ElanL2GatewayUtils elanL2GatewayUtils,
+            JobCoordinator jobCoordinator) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
-        this.entityOwnershipUtils = entityOwnershipUtils;
-        this.elanUtils = elanUtils;
+        this.elanClusterUtils = elanClusterUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -255,8 +254,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                     new DisAssociateHwvtepFromElanJob(broker, elanL2GatewayUtils, elanL2GatewayMulticastUtils,
                             elanL2GwDevice, elanName,
                             l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
-            ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, disAssociateHwvtepToElanJob.getJobKey(),
-                    "remove l2gw connection job", disAssociateHwvtepToElanJob);
+            elanClusterUtils.runOnlyInOwnerNode(disAssociateHwvtepToElanJob.getJobKey(), "remove l2gw connection job",
+                    disAssociateHwvtepToElanJob);
         }
     }
 
@@ -293,22 +292,21 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                 LogicalSwitches logicalSwitch = HwvtepUtils.getLogicalSwitch(broker, LogicalDatastoreType.OPERATIONAL,
                         hwvtepNodeId, elanName);
                 if (logicalSwitch == null) {
-                    HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(broker,
-                            elanL2GatewayUtils, entityOwnershipUtils, elanUtils, elanL2GatewayMulticastUtils,
+                    HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(
+                            elanL2GatewayUtils, elanClusterUtils, elanL2GatewayMulticastUtils, this,
                             l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId);
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     closeables.add(hwVTEPLogicalSwitchListener);
                     createLogicalSwitch = true;
                 } else {
-                    addL2DeviceToElanL2GwCache(broker, elanName, elanL2GatewayUtils, l2GatewayDevice, l2GwConnId,
-                            l2Device);
+                    addL2DeviceToElanL2GwCache(elanName, l2GatewayDevice, l2GwConnId, l2Device);
                     createLogicalSwitch = false;
                 }
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
                         elanL2GatewayUtils, elanL2GatewayMulticastUtils, l2GatewayDevice, elanInstance,
                         l2Device, defaultVlan, createLogicalSwitch);
 
-                ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, associateHwvtepToElanJob.getJobKey() ,
+                elanClusterUtils.runOnlyInOwnerNode(associateHwvtepToElanJob.getJobKey(),
                         "create logical switch in hwvtep topo", associateHwvtepToElanJob);
 
             } else {
@@ -317,10 +315,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         }
     }
 
-    public static L2GatewayDevice addL2DeviceToElanL2GwCache(final DataBroker broker, String elanName,
-                                                             ElanL2GatewayUtils elanL2GatewayUtils,
-                                                             L2GatewayDevice l2GatewayDevice,
-            Uuid l2GwConnId, Devices l2Device) {
+    public L2GatewayDevice addL2DeviceToElanL2GwCache(String elanName, L2GatewayDevice l2GatewayDevice, Uuid l2GwConnId,
+            Devices l2Device) {
         String l2gwDeviceNodeId = l2GatewayDevice.getHwvtepNodeId();
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, l2gwDeviceNodeId);
         if (elanL2GwDevice == null) {
@@ -338,7 +334,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
         //incase of cluster reboot scenario southbound device would have added more macs
         //while odl is down, pull them now
-        readAndCopyLocalUcastMacsToCache(broker, elanL2GatewayUtils, elanName, l2GatewayDevice);
+        readAndCopyLocalUcastMacsToCache(elanName, l2GatewayDevice);
 
         LOG.trace("Elan L2GwConn cache updated with below details: {}", elanL2GwDevice);
         return elanL2GwDevice;
@@ -352,14 +348,10 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         return l2GwDevice.getL2GatewayIds().size() == 1;
     }
 
-    private static void readAndCopyLocalUcastMacsToCache(final DataBroker broker,
-                                                         final ElanL2GatewayUtils elanL2GatewayUtils,
-                                                         final String elanName,
-                                                         final L2GatewayDevice l2GatewayDevice) {
-
+    private void readAndCopyLocalUcastMacsToCache(final String elanName, final L2GatewayDevice l2GatewayDevice) {
         final InstanceIdentifier<Node> nodeIid = HwvtepSouthboundUtils.createInstanceIdentifier(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()));
-        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + ":" + l2GatewayDevice.getDeviceName(), () -> {
+        jobCoordinator.enqueueJob(elanName + ":" + l2GatewayDevice.getDeviceName(), () -> {
             final SettableFuture settableFuture = SettableFuture.create();
             Futures.addCallback(broker.newReadOnlyTransaction().read(LogicalDatastoreType.OPERATIONAL,
                     nodeIid), new SettableFutureCallback<Optional<Node>>(settableFuture) {
