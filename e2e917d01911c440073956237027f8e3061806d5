@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_fdcb7450",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-11-17T07:25:04Z",
+      "side": 1,
+      "message": "Yep. In our code we already have dynamic priority. As Aswin pointed out all start with same default weight [priority] and it changes as they gain/lose VRFs. All this change does is allow one to configure starting priority/weight. Once fed into existing logic, it takes care of dynamic part. If you have Compute1e with 5 and rest on 0, it means Compute1 will host 5 VRFs before it is considered equal to rest for selection",
+      "parentUuid": "9a245df4_a25b9df4",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b2a5d448",
         "filename": "docs/specs/weighted-napt-selection.rst",
         "patchSetId": 2
