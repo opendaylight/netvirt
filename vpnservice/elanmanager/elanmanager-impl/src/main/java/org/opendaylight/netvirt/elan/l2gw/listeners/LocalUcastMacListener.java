@@ -18,7 +18,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ScheduledFuture;
 import java.util.function.Predicate;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -26,11 +25,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -45,13 +44,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, String>
         implements ClusteredDataTreeChangeListener<Node> {
 
-    public static final Logger LOG = LoggerFactory.getLogger(LocalUcastMacListener.class);
     public static final String NODE_CHECK = "physical";
 
     private static final Predicate<InstanceIdentifier<Node>> IS_PS_NODE_IID = (iid) -> {
@@ -68,18 +64,19 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     };
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final Map<InstanceIdentifier<Node>, ScheduledFuture> staleCleanupJobsByNodeId = new ConcurrentHashMap<>();
     private final Map<InstanceIdentifier<Node>, List<InstanceIdentifier<LocalUcastMacs>>> staleCandidateMacsByNodeId
             = new ConcurrentHashMap<>();
     private final HAOpClusteredListener haOpClusteredListener;
-
+    private final JobCoordinator jobCoordinator;
 
     public LocalUcastMacListener(final DataBroker dataBroker,
                                  final HAOpClusteredListener haOpClusteredListener,
-                                 final ElanL2GatewayUtils elanL2GatewayUtils) {
+                                 final ElanL2GatewayUtils elanL2GatewayUtils,
+                                 final JobCoordinator jobCoordinator) {
         super(dataBroker, false);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.haOpClusteredListener = haOpClusteredListener;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -130,7 +127,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
         String elanName = getElanName(macRemoved);
 
-        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY ,
+        jobCoordinator.enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY ,
             () -> {
                 L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName,
                         hwvtepNodeId);
@@ -168,7 +165,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
             LOG.warn("Could not find ELAN for mac {} being added", macAddress);
             return;
         }
-        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY,
+        jobCoordinator.enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY,
             () -> {
                 L2GatewayDevice elanL2GwDevice =
                         ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);

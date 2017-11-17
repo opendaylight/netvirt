@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.internal;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -30,18 +29,18 @@ public class ElanInterfaceStateClusteredListener extends
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
     private final ElanUtils elanUtils;
-    private final EntityOwnershipUtils entityOwnershipUtils;
+    private final ElanClusterUtils elanClusterUtils;
 
     /* FIXME:
      * Why do we have ElanInterfaceStateChangeListener and ElanInterfaceStateClusteredListener
      * both within same module? Refactor this code into single listener.
      */
     public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
-                                               ElanUtils elanUtils, EntityOwnershipUtils entityOwnershipUtils) {
+                                               ElanUtils elanUtils, ElanClusterUtils elanClusterUtils) {
         this.broker = broker;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
-        this.entityOwnershipUtils = entityOwnershipUtils;
+        this.elanClusterUtils = elanClusterUtils;
     }
 
     public void init() {
@@ -68,7 +67,7 @@ public class ElanInterfaceStateClusteredListener extends
             if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                 final String interfaceName = intrf.getName();
 
-                ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, "external tunnel update", () -> {
+                elanClusterUtils.runOnlyInOwnerNode("external tunnel update", () -> {
                     LOG.debug("running external tunnel update job for interface {} added", interfaceName);
                     try {
                         handleExternalTunnelUpdate(interfaceName, intrf);

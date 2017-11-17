@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import org.opendaylight.controller.liblldp.NetUtils;
@@ -16,13 +15,13 @@ import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -53,14 +52,16 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private final ElanUtils elanUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EvpnUtils evpnUtils;
+    private final JobCoordinator jobCoordinator;
 
     public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils,
-                               EvpnUtils evpnUtils, ElanL2GatewayUtils elanL2GatewayUtils) {
+            EvpnUtils evpnUtils, ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator) {
         broker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.evpnUtils = evpnUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -125,9 +126,8 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
                     evpnUtils.advertisePrefix(elanInstance, macAddress, prefix, interfaceName, interfaceInfo.getDpId());
                 }
-                final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 enqueueJobForMacSpecificTasks(macAddress, elanTag, interfaceName, elanName, physAddress, oldMacEntry,
-                        newMacEntry, isVlanOrFlatProviderIface, portDataStoreCoordinator);
+                        newMacEntry, isVlanOrFlatProviderIface);
 
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
@@ -136,7 +136,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     return;
                 }
                 enqueueJobForDPNSpecificTasks(macAddress, elanTag, interfaceName, physAddress, elanInstance,
-                        interfaceInfo, oldMacEntry, newMacEntry, isVlanOrFlatProviderIface, portDataStoreCoordinator);
+                        interfaceInfo, oldMacEntry, newMacEntry, isVlanOrFlatProviderIface);
 
 
             } catch (PacketException e) {
@@ -148,9 +148,8 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private void enqueueJobForMacSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
                                                String elanName, PhysAddress physAddress,
                                                MacEntry oldMacEntry, MacEntry newMacEntry,
-                                               final boolean isVlanOrFlatProviderIface,
-                                               final DataStoreJobCoordinator portDataStoreCoordinator) {
-        portDataStoreCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress), () -> {
+                                               final boolean isVlanOrFlatProviderIface) {
+        jobCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress), () -> {
             WriteTransaction writeTx = broker.newWriteOnlyTransaction();
             if (oldMacEntry != null && oldMacEntry.getInterface().equals(interfaceName)) {
                 // This should never occur because of ovs temporary mac learning
@@ -188,24 +187,22 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private void enqueueJobForDPNSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
                                                PhysAddress physAddress, ElanInstance elanInstance,
                                                InterfaceInfo interfaceInfo, MacEntry oldMacEntry,
-                                               MacEntry newMacEntry, boolean isVlanOrFlatProviderIface,
-                                               final DataStoreJobCoordinator portDataStoreCoordinator) {
-        portDataStoreCoordinator
-                .enqueueJob(ElanUtils.getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
-                    macMigrationFlowsCleanup(interfaceName, elanInstance, oldMacEntry, isVlanOrFlatProviderIface);
-                    BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
-                    elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
-                            Collections.singletonList(physAddress));
-                    ElanManagerCounters.unknown_smac_pktin_learned.inc();
-                    WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-                    elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
-                            macAddress, !isVlanOrFlatProviderIface, flowWritetx);
-                    InstanceIdentifier<MacEntry> macEntryId =
-                            ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-                    flowWritetx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry,
-                            WriteTransaction.CREATE_MISSING_PARENTS);
-                    return Collections.singletonList(flowWritetx.submit());
-                });
+                                               MacEntry newMacEntry, boolean isVlanOrFlatProviderIface) {
+        jobCoordinator.enqueueJob(ElanUtils.getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
+            macMigrationFlowsCleanup(interfaceName, elanInstance, oldMacEntry, isVlanOrFlatProviderIface);
+            BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
+            elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
+                    Collections.singletonList(physAddress));
+            ElanManagerCounters.unknown_smac_pktin_learned.inc();
+            WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
+            elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
+                    macAddress, !isVlanOrFlatProviderIface, flowWritetx);
+            InstanceIdentifier<MacEntry> macEntryId =
+                    ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+            flowWritetx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry,
+                    WriteTransaction.CREATE_MISSING_PARENTS);
+            return Collections.singletonList(flowWritetx.submit());
+        });
     }
 
     private void macMigrationFlowsCleanup(String interfaceName, ElanInstance elanInstance, MacEntry macEntry,
