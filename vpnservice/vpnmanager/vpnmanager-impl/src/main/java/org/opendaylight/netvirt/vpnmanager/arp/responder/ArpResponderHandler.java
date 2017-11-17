@@ -16,7 +16,7 @@ import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponder
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
-import org.opendaylight.netvirt.vpnmanager.utilities.InterfaceUtils;
+import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.slf4j.Logger;
