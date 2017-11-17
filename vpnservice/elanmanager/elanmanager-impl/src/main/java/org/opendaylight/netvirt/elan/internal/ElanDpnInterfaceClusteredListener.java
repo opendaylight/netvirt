@@ -11,9 +11,9 @@ import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -36,13 +36,18 @@ public class ElanDpnInterfaceClusteredListener
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final ElanClusterUtils elanClusterUtils;
+    private final JobCoordinator jobCoordinator;
 
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipUtils entityOwnershipUtils,
-                                             ElanUtils elanUtils, ElanL2GatewayUtils elanL2GatewayUtils) {
+                                             ElanUtils elanUtils, ElanL2GatewayUtils elanL2GatewayUtils,
+                                             ElanClusterUtils elanClusterUtils, JobCoordinator jobCoordinator) {
         this.broker = broker;
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
+        this.elanClusterUtils = elanClusterUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public void init() {
@@ -62,9 +67,9 @@ public class ElanDpnInterfaceClusteredListener
                     dpnInterfaces.getDpId());
             return;
         }
-        ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, elanName, "updating mcast mac upon tunnel event",
+        elanClusterUtils.runOnlyInOwnerNode(elanName, "updating mcast mac upon tunnel event",
             () -> Collections.singletonList(
-                    elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
+                elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName)));
     }
 
     @Override
@@ -74,7 +79,7 @@ public class ElanDpnInterfaceClusteredListener
         //Cache need to be updated in all cluster nodes and not only by leader node .
         //Hence moved out from DJC job
 
-        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + ":l2gw", () -> {
+        jobCoordinator.enqueueJob(elanName + ":l2gw", () -> {
             try {
                 if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                         HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {
@@ -112,7 +117,7 @@ public class ElanDpnInterfaceClusteredListener
     protected void add(InstanceIdentifier<DpnInterfaces> identifier, final DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(identifier);
 
-        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + ":l2gw", () -> {
+        jobCoordinator.enqueueJob(elanName + ":l2gw", () -> {
             try {
                 if (entityOwnershipUtils.isEntityOwner(HwvtepSouthboundConstants.ELAN_ENTITY_TYPE,
                         HwvtepSouthboundConstants.ELAN_ENTITY_NAME)) {

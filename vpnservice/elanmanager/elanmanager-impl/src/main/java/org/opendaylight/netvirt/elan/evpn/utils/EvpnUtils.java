@@ -8,19 +8,28 @@
 package org.opendaylight.netvirt.elan.evpn.utils;
 
 import com.google.common.base.Optional;
-
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.MoreExecutors;
+import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.function.BiPredicate;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
+import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
@@ -33,50 +42,46 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.VrfEntryBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 @Singleton
 public class EvpnUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(EvpnUtils.class);
 
-    private final BiPredicate<String, String> isNetAttach = (var1, var2) -> ((var1 == null) && (var2 != null));
-    private final BiPredicate<String, String> isNetDetach = (var1, var2) -> ((var1 != null) && (var2 == null));
+    private final BiPredicate<String, String> isNetAttach = (var1, var2) -> (var1 == null && var2 != null);
+    private final BiPredicate<String, String> isNetDetach = (var1, var2) -> (var1 != null && var2 == null);
     private final Predicate<MacEntry> isIpv4PrefixAvailable = (macEntry) -> (macEntry != null
         && macEntry.getIpPrefix() != null && macEntry.getIpPrefix().getIpv4Address() != null);
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final ItmRpcService itmRpcService;
-
-    private volatile IBgpManager bgpManager;
-    private volatile IVpnManager vpnManager;
+    private final JobCoordinator jobCoordinator;
+    private final IBgpManager bgpManager;
+    private final IVpnManager vpnManager;
 
     @Inject
-    public EvpnUtils(DataBroker broker, IInterfaceManager interfaceManager,
-                     ElanUtils elanUtils, ItmRpcService itmRpcService) {
+    public EvpnUtils(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
+            ItmRpcService itmRpcService, IVpnManager vpnManager, IBgpManager bgpManager,
+            JobCoordinator jobCoordinator) {
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.itmRpcService = itmRpcService;
+        this.vpnManager = vpnManager;
+        this.bgpManager = bgpManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public void init() {
     }
 
     public void close() {
-    }
-
-    public void setVpnManager(IVpnManager vpnManager) {
-        this.vpnManager = vpnManager;
-    }
-
-    public void setBgpManager(IBgpManager bgpManager) {
-        this.bgpManager = bgpManager;
     }
 
     public boolean isWithdrawEvpnRT2Routes(ElanInstance original, ElanInstance update) {
@@ -140,7 +145,7 @@ public class EvpnUtils {
     public Optional<String> getGatewayMacAddressForInterface(String vpnName,
                                                                                     String ifName, String ipAddress) {
         VpnPortipToPort gwPort = vpnManager.getNeutronPortFromVpnPortFixedIp(broker, vpnName, ipAddress);
-        return Optional.of((gwPort != null && gwPort.isSubnetIp())
+        return Optional.of(gwPort != null && gwPort.isSubnetIp()
                 ? gwPort.getMacAddress()
                 : interfaceManager.getInterfaceInfoFromOperationalDataStore(ifName).getMacAddress());
     }
@@ -274,4 +279,24 @@ public class EvpnUtils {
         withdrawPrefix(elanInfo, macEntry.getIpPrefix().getIpv4Address().getValue());
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public <T extends DataObject> void asyncReadAndExecute(final LogicalDatastoreType datastoreType,
+            final InstanceIdentifier<T> iid, final String jobKey, final Function<Optional<T>, Void> function) {
+        jobCoordinator.enqueueJob(jobKey, () -> {
+            SettableFuture<Optional<T>> settableFuture = SettableFuture.create();
+            List futures = Collections.singletonList(settableFuture);
+
+            ReadWriteTransaction tx = broker.newReadWriteTransaction();
+
+            Futures.addCallback(tx.read(datastoreType, iid), new SettableFutureCallback<Optional<T>>(settableFuture) {
+                @Override
+                public void onSuccess(Optional<T> data) {
+                    function.apply(data);
+                    super.onSuccess(data);
+                }
+            }, MoreExecutors.directExecutor());
+
+            return futures;
+        }, ElanConstants.JOB_MAX_RETRIES);
+    }
 }

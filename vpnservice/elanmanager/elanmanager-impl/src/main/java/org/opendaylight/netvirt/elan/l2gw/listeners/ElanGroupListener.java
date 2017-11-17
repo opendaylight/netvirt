@@ -14,7 +14,6 @@ import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -38,14 +37,14 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     private final ElanInterfaceManager elanInterfaceManager;
     private final DataBroker broker;
     private final ElanInstanceManager elanInstanceManager;
-    private final EntityOwnershipUtils entityOwnershipUtils;
+    private final ElanClusterUtils elanClusterUtils;
 
     public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db,
-            EntityOwnershipUtils entityOwnershipUtils, ElanInstanceManager elanInstanceManager) {
+            ElanClusterUtils elanClusterUtils, ElanInstanceManager elanInstanceManager) {
         super(Group.class, ElanGroupListener.class);
         this.elanInterfaceManager = elanInterfaceManager;
         broker = db;
-        this.entityOwnershipUtils = entityOwnershipUtils;
+        this.elanClusterUtils = elanClusterUtils;
         this.elanInstanceManager = elanInstanceManager;
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
         LOG.trace("ElanGroupListener registered");
@@ -140,12 +139,10 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             }
             LOG.trace("no of buckets mismatched {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());
-            ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, elanInstance.getElanInstanceName(),
-                    "updating broadcast group",
-                () -> {
-                    elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
-                    return null;
-                });
+            elanClusterUtils.runOnlyInOwnerNode(elanInstance.getElanInstanceName(), "updating broadcast group", () -> {
+                elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
+                return null;
+            });
         } else {
             LOG.trace("no buckets in the update {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());
