@@ -90,6 +90,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_d8db1e7a",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BaseVrfEntryHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 515,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-11-17T09:14:47Z",
+      "side": 0,
+      "message": "Hi Tom,\n\nThis looks like breakage by me :(.\nsyncRemoveFlow() is correct one. \n\nRegarding ADD/DEL/MOD FLOW , here only ADD/DEL flow is applicable. MOD flow will never happen here.",
+      "parentUuid": "9a245df4_ceb9a57a",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_880cc5ee",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/BgpRouteVrfEntryHandler.java",
         "patchSetId": 1
@@ -204,6 +222,30 @@
       "writtenOn": "2017-11-15T06:43:51Z",
       "side": 0,
       "message": "\"same code for two branches\" - same as the other case - assuming this should be syncRemoveFlow",
+      "range": {
+        "startLine": 84,
+        "startChar": 12,
+        "endLine": 84,
+        "endChar": 56
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_98cd26ba",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/IPv6Handler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2017-11-17T09:14:47Z",
+      "side": 0,
+      "message": "Hi Tom ,\n\nsyncRemoveFlow() is the correct one.",
+      "parentUuid": "9a245df4_6818711e",
       "range": {
         "startLine": 84,
         "startChar": 12,
