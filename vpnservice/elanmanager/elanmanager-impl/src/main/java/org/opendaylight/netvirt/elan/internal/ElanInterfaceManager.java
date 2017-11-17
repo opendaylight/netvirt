@@ -36,7 +36,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -60,6 +59,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -143,6 +143,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private ElanUtils elanUtils;
+    private final JobCoordinator jobCoordinator;
 
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
     private static final boolean SH_FLAG_SET = true;
@@ -158,7 +159,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final IMdsalApiManager mdsalApiManager, IInterfaceManager interfaceManager,
                                 final ElanForwardingEntriesHandler elanForwardingEntriesHandler,
                                 final INeutronVpnManager neutronVpnManager, final ElanItmUtils elanItmUtils,
-                                final ElanEtreeUtils elanEtreeUtils, final ElanL2GatewayUtils elanL2GatewayUtils) {
+                                final ElanEtreeUtils elanEtreeUtils, final ElanL2GatewayUtils elanL2GatewayUtils,
+                                final JobCoordinator jobCoordinator) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
@@ -169,6 +171,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanItmUtils = elanItmUtils;
         this.elanEtreeUtils = elanEtreeUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     /**
@@ -214,10 +217,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             interfaceInfo = interfaceManager.getInterfaceInfoFromOperationalDataStore(interfaceName);
         }
         String elanInstanceName = elanInfo.getElanInstanceName();
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElan configWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInfo,
                 interfaceName, interfaceInfo, false, this);
-        coordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
+        jobCoordinator.enqueueJob(elanInstanceName, configWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
     public List<ListenableFuture<Void>> removeElanInterface(ElanInstance elanInfo, String interfaceName,
@@ -278,10 +280,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         if (isLastInterfaceOnDpn && dpId != null && isVxlanNetworkOrVxlanSegment(elanInfo)) {
             setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceRemoveWorkerOnElanInterface removeInterfaceWorker = new InterfaceRemoveWorkerOnElanInterface(
                 interfaceName, elanInfo, interfaceInfo, isInterfaceStateRemoved, this, isLastElanInterface);
-        coordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), removeInterfaceWorker,
+        jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), removeInterfaceWorker,
                 ElanConstants.JOB_MAX_RETRIES);
 
         return futures;
@@ -582,10 +583,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             unProcessedElanInterfaces.put(elanInstanceName, elanInterfaces);
             return;
         }
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         InterfaceAddWorkerOnElan addWorker = new InterfaceAddWorkerOnElan(elanInstanceName, elanInterfaceAdded,
                 interfaceInfo, elanInstance, this);
-        coordinator.enqueueJob(elanInstanceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        jobCoordinator.enqueueJob(elanInstanceName, addWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
     List<ListenableFuture<Void>> handleunprocessedElanInterfaces(ElanInstance elanInstance) throws ElanException {
@@ -717,11 +717,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             setElanAndEtreeBCGrouponOtherDpns(elanInstance, dpId);
         }
 
-        DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
         String jobKey = ElanUtils.getElanInterfaceJobKey(interfaceName);
         InterfaceAddWorkerOnElanInterface addWorker = new InterfaceAddWorkerOnElanInterface(jobKey,
                 elanInterface, interfaceInfo, elanInstance, isFirstInterfaceInDpn, this);
-        coordinator.enqueueJob(jobKey, addWorker, ElanConstants.JOB_MAX_RETRIES);
+        jobCoordinator.enqueueJob(jobKey, addWorker, ElanConstants.JOB_MAX_RETRIES);
         return futures;
     }
 
@@ -1688,9 +1687,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             }
             if (cnt == 2) {
                 LOG.info("Elan instance:{} is present b/w srcDpn:{} and dstDpn:{}", elanName, srcDpId, dstDpId);
-                DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
                 final DpnInterfaces finalDstDpnIf = dstDpnIf; // var needs to be final so it can be accessed in lambda
-                dataStoreCoordinator.enqueueJob(elanName, () -> {
+                jobCoordinator.enqueueJob(elanName, () -> {
                     // update Remote BC Group
                     LOG.trace("procesing elan remote bc group for tunnel event {}", elanInfo);
                     try {
@@ -1701,7 +1699,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     Set<String> interfaceLists = new HashSet<>();
                     interfaceLists.addAll(finalDstDpnIf.getInterfaces());
                     for (String ifName : interfaceLists) {
-                        dataStoreCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(ifName), () -> {
+                        jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(ifName), () -> {
                             LOG.info("Processing tunnel up event for elan {} and interface {}", elanName, ifName);
                             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(ifName);
                             if (isOperational(interfaceInfo)) {

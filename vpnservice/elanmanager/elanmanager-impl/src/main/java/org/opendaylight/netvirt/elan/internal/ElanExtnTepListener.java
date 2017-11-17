@@ -12,7 +12,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -28,12 +28,14 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
 
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
+    private final JobCoordinator jobCoordinator;
 
-    public ElanExtnTepListener(DataBroker dataBroker,
-                               ElanInterfaceManager elanInterfaceManager) {
+    public ElanExtnTepListener(DataBroker dataBroker, ElanInterfaceManager elanInterfaceManager,
+            JobCoordinator jobCoordinator) {
         super(ExternalTeps.class, ElanExtnTepListener.class);
         this.broker = dataBroker;
         this.elanInterfaceManager = elanInterfaceManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -72,8 +74,7 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
         String elanName = iid.firstKeyOf(ElanInstance.class).getElanInstanceName();
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
 
-        DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreJobCoordinator.enqueueJob(elanName, () -> {
+        jobCoordinator.enqueueJob(elanName, () -> {
             SettableFuture<Void> ft = SettableFuture.create();
             try {
                 //TODO make the following method return ft

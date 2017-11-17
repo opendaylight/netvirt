@@ -12,7 +12,7 @@ import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -30,13 +30,16 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
     private final DataBroker dataBroker;
     private final ElanInterfaceManager elanInterfaceManager;
     private final ElanUtils elanUtils;
+    private final JobCoordinator jobCoordinator;
 
     public ElanTunnelInterfaceStateListener(final DataBroker dataBroker,
-            final ElanInterfaceManager elanInterfaceManager, final ElanUtils elanUtils) {
+            final ElanInterfaceManager elanInterfaceManager, final ElanUtils elanUtils,
+            final JobCoordinator jobCoordinator) {
         super(StateTunnelList.class, ElanTunnelInterfaceStateListener.class);
         this.dataBroker = dataBroker;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -74,7 +77,7 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
             LOG.trace("Returning because unsupported tunnelOperStatus {}", tunOpStatus);
             return;
         }
-        DataStoreJobCoordinator.getInstance().enqueueJob(add.getTunnelInterfaceName(), () -> {
+        jobCoordinator.enqueueJob(add.getTunnelInterfaceName(), () -> {
             BigInteger srcDpId = new BigInteger(add.getSrcInfo().getTepDeviceId());
             BigInteger dstDpId = new BigInteger(add.getDstInfo().getTepDeviceId());
             try {
