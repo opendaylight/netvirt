@@ -164,7 +164,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 elanService.removeKnownL3DmacAddress(input.getMacAddress().getValue(), input.getNetworkId().getValue());
             }
         }
-        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+        if (input.getFixedIps() != null) {
             handleNeutronPortDeleted(input);
         }
     }
