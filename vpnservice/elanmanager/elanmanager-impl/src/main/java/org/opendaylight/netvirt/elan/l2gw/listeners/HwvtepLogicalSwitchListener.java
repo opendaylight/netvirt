@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -16,7 +15,6 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -57,19 +55,15 @@ public class HwvtepLogicalSwitchListener extends
     // Id of L2 Gateway connection responsible for this logical switch creation
     private final Uuid l2GwConnId;
 
-    private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EntityOwnershipUtils entityOwnershipUtils;
-    private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
     /**
      * Instantiates a new hardware vtep logical switch listener.
-     *
-     * @param dataBroker DataBroker
      * @param elanL2GatewayUtils l2 gateway utils
      * @param entityOwnershipUtils the entity ownership utils
-     * @param elanUtils the ELAN utilities
      * @param elanL2GatewayMulticastUtils l2 gateway multicast utils
      * @param l2GatewayDevice the l2 gateway device
      * @param logicalSwitchName the logical switch name
@@ -77,18 +71,15 @@ public class HwvtepLogicalSwitchListener extends
      * @param defaultVlanId the default vlan id
      * @param l2GwConnId l2 gateway connection id
      */
-    public HwvtepLogicalSwitchListener(DataBroker dataBroker, ElanL2GatewayUtils elanL2GatewayUtils,
-                                       EntityOwnershipUtils entityOwnershipUtils, ElanUtils elanUtils,
-                                       ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-                                       L2GatewayDevice l2GatewayDevice,
-                                       String logicalSwitchName,
-                                       Devices physicalDevice, Integer defaultVlanId, Uuid l2GwConnId) {
+    public HwvtepLogicalSwitchListener(ElanL2GatewayUtils elanL2GatewayUtils, EntityOwnershipUtils entityOwnershipUtils,
+            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, L2GatewayConnectionUtils l2GatewayConnectionUtils,
+            L2GatewayDevice l2GatewayDevice, String logicalSwitchName, Devices physicalDevice, Integer defaultVlanId,
+            Uuid l2GwConnId) {
         super(LogicalSwitches.class, HwvtepLogicalSwitchListener.class);
-        this.broker = dataBroker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.entityOwnershipUtils = entityOwnershipUtils;
-        this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.logicalSwitchName = logicalSwitchName;
         this.physicalDevice = physicalDevice;
@@ -151,9 +142,8 @@ public class HwvtepLogicalSwitchListener extends
         LOG.debug("Received Add DataChange Notification for identifier: {}, LogicalSwitches: {}", identifier,
                 logicalSwitchNew);
         try {
-            L2GatewayDevice elanDevice = L2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(broker,
-                    logicalSwitchNew.getHwvtepNodeName().getValue(), elanL2GatewayUtils,
-                    l2GatewayDevice, l2GwConnId, physicalDevice);
+            L2GatewayDevice elanDevice = l2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(
+                    logicalSwitchNew.getHwvtepNodeName().getValue(), l2GatewayDevice, l2GwConnId, physicalDevice);
 
             LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(elanL2GatewayUtils,
                     elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,

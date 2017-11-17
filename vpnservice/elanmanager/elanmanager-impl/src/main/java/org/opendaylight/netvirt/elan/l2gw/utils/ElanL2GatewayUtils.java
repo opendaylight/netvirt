@@ -37,7 +37,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.SystemPropertyReader;
@@ -45,6 +44,7 @@ import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
@@ -113,21 +113,22 @@ public class ElanL2GatewayUtils {
     private final ElanItmUtils elanItmUtils;
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
+    private final JobCoordinator jobCoordinator;
 
-    private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<NodeId, String>, DeleteLogicalSwitchJob> deleteJobs = new ConcurrentHashMap<>();
 
     @Inject
     public ElanL2GatewayUtils(DataBroker broker, ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
-                              EntityOwnershipUtils entityOwnershipUtils,
-                              OdlInterfaceRpcService interfaceManagerRpcService) {
+            EntityOwnershipUtils entityOwnershipUtils, OdlInterfaceRpcService interfaceManagerRpcService,
+            JobCoordinator jobCoordinator) {
         this.broker = broker;
         this.elanDmacUtils = elanDmacUtils;
         this.elanItmUtils = elanItmUtils;
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @PreDestroy
@@ -1011,7 +1012,7 @@ public class ElanL2GatewayUtils {
             public void run() {
                 DeleteLogicalSwitchJob deleteLsJob = new DeleteLogicalSwitchJob(broker,
                         ElanL2GatewayUtils.this, hwvtepNodeId, lsName);
-                dataStoreJobCoordinator.enqueueJob(deleteLsJob.getJobKey(), deleteLsJob,
+                jobCoordinator.enqueueJob(deleteLsJob.getJobKey(), deleteLsJob,
                         SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
                 deleteJobs.put(nodeIdLogicalSwitchNamePair, deleteLsJob);
                 logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);

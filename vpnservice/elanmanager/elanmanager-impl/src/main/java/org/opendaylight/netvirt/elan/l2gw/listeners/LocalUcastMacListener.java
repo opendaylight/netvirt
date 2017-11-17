@@ -26,11 +26,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -72,14 +72,16 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     private final Map<InstanceIdentifier<Node>, List<InstanceIdentifier<LocalUcastMacs>>> staleCandidateMacsByNodeId
             = new ConcurrentHashMap<>();
     private final HAOpClusteredListener haOpClusteredListener;
-
+    private final JobCoordinator jobCoordinator;
 
     public LocalUcastMacListener(final DataBroker dataBroker,
                                  final HAOpClusteredListener haOpClusteredListener,
-                                 final ElanL2GatewayUtils elanL2GatewayUtils) {
+                                 final ElanL2GatewayUtils elanL2GatewayUtils,
+                                 final JobCoordinator jobCoordinator) {
         super(dataBroker, false);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.haOpClusteredListener = haOpClusteredListener;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -130,7 +132,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
         String elanName = getElanName(macRemoved);
 
-        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY ,
+        jobCoordinator.enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY ,
             () -> {
                 L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName,
                         hwvtepNodeId);
@@ -168,7 +170,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
             LOG.warn("Could not find ELAN for mac {} being added", macAddress);
             return;
         }
-        DataStoreJobCoordinator.getInstance().enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY,
+        jobCoordinator.enqueueJob(elanName + HwvtepHAUtil.L2GW_JOB_KEY,
             () -> {
                 L2GatewayDevice elanL2GwDevice =
                         ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);

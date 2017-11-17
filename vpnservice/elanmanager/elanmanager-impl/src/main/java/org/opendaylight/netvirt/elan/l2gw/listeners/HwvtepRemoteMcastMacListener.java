@@ -14,10 +14,10 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -43,9 +43,9 @@ public class HwvtepRemoteMcastMacListener
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepRemoteMcastMacListener.class);
 
     /** The node id. */
-    private NodeId nodeId;
+    private final NodeId nodeId;
 
-    private List<IpAddress> expectedPhyLocatorIps;
+    private final List<IpAddress> expectedPhyLocatorIps;
 
     private final ElanUtils elanUtils;
 
@@ -55,29 +55,23 @@ public class HwvtepRemoteMcastMacListener
 
     Callable<List<ListenableFuture<Void>>> taskToRun;
 
-    private final DataStoreJobCoordinator dataStoreJobCoordinator = DataStoreJobCoordinator.getInstance();
+    private final JobCoordinator jobCoordinator;
 
     /**
      * Instantiates a new remote mcast mac listener.
-     *
-     * @param broker                the mdsal databroker reference
-     * @param elanUtils             elan utils
-     * @param logicalSwitchName     the logical switch name
-     * @param l2GatewayDevice       the l2 gateway device
-     * @param expectedPhyLocatorIps the expected phy locator ips
-     * @param task                  the task to be run upon data presence
-     * @throws Exception            the exception
      */
     public HwvtepRemoteMcastMacListener(DataBroker broker, ElanUtils elanUtils, String logicalSwitchName,
                                         L2GatewayDevice l2GatewayDevice,
                                         List<IpAddress> expectedPhyLocatorIps,
-                                        Callable<List<ListenableFuture<Void>>> task) throws Exception {
+                                        Callable<List<ListenableFuture<Void>>> task,
+                                        JobCoordinator jobCoordinator) throws Exception {
         super(RemoteMcastMacs.class, HwvtepRemoteMcastMacListener.class);
         this.elanUtils = elanUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.taskToRun = task;
         this.logicalSwitchName = logicalSwitchName;
         this.expectedPhyLocatorIps = expectedPhyLocatorIps;
+        this.jobCoordinator = jobCoordinator;
         LOG.info("registering the listener for mcast mac ");
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         LOG.info("registered the listener for mcast mac ");
@@ -150,7 +144,7 @@ public class HwvtepRemoteMcastMacListener
     void runTask() {
         try {
             String jobKey = ElanL2GatewayUtils.getL2GatewayConnectionJobKey(nodeId.getValue(), nodeId.getValue());
-            dataStoreJobCoordinator.enqueueJob(jobKey, taskToRun,
+            jobCoordinator.enqueueJob(jobKey, taskToRun,
                     SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         } finally {
             // TODO https://git.opendaylight.org/gerrit/#/c/44145/

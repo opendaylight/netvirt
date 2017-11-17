@@ -18,8 +18,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -51,17 +51,20 @@ public class EvpnMacVrfUtils {
     private final ElanEvpnFlowUtils elanEvpnFlowUtils;
     private final IMdsalApiManager mdsalManager;
     private final EvpnUtils evpnUtils;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public EvpnMacVrfUtils(final DataBroker dataBroker, final ElanInstanceManager elanInstanceManager,
                            final IdManagerService idManager, final ElanEvpnFlowUtils elanEvpnFlowUtils,
-                           final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils) {
+                           final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils,
+                           final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.idManager = idManager;
         this.elanEvpnFlowUtils = elanEvpnFlowUtils;
         this.mdsalManager = mdsalManager;
         this.evpnUtils = evpnUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public Long getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
@@ -155,7 +158,7 @@ public class EvpnMacVrfUtils {
             Long elanTag = getElanTagByMacvrfiid(instanceIdentifier);
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni();
-            DataStoreJobCoordinator.getInstance().enqueueJob(dstMacAddress, () -> {
+            jobCoordinator.enqueueJob(dstMacAddress, () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 dpnInterfaceLists.forEach(dpnInterfaces -> {
                     BigInteger dpId = dpnInterfaces.getDpId();
@@ -188,7 +191,7 @@ public class EvpnMacVrfUtils {
         IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
         Long elanTag = getElanTagByMacvrfiid(instanceIdentifier);
         String macToRemove = macVrfEntry.getMac();
-        DataStoreJobCoordinator.getInstance().enqueueJob(macToRemove, () -> {
+        jobCoordinator.enqueueJob(macToRemove, () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             dpnInterfaceLists.forEach(dpnInterfaces -> {
                 BigInteger dpId = dpnInterfaces.getDpId();
@@ -224,7 +227,7 @@ public class EvpnMacVrfUtils {
             Long elanTag = elanInstance.getElanTag();
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni();
-            DataStoreJobCoordinator.getInstance().enqueueJob(dstMacAddress, () -> {
+            jobCoordinator.enqueueJob(dstMacAddress, () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 dpnInterfaceLists.forEach(dpnInterfaces -> {
                     BigInteger dpId = dpnInterfaces.getDpId();
@@ -269,7 +272,7 @@ public class EvpnMacVrfUtils {
         IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
         Long elanTag = elanInstance.getElanTag();
         String macToRemove = macVrfEntry.getMac();
-        DataStoreJobCoordinator.getInstance().enqueueJob(macToRemove, () -> {
+        jobCoordinator.enqueueJob(macToRemove, () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             dpnInterfaceLists.forEach(dpnInterfaces -> {
                 BigInteger dpId = dpnInterfaces.getDpId();
