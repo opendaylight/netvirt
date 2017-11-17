@@ -15,7 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -34,12 +34,15 @@ public class ElanInterfaceConfigListener
 
     private final DataBroker dataBroker;
     private final ElanInterfaceManager elanInterfaceManager;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
-    public ElanInterfaceConfigListener(DataBroker dataBroker, ElanInterfaceManager elanInterfaceManager) {
+    public ElanInterfaceConfigListener(DataBroker dataBroker, ElanInterfaceManager elanInterfaceManager,
+            JobCoordinator jobCoordinator) {
         super(Interface.class, ElanInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.elanInterfaceManager = elanInterfaceManager;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -76,7 +79,7 @@ public class ElanInterfaceConfigListener
             LOG.debug("There is no ELAN service for interface {}. Ignoring it", interfaceName);
             return;
         }
-        DataStoreJobCoordinator.getInstance().enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
+        jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
             LOG.debug("unbinding elan service on interface {} for its config removal", interfaceName);
             elanInterfaceManager.unbindService(interfaceName, writeConfigTxn);
