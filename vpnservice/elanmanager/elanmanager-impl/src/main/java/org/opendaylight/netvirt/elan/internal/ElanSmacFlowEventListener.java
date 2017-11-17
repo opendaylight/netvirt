@@ -18,11 +18,11 @@ import java.util.Locale;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -48,11 +48,14 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
+    private final JobCoordinator jobCoordinator;
 
-    public ElanSmacFlowEventListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils) {
+    public ElanSmacFlowEventListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
+            JobCoordinator jobCoordinator) {
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -89,9 +92,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 LOG.error(String.format("LPort record not found for tag %d", portTag));
                 return;
             }
-            //DataStoreJobCoordinate
-            DataStoreJobCoordinator coordinator = DataStoreJobCoordinator.getInstance();
-            coordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
+            jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
                 List<ListenableFuture<Void>> elanFutures = new ArrayList<>();
                 MacEntry macEntry = elanUtils.getInterfaceMacEntriesOperationalDataPath(interfaceName, physAddress);
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);

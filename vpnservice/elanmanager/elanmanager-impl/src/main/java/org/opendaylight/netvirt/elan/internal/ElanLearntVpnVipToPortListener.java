@@ -16,8 +16,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
@@ -33,12 +33,15 @@ public class ElanLearntVpnVipToPortListener extends
     private final DataBroker broker;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
+    private final JobCoordinator jobCoordinator;
 
-    public ElanLearntVpnVipToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils) {
+    public ElanLearntVpnVipToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
+            JobCoordinator jobCoordinator) {
         super(LearntVpnVipToPort.class, ElanLearntVpnVipToPortListener.class);
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class ElanLearntVpnVipToPortListener extends
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
         LOG.trace("Removing mac address {} from interface {} ", macAddress, interfaceName);
-        DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
+        jobCoordinator.enqueueJob(buildJobKey(macAddress, interfaceName),
                 new StaticMacRemoveWorker(macAddress, interfaceName));
     }
 
@@ -76,7 +79,7 @@ public class ElanLearntVpnVipToPortListener extends
         String macAddress = dataObjectModification.getMacAddress();
         String interfaceName = dataObjectModification.getPortName();
         LOG.trace("Adding mac address {} to interface {} ", macAddress, interfaceName);
-        DataStoreJobCoordinator.getInstance().enqueueJob(buildJobKey(macAddress, interfaceName),
+        jobCoordinator.enqueueJob(buildJobKey(macAddress, interfaceName),
                 new StaticMacAddWorker(macAddress, interfaceName));
     }
 

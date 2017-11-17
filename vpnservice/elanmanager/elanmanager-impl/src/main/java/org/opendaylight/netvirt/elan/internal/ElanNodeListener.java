@@ -16,7 +16,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -37,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchArpOp;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderConstant;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -61,15 +61,16 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     private final IdManagerService idManagerService;
     private final int tempSmacLearnTimeout;
     private final boolean puntLldpToController;
-
+    private final JobCoordinator jobCoordinator;
 
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig,
-            IdManagerService idManagerService) {
+            IdManagerService idManagerService, JobCoordinator jobCoordinator) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
         this.puntLldpToController = elanConfig.isPuntLldpToController();
         this.idManagerService = idManagerService;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -104,10 +105,8 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
         createArpDefaultFlowsForArpCheckTable(dpId);
     }
 
-    @SuppressWarnings("deprecation")
     private void createArpDefaultFlowsForArpCheckTable(BigInteger dpId) {
-        DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        dataStoreCoordinator.enqueueJob("ARP_CHECK_TABLE-" + dpId.toString(), () -> {
+        jobCoordinator.enqueueJob("ARP_CHECK_TABLE-" + dpId.toString(), () -> {
             WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
             LOG.debug("Received notification to install Arp Check Default entries for dpn {} ", dpId);
             createArpRequestMatchFlows(dpId, writeFlowTx);
