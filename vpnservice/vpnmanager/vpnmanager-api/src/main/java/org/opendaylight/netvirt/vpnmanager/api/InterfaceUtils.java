@@ -5,7 +5,7 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-package org.opendaylight.netvirt.vpnmanager.utilities;
+package org.opendaylight.netvirt.vpnmanager.api;
 
 import com.google.common.base.Optional;
 import java.math.BigInteger;
@@ -14,7 +14,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.netvirt.vpnmanager.VpnUtil;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -40,6 +41,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
+import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -75,7 +77,7 @@ public class InterfaceUtils {
         InstanceIdentifier<DPNTEPsInfo> tunnelInfoId =
                 InstanceIdentifier.builder(DpnEndpoints.class).child(DPNTEPsInfo.class,
                         new DPNTEPsInfoKey(dpnId)).build();
-        Optional<DPNTEPsInfo> tunnelInfo = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
+        Optional<DPNTEPsInfo> tunnelInfo = read(broker, LogicalDatastoreType.CONFIGURATION, tunnelInfoId);
         if (tunnelInfo.isPresent()) {
             List<TunnelEndPoints> nexthopIpList = tunnelInfo.get().getTunnelEndPoints();
             if (nexthopIpList != null && !nexthopIpList.isEmpty()) {
@@ -127,8 +129,7 @@ public class InterfaceUtils {
             .rev140508.interfaces.state.Interface>
             ifStateId =
             buildStateInterfaceId(interfaceName);
-        Optional<Interface> ifStateOptional =
-            VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
+        Optional<Interface> ifStateOptional = read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
         if (ifStateOptional.isPresent()) {
             return ifStateOptional.get();
         }
@@ -141,8 +142,7 @@ public class InterfaceUtils {
         DataBroker broker, String interfaceName) {
         Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
             .Interface>
-            optInterface =
-            VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
+            optInterface = read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
         if (optInterface.isPresent()) {
             return optInterface.get();
         }
@@ -155,7 +155,7 @@ public class InterfaceUtils {
             .rev140508.interfaces.state.Interface>
             ifStateId =
             buildStateInterfaceId(interfaceName);
-        Optional<Interface> ifStateOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
+        Optional<Interface> ifStateOptional = read(dataBroker, LogicalDatastoreType.OPERATIONAL, ifStateId);
         if (ifStateOptional.isPresent()) {
             PhysAddress macAddress = ifStateOptional.get().getPhysAddress();
             if (macAddress != null) {
@@ -200,4 +200,12 @@ public class InterfaceUtils {
         return new BigInteger(getDpnFromNodeConnectorId(nodeConnectorId));
     }
 
+    private static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
+            InstanceIdentifier<T> path) {
+        try {
+            return SingleTransactionDataBroker.syncReadOptional(broker, datastoreType, path);
+        } catch (ReadFailedException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }
