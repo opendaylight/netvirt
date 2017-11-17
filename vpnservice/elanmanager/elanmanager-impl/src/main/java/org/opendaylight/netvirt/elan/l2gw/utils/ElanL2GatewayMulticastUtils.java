@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,11 +20,11 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
@@ -76,14 +75,16 @@ public class ElanL2GatewayMulticastUtils {
     private final ElanInterfaceManager elanInterfaceManager;
 
     private final ElanItmUtils elanItmUtils;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public ElanL2GatewayMulticastUtils(DataBroker broker, ElanInstanceManager elanInstanceManager,
-                                       ElanInterfaceManager elanInterfaceManager, ElanItmUtils elanItmUtils) {
+            ElanInterfaceManager elanInterfaceManager, ElanItmUtils elanItmUtils, JobCoordinator jobCoordinator) {
         this.broker = broker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanItmUtils = elanItmUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     /**
@@ -124,7 +125,7 @@ public class ElanL2GatewayMulticastUtils {
 
     public void scheduleMcastMacUpdateJob(String elanName, L2GatewayDevice device) {
         HwvtepDeviceMcastMacUpdateJob job = new HwvtepDeviceMcastMacUpdateJob(this, elanName,device);
-        DataStoreJobCoordinator.getInstance().enqueueJob(job.getJobKey(), job);
+        jobCoordinator.enqueueJob(job.getJobKey(), job);
     }
 
     /**
@@ -236,7 +237,7 @@ public class ElanL2GatewayMulticastUtils {
                         .createHwvtepPhysicalLocatorAugmentation(String.valueOf(dhcpDesignatedSwitchTepIp.getValue()));
                 InstanceIdentifier<TerminationPoint> iid =
                         HwvtepSouthboundUtils.createPhysicalLocatorInstanceIdentifier(nodeId, phyLocatorAug);
-                TerminationPoint terminationPoint = (new TerminationPointBuilder())
+                TerminationPoint terminationPoint = new TerminationPointBuilder()
                                 .setKey(HwvtepSouthboundUtils.getTerminationPointKey(phyLocatorAug))
                                 .addAugmentation(HwvtepPhysicalLocatorAugmentation.class, phyLocatorAug).build();
                 ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
