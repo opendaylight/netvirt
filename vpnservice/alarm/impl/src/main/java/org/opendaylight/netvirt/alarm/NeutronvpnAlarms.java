@@ -51,4 +51,3 @@ public class NeutronvpnAlarms {
         return enabledPropertyStr != null && enabledPropertyStr.equalsIgnoreCase("true");
     }
 }
-

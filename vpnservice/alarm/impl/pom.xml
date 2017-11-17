@@ -8,6 +8,8 @@
 -->
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>org.opendaylight.netvirt</groupId>
         <artifactId>binding-parent</artifactId>
@@ -15,10 +17,10 @@
         <relativePath>../../commons/binding-parent</relativePath>
     </parent>
 
-    <modelVersion>4.0.0</modelVersion>
     <artifactId>alarm-impl</artifactId>
     <name>ODL :: netvirt :: ${project.artifactId}</name>
     <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
@@ -28,33 +30,15 @@
     </dependencies>
 
     <build>
-
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-checkstyle-plugin</artifactId>
-        </plugin>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-pmd-plugin</artifactId>
-        </plugin>
-        <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>findbugs-maven-plugin</artifactId>
-            <configuration>
-                 <failOnError>true</failOnError>
-            </configuration>
-        </plugin>
-        <!--
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <configuration>
-                <skip>true</skip>
-            </configuration>
-        </plugin>
-         -->
-    </plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>findbugs-maven-plugin</artifactId>
+                <configuration>
+                     <failOnError>true</failOnError>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 
     <!--
