@@ -16,7 +16,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -34,13 +33,13 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceListener.class);
 
     private final DataBroker broker;
-    private final EntityOwnershipUtils entityOwnershipUtils;
+    private final ElanClusterUtils elanClusterUtils;
     private static final Map<String, List<Runnable>> WAITING_JOB_LIST = new ConcurrentHashMap<>();
 
-    public ElanInstanceListener(final DataBroker db, final EntityOwnershipUtils entityOwnershipUtils) {
+    public ElanInstanceListener(final DataBroker db, final ElanClusterUtils elanClusterUtils) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
-        this.entityOwnershipUtils = entityOwnershipUtils;
+        this.elanClusterUtils = elanClusterUtils;
         registerListener(LogicalDatastoreType.CONFIGURATION, db);
     }
 
@@ -54,8 +53,8 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     @Override
     protected void remove(final InstanceIdentifier<ElanInstance> identifier,
                           final ElanInstance del) {
-        ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, del.getElanInstanceName(),
-            "delete Elan instance", () -> {
+        elanClusterUtils.runOnlyInOwnerNode(del.getElanInstanceName(), "delete Elan instance",
+            () -> {
                 LOG.info("Elan instance {} deleted from Configuration tree ", del);
                 List<L2gatewayConnection> connections =
                         L2GatewayConnectionUtils.getL2GwConnectionsByElanName(

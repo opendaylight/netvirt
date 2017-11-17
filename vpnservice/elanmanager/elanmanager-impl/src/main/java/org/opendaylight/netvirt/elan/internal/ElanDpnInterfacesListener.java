@@ -15,8 +15,8 @@ import javax.inject.Inject;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -33,13 +33,15 @@ public class ElanDpnInterfacesListener
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
     private final ElanServiceProvider elanService;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
     public ElanDpnInterfacesListener(final DataBroker dataBroker, final IInterfaceManager interfaceManager,
-                                     final ElanServiceProvider elanService) {
+                                     final ElanServiceProvider elanService, final JobCoordinator jobCoordinator) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
+        this.jobCoordinator = jobCoordinator;
     }
 
     public void start() {
@@ -68,9 +70,9 @@ public class ElanDpnInterfacesListener
         if (!elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
             List<String> interfaces = update.getInterfaces();
             // trigger deletion for vlan provider intf on the DPN for the vlan provider network
-            if ((interfaces.size() == 1) && interfaceManager.isExternalInterface(interfaces.get(0))) {
+            if (interfaces.size() == 1 && interfaceManager.isExternalInterface(interfaces.get(0))) {
                 LOG.debug("deleting vlan prv intf for elan {}, dpn {}", elanInstanceName, dpnId);
-                DataStoreJobCoordinator.getInstance().enqueueJob(dpnId.toString(), () -> {
+                jobCoordinator.enqueueJob(dpnId.toString(), () -> {
                     elanService.deleteExternalElanNetwork(elanInstance, dpnId);
                     return Collections.emptyList();
                 });
@@ -88,7 +90,7 @@ public class ElanDpnInterfacesListener
         // trigger creation of vlan provider intf for the vlan provider network
         // on br-int patch port for this DPN
         if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
-            DataStoreJobCoordinator.getInstance().enqueueJob(dpnId.toString(), () -> {
+            jobCoordinator.enqueueJob(dpnId.toString(), () -> {
                 LOG.debug("creating vlan member intf for elan {}, dpn {}",
                         elanInstance.getPhysicalNetworkName(), dpnId);
                 elanService.createExternalElanNetwork(elanInstance, dpnId);

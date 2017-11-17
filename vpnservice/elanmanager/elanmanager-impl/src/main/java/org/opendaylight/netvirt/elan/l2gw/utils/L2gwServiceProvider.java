@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
@@ -35,12 +34,12 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
-    private final EntityOwnershipUtils entityOwnershipUtils;
+    private final ElanClusterUtils elanClusterUtils;
 
-    public L2gwServiceProvider(final DataBroker dataBroker, final EntityOwnershipUtils entityOwnershipUtils,
+    public L2gwServiceProvider(final DataBroker dataBroker, final ElanClusterUtils elanClusterUtils,
                                ItmRpcService itmRpcService, L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         this.dataBroker = dataBroker;
-        this.entityOwnershipUtils = entityOwnershipUtils;
+        this.elanClusterUtils = elanClusterUtils;
         this.itmRpcService = itmRpcService;
         this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
     }
@@ -48,8 +47,8 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
     @Override
     public void provisionItmAndL2gwConnection(L2GatewayDevice l2GwDevice, String psName,
                                               String hwvtepNodeId, IpAddress tunnelIpAddr) {
-        ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, hwvtepNodeId,
-                "Handling Physical Switch add create itm tunnels ", () -> {
+        elanClusterUtils.runOnlyInOwnerNode(hwvtepNodeId, "Handling Physical Switch add create itm tunnels ",
+            () -> {
                 ElanL2GatewayUtils.createItmTunnels(itmRpcService, hwvtepNodeId, psName, tunnelIpAddr);
                 return Collections.emptyList();
             });

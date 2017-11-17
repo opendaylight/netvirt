@@ -22,7 +22,6 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -85,7 +84,7 @@ public class HwvtepPhysicalSwitchListener
     /** The itm rpc service. */
     private final ItmRpcService itmRpcService;
 
-    private final EntityOwnershipUtils entityOwnershipUtils;
+    private final ElanClusterUtils elanClusterUtils;
 
     private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
@@ -124,22 +123,14 @@ public class HwvtepPhysicalSwitchListener
 
     /**
      * Instantiates a new hwvtep physical switch listener.
-     *
-     * @param dataBroker
-     *            the data broker
-     * @param itmRpcService itm rpc
-     * @param entityOwnershipUtils entity ownership utils
-     * @param l2gwServiceProvider l2gw service Provider
-     * @param haListener HA Op node listners
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
-                                        EntityOwnershipUtils entityOwnershipUtils,
-                                        L2gwServiceProvider l2gwServiceProvider,
-                                        HAOpClusteredListener haListener) {
+            ElanClusterUtils elanClusterUtils, L2gwServiceProvider l2gwServiceProvider,
+            HAOpClusteredListener haListener) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
-        this.entityOwnershipUtils = entityOwnershipUtils;
+        this.elanClusterUtils = elanClusterUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
         this.haOpClusteredListener = haListener;
     }
@@ -221,8 +212,9 @@ public class HwvtepPhysicalSwitchListener
                     && TUNNEL_IP_CHANGED.test(phySwitchAfter, existingDevice)) {
 
                 final String hwvtepId = existingDevice.getHwvtepNodeId();
-                ElanClusterUtils.runOnlyInOwnerNode(entityOwnershipUtils, existingDevice.getDeviceName(),
-                        "handling Physical Switch add create itm tunnels ", () -> {
+                elanClusterUtils.runOnlyInOwnerNode(existingDevice.getDeviceName(),
+                    "handling Physical Switch add create itm tunnels ",
+                    () -> {
                         LOG.info("Deleting itm tunnels for device {}", existingDevice.getDeviceName());
                         L2GatewayUtils.deleteItmTunnels(itmRpcService, hwvtepId,
                                 existingDevice.getDeviceName(), existingDevice.getTunnelIp());
