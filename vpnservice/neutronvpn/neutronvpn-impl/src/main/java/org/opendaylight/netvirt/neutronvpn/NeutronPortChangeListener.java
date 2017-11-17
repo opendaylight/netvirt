@@ -165,7 +165,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                         NwConstants.DEL_FLOW);
             }
         }
-        if (input.getFixedIps() != null && !input.getFixedIps().isEmpty()) {
+        if (input.getFixedIps() != null) {
             handleNeutronPortDeleted(input);
         }
     }
