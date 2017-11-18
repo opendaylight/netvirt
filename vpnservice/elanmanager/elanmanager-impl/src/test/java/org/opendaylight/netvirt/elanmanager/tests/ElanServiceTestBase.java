@@ -25,6 +25,7 @@ import org.awaitility.core.ConditionFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
@@ -35,6 +36,8 @@ import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.tests.utils.InterfaceHelper;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -71,9 +74,9 @@ public class ElanServiceTestBase {
     protected  @Inject TestInterfaceManager interfaceMgr;
     protected  @Inject ItmRpcTestImpl itmRpc;
     protected  @Inject ElanInstanceManager elanInstanceManager;
-
+    protected @Inject SingleTransactionDataBroker singleTxdataBroker;
     public static final String ELAN1 = "34701c04-1118-4c65-9425-78a80d49a211";
-    protected static final Long ELAN1_SEGMENT_ID = 100L;
+    public static final Long ELAN1_SEGMENT_ID = 100L;
 
     protected static final BigInteger DPN1_ID = new BigInteger("1");
     protected static final BigInteger DPN2_ID = new BigInteger("2");
@@ -84,7 +87,7 @@ public class ElanServiceTestBase {
     protected static final String DPN1_TEPIP = "192.168.56.30";
     protected static final String DPN2_TEPIP = "192.168.56.40";
     protected static final String TOR1_TEPIP = "192.168.56.50";
-    protected static final String DCGW_TEPIP = "192.168.56.60";
+    public static final String DCGW_TEPIP = "192.168.56.60";
 
     protected static final String DPN1MAC1 = "10:00:00:00:00:01";
     protected static final String DPN1MAC2 = "10:00:00:00:00:02";
@@ -117,8 +120,8 @@ public class ElanServiceTestBase {
     protected static final String TOR1NODEID = "hwvtep://uuid/34701c04-1118-4c65-9425-78a80d49a211";
     protected static final String DCGWID = DCGW_TEPIP;
 
-    protected static final String RD = "100:1";
-    protected static final String EVPN1 = "evpn1";
+    public static final String RD = "100:1";
+    public static final String EVPN1 = "evpn1";
 
     protected static Map<String, Pair<InterfaceInfo, String>> ELAN_INTERFACES = new HashMap<>();
     protected static Map<String, TunnelInterfaceDetails> EXTN_INTFS = new HashMap<>();
@@ -214,7 +217,9 @@ public class ElanServiceTestBase {
     protected void setupItm() throws TransactionCommitFailedException {
         /*Add tap port and tunnel ports in DPN1 and DPN2*/
         interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft());
+        interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft());
         interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN2MAC1).getLeft());
+        interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN2MAC2).getLeft());
         interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN2_ID_STR));
         interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN2_ID_STR + ":" + DPN1_ID_STR));
 
@@ -227,6 +232,9 @@ public class ElanServiceTestBase {
                 DPN2_TEPIP, EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN2_ID_STR).getInterfaceInfo().getInterfaceName());
         itmRpc.addInterface(DPN2_ID,
                 DPN1_TEPIP, EXTN_INTFS.get(DPN2_ID_STR + ":" + DPN1_ID_STR).getInterfaceInfo().getInterfaceName());
+
+        itmRpc.addExternalInterface(DPN1_ID,
+                DCGWID, EXTN_INTFS.get(DPN1_ID_STR + ":" + DCGWID).getInterfaceInfo().getInterfaceName());
     }
 
     protected InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, BigInteger dpnId) {
@@ -249,7 +257,7 @@ public class ElanServiceTestBase {
                 ElanHelper.getElanInstanceConfigurationDataPath(elan1), elanInstance);
     }
 
-    public void addElanInterface(String elanInstanceName, InterfaceInfo interfaceInfo) {
+    public void addElanInterface(String elanInstanceName, InterfaceInfo interfaceInfo, String prefix) {
         ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
         String interfaceName = interfaceInfo.getInterfaceName();
 
@@ -265,7 +273,7 @@ public class ElanServiceTestBase {
                     new PhysAddress(interfaceInfo.getMacAddress()));
             for (PhysAddress physAddress : physAddressList) {
                 staticMacEntries.add(staticMacEntriesBuilder.setMacAddress(physAddress)
-                        /*.setIpPrefix(new IpAddress(new Ipv4Address(interfaceDetails.getPrefix())))*/.build());
+                        .setIpPrefix(new IpAddress(new Ipv4Address(prefix))).build());
             }
             elanInterfaceBuilder.setStaticMacEntries(staticMacEntries);
             ElanInterface elanInterface = elanInterfaceBuilder.build();
@@ -273,5 +281,12 @@ public class ElanServiceTestBase {
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
         }
+    }
+
+    public void deleteElanInterface(InterfaceInfo interfaceInfo) throws TransactionCommitFailedException {
+        String interfaceName = interfaceInfo.getInterfaceName();
+        singleTxdataBroker.syncDelete(LogicalDatastoreType.CONFIGURATION,
+                ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
+
     }
 }

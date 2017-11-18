@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
 import org.opendaylight.daexim.DataImportBootReady;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUtils;
 import org.opendaylight.genius.interfacemanager.commons.InterfaceMetaUtils;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -29,8 +30,10 @@ import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.tests.utils.BgpManagerTestImpl;
 import org.opendaylight.netvirt.elanmanager.tests.utils.ElanEgressActionsHelper;
 import org.opendaylight.netvirt.elanmanager.tests.utils.IdHelper;
+import org.opendaylight.netvirt.elanmanager.tests.utils.VpnManagerTestImpl;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
@@ -58,7 +61,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
         bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
-        //IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
+        IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
         bind(IMdsalApiManager.class).toInstance(new MDSALManager(dataBroker,
                 Mockito.mock(PacketProcessingService.class)));
 
@@ -79,7 +82,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
         TestInterfaceManager obj = TestInterfaceManager.newInstance(dataBroker);
         ItmRpcService itmRpcService = new ItmRpcTestImpl();
-        //IBgpManager ibgpManager = BgpManagerTestImpl.newInstance(dataBroker);
+
         bind(DataBroker.class).toInstance(dataBroker);
         bind(IdManagerService.class).toInstance(Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS));
         bind(IInterfaceManager.class).toInstance(obj);
@@ -95,17 +98,18 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
                 interfaceMetaUtils,
                 Mockito.mock(BatchingUtils.class));
 
-        bind(OdlInterfaceRpcService.class).toInstance(ElanEgressActionsHelper.newInstance(dataBroker,
-                interfaceManagerCommonUtils));
+        bind(OdlInterfaceRpcService.class).toInstance(ElanEgressActionsHelper.newInstance(interfaceManagerCommonUtils));
+        SingleTransactionDataBroker singleTransactionDataBroker = new SingleTransactionDataBroker(dataBroker);
+        bind(SingleTransactionDataBroker.class).toInstance(singleTransactionDataBroker);
+        IBgpManager ibgpManager = BgpManagerTestImpl.newInstance(singleTransactionDataBroker);
         bind(ItmRpcService.class).toInstance(itmRpcService);
         bind(ItmRpcTestImpl.class).toInstance((ItmRpcTestImpl)itmRpcService);
-        //bind(IVpnManager.class).toInstance(ivpnManager);
-        //bind(IBgpManager.class).toInstance(ibgpManager);
         bind(DataImportBootReady.class).annotatedWith(OsgiService.class).toInstance(new DataImportBootReady() {});
         bind(DiagStatusService.class).toInstance(Mockito.mock(DiagStatusService.class));
+        bind(IVpnManager.class).toInstance(ivpnManager);
+        bind(IBgpManager.class).toInstance(ibgpManager);
+        bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
         bind(IElanService.class).to(ElanServiceProvider.class);
-        bind(IBgpManager.class).toInstance(Mockito.mock(IBgpManager.class));
-        bind(IVpnManager.class).toInstance(Mockito.mock(IVpnManager.class));
     }
 
 }
