@@ -35,6 +35,8 @@ import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.tests.utils.InterfaceHelper;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
@@ -117,8 +119,8 @@ public class ElanServiceTestBase {
     protected static final String TOR1NODEID = "hwvtep://uuid/34701c04-1118-4c65-9425-78a80d49a211";
     protected static final String DCGWID = DCGW_TEPIP;
 
-    protected static final String RD = "100:1";
-    protected static final String EVPN1 = "evpn1";
+    public static final String RD = "100:1";
+    public static final String EVPN1 = "evpn1";
 
     protected static Map<String, Pair<InterfaceInfo, String>> ELAN_INTERFACES = new HashMap<>();
     protected static Map<String, TunnelInterfaceDetails> EXTN_INTFS = new HashMap<>();
@@ -249,7 +251,7 @@ public class ElanServiceTestBase {
                 ElanHelper.getElanInstanceConfigurationDataPath(elan1), elanInstance);
     }
 
-    public void addElanInterface(String elanInstanceName, InterfaceInfo interfaceInfo) {
+    public void addElanInterface(String elanInstanceName, InterfaceInfo interfaceInfo, String prefix) {
         ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
         String interfaceName = interfaceInfo.getInterfaceName();
 
@@ -265,7 +267,7 @@ public class ElanServiceTestBase {
                     new PhysAddress(interfaceInfo.getMacAddress()));
             for (PhysAddress physAddress : physAddressList) {
                 staticMacEntries.add(staticMacEntriesBuilder.setMacAddress(physAddress)
-                        /*.setIpPrefix(new IpAddress(new Ipv4Address(interfaceDetails.getPrefix())))*/.build());
+                        .setIpPrefix(new IpAddress(new Ipv4Address(prefix))).build());
             }
             elanInterfaceBuilder.setStaticMacEntries(staticMacEntries);
             ElanInterface elanInterface = elanInterfaceBuilder.build();
@@ -273,5 +275,12 @@ public class ElanServiceTestBase {
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName), elanInterface);
         }
+    }
+
+    public void deleteElanInterface(InterfaceInfo interfaceInfo) {
+        String interfaceName = interfaceInfo.getInterfaceName();
+        MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
+
     }
 }

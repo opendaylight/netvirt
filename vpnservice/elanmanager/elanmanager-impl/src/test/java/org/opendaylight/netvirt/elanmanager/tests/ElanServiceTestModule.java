@@ -24,13 +24,17 @@ import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.tests.utils.BgpManagerTestImpl;
 import org.opendaylight.netvirt.elanmanager.tests.utils.ElanEgressActionsHelper;
 import org.opendaylight.netvirt.elanmanager.tests.utils.IdHelper;
+import org.opendaylight.netvirt.elanmanager.tests.utils.VpnManagerTestImpl;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -54,7 +58,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
         bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
-        //IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
+        IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
         bind(IMdsalApiManager.class).toInstance(new MDSALManager(dataBroker,
                 Mockito.mock(PacketProcessingService.class)));
 
@@ -75,7 +79,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
         TestInterfaceManager obj = TestInterfaceManager.newInstance(dataBroker);
         ItmRpcService itmRpcService = new ItmRpcTestImpl();
-        //IBgpManager ibgpManager = BgpManagerTestImpl.newInstance(dataBroker);
+        IBgpManager ibgpManager = BgpManagerTestImpl.newInstance(dataBroker);
         bind(DataBroker.class).toInstance(dataBroker);
         bind(IdManagerService.class).toInstance(Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS));
         bind(IInterfaceManager.class).toInstance(obj);
@@ -91,12 +95,11 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
                 interfaceMetaUtils,
                 Mockito.mock(BatchingUtils.class));
 
-        bind(OdlInterfaceRpcService.class).toInstance(ElanEgressActionsHelper.newInstance(dataBroker,
-                interfaceManagerCommonUtils));
+        bind(OdlInterfaceRpcService.class).toInstance(ElanEgressActionsHelper.newInstance(interfaceManagerCommonUtils));
         bind(ItmRpcService.class).toInstance(itmRpcService);
         bind(ItmRpcTestImpl.class).toInstance((ItmRpcTestImpl)itmRpcService);
-        //bind(IVpnManager.class).toInstance(ivpnManager);
-        //bind(IBgpManager.class).toInstance(ibgpManager);
+        bind(IVpnManager.class).toInstance(ivpnManager);
+        bind(IBgpManager.class).toInstance(ibgpManager);
         bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
         bind(IElanService.class).to(ElanServiceProvider.class);
     }
