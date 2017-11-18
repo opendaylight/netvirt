@@ -1,0 +1,336 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_a2c27850",
+        "filename": "vpnservice/dhcpservice/dhcpservice-api/src/main/java/org/opendaylight/netvirt/dhcpservice/api/DHCPOptions.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Found reliance on default encoding\"",
+      "range": {
+        "startLine": 149,
+        "startChar": 48,
+        "endLine": 149,
+        "endChar": 56
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_02a544b5",
+        "filename": "vpnservice/dhcpservice/dhcpservice-api/src/main/java/org/opendaylight/netvirt/dhcpservice/api/DHCPUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Consider returning a zero length array rather than null\" - propagate UnknownHostException instead",
+      "range": {
+        "startLine": 35,
+        "startChar": 25,
+        "endLine": 35,
+        "endChar": 43
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e2a750bb",
+        "filename": "vpnservice/dhcpservice/dhcpservice-api/src/main/java/org/opendaylight/netvirt/dhcpservice/api/DHCPUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "same here",
+      "range": {
+        "startLine": 43,
+        "startChar": 25,
+        "endLine": 43,
+        "endChar": 48
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_42abbc88",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_22ae8898",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_82981479",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpAllocationPoolManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Method ignores return value\"",
+      "range": {
+        "startLine": 179,
+        "startChar": 18,
+        "endLine": 179,
+        "endChar": 27
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6293605b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Call to java.math.BigInteger.equals(Long)\"",
+      "range": {
+        "startLine": 305,
+        "startChar": 25,
+        "endLine": 305,
+        "endChar": 31
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c29e8c62",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of value known to be non-null\"",
+      "range": {
+        "startLine": 428,
+        "startChar": 16,
+        "endLine": 428,
+        "endChar": 37
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a299d87a",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 544,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_028c2435",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Use of non-localized String.toUpperCase()\"",
+      "range": {
+        "startLine": 581,
+        "startChar": 89,
+        "endLine": 581,
+        "endChar": 100
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e28e302d",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 810,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_42829c00",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Nullcheck of subnet at line 141 of value previously dereferenced\" - this is also actually a dead store b/c if subnet is non-null, it would either re-assign serverIp in line 149 or return.",
+      "range": {
+        "startLine": 141,
+        "startChar": 23,
+        "endLine": 141,
+        "endChar": 31
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_2285e806",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "Neither can be null",
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_827f7414",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpPktHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 640,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Consider returning a zero length array rather than null\" - in this case , we can return an empty byte[] b/c the lone caller (setOptionClasslessRoute) passes the byte[] to a ByteArrayOutputStream which would throw an NPE",
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_627a4025",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpSubnetListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Suspicious comparison of Boolean references\"",
+      "range": {
+        "startLine": 90,
+        "startChar": 36,
+        "endLine": 90,
+        "endChar": 38
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c275ec32",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpUCastMacListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-18T02:25:38Z",
+      "side": 0,
+      "message": "\"Load of known null value\"",
+      "range": {
+        "startLine": 88,
+        "startChar": 94,
+        "endLine": 88,
+        "endChar": 107
+      },
+      "revId": "f191262126b6e321da5ebe6fd88d9f32a282a329",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
