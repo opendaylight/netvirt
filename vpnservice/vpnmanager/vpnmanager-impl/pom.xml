@@ -149,6 +149,10 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                     </instructions>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.aries.blueprint</groupId>
+                <artifactId>blueprint-maven-plugin</artifactId>
+            </plugin>
         </plugins>
     </build>
     <!--

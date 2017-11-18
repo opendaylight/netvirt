@@ -12,6 +12,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -32,6 +35,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInstanceOpDataEntry, VpnOpStatusListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnOpStatusListener.class);
     private final DataBroker dataBroker;
@@ -42,6 +46,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
     private final VpnFootprintService vpnFootprintService;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public VpnOpStatusListener(final DataBroker dataBroker, final IBgpManager bgpManager,
                                final IdManagerService idManager, final IFibManager fibManager,
                                final IMdsalApiManager mdsalManager, final VpnFootprintService vpnFootprintService,
@@ -56,6 +61,7 @@ public class VpnOpStatusListener extends AsyncDataTreeChangeListenerBase<VpnInst
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

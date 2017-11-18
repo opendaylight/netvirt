@@ -16,6 +16,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -68,6 +71,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnManagerImpl implements IVpnManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnManagerImpl.class);
@@ -83,6 +87,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final IFibManager fibManager;
     private final IBgpManager bgpManager;
 
+    @Inject
     public VpnManagerImpl(final DataBroker dataBroker,
                           final IdManagerService idManagerService,
                           final IMdsalApiManager mdsalManager,
@@ -107,6 +112,7 @@ public class VpnManagerImpl implements IVpnManager {
         this.bgpManager = bgpManager;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         createIdPool();

@@ -12,6 +12,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -28,6 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class TunnelEndPointChangeListener
     extends AsyncDataTreeChangeListenerBase<TunnelEndPoints, TunnelEndPointChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelEndPointChangeListener.class);
@@ -36,6 +40,7 @@ public class TunnelEndPointChangeListener
     private final VpnInterfaceManager vpnInterfaceManager;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public TunnelEndPointChangeListener(final DataBroker broker, final VpnInterfaceManager vpnInterfaceManager,
             final JobCoordinator jobCoordinator) {
         super(TunnelEndPoints.class, TunnelEndPointChangeListener.class);
@@ -44,6 +49,7 @@ public class TunnelEndPointChangeListener
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
