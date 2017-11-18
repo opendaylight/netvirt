@@ -414,5 +414,24 @@ class ExpectedObjects {
             tableId = 51 as short
         ]
     }
+
+    def static checkEvpnAdvertiseRoute(Long vni, String mac, String tepip, String prefix, String rd1) {
+       new NetworksBuilder >> [
+           bgpControlPlaneType = BgpControlPlaneType.PROTOCOLEVPN
+           encapType = EncapType.VXLAN
+           ethtag = 0L
+           l2vni = vni
+           l3vni = 0L
+           label = 0L
+           macaddress = mac
+           nexthop = new Ipv4Address(tepip)
+           prefixLen = prefix
+           rd = rd1
+       ]
+    }
+
+    def static Networks checkEvpnWithdrawRT2DelIntf() {
+        return null
+    }
 }
 
