@@ -13,6 +13,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -32,6 +35,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChangeListenerBase<Interface,
     SubnetRouteInterfaceStateChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(SubnetRouteInterfaceStateChangeListener.class);
@@ -42,6 +46,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     private final INeutronVpnManager neutronVpnManager;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public SubnetRouteInterfaceStateChangeListener(final DataBroker dataBroker,
             final VpnSubnetRouteHandler vpnSubnetRouteHandler, final SubnetOpDpnManager subnetOpDpnManager,
             final INeutronVpnManager neutronVpnService, final JobCoordinator jobCoordinator) {
@@ -53,6 +58,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

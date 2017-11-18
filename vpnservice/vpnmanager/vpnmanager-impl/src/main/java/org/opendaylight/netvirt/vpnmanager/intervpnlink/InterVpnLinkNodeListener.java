@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
 import java.math.BigInteger;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -36,6 +39,7 @@ import org.slf4j.LoggerFactory;
  * Listens for Nodes going down, in order to check if the InterVpnLink must be
  * moved to some other DPN.
  */
+@Singleton
 public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<Node, InterVpnLinkNodeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkNodeListener.class);
 
@@ -46,6 +50,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     private final VpnFootprintService vpnFootprintService;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr,
                                     final VpnFootprintService vpnFootprintService,
                                     final JobCoordinator jobCoordinator) {
@@ -55,6 +60,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

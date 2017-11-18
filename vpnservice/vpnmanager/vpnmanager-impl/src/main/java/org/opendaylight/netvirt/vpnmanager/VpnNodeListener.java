@@ -14,6 +14,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -39,6 +42,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<Node, VpnNodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnNodeListener.class);
@@ -49,6 +53,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
     private final JobCoordinator jobCoordinator;
     private final List<BigInteger> connectedDpnIds;
 
+    @Inject
     public VpnNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, JobCoordinator jobCoordinator) {
         super(Node.class, VpnNodeListener.class);
         this.broker = dataBroker;
@@ -57,6 +62,7 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
         this.connectedDpnIds = new CopyOnWriteArrayList<>();
     }
 
+    @PostConstruct
     public void start() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }

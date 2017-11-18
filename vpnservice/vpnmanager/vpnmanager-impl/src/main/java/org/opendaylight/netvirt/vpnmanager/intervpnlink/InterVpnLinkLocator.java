@@ -15,6 +15,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
@@ -32,6 +34,7 @@ import org.slf4j.LoggerFactory;
  * an InterVpnLink.
  *
  */
+@Singleton
 public class InterVpnLinkLocator {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkLocator.class);
@@ -39,6 +42,7 @@ public class InterVpnLinkLocator {
 
     private final DataBroker dataBroker;
 
+    @Inject
     public InterVpnLinkLocator(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
     }

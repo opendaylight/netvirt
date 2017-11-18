@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -63,6 +66,7 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
         TunnelInterfaceStateListener> {
     private static final Logger LOG = LoggerFactory.getLogger(TunnelInterfaceStateListener.class);
@@ -86,6 +90,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
     /**
      * Responsible for listening to tunnel interface state change.
      */
+    @Inject
     public TunnelInterfaceStateListener(final DataBroker dataBroker,
         final IFibManager fibManager,
         final OdlInterfaceRpcService ifaceMgrRpcService,
@@ -101,6 +106,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

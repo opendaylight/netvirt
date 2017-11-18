@@ -10,7 +10,10 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.arputil.api.ArpConstants;
@@ -34,6 +37,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ArpMonitoringHandler
         extends AsyncClusteredDataTreeChangeListenerBase<LearntVpnVipToPort, ArpMonitoringHandler> {
     private static final Logger LOG = LoggerFactory.getLogger(ArpMonitoringHandler.class);
@@ -49,6 +53,7 @@ public class ArpMonitoringHandler
     private Long arpMonitorProfileId = 0L;
     private EntityOwnershipCandidateRegistration candidateRegistration;
 
+    @Inject
     public ArpMonitoringHandler(final DataBroker dataBroker, final OdlInterfaceRpcService interfaceRpc,
             IMdsalApiManager mdsalManager, AlivenessMonitorService alivenessManager,
             INeutronVpnManager neutronVpnService, IInterfaceManager interfaceManager,
@@ -64,6 +69,7 @@ public class ArpMonitoringHandler
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void start() {
         Optional<Long> profileIdOptional = AlivenessMonitorUtils.allocateProfile(alivenessManager,
             ArpConstants.FAILURE_THRESHOLD, ArpConstants.ARP_CACHE_TIMEOUT_MILLIS, ArpConstants.MONITORING_WINDOW,

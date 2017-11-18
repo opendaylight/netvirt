@@ -8,8 +8,9 @@
 package org.opendaylight.netvirt.vpnmanager.arp.responder;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput.ArpReponderInputBuilder;
@@ -28,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * installation and uninstallation of flows.
  *
  */
+@Singleton
 public class ArpResponderHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArpResponderHandler.class);
@@ -56,6 +58,7 @@ public class ArpResponderHandler {
      *            {@link #interfaceManager}
      *
      */
+    @Inject
     public ArpResponderHandler(DataBroker dataBroker, IElanService elanService, IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.elanService = elanService;
@@ -135,7 +138,7 @@ public class ArpResponderHandler {
         // Check if a router gateway interface is available for the subnet gw is
         // so then use Router interface
         // else use connected interface
-        return Optional.of((gwPort != null && gwPort.isSubnetIp()) ? gwPort.getMacAddress()
+        return Optional.of(gwPort != null && gwPort.isSubnetIp() ? gwPort.getMacAddress()
                 : InterfaceUtils.getMacAddressForInterface(dataBroker, ifName).get());
     }
 

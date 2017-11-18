@@ -17,6 +17,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
@@ -24,7 +26,6 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
@@ -54,6 +55,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class VpnFootprintService implements IVpnFootprintService {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnFootprintService.class);
@@ -61,16 +63,14 @@ public class VpnFootprintService implements IVpnFootprintService {
     private final DataBroker dataBroker;
     private final IFibManager fibManager;
     private final VpnOpDataSyncer vpnOpDataSyncer;
-    private final OdlInterfaceRpcService ifaceMgrRpcService;
     private final NotificationPublishService notificationPublishService;
 
+    @Inject
     public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
-            final OdlInterfaceRpcService ifaceRpcService, final NotificationPublishService notificationPublishService,
-            final VpnOpDataSyncer vpnOpDataSyncer) {
+            final NotificationPublishService notificationPublishService, final VpnOpDataSyncer vpnOpDataSyncer) {
         this.dataBroker = dataBroker;
         this.fibManager = fibManager;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
-        this.ifaceMgrRpcService = ifaceRpcService;
         this.notificationPublishService = notificationPublishService;
     }
 
