@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.Future;
 
 import org.mockito.Mockito;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.infra.FutureRpcResults;
 import org.opendaylight.genius.interfacemanager.IfmUtil;
 import org.opendaylight.genius.interfacemanager.commons.InterfaceManagerCommonUtils;
@@ -32,8 +31,7 @@ public abstract class ElanEgressActionsHelper implements OdlInterfaceRpcService 
     private static final Logger LOG = LoggerFactory.getLogger(ElanEgressActionsHelper.class);
     private InterfaceManagerCommonUtils interfaceManagerCommonUtils;
 
-    public static ElanEgressActionsHelper newInstance(DataBroker dataBroker,
-                                                      InterfaceManagerCommonUtils interfaceManagerCommonUtils) {
+    public static ElanEgressActionsHelper newInstance(InterfaceManagerCommonUtils interfaceManagerCommonUtils) {
         ElanEgressActionsHelper instance = Mockito.mock(ElanEgressActionsHelper.class, realOrException());
         instance.interfaceManagerCommonUtils = interfaceManagerCommonUtils;
         return instance;
