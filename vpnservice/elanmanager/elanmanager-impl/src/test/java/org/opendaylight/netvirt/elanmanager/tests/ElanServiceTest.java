@@ -10,14 +10,15 @@ package org.opendaylight.netvirt.elanmanager.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.base.Optional;
+
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorTestModule;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -26,12 +27,18 @@ import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.mdsal.binding.testutils.AssertDataObjects;
+import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.evpn.listeners.ElanMacEntryListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.tests.utils.EvpnTestHelper;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -41,6 +48,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 
 /**
@@ -71,11 +80,11 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject ElanMacEntryListener elanMacEntryListener;
     private @Inject MacVrfEntryListener macVrfEntryListener;
     private @Inject EvpnUtils evpnUtils;
-
-    private SingleTransactionDataBroker singleTxdataBroker;
+    private @Inject IBgpManager bgpManager;
+    private @Inject IVpnManager vpnManager;
+    private @Inject EvpnTestHelper evpnTestHelper;
 
     @Before public void before() throws TransactionCommitFailedException {
-        singleTxdataBroker = new SingleTransactionDataBroker(dataBroker);
         setupItm();
     }
 
@@ -90,7 +99,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
 
         // Add Elan interface
         InterfaceInfo interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft();
-        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo, DPN1IP1);
 
         // Read Elan instance
         InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
@@ -123,7 +132,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
 
         // Add Elan interface in DPN1
         InterfaceInfo interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft();
-        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo, DPN1IP1);
 
         // Read Elan instance
         InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
@@ -155,7 +164,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         awaitForElanTag(ExpectedObjects.ELAN1);
 
         InterfaceInfo interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft();
-        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo, DPN1IP1);
 
         // Read Elan instance
         InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
@@ -163,7 +172,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         ElanInstance actualElanInstances = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
 
         interfaceInfo = ELAN_INTERFACES.get(ELAN1 + ":" + DPN2MAC1).getLeft();
-        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo);
+        addElanInterface(ExpectedObjects.ELAN1, interfaceInfo, DPN2IP1);
 
         // Read and Compare DMAC flow in DPN1 for MAC1 of DPN2
         String flowId = ElanUtils.getKnownDynamicmacFlowRef((short)51,
@@ -183,6 +192,119 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         Flow expected = ExpectedObjects.checkDmacOfOtherDPN(flowId, interfaceInfo, tepDetails,
                 actualElanInstances);
         AssertDataObjects.assertEqualBeans(getSortedActions(expected), getSortedActions(flowDst));
+    }
+
+    @Test public void checkEvpnAdvRT2() throws Exception {
+        createElanInstanceAndInterfaceAndAttachEvpn();
+
+        AssertDataObjects.assertEqualBeans(
+                ExpectedObjects.checkEvpnAdvertiseRoute(ELAN1_SEGMENT_ID, DPN1MAC1, DPN1_TEPIP, DPN1IP1, RD),
+                readBgpNetworkFromDS(DPN1IP1));
+    }
+
+    @Test public void checkEvpnAdvRT2NewInterface() throws Exception {
+        createElanInstanceAndInterfaceAndAttachEvpn();
+
+        // Add Elan interface
+        addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft(), DPN1IP2);
+
+        AssertDataObjects.assertEqualBeans(
+                ExpectedObjects.checkEvpnAdvertiseRoute(ELAN1_SEGMENT_ID, DPN1MAC2, DPN1_TEPIP, DPN1IP2, RD),
+                readBgpNetworkFromDS(DPN1IP2));
+    }
+
+    @Test public void checkEvpnWithdrawRT2DelIntf() throws Exception {
+        createElanInstanceAndInterfaceAndAttachEvpn();
+
+        InstanceIdentifier<Networks> iid = evpnTestHelper.buildBgpNetworkIid(DPN1IP1);
+        awaitForData(LogicalDatastoreType.CONFIGURATION, iid);
+
+        evpnTestHelper.deleteRdtoNetworks();
+
+        deleteElanInterface(ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft());
+        awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, iid);
+    }
+
+    @Test public void checkEvpnWithdrawRouteDetachEvpn() throws Exception {
+        createElanInstanceAndInterfaceAndAttachEvpn();
+        addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft(), DPN1IP2);
+
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP1));
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP2));
+
+        evpnTestHelper.detachEvpnToNetwork(ExpectedObjects.ELAN1);
+
+        awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP1));
+        awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP2));
+    }
+
+    @Test public void checkEvpnInstalDmacFlow() throws Exception {
+        createElanInstanceAndInterfaceAndAttachEvpn();
+        addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft(), DPN1IP2);
+
+        // Verify advertise RT2 route success for both MAC's
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP1));
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP2));
+
+        // RT2 received from Peer
+        evpnTestHelper.handleEvpnRt2Recvd(EVPNRECVMAC1, EVPNRECVIP1);
+        evpnTestHelper.handleEvpnRt2Recvd(EVPNRECVMAC2, EVPNRECVIP2);
+
+        // verify successful installation of DMAC flow for recvd rt2
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC1));
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC2));
+    }
+
+    @Test public void checkEvpnUnInstalDmacFlow() throws Exception {
+        createElanInstanceAndInterfaceAndAttachEvpn();
+        addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft(), DPN1IP2);
+
+        // Verify advertise RT2 route success for both MAC's
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP1));
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildBgpNetworkIid(DPN1IP2));
+
+        // RT2 received from Peer
+        evpnTestHelper.handleEvpnRt2Recvd(EVPNRECVMAC1, EVPNRECVIP1);
+        evpnTestHelper.handleEvpnRt2Recvd(EVPNRECVMAC2, EVPNRECVIP2);
+
+        // verify successful installation of DMAC flow for recvd rt2
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC1));
+        awaitForData(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC2));
+
+        // withdraw RT2 received from Peer
+        evpnTestHelper.deleteMacVrfEntryToDS(RD, EVPNRECVMAC1);
+        evpnTestHelper.deleteMacVrfEntryToDS(RD, EVPNRECVMAC2);
+
+        // verify successful un-installation of DMAC flow for recvd rt2
+        awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC1));
+        awaitForDataDelete(LogicalDatastoreType.CONFIGURATION, evpnTestHelper.buildMacVrfEntryIid(EVPNRECVMAC2));
+    }
+
+    public void createElanInstanceAndInterfaceAndAttachEvpn() throws ReadFailedException,
+            TransactionCommitFailedException {
+        // Create Elan instance
+        createElanInstance(ExpectedObjects.ELAN1, ExpectedObjects.ELAN1_SEGMENT_ID);
+        awaitForElanTag(ExpectedObjects.ELAN1);
+
+        // Read Elan Instance
+        InstanceIdentifier<ElanInstance> elanInstanceIid = InstanceIdentifier.builder(ElanInstances.class)
+                .child(ElanInstance.class, new ElanInstanceKey(ExpectedObjects.ELAN1)).build();
+        ElanInstance elanInstance = singleTxdataBroker.syncRead(CONFIGURATION, elanInstanceIid);
+
+        // Add Elan interface
+        addElanInterface(ExpectedObjects.ELAN1, ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC1).getLeft(), DPN1IP1);
+
+        // Attach EVPN to networks
+        evpnTestHelper.attachEvpnToNetwork(elanInstance);
+    }
+
+    public Networks readBgpNetworkFromDS(String prefix) throws ReadFailedException {
+        InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
+                .child(Networks.class, new NetworksKey(prefix, RD))
+                .build();
+        awaitForData(LogicalDatastoreType.CONFIGURATION, iid);
+
+        return singleTxdataBroker.syncRead(CONFIGURATION, iid);
     }
 
     private void awaitForElanTag(String elanName) {
