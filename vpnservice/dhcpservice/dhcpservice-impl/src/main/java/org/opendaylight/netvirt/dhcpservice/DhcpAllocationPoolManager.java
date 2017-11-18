@@ -24,6 +24,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -176,7 +177,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
 
     private void releaseIdAllocation(String groupIdKey, String idKey) {
         ReleaseIdInput getIdInput = new ReleaseIdInputBuilder().setPoolName(groupIdKey).setIdKey(idKey).build();
-        idManager.releaseId(getIdInput);
+        JdkFutures.addErrorLogging(idManager.releaseId(getIdInput), LOG, "Release Id");
     }
 
     protected void createIdAllocationPool(String networkId, AllocationPool pool) {

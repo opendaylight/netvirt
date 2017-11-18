@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.dhcpservice;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -87,7 +88,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         LOG.trace("DhcpSubnetListener Update : Original dhcpstatus: {}, Updated dhcpstatus {}", original.isEnableDhcp(),
                 update.isEnableDhcp());
 
-        if (original.isEnableDhcp() != update.isEnableDhcp()) {
+        if (!Objects.equals(original.isEnableDhcp(), update.isEnableDhcp())) {
             // write api to get port list
             SubnetmapBuilder subnetmapBuilder = getSubnetMapBuilder(dataBroker, update.getUuid());
             List<Uuid> portList = subnetmapBuilder.getPortList();

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.dhcpservice;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
@@ -17,6 +18,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
@@ -35,6 +37,7 @@ import org.opendaylight.genius.mdsalutil.packet.IEEE8021Q;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.dhcpservice.api.DHCP;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DHCPUtils;
@@ -138,7 +141,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                 Subnet subnet = getNeutronSubnet(port);
                 //When neutronport-dhcp flag is disabled continue running DHCP Server by hijacking the subnet-gateway-ip
                 String serverMacAddress = interfaceInfo.getMacAddress();
-                String serverIp = subnet.getGatewayIp().getIpv4Address().getValue();
+                String serverIp = null;
                 if (subnet != null) {
                     java.util.Optional<SubnetToDhcpPort> dhcpPortData = DhcpServiceUtils
                             .getSubnetDhcpPortData(broker, subnet.getUuid().getValue());
@@ -146,7 +149,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
                      * ports Fixed IP as server IP for DHCP communication.
                      */
                     if (dhcpPortData.isPresent()) {
-                        serverIp  = dhcpPortData.get().getPortFixedip();
+                        serverIp = dhcpPortData.get().getPortFixedip();
                         serverMacAddress = dhcpPortData.get().getPortMacaddress();
                     } else {
                         // DHCP Neutron Port not found for this network
@@ -166,7 +169,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         List<Action> action = getEgressAction(interfaceName, tunnelId);
         TransmitPacketInput output = MDSALUtil.getPacketOut(action, pktOut, dpnId);
         LOG.trace("Transmitting packet: {}", output);
-        this.pktService.transmitPacket(output);
+        JdkFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
     }
 
     private DHCP handleDhcpPacket(DHCP dhcpPkt, String interfaceName, String macAddress, BigInteger tunnelId,
@@ -268,12 +271,10 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
         String clientIp = String.valueOf(allocatedIp.getValue());
         String serverIp = String.valueOf(ap.getGateway().getValue());
-        if (clientIp != null && serverIp != null) {
-            List<IpAddress> dnsServers = ap.getDnsServers();
-            dhcpInfo = new DhcpInfo();
-            dhcpInfo.setClientIp(clientIp).setServerIp(serverIp).setCidr(String.valueOf(ap.getSubnet().getValue()))
-                    .setHostRoutes(Collections.emptyList()).setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
-        }
+        List<IpAddress> dnsServers = ap.getDnsServers();
+        dhcpInfo = new DhcpInfo();
+        dhcpInfo.setClientIp(clientIp).setServerIp(serverIp).setCidr(String.valueOf(ap.getSubnet().getValue()))
+            .setHostRoutes(Collections.emptyList()).setDnsServersIpAddrs(dnsServers).setGatewayIp(serverIp);
 
         return dhcpInfo;
     }
@@ -373,7 +374,14 @@ public class DhcpPktHandler implements PacketProcessingListener {
         reply.setFlags(dhcpPkt.getFlags());
         reply.setGiaddr(dhcpPkt.getGiaddr());
         reply.setChaddr(dhcpPkt.getChaddr());
-        byte[] allocatedIp = DHCPUtils.strAddrToByteArray(dhcpInfo.getClientIp());
+        byte[] allocatedIp;
+        try {
+            allocatedIp = DHCPUtils.strAddrToByteArray(dhcpInfo.getClientIp());
+        } catch (UnknownHostException e) {
+            LOG.debug("strAddrToByteArray", e);
+            allocatedIp = null;
+        }
+
         if (Arrays.equals(allocatedIp, dhcpPkt.getCiaddr())) {
             //This means a renew request
             sendAck = true;
@@ -397,6 +405,9 @@ public class DhcpPktHandler implements PacketProcessingListener {
         return reply;
     }
 
+    // "Consider returning a zero length array rather than null" - the eventual user of the returned byte[] likely
+    // expects null and it's unclear what the behavior would be if empty array was returned.
+    @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     protected byte[] getDhcpPacketOut(DHCP reply, Ethernet etherPkt, String phyAddrees) {
         if (reply == null) {
             /*
@@ -634,10 +645,11 @@ public class DhcpPktHandler implements PacketProcessingListener {
         }
     }
 
+    @Nonnull
     protected byte[] convertToClasslessRouteOption(String dest, String router) {
         ByteArrayOutputStream byteArray = new ByteArrayOutputStream();
         if (dest == null || router == null) {
-            return null;
+            return new byte[0];
         }
 
         //get prefix
@@ -663,7 +675,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
             }
             byteArray.write(InetAddress.getByName(router).getAddress());
         } catch (IOException e) {
-            return null;
+            return new byte[0];
         }
         return byteArray.toByteArray();
     }
