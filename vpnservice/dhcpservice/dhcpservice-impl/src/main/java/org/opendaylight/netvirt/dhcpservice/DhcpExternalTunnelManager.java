@@ -17,6 +17,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -302,7 +304,7 @@ public class DhcpExternalTunnelManager {
             List<DesignatedSwitchForTunnel> list =
                     designatedSwitchForTunnelOptional.get().getDesignatedSwitchForTunnel();
             for (DesignatedSwitchForTunnel designatedSwitchForTunnel : list) {
-                if (dpId.equals(designatedSwitchForTunnel.getDpId())) {
+                if (dpId.equals(BigInteger.valueOf(designatedSwitchForTunnel.getDpId()))) {
                     return true;
                 }
             }
@@ -425,7 +427,7 @@ public class DhcpExternalTunnelManager {
             LOG.trace("Choosing new dpn for tunnelIp {}, elanInstanceName {}, among elanDpns {}",
                     tunnelIp, elanInstanceName, candidateDpns);
             boolean elanDpnAvailableFlag = true;
-            if (candidateDpns == null || candidateDpns.isEmpty()) {
+            if (candidateDpns.isEmpty()) {
                 candidateDpns = dpns;
                 elanDpnAvailableFlag = false;
             }
@@ -537,11 +539,10 @@ public class DhcpExternalTunnelManager {
     }
 
     private void removeFromLocalCache(String elanInstanceName, String vmMacAddress) {
-        Set<Pair<IpAddress, String>> tunnelIpElanNameKeySet = tunnelIpElanNameToVmMacCache.keySet();
-        for (Pair<IpAddress, String> pair : tunnelIpElanNameKeySet) {
+        for (Entry<Pair<IpAddress, String>, Set<String>> entry : tunnelIpElanNameToVmMacCache.entrySet()) {
+            Pair<IpAddress, String> pair = entry.getKey();
             if (pair.getRight().trim().equalsIgnoreCase(elanInstanceName.trim())) {
-                Set<String> setOfExistingVmMacAddress;
-                setOfExistingVmMacAddress = tunnelIpElanNameToVmMacCache.get(pair);
+                Set<String> setOfExistingVmMacAddress = entry.getValue();
                 if (setOfExistingVmMacAddress == null || setOfExistingVmMacAddress.isEmpty()) {
                     continue;
                 }
@@ -578,9 +579,10 @@ public class DhcpExternalTunnelManager {
         if (macAddress == null) {
             return;
         }
-        Pair<BigInteger, String> vniMacAddressPair = new ImmutablePair<>(vni, macAddress.toUpperCase());
+        Pair<BigInteger, String> vniMacAddressPair = new ImmutablePair<>(
+                vni, macAddress.toUpperCase(Locale.getDefault()));
         LOG.trace("Updating vniMacAddressToPortCache with vni {} , mac {} , pair {} and port {}", vni,
-                macAddress.toUpperCase(), vniMacAddressPair, port);
+                macAddress.toUpperCase(Locale.getDefault()), vniMacAddressPair, port);
         vniMacAddressToPortCache.put(vniMacAddressPair, port);
     }
 
@@ -588,7 +590,8 @@ public class DhcpExternalTunnelManager {
         if (macAddress == null) {
             return;
         }
-        Pair<BigInteger, String> vniMacAddressPair = new ImmutablePair<>(vni, macAddress.toUpperCase());
+        Pair<BigInteger, String> vniMacAddressPair = new ImmutablePair<>(
+                vni, macAddress.toUpperCase(Locale.getDefault()));
         vniMacAddressToPortCache.remove(vniMacAddressPair);
     }
 
@@ -596,9 +599,11 @@ public class DhcpExternalTunnelManager {
         if (macAddress == null) {
             return null;
         }
-        Pair<BigInteger, String> vniMacAddressPair = new ImmutablePair<>(vni, macAddress.toUpperCase());
+        Pair<BigInteger, String> vniMacAddressPair = new ImmutablePair<>(
+                vni, macAddress.toUpperCase(Locale.getDefault()));
         LOG.trace("Reading vniMacAddressToPortCache with vni {} , mac {} , pair {} and port {}",
-                vni, macAddress.toUpperCase(), vniMacAddressPair, vniMacAddressToPortCache.get(vniMacAddressPair));
+                vni, macAddress.toUpperCase(Locale.getDefault()), vniMacAddressPair,
+                vniMacAddressToPortCache.get(vniMacAddressPair));
         return vniMacAddressToPortCache.get(vniMacAddressPair);
     }
 
@@ -805,13 +810,12 @@ public class DhcpExternalTunnelManager {
     public IpAddress getTunnelIpBasedOnElan(String elanInstanceName, String vmMacAddress) {
         LOG.trace("DhcpExternalTunnelManager getTunnelIpBasedOnElan elanInstanceName {}", elanInstanceName);
         IpAddress tunnelIp = null;
-        Set<Pair<IpAddress, String>> tunnelElanKeySet = availableVMCache.keySet();
-        Set<String> listExistingVmMacAddress;
-        for (Pair<IpAddress, String> pair : tunnelElanKeySet) {
+        for (Entry<Pair<IpAddress, String>, Set<String>> entry : availableVMCache.entrySet()) {
+            Pair<IpAddress, String> pair = entry.getKey();
             LOG.trace("DhcpExternalTunnelManager getTunnelIpBasedOnElan left {} right {}", pair.getLeft(),
                     pair.getRight());
             if (pair.getRight().trim().equalsIgnoreCase(elanInstanceName.trim())) {
-                listExistingVmMacAddress = availableVMCache.get(pair);
+                Set<String> listExistingVmMacAddress = entry.getValue();
                 if (listExistingVmMacAddress != null && !listExistingVmMacAddress.isEmpty()
                         && listExistingVmMacAddress.contains(vmMacAddress)) {
                     tunnelIp = pair.getLeft();

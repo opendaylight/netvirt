@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.dhcpservice;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
-
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -21,7 +20,7 @@ import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
-
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -209,6 +208,7 @@ public class DhcpServiceUtils {
         return dpnsList;
     }
 
+    @Nonnull
     public static List<BigInteger> getDpnsForElan(String elanInstanceName, DataBroker broker) {
         List<BigInteger> elanDpns = new LinkedList<>();
         InstanceIdentifier<ElanDpnInterfacesList> elanDpnInstanceIdentifier =
@@ -369,7 +369,7 @@ public class DhcpServiceUtils {
 
     static IpAddress convertIntToIp(int ipn) {
         String[] array = IntStream.of(24, 16, 8, 0) //
-                .map(x -> (ipn >> x) & 0xFF).boxed() //
+                .map(x -> ipn >> x & 0xFF).boxed() //
                 .map(String::valueOf) //
                 .toArray(String[]::new);
         return new IpAddress(String.join(".", array).toCharArray());
@@ -377,7 +377,7 @@ public class DhcpServiceUtils {
 
     static IpAddress convertLongToIp(long ip) {
         String[] array = LongStream.of(24, 16, 8, 0) //
-                .map(x -> (ip >> x) & 0xFF).boxed() //
+                .map(x -> ip >> x & 0xFF).boxed() //
                 .map(String::valueOf) //
                 .toArray(String[]::new);
         return new IpAddress(String.join(".", array).toCharArray());

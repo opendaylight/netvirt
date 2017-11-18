@@ -11,8 +11,10 @@ package org.opendaylight.netvirt.dhcpservice.api;
 import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_END;
 import static org.opendaylight.netvirt.dhcpservice.api.DHCPConstants.OPT_PAD;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
@@ -21,13 +23,13 @@ import org.opendaylight.controller.liblldp.NetUtils;
 
 public class DHCPOptions {
 
-    class DhcpOption {
+    private static class DhcpOption {
         private byte code;
         private byte length;
         private byte[] value;
 
         DhcpOption(byte code, byte[] value) {
-            if ((code != OPT_PAD) && (code != OPT_END) && (value != null)) {
+            if (code != OPT_PAD && code != OPT_END && value != null) {
                 this.code = code;
                 this.value = value;
                 this.length = (byte) value.length;
@@ -61,7 +63,7 @@ public class DHCPOptions {
         }
     }
 
-    private LinkedHashMap<Byte, DhcpOption> options;
+    private final LinkedHashMap<Byte, DhcpOption> options;
 
     public DHCPOptions() {
         options = new LinkedHashMap<>();
@@ -79,12 +81,11 @@ public class DHCPOptions {
         this.setOption(new DhcpOption(code, opt));
     }
 
+    // It's unclear from all the callers if returning an empty array woild be safe.
+    @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     public byte[] getOptionBytes(byte code) {
-        try {
-            return this.getOption(code).getValue();
-        } catch (NullPointerException e) {
-            return null;
-        }
+        DhcpOption option = this.getOption(code);
+        return option != null ? option.getValue() : null;
     }
 
     public void setOptionByte(byte code, byte opt) {
@@ -146,7 +147,7 @@ public class DHCPOptions {
     }
 
     public void setOptionString(byte code, String str) {
-        this.setOption(new DhcpOption(code, str.getBytes()));
+        this.setOption(new DhcpOption(code, str.getBytes(StandardCharsets.UTF_8)));
     }
 
     public byte[] serialize() {
@@ -179,7 +180,7 @@ public class DHCPOptions {
                     break;
                 }
                 len = options[pos++];
-                if ((len + pos) > options.length) {
+                if (len + pos > options.length) {
                     // Throw exception???
                     break;
                 }

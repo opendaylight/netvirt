@@ -85,7 +85,7 @@ public class DhcpUCastMacListener
         NodeId torNodeId = identifier.firstKeyOf(Node.class).getNodeId();
         LogicalSwitches logicalSwitch = getLogicalSwitches(del);
         if (null == logicalSwitch) {
-            LOG.error("DhcpUCastMacListener remove :Logical Switch ref doesn't have data {}", logicalSwitch);
+            LOG.error("DhcpUCastMacListener remove :Logical Switch ref doesn't have data");
             return;
         }
         String elanInstanceName = logicalSwitch.getHwvtepNodeName().getValue();

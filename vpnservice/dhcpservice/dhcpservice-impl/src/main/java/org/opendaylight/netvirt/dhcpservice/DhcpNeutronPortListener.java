@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -234,7 +235,7 @@ public class DhcpNeutronPortListener
             // By default, VNIC_TYPE is NORMAL
             return false;
         }
-        String vnicType = portBinding.getVnicType().trim().toLowerCase();
+        String vnicType = portBinding.getVnicType().trim().toLowerCase(Locale.getDefault());
         return vnicType.equals("direct") || vnicType.equals("macvtap");
     }
 
