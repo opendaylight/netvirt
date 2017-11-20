@@ -459,36 +459,32 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return;
         }
         final DataStoreJobCoordinator portDataStoreCoordinator = DataStoreJobCoordinator.getInstance();
-        portDataStoreCoordinator.enqueueJob("PORT- " + portupdate.getUuid().getValue(), () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            final List<Uuid> originalSnMapsIds = portoriginalIps.stream().map(ip -> ip.getSubnetId())
-                    .collect(Collectors.toList());
-            final List<Uuid> updateSnMapsIds = portupdateIps.stream().map(ip -> ip.getSubnetId())
-                    .collect(Collectors.toList());
-            for (Uuid snId: originalSnMapsIds) {
-                if (!updateSnMapsIds.remove(snId)) {
-                    // snId was present in originalSnMapsIds, but not in updateSnMapsIds
-                    nvpnManager.removePortsFromSubnetmapNode(snId, portoriginal.getUuid(), null);
+        portDataStoreCoordinator.enqueueJob("PORT- " + portupdate.getUuid().getValue(),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                final List<Uuid> originalSnMapsIds = portoriginalIps.stream().map(FixedIps::getSubnetId)
+                        .collect(Collectors.toList());
+                final List<Uuid> updateSnMapsIds = portupdateIps.stream().map(FixedIps::getSubnetId)
+                        .collect(Collectors.toList());
+                for (Uuid snId: originalSnMapsIds) {
+                    if (!updateSnMapsIds.remove(snId)) {
+                        // snId was present in originalSnMapsIds, but not in updateSnMapsIds
+                        nvpnManager.removePortsFromSubnetmapNode(snId, portoriginal.getUuid(), null);
+                    }
                 }
-            }
-            for (Uuid snId: updateSnMapsIds) {
-                nvpnManager.updateSubnetmapNodeWithPorts(snId, portupdate.getUuid(), null);
-            }
-            final Uuid oldVpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, portoriginal.getNetworkId());
-            if (oldVpnId != null) {
-                LOG.info("removing VPN Interface for port {}", portoriginal.getUuid().getValue());
-                nvpnManager.deleteVpnInterface(oldVpnId, portoriginal, wrtConfigTxn);
-                futures.add(wrtConfigTxn.submit());
-            }
-            final Uuid newVpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, portupdate.getNetworkId());
-            if (newVpnId != null) {
-                LOG.info("Adding VPN Interface for port {}", portupdate.getUuid().getValue());
-                nvpnManager.createVpnInterface(newVpnId, portupdate, wrtConfigTxn);
-                futures.add(wrtConfigTxn.submit());
-            }
-            return futures;
-        });
+                for (Uuid snId: updateSnMapsIds) {
+                    nvpnManager.updateSubnetmapNodeWithPorts(snId, portupdate.getUuid(), null);
+                }
+                final Uuid oldVpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, portoriginal.getNetworkId());
+                if (oldVpnId != null) {
+                    LOG.info("removing VPN Interface for port {}", portoriginal.getUuid().getValue());
+                    nvpnManager.deleteVpnInterface(oldVpnId, portoriginal, tx);
+                }
+                final Uuid newVpnId = NeutronvpnUtils.getVpnForNetwork(dataBroker, portupdate.getNetworkId());
+                if (newVpnId != null) {
+                    LOG.info("Adding VPN Interface for port {}", portupdate.getUuid().getValue());
+                    nvpnManager.createVpnInterface(newVpnId, portupdate, tx);
+                }
+            })));
     }
 
     private static InterfaceAclBuilder handlePortSecurityUpdated(DataBroker dataBroker, Port portOriginal,
