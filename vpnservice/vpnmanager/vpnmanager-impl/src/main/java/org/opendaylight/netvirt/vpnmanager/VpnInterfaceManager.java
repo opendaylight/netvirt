@@ -37,6 +37,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -114,6 +116,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
     private final IMdsalApiManager mdsalManager;
@@ -149,6 +152,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         super(VpnInterface.class, VpnInterfaceManager.class);
 
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.bgpManager = bgpManager;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
@@ -1163,37 +1167,36 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             final BigInteger dpnId = dpId;
             jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName + vpnName,
                 () -> {
-                    WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-                    WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
-                    WriteTransaction writeInvTxn = dataBroker.newWriteOnlyTransaction();
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
+                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
+                        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
+                            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
+                                LOG.info("remove: - intfName {} onto vpnName {} running config-driven", interfaceName,
+                                        vpnName);
+                                InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+                                        VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                                final Optional<VpnInterfaceOpDataEntry> optVpnInterface =
+                                        VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId);
+                                if (optVpnInterface.isPresent()) {
+                                    VpnInterfaceOpDataEntry vpnOpInterface = optVpnInterface.get();
+                                    BigInteger finalDpnId =
+                                            dpnId.equals(BigInteger.ZERO) ? vpnOpInterface.getDpnId() : dpnId;
+                                    processVpnInterfaceDown(finalDpnId, interfaceName, ifIndex, interfaceState,
+                                            vpnOpInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
+                                    LOG.info(
+                                            "remove: Removal of vpn interface {} on dpn {} for vpn {} processed "
+                                                    + "successfully",
+                                            interfaceName, vpnInterface.getDpnId(), vpnName);
+                                } else {
+                                    LOG.warn(
+                                            "remove: VPN interface {} on dpn {} for vpn {} was unavailable in "
+                                                    + "operational data store to handle remove event",
+                                            interfaceName, vpnInterface.getDpnId(), vpnName);
+                                }
+                            }));
+                        }));
+                    }));
 
-                    LOG.info("remove: - intfName {} onto vpnName {} running config-driven", interfaceName, vpnName);
-                    InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
-                            VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-                    final Optional<VpnInterfaceOpDataEntry> optVpnInterface =
-                            VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId);
-                    if (optVpnInterface.isPresent()) {
-                        VpnInterfaceOpDataEntry vpnOpInterface = optVpnInterface.get();
-                        BigInteger finalDpnId = dpnId.equals(BigInteger.ZERO) ? vpnOpInterface.getDpnId() : dpnId;
-                        processVpnInterfaceDown(finalDpnId, interfaceName, ifIndex, interfaceState, vpnOpInterface,
-                                false, writeConfigTxn, writeOperTxn, writeInvTxn);
-                        ListenableFuture<Void> operFuture = writeOperTxn.submit();
-                        try {
-                            operFuture.get();
-                        } catch (ExecutionException e) {
-                            LOG.error("remove: Exception encountered while submitting operational future for remove "
-                                + "VpnInterface {} vpn {} on dpn {}: {}", vpnInterface.getName(), vpnName, dpnId, e);
-                            return null;
-                        }
-                        futures.add(writeConfigTxn.submit());
-                        futures.add(writeInvTxn.submit());
-                        LOG.info("remove: Removal of vpn interface {} on dpn {} for vpn {} processed successfully",
-                                interfaceName, vpnInterface.getDpnId(), vpnName);
-                    } else {
-                        LOG.warn("remove: VPN interface {} on dpn {} for vpn {} was unavailable in operational data "
-                                + "store to handle remove event", interfaceName, vpnInterface.getDpnId(), vpnName);
-                    }
                     return futures;
                 });
         }
