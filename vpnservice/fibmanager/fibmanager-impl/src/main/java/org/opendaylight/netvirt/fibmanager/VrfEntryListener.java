@@ -34,6 +34,8 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -116,6 +118,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private static final BigInteger COOKIE_TABLE_MISS = new BigInteger("8000004", 16);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final NexthopManager nextHopManager;
     private final IdManagerService idManager;
@@ -136,6 +139,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             final JobCoordinator jobCoordinator) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalApiManager;
         this.nextHopManager = nexthopManager;
         this.idManager = idManager;
@@ -1644,17 +1648,15 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         }
 
         jobCoordinator.enqueueJob(FibUtil.getJobKeyForVpnIdDpnId(vpnId, localDpnId),
-            () -> {
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                 synchronized (vpnInstance.getVpnInstanceName().intern()) {
-                    WriteTransaction writeTransaction = dataBroker.newWriteOnlyTransaction();
                     VrfTablesKey vrfTablesKey = new VrfTablesKey(rd);
                     VrfEntry vrfEntry = getVrfEntry(dataBroker, rd, destPrefix);
                     if (vrfEntry == null) {
-                        return futures;
+                        return;
                     }
                     LOG.trace("manageRemoteRouteOnDPN :: action {}, DpnId {}, vpnId {}, rd {}, destPfx {}",
-                        action, localDpnId, vpnId, rd, destPrefix);
+                            action, localDpnId, vpnId, rd, destPrefix);
                     List<RoutePaths> routePathList = vrfEntry.getRoutePaths();
                     VrfEntry modVrfEntry;
                     if (routePathList == null || routePathList.isEmpty()) {
@@ -1665,17 +1667,17 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         modVrfEntry = vrfEntry;
                     }
 
-                    if (action == true) {
+                    if (action) {
                         LOG.trace("manageRemoteRouteOnDPN updated(add)  vrfEntry :: {}", modVrfEntry);
                         createRemoteFibEntry(localDpnId, vpnId, vrfTablesKey.getRouteDistinguisher(),
-                                modVrfEntry, writeTransaction);
+                                modVrfEntry, tx);
                     } else {
                         LOG.trace("manageRemoteRouteOnDPN updated(remove)  vrfEntry :: {}", modVrfEntry);
                         List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnInstance.getVpnId(),
                                 vrfEntry.getDestPrefix());
                         if (usedRds.size() > 1) {
                             LOG.debug("The extra route prefix is still present in some DPNs");
-                            return futures;
+                            return;
                         }
                         //Is this fib route an extra route? If yes, get the nexthop which would be
                         //an adjacency in the vpn
@@ -1686,12 +1688,10 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                     usedRds.get(0), vrfEntry.getDestPrefix());
                         }
                         baseVrfEntryHandler.deleteRemoteRoute(null, localDpnId, vpnId, vrfTablesKey, modVrfEntry,
-                                extraRouteOptional, writeTransaction);
+                                extraRouteOptional, tx);
                     }
-                    futures.add(writeTransaction.submit());
                 }
-                return futures;
-            });
+            })));
     }
 
     public void cleanUpDpnForVpn(final BigInteger dpnId, final long vpnId, final String rd,
