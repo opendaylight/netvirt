@@ -29,6 +29,8 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.DataStoreJobCoordinator;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -67,6 +69,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final NeutronvpnManager nvpnManager;
     private final NeutronvpnNatManager nvpnNatManager;
     private final NeutronSubnetGwMacResolver gwMacResolver;
@@ -80,6 +83,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                                      final IElanService elanService) {
         super(Port.class, NeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         nvpnManager = neutronvpnManager;
         nvpnNatManager = neutronvpnNatManager;
         this.gwMacResolver = gwMacResolver;
@@ -362,39 +366,36 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
             return;
         }
         portDataStoreCoordinator.enqueueJob("PORT- " + portName, () -> {
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             // add direct port to subnetMaps config DS
             if (!NeutronUtils.isPortVnicTypeNormal(port)) {
                 for (FixedIps ip: portIpAddrsList) {
                     nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
-                    futures.add(wrtConfigTxn.submit());
                 }
                 LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
-                return futures;
+                return Collections.emptyList();
             }
-            LOG.info("Of-port-interface creation for port {}", portName);
-            // Create of-port interface for this neutron port
-            String portInterfaceName = createOfPortInterface(port, wrtConfigTxn);
-            LOG.debug("Creating ELAN Interface for port {}", portName);
-            createElanInterface(port, portInterfaceName, wrtConfigTxn);
-            Uuid vpnId = null;
-            for (FixedIps ip: portIpAddrsList) {
-                Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), portId, null);
-                if (subnetMap != null && subnetMap.getVpnId() != null) {
-                    // can't use NeutronvpnUtils.getVpnForNetwork to optimise here, because it gives BGPVPN id
-                    // obtained subnetMaps belongs to one network => vpnId must be the same for each port Ip
-                    vpnId = subnetMap.getVpnId();
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                LOG.info("Of-port-interface creation for port {}", portName);
+                // Create of-port interface for this neutron port
+                String portInterfaceName = createOfPortInterface(port, tx);
+                LOG.debug("Creating ELAN Interface for port {}", portName);
+                createElanInterface(port, portInterfaceName, tx);
+                Uuid vpnId = null;
+                for (FixedIps ip: portIpAddrsList) {
+                    Subnetmap subnetMap = nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), portId, null);
+                    if (subnetMap != null && subnetMap.getVpnId() != null) {
+                        // can't use NeutronvpnUtils.getVpnForNetwork to optimise here, because it gives BGPVPN id
+                        // obtained subnetMaps belongs to one network => vpnId must be the same for each port Ip
+                        vpnId = subnetMap.getVpnId();
+                    }
                 }
-            }
-            if (vpnId != null) {
-                // create new vpn-interface for neutron port
-                LOG.debug("handleNeutronPortCreated: Adding VPN Interface for port {} from network {}", portName,
-                           port.getNetworkId().toString());
-                nvpnManager.createVpnInterface(vpnId, port, wrtConfigTxn);
-            }
-            futures.add(wrtConfigTxn.submit());
-            return futures;
+                if (vpnId != null) {
+                    // create new vpn-interface for neutron port
+                    LOG.debug("handleNeutronPortCreated: Adding VPN Interface for port {} from network {}", portName,
+                            port.getNetworkId().toString());
+                    nvpnManager.createVpnInterface(vpnId, port, tx);
+                }
+            }));
         });
     }
 
