@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_a8a7f7a5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 83
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-20T10:48:27Z",
+      "side": 1,
+      "message": "\u003d\u003d",
+      "range": {
+        "startLine": 114,
+        "startChar": 35,
+        "endLine": 114,
+        "endChar": 37
+      },
+      "revId": "13ba491f81d42b80b291ce3a10de20189825f022",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e869eff9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
+        "patchSetId": 83
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-20T10:48:27Z",
+      "side": 1,
+      "message": "directly do a list.remove(). You are already checking for aclInterface.getVpnId() !\u003d null",
+      "range": {
+        "startLine": 97,
+        "startChar": 11,
+        "endLine": 103,
+        "endChar": 13
+      },
+      "revId": "13ba491f81d42b80b291ce3a10de20189825f022",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_287027db",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 83
+      },
+      "lineNbr": 813,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-20T10:48:27Z",
+      "side": 1,
+      "message": "add this to list only if getVpnId() is not null",
+      "range": {
+        "startLine": 813,
+        "startChar": 16,
+        "endLine": 813,
+        "endChar": 65
+      },
+      "revId": "13ba491f81d42b80b291ce3a10de20189825f022",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
