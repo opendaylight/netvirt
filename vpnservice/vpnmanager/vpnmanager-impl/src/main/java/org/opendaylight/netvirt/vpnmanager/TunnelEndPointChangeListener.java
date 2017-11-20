@@ -11,11 +11,13 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
@@ -33,6 +35,7 @@ public class TunnelEndPointChangeListener
     private static final Logger LOG = LoggerFactory.getLogger(TunnelEndPointChangeListener.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final JobCoordinator jobCoordinator;
 
@@ -40,6 +43,7 @@ public class TunnelEndPointChangeListener
             final JobCoordinator jobCoordinator) {
         super(TunnelEndPoints.class, TunnelEndPointChangeListener.class);
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.jobCoordinator = jobCoordinator;
     }
@@ -91,11 +95,6 @@ public class TunnelEndPointChangeListener
                         String vpnInterfaceName = vpnInterface.getInterfaceName();
                         jobCoordinator.enqueueJob("VPNINTERFACE-" + vpnInterfaceName,
                             () -> {
-                                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                                WriteTransaction writeOperTxn = broker.newWriteOnlyTransaction();
-                                WriteTransaction writeInvTxn = broker.newWriteOnlyTransaction();
-                                List<ListenableFuture<Void>> futures = new ArrayList<>();
-
                                 final org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces
                                         .rev140508.interfaces.state.Interface
                                         interfaceState =
@@ -103,15 +102,16 @@ public class TunnelEndPointChangeListener
                                 if (interfaceState == null) {
                                     LOG.debug("add: Cannot retrieve interfaceState for vpnInterfaceName {}, "
                                             + "cannot generate lPortTag and process adjacencies", vpnInterfaceName);
-                                    return futures;
+                                    return Collections.emptyList();
                                 }
                                 final int lPortTag = interfaceState.getIfIndex();
-                                vpnInterfaceManager.processVpnInterfaceAdjacencies(dpnId, lPortTag, vpnName, primaryRd,
-                                        vpnInterfaceName, vpnId, writeConfigTxn, writeOperTxn, writeInvTxn,
-                                        interfaceState);
-                                futures.add(writeOperTxn.submit());
-                                futures.add(writeConfigTxn.submit());
-                                futures.add(writeInvTxn.submit());
+                                List<ListenableFuture<Void>> futures = new ArrayList<>();
+                                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                                    writeConfigTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                                        writeOperTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                                            writeInvTxn -> vpnInterfaceManager.processVpnInterfaceAdjacencies(
+                                                    dpnId, lPortTag, vpnName, primaryRd, vpnInterfaceName, vpnId,
+                                                    writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState)))))));
                                 LOG.trace("add: Handled TEP {} add for VPN instance {} VPN interface {}",
                                         tep.getInterfaceName(), vpnName, vpnInterfaceName);
                                 return futures;
