@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_889953c6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 163,
+      "author": {
+        "id": 7374
+      },
+      "writtenOn": "2017-11-20T06:02:07Z",
+      "side": 1,
+      "message": "change the logic to check \nhostConfig !\u003d null \u0026\u0026 hostConfig.getConfig().contains(supportStr)\nreturn true\nelse return false",
+      "range": {
+        "startLine": 163,
+        "startChar": 12,
+        "endLine": 163,
+        "endChar": 78
+      },
+      "revId": "f97bc673d73dac056665592778d5ea7b4a537433",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6894df8a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 7374
+      },
+      "writtenOn": "2017-11-20T06:02:07Z",
+      "side": 1,
+      "message": "why not using the constant in utils?",
+      "range": {
+        "startLine": 403,
+        "startChar": 72,
+        "endLine": 403,
+        "endChar": 80
+      },
+      "revId": "f97bc673d73dac056665592778d5ea7b4a537433",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c88fcb73",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 7374
+      },
+      "writtenOn": "2017-11-20T06:02:07Z",
+      "side": 1,
+      "message": "same for here",
+      "range": {
+        "startLine": 405,
+        "startChar": 60,
+        "endLine": 405,
+        "endChar": 66
+      },
+      "revId": "f97bc673d73dac056665592778d5ea7b4a537433",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
