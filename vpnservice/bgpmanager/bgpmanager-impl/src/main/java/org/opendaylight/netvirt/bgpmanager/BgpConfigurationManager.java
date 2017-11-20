@@ -513,21 +513,7 @@ public class BgpConfigurationManager {
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
-                if (isIpAvailable(odlThriftIp)) {
-                    bgpRestarted();
-                } else {
-                    IP_ACTIVATION_CHECK_TIMER.scheduleAtFixedRate(new TimerTask() {
-                        @Override
-                        public void run() {
-                            if (isIpAvailable(odlThriftIp)) {
-                                bgpRestarted();
-                                IP_ACTIVATION_CHECK_TIMER.cancel();
-                            } else {
-                                LOG.trace("waiting for odlThriftIP: {} to be present", odlThriftIp);
-                            }
-                        }
-                    }, 10000L, 10000L);
-                }
+                bgpRestarted();
 
                 startBgpCountersTask();
                 startBgpAlarmsTask();
