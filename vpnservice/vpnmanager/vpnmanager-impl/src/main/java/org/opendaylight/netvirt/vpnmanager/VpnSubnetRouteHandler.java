@@ -896,6 +896,9 @@ public class VpnSubnetRouteHandler {
             label = getLabel(rd, subnetIp);
             subOpBuilder.setLabel(label);
         }
+
+        String networkName = networkId != null ? networkId.getValue() : null;
+
         LOG.info("{} electNewDpnForSubnetRoute: Handling subnet {} subnetIp {} vpn {} rd {} TaskState {}"
                 + " lastTaskState {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp, subOpBuilder.getVpnName(),
                 subOpBuilder.getVrfId(), subOpBuilder.getRouteAdvState(), subOpBuilder.getLastAdvState());
@@ -904,7 +907,7 @@ public class VpnSubnetRouteHandler {
             //  TODO(Tomer):  Pulling in both external and internal VLAN-Provider-Network need to be
             // blended more better into this design.
             isRouteAdvertised = addSubnetRouteToFib(rd, subnetIp, nhDpnId, nhTepIp,
-                    vpnName, elanTag, label, l3vni, subnetId, isBgpVpn, networkId.getValue());
+                    vpnName, elanTag, label, l3vni, subnetId, isBgpVpn, networkName);
             if (isRouteAdvertised) {
                 subOpBuilder.setRouteAdvState(TaskState.Advertised);
             } else {
@@ -953,7 +956,7 @@ public class VpnSubnetRouteHandler {
                     subOpBuilder.setRouteAdvState(TaskState.Withdrawn);
                 } else {
                     LOG.error("{} electNewDpnForSubnetRoute: Withdrawing NextHopDPN {} for subnet {} subnetIp {}"
-                        + " vpn {} rd {} from BGP failed", LOGGING_PREFIX, oldDpnId.toString(), subnetId.getValue(),
+                        + " vpn {} rd {} from BGP failed", LOGGING_PREFIX, oldDpnId, subnetId.getValue(),
                         subnetIp, vpnName, rd);
                     subOpBuilder.setRouteAdvState(TaskState.PendingWithdraw);
                 }
@@ -963,7 +966,7 @@ public class VpnSubnetRouteHandler {
             subOpBuilder.setNhDpnId(nhDpnId);
             //update the VRF entry for the subnetroute.
             isRouteAdvertised = addSubnetRouteToFib(rd, subnetIp, nhDpnId, nhTepIp,
-                    vpnName, elanTag, label, l3vni, subnetId, isBgpVpn, networkId.getValue());
+                    vpnName, elanTag, label, l3vni, subnetId, isBgpVpn, networkName);
             subOpBuilder.setLastAdvState(subOpBuilder.getRouteAdvState());
             if (isRouteAdvertised) {
                 subOpBuilder.setRouteAdvState(TaskState.Advertised);
