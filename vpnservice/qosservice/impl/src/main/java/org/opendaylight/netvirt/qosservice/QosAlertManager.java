@@ -13,7 +13,9 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
 import java.util.List;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.PostConstruct;
@@ -77,9 +79,8 @@ public final class QosAlertManager implements Runnable {
     private final QosNeutronUtils qosNeutronUtils;
     private final QosEosHandler qosEosHandler;
     private final INeutronVpnManager neutronVpnManager;
-    private final ConcurrentHashMap<BigInteger, ConcurrentHashMap<String, QosAlertPortData>>
-                                                         qosAlertDpnPortNumberMap = new ConcurrentHashMap<>();
-
+    private final ConcurrentMap<BigInteger, ConcurrentMap<String, QosAlertPortData>> qosAlertDpnPortNumberMap =
+            new ConcurrentHashMap<>();
 
     @Inject
     public QosAlertManager(final DataBroker dataBroker,
@@ -138,7 +139,7 @@ public final class QosAlertManager implements Runnable {
 
             try {
                 pollDirectStatisticsForAllNodes();
-                Thread.sleep(pollInterval * 60 * 1000); // pollInterval in minutes
+                Thread.sleep(pollInterval * 60L * 1000L); // pollInterval in minutes
             } catch (final InterruptedException e) {
                 LOG.debug("Qos polling thread interrupted");
             }
@@ -220,15 +221,10 @@ public final class QosAlertManager implements Runnable {
 
         String portNumber = qosNeutronUtils.getPortNumberForInterface(port.getUuid().getValue());
 
-        if (qosAlertDpnPortNumberMap.containsKey(dpnId)) {
-            LOG.trace("Adding port {}  port number {} in DPN {}", port.getUuid(), portNumber, dpnId);
-            qosAlertDpnPortNumberMap.get(dpnId).put(portNumber, new QosAlertPortData(port, qosNeutronUtils));
-        } else {
-            LOG.trace("Adding DPN ID {} with port {} port number {}", dpnId, port.getUuid(), portNumber);
-            ConcurrentHashMap<String, QosAlertPortData> portDataMap = new ConcurrentHashMap<>();
-            portDataMap.put(portNumber, new QosAlertPortData(port, qosNeutronUtils));
-            qosAlertDpnPortNumberMap.put(dpnId, portDataMap);
-        }
+        LOG.trace("Adding DPN ID {} with port {} port number {}", dpnId, port.getUuid(), portNumber);
+
+        qosAlertDpnPortNumberMap.computeIfAbsent(dpnId, key -> new ConcurrentHashMap<>())
+                .put(portNumber, new QosAlertPortData(port, qosNeutronUtils));
     }
 
     public void addToQosAlertCache(Network network) {
@@ -260,18 +256,7 @@ public final class QosAlertManager implements Runnable {
 
         String portNumber = qosNeutronUtils.getPortNumberForInterface(port.getUuid().getValue());
 
-        if (qosAlertDpnPortNumberMap.containsKey(dpnId)
-                                         && qosAlertDpnPortNumberMap.get(dpnId).containsKey(portNumber)) {
-            qosAlertDpnPortNumberMap.get(dpnId).remove(portNumber);
-            LOG.trace("Removed DPN {} port {} port number {} from cache", dpnId, port.getUuid(), portNumber);
-            if (qosAlertDpnPortNumberMap.get(dpnId).isEmpty()) {
-                LOG.trace("DPN {} empty. Removing from cache", dpnId);
-                qosAlertDpnPortNumberMap.remove(dpnId);
-            }
-        } else {
-            LOG.trace("DPN {} port {} port number {} not found in cache", dpnId, port.getUuid(), portNumber);
-        }
-
+        removeFromQosAlertCache(dpnId, portNumber);
     }
 
     public void removeFromQosAlertCache(NodeConnectorId nodeConnectorId) {
@@ -290,14 +275,25 @@ public final class QosAlertManager implements Runnable {
 
         String portNumber = String.valueOf(portId);
 
-        if (qosAlertDpnPortNumberMap.containsKey(dpnId)
-                             && qosAlertDpnPortNumberMap.get(dpnId).containsKey(portNumber)) {
-            qosAlertDpnPortNumberMap.get(dpnId).remove(portNumber);
+        removeFromQosAlertCache(dpnId, portNumber);
+    }
+
+    private void removeFromQosAlertCache(BigInteger dpnId, String portNumber) {
+        boolean removed = false;
+        ConcurrentMap<String, QosAlertPortData> portDataMap = qosAlertDpnPortNumberMap.get(dpnId);
+        if (portDataMap != null) {
+            removed = portDataMap.remove(portNumber) != null;
+            if (portDataMap.isEmpty()) {
+                LOG.trace("DPN {} empty. Removing from cache", dpnId);
+                qosAlertDpnPortNumberMap.remove(dpnId, portDataMap);
+            }
+        }
+
+        if (removed) {
             LOG.trace("Removed DPN {} port number {} from cache", dpnId, portNumber);
         } else {
             LOG.trace("DPN {} port number {} not found in cache", dpnId, portNumber);
         }
-
     }
 
     public void removeFromQosAlertCache(Network network) {
@@ -342,7 +338,8 @@ public final class QosAlertManager implements Runnable {
     private void pollDirectStatisticsForAllNodes() {
         LOG.trace("Polling direct statistics from nodes");
 
-        for (BigInteger dpn : qosAlertDpnPortNumberMap.keySet()) {
+        for (Entry<BigInteger, ConcurrentMap<String, QosAlertPortData>> entry : qosAlertDpnPortNumberMap.entrySet()) {
+            BigInteger dpn = entry.getKey();
             LOG.trace("Polling DPN ID {}", dpn);
             GetNodeConnectorStatisticsInputBuilder input = new GetNodeConnectorStatisticsInputBuilder()
                     .setNode(new NodeRef(InstanceIdentifier.builder(Nodes.class)
@@ -364,7 +361,7 @@ public final class QosAlertManager implements Runnable {
                 List<NodeConnectorStatisticsAndPortNumberMap> nodeConnectorStatisticsAndPortNumberMapList =
                         nodeConnectorStatisticsOutput.getNodeConnectorStatisticsAndPortNumberMap();
 
-                ConcurrentHashMap<String, QosAlertPortData> portDataMap = qosAlertDpnPortNumberMap.get(dpn);
+                ConcurrentMap<String, QosAlertPortData> portDataMap = entry.getValue();
                 for (NodeConnectorStatisticsAndPortNumberMap stats : nodeConnectorStatisticsAndPortNumberMapList) {
                     QosAlertPortData portData = portDataMap.get(stats.getNodeConnectorId().getValue());
                     if (portData != null) {
@@ -379,13 +376,7 @@ public final class QosAlertManager implements Runnable {
     }
 
     private void initPortStatsData() {
-        for (BigInteger dpn : qosAlertDpnPortNumberMap.keySet()) {
-            ConcurrentHashMap<String, QosAlertPortData> portDataMap = qosAlertDpnPortNumberMap.get(dpn);
-            for (String portNumber : portDataMap.keySet()) {
-                portDataMap.get(portNumber).initPortData();
-            }
-        }
+        qosAlertDpnPortNumberMap.values().forEach(portDataMap -> portDataMap.values()
+                .forEach(portData -> portData.initPortData()));
     }
-
-
 }
