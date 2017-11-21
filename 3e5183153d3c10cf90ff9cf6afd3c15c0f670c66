@@ -22,6 +22,190 @@
       "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_37519b0f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1615,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "move this before if(internetvpnId !\u003d null) and use the non null internetvpnid",
+      "range": {
+        "startLine": 1615,
+        "startChar": 8,
+        "endLine": 1615,
+        "endChar": 60
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_175457fd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1625,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "equals",
+      "range": {
+        "startLine": 1625,
+        "startChar": 40,
+        "endLine": 1625,
+        "endChar": 47
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_77579302",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1649,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "should be a precondition at the start of the method",
+      "range": {
+        "startLine": 1649,
+        "startChar": 28,
+        "endLine": 1649,
+        "endChar": 70
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d7459f43",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2203,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "retain original code",
+      "range": {
+        "startLine": 2202,
+        "startChar": 12,
+        "endLine": 2203,
+        "endChar": 64
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_177bb78c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2231,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "I think these changes are not required. This code only handles creation of internal vpn for a router, and there will not be any internet association at that point of time",
+      "range": {
+        "startLine": 2222,
+        "startChar": 8,
+        "endLine": 2231,
+        "endChar": 13
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_17a297fc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2361,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "I think this is already done in lines 2317-2325",
+      "range": {
+        "startLine": 2344,
+        "startChar": 24,
+        "endLine": 2361,
+        "endChar": 25
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b7b2ab49",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2363,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "associate networks is not a valid/supported usecase for ipv6. So these changes are not required.\nOnly router-association should be handled for ipv6",
+      "range": {
+        "startLine": 2316,
+        "startChar": 36,
+        "endLine": 2363,
+        "endChar": 49
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_97ade7eb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2439,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:45:30Z",
+      "side": 1,
+      "message": "associate networks is not a valid/supported usecase for ipv6. So these changes are not required.\nOnly router-association should be handled for ipv6",
+      "range": {
+        "startLine": 2393,
+        "startChar": 15,
+        "endLine": 2439,
+        "endChar": 53
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
