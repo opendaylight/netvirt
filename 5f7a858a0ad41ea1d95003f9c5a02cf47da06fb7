@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_f79ee361",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 380,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 1,
+      "message": "simplified using forEach",
+      "revId": "5f7a858a0ad41ea1d95003f9c5a02cf47da06fb7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_97ccc78a",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 0,
+      "message": "\"Write to static field QosAlertGenerator.configurationAdmin from instance method new QosAlertGenerator()\" - shouldn\u0027t be static",
+      "range": {
+        "startLine": 28,
+        "startChar": 38,
+        "endLine": 28,
+        "endChar": 56
+      },
+      "revId": "70ee8ba26ef1c8e0d019f1954b66df96a4aa0210",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f7c70362",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 0,
+      "message": "Get the ConfigurationAdmin service and inject via blueprint",
+      "revId": "70ee8ba26ef1c8e0d019f1954b66df96a4aa0210",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_37a51bb6",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertGenerator.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 0,
+      "message": "propagate IOException instead of returning null (callers don\u0027t check for null).",
+      "range": {
+        "startLine": 54,
+        "startChar": 25,
+        "endLine": 54,
+        "endChar": 36
+      },
+      "revId": "70ee8ba26ef1c8e0d019f1954b66df96a4aa0210",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_17a8d78b",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 0,
+      "message": "\"Result of integer multiplication cast to long\"",
+      "revId": "70ee8ba26ef1c8e0d019f1954b66df96a4aa0210",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_77ab1389",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 231,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 0,
+      "message": "\"Sequence of calls to ConcurrentHashMap may not be atomic\" - use computeIfAbsent",
+      "revId": "70ee8ba26ef1c8e0d019f1954b66df96a4aa0210",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_9793275a",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosAlertManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 345,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "70ee8ba26ef1c8e0d019f1954b66df96a4aa0210",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_178f372b",
+        "filename": "vpnservice/qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosConstants.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T16:51:16Z",
+      "side": 0,
+      "message": "\"Field isn\u0027t final but should be\"",
+      "range": {
+        "startLine": 13,
+        "startChar": 25,
+        "endLine": 13,
+        "endChar": 39
+      },
+      "revId": "70ee8ba26ef1c8e0d019f1954b66df96a4aa0210",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
