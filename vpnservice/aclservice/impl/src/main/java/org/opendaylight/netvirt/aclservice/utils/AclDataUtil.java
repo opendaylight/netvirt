@@ -8,22 +8,26 @@
 
 package org.opendaylight.netvirt.aclservice.utils;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Singleton;
+import org.opendaylight.netvirt.aclservice.api.utils.AclDataCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 
 @Singleton
-public class AclDataUtil implements org.opendaylight.netvirt.aclservice.api.utils.AclDataUtil {
+public class AclDataUtil implements AclDataCache {
 
     private final ConcurrentMap<Uuid, ConcurrentMap<String, AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
     private final Map<Uuid, Set<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
@@ -51,6 +55,7 @@ public class AclDataUtil implements org.opendaylight.netvirt.aclservice.api.util
         }
     }
 
+    @Override
     public Collection<AclInterface> getInterfaceList(Uuid acl) {
         final ConcurrentMap<String, AclInterface> interfaceMap = aclInterfaceMap.get(acl);
         return interfaceMap != null ? interfaceMap.values() : null;
@@ -93,6 +98,7 @@ public class AclDataUtil implements org.opendaylight.netvirt.aclservice.api.util
         }
     }
 
+    @Override
     public Collection<Uuid> getRemoteAcl(Uuid remoteAclId) {
         return remoteAclIdMap.get(remoteAclId);
     }
@@ -141,6 +147,7 @@ public class AclDataUtil implements org.opendaylight.netvirt.aclservice.api.util
      * @param aclName the acl name
      * @return the acl flow priority
      */
+    @Override
     public Integer getAclFlowPriority(final String aclName) {
         Integer priority = this.aclFlowPriorityMap.get(aclName);
         if (priority == null) {
@@ -161,19 +168,24 @@ public class AclDataUtil implements org.opendaylight.netvirt.aclservice.api.util
                 .anyMatch(aclInterface -> aclInterface.getDpId().equals(dpnId)));
     }
 
-    public Map<Uuid, List<AclInterface>> getAclInterfaceMap() {
+    @Override
+    public Map<Uuid, Collection<AclInterface>> getAclInterfaceMap() {
+        Builder<Uuid, Collection<AclInterface>> builder = ImmutableMap.builder();
+        for (Entry<Uuid, ConcurrentMap<String, AclInterface>> entry: aclInterfaceMap.entrySet()) {
+            builder.put(entry.getKey(), entry.getValue().values());
+        }
 
-        return aclInterfaceMap;
+        return builder.build();
     }
 
-    public Map<Uuid, List<Uuid>> getRemoteAclIdMap() {
-
-        return remoteAclIdMap;
+    @Override
+    public Map<Uuid, Collection<Uuid>> getRemoteAclIdMap() {
+        return ImmutableMap.copyOf(remoteAclIdMap);
     }
 
+    @Override
     public Map<String, Integer> getAclFlowPriorityMap() {
-
-        return aclFlowPriorityMap;
+        return ImmutableMap.copyOf(aclFlowPriorityMap);
     }
 
 }

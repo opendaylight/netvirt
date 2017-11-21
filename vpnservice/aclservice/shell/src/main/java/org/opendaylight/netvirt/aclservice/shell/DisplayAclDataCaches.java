@@ -8,16 +8,14 @@
 
 package org.opendaylight.netvirt.aclservice.shell;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
-
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.aclservice.api.utils.AclDataUtil;
+import org.opendaylight.netvirt.aclservice.api.utils.AclDataCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -28,7 +26,7 @@ import org.slf4j.LoggerFactory;
 @Command(scope = "aclservice", name = "display-acl-data-cache", description = " ")
 public class DisplayAclDataCaches extends OsgiCommandSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(DisplayAclDataCaches.class);
-    private AclDataUtil aclDataUtil;
+    private AclDataCache aclDataUtil;
     private static final String KEY_TAB = "   %-8s";
     private static final String ACL_INT_TAB = "   %-4s  %-4s  %-4s  %-4s %-4s  %-4s  %-6s  %-20s  %-20s %-4s";
     private static final String ACL_INT_TAB_FOR = KEY_TAB + ACL_INT_TAB;
@@ -45,7 +43,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             + "\n   -------------------------------------------------------------------------";
     private final String exeCmdStr = "exec display-acl-data-cache -op ";
     private final String opSelections = "[ aclInterface | remoteAclId | aclFlowPriority | aclInterfaceCache ]";
-    private String opSelStr = exeCmdStr + opSelections;
+    private final String opSelStr = exeCmdStr + opSelections;
 
 
     @Option(name = "-op", aliases = { "--option",
@@ -63,10 +61,11 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             multiValued = false)
     private String key;
 
-    public void setAclDataUtil(AclDataUtil aclDataUtil) {
+    public void setAclDataUtil(AclDataCache aclDataUtil) {
         this.aclDataUtil = aclDataUtil;
     }
 
+    @Override
     protected Object doExecute() throws Exception {
         if (aclDataUtil == null) {
             session.getConsole().println("Failed to handle the command, AclData reference is null at this point");
@@ -153,7 +152,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 log.error("Invalid uuid" + e);
                 return;
             }
-            List<AclInterface> aclInterfaceList = aclDataUtil.getInterfaceList(uuid);
+            Collection<AclInterface> aclInterfaceList = aclDataUtil.getInterfaceList(uuid);
             if (aclInterfaceList == null | aclInterfaceList.isEmpty()) {
                 session.getConsole().println("UUID not matched");
                 return;
@@ -176,20 +175,17 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 printAclInterfaceMapHelp();
                 return;
             }
-            Map<Uuid, List<AclInterface>> map = aclDataUtil.getAclInterfaceMap();
+            Map<Uuid, Collection<AclInterface>> map = aclDataUtil.getAclInterfaceMap();
 
-            if (map == null || map.isEmpty()) {
+            if (map.isEmpty()) {
                 session.getConsole().println("No data found");
                 return;
             } else {
                 session.getConsole().println(String.format(ACL_INT_HEAD));
-                Iterator<Map.Entry<Uuid, List<AclInterface>>> entries  = map.entrySet().iterator();
-                while (entries .hasNext()) {
-                    Map.Entry<Uuid, List<AclInterface>> entry = entries.next();
+                for (Entry<Uuid, Collection<AclInterface>> entry: map.entrySet()) {
                     Uuid key = entry.getKey();
                     session.getConsole().print(String.format(KEY_TAB, key.toString()));
-                    for (ListIterator<AclInterface> iter = entry.getValue().listIterator(); iter.hasNext(); ) {
-                        AclInterface aclInterface = iter.next();
+                    for (AclInterface aclInterface: entry.getValue()) {
                         session.getConsole().println(String.format(ACL_INT_TAB,
                                 aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),
                                 aclInterface.getLPortTag(), aclInterface.getDpId(), aclInterface.getElanId(),
@@ -217,7 +213,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 log.error("Invalid uuid" + e);
                 return;
             }
-            List<Uuid> remoteUuidLst = aclDataUtil.getRemoteAcl(uuidRef);
+            Collection<Uuid> remoteUuidLst = aclDataUtil.getRemoteAcl(uuidRef);
             if (remoteUuidLst == null | remoteUuidLst.isEmpty()) {
                 session.getConsole().println("UUID not matched");
                 return;
@@ -235,20 +231,17 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 printRemoteAclIdMapHelp();
                 return;
             }
-            Map<Uuid, List<Uuid>> map = aclDataUtil.getRemoteAclIdMap();
 
-            if (map == null || map.isEmpty()) {
+            Map<Uuid, Collection<Uuid>> map = aclDataUtil.getRemoteAclIdMap();
+            if (map.isEmpty()) {
                 session.getConsole().println("No data found");
                 return;
             } else {
                 session.getConsole().println(String.format(REM_ID_HEAD));
-                Iterator<Map.Entry<Uuid, List<Uuid>>> entries  = map.entrySet().iterator();
-                while (entries .hasNext()) {
-                    Map.Entry<Uuid, List<Uuid>> entry = entries.next();
+                for (Entry<Uuid, Collection<Uuid>> entry: map.entrySet()) {
                     Uuid key = entry .getKey();
                     session.getConsole().print(String.format(KEY_TAB, key.toString()));
-                    for (ListIterator<Uuid> iter = entry.getValue().listIterator(); iter.hasNext(); ) {
-                        Uuid uuid = iter.next();
+                    for (Uuid uuid: entry.getValue()) {
                         session.getConsole().println(String.format(REM_ID_TAB, uuid.getValue()));
                     }
                 }

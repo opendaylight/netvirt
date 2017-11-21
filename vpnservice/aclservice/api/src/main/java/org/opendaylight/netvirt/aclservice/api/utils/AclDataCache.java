@@ -8,22 +8,30 @@
 
 package org.opendaylight.netvirt.aclservice.api.utils;
 
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
-public interface AclDataUtil {
+public interface AclDataCache {
 
-    List<AclInterface> getInterfaceList(Uuid acl);
+    @Nullable
+    Collection<AclInterface> getInterfaceList(Uuid acl);
 
-    List<Uuid> getRemoteAcl(Uuid remoteAclId);
+    @Nullable
+    Collection<Uuid> getRemoteAcl(Uuid remoteAclId);
 
+    @Nonnull
     Integer getAclFlowPriority(String aclName);
 
-    Map<Uuid, List<AclInterface>> getAclInterfaceMap();
+    @Nonnull
+    Map<Uuid, Collection<AclInterface>> getAclInterfaceMap();
 
-    Map<Uuid, List<Uuid>> getRemoteAclIdMap();
+    @Nonnull
+    Map<Uuid, Collection<Uuid>> getRemoteAclIdMap();
 
+    @Nonnull
     Map<String, Integer> getAclFlowPriorityMap();
 
 }
