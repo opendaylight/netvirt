@@ -7,8 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import static java.util.Objects.requireNonNull;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlan;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.waitForTransactionToComplete;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
@@ -272,8 +274,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         }
 
         List<ListenableFuture<Void>> futures = new ArrayList<>();
-        futures.add(ElanUtils.waitForTransactionToComplete(interfaceTx));
-        futures.add(ElanUtils.waitForTransactionToComplete(flowTx));
+        futures.add(requireNonNull(
+                waitForTransactionToComplete(interfaceTx), "ElanUtils.waitForTransactionToComplete(interfaceTx)"));
+        futures.add(requireNonNull(
+                waitForTransactionToComplete(flowTx), "ElanUtils.waitForTransactionToComplete(flowTx)"));
 
         if (isLastInterfaceOnDpn && dpId != null && isVxlanNetworkOrVxlanSegment(elanInfo)) {
             setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpId);
