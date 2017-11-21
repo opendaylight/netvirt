@@ -54,17 +54,6 @@ public class ElanDpnToTransportZoneListener
 
     @Override
     protected void remove(InstanceIdentifier<DpnInterfaces> key, DpnInterfaces dataObjectModification) {
-        LOG.debug("Elan dpn {} delete detected, deleting transport zones", dataObjectModification.getDpId());
-        BigInteger dpId = dataObjectModification.getDpId();
-        String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
-
-        if (!ElanUtils.isVxlanNetwork(dbx, elanInstanceName)) {
-            LOG.debug("ElanInstance {} is not vxlan network, nothing to do", elanInstanceName);
-            return;
-        }
-        LOG.debug("Deleting tz for elanInstance {} dpId {}", elanInstanceName, dpId);
-        transportZoneNotificationUtil.deleteTransportZone(elanInstanceName, dpId);
-
     }
 
     @Override

@@ -53,7 +53,6 @@ public class VpnDpnToTransportZoneListener
 
     @Override
     protected void remove(InstanceIdentifier<VpnToDpnList> identifier, VpnToDpnList del) {
-        LOG.debug("Vpn dpn {} remove detected, SHOULD BE deleting transport zones", del.getDpnId());
     }
 
     @Override
