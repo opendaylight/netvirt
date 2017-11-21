@@ -1497,6 +1497,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_41157147",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1030,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-21T13:24:05Z",
+      "side": 0,
+      "message": "is it worth having someone know knows this code double check this or is it pretty obvious this is the right thing to do here?",
+      "parentUuid": "9a245df4_c55b48f4",
+      "range": {
+        "startLine": 1030,
+        "startChar": 34,
+        "endLine": 1030,
+        "endChar": 45
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_656a5c82",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
         "patchSetId": 1
@@ -1571,6 +1595,24 @@
       "writtenOn": "2017-11-15T01:45:35Z",
       "side": 0,
       "message": "With the code below commented out, all the code above is pointless so comment out all of it",
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_810ac923",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/statisitcs/ElanStatisticsImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-21T13:24:05Z",
+      "side": 0,
+      "message": "wow, hm.  This class REALLY looks like someone how knows this code should go over it... ;-)",
+      "parentUuid": "9a245df4_850cb0ee",
       "revId": "f369cde408e38962194e7144aec0f4884f232744",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
