@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_7c7c9872",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeAdd.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T14:00:37Z",
+      "side": 1,
+      "message": "good point - I missed the fact that this could be injected.",
+      "parentUuid": "9a245df4_41473177",
+      "range": {
+        "startLine": 24,
+        "startChar": 23,
+        "endLine": 24,
+        "endChar": 24
+      },
+      "revId": "e5c2a44c143d03fbd3bd785266d573b0489c5649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_013899ed",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
         "patchSetId": 9
@@ -36,6 +60,24 @@
       "writtenOn": "2017-11-21T13:24:05Z",
       "side": 1,
       "message": "erm, but there is nothing commented out here, no?  As before, if I were you I would try to find people more familiar with to advise (saw that you used git\u0027s history maybe via git annotate earlier; you could do the same here?)",
+      "revId": "e5c2a44c143d03fbd3bd785266d573b0489c5649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fcbd2803",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T14:00:37Z",
+      "side": 1,
+      "message": "I purposely uncommented b/c CSIT is failing and this is a candidate although it clearly looks wrong. It was introduced by https://git.opendaylight.org/gerrit/#/c/61840/. I think this it\u0027s supposed to be globalIid.firstKeyOf(Node.class).getNodeId().getValue() as it is on line 67 above. I\u0027ll add the author of that patch - we\u0027ll see if they\u0027re responsive.",
+      "parentUuid": "9a245df4_013899ed",
       "revId": "e5c2a44c143d03fbd3bd785266d573b0489c5649",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
