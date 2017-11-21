@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
@@ -117,7 +118,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@SuppressWarnings("deprecation")
 public final class AclServiceUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceUtils.class);
@@ -642,8 +642,9 @@ public final class AclServiceUtils {
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
         MatchInfoBase ipv4Match = MatchEthernetType.IPV4;
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
-        for (String flowName : flowMatchesMap.keySet()) {
-            List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+        for (Entry<String, List<MatchInfoBase>> entry : flowMatchesMap.entrySet()) {
+            String flowName = entry.getKey();
+            List<MatchInfoBase> flows = entry.getValue();
             if (singleAcl) {
                 LOG.debug("port {} is in only one SG. "
                         + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
@@ -708,8 +709,9 @@ public final class AclServiceUtils {
         Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
         MatchInfoBase ipv4Match = MatchEthernetType.IPV4;
         MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
-        for (String flowName : flowMatchesMap.keySet()) {
-            List<MatchInfoBase> flows = flowMatchesMap.get(flowName);
+        for (Entry<String, List<MatchInfoBase>> entry : flowMatchesMap.entrySet()) {
+            String flowName = entry.getKey();
+            List<MatchInfoBase> flows = entry.getValue();
             // iterate over allow address pair and update match type
             for (AllowedAddressPairs aap : syncAllowedAddresses) {
                 List<MatchInfoBase> matchInfoBaseList;
