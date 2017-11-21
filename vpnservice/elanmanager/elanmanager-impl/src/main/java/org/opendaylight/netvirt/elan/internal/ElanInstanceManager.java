@@ -9,11 +9,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -75,7 +73,6 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     @Override
     protected void remove(InstanceIdentifier<ElanInstance> identifier, ElanInstance deletedElan) {
         LOG.trace("Remove ElanInstance - Key: {}, value: {}", identifier, deletedElan);
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         String elanName = deletedElan.getElanInstanceName();
         // check the elan Instance present in the Operational DataStore
         Elan existingElan = ElanUtils.getElanByName(broker, elanName);
@@ -88,8 +85,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
                             .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
                     InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
-                    futures.addAll(elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName,
-                            interfaceInfo, false));
+                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName, interfaceInfo, false);
                     ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                             elanInterfaceId);
                 }
@@ -116,8 +112,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                 elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
                 ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
                 LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
-                futures.add(writeConfigTxn.submit());
-                return futures;
+                return Collections.singletonList(writeConfigTxn.submit());
             }, ElanConstants.JOB_MAX_RETRIES);
         });
         // Release tag
