@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import io.netty.util.Timeout;
+import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,7 @@ public class VirtualPort  {
     private Uuid      networkID;
     private String    macAddress;
     private Boolean   routerIntfFlag;
-    private String    dpId;
+    private BigInteger    dpId;
     private String    deviceOwner;
     private Long      ofPort;
     private Boolean   serviceBindingStatus;
@@ -176,12 +177,12 @@ public class VirtualPort  {
         return deviceOwner;
     }
 
-    public VirtualPort setDpId(String dpId) {
+    public VirtualPort setDpId(BigInteger dpId) {
         this.dpId = dpId;
         return this;
     }
 
-    public String getDpId() {
+    public BigInteger getDpId() {
         return dpId;
     }
 
