@@ -5,15 +5,15 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.elan.internal;
+
+import static java.util.Objects.requireNonNull;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -116,7 +116,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                 elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
                 ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
                 LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
-                futures.add(writeConfigTxn.submit());
+                futures.add(requireNonNull(writeConfigTxn.submit(), "writeConfigTxn.submit()"));
                 return futures;
             }, ElanConstants.JOB_MAX_RETRIES);
         });
