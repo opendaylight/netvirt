@@ -428,7 +428,7 @@ public class IfMgr {
             portId, dpId, ofPort);
         VirtualPort intf = vintfs.get(portId);
         if (intf != null) {
-            intf.setDpId(dpId.toString())
+            intf.setDpId(dpId)
                     .setOfPort(ofPort);
 
             // Update the network <--> List[dpnIds, List<ports>] cache.
@@ -484,7 +484,7 @@ public class IfMgr {
                 // Remove the portId from the (network <--> List[dpnIds, List <ports>]) cache.
                 VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
                 if (null != vnet) {
-                    BigInteger dpId = Ipv6ServiceUtils.getDataPathId(intf.getDpId());
+                    BigInteger dpId = intf.getDpId();
                     vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6Constants.DEL_ENTRY);
                 }
             }

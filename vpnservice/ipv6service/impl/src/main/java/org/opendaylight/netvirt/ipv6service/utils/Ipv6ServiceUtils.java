@@ -479,12 +479,4 @@ public class Ipv6ServiceUtils {
                 buildServiceId(interfaceName, ServiceIndex.getIndex(NwConstants.IPV6_SERVICE_NAME,
                         NwConstants.IPV6_SERVICE_INDEX)));
     }
-
-    public static BigInteger getDataPathId(String dpId) {
-        long dpid = 0L;
-        if (dpId != null) {
-            dpid = new BigInteger(dpId.replaceAll(":", ""), 16).longValue();
-        }
-        return BigInteger.valueOf(dpid);
-    }
 }
