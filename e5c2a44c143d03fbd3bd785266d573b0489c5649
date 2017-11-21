@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_41473177",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cli/etree/EtreeAdd.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-21T13:24:05Z",
+      "side": 1,
+      "message": "erm, wait, doesn\u0027t this break this CLI command? Karaf will no longer be able to set this argument, no?",
+      "range": {
+        "startLine": 24,
+        "startChar": 23,
+        "endLine": 24,
+        "endChar": 24
+      },
+      "revId": "e5c2a44c143d03fbd3bd785266d573b0489c5649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_013899ed",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-21T13:24:05Z",
+      "side": 1,
+      "message": "erm, but there is nothing commented out here, no?  As before, if I were you I would try to find people more familiar with to advise (saw that you used git\u0027s history maybe via git annotate earlier; you could do the same here?)",
+      "revId": "e5c2a44c143d03fbd3bd785266d573b0489c5649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_413e11db",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-21T13:24:05Z",
+      "side": 1,
+      "message": "as above",
+      "revId": "e5c2a44c143d03fbd3bd785266d573b0489c5649",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
