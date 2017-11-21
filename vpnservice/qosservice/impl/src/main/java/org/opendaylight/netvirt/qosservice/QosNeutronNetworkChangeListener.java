@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Network,
-        QosNeutronNetworkChangeListener> implements AutoCloseable {
+        QosNeutronNetworkChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronNetworkChangeListener.class);
     private final DataBroker dataBroker;
     private final QosAlertManager qosAlertManager;

@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosAlertConfigListener  extends
-        AsyncClusteredDataTreeChangeListenerBase<QosalertConfig, QosAlertConfigListener>  implements AutoCloseable   {
+        AsyncClusteredDataTreeChangeListenerBase<QosalertConfig, QosAlertConfigListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertConfigListener.class);
     private final DataBroker dataBroker;

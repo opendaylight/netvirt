@@ -15,49 +15,46 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class QosAlertGenerator {
-
-    private static ConfigurationAdmin configurationAdmin;
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertGenerator.class);
 
-    public QosAlertGenerator() {
-        BundleContext bundleContext = FrameworkUtil.getBundle(QosAlertGenerator.class).getBundleContext();
-        configurationAdmin = (ConfigurationAdmin) bundleContext.getService(bundleContext
-                .getServiceReference(ConfigurationAdmin.class.getName()));
-        updateQoSAlertLog4jProperties(getPropertyMap(QosConstants.QOS_ALERT_PROPERTIES_PID));
+    private final ConfigurationAdmin configurationAdmin;
+
+    public QosAlertGenerator(ConfigurationAdmin configurationAdmin) {
+        this.configurationAdmin = configurationAdmin;
+        try {
+            updateQoSAlertLog4jProperties(getPropertyMap(QosConstants.QOS_ALERT_PROPERTIES_PID));
+        } catch (IOException e) {
+            LOG.error("Error updating log4j properties", e);
+        }
     }
 
     public void update(Map<String, Object> qosAlertProperties) {
-        updateQoSAlertLog4jProperties(qosAlertProperties);
+        try {
+            updateQoSAlertLog4jProperties(qosAlertProperties);
+        } catch (IOException e) {
+            LOG.error("Error updating log4j properties", e);
+        }
     }
 
     public static void raiseAlert(final String qosPolicyName, final String qosPolicyUuid, final String portUuid,
                                   final String networkUuid, final BigInteger rxPackets,
                                   final BigInteger rxDroppedPackets) {
         // Log the alert message in a text file using log4j appender qosalertmsg
-        LOG.debug(QosConstants.alertMsgFormat, qosPolicyName, qosPolicyUuid, portUuid, networkUuid,
+        LOG.debug(QosConstants.ALERT_MSG_FORMAT, qosPolicyName, qosPolicyUuid, portUuid, networkUuid,
                                                                                         rxPackets, rxDroppedPackets);
     }
 
-    private static Configuration getConfig(String pid) {
-        Configuration config = null;
-        try {
-            config = configurationAdmin.getConfiguration(pid);
-        } catch (java.io.IOException ioe) {
-            LOG.error("Exception in configuration {}", ioe);
-        }
-        return (config);
+    private Configuration getConfig(String pid) throws IOException {
+        return configurationAdmin.getConfiguration(pid);
     }
 
-    private static Map<String, Object> getPropertyMap(String pid) {
+    private Map<String, Object> getPropertyMap(String pid) throws IOException {
         Map<String, Object> propertyMap = null;
         Configuration configurationInit = getConfig(pid);
         Dictionary<String, Object> config = configurationInit.getProperties();
@@ -67,16 +64,16 @@ public class QosAlertGenerator {
             String key = keys.nextElement();
             propertyMap.put(key, config.get(key));
         }
-        return (propertyMap);
+        return propertyMap;
     }
 
     private static Map<String, Object> removeNonLog4jProperties(Map<String, Object> qosAlertLog4jProperties) {
         qosAlertLog4jProperties.remove(QosConstants.FELIX_FILEINSTALL_FILENAME);
         qosAlertLog4jProperties.remove(QosConstants.SERVICE_PID);
-        return (qosAlertLog4jProperties);
+        return qosAlertLog4jProperties;
     }
 
-    private static void updateQoSAlertLog4jProperties(Map<String, Object> qosAlertLog4jProperties) {
+    private void updateQoSAlertLog4jProperties(Map<String, Object> qosAlertLog4jProperties) throws IOException {
         Map<String, Object> log4jProperties = getPropertyMap(QosConstants.ORG_OPS4J_PAX_LOGGING);
         Hashtable<String, Object> updateLog4jProperties = new Hashtable<>();
         updateLog4jProperties.putAll(log4jProperties);

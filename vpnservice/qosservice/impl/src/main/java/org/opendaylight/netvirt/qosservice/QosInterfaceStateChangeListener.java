@@ -31,8 +31,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Interface,
-        QosInterfaceStateChangeListener> implements
-        AutoCloseable {
+        QosInterfaceStateChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(QosInterfaceStateChangeListener.class);
 
