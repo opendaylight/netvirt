@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_b73d8bc6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-21T15:28:44Z",
+      "side": 1,
+      "message": "is it required to call twice? Should you not just update the new vpnName in the vpnNames list of vpnInterface and then the update for vpnInterface should trigger the vpn engine for the newly added vpnName ?",
+      "range": {
+        "startLine": 1579,
+        "startChar": 27,
+        "endLine": 1584,
+        "endChar": 29
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
