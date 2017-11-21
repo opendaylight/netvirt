@@ -35,9 +35,13 @@ public class AclDataUtil implements AclDataCache {
 
     public void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
-            aclInterfaceMap.computeIfAbsent(acl, key -> new ConcurrentHashMap<>())
-                    .putIfAbsent(port.getInterfaceId(), port);
+            addAclInterface(acl, port);
         }
+    }
+
+    private void addAclInterface(Uuid acl, AclInterface port) {
+        aclInterfaceMap.computeIfAbsent(acl, key -> new ConcurrentHashMap<>())
+                .putIfAbsent(port.getInterfaceId(), port);
     }
 
     public void addOrUpdateAclInterfaceMap(List<Uuid> aclList, AclInterface port) {

@@ -8,11 +8,9 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<Interface,
-        AclInterfaceStateListener> implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
+        AclInterfaceStateListener> implements ClusteredDataTreeChangeListener<Interface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceStateListener.class);
 

@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -181,26 +182,30 @@ public final class AclServiceOFFlowBuilder {
         if (sourcePortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(sourcePortRange.getLowerPort().getValue(),
                 sourcePortRange.getUpperPort().getValue());
-            for (Integer port: portMaskMap.keySet()) {
+            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
+                Integer port = entry.getKey();
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchTcpSourcePort(port, portMaskMap.get(port)));
+                Integer mask = entry.getValue();
+                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
+                    flowMatches.add(new NxMatchTcpSourcePort(port, mask));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
-                String flowId = "TCP_SOURCE_" + port + "_" + portMaskMap.get(port);
+                String flowId = "TCP_SOURCE_" + port + "_" + mask;
                 flowMatchesMap.put(flowId,flowMatches);
             }
         }
         if (destinationPortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(destinationPortRange.getLowerPort().getValue(),
                 destinationPortRange.getUpperPort().getValue());
-            for (Integer port: portMaskMap.keySet()) {
+            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
+                Integer port = entry.getKey();
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
+                Integer mask = entry.getValue();
+                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
                     flowMatches.add(new NxMatchTcpDestinationPort(port, portMaskMap.get(port)));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
@@ -231,26 +236,30 @@ public final class AclServiceOFFlowBuilder {
         if (sourcePortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(sourcePortRange.getLowerPort().getValue(),
                 sourcePortRange.getUpperPort().getValue());
-            for (Integer port: portMaskMap.keySet()) {
+            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
+                Integer port = entry.getKey();
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
-                    flowMatches.add(new NxMatchUdpSourcePort(port, portMaskMap.get(port)));
+                Integer mask = entry.getValue();
+                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
+                    flowMatches.add(new NxMatchUdpSourcePort(port, mask));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
-                String flowId = "UDP_SOURCE_" + port + "_" + portMaskMap.get(port);
+                String flowId = "UDP_SOURCE_" + port + "_" + mask;
                 flowMatchesMap.put(flowId ,flowMatches);
             }
         }
         if (destinationPortRange != null) {
             Map<Integer, Integer> portMaskMap = getLayer4MaskForRange(destinationPortRange.getLowerPort().getValue(),
                 destinationPortRange.getUpperPort().getValue());
-            for (Integer port: portMaskMap.keySet()) {
+            for (Entry<Integer, Integer> entry: portMaskMap.entrySet()) {
+                Integer port = entry.getKey();
                 List<MatchInfoBase> flowMatches = new ArrayList<>();
                 flowMatches.addAll(addSrcIpMatches(acl));
                 flowMatches.addAll(addDstIpMatches(acl));
-                if (portMaskMap.get(port) != AclConstants.ALL_LAYER4_PORT_MASK) {
+                Integer mask = entry.getValue();
+                if (mask != AclConstants.ALL_LAYER4_PORT_MASK) {
                     flowMatches.add(new NxMatchUdpDestinationPort(port, portMaskMap.get(port)));
                 }
                 flowMatches.add(new MatchIpProtocol(acl.getProtocol()));
@@ -389,23 +398,19 @@ public final class AclServiceOFFlowBuilder {
         int currentMedain = median;
         for (int tempMedianOffset = medianOffset;16 > tempMedianOffset;tempMedianOffset++) {
             tempMedian = currentMedain - offset[tempMedianOffset];
-            if (portMin <= tempMedian) {
-                for (;portMin <= tempMedian;) {
-                    portMap.put(tempMedian, mask[tempMedianOffset]);
-                    currentMedain = tempMedian;
-                    tempMedian = tempMedian - offset[tempMedianOffset];
-                }
+            for (;portMin <= tempMedian;) {
+                portMap.put(tempMedian, mask[tempMedianOffset]);
+                currentMedain = tempMedian;
+                tempMedian = tempMedian - offset[tempMedianOffset];
             }
         }
         currentMedain = median;
         for (int tempMedianOffset = medianOffset;16 > tempMedianOffset;tempMedianOffset++) {
             tempMedian = currentMedain + offset[tempMedianOffset];
-            if (portMax >= tempMedian - 1) {
-                for (;portMax >= tempMedian - 1;) {
-                    portMap.put(currentMedain, mask[tempMedianOffset]);
-                    currentMedain = tempMedian;
-                    tempMedian = tempMedian  + offset[tempMedianOffset];
-                }
+            for (;portMax >= tempMedian - 1;) {
+                portMap.put(currentMedain, mask[tempMedianOffset]);
+                currentMedain = tempMedian;
+                tempMedian = tempMedian  + offset[tempMedianOffset];
             }
         }
         return portMap;
