@@ -814,7 +814,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         boolean isIpFromAnotherSubnet = false;
         for (Adjacency adj : vpnAdjsList) {
             String adjString = FibHelper.getIpFromPrefix(adj.getIpAddress());
-            if (sn == null || !adj.getSubnetId().equals(sn.getId())) {
+            if (sn == null || !Objects.equals(adj.getSubnetId(), sn.getId())) {
                 if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                     isIpFromAnotherSubnet = true;
                 }
@@ -893,7 +893,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (optionalVpnInterface.isPresent()) {
                 VpnInstanceNames vpnInstance = VpnHelper
                     .getVpnInterfaceVpnInstanceNames(vpnId.getValue(), AssociatedSubnetType.V4AndV6Subnets);
-                List<VpnInstanceNames> listVpn = new ArrayList<VpnInstanceNames>();
+                List<VpnInstanceNames> listVpn = new ArrayList<>();
                 listVpn.add(vpnInstance);
                 VpnInterfaceBuilder vpnIfBuilder = new VpnInterfaceBuilder(optionalVpnInterface.get())
                                       .setVpnInstanceNames(listVpn);
@@ -2571,7 +2571,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         VpnInterfaceBuilder vpnb;
         VpnInstanceNames vpnInstance = VpnHelper
                .getVpnInterfaceVpnInstanceNames(vpnId.getValue(), AssociatedSubnetType.V4AndV6Subnets);
-        List<VpnInstanceNames> listVpn = new ArrayList<VpnInstanceNames>();
+        List<VpnInstanceNames> listVpn = new ArrayList<>();
         listVpn.add(vpnInstance);
         vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
             .setName(infName)
