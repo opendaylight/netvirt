@@ -34,8 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, QosNodeListener> implements
-        AutoCloseable {
+public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, QosNodeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(QosNodeListener.class);
 
     private final DataBroker dataBroker;

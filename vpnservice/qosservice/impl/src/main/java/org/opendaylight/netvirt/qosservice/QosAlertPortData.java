@@ -9,12 +9,14 @@
 package org.opendaylight.netvirt.qosservice;
 
 import java.math.BigInteger;
+import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.port.statistics.rev131214.node.connector.statistics.and.port.number.map.NodeConnectorStatisticsAndPortNumberMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@NotThreadSafe
 public class QosAlertPortData {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertPortData.class);
     private static final BigInteger BIG_HUNDRED = new BigInteger("100");
@@ -23,9 +25,9 @@ public class QosAlertPortData {
 
     private final Port port;
     private final QosNeutronUtils qosNeutronUtils;
-    private BigInteger rxPackets;
-    private BigInteger rxDroppedPackets;
-    private boolean statsDataInit;
+    private volatile BigInteger rxPackets;
+    private volatile BigInteger rxDroppedPackets;
+    private volatile boolean statsDataInit;
 
     public QosAlertPortData(final Port port, final QosNeutronUtils qosNeutronUtils) {
         this.port = port;
@@ -68,7 +70,7 @@ public class QosAlertPortData {
         }
 
         if (rxDroppedDiff.multiply(BIG_HUNDRED).compareTo(rxTotalDiff.multiply(alertThreshold)) > 0) {
-            LOG.trace(QosConstants.alertMsgFormat, qosPolicy.getName(), qosPolicy.getUuid().getValue(),
+            LOG.trace(QosConstants.ALERT_MSG_FORMAT, qosPolicy.getName(), qosPolicy.getUuid().getValue(),
                     port.getUuid().getValue(), port.getNetworkId().getValue(), statsData.getPackets().getReceived(),
                                                                                         statsData.getReceiveDrops());
 
