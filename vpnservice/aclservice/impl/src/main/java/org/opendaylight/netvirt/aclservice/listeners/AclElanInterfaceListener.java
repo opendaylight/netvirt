@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.aclservice.listeners;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -79,7 +78,7 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
             LOG.debug("On Add event, ignore if AclInterface is not found in cache");
             return;
         }
-        if (aclInterface != null && aclInterface.getElanId() == null) {
+        if (aclInterface.getElanId() == null) {
             ElanInstance elanInfo = AclServiceUtils.getElanInstanceByName(elanInterface.getElanInstanceName(),
                     dataBroker);
             Long elanId = elanInfo.getElanTag();

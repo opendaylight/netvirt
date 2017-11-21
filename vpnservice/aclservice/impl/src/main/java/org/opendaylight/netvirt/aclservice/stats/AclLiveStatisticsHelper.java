@@ -55,7 +55,7 @@ public final class AclLiveStatisticsHelper {
     private static final Logger LOG = LoggerFactory.getLogger(AclLiveStatisticsHelper.class);
 
     /** The Constant COOKIE_ACL_DROP_FLOW_MASK. */
-    protected static final BigInteger COOKIE_ACL_DROP_FLOW_MASK = new BigInteger("FFFFFFF", 16);
+    static final BigInteger COOKIE_ACL_DROP_FLOW_MASK = new BigInteger("FFFFFFF", 16);
 
     private AclLiveStatisticsHelper() {
         throw new IllegalStateException("Utility class");

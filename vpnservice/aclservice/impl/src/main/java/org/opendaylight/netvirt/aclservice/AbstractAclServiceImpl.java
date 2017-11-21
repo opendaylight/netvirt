@@ -619,15 +619,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         return dpns;
     }
 
-    protected char[] getIpPrefixOrAddress(AllowedAddressPairs ip) {
-        if (ip.getIpAddress().getIpAddress() != null) {
-            return ip.getIpAddress().getIpAddress().getValue();
-        } else if (ip.getIpAddress().getIpPrefix() != null) {
-            return ip.getIpAddress().getIpPrefix().getValue();
-        }
-        return null;
-    }
-
     /**
      * Gets the priority of acl flow which is to be either removed or added.
      *
