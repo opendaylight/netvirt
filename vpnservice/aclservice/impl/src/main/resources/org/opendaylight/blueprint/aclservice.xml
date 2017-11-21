@@ -32,7 +32,7 @@
         interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
 
   <service ref="aclDataUtil"
-           interface="org.opendaylight.netvirt.aclservice.api.utils.AclDataUtil" />
+           interface="org.opendaylight.netvirt.aclservice.api.utils.AclDataCache" />
 
   <odl:notification-listener ref="aclVpnChangeListener" />
 </blueprint>
