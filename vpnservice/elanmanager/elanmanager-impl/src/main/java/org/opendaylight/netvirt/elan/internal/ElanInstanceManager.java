@@ -8,6 +8,8 @@
 
 package org.opendaylight.netvirt.elan.internal;
 
+import static java.util.Collections.emptyList;
+
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
@@ -155,11 +157,11 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
         dataStoreCoordinator.enqueueJob(elanName, () -> {
             try {
-                elanInterfaceManager.handleunprocessedElanInterfaces(update);
+                return elanInterfaceManager.handleunprocessedElanInterfaces(update);
             } catch (ElanException e) {
                 LOG.error("update() failed for ElanInstance: " + identifier.toString(), e);
+                return emptyList();
             }
-            return null;
         }, ElanConstants.JOB_MAX_RETRIES);
 
     }
