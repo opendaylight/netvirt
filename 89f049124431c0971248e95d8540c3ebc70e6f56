@@ -1,0 +1,141 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_ebb8c42b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 628,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T02:38:12Z",
+      "side": 0,
+      "message": "The actual violation was \"Should getIpPrefixOrAddress(AllowedAddressPairs) return a zero length array rather than null?\" but as, it turns out, this method is unused.",
+      "revId": "89f049124431c0971248e95d8540c3ebc70e6f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_cbb3404b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclElanInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T02:38:12Z",
+      "side": 0,
+      "message": "\"Redundant nullcheck of aclInterface, which is known to be non-null\"",
+      "range": {
+        "startLine": 82,
+        "startChar": 12,
+        "endLine": 82,
+        "endChar": 32
+      },
+      "revId": "89f049124431c0971248e95d8540c3ebc70e6f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0b89d874",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/stats/AclLiveStatisticsHelper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T02:38:12Z",
+      "side": 0,
+      "message": "\"Class AclLiveStatisticsHelper is final but declares protected field\"",
+      "range": {
+        "startLine": 58,
+        "startChar": 4,
+        "endLine": 58,
+        "endChar": 13
+      },
+      "revId": "89f049124431c0971248e95d8540c3ebc70e6f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0bf0b8fc",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclDataUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T02:38:12Z",
+      "side": 0,
+      "message": "\"Return value of putIfAbsent is ignored, but port is reused\" - there\u0027s nothing actually wrong here - \u0027port\u0027 is reused but on the next loop iteration.  Putting this code in a method avoids the violation.",
+      "revId": "89f049124431c0971248e95d8540c3ebc70e6f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6bf3340a",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T02:38:12Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "89f049124431c0971248e95d8540c3ebc70e6f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_4bf630fa",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceOFFlowBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 392,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T02:38:12Z",
+      "side": 0,
+      "message": "\"Repeated conditional test\"",
+      "range": {
+        "startLine": 392,
+        "startChar": 12,
+        "endLine": 392,
+        "endChar": 38
+      },
+      "revId": "89f049124431c0971248e95d8540c3ebc70e6f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_abe08c29",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 646,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T02:38:12Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "89f049124431c0971248e95d8540c3ebc70e6f56",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
