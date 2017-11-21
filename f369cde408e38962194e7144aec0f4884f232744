@@ -1521,6 +1521,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5c29d435",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1030,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-21T14:00:37Z",
+      "side": 0,
+      "message": "sure but I don\u0027t know who would know this code....  it doesn\u0027t technically  looks correct but perhaps the map doesn\u0027t get cleaned up properly and subsequent tasks are scheduled. This is another candidate for the CSIT failures.",
+      "parentUuid": "9a245df4_41157147",
+      "range": {
+        "startLine": 1030,
+        "startChar": 34,
+        "endLine": 1030,
+        "endChar": 45
+      },
+      "revId": "f369cde408e38962194e7144aec0f4884f232744",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_656a5c82",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/L2GatewayConnectionUtils.java",
         "patchSetId": 1
