@@ -69,7 +69,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId());
             if (network == null) {
                 LOG.info("update: vpnId {}, networkId: {}, subnetId: {}: network was not found",
-                    vpnId.getValue(), subnetmap.getNetworkId().getValue(), subnetId.getValue());
+                    vpnId, subnetmap.getNetworkId(), subnetId);
                 return;
             }
             if (VpnUtil.getIsExternal(network)) {
@@ -80,7 +80,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             Long elanTag = getElanTag(elanInstanceName);
             if (elanTag.equals(0L)) {
                 LOG.error("add:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
-                        + "subnetmapListener add for subnet {}", elanInstanceName, subnetId.getValue());
+                        + "subnetmapListener add for subnet {}", elanInstanceName, subnetId);
                 return;
             }
             // subnet added to VPN case upon config DS replay after reboot
@@ -111,7 +111,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
         if (network == null) {
             LOG.info("update: vpnIdNew: {}, vpnIdOld: {}, networkId: {}, subnetId: {}: network was not found",
-                vpnIdNew.getValue(), vpnIdOld.getValue(), elanInstanceName, subnetId.getValue());
+                vpnIdNew, vpnIdOld, elanInstanceName, subnetId);
             return;
         }
         if (VpnUtil.getIsExternal(network)) {
@@ -120,7 +120,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Long elanTag = getElanTag(elanInstanceName);
         if (elanTag.equals(0L)) {
             LOG.error("update:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
-                + "subnetmapListener update for subnet {}", elanInstanceName, subnetId.getValue());
+                + "subnetmapListener update for subnet {}", elanInstanceName, subnetId);
             return;
         }
         // subnet added to VPN case
