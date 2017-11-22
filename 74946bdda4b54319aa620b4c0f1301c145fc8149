@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_9ac7c763",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-22T18:14:38Z",
+      "side": 1,
+      "message": "+1",
+      "revId": "74946bdda4b54319aa620b4c0f1301c145fc8149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_da8bff1c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-22T18:14:38Z",
+      "side": 1,
+      "message": "Why does this need to block? This is a DTCL callback and about to return anyway. I think this should  be async.",
+      "revId": "74946bdda4b54319aa620b4c0f1301c145fc8149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fa84030c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-22T18:14:38Z",
+      "side": 1,
+      "message": "async?",
+      "revId": "74946bdda4b54319aa620b4c0f1301c145fc8149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_5acd4f65",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 534,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-22T18:14:38Z",
+      "side": 1,
+      "message": "async?",
+      "revId": "74946bdda4b54319aa620b4c0f1301c145fc8149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_3ac85b54",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 710,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-22T18:14:38Z",
+      "side": 1,
+      "message": "async?",
+      "revId": "74946bdda4b54319aa620b4c0f1301c145fc8149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
