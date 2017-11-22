@@ -13,8 +13,10 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTimer;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTrQueue;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -23,7 +25,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VirtualPort  {
+public class VirtualPort implements IVirtualPort  {
+    static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
 
     private Uuid      intfUUID;
     private Uuid      networkID;
@@ -32,8 +35,8 @@ public class VirtualPort  {
     private BigInteger    dpId;
     private String    deviceOwner;
     private Long      ofPort;
-    private Boolean   serviceBindingStatus;
-    private HashMap<Uuid, SubnetInfo> snetInfo;
+    private boolean   serviceBindingStatus;
+    private final HashMap<Uuid, SubnetInfo> snetInfo = new HashMap<>();
     private Ipv6PeriodicTimer periodicTimer;
     private Timeout periodicTimeout;
 
@@ -42,16 +45,10 @@ public class VirtualPort  {
 
     // TODO:: Need Openflow port
 
-    /**
-     * Logger instance.
-     */
-    static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
-
     public VirtualPort() {
-        snetInfo = new HashMap<>();
-        serviceBindingStatus = Boolean.FALSE;
     }
 
+    @Override
     public Uuid getIntfUUID() {
         return intfUUID;
     }
@@ -61,6 +58,7 @@ public class VirtualPort  {
         return this;
     }
 
+    @Override
     public Uuid getNetworkID() {
         return networkID;
     }
@@ -117,12 +115,11 @@ public class VirtualPort  {
         return ipAddrList;
     }
 
+    @Override
     public List<Ipv6Address> getIpv6Addresses() {
         List<Ipv6Address> ipv6AddrList = new ArrayList<>();
         for (SubnetInfo subnetInfo : snetInfo.values()) {
-            if (subnetInfo.getIpAddr().getIpv6Address() instanceof Ipv6Address) {
-                ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
-            }
+            ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
         }
         if (deviceOwner.equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
             Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
@@ -135,13 +132,12 @@ public class VirtualPort  {
     public List<Ipv6Address> getIpv6AddressesWithoutLLA() {
         List<Ipv6Address> ipv6AddrList = new ArrayList<>();
         for (SubnetInfo subnetInfo : snetInfo.values()) {
-            if (subnetInfo.getIpAddr().getIpv6Address() instanceof Ipv6Address) {
-                ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
-            }
+            ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
         }
         return ipv6AddrList;
     }
 
+    @Override
     public String getMacAddress() {
         return macAddress;
     }
@@ -168,11 +164,12 @@ public class VirtualPort  {
         return router;
     }
 
-    public VirtualPort setDeviceOwner(String deviceOwner) {
+    public IVirtualPort setDeviceOwner(String deviceOwner) {
         this.deviceOwner = deviceOwner;
         return this;
     }
 
+    @Override
     public String getDeviceOwner() {
         return deviceOwner;
     }
@@ -182,6 +179,7 @@ public class VirtualPort  {
         return this;
     }
 
+    @Override
     public BigInteger getDpId() {
         return dpId;
     }
@@ -198,7 +196,7 @@ public class VirtualPort  {
         this.serviceBindingStatus = status;
     }
 
-    public Boolean getServiceBindingStatus() {
+    public boolean getServiceBindingStatus() {
         return serviceBindingStatus;
     }
 
@@ -223,8 +221,8 @@ public class VirtualPort  {
                 + ofPort + " routerFlag=" + routerIntfFlag + " dpId=" + dpId + "]";
     }
 
-    public void setPeriodicTimer() {
-        periodicTimer = new Ipv6PeriodicTimer(intfUUID);
+    public void setPeriodicTimer(Ipv6PeriodicTrQueue ipv6Queue) {
+        periodicTimer = new Ipv6PeriodicTimer(intfUUID, ipv6Queue);
     }
 
     public Ipv6PeriodicTimer getPeriodicTimer() {
@@ -243,8 +241,8 @@ public class VirtualPort  {
         return periodicTimeout;
     }
 
-    private class SubnetInfo {
-        private Uuid      subnetID;
+    private static class SubnetInfo {
+        private final Uuid      subnetID;
         private IpAddress ipAddr;
         // associated subnet
         private VirtualSubnet subnet = null;

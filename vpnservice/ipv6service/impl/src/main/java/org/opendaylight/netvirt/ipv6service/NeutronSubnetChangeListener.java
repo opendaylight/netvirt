@@ -31,8 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase<Subnet, NeutronSubnetChangeListener>
-        implements AutoCloseable {
+public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase<Subnet, NeutronSubnetChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronSubnetChangeListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
@@ -52,9 +51,9 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
             .build();
 
     @Inject
-    public NeutronSubnetChangeListener(final DataBroker dataBroker) {
+    public NeutronSubnetChangeListener(final DataBroker dataBroker, IfMgr ifMgr) {
         this.dataBroker = dataBroker;
-        ifMgr = IfMgr.getIfMgrInstance();
+        this.ifMgr = ifMgr;
     }
 
     @Override

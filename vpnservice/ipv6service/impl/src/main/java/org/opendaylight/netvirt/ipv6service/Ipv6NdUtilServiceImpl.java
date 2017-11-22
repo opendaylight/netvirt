@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -27,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeCon
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.Ipv6NdutilService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.SendNeighborSolicitationInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.ipv6util.rev170210.interfaces.InterfaceAddress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
 import org.opendaylight.yangtools.yang.common.RpcError;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
@@ -36,9 +36,8 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class Ipv6NdUtilServiceImpl implements Ipv6NdutilService {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NdUtilServiceImpl.class);
-    private final DataBroker dataBroker;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
-    Ipv6NeighborSolicitation ipv6NeighborSolicitation;
+    private final Ipv6NeighborSolicitation ipv6NeighborSolicitation;
 
     private static final String FAILED_TO_GET_SRC_MAC_FOR_INTERFACE = "Failed to get src mac for interface %s iid %s ";
     private static final String FAILED_TO_SEND_NS_FOR_INTERFACE = "Failed to send Neighbor Solicitation for interface ";
@@ -46,10 +45,10 @@ public class Ipv6NdUtilServiceImpl implements Ipv6NdutilService {
     private static final String NODE_CONNECTOR_NOT_FOUND_ERROR = "Node connector id not found for interface %s";
 
     @Inject
-    public Ipv6NdUtilServiceImpl(final DataBroker dataBroker, final OdlInterfaceRpcService odlInterfaceRpcService) {
-        this.dataBroker = dataBroker;
+    public Ipv6NdUtilServiceImpl(final OdlInterfaceRpcService odlInterfaceRpcService,
+            final PacketProcessingService packetService) {
         this.odlInterfaceRpcService = odlInterfaceRpcService;
-        this.ipv6NeighborSolicitation = new Ipv6NeighborSolicitation();
+        this.ipv6NeighborSolicitation = new Ipv6NeighborSolicitation(packetService);
     }
 
     @Override

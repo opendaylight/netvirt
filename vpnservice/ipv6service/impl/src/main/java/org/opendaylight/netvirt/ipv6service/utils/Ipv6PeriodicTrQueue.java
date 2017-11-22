@@ -8,35 +8,85 @@
 
 package org.opendaylight.netvirt.ipv6service.utils;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
+import javax.annotation.concurrent.GuardedBy;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class Ipv6PeriodicTrQueue {
-    private static final Ipv6PeriodicTrQueue INSTANCE = new Ipv6PeriodicTrQueue();
-    private ConcurrentLinkedQueue ipv6PeriodicQueue;
+public class Ipv6PeriodicTrQueue implements AutoCloseable {
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv6PeriodicTrQueue.class);
 
-    private Ipv6PeriodicTrQueue() {
-        ipv6PeriodicQueue = new ConcurrentLinkedQueue();
+    private final Consumer<Uuid> onMessage;
+    private final ConcurrentLinkedQueue<Uuid> ipv6PeriodicQueue = new ConcurrentLinkedQueue<>();
+    private final Thread transmitterThread = new Thread(() -> threadRunLoop());
+    private final ReentrantLock queueLock = new ReentrantLock();
+    private final Condition queueCondition = queueLock.newCondition();
+    private volatile boolean closed;
+
+    @GuardedBy("queueLock")
+    private boolean isMessageAvailable;
+
+    public Ipv6PeriodicTrQueue(Consumer<Uuid> onMessage) {
+        this.onMessage = onMessage;
     }
 
-    public static Ipv6PeriodicTrQueue getInstance() {
-        return INSTANCE;
+    public void init() {
+        transmitterThread.start();
+
+        LOG.info("Started the ipv6 periodic RA transmission thread");
     }
 
-    public boolean addMessage(Uuid portId) {
-        return (ipv6PeriodicQueue.add(portId));
+    @Override
+    public void close() {
+        queueLock.lock();
+        try {
+            closed = true;
+            queueCondition.signalAll();
+        } finally {
+            queueLock.unlock();
+        }
     }
 
-    public Uuid removeMessage() {
-        return (Uuid)ipv6PeriodicQueue.poll();
+    public void addMessage(Uuid portId) {
+        ipv6PeriodicQueue.add(portId);
+
+        queueLock.lock();
+        try {
+            isMessageAvailable = true;
+            queueCondition.signalAll();
+        } finally {
+            queueLock.unlock();
+        }
     }
 
-    public void clearTimerQueue() {
-        ipv6PeriodicQueue.clear();
-        return;
-    }
+    // Suppress "Exceptional return value of java.util.concurrent.locks.Condition.await" - we really don't care
+    // if the Condition was signaled or timed out as we use isMessageAvailable to break or continue waiting.
+    @SuppressFBWarnings("RV_RETURN_VALUE_IGNORED_BAD_PRACTICE")
+    private void threadRunLoop() {
+        while (!closed) {
+            while (!ipv6PeriodicQueue.isEmpty()) {
+                Uuid portId = ipv6PeriodicQueue.poll();
+                LOG.debug("timeout got for port {}", portId);
+                onMessage.accept(portId);
+            }
 
-    public boolean hasMessages() {
-        return (!ipv6PeriodicQueue.isEmpty());
+            queueLock.lock();
+            try {
+                while (!isMessageAvailable && !closed) {
+                    queueCondition.await(1, TimeUnit.SECONDS);
+                }
+                isMessageAvailable = false;
+            } catch (InterruptedException e) {
+                LOG.debug("threadRunLoop interrupted", e);
+            } finally {
+                queueLock.unlock();
+            }
+        }
     }
 }

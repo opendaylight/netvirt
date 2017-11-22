@@ -10,11 +10,14 @@ package org.opendaylight.netvirt.ipv6service;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualRouter;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualSubnet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VirtualRouter  {
+public class VirtualRouter implements IVirtualRouter  {
 
     private Uuid routerUUID;
     private Uuid tenantID;
@@ -30,6 +33,7 @@ public class VirtualRouter  {
     public VirtualRouter() {
     }
 
+    @Override
     public Uuid getRouterUUID() {
         return routerUUID;
     }
@@ -39,15 +43,17 @@ public class VirtualRouter  {
         return this;
     }
 
+    @Override
     public String getName() {
         return name;
     }
 
-    public VirtualRouter setName(String name) {
+    public IVirtualRouter setName(String name) {
         this.name = name;
         return this;
     }
 
+    @Override
     public Uuid getTenantID() {
         return tenantID;
     }
@@ -61,7 +67,7 @@ public class VirtualRouter  {
         subnets.put(snet.getSubnetUUID(), snet);
     }
 
-    public void removeSubnet(VirtualSubnet snet) {
+    public void removeSubnet(IVirtualSubnet snet) {
         subnets.remove(snet.getSubnetUUID());
     }
 
@@ -69,7 +75,7 @@ public class VirtualRouter  {
         interfaces.put(intf.getIntfUUID(), intf);
     }
 
-    public void removeInterface(VirtualPort intf) {
+    public void removeInterface(IVirtualPort intf) {
         interfaces.remove(intf.getIntfUUID());
     }
 

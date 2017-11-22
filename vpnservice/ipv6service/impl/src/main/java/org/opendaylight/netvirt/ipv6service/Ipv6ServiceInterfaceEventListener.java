@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class Ipv6ServiceInterfaceEventListener
         extends AsyncDataTreeChangeListenerBase<Interface, Ipv6ServiceInterfaceEventListener>
-        implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
+        implements ClusteredDataTreeChangeListener<Interface>  {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceInterfaceEventListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
@@ -41,10 +41,10 @@ public class Ipv6ServiceInterfaceEventListener
      * @param broker the data broker instance.
      */
     @Inject
-    public Ipv6ServiceInterfaceEventListener(DataBroker broker) {
+    public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
         this.dataBroker = broker;
-        ifMgr = IfMgr.getIfMgrInstance();
+        this.ifMgr = ifMgr;
     }
 
     @Override
@@ -73,7 +73,7 @@ public class Ipv6ServiceInterfaceEventListener
 
     private boolean isNeutronPort(String name) {
         try {
-            Uuid portId = new Uuid(name);
+            new Uuid(name);
             return true;
         } catch (IllegalArgumentException e) {
             LOG.debug("Port {} is not a Neutron Port, skipping.", name);
