@@ -307,7 +307,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
 
         ManagerListener(Class<Managers> clazz, Class<ManagerListener> eventClazz) {
             super(clazz, eventClazz);
-            registerListener(LogicalDatastoreType.OPERATIONAL, db);
+            registerListener(LogicalDatastoreType.OPERATIONAL, getDataBroker());
         }
 
         @Override
@@ -341,7 +341,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener implements DataTree
                 String newHAID = getHaId(newData);
                 if (!Strings.isNullOrEmpty(newHAID)) {
                     InstanceIdentifier<Node> nodeIid = instanceIdentifier.firstIdentifierOf(Node.class);
-                    ReadWriteTransaction tx = db.newReadWriteTransaction();
+                    ReadWriteTransaction tx = getDataBroker().newReadWriteTransaction();
                     try {
                         Node node = tx.read(LogicalDatastoreType.OPERATIONAL, nodeIid).checkedGet().get();
                         HAOpClusteredListener.addToCacheIfHAChildNode(nodeIid, node);
