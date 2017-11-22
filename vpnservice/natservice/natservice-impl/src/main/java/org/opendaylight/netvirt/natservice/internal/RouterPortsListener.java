@@ -30,8 +30,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class RouterPortsListener
-    extends AsyncDataTreeChangeListenerBase<RouterPorts, RouterPortsListener>
-    implements AutoCloseable {
+    extends AsyncDataTreeChangeListenerBase<RouterPorts, RouterPortsListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterPortsListener.class);
     private final DataBroker dataBroker;

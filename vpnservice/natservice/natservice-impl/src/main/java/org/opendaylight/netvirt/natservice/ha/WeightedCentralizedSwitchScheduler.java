@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -192,9 +192,11 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     private BigInteger getSwitchWithLowestWeight() {
         int lowestWeight = Integer.MAX_VALUE;
         BigInteger nextSwitchId = BigInteger.valueOf(0);
-        for (BigInteger dpnId : switchWeightsMap.keySet()) {
-            if (lowestWeight > switchWeightsMap.get(dpnId)) {
-                lowestWeight = switchWeightsMap.get(dpnId);
+        for (Entry<BigInteger, Integer> entry : switchWeightsMap.entrySet()) {
+            BigInteger dpnId = entry.getKey();
+            Integer weight = entry.getValue();
+            if (lowestWeight > weight) {
+                lowestWeight = weight;
                 nextSwitchId =  dpnId;
             }
         }

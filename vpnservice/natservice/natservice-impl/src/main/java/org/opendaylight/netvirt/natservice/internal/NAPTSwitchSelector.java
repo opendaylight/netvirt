@@ -43,7 +43,7 @@ public class NAPTSwitchSelector {
         LOG.info("selectNewNAPTSwitch : Select a new NAPT switch for router {}", routerName);
         Map<BigInteger, Integer> naptSwitchWeights = constructNAPTSwitches();
         List<BigInteger> routerSwitches = getDpnsForVpn(routerName);
-        if (routerSwitches == null || routerSwitches.isEmpty()) {
+        if (routerSwitches.isEmpty()) {
             LOG.warn("selectNewNAPTSwitch : Delaying NAPT switch selection due to no dpns scenario for router {}",
                     routerName);
             return BigInteger.ZERO;
@@ -135,6 +135,7 @@ public class NAPTSwitchSelector {
             .child(RouterToNaptSwitch.class, new RouterToNaptSwitchKey(routerName)).build();
     }
 
+    @Nonnull
     public List<BigInteger> getDpnsForVpn(String routerName) {
         LOG.debug("getDpnsForVpn: called for RouterName {}", routerName);
         long bgpVpnId = NatUtil.getBgpVpnId(dataBroker, routerName);
@@ -146,7 +147,7 @@ public class NAPTSwitchSelector {
     }
 
     private static class SwitchWeight implements Comparable<SwitchWeight> {
-        private BigInteger swich;
+        private final BigInteger swich;
         private int weight;
 
         SwitchWeight(BigInteger swich, int weight) {
@@ -158,7 +159,7 @@ public class NAPTSwitchSelector {
         public int hashCode() {
             final int prime = 31;
             int result = 1;
-            result = prime * result + ((swich == null) ? 0 : swich.hashCode());
+            result = prime * result + (swich == null ? 0 : swich.hashCode());
             return result;
         }
 

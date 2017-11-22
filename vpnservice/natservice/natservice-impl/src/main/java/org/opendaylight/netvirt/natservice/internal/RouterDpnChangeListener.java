@@ -42,17 +42,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.r
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
 public class RouterDpnChangeListener
-        extends AsyncDataTreeChangeListenerBase<DpnVpninterfacesList, RouterDpnChangeListener>
-        implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<DpnVpninterfacesList, RouterDpnChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(RouterDpnChangeListener.class);
     private final DataBroker dataBroker;
@@ -367,11 +363,6 @@ public class RouterDpnChangeListener
                 //installing group
                 List<BucketInfo> bucketInfo = naptSwitchHA.handleGroupInNeighborSwitches(dpnId,
                         routerName, routerId, naptSwitch);
-                if (bucketInfo == null) {
-                    LOG.error("handleSNATForDPN:Failed to populate bucketInfo for dpnId {},routername {},naptSwitch {}",
-                            dpnId, routerName, naptSwitch);
-                    return;
-                }
                 naptSwitchHA.installSnatGroupEntry(dpnId, bucketInfo, routerName);
 
                 // Install miss entry (table 26) pointing to group
@@ -509,10 +500,5 @@ public class RouterDpnChangeListener
                 LOG.debug("installDefaultNatRouteForRouterExternalSubnets : No vpnID for subnet {} found", subnetId);
             }
         }
-    }
-
-    private InstanceIdentifier<Subnetmap> getSubnetMapIdentifier(Uuid subnetId) {
-        return InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
-                new SubnetmapKey(subnetId)).build();
     }
 }

@@ -43,6 +43,8 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMplsLabel;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
@@ -264,7 +266,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             }
 
             @Override
-            public void onSuccess(RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<Void> result) {
                 if (result.isSuccessful()) {
                     LOG.info("onAddFloatingIp : Successfully installed custom FIB routes for prefix {}", externalIp);
                 } else {
@@ -304,13 +306,15 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
                     + "router {} to remove floatingIp {}", floatingIpId, routerUuid, externalIp);
             return;
         }
-        txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
             String networkVpnName =  NatUtil.getAssociatedVPN(dataBroker, networkId);
             vpnManager.removeSubnetMacFromVpnInstance(networkVpnName, subnetId.getValue(), floatingIpPortMacAddress,
                     dpnId, tx);
             vpnManager.removeArpResponderFlowsToExternalNetworkIps(routerUuid, Collections.singletonList(externalIp),
                     floatingIpPortMacAddress, dpnId, networkId, tx);
-        });
+        }), LOG, "onRemoveFloatingIp");
+
         removeFromFloatingIpPortInfo(floatingIpId);
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerUuid, networkId);
         if (provType == null) {
@@ -379,7 +383,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             }
 
             @Override
-            public void onSuccess(RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<Void> result) {
                 if (result.isSuccessful()) {
                     LOG.debug("onRemoveFloatingIp : Successfully removed the label for the prefix {} from VPN {}",
                             externalIp, vpnName);
@@ -506,7 +510,8 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
             SendArpRequestInput sendArpRequestInput = new SendArpRequestInputBuilder().setIpaddress(floatingIpAddress)
                 .setInterfaceAddress(interfaceAddresses).build();
-            arpUtilService.sendArpRequest(sendArpRequestInput);
+
+            JdkFutures.addErrorLogging(arpUtilService.sendArpRequest(sendArpRequestInput), LOG, "sendArpRequest");
             NatServiceCounters.garp_sent.inc();
         } catch (Exception e) {
             LOG.error("sendGarpOnInterface : Failed to send GARP request for floating ip {} from interface {}",
