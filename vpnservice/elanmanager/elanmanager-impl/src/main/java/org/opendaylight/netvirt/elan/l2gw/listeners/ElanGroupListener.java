@@ -164,6 +164,3 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         return this;
     }
 }
-
-
-
