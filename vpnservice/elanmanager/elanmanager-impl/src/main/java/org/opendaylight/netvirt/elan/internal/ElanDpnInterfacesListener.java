@@ -65,10 +65,10 @@ public class ElanDpnInterfacesListener
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
         ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
 
-        if (!elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
+        if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
             List<String> interfaces = update.getInterfaces();
             // trigger deletion for vlan provider intf on the DPN for the vlan provider network
-            if ((interfaces.size() == 1) && interfaceManager.isExternalInterface(interfaces.get(0))) {
+            if (interfaces.size() == 1 && interfaceManager.isExternalInterface(interfaces.get(0))) {
                 LOG.debug("deleting vlan prv intf for elan {}, dpn {}", elanInstanceName, dpnId);
                 DataStoreJobCoordinator.getInstance().enqueueJob(dpnId.toString(), () -> {
                     elanService.deleteExternalElanNetwork(elanInstance, dpnId);

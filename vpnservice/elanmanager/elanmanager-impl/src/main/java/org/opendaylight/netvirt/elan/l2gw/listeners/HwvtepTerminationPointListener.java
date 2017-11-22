@@ -17,6 +17,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -54,8 +55,7 @@ import org.slf4j.LoggerFactory;
  * Listener for physical locator presence in operational datastore.
  */
 public class HwvtepTerminationPointListener
-        extends HwvtepClusteredDataTreeChangeListener<TerminationPoint, HwvtepTerminationPointListener>
-        implements AutoCloseable {
+        extends HwvtepClusteredDataTreeChangeListener<TerminationPoint, HwvtepTerminationPointListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
 
@@ -186,7 +186,7 @@ public class HwvtepTerminationPointListener
         Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid),
                 new SettableFutureCallback(settableFuture) {
                     @Override
-                    public void onSuccess(Object resultNode) {
+                    public void onSuccess(@Nonnull Object resultNode) {
                         Optional<Node> nodeOptional = (Optional<Node>) resultNode;
                         if (nodeOptional.isPresent()) {
                             //case of port deleted
