@@ -5,15 +5,15 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.elan.internal;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -22,11 +22,12 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.RetryingManagedNewTransactionRunner;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -50,6 +51,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceManager.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
     private final ElanInterfaceManager elanInterfaceManager;
@@ -61,6 +63,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                                final IInterfaceManager interfaceManager, final JobCoordinator jobCoordinator) {
         super(ElanInstance.class, ElanInstanceManager.class);
         this.broker = dataBroker;
+        this.txRunner = new RetryingManagedNewTransactionRunner(dataBroker);
         this.idManager = managerService;
         this.elanInterfaceManager = elanInterfaceManager;
         this.interfaceManager = interfaceManager;
@@ -114,7 +117,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                 elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
                 ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
                 LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
-                return Collections.singletonList(writeConfigTxn.submit());
+                return singletonList(writeConfigTxn.submit());
             }, ElanConstants.JOB_MAX_RETRIES);
         });
         // Release tag
@@ -137,27 +140,21 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     @Override
     protected void update(InstanceIdentifier<ElanInstance> identifier, ElanInstance original, ElanInstance update) {
         Long existingElanTag = original.getElanTag();
-        String elanName = update.getElanInstanceName();
         if (existingElanTag != null && existingElanTag.equals(update.getElanTag())) {
             return;
         } else if (update.getElanTag() == null) {
             // update the elan-Instance with new properties
-            WriteTransaction tx = broker.newWriteOnlyTransaction();
-            ElanUtils.updateOperationalDataStore(broker, idManager,
-                    update, new ArrayList<>(), tx);
-            ElanUtils.waitForTransactionToComplete(tx);
+            try {
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    ElanUtils.updateOperationalDataStore(idManager, update, new ArrayList<>(), tx);
+                }).get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error writing to datastore", e);
+            }
             return;
         }
 
-        jobCoordinator.enqueueJob(elanName, () -> {
-            try {
-                return elanInterfaceManager.handleunprocessedElanInterfaces(update);
-            } catch (ElanException e) {
-                LOG.error("update() failed for ElanInstance: " + identifier.toString(), e);
-                return emptyList();
-            }
-        }, ElanConstants.JOB_MAX_RETRIES);
-
+        elanInterfaceManager.handleunprocessedElanInterfaces(update);
     }
 
     @Override
@@ -165,10 +162,13 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         String elanInstanceName  = elanInstanceAdded.getElanInstanceName();
         Elan elanInfo = ElanUtils.getElanByName(broker, elanInstanceName);
         if (elanInfo == null) {
-            WriteTransaction tx = broker.newWriteOnlyTransaction();
-            ElanUtils.updateOperationalDataStore(broker, idManager,
-                elanInstanceAdded, new ArrayList<>(), tx);
-            ElanUtils.waitForTransactionToComplete(tx);
+            try {
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    ElanUtils.updateOperationalDataStore(idManager, elanInstanceAdded, new ArrayList<>(), tx);
+                }).get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("Error writing to datastore", e);
+            }
         }
     }
 
