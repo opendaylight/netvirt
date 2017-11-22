@@ -67,13 +67,9 @@ public class HwvtepPhysicalSwitchListener
 
     private final EntityOwnershipUtils entityOwnershipUtils;
 
-    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
-
     private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
     protected final L2gwServiceProvider l2gwServiceProvider;
-
-    private final L2GatewayUtils l2GatewayUtils;
 
     static BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> DEVICE_NOT_CACHED_OR_PARENT_CONNECTED =
         (l2GatewayDevice, globalIid) -> {
@@ -125,28 +121,16 @@ public class HwvtepPhysicalSwitchListener
 
     /**
      * Instantiates a new hwvtep physical switch listener.
-     *
-     * @param dataBroker
-     *            the data broker
-     * @param itmRpcService itm rpc
-     * @param entityOwnershipUtils entity ownership utils
-     * @param l2GatewayConnectionUtils l2gw connection utils
-     * @param l2gwServiceProvider l2gw service Provider
-     * @param l2GatewayUtils utils
-     * @param haListener HA Op node listners
      */
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
                                         EntityOwnershipUtils entityOwnershipUtils,
-                                        L2GatewayConnectionUtils l2GatewayConnectionUtils,
                                         L2gwServiceProvider l2gwServiceProvider,
-                                        L2GatewayUtils l2GatewayUtils, HAOpClusteredListener haListener) {
+                                        HAOpClusteredListener haListener) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipUtils = entityOwnershipUtils;
-        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
-        this.l2GatewayUtils = l2GatewayUtils;
         this.haOpClusteredListener = haListener;
     }
 

@@ -86,6 +86,7 @@ public class HAListeners implements AutoCloseable {
             super(broker, clazz, eventClazz, mergeCommand, datastoreType);
         }
 
+        @Override
         protected InstanceIdentifier<T> getWildCardPath() {
             return InstanceIdentifier.create(NetworkTopology.class)
                     .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))

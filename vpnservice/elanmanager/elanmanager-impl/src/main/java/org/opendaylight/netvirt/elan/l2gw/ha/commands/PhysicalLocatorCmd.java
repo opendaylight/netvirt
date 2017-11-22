@@ -14,12 +14,10 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.slf4j.LoggerFactory;
 
 public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuilder, Node> {
 
     public PhysicalLocatorCmd() {
-        LOG = LoggerFactory.getLogger(PhysicalLocatorCmd.class);
     }
 
     @Override
@@ -62,7 +60,7 @@ public class PhysicalLocatorCmd extends MergeCommand<TerminationPoint, NodeBuild
         HwvtepPhysicalLocatorAugmentation origPhysicalLocator =
                 orig.getAugmentation(HwvtepPhysicalLocatorAugmentation.class);
         return updatedPhysicalLocator.getDstIp().equals(origPhysicalLocator.getDstIp())
-                && (updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType());
+                && updatedPhysicalLocator.getEncapsulationType() == origPhysicalLocator.getEncapsulationType();
     }
 
     @Override

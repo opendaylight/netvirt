@@ -52,7 +52,7 @@ public class EtreeGet extends OsgiCommandSupport {
                 session.getConsole().println(getEtreeHeaderOutput());
                 for (ElanInstance elanInstance : elanInstanceList) {
                     if (elanInstance.getAugmentation(EtreeInstance.class) != null) {
-                        session.getConsole().println(String.format(ElanCLIUtils.ETREE_CLI_FORMAT,
+                        session.getConsole().println(String.format(ElanCLIUtils.ETREE_INTERFACE_CLI_FORMAT,
                                 elanInstance.getElanInstanceName(), elanInstance.getMacTimeout(),
                                 elanInstance.getElanTag(),
                                 elanInstance.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue(),
