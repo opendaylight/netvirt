@@ -44,12 +44,7 @@ public final class ElanL2GwCacheUtils {
         ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>> cachedMap =
                 (ConcurrentMap<String, ConcurrentMap<String, L2GatewayDevice>>) CacheUtil.getCache(
                         ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-        for (String elanName : cachedMap.keySet()) {
-            ConcurrentMap<String, L2GatewayDevice> deviceMap = cachedMap.get(elanName);
-            if (deviceMap != null) {
-                deviceMap.remove(deviceName);
-            }
-        }
+        cachedMap.values().forEach(deviceMap -> deviceMap.remove(deviceName));
     }
 
 

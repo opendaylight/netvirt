@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanInterfaceStateChangeListener
-        extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceStateChangeListener.class);
 

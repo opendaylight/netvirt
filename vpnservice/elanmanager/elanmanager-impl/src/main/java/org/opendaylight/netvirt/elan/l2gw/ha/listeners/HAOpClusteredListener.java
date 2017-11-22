@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -17,18 +16,15 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,9 +32,6 @@ import org.slf4j.LoggerFactory;
 public class HAOpClusteredListener extends HwvtepNodeBaseListener implements ClusteredDataTreeChangeListener<Node> {
     private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
-    private static DataBroker dataBroker;
-    private ListenerRegistration<HAOpClusteredListener> registration;
     private final Set<InstanceIdentifier<Node>> connectedNodes = ConcurrentHashMap.newKeySet();
     private final Map<InstanceIdentifier<Node>, Set<Consumer<Optional<Node>>>> waitingJobs = new ConcurrentHashMap<>();
 
@@ -179,7 +172,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
 
     public synchronized void runAfterNodeIsConnected(InstanceIdentifier<Node> iid, Consumer<Optional<Node>> consumer) {
         if (connectedNodes.contains(iid)) {
-            ReadWriteTransaction tx = db.newReadWriteTransaction();
+            ReadWriteTransaction tx = getDataBroker().newReadWriteTransaction();
             HAJobScheduler.getInstance().submitJob(() -> {
                 try {
                     consumer.accept(tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet());
