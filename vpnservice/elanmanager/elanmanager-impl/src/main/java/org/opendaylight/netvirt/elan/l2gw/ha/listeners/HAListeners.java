@@ -33,16 +33,16 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
-import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class HAListeners implements AutoCloseable {
-
-    private final DataBroker broker;
-    private final List<HwvtepNodeDataListener> listeners = new ArrayList<>();
-    private final InstanceIdentifier physicalPortIid = InstanceIdentifier.create(NetworkTopology.class)
+    private static final InstanceIdentifier<TerminationPoint> PHYSICAL_PORT_IID =
+        InstanceIdentifier.create(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
             .child(Node.class).child(TerminationPoint.class);
+
+    private final DataBroker broker;
+    private final List<HwvtepNodeDataListener<?>> listeners = new ArrayList<>();
 
     public HAListeners(DataBroker broker) {
         this.broker = broker;
@@ -53,9 +53,9 @@ public class HAListeners implements AutoCloseable {
         registerListener(LogicalSwitches.class, new LogicalSwitchesCmd());
 
         PhysicalLocatorCmd physicalLocatorCmd = new PhysicalLocatorCmd();
-        listeners.add(new PhysicalLocatorListener(broker, PhysicalLocatorListener.class, physicalLocatorCmd,
+        listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
                 ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY));
-        listeners.add(new PhysicalLocatorListener(broker, PhysicalLocatorListener.class, physicalLocatorCmd,
+        listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
                 ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
     }
 
@@ -77,15 +77,16 @@ public class HAListeners implements AutoCloseable {
                 ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
     }
 
-    class GlobalAugmentationListener<T extends DataObject
-            & ChildOf<HwvtepGlobalAttributes> & Identifiable> extends HwvtepNodeDataListener<T> {
+    private static class GlobalAugmentationListener<T extends DataObject
+            & ChildOf<HwvtepGlobalAttributes>> extends HwvtepNodeDataListener<T> {
 
-        GlobalAugmentationListener(DataBroker broker, Class<T> clazz, Class eventClazz,
+        GlobalAugmentationListener(DataBroker broker, Class<T> clazz, Class<HwvtepNodeDataListener<T>> eventClazz,
                                    MergeCommand mergeCommand,
                                    ResourceBatchingManager.ShardResource datastoreType) {
             super(broker, clazz, eventClazz, mergeCommand, datastoreType);
         }
 
+        @Override
         protected InstanceIdentifier<T> getWildCardPath() {
             return InstanceIdentifier.create(NetworkTopology.class)
                     .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
@@ -93,16 +94,16 @@ public class HAListeners implements AutoCloseable {
         }
     }
 
-    class PhysicalLocatorListener extends HwvtepNodeDataListener<TerminationPoint> {
+    private static class PhysicalLocatorListener extends HwvtepNodeDataListener<TerminationPoint> {
 
-        PhysicalLocatorListener(DataBroker broker, Class eventClazz,
+        PhysicalLocatorListener(DataBroker broker,
                                 MergeCommand mergeCommand, ResourceBatchingManager.ShardResource datastoreType) {
-            super(broker, TerminationPoint.class, eventClazz, mergeCommand, datastoreType);
+            super(broker, TerminationPoint.class, (Class)PhysicalLocatorListener.class, mergeCommand, datastoreType);
         }
 
         @Override
         protected InstanceIdentifier getWildCardPath() {
-            return physicalPortIid;
+            return PHYSICAL_PORT_IID;
         }
 
         @Override
