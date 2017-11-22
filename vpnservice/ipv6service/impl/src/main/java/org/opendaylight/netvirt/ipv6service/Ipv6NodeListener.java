@@ -34,8 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class Ipv6NodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, Ipv6NodeListener>
-        implements AutoCloseable {
+public class Ipv6NodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, Ipv6NodeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NodeListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtil;

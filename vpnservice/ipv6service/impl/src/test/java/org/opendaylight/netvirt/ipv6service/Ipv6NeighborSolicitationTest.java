@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.ipv6service;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -30,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.Pa
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.TransmitPacketInputBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 public class Ipv6NeighborSolicitationTest {
     private Ipv6NeighborSolicitation instance;
@@ -48,7 +50,10 @@ public class Ipv6NeighborSolicitationTest {
      *  Test transmitNeighborSolicitation.
      */
     @Test
-    public void testtransmitNeighborSolicitation() {
+    public void testTransmitNeighborSolicitation() {
+        doReturn(RpcResultBuilder.status(true).buildFuture()).when(pktProcessService)
+            .transmitPacket(any(TransmitPacketInput.class));
+
         BigInteger dpnId = BigInteger.valueOf(1);
         String macAddr = "08:00:27:FE:8F:95";
         boolean retValue;

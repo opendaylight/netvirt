@@ -12,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
@@ -22,8 +23,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.EthernetHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterAdvertisementPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.RouterSolicitationPacket;
@@ -39,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class Ipv6RouterAdvt {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
     private static PacketProcessingService pktService;
-    private Ipv6ServiceUtils ipv6Utils;
+    private final Ipv6ServiceUtils ipv6Utils;
 
     public Ipv6RouterAdvt() {
         ipv6Utils = Ipv6ServiceUtils.getInstance();
@@ -65,7 +64,7 @@ public class Ipv6RouterAdvt {
                     .setNode(new NodeRef(outNode))
                     .setEgress(outport).build();
             LOG.debug("Transmitting the Router Advt packet out {}", outport);
-            pktService.transmitPacket(input);
+            JdkFutures.addErrorLogging(pktService.transmitPacket(input), LOG, "transmitPacket");
         }
         return true;
     }
@@ -97,9 +96,9 @@ public class Ipv6RouterAdvt {
             }
 
             if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6Constants.IPV6_DHCPV6_STATELESS)) {
-                icmpv6RaFlags = (short) (icmpv6RaFlags | (1 << 6)); // Other Configuration.
+                icmpv6RaFlags = (short) (icmpv6RaFlags | 1 << 6); // Other Configuration.
             } else if (subnet.getIpv6RAMode().equalsIgnoreCase(Ipv6Constants.IPV6_DHCPV6_STATEFUL)) {
-                icmpv6RaFlags = (short) (icmpv6RaFlags | (1 << 7)); // Managed Address Conf.
+                icmpv6RaFlags = (short) (icmpv6RaFlags | 1 << 7); // Managed Address Conf.
             }
         }
 
@@ -133,7 +132,7 @@ public class Ipv6RouterAdvt {
         raPacket.setIcmp6Chksum(0);
 
         raPacket.setCurHopLimit((short) Ipv6Constants.IPV6_DEFAULT_HOP_LIMIT);
-        raPacket.setFlags((short) icmpv6RaFlags);
+        raPacket.setFlags(icmpv6RaFlags);
 
         if (raType == Ipv6RtrAdvertType.CEASE_ADVERTISEMENT) {
             raPacket.setRouterLifetime(0);
@@ -158,23 +157,23 @@ public class Ipv6RouterAdvt {
         prefix.setReserved((long) 0);
 
         short autoConfPrefixFlags = 0;
-        autoConfPrefixFlags = (short) (autoConfPrefixFlags | (1 << 7)); // On-link flag
-        autoConfPrefixFlags = (short) (autoConfPrefixFlags | (1 << 6)); // Autonomous address-configuration flag.
+        autoConfPrefixFlags = (short) (autoConfPrefixFlags | 1 << 7); // On-link flag
+        autoConfPrefixFlags = (short) (autoConfPrefixFlags | 1 << 6); // Autonomous address-configuration flag.
         for (String v6Prefix : autoConfigPrefixList) {
-            prefix.setFlags((short)autoConfPrefixFlags);
+            prefix.setFlags(autoConfPrefixFlags);
             prefix.setPrefix(new Ipv6Prefix(v6Prefix));
             prefixList.add(prefix.build());
         }
 
         short statefulPrefixFlags = 0;
-        statefulPrefixFlags = (short) (statefulPrefixFlags | (1 << 7)); // On-link flag
+        statefulPrefixFlags = (short) (statefulPrefixFlags | 1 << 7); // On-link flag
         for (String v6Prefix : statefulConfigPrefixList) {
-            prefix.setFlags((short)statefulPrefixFlags);
+            prefix.setFlags(statefulPrefixFlags);
             prefix.setPrefix(new Ipv6Prefix(v6Prefix));
             prefixList.add(prefix.build());
         }
 
-        raPacket.setPrefixList((List<PrefixList>) prefixList);
+        raPacket.setPrefixList(prefixList);
 
         return;
     }
@@ -182,12 +181,12 @@ public class Ipv6RouterAdvt {
     private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
         ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-        buf.put(ipv6Utils.convertEthernetHeaderToByte((EthernetHeader)pdu), 0, 14);
-        buf.put(ipv6Utils.convertIpv6HeaderToByte((Ipv6Header)pdu), 0, 40);
+        buf.put(ipv6Utils.convertEthernetHeaderToByte(pdu), 0, 14);
+        buf.put(ipv6Utils.convertIpv6HeaderToByte(pdu), 0, 40);
         buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-        int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), (Ipv6Header) pdu);
-        buf.putShort((Ipv6Constants.ICMPV6_OFFSET + 2), (short)checksum);
-        return (buf.array());
+        int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), pdu);
+        buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
+        return buf.array();
     }
 
     private byte[] icmp6RAPayloadtoByte(RouterAdvertisementPacket pdu) {
@@ -205,7 +204,7 @@ public class Ipv6RouterAdvt {
         buf.putInt((int)pdu.getRetransTime().longValue());
         buf.put((byte)pdu.getOptionSourceAddr().shortValue());
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
-        buf.put(ipv6Utils.bytesFromHexString(pdu.getSourceLlAddress().getValue().toString()));
+        buf.put(ipv6Utils.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
 
         for (PrefixList prefix : pdu.getPrefixList()) {
             buf.put((byte)prefix.getOptionType().shortValue());

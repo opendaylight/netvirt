@@ -18,4 +18,5 @@
 
   <odl:notification-listener ref="ipv6PktHandler" />
 
+  <service ref="ifMgr" interface="org.opendaylight.netvirt.ipv6service.api.ElementCache" />
 </blueprint>

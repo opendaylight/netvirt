@@ -28,16 +28,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, NeutronPortChangeListener>
-        implements AutoCloseable {
+public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, NeutronPortChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
 
     @Inject
-    public NeutronPortChangeListener(final DataBroker dataBroker) {
+    public NeutronPortChangeListener(final DataBroker dataBroker, IfMgr ifMgr) {
         this.dataBroker = dataBroker;
-        ifMgr = IfMgr.getIfMgrInstance();
+        this.ifMgr = ifMgr;
     }
 
     @Override

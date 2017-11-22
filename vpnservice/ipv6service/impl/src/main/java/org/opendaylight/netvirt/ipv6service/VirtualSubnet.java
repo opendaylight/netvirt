@@ -9,13 +9,16 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import java.util.HashMap;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualRouter;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualSubnet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VirtualSubnet  {
+public class VirtualSubnet implements IVirtualSubnet  {
 
     private Uuid subnetUUID;
     private Uuid tenantID;
@@ -51,10 +54,12 @@ public class VirtualSubnet  {
         return this;
     }
 
+    @Override
     public Uuid getSubnetUUID() {
         return subnetUUID;
     }
 
+    @Override
     public String getName() {
         return name;
     }
@@ -64,6 +69,7 @@ public class VirtualSubnet  {
         return this;
     }
 
+    @Override
     public Uuid getTenantID() {
         return tenantID;
     }
@@ -88,6 +94,7 @@ public class VirtualSubnet  {
         return this;
     }
 
+    @Override
     public String getIpVersion() {
         return ipVersion;
     }
@@ -97,6 +104,7 @@ public class VirtualSubnet  {
         return this;
     }
 
+    @Override
     public IpPrefix getSubnetCidr() {
         return subnetCidr;
     }
@@ -110,7 +118,7 @@ public class VirtualSubnet  {
         return ipv6AddressMode;
     }
 
-    public VirtualSubnet setIpv6RAMode(String ipv6RAMode) {
+    public IVirtualSubnet setIpv6RAMode(String ipv6RAMode) {
         this.ipv6RAMode = ipv6RAMode;
         return this;
     }
@@ -123,7 +131,7 @@ public class VirtualSubnet  {
         this.router = rtr;
     }
 
-    public VirtualRouter getRouter() {
+    public IVirtualRouter getRouter() {
         return router;
     }
 
@@ -131,7 +139,7 @@ public class VirtualSubnet  {
         interfaces.put(intf.getIntfUUID(), intf);
     }
 
-    public void removeInterface(VirtualPort intf) {
+    public void removeInterface(IVirtualPort intf) {
         interfaces.remove(intf.getIntfUUID());
     }
 

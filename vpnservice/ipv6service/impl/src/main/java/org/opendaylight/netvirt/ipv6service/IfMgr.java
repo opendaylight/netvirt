@@ -19,13 +19,21 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.ipv6service.api.ElementCache;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualRouter;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualSubnet;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
+import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTrQueue;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6TimerWheel;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -53,7 +61,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IfMgr {
+@Singleton
+public class IfMgr implements ElementCache {
     static final Logger LOG = LoggerFactory.getLogger(IfMgr.class);
 
     private final Map<Uuid, VirtualRouter> vrouters = new HashMap<>();
@@ -63,45 +72,23 @@ public class IfMgr {
     private final Map<Uuid, VirtualPort> vrouterv6IntfMap = new HashMap<>();
     private final Map<Uuid, List<VirtualPort>> unprocessedRouterIntfs = new HashMap<>();
     private final Map<Uuid, List<VirtualPort>> unprocessedSubnetIntfs = new HashMap<>();
-    private OdlInterfaceRpcService interfaceManagerRpc;
-    private IElanService elanProvider;
-    private IMdsalApiManager mdsalUtil;
+    private final OdlInterfaceRpcService interfaceManagerRpc;
+    private final IElanService elanProvider;
+    private final IMdsalApiManager mdsalUtil;
     private final Ipv6ServiceUtils ipv6ServiceUtils = new Ipv6ServiceUtils();
-    private DataBroker dataBroker;
+    private final DataBroker dataBroker;
+    private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(portId -> transmitUnsolicitedRA(portId));
 
-    private static IfMgr ifMgr;
-    private Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
+    private final Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
 
-    private IfMgr() {
-        LOG.info("IfMgr is enabled");
-    }
-
-    public static IfMgr getIfMgrInstance() {
-        if (ifMgr == null) {
-            ifMgr = new IfMgr();
-        }
-        return ifMgr;
-    }
-
-    public static void setIfMgrInstance(IfMgr ifMgr) {
-        IfMgr.ifMgr = ifMgr;
-    }
-
-    public void setElanProvider(IElanService elanProvider) {
-        this.elanProvider = elanProvider;
-    }
-
-    public void setDataBroker(DataBroker dataBroker) {
+    @Inject
+    public IfMgr(DataBroker dataBroker, IElanService elanProvider, OdlInterfaceRpcService interfaceManagerRpc,
+            IMdsalApiManager mdsalUtil) {
         this.dataBroker = dataBroker;
-    }
-
-    public void setMdsalUtilManager(IMdsalApiManager mdsalUtil) {
-        this.mdsalUtil = mdsalUtil;
-    }
-
-    public void setInterfaceManagerRpc(OdlInterfaceRpcService interfaceManagerRpc) {
-        LOG.trace("Registered interfaceManager successfully");
+        this.elanProvider = elanProvider;
         this.interfaceManagerRpc = interfaceManagerRpc;
+        this.mdsalUtil = mdsalUtil;
+        LOG.info("IfMgr is enabled");
     }
 
     /**
@@ -250,7 +237,7 @@ public class IfMgr {
                     .setMacAddress(macAddress)
                     .setRouterIntfFlag(true)
                     .setDeviceOwner(deviceOwner);
-            intf.setPeriodicTimer();
+            intf.setPeriodicTimer(ipv6Queue);
             newIntf = true;
             MacAddress ifaceMac = MacAddress.getDefaultInstance(macAddress);
             Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
@@ -373,7 +360,7 @@ public class IfMgr {
             Long elanTag = getNetworkElanTag(networkId);
             // Do service binding for the port and set the serviceBindingStatus to true.
             ipv6ServiceUtils.bindIpv6Service(dataBroker, portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-            intf.setServiceBindingStatus(Boolean.TRUE);
+            intf.setServiceBindingStatus(true);
 
             /* Update the intf dpnId/ofPort from the Operational Store */
             updateInterfaceDpidOfPortInfo(portId);
@@ -410,16 +397,16 @@ public class IfMgr {
          if required.
           */
         if (portIncludesV6Address) {
-            if (intf.getServiceBindingStatus() == Boolean.FALSE) {
+            if (!intf.getServiceBindingStatus()) {
                 Long elanTag = getNetworkElanTag(intf.getNetworkID());
                 LOG.info("In updateHostIntf, service binding for portId {}", portId);
                 ipv6ServiceUtils.bindIpv6Service(dataBroker, portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
-                intf.setServiceBindingStatus(Boolean.TRUE);
+                intf.setServiceBindingStatus(true);
             }
         } else {
             LOG.info("In updateHostIntf, removing service binding for portId {}", portId);
             ipv6ServiceUtils.unbindIpv6Service(dataBroker, portId.getValue());
-            intf.setServiceBindingStatus(Boolean.FALSE);
+            intf.setServiceBindingStatus(true);
         }
     }
 
@@ -463,7 +450,6 @@ public class IfMgr {
             intf.removeSelf();
             if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
                 LOG.info("In removePort for router interface, portId {}", portId);
-                MacAddress ifaceMac = MacAddress.getDefaultInstance(intf.getMacAddress());
                 vrouterv6IntfMap.remove(intf.getNetworkID(), intf);
                 /* Router port is deleted. Remove the corresponding icmpv6 punt flows on all
                 the dpnIds which were hosting the VMs on the network.
@@ -506,7 +492,7 @@ public class IfMgr {
 
     public VirtualPort getRouterV6InterfaceForNetwork(Uuid networkId) {
         LOG.debug("obtaining the virtual interface for {}", networkId);
-        return (vrouterv6IntfMap.get(networkId));
+        return vrouterv6IntfMap.get(networkId);
     }
 
     public VirtualPort obtainV6Interface(Uuid id) {
@@ -522,7 +508,7 @@ public class IfMgr {
         return null;
     }
 
-    private void programIcmpv6RSPuntFlows(VirtualPort routerPort, int action) {
+    private void programIcmpv6RSPuntFlows(IVirtualPort routerPort, int action) {
         Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
         int flowStatus;
         VirtualNetwork vnet = vnetworks.get(routerPort.getNetworkID());
@@ -543,7 +529,7 @@ public class IfMgr {
         }
     }
 
-    private void programIcmpv6NSPuntFlowForAddress(VirtualPort routerPort, Ipv6Address ipv6Address, int action) {
+    private void programIcmpv6NSPuntFlowForAddress(IVirtualPort routerPort, Ipv6Address ipv6Address, int action) {
         Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
         VirtualNetwork vnet = vnetworks.get(routerPort.getNetworkID());
         if (vnet != null) {
@@ -563,7 +549,7 @@ public class IfMgr {
     }
 
     public void programIcmpv6PuntFlowsIfNecessary(Uuid vmPortId, BigInteger dpId, VirtualPort routerPort) {
-        VirtualPort vmPort = vintfs.get(vmPortId);
+        IVirtualPort vmPort = vintfs.get(vmPortId);
         if (null != vmPort) {
             VirtualNetwork vnet = vnetworks.get(vmPort.getNetworkID());
             if (null != vnet) {
@@ -621,7 +607,7 @@ public class IfMgr {
 
     public Long getNetworkElanTag(Uuid networkId) {
         Long elanTag = null;
-        VirtualNetwork net = vnetworks.get(networkId);
+        IVirtualNetwork net = vnetworks.get(networkId);
         if (null != net) {
             elanTag = net.getElanTag();
             if (null == elanTag) {
@@ -697,32 +683,36 @@ public class IfMgr {
                    Ipv6Constants.PERIODIC_RA_INTERVAL);
     }
 
-    public List<VirtualPort> getInterfaceCache() {
-        List<VirtualPort> virtualPorts = new ArrayList<>();
+    @Override
+    public List<IVirtualPort> getInterfaceCache() {
+        List<IVirtualPort> virtualPorts = new ArrayList<>();
         for (VirtualPort vport: vintfs.values()) {
             virtualPorts.add(vport);
         }
         return virtualPorts;
     }
 
-    public List<VirtualNetwork> getNetworkCache() {
-        List<VirtualNetwork> virtualNetworks = new ArrayList<>();
+    @Override
+    public List<IVirtualNetwork> getNetworkCache() {
+        List<IVirtualNetwork> virtualNetworks = new ArrayList<>();
         for (VirtualNetwork vnet: vnetworks.values()) {
             virtualNetworks.add(vnet);
         }
         return virtualNetworks;
     }
 
-    public List<VirtualSubnet> getSubnetCache() {
-        List<VirtualSubnet> virtualSubnets = new ArrayList<>();
+    @Override
+    public List<IVirtualSubnet> getSubnetCache() {
+        List<IVirtualSubnet> virtualSubnets = new ArrayList<>();
         for (VirtualSubnet vsubnet: vsubnets.values()) {
             virtualSubnets.add(vsubnet);
         }
         return virtualSubnets;
     }
 
-    public List<VirtualRouter> getRouterCache() {
-        List<VirtualRouter> virtualRouter = new ArrayList<>();
+    @Override
+    public List<IVirtualRouter> getRouterCache() {
+        List<IVirtualRouter> virtualRouter = new ArrayList<>();
         for (VirtualRouter vrouter: vrouters.values()) {
             virtualRouter.add(vrouter);
         }

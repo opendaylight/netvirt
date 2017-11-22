@@ -13,14 +13,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
-public class VirtualNetwork {
-    Long elanTag;
+public class VirtualNetwork implements IVirtualNetwork {
+    private Long elanTag;
     private Uuid networkUUID;
-    private HashMap<BigInteger, DpnInterfaceInfo> dpnIfaceList;
+    private final HashMap<BigInteger, DpnInterfaceInfo> dpnIfaceList;
 
     public VirtualNetwork() {
         dpnIfaceList = new HashMap<>();
@@ -30,6 +31,7 @@ public class VirtualNetwork {
         this.networkUUID = networkUuid;
     }
 
+    @Override
     public Uuid getNetworkUuid() {
         return networkUUID;
     }
@@ -48,6 +50,7 @@ public class VirtualNetwork {
         }
     }
 
+    @Override
     public Long getElanTag() {
         return elanTag;
     }
@@ -56,6 +59,7 @@ public class VirtualNetwork {
         elanTag = etag;
     }
 
+    @Override
     public List<BigInteger> getDpnsHostingNetwork() {
         List<BigInteger> dpnList = new ArrayList<>();
         Collection<DpnInterfaceInfo> dpnCollection = dpnIfaceList.values();
@@ -110,7 +114,7 @@ public class VirtualNetwork {
         clearDpnInterfaceList();
     }
 
-    public class DpnInterfaceInfo {
+    public static class DpnInterfaceInfo {
         BigInteger dpId;
         int rsPuntFlowConfigured;
         List<Long> ofPortList;

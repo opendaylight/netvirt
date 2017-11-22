@@ -17,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class Ipv6ServiceInterfaceEventListener
         extends AsyncDataTreeChangeListenerBase<Interface, Ipv6ServiceInterfaceEventListener>
-        implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
+        implements ClusteredDataTreeChangeListener<Interface>  {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceInterfaceEventListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
@@ -41,10 +42,10 @@ public class Ipv6ServiceInterfaceEventListener
      * @param broker the data broker instance.
      */
     @Inject
-    public Ipv6ServiceInterfaceEventListener(DataBroker broker) {
+    public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
         this.dataBroker = broker;
-        ifMgr = IfMgr.getIfMgrInstance();
+        this.ifMgr = ifMgr;
     }
 
     @Override
@@ -73,7 +74,7 @@ public class Ipv6ServiceInterfaceEventListener
 
     private boolean isNeutronPort(String name) {
         try {
-            Uuid portId = new Uuid(name);
+            new Uuid(name);
             return true;
         } catch (IllegalArgumentException e) {
             LOG.debug("Port {} is not a Neutron Port, skipping.", name);
@@ -104,7 +105,7 @@ public class Ipv6ServiceInterfaceEventListener
 
             if (!dpId.equals(Ipv6Constants.INVALID_DPID)) {
                 Uuid portId = new Uuid(iface.getName());
-                VirtualPort port = ifMgr.obtainV6Interface(portId);
+                IVirtualPort port = ifMgr.obtainV6Interface(portId);
                 if (port == null) {
                     LOG.info("Port {} does not include IPv6Address, skipping.", portId);
                     return;

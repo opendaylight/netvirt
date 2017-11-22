@@ -22,6 +22,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.BitBufferHelper;
 import org.opendaylight.controller.liblldp.BufferException;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants.Ipv6RtrAdvertType;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
@@ -31,7 +33,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.EthernetHeader;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborAdvertisePacketBuilder;
@@ -58,9 +59,9 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
     @Inject
-    public Ipv6PktHandler(PacketProcessingService pktService) {
+    public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr) {
         this.pktService = pktService;
-        ifMgr = IfMgr.getIfMgrInstance();
+        this.ifMgr = ifMgr;
         this.ipv6Utils = Ipv6ServiceUtils.getInstance();
     }
 
@@ -84,13 +85,13 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                     Ipv6Constants.TWO_BYTES));
             if (ethType == Ipv6Constants.IP_V6_ETHTYPE) {
                 v6NxtHdr = BitBufferHelper.getByte(BitBufferHelper.getBits(data,
-                        (Ipv6Constants.IP_V6_HDR_START + Ipv6Constants.IP_V6_NEXT_HDR), Ipv6Constants.ONE_BYTE));
+                        Ipv6Constants.IP_V6_HDR_START + Ipv6Constants.IP_V6_NEXT_HDR, Ipv6Constants.ONE_BYTE));
                 if (v6NxtHdr == Ipv6Constants.ICMP_V6_TYPE) {
                     int icmpv6Type = BitBufferHelper.getInt(BitBufferHelper.getBits(data,
                             Ipv6Constants.ICMPV6_HDR_START, Ipv6Constants.ONE_BYTE));
-                    if ((icmpv6Type == Ipv6Constants.ICMP_V6_RS_CODE)
-                            || (icmpv6Type == Ipv6Constants.ICMP_V6_NS_CODE)) {
-                        packetProcessor.submit(new PacketHandler(icmpv6Type, packetReceived));
+                    if (icmpv6Type == Ipv6Constants.ICMP_V6_RS_CODE
+                            || icmpv6Type == Ipv6Constants.ICMP_V6_NS_CODE) {
+                        packetProcessor.execute(new PacketHandler(icmpv6Type, packetReceived));
                     }
                 } else {
                     LOG.debug("IPv6 Pdu received on port {} with next-header {} ",
@@ -143,17 +144,18 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
-            VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
+            IVirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
             if (port == null) {
                 pktProccessedCounter++;
-                LOG.warn("Port {} not found, skipping.", port);
+                LOG.warn("Port {} not found, skipping.", interfaceName);
                 return;
             }
 
             VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
             if (routerPort == null) {
                 pktProccessedCounter++;
-                LOG.warn("Port {} is not associated to a Router, skipping NS request.", routerPort);
+                LOG.warn("Port for network Id {} is not associated to a Router, skipping NS request.",
+                        port.getNetworkID());
                 return;
             }
 
@@ -176,7 +178,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             // Tx the packet out of the controller.
             if (pktService != null) {
                 LOG.debug("Transmitting the Neighbor Advt packet out on {}", packet.getIngress());
-                pktService.transmitPacket(input);
+                JdkFutures.addErrorLogging(pktService.transmitPacket(input), LOG, "transmitPacket");
                 pktProccessedCounter++;
             }
         }
@@ -229,7 +231,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         }
 
         private void updateNAResponse(NeighborSolicitationPacket pdu,
-                                      VirtualPort port, NeighborAdvertisePacketBuilder naPacket) {
+                                      IVirtualPort port, NeighborAdvertisePacketBuilder naPacket) {
             long flag = 0;
             if (!pdu.getSourceIpv6().equals(ipv6Utils.UNSPECIFIED_ADDR)) {
                 naPacket.setDestinationIpv6(pdu.getSourceIpv6());
@@ -277,25 +279,25 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             }
             buf.put((byte)pdu.getOptionType().shortValue());
             buf.put((byte)pdu.getTargetAddrLength().shortValue());
-            buf.put(ipv6Utils.bytesFromHexString(pdu.getTargetLlAddress().getValue().toString()));
+            buf.put(ipv6Utils.bytesFromHexString(pdu.getTargetLlAddress().getValue()));
             return data;
         }
 
         private byte[] fillNeighborAdvertisementPacket(NeighborAdvertisePacket pdu) {
             ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-            buf.put(ipv6Utils.convertEthernetHeaderToByte((EthernetHeader)pdu), 0, 14);
-            buf.put(ipv6Utils.convertIpv6HeaderToByte((Ipv6Header)pdu), 0, 40);
+            buf.put(ipv6Utils.convertEthernetHeaderToByte(pdu), 0, 14);
+            buf.put(ipv6Utils.convertIpv6HeaderToByte(pdu), 0, 40);
             buf.put(icmp6NAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-            int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), (Ipv6Header)pdu);
-            buf.putShort((Ipv6Constants.ICMPV6_OFFSET + 2), (short)checksum);
-            return (buf.array());
+            int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), pdu);
+            buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
+            return buf.array();
         }
 
         private void processRouterSolicitationRequest() {
             byte[] data = packet.getPayload();
             RouterSolicitationPacket rsPdu = deserializeRSPacket(data);
-            Ipv6Header ipv6Header = (Ipv6Header) rsPdu;
+            Ipv6Header ipv6Header = rsPdu;
             if (ipv6Utils.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum()) == false) {
                 pktProccessedCounter++;
                 LOG.warn("Received RS packet with invalid checksum on {}. Ignoring the packet.",
@@ -306,17 +308,17 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             BigInteger metadata = packet.getMatch().getMetadata().getMetadata();
             long portTag = MetaDataUtil.getLportFromMetadata(metadata).intValue();
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
-            VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
+            IVirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
             if (port == null) {
                 pktProccessedCounter++;
-                LOG.info("Port {} not found, skipping.", port);
+                LOG.info("Port {} not found, skipping.", interfaceName);
                 return;
             }
 
             VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
             if (routerPort == null) {
                 pktProccessedCounter++;
-                LOG.warn("Port {} is not associated to a Router, skipping.", routerPort);
+                LOG.warn("Port for networkId {} is not associated to a Router, skipping.", port.getNetworkID());
                 return;
             }
             Ipv6RouterAdvt ipv6RouterAdvert = new Ipv6RouterAdvt();
