@@ -56,7 +56,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class L2GatewayConnectionUtils {
+public class L2GatewayConnectionUtils implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionUtils.class);
 
     private final DataBroker broker;
@@ -75,6 +75,10 @@ public class L2GatewayConnectionUtils {
         this.entityOwnershipUtils = entityOwnershipUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanUtils.getElanL2GatewayMulticastUtils();
+    }
+
+    @Override
+    public void close() {
     }
 
     public static boolean isGatewayAssociatedToL2Device(L2GatewayDevice l2GwDevice) {
@@ -383,11 +387,10 @@ public class L2GatewayConnectionUtils {
     /**
      * Gets the associated l2 gw connections.
      *
-     * @param broker      the broker
      * @param l2GatewayId the l2 gateway id
      * @return the associated l2 gw connections
      */
-    public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(DataBroker broker, Uuid l2GatewayId) {
+    public List<L2gatewayConnection> getL2GwConnectionsByL2GatewayId(Uuid l2GatewayId) {
         List<L2gatewayConnection> l2GwConnections = new ArrayList<>();
         List<L2gatewayConnection> allL2GwConns = getAllL2gatewayConnections(broker);
         if (allL2GwConns != null) {
@@ -409,5 +412,4 @@ public class L2GatewayConnectionUtils {
     static InstanceIdentifier<LocalUcastMacs> getMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
         return nodeIid.augmentation(HwvtepGlobalAugmentation.class).child(LocalUcastMacs.class, mac.getKey());
     }
-
 }

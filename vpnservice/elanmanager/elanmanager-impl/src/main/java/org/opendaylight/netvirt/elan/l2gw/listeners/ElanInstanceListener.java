@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance,
-        ElanInstanceListener> implements AutoCloseable {
+        ElanInstanceListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceListener.class);
 
