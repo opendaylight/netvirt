@@ -102,13 +102,12 @@ public abstract class AbstractSnatService implements SnatServiceListener {
          * not be present in the switch list on delete.
          */
         handleSnat(routers, primarySwitchId, primarySwitchId, addOrRemove);
-        if (switches != null) {
-            for (BigInteger dpnId : switches) {
-                if (primarySwitchId != dpnId) {
-                    handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
-                }
+        for (BigInteger dpnId : switches) {
+            if (primarySwitchId != dpnId) {
+                handleSnat(routers, primarySwitchId, dpnId, addOrRemove);
             }
         }
+
         return true;
     }
 
@@ -337,8 +336,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     }
 
     private String getGroupIdKey(String routerName) {
-        String groupIdKey = new String("snatmiss." + routerName);
-        return groupIdKey;
+        return "snatmiss." + routerName;
     }
 
     private String getTunnelInterfaceName(BigInteger srcDpId, BigInteger dstDpId) {

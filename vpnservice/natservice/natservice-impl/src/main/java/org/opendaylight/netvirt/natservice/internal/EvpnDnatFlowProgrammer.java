@@ -173,7 +173,7 @@ public class EvpnDnatFlowProgrammer {
             }
 
             @Override
-            public void onSuccess(RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<Void> result) {
                 if (result.isSuccessful()) {
                     LOG.info("onAddFloatingIp : Successfully installed custom FIB routes for Floating "
                             + "IP Prefix {} on DPN {}", externalIp, dpnId);
@@ -195,9 +195,7 @@ public class EvpnDnatFlowProgrammer {
                   */
                     NatEvpnUtil.makeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, customInstructions,
                             mdsalManager, writeFlowInvTx);
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    //final submit call for writeFlowInvTx
-                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                    NatUtil.waitForTransactionToComplete(writeFlowInvTx);
                 } else {
                     LOG.error("onAddFloatingIp : Error {} in rpc call to create custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
@@ -222,7 +220,7 @@ public class EvpnDnatFlowProgrammer {
                 vpnIfOpDataEntryBuilder.setKey(new VpnInterfaceOpDataEntryKey(interfaceName, vpnName));
 
                 List<Adjacency> adjacencyList = adjs != null ? adjs.getAdjacency() : new ArrayList<>();
-                List<Adjacency> adjacencyListToImport = new ArrayList<Adjacency>();
+                List<Adjacency> adjacencyListToImport = new ArrayList<>();
                 for (Adjacency adj : adjacencyList) {
                     Subnetmap sn = VpnHelper.getSubnetmapFromItsUuid(dataBroker, adj.getSubnetId());
                     if (!VpnHelper.isSubnetPartOfVpn(sn, vpnName)) {
@@ -304,7 +302,7 @@ public class EvpnDnatFlowProgrammer {
             }
 
             @Override
-            public void onSuccess(RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<Void> result) {
                 if (result.isSuccessful()) {
                     LOG.info("onRemoveFloatingIp : Successfully removed custom FIB routes for Floating "
                             + "IP Prefix {} on DPN {}", externalIp, dpnId);
@@ -319,9 +317,7 @@ public class EvpnDnatFlowProgrammer {
                     //Remove the flow for L3_GW_MAC_TABLE (table=19)-> PDNAT_TABLE (table=25)
                     NatEvpnUtil.removeL3GwMacTableEntry(dpnId, vpnId, floatingIpPortMacAddress, mdsalManager,
                             removeFlowInvTx);
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    //final submit call for writeFlowInvTx
-                    futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+                    NatUtil.waitForTransactionToComplete(removeFlowInvTx);
                 } else {
                     LOG.error("onRemoveFloatingIp : Error {} in rpc call to remove custom Fib entries for Floating "
                             + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);

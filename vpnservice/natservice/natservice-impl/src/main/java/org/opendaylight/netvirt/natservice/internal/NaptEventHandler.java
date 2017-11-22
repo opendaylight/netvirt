@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -64,6 +65,7 @@ import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.natservice.internal.NaptPacketInHandler.NatPacketProcessingState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
@@ -485,7 +487,7 @@ public class NaptEventHandler {
 
         } catch (UnknownHostException e) {
             LOG.error("buildAndGetMatchInfo : UnknowHostException in buildAndGetMatchInfo."
-                    + "Failed  to build NAPT Flow for ip {}", ipAddress, e);
+                    + "Failed  to build NAPT Flow for ip {}", ip, e);
             return null;
         }
 
@@ -596,6 +598,7 @@ public class NaptEventHandler {
                 + "for SNAT ({}:{}) session:{}ms", tableId, dpnId, ip, port, System.currentTimeMillis() - startTime);
     }
 
+    @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     protected byte[] buildNaptPacketOut(Ethernet etherPkt) {
         LOG.debug("removeNatFlows : About to build Napt Packet Out");
         if (etherPkt.getPayload() instanceof IPv4) {
@@ -627,7 +630,8 @@ public class NaptEventHandler {
         LOG.debug("sendNaptPacketOut : inPort for packetout is being set to {}", String.valueOf(infInfo.getPortNo()));
         TransmitPacketInput output = MDSALUtil.getPacketOut(actionInfos, pktOut, infInfo.getDpId().longValue(), inPort);
         LOG.debug("sendNaptPacketOut : Transmitting packet: {}, inPort {}", output, inPort);
-        this.pktService.transmitPacket(output);
+
+        JdkFutures.addErrorLogging(pktService.transmitPacket(output), LOG, "Transmit packet");
     }
 
     private String getInterfaceNameFromTag(long portTag) {

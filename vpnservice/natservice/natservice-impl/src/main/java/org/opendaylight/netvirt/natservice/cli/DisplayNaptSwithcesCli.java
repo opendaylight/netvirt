@@ -11,7 +11,6 @@ package org.opendaylight.netvirt.natservice.cli;
 import com.google.common.base.Optional;
 import java.io.PrintStream;
 import java.math.BigInteger;
-
 import javax.annotation.Nonnull;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -39,16 +38,16 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
         this.dataBroker = dataBroker;
     }
 
+    @Override
     protected Object doExecute() throws Exception {
         PrintStream ps = session.getConsole();
         Optional<NaptSwitches> npatSwitches = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
-        ps.printf(String.format(" %-36s  %-20s  %-20s \n", "Router Id ", "Datapath Node Id", "Managment Ip Address",
-                "IP Address"));
-        ps.printf("-------------------------------------------------------------------------------------------\n");
+        ps.printf(String.format(" %-36s  %-20s  %-20s %n", "Router Id ", "Datapath Node Id", "Managment Ip Address"));
+        ps.printf("-------------------------------------------------------------------------------------------%n");
         if (npatSwitches.isPresent()) {
             for (RouterToNaptSwitch routerToNaptSwitch : npatSwitches.get().getRouterToNaptSwitch()) {
-                ps.printf(String.format(" %-36s  %-20s  %-20s \n", routerToNaptSwitch.getRouterName(),
+                ps.printf(String.format(" %-36s  %-20s  %-20s %n", routerToNaptSwitch.getRouterName(),
                      routerToNaptSwitch.getPrimarySwitchId(), getDpnLocalIp(routerToNaptSwitch.getPrimarySwitchId())));
             }
         }

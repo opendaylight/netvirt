@@ -36,8 +36,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class NatInterfaceStateChangeListener
-    extends AsyncDataTreeChangeListenerBase<Interface, NatInterfaceStateChangeListener>
-    implements AutoCloseable {
+    extends AsyncDataTreeChangeListenerBase<Interface, NatInterfaceStateChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInterfaceStateChangeListener.class);
     private final DataBroker dataBroker;

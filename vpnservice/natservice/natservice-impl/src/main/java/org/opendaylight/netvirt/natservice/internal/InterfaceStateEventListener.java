@@ -54,8 +54,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class InterfaceStateEventListener
-    extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateEventListener>
-    implements AutoCloseable {
+    extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateEventListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateEventListener.class);
 
@@ -170,7 +169,7 @@ public class InterfaceStateEventListener
                 interfaceName, routerName, routerId);
             return;
         }
-        List<ProtocolTypes> protocolTypesList = getPortocolList();
+
         for (String internalIp : fixedIps) {
             LOG.debug("removeSnatEntriesForPort : Internal Ip retrieved for interface {} is {} in router with Id {}",
                 interfaceName, internalIp, routerId);
@@ -267,7 +266,7 @@ public class InterfaceStateEventListener
                         }
                     } else {
                         LOG.warn("getRouterIdForPort : Router is not associated to vpnname {} for interface {}",
-                            interfaceName, routerName);
+                                vpnName, interfaceName);
                     }
                 }
             }
@@ -275,13 +274,6 @@ public class InterfaceStateEventListener
             LOG.debug("getRouterIdForPort : Interface {} is not a vpninterface", interfaceName);
         }
         return null;
-    }
-
-    private List<ProtocolTypes> getPortocolList() {
-        List<ProtocolTypes> protocollist = new ArrayList<>();
-        protocollist.add(ProtocolTypes.TCP);
-        protocollist.add(ProtocolTypes.UDP);
-        return protocollist;
     }
 
     private BigInteger getNaptSwitchforRouter(DataBroker broker, String routerName) {
@@ -489,8 +481,7 @@ public class InterfaceStateEventListener
                     } else {
                         LOG.debug(
                                 "call : PORT_DOWN: Router Id is null, either Interface {} is not associated "
-                                        + "to router {} or failed to retrieve routerId due to exception",
-                                interfaceName, routerName);
+                                        + "to a router or failed to retrieve routerId due to exception", interfaceName);
                     }
                 } catch (Exception ex) {
                     LOG.error("call : Exception caught in Interface {} OperationalStateDown", interfaceName, ex);
