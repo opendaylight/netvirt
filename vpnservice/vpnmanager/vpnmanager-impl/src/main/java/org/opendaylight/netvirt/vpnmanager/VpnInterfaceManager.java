@@ -1621,7 +1621,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     InstanceIdentifier<LabelRouteInfo> lriIid = InstanceIdentifier.builder(LabelRouteMap.class)
                             .child(LabelRouteInfo.class, new LabelRouteInfoKey((long) label)).build();
                     tx.merge(LogicalDatastoreType.OPERATIONAL, lriIid, lri, true);
-                    tx.submit();
                     LOG.info("addToLabelMapper: Added label route info to label {} prefix {} nextHopList {} vpnId {}"
                             + " interface {} rd {} elantag {}", label, prefix, nextHopIpList, vpnId, vpnInterfaceName,
                             rd, elanTag);
