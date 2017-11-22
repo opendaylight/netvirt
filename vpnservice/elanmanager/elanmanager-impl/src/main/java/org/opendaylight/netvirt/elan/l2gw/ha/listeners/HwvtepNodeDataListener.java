@@ -9,11 +9,9 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
-
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-
 import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -36,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * When a config parent node data is updated , it is copied to all its children.
  */
 public abstract class HwvtepNodeDataListener<T extends DataObject>
-        extends AsyncDataTreeChangeListenerBase<T, HwvtepNodeDataListener<T>> implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<T, HwvtepNodeDataListener<T>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeDataListener.class);
 
@@ -58,6 +56,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
         registerListener(this.datastoreType.getDatastoreType() , broker);
     }
 
+    @Override
     protected abstract InstanceIdentifier<T> getWildCardPath();
 
     @Override
@@ -159,8 +158,6 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                               final T data,
                               final InstanceIdentifier<T> identifier,
                               final boolean copyToChild) throws ReadFailedException {
-        String destination = copyToChild ? "child" : "parent";
-        String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         Optional<T> existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
         if (create) {
             if (isDataUpdated(existingDataOptional, data)) {
