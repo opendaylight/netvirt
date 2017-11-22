@@ -283,7 +283,6 @@ public class ExternalNetworksChangeListener
             RouterPorts routerPorts = optRouterPorts.get();
             List<Ports> interfaces = routerPorts.getPorts();
             WriteTransaction removeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
             for (Ports port : interfaces) {
                 String portName = port.getPortName();
                 BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -298,8 +297,8 @@ public class ExternalNetworksChangeListener
                             intExtPortMap, removeFlowInvTx);
                 }
             }
-            //final submit call for removeFlowInvTx
-            futures.add(NatUtil.waitForTransactionToComplete(removeFlowInvTx));
+
+            NatUtil.waitForTransactionToComplete(removeFlowInvTx);
         }
     }
 }

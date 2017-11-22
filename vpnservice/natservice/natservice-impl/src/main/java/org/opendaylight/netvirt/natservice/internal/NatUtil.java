@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -24,7 +25,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -709,7 +709,7 @@ public class NatUtil {
         return intIpProtocolTypeId;
     }
 
-    @Nonnull
+    @Nullable
     public static IpPort getInternalIpPortInfo(DataBroker dataBroker, Long routerId,
                                                           String internalIpAddress) {
         return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
@@ -853,6 +853,7 @@ public class NatUtil {
         return leastLoadedExternalIp;
     }
 
+    @SuppressFBWarnings("PZLA_PREFER_ZERO_LENGTH_ARRAYS")
     public static String[] getSubnetIpAndPrefix(DataBroker dataBroker, Uuid subnetId) {
         String subnetIP = getSubnetIp(dataBroker, subnetId);
         if (subnetIP != null) {
@@ -1847,7 +1848,7 @@ public class NatUtil {
     }
 
     public static String validateAndAddNetworkMask(String ipAddress) {
-        return ipAddress.contains("/32") ? ipAddress : (ipAddress + "/32");
+        return ipAddress.contains("/32") ? ipAddress : ipAddress + "/32";
     }
 
     public static InstanceIdentifier<VpnInterfaceOpDataEntry> getVpnInterfaceOpDataEntryIdentifier(

@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -30,7 +29,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInstance,
-    ExternalSubnetVpnInstanceListener> implements AutoCloseable {
+    ExternalSubnetVpnInstanceListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ExternalSubnetVpnInstanceListener.class);
     private final DataBroker dataBroker;
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;

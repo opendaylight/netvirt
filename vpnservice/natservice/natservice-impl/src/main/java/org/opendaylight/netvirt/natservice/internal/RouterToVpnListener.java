@@ -8,15 +8,10 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -61,7 +56,6 @@ public class RouterToVpnListener implements NeutronvpnListener {
         String routerName = notification.getRouterId().getValue();
         String vpnName = notification.getVpnId().getValue();
         WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
@@ -86,7 +80,8 @@ public class RouterToVpnListener implements NeutronvpnListener {
             LOG.debug("onRouterAssociatedToVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName);
         }
-        futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+
+        NatUtil.waitForTransactionToComplete(writeFlowInvTx);
     }
 
     /**
@@ -97,7 +92,6 @@ public class RouterToVpnListener implements NeutronvpnListener {
         String routerName = notification.getRouterId().getValue();
         String vpnName = notification.getVpnId().getValue();
         WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
         //check router is associated to external network
         String extNetwork = NatUtil.getAssociatedExternalNetwork(dataBroker, routerName);
         if (extNetwork != null) {
@@ -122,7 +116,8 @@ public class RouterToVpnListener implements NeutronvpnListener {
             LOG.debug("onRouterDisassociatedFromVpn : Ignoring the Router {} association with VPN {} "
                     + "since it is not external router", routerName);
         }
-        futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+
+        NatUtil.waitForTransactionToComplete(writeFlowInvTx);
     }
 
     void handleDNATConfigurationForRouterAssociation(String routerName, String vpnName, String externalNetwork) {
@@ -137,7 +132,6 @@ public class RouterToVpnListener implements NeutronvpnListener {
         Uuid networkId = Uuid.getDefaultInstance(externalNetwork);
         RouterPorts routerPorts = optRouterPorts.get();
         List<Ports> interfaces = routerPorts.getPorts();
-        Map<String, BigInteger> portToDpnMap = new HashMap<>();
         for (Ports port : interfaces) {
             String portName = port.getPortName();
             BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
@@ -146,7 +140,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
                         + "skip handling of router {} association with vpn", portName, routerName, vpnName);
                 continue;
             }
-            portToDpnMap.put(portName, dpnId);
+
             List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
             for (InternalToExternalPortMap intExtPortMap : intExtPortMapList) {
                 //remove all NAT related entries with routerName

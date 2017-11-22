@@ -81,8 +81,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class NatTunnelInterfaceStateListener
-    extends AsyncDataTreeChangeListenerBase<StateTunnelList, NatTunnelInterfaceStateListener>
-    implements AutoCloseable {
+    extends AsyncDataTreeChangeListenerBase<StateTunnelList, NatTunnelInterfaceStateListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatTunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
@@ -345,22 +344,20 @@ public class NatTunnelInterfaceStateListener
             switch (tunnelAction) {
                 case TUNNEL_EP_ADD:
                     WriteTransaction writeFlowInvTx = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futures = new ArrayList<>();
                     if (isTunnelInLogicalGroup(stateTunnelList)
                             || !hndlTepAddForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp,
                             writeFlowInvTx)) {
                         LOG.debug("hndlTepEvntsForDpn : Unable to process TEP ADD");
                     }
-                    futures.add(NatUtil.waitForTransactionToComplete(writeFlowInvTx));
+                    NatUtil.waitForTransactionToComplete(writeFlowInvTx);
                     break;
                 case TUNNEL_EP_DELETE:
                     WriteTransaction writeFlowRemovetx = dataBroker.newWriteOnlyTransaction();
-                    List<ListenableFuture<Void>> futuresRemove = new ArrayList<>();
                     if (!handleTepDelForAllRtrs(srcDpnId, tunnelType, tunnelName, srcTepIp, destTepIp,
                             writeFlowRemovetx)) {
                         LOG.debug("hndlTepEvntsForDpn : Unable to process TEP DEL");
                     }
-                    futuresRemove.add(NatUtil.waitForTransactionToComplete(writeFlowRemovetx));
+                    NatUtil.waitForTransactionToComplete(writeFlowRemovetx);
                     break;
                 default:
                     LOG.warn("hndlTepEvntsForDpn: unknown tunnelAction: {}", tunnelAction);
@@ -712,84 +709,84 @@ public class NatTunnelInterfaceStateListener
                 l3Vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, routerId).longValue();
             }
         }
-        if (externalIps != null) {
-            for (final String externalIp : externalIps) {
-                long serviceId = 0;
-                String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
-                if (extNwProvType == ProviderTypes.VXLAN) {
-                    LOG.debug("hndlTepAddOnNaptSwitch : SNAT -> Advertise the route to the externalIp {} "
-                            + "having nextHopIp {}", externalIp, nextHopIp);
-                    NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, externalVpnName, rd,
-                            externalIp, nextHopIp, l3Vni, tunnelName, gwMacAddress, writeFlowInvTx, RouteOrigin.STATIC,
-                            srcDpnId);
-                    serviceId = l3Vni;
-                } else {
 
-                    Long label = externalRouterListner.checkExternalIpLabel(routerId,
-                            externalIp);
-                    if (label == null || label == NatConstants.INVALID_ID) {
-                        LOG.error("hndlTepAddOnNaptSwitch : SNAT->Unable to advertise to the DC GW "
-                                + "since label is invalid");
-                        return false;
-                    }
-                    LOG.debug("hndlTepAddOnNaptSwitch : SNAT -> Advertise the route to the externalIp {} "
-                            + "having nextHopIp {}", externalIp, nextHopIp);
-                    long l3vni = 0;
-                    if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
-                        l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
-                    }
-                    Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
-                            router);
-                    NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
-                            fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni,
-                            RouteOrigin.STATIC, srcDpnId);
-                    serviceId = label;
+        for (final String externalIp : externalIps) {
+            long serviceId = 0;
+            String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+            if (extNwProvType == ProviderTypes.VXLAN) {
+                LOG.debug("hndlTepAddOnNaptSwitch : SNAT -> Advertise the route to the externalIp {} "
+                        + "having nextHopIp {}", externalIp, nextHopIp);
+                NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, externalVpnName, rd,
+                        externalIp, nextHopIp, l3Vni, tunnelName, gwMacAddress, writeFlowInvTx, RouteOrigin.STATIC,
+                        srcDpnId);
+                serviceId = l3Vni;
+            } else {
+
+                Long label = externalRouterListner.checkExternalIpLabel(routerId,
+                        externalIp);
+                if (label == null || label == NatConstants.INVALID_ID) {
+                    LOG.error("hndlTepAddOnNaptSwitch : SNAT->Unable to advertise to the DC GW "
+                            + "since label is invalid");
+                    return false;
                 }
-
-                LOG.debug("hndlTepAddOnNaptSwitch: SNAT -> Install custom FIB routes "
-                    + "(Table 21 -> Push MPLS label to Tunnel port");
-                List<Instruction> customInstructions = new ArrayList<>();
-                int customInstructionIndex = 0;
-                long externalSubnetVpnId = NatUtil.getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIp,
+                LOG.debug("hndlTepAddOnNaptSwitch : SNAT -> Advertise the route to the externalIp {} "
+                        + "having nextHopIp {}", externalIp, nextHopIp);
+                long l3vni = 0;
+                if (NatUtil.isOpenStackVniSemanticsEnforcedForGreAndVxlan(elanManager, extNwProvType)) {
+                    l3vni = NatOverVxlanUtil.getInternetVpnVni(idManager, externalVpnName, l3vni).longValue();
+                }
+                Uuid externalSubnetId = NatUtil.getExternalSubnetForRouterExternalIp(dataBroker, externalIp,
                         router);
-                if (externalSubnetVpnId != NatConstants.INVALID_ID) {
-                    LOG.debug("hndlTepAddOnNaptSwitch : Will install custom FIB router with external subnet VPN ID {}",
-                            externalSubnetVpnId);
-                    BigInteger subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(externalSubnetVpnId);
-                    customInstructions.add(new InstructionWriteMetadata(subnetIdMetaData,
-                            MetaDataUtil.METADATA_MASK_VRFID).buildInstruction(customInstructionIndex));
-                    customInstructionIndex++;
-                }
-                customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE)
-                        .buildInstruction(customInstructionIndex));
-                CreateFibEntryInput input =
-                    new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
-                        .setInstruction(customInstructions).setIpAddress(fibExternalIp)
-                        .setServiceId(serviceId).setInstruction(customInstructions).build();
-                Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
-                ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
-
-                Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
-
-                    @Override
-                    public void onFailure(@Nonnull Throwable error) {
-                        LOG.error("hndlTepAddOnNaptSwitch : SNAT->Error in generate label or fib install process",
-                                error);
-                    }
-
-                    @Override
-                    public void onSuccess(RpcResult<Void> result) {
-                        if (result.isSuccessful()) {
-                            LOG.info("hndlTepAddOnNaptSwitch : SNAT -> Successfully installed custom FIB routes "
-                                    + "for prefix {}", externalIp);
-                        } else {
-                            LOG.error("hndlTepAddOnNaptSwitch : SNAT -> Error in rpc call to create custom Fib entries "
-                                    + "for prefix {} in DPN {}, {}", externalIp, srcDpnId, result.getErrors());
-                        }
-                    }
-                }, MoreExecutors.directExecutor());
+                NatUtil.addPrefixToBGP(dataBroker, bgpManager, fibManager, externalVpnName, rd, externalSubnetId,
+                        fibExternalIp, nextHopIp, networkId.getValue(), null /* mac-address */, label, l3vni,
+                        RouteOrigin.STATIC, srcDpnId);
+                serviceId = label;
             }
+
+            LOG.debug("hndlTepAddOnNaptSwitch: SNAT -> Install custom FIB routes "
+                    + "(Table 21 -> Push MPLS label to Tunnel port");
+            List<Instruction> customInstructions = new ArrayList<>();
+            int customInstructionIndex = 0;
+            long externalSubnetVpnId = NatUtil.getExternalSubnetVpnIdForRouterExternalIp(dataBroker, externalIp,
+                    router);
+            if (externalSubnetVpnId != NatConstants.INVALID_ID) {
+                LOG.debug("hndlTepAddOnNaptSwitch : Will install custom FIB router with external subnet VPN ID {}",
+                        externalSubnetVpnId);
+                BigInteger subnetIdMetaData = MetaDataUtil.getVpnIdMetadata(externalSubnetVpnId);
+                customInstructions.add(new InstructionWriteMetadata(subnetIdMetaData,
+                        MetaDataUtil.METADATA_MASK_VRFID).buildInstruction(customInstructionIndex));
+                customInstructionIndex++;
+            }
+            customInstructions.add(new InstructionGotoTable(NwConstants.INBOUND_NAPT_TABLE)
+                    .buildInstruction(customInstructionIndex));
+            CreateFibEntryInput input =
+                    new CreateFibEntryInputBuilder().setVpnName(externalVpnName).setSourceDpid(srcDpnId)
+                    .setInstruction(customInstructions).setIpAddress(fibExternalIp)
+                    .setServiceId(serviceId).setInstruction(customInstructions).build();
+            Future<RpcResult<Void>> future = fibRpcService.createFibEntry(input);
+            ListenableFuture<RpcResult<Void>> listenableFuture = JdkFutureAdapters.listenInPoolThread(future);
+
+            Futures.addCallback(listenableFuture, new FutureCallback<RpcResult<Void>>() {
+
+                @Override
+                public void onFailure(@Nonnull Throwable error) {
+                    LOG.error("hndlTepAddOnNaptSwitch : SNAT->Error in generate label or fib install process",
+                            error);
+                }
+
+                @Override
+                public void onSuccess(@Nonnull RpcResult<Void> result) {
+                    if (result.isSuccessful()) {
+                        LOG.info("hndlTepAddOnNaptSwitch : SNAT -> Successfully installed custom FIB routes "
+                                + "for prefix {}", externalIp);
+                    } else {
+                        LOG.error("hndlTepAddOnNaptSwitch : SNAT -> Error in rpc call to create custom Fib entries "
+                                + "for prefix {} in DPN {}, {}", externalIp, srcDpnId, result.getErrors());
+                    }
+                }
+            }, MoreExecutors.directExecutor());
         }
+
         return true;
     }
 
@@ -911,7 +908,7 @@ public class NatTunnelInterfaceStateListener
                     }
 
                     @Override
-                    public void onSuccess(RpcResult<Void> result) {
+                    public void onSuccess(@Nonnull RpcResult<Void> result) {
                         if (result.isSuccessful()) {
                             LOG.info("hndlTepAddForDnatInEachRtr : DNAT -> Successfully installed custom FIB routes "
                                     + "for prefix {}", externalIp);
@@ -1110,7 +1107,7 @@ public class NatTunnelInterfaceStateListener
                     }
 
                     @Override
-                    public void onSuccess(RpcResult<Void> result) {
+                    public void onSuccess(@Nonnull RpcResult<Void> result) {
                         if (result.isSuccessful()) {
                             LOG.info("hndlTepDelForDnatInEachRtr : DNAT -> Successfully removed the entry pushing the "
                                 + "MPLS label to the tunnel");

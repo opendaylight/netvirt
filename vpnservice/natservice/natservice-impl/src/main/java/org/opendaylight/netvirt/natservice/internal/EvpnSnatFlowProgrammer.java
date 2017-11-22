@@ -147,7 +147,7 @@ public class EvpnSnatFlowProgrammer {
             }
 
             @Override
-            public void onSuccess(RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<Void> result) {
                 if (result.isSuccessful()) {
                     LOG.info("evpnAdvToBgpAndInstallFibAndTsFlows : Successfully installed custom FIB routes for "
                             + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for RouterId {}",
@@ -234,7 +234,7 @@ public class EvpnSnatFlowProgrammer {
             }
 
             @Override
-            public void onSuccess(RpcResult<Void> result) {
+            public void onSuccess(@Nonnull RpcResult<Void> result) {
                 if (result.isSuccessful()) {
                     LOG.info("evpnDelFibTsAndReverseTraffic : Successfully removed custom FIB routes for "
                             + "External Fixed IP {} on DPN {} with l3Vni {}, ExternalVpnName {} for "

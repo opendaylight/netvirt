@@ -174,7 +174,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
         LOG.debug("removeIncomingPacketMap : sourceIPPortKey {} mapping is removed from map", sourceIPPortKey);
     }
 
-    class NatPacketProcessingState {
+    static class NatPacketProcessingState {
         private final long firstPacketInTime;
         private volatile long flowInstalledTime;
 

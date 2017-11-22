@@ -63,8 +63,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<InternalToExternalPortMap, FloatingIPListener>
-        implements AutoCloseable {
+public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<InternalToExternalPortMap, FloatingIPListener> {
     private static final Logger LOG = LoggerFactory.getLogger(FloatingIPListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
