@@ -11,6 +11,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
@@ -39,7 +40,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
 
     public DisAssociateHwvtepFromElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
                                          ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-                                         L2GatewayDevice l2GatewayDevice,  String elanName,
+                                         @Nullable L2GatewayDevice l2GatewayDevice,  String elanName,
                                          Devices l2Device, Integer defaultVlan, String nodeId,
                                          boolean isLastL2GwConnDeleted) {
         this.broker = broker;
@@ -51,8 +52,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
         this.defaultVlan = defaultVlan;
         this.isLastL2GwConnDeleted = isLastL2GwConnDeleted;
         this.hwvtepNodeId = new NodeId(nodeId);
-        LOG.info("created disassosiate l2gw connection job for {} {}", elanName ,
-                l2GatewayDevice.getHwvtepNodeId());
+        LOG.info("created disassociate l2gw connection job for {}", elanName);
     }
 
     public String getJobKey() {
@@ -93,8 +93,8 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
             elanL2GatewayUtils.scheduleDeleteLogicalSwitch(hwvtepNodeId,
                     ElanL2GatewayUtils.getLogicalSwitchFromElan(elanName));
         } else {
-            LOG.info("l2gw mcast delete not triggered for nodeId {}  with elan {}", l2GatewayDevice.getHwvtepNodeId(),
-                    elanName);
+            LOG.info("l2gw mcast delete not triggered for nodeId {}  with elan {}",
+                    l2GatewayDevice != null ? l2GatewayDevice.getHwvtepNodeId() : null, elanName);
         }
 
         return futures;

@@ -32,8 +32,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener>
-        implements AutoCloseable {
+public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
     private final ElanInterfaceManager elanInterfaceManager;
@@ -82,7 +81,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     private BigInteger getDpnId(String node) {
         //openflow:1]
         String[] temp = node.split(":");
-        if (temp != null && temp.length == 2) {
+        if (temp.length == 2) {
             return new BigInteger(temp[1]);
         }
         return null;
@@ -117,7 +116,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
         }
         boolean updateGroup = false;
         List<DpnInterfaces> dpns = elanInstanceManager.getElanDPNByName(elanInstance.getElanInstanceName());
-        if (dpns != null && dpns.size() > 0) {
+        if (dpns.size() > 0) {
             expectedElanFootprint += dpns.size();
         } else {
             updateGroup = true;
@@ -135,7 +134,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             List<Bucket> bucketList = elanInterfaceManager.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
                     elanInstance.getElanTag());
             expectedElanFootprint--;//remove local bcgroup bucket
-            if (bucketList == null || bucketList.size() != expectedElanFootprint) {
+            if (bucketList.size() != expectedElanFootprint) {
                 //no point in retrying if not able to meet expected foot print
                 return;
             }
