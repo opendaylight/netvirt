@@ -280,11 +280,9 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
                         ServiceIndex.getIndex(NwConstants.EGRESS_ACL_SERVICE_NAME,
                         NwConstants.EGRESS_ACL_SERVICE_INDEX), ServiceModeEgress.class);
 
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
-                        WriteTransaction.CREATE_MISSING_PARENTS);
-
-                return Collections.singletonList(writeTxn.submit());
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> tx.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
+                            WriteTransaction.CREATE_MISSING_PARENTS)));
             });
     }
 }
