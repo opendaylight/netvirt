@@ -114,12 +114,9 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
                 InstanceIdentifier<BoundServices> path =
                     AclServiceUtils.buildServiceId(interfaceName, serviceIndex, ServiceModeIngress.class);
 
-
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
-                        WriteTransaction.CREATE_MISSING_PARENTS);
-
-                return Collections.singletonList(writeTxn.submit());
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> tx.put(LogicalDatastoreType.CONFIGURATION, path, serviceInfo,
+                            WriteTransaction.CREATE_MISSING_PARENTS)));
             });
     }
 
@@ -138,12 +135,8 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
         LOG.debug("UnBinding ACL service for interface {}", interfaceName);
         jobCoordinator.enqueueJob(interfaceName,
-            () -> {
-                WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-                writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
-
-                return Collections.singletonList(writeTxn.submit());
-            });
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, path))));
     }
 
     @Override

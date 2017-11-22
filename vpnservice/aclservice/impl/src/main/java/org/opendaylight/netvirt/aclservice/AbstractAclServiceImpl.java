@@ -17,6 +17,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -50,6 +52,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     protected final IMdsalApiManager mdsalManager;
     protected final DataBroker dataBroker;
+    protected final ManagedNewTransactionRunner txRunner;
     protected final Class<? extends ServiceModeBase> serviceMode;
     protected final AclDataUtil aclDataUtil;
     protected final AclServiceUtils aclServiceUtils;
@@ -63,6 +66,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils,
             JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.serviceMode = serviceMode;
         this.aclDataUtil = aclDataUtil;
