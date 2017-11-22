@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_d4663829",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "this is an optimisation that could be considered.\nhowever it works like that.\nWould you agree to optimise it on a separate review ?",
+      "parentUuid": "9a245df4_b73d8bc6",
+      "range": {
+        "startLine": 1579,
+        "startChar": 27,
+        "endLine": 1584,
+        "endChar": 29
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_37519b0f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-21T15:45:30Z",
       "side": 1,
       "message": "move this before if(internetvpnId !\u003d null) and use the non null internetvpnid",
+      "range": {
+        "startLine": 1615,
+        "startChar": 8,
+        "endLine": 1615,
+        "endChar": 60
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_94a96026",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1615,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_37519b0f",
       "range": {
         "startLine": 1615,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_d415989c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1625,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_175457fd",
+      "range": {
+        "startLine": 1625,
+        "startChar": 40,
+        "endLine": 1625,
+        "endChar": 47
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_77579302",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
@@ -82,6 +154,30 @@
       "writtenOn": "2017-11-21T15:45:30Z",
       "side": 1,
       "message": "should be a precondition at the start of the method",
+      "range": {
+        "startLine": 1649,
+        "startChar": 28,
+        "endLine": 1649,
+        "endChar": 70
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_14b6108a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1649,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_77579302",
       "range": {
         "startLine": 1649,
         "startChar": 28,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b4c2a4e6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2203,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_d7459f43",
+      "range": {
+        "startLine": 2202,
+        "startChar": 12,
+        "endLine": 2203,
+        "endChar": 64
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_177bb78c",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
@@ -128,6 +248,30 @@
       "writtenOn": "2017-11-21T15:45:30Z",
       "side": 1,
       "message": "I think these changes are not required. This code only handles creation of internal vpn for a router, and there will not be any internet association at that point of time",
+      "range": {
+        "startLine": 2222,
+        "startChar": 8,
+        "endLine": 2231,
+        "endChar": 13
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_748dccd2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2231,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "Indeed, maybe you are right.\n\nYou mean we go there only when command: neutron router-create \u003crouter1\u003e happens ?\n\nIf this is it, then it is not possible at this point that an external network is attached, and then no BGPVPN attached to the external network will be present.\nso line 2222 will return always NULL.\n\nplease ack the undersanding.",
+      "parentUuid": "9a245df4_177bb78c",
       "range": {
         "startLine": 2222,
         "startChar": 8,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f4a1bc46",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2361,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "it must be done for:\n- underlying subnets \u003d\u003e BGPVPN external \n- if that network is external, apply to subnets from router from external network.\nI think it must be kept like that.",
+      "parentUuid": "9a245df4_17a297fc",
+      "range": {
+        "startLine": 2344,
+        "startChar": 24,
+        "endLine": 2361,
+        "endChar": 25
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b7b2ab49",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3487d4b6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2363,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "for ipv6 Internet L3VPn, this is a valid use case.\nthis review is for ipv6 Internet L3VPN.\n\nplease look at the use case described here:\nhttps://git.opendaylight.org/gerrit/#/c/54050/31/docs/specs/ipv6-l3vpn-internet.rst@267",
+      "parentUuid": "9a245df4_b7b2ab49",
+      "range": {
+        "startLine": 2316,
+        "startChar": 36,
+        "endLine": 2363,
+        "endChar": 49
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_97ade7eb",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
@@ -197,6 +389,30 @@
       "writtenOn": "2017-11-21T15:45:30Z",
       "side": 1,
       "message": "associate networks is not a valid/supported usecase for ipv6. So these changes are not required.\nOnly router-association should be handled for ipv6",
+      "range": {
+        "startLine": 2393,
+        "startChar": 15,
+        "endLine": 2439,
+        "endChar": 53
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_949200f4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2439,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T12:47:38Z",
+      "side": 1,
+      "message": "same comment pas previously",
+      "parentUuid": "9a245df4_97ade7eb",
       "range": {
         "startLine": 2393,
         "startChar": 15,
