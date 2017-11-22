@@ -15,6 +15,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
@@ -25,8 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeRef
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.EthernetHeader;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.Ipv6Header;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborSolicitationPacket;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.ipv6service.nd.packet.rev160620.NeighborSolicitationPacketBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
@@ -38,15 +37,12 @@ import org.slf4j.LoggerFactory;
 
 public class Ipv6NeighborSolicitation {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
-    private static PacketProcessingService pktService;
-    private Ipv6ServiceUtils ipv6Utils;
+    private final PacketProcessingService packetService;
+    private final Ipv6ServiceUtils ipv6Utils;
 
-    public Ipv6NeighborSolicitation() {
+    public Ipv6NeighborSolicitation(PacketProcessingService packetService) {
+        this.packetService = packetService;
         ipv6Utils = Ipv6ServiceUtils.getInstance();
-    }
-
-    public static void setPacketProcessingService(PacketProcessingService packetService) {
-        pktService = packetService;
     }
 
     private byte[] frameNeighborSolicitationRequest(MacAddress srcMacAddress, Ipv6Address srcIpv6Address,
@@ -99,39 +95,34 @@ public class Ipv6NeighborSolicitation {
 
         buf.put((byte)pdu.getOptionType().shortValue());
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
-        buf.put(ipv6Utils.bytesFromHexString(pdu.getSourceLlAddress().getValue().toString()));
+        buf.put(ipv6Utils.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
         return data;
     }
 
     private byte[] fillNeighborSolicitationPacket(NeighborSolicitationPacket pdu) {
         ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-        buf.put(ipv6Utils.convertEthernetHeaderToByte((EthernetHeader)pdu), 0, 14);
-        buf.put(ipv6Utils.convertIpv6HeaderToByte((Ipv6Header)pdu), 0, 40);
+        buf.put(ipv6Utils.convertEthernetHeaderToByte(pdu), 0, 14);
+        buf.put(ipv6Utils.convertIpv6HeaderToByte(pdu), 0, 40);
         buf.put(icmp6NsPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-        int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), (Ipv6Header)pdu);
-        buf.putShort((Ipv6Constants.ICMPV6_OFFSET + 2), (short)checksum);
-        return (buf.array());
+        int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), pdu);
+        buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
+        return buf.array();
     }
 
     public boolean transmitNeighborSolicitation(BigInteger dpnId, NodeConnectorRef nodeRef,
                                                 MacAddress srcMacAddress, Ipv6Address srcIpv6Address,
                                                 Ipv6Address targetIpv6Address) {
-        if (pktService == null) {
-            LOG.info("transmitNeighborSolicitation packet processing service is not yet configured");
-            return false;
-        }
         byte[] txPayload = frameNeighborSolicitationRequest(srcMacAddress, srcIpv6Address, targetIpv6Address);
         NodeConnectorRef nodeConnectorRef = MDSALUtil.getNodeConnRef(dpnId, "0xfffffffd");
         TransmitPacketInput input = new TransmitPacketInputBuilder().setPayload(txPayload)
                 .setNode(new NodeRef(InstanceIdentifier.builder(Nodes.class)
                         .child(Node.class, new NodeKey(new NodeId("openflow:" + dpnId))).toInstance()))
                 .setEgress(nodeRef).setIngress(nodeConnectorRef).build();
+
         // Tx the packet out of the controller.
-        if (pktService != null) {
-            LOG.debug("Transmitting the Neighbor Solicitation packet out on {}", dpnId);
-            pktService.transmitPacket(input);
-        }
+        LOG.debug("Transmitting the Neighbor Solicitation packet out on {}", dpnId);
+        JdkFutures.addErrorLogging(packetService.transmitPacket(input), LOG, "transmitPacket");
         return true;
     }
 

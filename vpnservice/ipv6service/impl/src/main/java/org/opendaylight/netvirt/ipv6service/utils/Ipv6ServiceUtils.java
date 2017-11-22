@@ -17,8 +17,6 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -46,7 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceBindings;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.ServiceModeIngress;
@@ -67,20 +64,20 @@ import org.slf4j.LoggerFactory;
 
 public class Ipv6ServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceUtils.class);
-    private ConcurrentMap<String, InstanceIdentifier<Flow>> icmpv6FlowMap;
     public static final Ipv6ServiceUtils INSTANCE = new Ipv6ServiceUtils();
-    public static Ipv6Address ALL_NODES_MCAST_ADDR;
-    public static Ipv6Address UNSPECIFIED_ADDR;
+    public static final Ipv6Address ALL_NODES_MCAST_ADDR = newIpv6Address("0:0:0:0:0:0:0:0");
+    public static final Ipv6Address UNSPECIFIED_ADDR = newIpv6Address("FF02::1");
+
+    private static Ipv6Address newIpv6Address(String ip) {
+        try {
+            return Ipv6Address.getDefaultInstance(InetAddress.getByName(ip).getHostAddress());
+        } catch (UnknownHostException e) {
+            LOG.error("Ipv6ServiceUtils: Error instantiating ipv6 address", e);
+            return null;
+        }
+    }
 
     public Ipv6ServiceUtils() {
-        icmpv6FlowMap = new ConcurrentHashMap<>();
-        try {
-            UNSPECIFIED_ADDR = Ipv6Address.getDefaultInstance(
-                    InetAddress.getByName("0:0:0:0:0:0:0:0").getHostAddress());
-            ALL_NODES_MCAST_ADDR = Ipv6Address.getDefaultInstance(InetAddress.getByName("FF02::1").getHostAddress());
-        } catch (UnknownHostException e) {
-            LOG.error("Ipv6ServiceUtils: Failed to instantiate the ipv6 address", e);
-        }
     }
 
     public static Ipv6ServiceUtils getInstance() {
@@ -204,7 +201,7 @@ public class Ipv6ServiceUtils {
         checksum += ip6Hdr.getNextHeader();
 
         int icmp6Offset = Ipv6Constants.ICMPV6_OFFSET;
-        long value = (((packet[icmp6Offset] & 0xff) << 8) | (packet[icmp6Offset + 1] & 0xff));
+        long value = (packet[icmp6Offset] & 0xff) << 8 | packet[icmp6Offset + 1] & 0xff;
         checksum += value;
         checksum = normalizeChecksum(checksum);
         icmp6Offset += 2;
@@ -213,7 +210,7 @@ public class Ipv6ServiceUtils {
         icmp6Offset += 2;
         int length = packet.length - icmp6Offset;
         while (length > 1) {
-            value = (((packet[icmp6Offset] & 0xff) << 8) | (packet[icmp6Offset + 1] & 0xff));
+            value = (packet[icmp6Offset] & 0xff) << 8 | packet[icmp6Offset + 1] & 0xff;
             checksum += value;
             checksum = normalizeChecksum(checksum);
             icmp6Offset += 2;
@@ -239,13 +236,14 @@ public class Ipv6ServiceUtils {
             baddr = InetAddress.getByName(addr.getValue()).getAddress();
         } catch (UnknownHostException e) {
             LOG.error("getSummation: Failed to deserialize address {}", addr.getValue(), e);
+            return 0;
         }
 
         long sum = 0;
         int len = 0;
         long value = 0;
         while (len < baddr.length) {
-            value = (((baddr[len] & 0xff) << 8) | (baddr[len + 1] & 0xff));
+            value = (baddr[len] & 0xff) << 8 | baddr[len + 1] & 0xff;
             sum += value;
             sum = normalizeChecksum(sum);
             len += 2;
@@ -254,8 +252,8 @@ public class Ipv6ServiceUtils {
     }
 
     private long normalizeChecksum(long value) {
-        if ((value & 0xffff0000) > 0) {
-            value = (value & 0xffff);
+        if ((value & 0xffff0000) != 0) {
+            value = value & 0xffff;
             value += 1;
         }
         return value;
@@ -266,8 +264,8 @@ public class Ipv6ServiceUtils {
         Arrays.fill(data, (byte)0);
 
         ByteBuffer buf = ByteBuffer.wrap(data);
-        buf.put(bytesFromHexString(ethPdu.getDestinationMac().getValue().toString()));
-        buf.put(bytesFromHexString(ethPdu.getSourceMac().getValue().toString()));
+        buf.put(bytesFromHexString(ethPdu.getDestinationMac().getValue()));
+        buf.put(bytesFromHexString(ethPdu.getSourceMac().getValue()));
         buf.putShort((short)ethPdu.getEthertype().intValue());
         return data;
     }
@@ -277,8 +275,8 @@ public class Ipv6ServiceUtils {
         Arrays.fill(data, (byte)0);
 
         ByteBuffer buf = ByteBuffer.wrap(data);
-        long flowLabel = (((long)(ip6Pdu.getVersion() & 0x0f) << 28)
-                | (ip6Pdu.getFlowLabel() & 0x0fffffff));
+        long flowLabel = (long)(ip6Pdu.getVersion() & 0x0f) << 28
+                | ip6Pdu.getFlowLabel() & 0x0fffffff;
         buf.putInt((int)flowLabel);
         buf.putShort((short)ip6Pdu.getIpv6Length().intValue());
         buf.put((byte)ip6Pdu.getNextHeader().shortValue());
