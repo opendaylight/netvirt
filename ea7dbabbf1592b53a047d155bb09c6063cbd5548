@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_71df9ed6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 790,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T07:44:59Z",
+      "side": 1,
+      "message": "no. I keep Collection.\nsince a Collection can be a hashset or simply a Collection.\nI mean, this is a change that Tom recommended me.\nSo I don\"t see the point in changing the API again.",
+      "parentUuid": "9a245df4_37623bae",
+      "range": {
+        "startLine": 790,
+        "startChar": 38,
+        "endLine": 790,
+        "endChar": 48
+      },
+      "revId": "ea7dbabbf1592b53a047d155bb09c6063cbd5548",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b74e2b39",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 56
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-21T16:18:23Z",
       "side": 1,
       "message": "shouldn\u0027t this be called only if isBeingAssociated is false?",
+      "range": {
+        "startLine": 906,
+        "startChar": 22,
+        "endLine": 906,
+        "endChar": 82
+      },
+      "revId": "ea7dbabbf1592b53a047d155bb09c6063cbd5548",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d1980a1e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 906,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T07:44:59Z",
+      "side": 1,
+      "message": "first: updateVpnInterface is called from updateVpnForSubnet.\nsecond, the list is also refreshed when you do associate. for instance, if you have a subnet attached to a router, and you attach that router to a BGPVPN, then you remove the router from the vpninstance list. and this is a associate set to true case.",
+      "parentUuid": "9a245df4_b74e2b39",
       "range": {
         "startLine": 906,
         "startChar": 22,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_f1b8ae76",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 910,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T07:44:59Z",
+      "side": 1,
+      "message": "counter example is the cae where you perform disassociate, \nthen you add a router id to the list.",
+      "parentUuid": "9a245df4_97496733",
+      "range": {
+        "startLine": 908,
+        "startChar": 16,
+        "endLine": 910,
+        "endChar": 41
+      },
+      "revId": "ea7dbabbf1592b53a047d155bb09c6063cbd5548",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_f75423cb",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 56
@@ -82,6 +154,30 @@
       "writtenOn": "2017-11-21T16:18:23Z",
       "side": 1,
       "message": "whys this required? Just a temporary block?",
+      "range": {
+        "startLine": 912,
+        "startChar": 16,
+        "endLine": 914,
+        "endChar": 17
+      },
+      "revId": "ea7dbabbf1592b53a047d155bb09c6063cbd5548",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_91a97226",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T07:44:59Z",
+      "side": 1,
+      "message": "removed.",
+      "parentUuid": "9a245df4_f75423cb",
       "range": {
         "startLine": 912,
         "startChar": 16,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_71a4be4a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 2576,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T07:44:59Z",
+      "side": 1,
+      "message": "same remark as for createVpnInterface;\nI dont see the point in changing the API.",
+      "parentUuid": "9a245df4_d74f5f32",
+      "range": {
+        "startLine": 2576,
+        "startChar": 48,
+        "endLine": 2576,
+        "endChar": 58
+      },
+      "revId": "ea7dbabbf1592b53a047d155bb09c6063cbd5548",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_176577b4",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 56
@@ -140,6 +260,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_b16916fb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 2578,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T07:44:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_176577b4",
+      "range": {
+        "startLine": 2578,
+        "startChar": 8,
+        "endLine": 2578,
+        "endChar": 67
+      },
+      "revId": "ea7dbabbf1592b53a047d155bb09c6063cbd5548",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_775833fa",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 56
@@ -151,6 +295,30 @@
       "writtenOn": "2017-11-21T16:18:23Z",
       "side": 1,
       "message": "Should this be based on the subnet associated to the vpn?",
+      "range": {
+        "startLine": 2585,
+        "startChar": 35,
+        "endLine": 2585,
+        "endChar": 70
+      },
+      "revId": "ea7dbabbf1592b53a047d155bb09c6063cbd5548",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_116d8204",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 56
+      },
+      "lineNbr": 2585,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-22T07:44:59Z",
+      "side": 1,
+      "message": "Because that value is not used yet in the code ( except for ARP), I would like to apply the changes in a separate review.\n\nSome code is already ready to be pushed ( need to be rebased).\nThe code change would take into account the refresh of the vpninstance list from each vpn interface.\nis it ok to process that change in separate review ( maintenance or project. and if it is project, i will inform Hari that a new review will be necessary)",
+      "parentUuid": "9a245df4_775833fa",
       "range": {
         "startLine": 2585,
         "startChar": 35,
