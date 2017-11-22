@@ -177,12 +177,6 @@ public final class AclServiceUtils {
         }
     }
 
-    public static <T extends DataObject> void delete(
-            DataBroker broker, LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        tx.delete(datastoreType, path);
-    }
-
     /**
      * Retrieves the acl matching the key from the data store.
      *
