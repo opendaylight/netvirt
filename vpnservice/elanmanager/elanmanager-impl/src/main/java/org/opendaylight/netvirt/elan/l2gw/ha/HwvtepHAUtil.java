@@ -11,6 +11,7 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -91,7 +92,7 @@ public class HwvtepHAUtil {
     }
 
     public static Uuid getUUid(String key) {
-        return new Uuid(java.util.UUID.nameUUIDFromBytes(key.getBytes()).toString());
+        return new Uuid(java.util.UUID.nameUUIDFromBytes(key.getBytes(StandardCharsets.UTF_8)).toString());
     }
 
     public static InstanceIdentifier<TerminationPoint> buildTpId(InstanceIdentifier<Node> nodeIid,String tepIp) {
@@ -123,7 +124,7 @@ public class HwvtepHAUtil {
 
     public static InstanceIdentifier<Node> createInstanceIdentifierFromHAId(String haUUidVal) {
         String nodeString = HWVTEP_URI_PREFIX + "://"
-                + UUID + "/" + java.util.UUID.nameUUIDFromBytes(haUUidVal.getBytes()).toString();
+            + UUID + "/" + java.util.UUID.nameUUIDFromBytes(haUUidVal.getBytes(StandardCharsets.UTF_8)).toString();
         NodeId nodeId = new NodeId(new Uri(nodeString));
         NodeKey nodeKey = new NodeKey(nodeId);
         TopologyKey topoKey = new TopologyKey(HWVTEP_TOPOLOGY_ID);
@@ -238,15 +239,13 @@ public class HwvtepHAUtil {
         Node node = null;
         switch (mod.getModificationType()) {
             case SUBTREE_MODIFIED:
+            case DELETE:
                 node = mod.getDataBefore();
                 break;
             case WRITE:
                 if (mod.getDataBefore() !=  null) {
                     node = mod.getDataBefore();
                 }
-                break;
-            case DELETE:
-                node = mod.getDataBefore();
                 break;
             default:
                 break;
@@ -571,6 +570,9 @@ public class HwvtepHAUtil {
         if (l2Devices != null) {
             for (String psName : l2Devices.keySet()) {
                 L2GatewayDevice l2Device = l2Devices.get(psName);
+//            for (Entry<String, L2GatewayDevice> entry : l2Devices.entrySet()) {
+//                String psName = entry.getKey();
+//                L2GatewayDevice l2Device = entry.getValue();
                 if (updatedChildNode.getNodeId().getValue().equals(l2Device.getHwvtepNodeId())) {
                     LOG.info("Replaced the l2gw device cache entry for device {} with val {}",
                             l2Device.getDeviceName(), l2Device.getHwvtepNodeId());
