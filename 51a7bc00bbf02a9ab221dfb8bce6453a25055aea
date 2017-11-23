@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_467f3a15",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 121
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:33:16Z",
+      "side": 1,
+      "message": "The changes in this review will not work.\nThis Listener, listens on vpnInstanceToVpnId. vpnInstanceToVPnId gets created as soon as a bgpvpn gets created. By that time, no router will be associated to it.\n\nAlso, even ipv4 NAT relies on its own default flow. Adding a default flow here for all the bgpvpns with router associations might lead to problems.\n\nSo, you will have to program the default flow only after the first external network that is has its gateway on a ipv6 enabled router, is associated to the bgpvpn.\nSimilarly, remove flow when the last such external network is removed.",
+      "range": {
+        "startLine": 8,
+        "startChar": 52,
+        "endLine": 8,
+        "endChar": 53
+      },
+      "revId": "51a7bc00bbf02a9ab221dfb8bce6453a25055aea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
