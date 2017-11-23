@@ -1,0 +1,148 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_46e0da28",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeCopier.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-11-23T16:03:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_e059f635",
+      "range": {
+        "startLine": 70,
+        "startChar": 32,
+        "endLine": 70,
+        "endChar": 44
+      },
+      "revId": "d77b342564b5e18a641ebb7a196efedb54680d79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_26db267d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeCopier.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-11-23T16:03:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_40444249",
+      "range": {
+        "startLine": 85,
+        "startChar": 43,
+        "endLine": 85,
+        "endChar": 44
+      },
+      "revId": "d77b342564b5e18a641ebb7a196efedb54680d79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_86e65242",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeCopier.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-11-23T16:03:08Z",
+      "side": 1,
+      "message": "Hi Suneelu , can you please tell me why i need to put this check ?",
+      "parentUuid": "9a245df4_608a2665",
+      "range": {
+        "startLine": 148,
+        "startChar": 45,
+        "endLine": 148,
+        "endChar": 47
+      },
+      "revId": "d77b342564b5e18a641ebb7a196efedb54680d79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a6ef161d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-11-23T16:03:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_a066de4e",
+      "range": {
+        "startLine": 227,
+        "startChar": 74,
+        "endLine": 227,
+        "endChar": 76
+      },
+      "revId": "d77b342564b5e18a641ebb7a196efedb54680d79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_06f3820a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-11-23T16:03:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_005a4a82",
+      "range": {
+        "startLine": 235,
+        "startChar": 55,
+        "endLine": 235,
+        "endChar": 58
+      },
+      "revId": "d77b342564b5e18a641ebb7a196efedb54680d79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e6f58eed",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAOpNodeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2017-11-23T16:03:08Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_e05c567f",
+      "range": {
+        "startLine": 238,
+        "startChar": 75,
+        "endLine": 238,
+        "endChar": 77
+      },
+      "revId": "d77b342564b5e18a641ebb7a196efedb54680d79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
