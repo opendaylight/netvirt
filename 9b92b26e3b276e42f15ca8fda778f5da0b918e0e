@@ -46,6 +46,30 @@
       "revId": "9b92b26e3b276e42f15ca8fda778f5da0b918e0e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0620a299",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 134
+      },
+      "lineNbr": 2410,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T15:46:38Z",
+      "side": 1,
+      "message": "The third enum, VPN seems to be the most generic of the three values, so on a dissociate, I feel VPN to be the apt value for the bgpvpn instance.\nI leave the choice to you:)",
+      "parentUuid": "9a245df4_c07cb2ee",
+      "range": {
+        "startLine": 2409,
+        "startChar": 29,
+        "endLine": 2410,
+        "endChar": 78
+      },
+      "revId": "9b92b26e3b276e42f15ca8fda778f5da0b918e0e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
