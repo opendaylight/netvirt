@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_1a23d2a7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T21:14:43Z",
+      "side": 1,
+      "message": "This was the part that caused the CSIT failures. interfaceLists can be null which would\u0027ve caused an NPE before. I had moved the remove call to the else clause below b/c there\u0027s nothing to remove if interfaceLists was null or empty. But I realized the purpose is to first remove from   interfaceLists then check if it\u0027s empty.",
+      "revId": "b0b4eb89f5200d70c542d4360bd1c981702885e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_7ab2ce4c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 23
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T21:14:43Z",
+      "side": 1,
+      "message": "Created https://jira.opendaylight.org/browse/NETVIRT-1028 to address this",
+      "revId": "b0b4eb89f5200d70c542d4360bd1c981702885e1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
