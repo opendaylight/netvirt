@@ -451,6 +451,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_e643ce10",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2361,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-23T16:08:49Z",
+      "side": 1,
+      "message": "indeed, the specification has already been refreshed.\nthe irt/ert solution for bgpvpn for internet acces has been briefly discussed and rejected in the spec.\n\nnow the specification really discusses about the current implementation of bgpvpn internet.\n\nAlso, about the supposed hole in the spec, I just see that https://git.opendaylight.org/gerrit/#/c/54050/31/docs/specs/ipv6-l3vpn-internet.rst@192 has already been processed.\nso there is no hole in the spec. I think.",
+      "parentUuid": "9a245df4_a67a7685",
+      "range": {
+        "startLine": 2344,
+        "startChar": 24,
+        "endLine": 2361,
+        "endChar": 25
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b7b2ab49",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
