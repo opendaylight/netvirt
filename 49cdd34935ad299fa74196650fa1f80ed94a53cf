@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_265cc64a",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-23T17:53:33Z",
+      "side": 1,
+      "message": "I am bit puzzled by your request, since I already discussed of separating those reviews with the other ipv6 internet reviews or not.\nI intentionally separated it, in hope that the review would speed up.\nI guess I will integrate it again tomorrow.",
+      "parentUuid": "9a245df4_46fc5ab8",
+      "range": {
+        "startLine": 33,
+        "startChar": 10,
+        "endLine": 33,
+        "endChar": 64
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_26c20685",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
         "patchSetId": 119
