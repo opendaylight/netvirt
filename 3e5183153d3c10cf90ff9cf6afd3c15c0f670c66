@@ -403,6 +403,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_2024ae0b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2361,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-23T10:21:58Z",
+      "side": 1,
+      "message": "Indeed, I think there has been a hole in the specification.\nThis is regarding the current usage of external network and BGPVPN.\nI think that you can use it for floating IPs ( IPv4).\nIn that case, as it is the same way I configure BGPVPN internet for IPv6, then I assume that BGPVPN would benefit for both.\nThat implies that what we call BGPVPN internet would also benefit to external ipv4 subnets. and what we call \"IPv6 Internet\" can include IPv4.\n\nMaybe , I should add some informationa bout that in the ipv6 Internet specification document.",
+      "parentUuid": "9a245df4_a0325ea4",
+      "range": {
+        "startLine": 2344,
+        "startChar": 24,
+        "endLine": 2361,
+        "endChar": 25
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_b7b2ab49",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
