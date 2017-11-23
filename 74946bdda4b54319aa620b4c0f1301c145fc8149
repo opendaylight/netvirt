@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_cb29738b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-23T12:21:50Z",
+      "side": 1,
+      "message": "My goal in this change was to be super careful and try to preservere current semantics as much as possible.  The code on the left, waitForTransactionToComplete currently is blocking, so I wanted to preserve that.  I would suggest trying to start turning things which were async into sync separately in future changes only.  OK for you?",
+      "parentUuid": "9a245df4_da8bff1c",
+      "revId": "74946bdda4b54319aa620b4c0f1301c145fc8149",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_fa84030c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
         "patchSetId": 1
