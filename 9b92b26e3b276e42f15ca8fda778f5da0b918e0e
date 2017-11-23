@@ -22,6 +22,30 @@
       "revId": "9b92b26e3b276e42f15ca8fda778f5da0b918e0e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c07cb2ee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 134
+      },
+      "lineNbr": 2410,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-23T10:21:58Z",
+      "side": 1,
+      "message": "at least, this is not a BGPVPN Internet, since it has been disassociated.\nthat is why I unmark it with BGPVPN Internet.\nAnd as this vpn does not stand for a router, then I set that value.\n\nI don\u0027t do any othere initialisations in other places, since that value is not used everywhere.\nSo this is partial. A separate review could ensure that the value is aligned.",
+      "parentUuid": "9a245df4_605ce619",
+      "range": {
+        "startLine": 2409,
+        "startChar": 29,
+        "endLine": 2410,
+        "endChar": 78
+      },
+      "revId": "9b92b26e3b276e42f15ca8fda778f5da0b918e0e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
