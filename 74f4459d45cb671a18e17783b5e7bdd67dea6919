@@ -919,6 +919,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_604346af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 130
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-23T10:21:58Z",
+      "side": 1,
+      "message": "you are right.\nIndeed, I was thinking of the creation of contexts associated to VPN, whereas the context that is to be destroyed in that function is only related to the nexthop and the port.\n\nwhat I can do is simply provide the first vpnName, and let the rest of the function operate.",
+      "parentUuid": "9a245df4_a02c1e9a",
+      "range": {
+        "startLine": 884,
+        "startChar": 24,
+        "endLine": 888,
+        "endChar": 25
+      },
+      "revId": "74f4459d45cb671a18e17783b5e7bdd67dea6919",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_7cd138cc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 130
@@ -1284,6 +1308,30 @@
       "side": 1,
       "message": "If you have handled my comment in line 938, then this check again is not required, is what I was getting at.",
       "parentUuid": "9a245df4_140f30e2",
+      "range": {
+        "startLine": 957,
+        "startChar": 15,
+        "endLine": 957,
+        "endChar": 33
+      },
+      "revId": "74f4459d45cb671a18e17783b5e7bdd67dea6919",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a0189ed3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 130
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-23T10:21:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_804aba52",
       "range": {
         "startLine": 957,
         "startChar": 15,
