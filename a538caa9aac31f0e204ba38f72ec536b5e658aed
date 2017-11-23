@@ -1,0 +1,227 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_454e143c",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 82,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Incorrect lazy initialization of static field IfMgr.ifMgr - unsynchronized lazy initialization of a non-volatile static field\". This is avoided by eliminating the static instance and making it a proper singleton.",
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c50844dc",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 413,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Suspicious comparison of Boolean references\" - convert to boolean to avoid this",
+      "range": {
+        "startLine": 413,
+        "startChar": 47,
+        "endLine": 413,
+        "endChar": 49
+      },
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_85548cca",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NeighborSolicitation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Method invokes toString() method on a String\"",
+      "range": {
+        "startLine": 102,
+        "startChar": 81,
+        "endLine": 102,
+        "endChar": 89
+      },
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_654fd834",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6NeighborSolicitation.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Method ignores return value\"",
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a56430b9",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PeriodicRAThread.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "This class was removed and the functionality merged into Ipv6PeriodicTrQueue since the queue needs to be tightly coupled with the thread that accesses it.",
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_05589cf8",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Method ignores exceptional return value\" - we don\u0027t use the Future so use execute instead.",
+      "range": {
+        "startLine": 93,
+        "startChar": 40,
+        "endLine": 93,
+        "endChar": 46
+      },
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e55aa8f0",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Load of known null value\"",
+      "range": {
+        "startLine": 149,
+        "startChar": 57,
+        "endLine": 149,
+        "endChar": 61
+      },
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_45757462",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "same here",
+      "range": {
+        "startLine": 156,
+        "startChar": 88,
+        "endLine": 156,
+        "endChar": 98
+      },
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_25704071",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/Ipv6PktHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 312,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Load of known null value\"",
+      "range": {
+        "startLine": 312,
+        "startChar": 57,
+        "endLine": 312,
+        "endChar": 61
+      },
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_856bec83",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/VirtualPort.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"instanceof will always return true for all non-null values, since all org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address are instances of org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address\"",
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6566b8bc",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/utils/Ipv6ServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-23T00:12:10Z",
+      "side": 0,
+      "message": "\"Field isn\u0027t final and can\u0027t be protected from malicious code\"",
+      "revId": "a538caa9aac31f0e204ba38f72ec536b5e658aed",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
