@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_c077929e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 1584,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T08:33:33Z",
+      "side": 1,
+      "message": "Yeah. you can make it as a separate review. Your separate review will just need to refine the updateVpnInterfaceWithAdjacencies, such that it will now be two methods, one that will actually update the adjacencies, and the other that will just update the vpn instance names for the vpn interface",
+      "parentUuid": "9a245df4_b73d8bc6",
+      "range": {
+        "startLine": 1579,
+        "startChar": 27,
+        "endLine": 1584,
+        "endChar": 29
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_37519b0f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
@@ -284,6 +308,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_a07a5e85",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2231,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T08:33:33Z",
+      "side": 1,
+      "message": "Yes. your explaination is right",
+      "parentUuid": "9a245df4_748dccd2",
+      "range": {
+        "startLine": 2222,
+        "startChar": 8,
+        "endLine": 2231,
+        "endChar": 13
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_17a297fc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 132
@@ -319,6 +367,30 @@
       "side": 1,
       "message": "it must be done for:\n- underlying subnets \u003d\u003e BGPVPN external \n- if that network is external, apply to subnets from router from external network.\nI think it must be kept like that.",
       "parentUuid": "9a245df4_17a297fc",
+      "range": {
+        "startLine": 2344,
+        "startChar": 24,
+        "endLine": 2361,
+        "endChar": 25
+      },
+      "revId": "3e5183153d3c10cf90ff9cf6afd3c15c0f670c66",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a0325ea4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 132
+      },
+      "lineNbr": 2361,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T08:33:33Z",
+      "side": 1,
+      "message": "Okay.\nI get that it needs to be done for all the subnets, part of the router, that is connected to a bgpvpn_internet through an external network.\nBut, is necessary to updateVpnInstanceWithIpFamily() for a subnet that is part of the external network? (lines 2317-2324).\nIf this is not required, then please remove it.\nMy reasoning is that, in this ipv6 internet spec, the external network only exists to enable internet capability through the bgpvpn_internet. THis subnet that belongs to the external network should not be used to determine the ipv4/v6 configuration of a bgpvpn_internet.",
+      "parentUuid": "9a245df4_f4a1bc46",
       "range": {
         "startLine": 2344,
         "startChar": 24,
