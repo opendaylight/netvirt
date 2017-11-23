@@ -730,6 +730,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_20114e52",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 130
+      },
+      "lineNbr": 305,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T08:33:33Z",
+      "side": 1,
+      "message": "Got it. thanks for the clarification.\nYou can keep it as it is.",
+      "parentUuid": "9a245df4_d402b808",
+      "range": {
+        "startLine": 305,
+        "startChar": 15,
+        "endLine": 305,
+        "endChar": 56
+      },
+      "revId": "74f4459d45cb671a18e17783b5e7bdd67dea6919",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3cba20c1",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 130
@@ -871,6 +895,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_a02c1e9a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 130
+      },
+      "lineNbr": 888,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T08:33:33Z",
+      "side": 1,
+      "message": "Could you please explain why this is needed please?\nAs I understand, a config vpn-interface is only one instance for both the routerVpn and the internetVpn. This vpn-interface will have a list of vpnInstanceNames, one for routerVpn and the other for the internetVpn.\nSo, to delete an extra-route adjacency, you only have to remove it once from the above mentioned vpn-interface, and then in the vpnInterfaceManager, call the remove extra route twice, once for each vpnName.\nCould you please explain to me where I am wrong with my understanding?",
+      "parentUuid": "9a245df4_b42c649a",
+      "range": {
+        "startLine": 884,
+        "startChar": 24,
+        "endLine": 888,
+        "endChar": 25
+      },
+      "revId": "74f4459d45cb671a18e17783b5e7bdd67dea6919",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_7cd138cc",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 130
@@ -906,6 +954,30 @@
       "side": 1,
       "message": "why isnt it required ?\n This function is used to add an internetvpnId field to the list of VPNInstance from the VPN interface.\nThis is the key point that permits exporting IPv6 adjacencies.\n\nplease give me more information if you disagree on that point.",
       "parentUuid": "9a245df4_7cd138cc",
+      "range": {
+        "startLine": 897,
+        "startChar": 8,
+        "endLine": 899,
+        "endChar": 9
+      },
+      "revId": "74f4459d45cb671a18e17783b5e7bdd67dea6919",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_403d62c3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 130
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T08:33:33Z",
+      "side": 1,
+      "message": "THanks for clarifying.\nHowever, this method is misleading. Please separate out updating vpnName, and adjacencies as two separate methods and call them appropriately.\nThis can be done later, but please track it.",
+      "parentUuid": "9a245df4_b453c415",
       "range": {
         "startLine": 897,
         "startChar": 8,
@@ -1188,6 +1260,30 @@
       "side": 1,
       "message": "I wouldl ike  to keep that algorith.\nis there a problem with that ?",
       "parentUuid": "9a245df4_fc9248f4",
+      "range": {
+        "startLine": 957,
+        "startChar": 15,
+        "endLine": 957,
+        "endChar": 33
+      },
+      "revId": "74f4459d45cb671a18e17783b5e7bdd67dea6919",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_804aba52",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 130
+      },
+      "lineNbr": 957,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T08:33:33Z",
+      "side": 1,
+      "message": "If you have handled my comment in line 938, then this check again is not required, is what I was getting at.",
+      "parentUuid": "9a245df4_140f30e2",
       "range": {
         "startLine": 957,
         "startChar": 15,
