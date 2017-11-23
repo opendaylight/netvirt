@@ -1,0 +1,234 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9a245df4_46fc5ab8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "Please move these changes to https://git.opendaylight.org/gerrit/#/c/57413.\nBecause, 57412 and 57413 being separate reviews, in the future it\u0027ll be hard to tell why these changes were made by only looking at 57412",
+      "range": {
+        "startLine": 33,
+        "startChar": 10,
+        "endLine": 33,
+        "endChar": 64
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_26c20685",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "IPV6InternetDefaultRouteProgammer",
+      "range": {
+        "startLine": 29,
+        "startChar": 13,
+        "endLine": 29,
+        "endChar": 39
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c6084adc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "use NwConstants.TABLE_MISS_PRIORITY",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 88
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_6666bebc",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "ipv6 internet default route",
+      "range": {
+        "startLine": 58,
+        "startChar": 26,
+        "endLine": 58,
+        "endChar": 44
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_26496631",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "of the compute node",
+      "range": {
+        "startLine": 67,
+        "startChar": 20,
+        "endLine": 67,
+        "endChar": 29
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_0658a2f8",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "internetvpn",
+      "range": {
+        "startLine": 68,
+        "startChar": 23,
+        "endLine": 68,
+        "endChar": 26
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_e65aaef0",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "router associated to internet bgpvpn",
+      "range": {
+        "startLine": 69,
+        "startChar": 23,
+        "endLine": 69,
+        "endChar": 29
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_c63a0a98",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "installDefaultRoute",
+      "range": {
+        "startLine": 71,
+        "startChar": 16,
+        "endLine": 71,
+        "endChar": 44
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a63d5691",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 76,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "remvoveDefaultRoute",
+      "range": {
+        "startLine": 76,
+        "startChar": 16,
+        "endLine": 76,
+        "endChar": 43
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_a688b671",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NatUtil.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 1942,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-23T16:18:49Z",
+      "side": 1,
+      "message": "remove this if not required",
+      "range": {
+        "startLine": 1942,
+        "startChar": 75,
+        "endLine": 1942,
+        "endChar": 102
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
