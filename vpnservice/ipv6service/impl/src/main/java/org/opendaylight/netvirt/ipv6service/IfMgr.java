@@ -13,12 +13,15 @@ import io.netty.util.Timeout;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -63,16 +66,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class IfMgr implements ElementCache {
+public class IfMgr implements ElementCache, AutoCloseable {
     static final Logger LOG = LoggerFactory.getLogger(IfMgr.class);
 
-    private final Map<Uuid, VirtualRouter> vrouters = new HashMap<>();
-    private final Map<Uuid, VirtualNetwork> vnetworks = new HashMap<>();
-    private final Map<Uuid, VirtualSubnet> vsubnets = new HashMap<>();
-    private final Map<Uuid, VirtualPort> vintfs = new HashMap<>();
-    private final Map<Uuid, VirtualPort> vrouterv6IntfMap = new HashMap<>();
-    private final Map<Uuid, List<VirtualPort>> unprocessedRouterIntfs = new HashMap<>();
-    private final Map<Uuid, List<VirtualPort>> unprocessedSubnetIntfs = new HashMap<>();
+    private final ConcurrentMap<Uuid, VirtualRouter> vrouters = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, VirtualNetwork> vnetworks = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, VirtualSubnet> vsubnets = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, VirtualPort> vintfs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, VirtualPort> vrouterv6IntfMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, List<VirtualPort>> unprocessedRouterIntfs = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs = new ConcurrentHashMap<>();
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final IElanService elanProvider;
     private final IMdsalApiManager mdsalUtil;
@@ -80,8 +83,7 @@ public class IfMgr implements ElementCache {
     private final DataBroker dataBroker;
     private final PacketProcessingService packetService;
     private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(portId -> transmitUnsolicitedRA(portId));
-
-    private final Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
+    private final Ipv6TimerWheel timer = new Ipv6TimerWheel();
 
     @Inject
     public IfMgr(DataBroker dataBroker, IElanService elanProvider, OdlInterfaceRpcService interfaceManagerRpc,
@@ -94,6 +96,12 @@ public class IfMgr implements ElementCache {
         LOG.info("IfMgr is enabled");
     }
 
+    @Override
+    @PreDestroy
+    public void close() {
+        timer.close();
+    }
+
     /**
      * Add router.
      *
@@ -103,32 +111,27 @@ public class IfMgr implements ElementCache {
      */
     public void addRouter(Uuid rtrUuid, String rtrName, Uuid tenantId) {
 
-        VirtualRouter rtr = new VirtualRouter();
-
-        rtr.setTenantID(tenantId)
-                .setRouterUUID(rtrUuid)
-                .setName(rtrName);
+        VirtualRouter rtr = VirtualRouter.builder().routerUUID(rtrUuid).tenantID(tenantId).name(rtrName).build();
         vrouters.put(rtrUuid, rtr);
 
-        List<VirtualPort> intfList = unprocessedRouterIntfs.get(rtrUuid);
-
+        List<VirtualPort> intfList = unprocessedRouterIntfs.remove(rtrUuid);
         if (intfList == null) {
-            LOG.info("No unprocessed interfaces for the router {}", rtrUuid);
+            LOG.debug("No unprocessed interfaces for the router {}", rtrUuid);
             return;
         }
 
-        for (VirtualPort intf : intfList) {
-            if (intf != null) {
-                intf.setRouter(rtr);
-                rtr.addInterface(intf);
+        synchronized (intfList) {
+            for (VirtualPort intf : intfList) {
+                if (intf != null) {
+                    intf.setRouter(rtr);
+                    rtr.addInterface(intf);
 
-                for (VirtualSubnet snet : intf.getSubnets()) {
-                    rtr.addSubnet(snet);
+                    for (VirtualSubnet snet : intf.getSubnets()) {
+                        rtr.addSubnet(snet);
+                    }
                 }
             }
         }
-
-        removeUnprocessed(unprocessedRouterIntfs, rtrUuid);
     }
 
     /**
@@ -138,10 +141,9 @@ public class IfMgr implements ElementCache {
      */
     public void removeRouter(Uuid rtrUuid) {
 
-        VirtualRouter rtr = vrouters.get(rtrUuid);
+        VirtualRouter rtr = vrouters.remove(rtrUuid);
         if (rtr != null) {
             rtr.removeSelf();
-            vrouters.remove(rtrUuid);
             removeUnprocessed(unprocessedRouterIntfs, rtrUuid);
         } else {
             LOG.error("Delete router failed for :{}", rtrUuid);
@@ -172,36 +174,31 @@ public class IfMgr implements ElementCache {
             gatewayIp = new IpAddress(addr);
         }
 
-        VirtualSubnet snet = new VirtualSubnet();
-        snet.setTenantID(tenantId)
-                .setSubnetUUID(snetId)
-                .setName(name)
-                .setGatewayIp(gatewayIp)
-                .setIPVersion(ipVersion)
-                .setSubnetCidr(subnetCidr)
-                .setIpv6AddressMode(ipV6AddressMode)
-                .setIpv6RAMode(ipV6RaMode);
+        VirtualSubnet snet = VirtualSubnet.builder().subnetUUID(snetId).tenantID(tenantId).name(name)
+                .gatewayIp(gatewayIp).subnetCidr(subnetCidr).ipVersion(ipVersion).ipv6AddressMode(ipV6AddressMode)
+                .ipv6RAMode(ipV6RaMode).build();
 
         vsubnets.put(snetId, snet);
 
-        List<VirtualPort> intfList = unprocessedSubnetIntfs.get(snetId);
+        List<VirtualPort> intfList = unprocessedSubnetIntfs.remove(snetId);
         if (intfList == null) {
-            LOG.info("No unprocessed interfaces for the subnet {}", snetId);
+            LOG.debug("No unprocessed interfaces for the subnet {}", snetId);
             return;
         }
-        for (VirtualPort intf : intfList) {
-            if (intf != null) {
-                intf.setSubnet(snetId, snet);
-                snet.addInterface(intf);
 
-                VirtualRouter rtr = intf.getRouter();
-                if (rtr != null) {
-                    rtr.addSubnet(snet);
+        synchronized (intfList) {
+            for (VirtualPort intf : intfList) {
+                if (intf != null) {
+                    intf.setSubnet(snetId, snet);
+                    snet.addInterface(intf);
+
+                    VirtualRouter rtr = intf.getRouter();
+                    if (rtr != null) {
+                        rtr.addSubnet(snet);
+                    }
                 }
             }
         }
-
-        removeUnprocessed(unprocessedSubnetIntfs, snetId);
     }
 
     /**
@@ -210,11 +207,10 @@ public class IfMgr implements ElementCache {
      * @param snetId subnet id
      */
     public void removeSubnet(Uuid snetId) {
-        VirtualSubnet snet = vsubnets.get(snetId);
+        VirtualSubnet snet = vsubnets.remove(snetId);
         if (snet != null) {
             LOG.info("removeSubnet is invoked for {}", snetId);
             snet.removeSelf();
-            vsubnets.remove(snetId);
             removeUnprocessed(unprocessedSubnetIntfs, snetId);
         }
     }
@@ -229,21 +225,17 @@ public class IfMgr implements ElementCache {
                 .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
         fixedIp = new IpAddress(addr);
 
-        VirtualPort intf = vintfs.get(portId);
+        VirtualPort intf = VirtualPort.builder().intfUUID(portId).networkID(networkId).macAddress(macAddress)
+                .routerIntfFlag(true).deviceOwner(deviceOwner).build();
+        intf.setSubnetInfo(snetId, fixedIp);
+        intf.setPeriodicTimer(ipv6Queue);
+
         boolean newIntf = false;
-        if (intf == null) {
-            intf = new VirtualPort();
-            vintfs.put(portId, intf);
-            intf.setIntfUUID(portId)
-                    .setSubnetInfo(snetId, fixedIp)
-                    .setNetworkID(networkId)
-                    .setMacAddress(macAddress)
-                    .setRouterIntfFlag(true)
-                    .setDeviceOwner(deviceOwner);
-            intf.setPeriodicTimer(ipv6Queue);
+        VirtualPort prevIntf = vintfs.putIfAbsent(portId, intf);
+        if (prevIntf == null) {
             newIntf = true;
             MacAddress ifaceMac = MacAddress.getDefaultInstance(macAddress);
-            Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(ifaceMac);
+            Ipv6Address llAddr = ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(ifaceMac);
             /* A new router interface is created. This is basically triggered when an
             IPv6 subnet is associated to the router. Check if network is already hosting
             any VMs. If so, on all the hosts that have VMs on the network, program the
@@ -252,6 +244,7 @@ public class IfMgr implements ElementCache {
             programIcmpv6RSPuntFlows(intf, Ipv6Constants.ADD_FLOW);
             programIcmpv6NSPuntFlowForAddress(intf, llAddr, Ipv6Constants.ADD_FLOW);
         } else {
+            intf = prevIntf;
             intf.setSubnetInfo(snetId, fixedIp);
         }
 
@@ -350,16 +343,13 @@ public class IfMgr implements ElementCache {
         Ipv6Address addr = new Ipv6Address(InetAddresses
                 .forString(fixedIp.getIpv6Address().getValue()).getHostAddress());
         fixedIp = new IpAddress(addr);
-        VirtualPort intf = vintfs.get(portId);
-        if (intf == null) {
-            intf = new VirtualPort();
-            vintfs.put(portId, intf);
-            intf.setIntfUUID(portId)
-                    .setSubnetInfo(snetId, fixedIp)
-                    .setNetworkID(networkId)
-                    .setMacAddress(macAddress)
-                    .setRouterIntfFlag(false)
-                    .setDeviceOwner(deviceOwner);
+
+        VirtualPort intf = VirtualPort.builder().intfUUID(portId).networkID(networkId).macAddress(macAddress)
+                .routerIntfFlag(false).deviceOwner(deviceOwner).build();
+        intf.setSubnetInfo(snetId, fixedIp);
+
+        VirtualPort prevIntf = vintfs.putIfAbsent(portId, intf);
+        if (prevIntf == null) {
             Long elanTag = getNetworkElanTag(networkId);
             // Do service binding for the port and set the serviceBindingStatus to true.
             ipv6ServiceUtils.bindIpv6Service(dataBroker, portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
@@ -369,6 +359,7 @@ public class IfMgr implements ElementCache {
             updateInterfaceDpidOfPortInfo(portId);
 
         } else {
+            intf = prevIntf;
             intf.setSubnetInfo(snetId, fixedIp);
         }
 
@@ -418,8 +409,8 @@ public class IfMgr implements ElementCache {
             portId, dpId, ofPort);
         VirtualPort intf = vintfs.get(portId);
         if (intf != null) {
-            intf.setDpId(dpId)
-                    .setOfPort(ofPort);
+            intf.setDpId(dpId);
+            intf.setOfPort(ofPort);
 
             // Update the network <--> List[dpnIds, List<ports>] cache.
             VirtualNetwork vnet = vnetworks.get(intf.getNetworkID());
@@ -448,7 +439,7 @@ public class IfMgr implements ElementCache {
 
 
     public void removePort(Uuid portId) {
-        VirtualPort intf = vintfs.get(portId);
+        VirtualPort intf = vintfs.remove(portId);
         if (intf != null) {
             intf.removeSelf();
             if (intf.getDeviceOwner().equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
@@ -462,7 +453,6 @@ public class IfMgr implements ElementCache {
                     programIcmpv6NSPuntFlowForAddress(intf, ipv6Address, Ipv6Constants.DEL_FLOW);
                 }
                 transmitRouterAdvertisement(intf, Ipv6RtrAdvertType.CEASE_ADVERTISEMENT);
-                Ipv6TimerWheel timer = Ipv6TimerWheel.getInstance();
                 timer.cancelPeriodicTransmissionTimeout(intf.getPeriodicTimeout());
                 intf.resetPeriodicTimeout();
                 LOG.debug("Reset the periodic RA Timer for intf {}", intf.getIntfUUID());
@@ -477,7 +467,6 @@ public class IfMgr implements ElementCache {
                     vnet.updateDpnPortInfo(dpId, intf.getOfPort(), Ipv6Constants.DEL_ENTRY);
                 }
             }
-            vintfs.remove(portId);
         }
     }
 
@@ -486,7 +475,7 @@ public class IfMgr implements ElementCache {
     }
 
     public void addUnprocessed(Map<Uuid, List<VirtualPort>> unprocessed, Uuid id, VirtualPort intf) {
-        unprocessed.computeIfAbsent(id, key -> new ArrayList<>()).add(intf);
+        unprocessed.computeIfAbsent(id, key -> Collections.synchronizedList(new ArrayList<>())).add(intf);
     }
 
     public void removeUnprocessed(Map<Uuid, List<VirtualPort>> unprocessed, Uuid id) {
@@ -621,21 +610,16 @@ public class IfMgr implements ElementCache {
     }
 
     public void addNetwork(Uuid networkId) {
-        VirtualNetwork net = vnetworks.get(networkId);
-        if (null == net) {
-            net = new VirtualNetwork();
-            net.setNetworkUuid(networkId);
-            vnetworks.put(networkId, net);
+        if (vnetworks.putIfAbsent(networkId, new VirtualNetwork(networkId)) == null) {
             updateNetworkElanTag(networkId);
         }
     }
 
     public void removeNetwork(Uuid networkId) {
         // Delete the network and the corresponding dpnIds<-->List(ports) cache.
-        VirtualNetwork net = vnetworks.get(networkId);
+        VirtualNetwork net = vnetworks.remove(networkId);
         if (null != net) {
             net.removeSelf();
-            vnetworks.remove(networkId);
         }
     }
 
@@ -677,7 +661,6 @@ public class IfMgr implements ElementCache {
 
     public void transmitUnsolicitedRA(VirtualPort port) {
         transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
-        Ipv6TimerWheel timer = Ipv6TimerWheel.getInstance();
         Timeout portTimeout = timer.setPeriodicTransmissionTimeout(port.getPeriodicTimer(),
                                                                    Ipv6Constants.PERIODIC_RA_INTERVAL,
                                                                    TimeUnit.SECONDS);

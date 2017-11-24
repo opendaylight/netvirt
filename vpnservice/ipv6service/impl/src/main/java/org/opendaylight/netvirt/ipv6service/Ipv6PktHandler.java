@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -51,7 +52,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6PktHandler.class);
-    private long pktProccessedCounter = 0;
+    private final AtomicLong pktProccessedCounter = new AtomicLong(0);
     private final PacketProcessingService pktService;
     private final IfMgr ifMgr;
     private final Ipv6ServiceUtils ipv6Utils;
@@ -106,7 +107,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     }
 
     public long getPacketProcessedCounter() {
-        return pktProccessedCounter;
+        return pktProccessedCounter.get();
     }
 
     private class PacketHandler implements Runnable {
@@ -134,7 +135,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             NeighborSolicitationPacket nsPdu = deserializeNSPacket(data);
             Ipv6Header ipv6Header = nsPdu;
             if (ipv6Utils.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum()) == false) {
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
                 LOG.warn("Received Neighbor Solicitation with invalid checksum on {}. Ignoring the packet.",
                         packet.getIngress());
                 return;
@@ -145,21 +146,21 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
             VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
             if (port == null) {
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
                 LOG.warn("Port {} not found, skipping.", interfaceName);
                 return;
             }
 
             VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
             if (routerPort == null) {
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
                 LOG.warn("Port for network Id {} is not associated to a Router, skipping NS request.",
                         port.getNetworkID());
                 return;
             }
 
             if (!routerPort.getIpv6Addresses().contains(nsPdu.getTargetIpAddress())) {
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
                 LOG.warn("No Router interface with address {} on the network {}, skipping NS request.",
                         nsPdu.getTargetIpAddress(), port.getNetworkID());
                 return;
@@ -178,7 +179,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             if (pktService != null) {
                 LOG.debug("Transmitting the Neighbor Advt packet out on {}", packet.getIngress());
                 JdkFutures.addErrorLogging(pktService.transmitPacket(input), LOG, "transmitPacket");
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
             }
         }
 
@@ -232,11 +233,11 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
         private void updateNAResponse(NeighborSolicitationPacket pdu,
                                       VirtualPort port, NeighborAdvertisePacketBuilder naPacket) {
             long flag = 0;
-            if (!pdu.getSourceIpv6().equals(ipv6Utils.UNSPECIFIED_ADDR)) {
+            if (!pdu.getSourceIpv6().equals(Ipv6ServiceUtils.UNSPECIFIED_ADDR)) {
                 naPacket.setDestinationIpv6(pdu.getSourceIpv6());
                 flag = 0xE0; // Set Router, Solicited and Override Flag.
             } else {
-                naPacket.setDestinationIpv6(ipv6Utils.ALL_NODES_MCAST_ADDR);
+                naPacket.setDestinationIpv6(Ipv6ServiceUtils.ALL_NODES_MCAST_ADDR);
                 flag = 0xA0; // Set Router and Override Flag.
             }
             naPacket.setDestinationMac(pdu.getSourceMac());
@@ -298,7 +299,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             RouterSolicitationPacket rsPdu = deserializeRSPacket(data);
             Ipv6Header ipv6Header = rsPdu;
             if (ipv6Utils.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum()) == false) {
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
                 LOG.warn("Received RS packet with invalid checksum on {}. Ignoring the packet.",
                         packet.getIngress());
                 return;
@@ -309,14 +310,14 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             String interfaceName = ifMgr.getInterfaceNameFromTag(portTag);
             VirtualPort port = ifMgr.obtainV6Interface(new Uuid(interfaceName));
             if (port == null) {
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
                 LOG.info("Port {} not found, skipping.", interfaceName);
                 return;
             }
 
             VirtualPort routerPort = ifMgr.getRouterV6InterfaceForNetwork(port.getNetworkID());
             if (routerPort == null) {
-                pktProccessedCounter++;
+                pktProccessedCounter.incrementAndGet();
                 LOG.warn("Port for networkId {} is not associated to a Router, skipping.", port.getNetworkID());
                 return;
             }
@@ -325,7 +326,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             ncRefList.add(packet.getIngress());
             ipv6RouterAdvert.transmitRtrAdvertisement(Ipv6RtrAdvertType.SOLICITED_ADVERTISEMENT,
                                                       routerPort, ncRefList, rsPdu);
-            pktProccessedCounter = pktProccessedCounter + 1;
+            pktProccessedCounter.incrementAndGet();
         }
 
         private RouterSolicitationPacket deserializeRSPacket(byte[] data) {

@@ -10,25 +10,23 @@ package org.opendaylight.netvirt.ipv6service;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Address;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 
 public class VirtualNetwork implements IVirtualNetwork {
-    private Long elanTag;
-    private Uuid networkUUID;
-    private final HashMap<BigInteger, DpnInterfaceInfo> dpnIfaceList;
+    private final Uuid networkUUID;
+    private final ConcurrentMap<BigInteger, DpnInterfaceInfo> dpnIfaceList = new ConcurrentHashMap<>();
+    private volatile Long elanTag;
 
-    public VirtualNetwork() {
-        dpnIfaceList = new HashMap<>();
-    }
-
-    public void setNetworkUuid(Uuid networkUuid) {
-        this.networkUUID = networkUuid;
+    public VirtualNetwork(Uuid networkUUID) {
+        this.networkUUID = networkUUID;
     }
 
     @Override
@@ -37,12 +35,7 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
-        DpnInterfaceInfo dpnInterface = dpnIfaceList.get(dpnId);
-        if (dpnInterface == null) {
-            dpnInterface = new DpnInterfaceInfo(dpnId);
-            dpnIfaceList.put(dpnId, dpnInterface);
-        }
-
+        DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
         if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
             dpnInterface.updateofPortList(ofPort);
         } else {
@@ -61,12 +54,8 @@ public class VirtualNetwork implements IVirtualNetwork {
 
     @Override
     public List<BigInteger> getDpnsHostingNetwork() {
-        List<BigInteger> dpnList = new ArrayList<>();
-        Collection<DpnInterfaceInfo> dpnCollection = dpnIfaceList.values();
-        for (DpnInterfaceInfo dpnInterfaceInfo: dpnCollection) {
-            dpnList.add(dpnInterfaceInfo.getDpId());
-        }
-        return dpnList;
+        return dpnIfaceList.values().stream().flatMap(dpnInterfaceInfo -> Stream.of(dpnInterfaceInfo.getDpId()))
+                .collect(Collectors.toList());
     }
 
     public Collection<DpnInterfaceInfo> getDpnIfaceList() {
@@ -102,15 +91,11 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public void removeSelf() {
-        Collection<DpnInterfaceInfo> dpns = dpnIfaceList.values();
-        Iterator itr = dpns.iterator();
-        while (itr.hasNext()) {
-            DpnInterfaceInfo dpnInterfaceInfo = (DpnInterfaceInfo) itr.next();
-            if (null != dpnInterfaceInfo) {
-                dpnInterfaceInfo.clearOfPortList();
-                dpnInterfaceInfo.clearNdTargetFlowInfo();
-            }
-        }
+        dpnIfaceList.values().forEach(dpnInterfaceInfo -> {
+            dpnInterfaceInfo.clearOfPortList();
+            dpnInterfaceInfo.clearNdTargetFlowInfo();
+        });
+
         clearDpnInterfaceList();
     }
 

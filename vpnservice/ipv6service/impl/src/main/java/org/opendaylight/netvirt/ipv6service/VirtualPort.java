@@ -11,8 +11,11 @@ package org.opendaylight.netvirt.ipv6service;
 import io.netty.util.Timeout;
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualPort;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6PeriodicTimer;
@@ -28,24 +31,30 @@ import org.slf4j.LoggerFactory;
 public class VirtualPort implements IVirtualPort  {
     static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
 
-    private Uuid      intfUUID;
-    private Uuid      networkID;
-    private String    macAddress;
-    private Boolean   routerIntfFlag;
-    private BigInteger    dpId;
-    private String    deviceOwner;
-    private Long      ofPort;
-    private boolean   serviceBindingStatus;
-    private final HashMap<Uuid, SubnetInfo> snetInfo = new HashMap<>();
-    private Ipv6PeriodicTimer periodicTimer;
-    private Timeout periodicTimeout;
+    private final Uuid intfUUID;
+    private final Uuid networkID;
+    private final String macAddress;
+    private final boolean routerIntfFlag;
+    private final String deviceOwner;
+    private final ConcurrentMap<Uuid, SubnetInfo> snetInfo = new ConcurrentHashMap<>();
+
+    private volatile Long ofPort;
+    private volatile BigInteger dpId;
+    private volatile boolean serviceBindingStatus;
+    private volatile Ipv6PeriodicTimer periodicTimer;
+    private volatile Timeout periodicTimeout;
 
     // associated router if any
-    private VirtualRouter router = null;
+    private volatile VirtualRouter router;
 
     // TODO:: Need Openflow port
 
-    public VirtualPort() {
+    private VirtualPort(Builder builder) {
+        this.intfUUID = builder.intfUUID;
+        this.networkID = builder.networkID;
+        this.macAddress = builder.macAddress;
+        this.routerIntfFlag = builder.routerIntfFlag;
+        this.deviceOwner = builder.deviceOwner;
     }
 
     @Override
@@ -53,30 +62,13 @@ public class VirtualPort implements IVirtualPort  {
         return intfUUID;
     }
 
-    public VirtualPort setIntfUUID(Uuid intfUUID) {
-        this.intfUUID = intfUUID;
-        return this;
-    }
-
     @Override
     public Uuid getNetworkID() {
         return networkID;
     }
 
-    public VirtualPort setNetworkID(Uuid networkID) {
-        this.networkID = networkID;
-        return this;
-    }
-
-    public VirtualPort setSubnetInfo(Uuid snetID, IpAddress fixedIp) {
-        SubnetInfo subnetInfo = snetInfo.get(snetID);
-        if (subnetInfo == null) {
-            subnetInfo = new SubnetInfo(snetID, fixedIp);
-            snetInfo.put(snetID, subnetInfo);
-        } else {
-            subnetInfo.setIpAddr(fixedIp);
-        }
-        return this;
+    public void setSubnetInfo(Uuid snetID, IpAddress fixedIp) {
+        snetInfo.computeIfAbsent(snetID, key -> new SubnetInfo(snetID, fixedIp)).setIpAddr(fixedIp);
     }
 
     public void clearSubnetInfo() {
@@ -104,23 +96,20 @@ public class VirtualPort implements IVirtualPort  {
                 subnetList.add(subnetInfo.getSubnet());
             }
         }
+
         return subnetList;
     }
 
     public List<IpAddress> getIpAddresses() {
-        List<IpAddress> ipAddrList = new ArrayList<>();
-        for (SubnetInfo subnetInfo : snetInfo.values()) {
-            ipAddrList.add(subnetInfo.getIpAddr());
-        }
-        return ipAddrList;
+        return snetInfo.values().stream().flatMap(subnetInfo -> Stream.of(subnetInfo.getIpAddr()))
+                .collect(Collectors.toList());
     }
 
     @Override
     public List<Ipv6Address> getIpv6Addresses() {
-        List<Ipv6Address> ipv6AddrList = new ArrayList<>();
-        for (SubnetInfo subnetInfo : snetInfo.values()) {
-            ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
-        }
+        List<Ipv6Address> ipv6AddrList = snetInfo.values().stream().flatMap(
+            subnetInfo -> Stream.of(subnetInfo.getIpAddr().getIpv6Address())).collect(Collectors.toList());
+
         if (deviceOwner.equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
             Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
             Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(new MacAddress(macAddress));
@@ -130,11 +119,8 @@ public class VirtualPort implements IVirtualPort  {
     }
 
     public List<Ipv6Address> getIpv6AddressesWithoutLLA() {
-        List<Ipv6Address> ipv6AddrList = new ArrayList<>();
-        for (SubnetInfo subnetInfo : snetInfo.values()) {
-            ipv6AddrList.add(subnetInfo.getIpAddr().getIpv6Address());
-        }
-        return ipv6AddrList;
+        return snetInfo.values().stream().flatMap(
+            subnetInfo -> Stream.of(subnetInfo.getIpAddr().getIpv6Address())).collect(Collectors.toList());
     }
 
     @Override
@@ -142,18 +128,8 @@ public class VirtualPort implements IVirtualPort  {
         return macAddress;
     }
 
-    public VirtualPort setMacAddress(String macAddress) {
-        this.macAddress = macAddress;
-        return this;
-    }
-
-    public Boolean getRouterIntfFlag() {
+    public boolean getRouterIntfFlag() {
         return routerIntfFlag;
-    }
-
-    public VirtualPort setRouterIntfFlag(Boolean routerIntfFlag) {
-        this.routerIntfFlag = routerIntfFlag;
-        return this;
     }
 
     public void setRouter(VirtualRouter rtr) {
@@ -164,19 +140,13 @@ public class VirtualPort implements IVirtualPort  {
         return router;
     }
 
-    public IVirtualPort setDeviceOwner(String deviceOwner) {
-        this.deviceOwner = deviceOwner;
-        return this;
-    }
-
     @Override
     public String getDeviceOwner() {
         return deviceOwner;
     }
 
-    public VirtualPort setDpId(BigInteger dpId) {
+    public void setDpId(BigInteger dpId) {
         this.dpId = dpId;
-        return this;
     }
 
     @Override
@@ -201,7 +171,7 @@ public class VirtualPort implements IVirtualPort  {
     }
 
     public void removeSelf() {
-        if (routerIntfFlag == true) {
+        if (routerIntfFlag) {
             if (router != null) {
                 router.removeInterface(this);
             }
@@ -242,10 +212,10 @@ public class VirtualPort implements IVirtualPort  {
     }
 
     private static class SubnetInfo {
-        private final Uuid      subnetID;
-        private IpAddress ipAddr;
+        private final Uuid subnetID;
+        private volatile IpAddress ipAddr;
         // associated subnet
-        private VirtualSubnet subnet = null;
+        private volatile VirtualSubnet subnet;
 
         SubnetInfo(Uuid subnetId, IpAddress ipAddr) {
             this.subnetID = subnetId;
@@ -275,6 +245,47 @@ public class VirtualPort implements IVirtualPort  {
         @Override
         public String toString() {
             return "subnetInfot[subnetId=" + subnetID + " ipAddr=" + ipAddr + " ]";
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Uuid intfUUID;
+        private Uuid networkID;
+        private String macAddress;
+        private boolean routerIntfFlag;
+        private String deviceOwner;
+
+        public Builder intfUUID(Uuid newIntfUUID) {
+            this.intfUUID = newIntfUUID;
+            return this;
+        }
+
+        public Builder networkID(Uuid newNetworkID) {
+            this.networkID = newNetworkID;
+            return this;
+        }
+
+        public Builder macAddress(String newMacAddress) {
+            this.macAddress = newMacAddress;
+            return this;
+        }
+
+        public Builder routerIntfFlag(boolean value) {
+            this.routerIntfFlag = value;
+            return this;
+        }
+
+        public Builder deviceOwner(String newDeviceOwner) {
+            this.deviceOwner = newDeviceOwner;
+            return this;
+        }
+
+        public VirtualPort build() {
+            return new VirtualPort(this);
         }
     }
 }
