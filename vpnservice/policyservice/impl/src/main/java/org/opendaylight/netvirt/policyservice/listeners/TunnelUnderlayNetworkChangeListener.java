@@ -11,18 +11,15 @@ package org.opendaylight.netvirt.policyservice.listeners;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
-
 import java.math.BigInteger;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -46,7 +43,6 @@ import org.slf4j.LoggerFactory;
  * underlay networks by updating the internal policy operational DS.
  *
  */
-@SuppressWarnings("deprecation")
 @Singleton
 public class TunnelUnderlayNetworkChangeListener
         extends AsyncDataTreeChangeListenerBase<OpenvswitchOtherConfigs, TunnelUnderlayNetworkChangeListener> {

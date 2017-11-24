@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  * tunnel interface associated with the underlay network.
  *
  */
-@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyRouteGroupProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyRouteGroupProgrammer.class);

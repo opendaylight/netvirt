@@ -12,11 +12,9 @@ import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -47,7 +45,6 @@ import org.slf4j.LoggerFactory;
  * classifier added/removed or when the list of associated underlay networks is
  * updated
  */
-@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyProfileChangeListener
         extends AsyncDataTreeChangeListenerBase<PolicyProfile, PolicyProfileChangeListener> {

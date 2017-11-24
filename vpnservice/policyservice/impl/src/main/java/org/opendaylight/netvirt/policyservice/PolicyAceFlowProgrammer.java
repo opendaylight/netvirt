@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
  * POLICY_ROUTING_TABLE
  *
  */
-@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyAceFlowProgrammer {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyAceFlowProgrammer.class);

@@ -48,7 +48,6 @@ import org.slf4j.LoggerFactory;
  * bounded/unbounded.
  *
  */
-@SuppressWarnings("deprecation")
 @Singleton
 public class TunnelStateChangeListener
         extends AsyncDataTreeChangeListenerBase<StateTunnelList, TunnelStateChangeListener> {
