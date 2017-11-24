@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -111,6 +112,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     protected abstract InstanceIdentifier<Node> getParentWildCardPath();
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         if (registration != null) {
             registration.close();

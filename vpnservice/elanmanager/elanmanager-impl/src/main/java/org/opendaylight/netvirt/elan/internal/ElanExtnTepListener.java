@@ -9,10 +9,14 @@ package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.SettableFuture;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -22,30 +26,28 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<ExternalTeps, ElanExtnTepListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepListener.class);
 
     private final DataBroker broker;
-    private final ElanInterfaceManager elanInterfaceManager;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
 
-    public ElanExtnTepListener(DataBroker dataBroker, ElanInterfaceManager elanInterfaceManager,
+    @Inject
+    public ElanExtnTepListener(DataBroker dataBroker, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
             JobCoordinator jobCoordinator) {
         super(ExternalTeps.class, ElanExtnTepListener.class);
         this.broker = dataBroker;
-        this.elanInterfaceManager = elanInterfaceManager;
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
-    }
-
-    @Override
-    public void close() {
-        super.close();
     }
 
     @Override
@@ -78,7 +80,7 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
             SettableFuture<Void> ft = SettableFuture.create();
             try {
                 //TODO make the following method return ft
-                elanInterfaceManager.updateRemoteBroadcastGroupForAllElanDpns(elanInfo);
+                elanL2GatewayMulticastUtils.updateRemoteBroadcastGroupForAllElanDpns(elanInfo);
                 ft.set(null);
             } catch (Exception e) {
                 //since the above method does a sync write , if it fails there was no retry

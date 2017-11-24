@@ -11,12 +11,13 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.slf4j.Logger;
@@ -28,7 +29,6 @@ import org.slf4j.LoggerFactory;
 public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFuture<Void>>> {
     private static final Logger LOG = LoggerFactory.getLogger(DisAssociateHwvtepFromElanJob.class);
 
-    private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final L2GatewayDevice l2GatewayDevice;
@@ -37,17 +37,18 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
     private final Integer defaultVlan;
     private final boolean isLastL2GwConnDeleted;
     private final NodeId hwvtepNodeId;
+    private final Supplier<ElanInstance> elanInstanceSupplier;
 
-    public DisAssociateHwvtepFromElanJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
+    public DisAssociateHwvtepFromElanJob(ElanL2GatewayUtils elanL2GatewayUtils,
                                          ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                          @Nullable L2GatewayDevice l2GatewayDevice,  String elanName,
-                                         Devices l2Device, Integer defaultVlan, String nodeId,
-                                         boolean isLastL2GwConnDeleted) {
-        this.broker = broker;
+                                         Supplier<ElanInstance> elanInstanceSupplier, Devices l2Device,
+                                         Integer defaultVlan, String nodeId, boolean isLastL2GwConnDeleted) {
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.l2GatewayDevice = l2GatewayDevice;
         this.elanName = elanName;
+        this.elanInstanceSupplier = elanInstanceSupplier;
         this.l2Device = l2Device;
         this.defaultVlan = defaultVlan;
         this.isLastL2GwConnDeleted = isLastL2GwConnDeleted;
@@ -84,7 +85,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
 
             LOG.info("delete mcast mac for {} {}", elanName, strHwvtepNodeId);
             futures.addAll(elanL2GatewayMulticastUtils.handleMcastForElanL2GwDeviceDelete(this.elanName,
-                    l2GatewayDevice));
+                    elanInstanceSupplier.get(), l2GatewayDevice));
 
             LOG.info("delete local ucast macs {} {}", elanName, strHwvtepNodeId);
             futures.addAll(elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, elanName));

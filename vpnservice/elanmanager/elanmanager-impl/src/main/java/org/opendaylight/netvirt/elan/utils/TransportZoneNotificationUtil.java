@@ -21,6 +21,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -62,6 +64,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class TransportZoneNotificationUtil {
     private static final Logger LOG = LoggerFactory.getLogger(TransportZoneNotificationUtil.class);
     private static final String TUNNEL_PORT = "tunnel_port";
@@ -77,6 +80,7 @@ public class TransportZoneNotificationUtil {
     private final ElanConfig elanConfig;
     private final ElanBridgeManager elanBridgeManager;
 
+    @Inject
     public TransportZoneNotificationUtil(final DataBroker dbx, final IInterfaceManager interfaceManager,
             final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager) {
         this.dataBroker = dbx;
