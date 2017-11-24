@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -21,6 +24,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInterfaceStateClusteredListener extends
     AsyncClusteredDataTreeChangeListenerBase<Interface, ElanInterfaceStateClusteredListener> {
 
@@ -35,6 +39,7 @@ public class ElanInterfaceStateClusteredListener extends
      * Why do we have ElanInterfaceStateChangeListener and ElanInterfaceStateClusteredListener
      * both within same module? Refactor this code into single listener.
      */
+    @Inject
     public ElanInterfaceStateClusteredListener(DataBroker broker, ElanInterfaceManager elanInterfaceManager,
                                                ElanUtils elanUtils, ElanClusterUtils elanClusterUtils) {
         this.broker = broker;
@@ -43,6 +48,7 @@ public class ElanInterfaceStateClusteredListener extends
         this.elanClusterUtils = elanClusterUtils;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }

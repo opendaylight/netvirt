@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.LogicalSwitchAddedJob;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -54,6 +55,7 @@ public class HwvtepLogicalSwitchListener extends
     // Id of L2 Gateway connection responsible for this logical switch creation
     private final Uuid l2GwConnId;
 
+    private final ElanInstanceManager elanInstanceManager;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanClusterUtils elanClusterUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
@@ -62,11 +64,12 @@ public class HwvtepLogicalSwitchListener extends
     /**
      * Instantiates a new hardware vtep logical switch listener.
      */
-    public HwvtepLogicalSwitchListener(ElanL2GatewayUtils elanL2GatewayUtils, ElanClusterUtils elanClusterUtils,
-            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, L2GatewayConnectionUtils l2GatewayConnectionUtils,
-            L2GatewayDevice l2GatewayDevice, String logicalSwitchName, Devices physicalDevice, Integer defaultVlanId,
-            Uuid l2GwConnId) {
+    public HwvtepLogicalSwitchListener(ElanInstanceManager elanInstanceManager, ElanL2GatewayUtils elanL2GatewayUtils,
+            ElanClusterUtils elanClusterUtils, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+            L2GatewayConnectionUtils l2GatewayConnectionUtils, L2GatewayDevice l2GatewayDevice,
+            String logicalSwitchName, Devices physicalDevice, Integer defaultVlanId, Uuid l2GwConnId) {
         super(LogicalSwitches.class, HwvtepLogicalSwitchListener.class);
+        this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
@@ -136,9 +139,9 @@ public class HwvtepLogicalSwitchListener extends
             L2GatewayDevice elanDevice = l2GatewayConnectionUtils.addL2DeviceToElanL2GwCache(
                     logicalSwitchNew.getHwvtepNodeName().getValue(), l2GatewayDevice, l2GwConnId, physicalDevice);
 
-            LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(elanL2GatewayUtils,
-                    elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
-                    defaultVlanId);
+            LogicalSwitchAddedJob logicalSwitchAddedWorker = new LogicalSwitchAddedJob(
+                    elanL2GatewayUtils, elanL2GatewayMulticastUtils, logicalSwitchName, physicalDevice, elanDevice,
+                    defaultVlanId, () -> elanInstanceManager.getElanInstanceByName(logicalSwitchName));
             elanClusterUtils.runOnlyInOwnerNode(logicalSwitchAddedWorker.getJobKey(),
                     "create vlan mappings and mcast configurations", logicalSwitchAddedWorker);
         } catch (RuntimeException e) {

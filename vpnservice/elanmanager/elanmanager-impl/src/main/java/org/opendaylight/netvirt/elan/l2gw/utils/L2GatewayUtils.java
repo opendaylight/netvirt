@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -22,25 +21,6 @@ import org.slf4j.LoggerFactory;
 
 public class L2GatewayUtils {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayUtils.class);
-
-    private final DataBroker dataBroker;
-
-    private final ItmRpcService itmRpcService;
-
-    private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
-
-    public L2GatewayUtils(DataBroker dataBroker, ItmRpcService itmRpcService,
-                          L2GatewayConnectionUtils l2GatewayConnectionUtils) {
-        this.dataBroker = dataBroker;
-        this.itmRpcService = itmRpcService;
-        this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
-    }
-
-    public void init() {
-    }
-
-    public void close() {
-    }
 
     public static void deleteItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
                                         IpAddress tunnelIp) {
