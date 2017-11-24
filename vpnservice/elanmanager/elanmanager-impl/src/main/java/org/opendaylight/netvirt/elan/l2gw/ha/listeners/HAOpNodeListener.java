@@ -22,6 +22,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -34,6 +36,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@Singleton
 public class HAOpNodeListener extends HwvtepNodeBaseListener {
 
     private final IHAEventHandler haEventHandler;
@@ -41,6 +44,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     private final Map<String, Boolean> availableGlobalNodes = new HashMap<>();
     private final Map<String, Boolean> availablePsNodes = new HashMap<>();
 
+    @Inject
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler) throws Exception {
         super(OPERATIONAL, db);
         this.haEventHandler = haEventHandler;

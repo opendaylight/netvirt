@@ -10,15 +10,15 @@
     interface="org.opendaylight.controller.md.sal.binding.api.NotificationService" />
   <reference id="entityOwnershipService"
     interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
-  <reference id="mdsalUtils"
+  <reference id="iMdsalApiManager"
     interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
-  <reference id="interfaceManager"
+  <reference id="iInterfaceManager"
     interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
-  <reference id="vpnManager"
+  <reference id="iVpnManager"
              interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" availability="optional"/>
-  <reference id="bgpManager"
-             interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" availability="optional"/>
-  <reference id="neutronvpnManagerImpl"
+  <reference id="iBgpManager"
+             interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager"/>
+  <reference id="iNeutronVpnManager"
              interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" availability="optional"/>
   <reference id="diagStatusService"
              interface="org.opendaylight.infrautils.diagstatus.DiagStatusService" />
@@ -44,208 +44,24 @@
     <argument ref="entityOwnershipService" />
   </bean>
 
-  <bean id="elanBridgeManager"
-    class="org.opendaylight.netvirt.elan.internal.ElanBridgeManager">
-    <argument ref="dataBroker" />
-    <argument ref="elanConfig" />
-    <argument ref="interfaceManager" />
-  </bean>
-
-  <bean id="elanForwardingEntriesHandler"
-    class="org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler">
+  <bean id="mdsalUtils" class="org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils">
     <argument ref="dataBroker" />
   </bean>
 
-  <bean id="elanInterfaceManager"
-    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceManager"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="idManagerService" />
+  <bean id="southboundUtils" class="org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils">
     <argument ref="mdsalUtils" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanForwardingEntriesHandler" />
-    <argument ref="neutronvpnManagerImpl"/>
-    <argument ref="elanItmUtils" />
-    <argument ref="elanEtreeUtils" />
-    <argument ref="elanL2GatewayUtils" />
-    <argument ref="jobCoordinator" />
   </bean>
 
-  <bean id="elanInstanceManager"
-    class="org.opendaylight.netvirt.elan.internal.ElanInstanceManager"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="idManagerService" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="interfaceManager" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanNodeListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanNodeListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="elanConfig" />
-    <argument ref="idManagerService" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanPacketInHandler"
-    class="org.opendaylight.netvirt.elan.internal.ElanPacketInHandler">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanUtils" />
-    <argument ref="evpnUtils" />
-    <argument ref="elanL2GatewayUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
   <odl:notification-listener ref="elanPacketInHandler" />
 
-  <bean id="elanSmacFlowEventListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanSmacFlowEventListener">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
   <odl:notification-listener ref="elanSmacFlowEventListener" />
 
-  <bean id="elanExtnTepListener"
-        class="org.opendaylight.netvirt.elan.internal.ElanExtnTepListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanItmUtils" class="org.opendaylight.netvirt.elan.utils.ElanItmUtils">
-    <argument ref="dataBroker" />
-    <argument ref="itmRpcService" />
-    <argument ref="odlInterfaceRpcService" />
-  </bean>
-
-  <bean id="elanDmacUtils" class="org.opendaylight.netvirt.elan.utils.ElanDmacUtils">
-    <argument ref="dataBroker" />
-    <argument ref="elanItmUtils" />
-    <argument ref="elanEtreeUtils" />
-  </bean>
-
-  <bean id="elanEtreeUtils" class="org.opendaylight.netvirt.elan.utils.ElanEtreeUtils">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="elanL2GatewayMulticastUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils">
-    <argument ref="dataBroker" />
-    <argument ref="elanInstanceManager" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="elanItmUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanUtils" class="org.opendaylight.netvirt.elan.utils.ElanUtils">
-    <argument ref="dataBroker" />
-    <argument ref="mdsalUtils" />
-    <argument ref="elanInstanceManager" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="itmRpcService" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanConfig" />
-    <argument ref="elanL2GatewayMulticastUtils" />
-    <argument ref="elanEtreeUtils" />
-    <argument ref="elanItmUtils" />
-  </bean>
-
-  <bean id="elanStatisticsImpl"
-    class="org.opendaylight.netvirt.elan.statisitcs.ElanStatisticsImpl">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-  </bean>
   <odl:rpc-implementation ref="elanStatisticsImpl" />
 
-  <bean id="elanInterfaceStateChangeListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceStateChangeListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanInterfaceConfigListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceConfigListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanTunnelInterfaceStateListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanTunnelInterfaceStateListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="elanUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanInterfaceStateClusterListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanInterfaceStateClusteredListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="elanUtils" />
-    <argument ref="elanClusterUtils" />
-  </bean>
-
-  <bean id="elanDpnInterfaceClusteredListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfaceClusteredListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="entityOwnershipUtils" />
-    <argument ref="elanUtils" />
-    <argument ref="elanL2GatewayUtils" />
-    <argument ref="elanClusterUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanVpnPortIpToPortListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanLearntVpnVipToPortListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanService"
-    class="org.opendaylight.netvirt.elan.internal.ElanServiceProvider"
-    init-method="init">
-    <argument ref="idManagerService" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanInstanceManager" />
-    <argument ref="elanBridgeManager" />
-    <argument ref="dataBroker" />
-    <argument ref="elanInterfaceManager" />
-    <argument ref="elanStatusMonitor" />
-    <argument ref="elanUtils" />
-    <argument ref="entityOwnershipService" />
-  </bean>
-  <service ref="elanService" odl:type="default"
+  <service ref="elanServiceProvider" odl:type="default"
     interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
   <service ref="elanBridgeManager" odl:type="default"
     interface="org.opendaylight.netvirt.elanmanager.api.IElanBridgeManager" />
-
-  <bean id="cacheElanInterfaceListener"
-    class="org.opendaylight.netvirt.elan.utils.CacheElanInterfaceListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="cacheElanInstanceListener"
-    class="org.opendaylight.netvirt.elan.utils.CacheElanInstanceListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-  </bean>
 
   <!--<bean id="hwvtepLocalUcastMacListener"
     class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener"
@@ -254,221 +70,7 @@
     <argument ref="elanL2GatewayUtils" />
   </bean>-->
 
-  <bean id="elanStatusMonitor"
-    class="org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitorJMX"
-    init-method="init" destroy-method="close" />
-
-  <bean id="l2GatewayConnectionListener"
-    class="org.opendaylight.netvirt.elan.l2gw.listeners.L2GatewayConnectionListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="l2GatewayConnectionUtils" />
-  </bean>
-
-  <bean id="l2GatewayConnectionUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils"
-        destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanInstanceManager" />
-    <argument ref="elanClusterUtils" />
-    <argument ref="elanUtils" />
-    <argument ref="elanL2GatewayUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanL2GatewayUtils" class="org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils"
-        destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanDmacUtils" />
-    <argument ref="elanItmUtils" />
-    <argument ref="elanClusterUtils" />
-    <argument ref="odlInterfaceRpcService" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="hwvtepPhysicalSwitchListener"
-    class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepPhysicalSwitchListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="itmRpcService" />
-    <argument ref="elanClusterUtils" />
-    <argument ref="l2gwService" />
-    <argument ref="haOpClusteredListener" />
-  </bean>
-
-  <bean id="hwvtepTerminationPointListener"
-    class="org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepTerminationPointListener"
-    destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanL2GatewayUtils" />
-    <argument ref="elanClusterUtils" />
-  </bean>
-
-  <bean id="haEventHandler"
-    class="org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="hAListeners"
-    class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAListeners">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="haConfigNodeListener"
-    class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAConfigNodeListener">
-    <argument ref="dataBroker" />
-    <argument ref="haEventHandler" />
-  </bean>
-
-  <bean id="haOpClusteredListener"
-    class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="haOpNodeListener"
-    class="org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener">
-    <argument ref="dataBroker" />
-    <argument ref="haEventHandler" />
-  </bean>
-
-  <bean id="ElanOvsdbNodeListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanOvsdbNodeListener"
-    init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanConfig" />
-    <argument ref="elanBridgeManager" />
-    <argument ref="elanService" />
-    <argument ref = "transportZoneNotificationUtil"/>
-  </bean>
-
-  <bean id="elanGroupListener"
-    class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanGroupListener">
-    <argument ref="elanInterfaceManager" />
-    <argument ref="dataBroker" />
-    <argument ref="elanClusterUtils" />
-    <argument ref="elanInstanceManager" />
-  </bean>
-
-  <bean id="transportZoneNotificationUtil"
-    class="org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanService" />
-    <argument ref="elanConfig" />
-    <argument ref="elanBridgeManager" />
-  </bean>
-
-  <bean id="ElanDpnToTransportZoneListener"
-    class="org.opendaylight.netvirt.elan.internal.ElanDpnToTransportZoneListener"
-    init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanConfig" />
-    <argument ref="transportZoneNotificationUtil" />
-  </bean>
-
-  <bean id="VpnDpnToTransportZoneListener"
-    class="org.opendaylight.netvirt.elan.internal.VpnDpnToTransportZoneListener"
-    init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanConfig" />
-    <argument ref="transportZoneNotificationUtil" />
-  </bean>
-  <bean id="l2gwService"
-        class="org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider"
-        init-method="init">
-    <argument ref="dataBroker" />
-    <argument ref="elanClusterUtils" />
-    <argument ref="itmRpcService" />
-    <argument ref="l2GatewayConnectionUtils" />
-  </bean>
-  <service ref="l2gwService" odl:type="default"
+  <service ref="l2gwServiceProvider" odl:type="default"
            interface="org.opendaylight.netvirt.elanmanager.api.IL2gwService" />
-
-  <bean id="elanInstanceListener"
-        class="org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="elanClusterUtils" />
-  </bean>
-
-  <bean id="evpnUtils" class="org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanUtils" />
-    <argument ref="itmRpcService" />
-    <argument ref="vpnManager" />
-    <argument ref="bgpManager" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanClusterUtils" class="org.opendaylight.netvirt.elan.utils.ElanClusterUtils">
-    <argument ref="entityOwnershipUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="evpnMacVrfUtils"
-        class="org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils">
-    <argument ref="dataBroker" />
-    <argument ref="elanInstanceManager" />
-    <argument ref="idManagerService" />
-    <argument ref="elanEvpnFlowUtils" />
-    <argument ref="mdsalUtils" />
-    <argument ref="evpnUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="elanEvpnFlowUtils"
-        class="org.opendaylight.netvirt.elan.evpn.utils.ElanEvpnFlowUtils">
-    <argument ref="mdsalUtils" />
-    <argument ref="elanItmUtils" />
-    <argument ref="elanEtreeUtils" />
-  </bean>
-
-  <bean id="macVrfEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="evpnMacVrfUtils" />
-  </bean>
-
-  <bean id="elanMacEntryListener" class="org.opendaylight.netvirt.elan.evpn.listeners.ElanMacEntryListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="evpnUtils" />
-  </bean>
-
-  <bean id="evpnElanInstanceListener" class="org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="evpnUtils" />
-    <argument ref="evpnMacVrfUtils" />
-    <argument ref="mdsalUtils" />
-  </bean>
-
-
-  <bean id="elanDpnInterfacesListener" class="org.opendaylight.netvirt.elan.internal.ElanDpnInterfacesListener"
-        init-method="start" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="interfaceManager" />
-    <argument ref="elanService" />
-    <argument ref="jobCoordinator" />
-  </bean>
-
-  <bean id="l2gatewayUtils"
-        class="org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayUtils"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="itmRpcService" />
-    <argument ref="l2GatewayConnectionUtils" />
-  </bean>
-
-  <bean id="localUcastMacListener" class="org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="haOpClusteredListener" />
-    <argument ref="elanL2GatewayUtils" />
-    <argument ref="jobCoordinator" />
-  </bean>
 
 </blueprint>

@@ -53,12 +53,6 @@ public class ElanInterfaceConfigListener
     }
 
     @Override
-    public void close() {
-        LOG.info("ElanInterfaceConfigListener Closed");
-        super.close();
-    }
-
-    @Override
     protected InstanceIdentifier<Interface> getWildCardPath() {
         return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     }
