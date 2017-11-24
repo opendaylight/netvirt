@@ -26,8 +26,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class CloudScVpnInterfaceListener
-    extends AsyncDataTreeChangeListenerBase<VpnInterface, CloudScVpnInterfaceListener>
-    implements AutoCloseable {
+        extends AsyncDataTreeChangeListenerBase<VpnInterface, CloudScVpnInterfaceListener> {
 
     static final Logger LOG = LoggerFactory.getLogger(CloudScVpnInterfaceListener.class);
     private final DataBroker dataBroker;

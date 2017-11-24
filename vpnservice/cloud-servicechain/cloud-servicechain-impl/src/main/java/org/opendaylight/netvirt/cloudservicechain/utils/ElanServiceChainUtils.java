@@ -154,7 +154,7 @@ public class ElanServiceChainUtils {
                             MetaDataUtil.METADATA_MASK_SERVICE.or(BigInteger.ONE),
                             instructionKey++),
                     MDSALUtil.buildAndGetGotoTableInstruction(NwConstants.ELAN_SMAC_TABLE,
-                            instructionKey++));
+                            instructionKey));
 
             Flow flow =
                     MDSALUtil.buildFlowNew(NwConstants.LPORT_DISPATCHER_TABLE, flowRef,
@@ -255,7 +255,7 @@ public class ElanServiceChainUtils {
      */
     public static void updateElanToLportTagMap(final DataBroker broker, final String elanInstanceName,
                                                final int lportTag, final long scfTag, final int addOrRemove) {
-        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(new Long(lportTag), scfTag);
+        ElanToPseudoPortDataKey key = new ElanToPseudoPortDataKey(Long.valueOf(lportTag), scfTag);
         InstanceIdentifier<ElanToPseudoPortData> path = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName))
                 .augmentation(ElanServiceChainState.class)
@@ -263,7 +263,7 @@ public class ElanServiceChainUtils {
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             ElanToPseudoPortData newValue =
-                    new ElanToPseudoPortDataBuilder().setKey(key).setElanLportTag(new Long(lportTag))
+                    new ElanToPseudoPortDataBuilder().setKey(key).setElanLportTag(Long.valueOf(lportTag))
                                                      .setScfTag(scfTag).build();
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, path, newValue);
         } else {
