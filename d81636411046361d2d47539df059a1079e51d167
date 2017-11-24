@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5de54407",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_bd61e0d4",
+      "range": {
+        "startLine": 71,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 9
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_fa66be28",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 128
@@ -36,6 +60,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "why this if condition?\naddNewAdjacency...() should be called even for regular ipv4/v6 use cases in case of a new adjacency addition.",
+      "range": {
+        "startLine": 274,
+        "startChar": 41,
+        "endLine": 274,
+        "endChar": 85
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bdf0c0c9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "indeed, only a filtering should apply for ipv6Internet BGPVPN.\nthe function name is not correct.\nI rename isAdjacencyEligibleToVpnInternet with\nisAdjacencyEligibleToVpn",
+      "parentUuid": "9a245df4_fa66be28",
       "range": {
         "startLine": 274,
         "startChar": 41,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_9deb3cdb",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "same as above",
+      "parentUuid": "9a245df4_da693afa",
+      "range": {
+        "startLine": 283,
+        "startChar": 32,
+        "endLine": 283,
+        "endChar": 77
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_3a6df604",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 128
@@ -82,6 +154,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "This is being called in a lot of place, resulting in a lot of data store reads.\nPlease create a task to minimize the reads at a later point in time",
+      "range": {
+        "startLine": 407,
+        "startChar": 21,
+        "endLine": 407,
+        "endChar": 45
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_fd63583f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_3a6df604",
       "range": {
         "startLine": 407,
         "startChar": 21,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_7d576858",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Just to be sure, those are the static routes that are configured on the neutron port.\nI agree that ipv6 static routes should be ok.\nBut ipv4 static routes should not be transmitted if I am with a vpnInternet. ?",
+      "parentUuid": "9a245df4_da501a34",
+      "range": {
+        "startLine": 488,
+        "startChar": 16,
+        "endLine": 489,
+        "endChar": 71
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_ba056615",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 128
@@ -128,6 +248,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "as per our existing ipv6 internet spec, this will not happen, since internetVPnId will be populated only for an ipv6 subnetMap",
+      "range": {
+        "startLine": 831,
+        "startChar": 28,
+        "endLine": 831,
+        "endChar": 109
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_bd4d60c6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 831,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "you are right.\nthis is an optimisation to be done",
+      "parentUuid": "9a245df4_ba056615",
       "range": {
         "startLine": 831,
         "startChar": 28,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_5dd9c4f1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 843,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "I would say there is no need to do filtering on vpnId, since a BGPVPN which matches vpnID allow all, including ipv4 and ipv6 external subnets.",
+      "parentUuid": "9a245df4_9a006203",
+      "range": {
+        "startLine": 843,
+        "startChar": 12,
+        "endLine": 843,
+        "endChar": 13
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dd2c949b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 128
@@ -174,6 +342,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "THis is going to ignore existing adjacency addition for extra routes/ learnt ips and others. \nPlease make sure existing use cases are not broken",
+      "range": {
+        "startLine": 1488,
+        "startChar": 32,
+        "endLine": 1491,
+        "endChar": 70
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d0059b11",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 1491,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "because extra routes have no subnetmap associated, then adj.getSubnetId() returns null.\n\nlike it is, extra routes are not be filtered\n\nthis brings to an other subject, which is how to filter extra routes that are not IPv6.",
+      "parentUuid": "9a245df4_dd2c949b",
       "range": {
         "startLine": 1488,
         "startChar": 32,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_3009972c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 1505,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "same response as for 1491",
+      "parentUuid": "9a245df4_3d20509a",
+      "range": {
+        "startLine": 1503,
+        "startChar": 28,
+        "endLine": 1505,
+        "endChar": 66
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_1d23cca7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 128
@@ -220,6 +436,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "this will break existing use cases for adjacency addition",
+      "range": {
+        "startLine": 2214,
+        "startChar": 32,
+        "endLine": 2215,
+        "endChar": 104
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d02c7b9b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 2215,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "could you be more specific please ?",
+      "parentUuid": "9a245df4_1d23cca7",
       "range": {
         "startLine": 2214,
         "startChar": 32,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_906683b9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "some context need to be enhances for both vpns.\nthat is why this file has had to be changed.\n\nare you talking about that file specifically, or about the subnet feature ?",
+      "parentUuid": "9a245df4_fd9eb8b7",
+      "range": {
+        "startLine": 84,
+        "startChar": 46,
+        "endLine": 84,
+        "endChar": 47
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dd53f414",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 128
@@ -266,6 +530,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "uuid is the vpnInstanceName for the VPN. So, if you have the uuid, you dont need to read it back again:)\nThis method is not required.",
+      "range": {
+        "startLine": 1836,
+        "startChar": 5,
+        "endLine": 1855,
+        "endChar": 23
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_f0853f5a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 1855,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_dd53f414",
       "range": {
         "startLine": 1836,
         "startChar": 5,
@@ -301,6 +589,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_70994fc3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 1879,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_1d5aac29",
+      "range": {
+        "startLine": 1874,
+        "startChar": 8,
+        "endLine": 1879,
+        "endChar": 9
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_7d448849",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 128
@@ -312,6 +624,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "for both subnet of external network, and subnet part of router with gateway to external network, if sn.getVpnId() equal vpnName, return true.\nALso, if sn.getInternetVpnId() equals sn.getVpnId() return false.\n\nPlease rephrase this method such that its better understandable",
+      "range": {
+        "startLine": 1880,
+        "startChar": 8,
+        "endLine": 1885,
+        "endChar": 9
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_d0d63b4e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 1885,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_7d448849",
       "range": {
         "startLine": 1880,
         "startChar": 8,
@@ -347,6 +683,30 @@
     },
     {
       "key": {
+        "uuid": "9a245df4_50c24b85",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 1897,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_fd77d89d",
+      "range": {
+        "startLine": 1897,
+        "startChar": 43,
+        "endLine": 1897,
+        "endChar": 60
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_bd4a8052",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 128
@@ -358,6 +718,30 @@
       "writtenOn": "2017-11-24T11:15:36Z",
       "side": 1,
       "message": "debug",
+      "range": {
+        "startLine": 1937,
+        "startChar": 12,
+        "endLine": 1937,
+        "endChar": 17
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a245df4_b0bd8704",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 1937,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-24T15:45:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9a245df4_bd4a8052",
       "range": {
         "startLine": 1937,
         "startChar": 12,
