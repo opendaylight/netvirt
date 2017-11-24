@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -25,6 +28,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Listen for new OVSDB nodes and then make sure they have the necessary bridges configured.
  */
+@Singleton
 public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanOvsdbNodeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanOvsdbNodeListener.class);
     private final DataBroker dataBroker;
@@ -41,6 +45,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
      * @param bridgeMgr bridge manager
      * @param elanProvider elan provider
      */
+    @Inject
     public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
                                  final ElanBridgeManager bridgeMgr,
                                  final IElanService elanProvider, final TransportZoneNotificationUtil tzUtil) {
@@ -53,6 +58,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
     }
 
     @Override
+    @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);

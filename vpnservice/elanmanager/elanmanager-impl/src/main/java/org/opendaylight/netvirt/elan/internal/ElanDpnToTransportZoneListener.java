@@ -8,7 +8,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
-
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -23,6 +25,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanDpnToTransportZoneListener
         extends AsyncDataTreeChangeListenerBase<DpnInterfaces, ElanDpnToTransportZoneListener> {
 
@@ -31,6 +34,7 @@ public class ElanDpnToTransportZoneListener
     private final DataBroker dbx;
     private final Boolean useTransportZone;
 
+    @Inject
     public ElanDpnToTransportZoneListener(final DataBroker dbx, final IInterfaceManager interfaceManager,
             final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
         useTransportZone = elanConfig.isAutoConfigTransportZones();
@@ -38,6 +42,7 @@ public class ElanDpnToTransportZoneListener
         this.dbx = dbx;
     }
 
+    @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
 

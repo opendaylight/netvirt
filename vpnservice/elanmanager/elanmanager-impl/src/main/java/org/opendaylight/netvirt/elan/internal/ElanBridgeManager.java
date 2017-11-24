@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
@@ -54,6 +55,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This class provides functions for creating bridges via OVSDB, specifically the br-int bridge.
  */
+@Singleton
 public class ElanBridgeManager implements IElanBridgeManager {
     private static final Logger LOG = LoggerFactory.getLogger(ElanBridgeManager.class);
 
@@ -70,7 +72,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
 
     private final MdsalUtils mdsalUtils;
     private final IInterfaceManager interfaceManager;
-    final SouthboundUtils southboundUtils;
+    private final SouthboundUtils southboundUtils;
     private final Random random;
     private final Long maxBackoff;
     private final Long inactivityProbe;
@@ -83,11 +85,12 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * @param interfaceManager InterfaceManager
      */
     @Inject
-    public ElanBridgeManager(DataBroker dataBroker, ElanConfig elanConfig, IInterfaceManager interfaceManager) {
+    public ElanBridgeManager(DataBroker dataBroker, ElanConfig elanConfig, IInterfaceManager interfaceManager,
+            SouthboundUtils southboundUtils, MdsalUtils mdsalUtils) {
         //TODO: ClusterAware!!!??
-        this.mdsalUtils = new MdsalUtils(dataBroker);
+        this.mdsalUtils = mdsalUtils;
         this.interfaceManager = interfaceManager;
-        this.southboundUtils = new SouthboundUtils(mdsalUtils);
+        this.southboundUtils = southboundUtils;
         this.random = new Random(System.currentTimeMillis());
         this.maxBackoff = elanConfig.getControllerMaxBackoff();
         this.inactivityProbe = elanConfig.getControllerInactivityProbe();
