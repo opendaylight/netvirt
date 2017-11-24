@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
@@ -1166,16 +1165,12 @@ public class BgpConfigurationManager {
                         oldval.getRd(), oldval.getPrefixLen(), oldval.getLabel(), oldval.getNexthop());
                 return;
             }
-            LOG.debug("received update networks config val {}", newval.getPrefixLen());
+            LOG.debug("update networks old val RD: {}, Prefix: {}, Label: {}, NH: {} "
+                            + "new val RD: {}, Prefix: {}, Label: {}, NH: {}",
+                    oldval.getRd(), oldval.getPrefixLen(), oldval.getLabel(), oldval.getNexthop(),
+                    newval.getRd(), newval.getPrefixLen(), newval.getLabel(), newval.getNexthop());
             remove(iid, oldval);
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (newval != null) {
-                        add(iid, newval);
-                    }
-                }
-            }, Integer.getInteger("bgp.nexthop.update.delay.in.secs", 5) * 1000L);
+            add(iid, newval);
         }
     }
 
