@@ -55,14 +55,12 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
     private final AtomicLong pktProccessedCounter = new AtomicLong(0);
     private final PacketProcessingService pktService;
     private final IfMgr ifMgr;
-    private final Ipv6ServiceUtils ipv6Utils;
     private final ExecutorService packetProcessor = Executors.newCachedThreadPool();
 
     @Inject
     public Ipv6PktHandler(PacketProcessingService pktService, IfMgr ifMgr) {
         this.pktService = pktService;
         this.ifMgr = ifMgr;
-        this.ipv6Utils = Ipv6ServiceUtils.getInstance();
     }
 
     @Override
@@ -134,7 +132,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             byte[] data = packet.getPayload();
             NeighborSolicitationPacket nsPdu = deserializeNSPacket(data);
             Ipv6Header ipv6Header = nsPdu;
-            if (ipv6Utils.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum()) == false) {
+            if (Ipv6ServiceUtils.validateChecksum(data, ipv6Header, nsPdu.getIcmp6Chksum()) == false) {
                 pktProccessedCounter.incrementAndGet();
                 LOG.warn("Received Neighbor Solicitation with invalid checksum on {}. Ignoring the packet.",
                         packet.getIngress());
@@ -189,10 +187,10 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
 
             try {
                 nsPdu.setDestinationMac(new MacAddress(
-                        ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                        Ipv6ServiceUtils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                 bitOffset = bitOffset + 48;
                 nsPdu.setSourceMac(new MacAddress(
-                        ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                        Ipv6ServiceUtils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                 bitOffset = bitOffset + 48;
                 nsPdu.setEthertype(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 
@@ -279,17 +277,17 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             }
             buf.put((byte)pdu.getOptionType().shortValue());
             buf.put((byte)pdu.getTargetAddrLength().shortValue());
-            buf.put(ipv6Utils.bytesFromHexString(pdu.getTargetLlAddress().getValue()));
+            buf.put(Ipv6ServiceUtils.bytesFromHexString(pdu.getTargetLlAddress().getValue()));
             return data;
         }
 
         private byte[] fillNeighborAdvertisementPacket(NeighborAdvertisePacket pdu) {
             ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-            buf.put(ipv6Utils.convertEthernetHeaderToByte(pdu), 0, 14);
-            buf.put(ipv6Utils.convertIpv6HeaderToByte(pdu), 0, 40);
+            buf.put(Ipv6ServiceUtils.convertEthernetHeaderToByte(pdu), 0, 14);
+            buf.put(Ipv6ServiceUtils.convertIpv6HeaderToByte(pdu), 0, 40);
             buf.put(icmp6NAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-            int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), pdu);
+            int checksum = Ipv6ServiceUtils.calcIcmpv6Checksum(buf.array(), pdu);
             buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
             return buf.array();
         }
@@ -298,7 +296,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
             byte[] data = packet.getPayload();
             RouterSolicitationPacket rsPdu = deserializeRSPacket(data);
             Ipv6Header ipv6Header = rsPdu;
-            if (ipv6Utils.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum()) == false) {
+            if (Ipv6ServiceUtils.validateChecksum(data, ipv6Header, rsPdu.getIcmp6Chksum()) == false) {
                 pktProccessedCounter.incrementAndGet();
                 LOG.warn("Received RS packet with invalid checksum on {}. Ignoring the packet.",
                         packet.getIngress());
@@ -335,10 +333,10 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
 
             try {
                 rsPdu.setDestinationMac(new MacAddress(
-                        ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                        Ipv6ServiceUtils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                 bitOffset = bitOffset + 48;
                 rsPdu.setSourceMac(new MacAddress(
-                        ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                        Ipv6ServiceUtils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                 bitOffset = bitOffset + 48;
                 rsPdu.setEthertype(BitBufferHelper.getInt(BitBufferHelper.getBits(data, bitOffset, 16)));
 
@@ -377,7 +375,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
                     bitOffset = bitOffset + 8;
                     if (rsPdu.getOptionType() == Ipv6Constants.ICMP_V6_OPTION_SOURCE_LLA) {
                         rsPdu.setSourceLlAddress(new MacAddress(
-                                ipv6Utils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
+                                Ipv6ServiceUtils.bytesToHexString(BitBufferHelper.getBits(data, bitOffset, 48))));
                     }
                 }
             } catch (BufferException | UnknownHostException e) {

@@ -38,17 +38,15 @@ import org.slf4j.LoggerFactory;
 public class Ipv6NeighborSolicitation {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
     private final PacketProcessingService packetService;
-    private final Ipv6ServiceUtils ipv6Utils;
 
     public Ipv6NeighborSolicitation(PacketProcessingService packetService) {
         this.packetService = packetService;
-        ipv6Utils = Ipv6ServiceUtils.getInstance();
     }
 
     private byte[] frameNeighborSolicitationRequest(MacAddress srcMacAddress, Ipv6Address srcIpv6Address,
                                                   Ipv6Address targetIpv6Address) {
-        MacAddress macAddress = ipv6Utils.getIpv6MulticastMacAddress(targetIpv6Address);
-        Ipv6Address snMcastAddr = ipv6Utils.getIpv6SolicitedNodeMcastAddress(targetIpv6Address);
+        MacAddress macAddress = Ipv6ServiceUtils.getIpv6MulticastMacAddress(targetIpv6Address);
+        Ipv6Address snMcastAddr = Ipv6ServiceUtils.getIpv6SolicitedNodeMcastAddress(targetIpv6Address);
 
         NeighborSolicitationPacketBuilder nsPacket = new NeighborSolicitationPacketBuilder();
         nsPacket.setSourceMac(srcMacAddress);
@@ -95,17 +93,17 @@ public class Ipv6NeighborSolicitation {
 
         buf.put((byte)pdu.getOptionType().shortValue());
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
-        buf.put(ipv6Utils.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
+        buf.put(Ipv6ServiceUtils.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
         return data;
     }
 
     private byte[] fillNeighborSolicitationPacket(NeighborSolicitationPacket pdu) {
         ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-        buf.put(ipv6Utils.convertEthernetHeaderToByte(pdu), 0, 14);
-        buf.put(ipv6Utils.convertIpv6HeaderToByte(pdu), 0, 40);
+        buf.put(Ipv6ServiceUtils.convertEthernetHeaderToByte(pdu), 0, 14);
+        buf.put(Ipv6ServiceUtils.convertIpv6HeaderToByte(pdu), 0, 40);
         buf.put(icmp6NsPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-        int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), pdu);
+        int checksum = Ipv6ServiceUtils.calcIcmpv6Checksum(buf.array(), pdu);
         buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
         return buf.array();
     }
