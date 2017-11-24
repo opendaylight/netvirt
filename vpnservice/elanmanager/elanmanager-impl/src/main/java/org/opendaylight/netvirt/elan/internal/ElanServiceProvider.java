@@ -47,6 +47,7 @@ import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
+import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
@@ -92,8 +93,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private final DataBroker broker;
     private final ElanStatusMonitor elanStatusMonitor;
     private final ElanUtils elanUtils;
-
-    private boolean generateIntBridgeMac = true;
+    private final SouthboundUtils southboundUtils;
     private boolean isL2BeforeL3;
 
     private final EntityOwnershipCandidateRegistration candidateRegistration;
@@ -104,7 +104,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                                DataBroker dataBroker,
                                ElanInterfaceManager elanInterfaceManager,
                                ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils,
-                               EntityOwnershipService entityOwnershipService) {
+                               EntityOwnershipService entityOwnershipService,
+                               SouthboundUtils southboundUtils) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -112,7 +113,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         this.broker = dataBroker;
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
-        elanInterfaceManager.setElanUtils(elanUtils);
+        this.southboundUtils = southboundUtils;
 
         candidateRegistration = registerCandidate(entityOwnershipService);
     }
@@ -131,7 +132,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void start() throws Exception {
-        LOG.info("Starting ElnaServiceProvider");
+        LOG.info("Starting ElanServiceProvider");
         elanStatusMonitor.reportStatus("STARTING");
         setIsL2BeforeL3();
         try {
@@ -148,6 +149,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         if (candidateRegistration != null) {
             candidateRegistration.close();
         }
+
+        LOG.info("ElanServiceProvider stopped");
     }
 
     @Override
@@ -449,14 +452,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             }
         }
         return elanInterfaces;
-    }
-
-    public boolean getGenerateIntBridgeMac() {
-        return generateIntBridgeMac;
-    }
-
-    public void setGenerateIntBridgeMac(boolean generateIntBridgeMac) {
-        this.generateIntBridgeMac = generateIntBridgeMac;
     }
 
     @Override
@@ -822,7 +817,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             return;
         }
 
-        List<Node> nodes = bridgeMgr.southboundUtils.getOvsdbNodes();
+        List<Node> nodes = southboundUtils.getOvsdbNodes();
         if (nodes == null || nodes.isEmpty()) {
             LOG.trace("No OVS nodes found while creating external network for ELAN {}",
                     elanInstance.getElanInstanceName());

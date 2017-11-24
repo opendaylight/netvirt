@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -144,7 +145,8 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     @Override
-    public void close() throws Exception {
+    @PreDestroy
+    public void close() {
         if (registration != null) {
             registration.close();
         }

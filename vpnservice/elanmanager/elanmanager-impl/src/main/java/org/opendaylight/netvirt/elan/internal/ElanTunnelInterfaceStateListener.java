@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
 import java.util.Collections;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -24,6 +27,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
     ElanTunnelInterfaceStateListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanTunnelInterfaceStateListener.class);
@@ -32,6 +36,7 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public ElanTunnelInterfaceStateListener(final DataBroker dataBroker,
             final ElanInterfaceManager elanInterfaceManager, final ElanUtils elanUtils,
             final JobCoordinator jobCoordinator) {
@@ -43,6 +48,7 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
