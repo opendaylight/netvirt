@@ -9,14 +9,11 @@
 package org.opendaylight.netvirt.policyservice.listeners;
 
 import com.google.common.base.Optional;
-
 import java.math.BigInteger;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -41,7 +38,6 @@ import org.slf4j.LoggerFactory;
  * instruction with METADATA_MASK_POLICY_CLASSIFER_ID mask
  *
  */
-@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyAceChangeListener extends AsyncDataTreeChangeListenerBase<Ace, PolicyAceChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyAceChangeListener.class);

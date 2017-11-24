@@ -10,20 +10,19 @@ package org.opendaylight.netvirt.policyservice;
 
 import java.math.BigInteger;
 import java.util.List;
-
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 
 public class PolicyAceFlowWrapper {
 
-    public static boolean PARTIAL = true;
-    public static boolean COMPLETE = false;
+    public static final boolean PARTIAL = true;
+    public static final boolean COMPLETE = false;
 
-    private String flowName;
-    private List<MatchInfoBase> matches;
-    private int priority;
+    private final String flowName;
+    private final List<MatchInfoBase> matches;
+    private final int priority;
     private final BigInteger dpId;
-    private boolean isPartial;
+    private final boolean isPartial;
 
     public PolicyAceFlowWrapper(String flowName, boolean isPartial) {
         this(flowName, null, NwConstants.TABLE_MISS_PRIORITY, BigInteger.ZERO, isPartial);
