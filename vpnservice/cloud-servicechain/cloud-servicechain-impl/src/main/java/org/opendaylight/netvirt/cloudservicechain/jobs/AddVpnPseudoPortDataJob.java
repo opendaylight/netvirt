@@ -25,7 +25,7 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
 
     private static final Logger LOG = LoggerFactory.getLogger(AddVpnPseudoPortDataJob.class);
 
-    protected final long vpnPseudoLportTag;
+    private final long vpnPseudoLportTag;
     private final short scfTableIdToGo;
     private final int scfTag;
 
