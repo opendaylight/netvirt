@@ -100,12 +100,6 @@ public class EvpnUtils {
         this.jobCoordinator = jobCoordinator;
     }
 
-    public void init() {
-    }
-
-    public void close() {
-    }
-
     public boolean isWithdrawEvpnRT2Routes(ElanInstance original, ElanInstance update) {
         return isNetDetach.test(getEvpnNameFromElan(original), getEvpnNameFromElan(update));
     }

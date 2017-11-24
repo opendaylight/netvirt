@@ -9,6 +9,9 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -35,6 +38,7 @@ import org.opendaylight.yangtools.yang.binding.ChildOf;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@Singleton
 public class HAListeners implements AutoCloseable {
     private static final InstanceIdentifier<TerminationPoint> PHYSICAL_PORT_IID =
         InstanceIdentifier.create(NetworkTopology.class)
@@ -44,6 +48,7 @@ public class HAListeners implements AutoCloseable {
     private final DataBroker broker;
     private final List<HwvtepNodeDataListener<?>> listeners = new ArrayList<>();
 
+    @Inject
     public HAListeners(DataBroker broker) {
         this.broker = broker;
         registerListener(LocalMcastMacs.class, new LocalMcastCmd());
@@ -59,10 +64,8 @@ public class HAListeners implements AutoCloseable {
                 ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
     }
 
-    public void init() {
-    }
-
     @Override
+    @PreDestroy
     public void close() throws Exception {
         for (HwvtepNodeDataListener listener : listeners) {
             listener.close();

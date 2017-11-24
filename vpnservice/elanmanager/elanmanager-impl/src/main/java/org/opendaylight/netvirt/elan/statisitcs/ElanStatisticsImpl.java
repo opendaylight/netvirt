@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.elan.statisitcs;
 
 import com.google.common.util.concurrent.Futures;
 import java.util.concurrent.Future;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -26,12 +28,14 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanStatisticsImpl implements ElanStatisticsService {
     private static final Logger LOG = LoggerFactory.getLogger(ElanStatisticsImpl.class);
 
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
 
+    @Inject
     public ElanStatisticsImpl(DataBroker dataBroker, IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
