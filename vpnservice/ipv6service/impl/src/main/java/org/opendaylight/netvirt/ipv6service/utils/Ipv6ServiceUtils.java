@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
@@ -62,9 +64,9 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class Ipv6ServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceUtils.class);
-    public static final Ipv6ServiceUtils INSTANCE = new Ipv6ServiceUtils();
     public static final Ipv6Address ALL_NODES_MCAST_ADDR = newIpv6Address("0:0:0:0:0:0:0:0");
     public static final Ipv6Address UNSPECIFIED_ADDR = newIpv6Address("FF02::1");
 
@@ -77,22 +79,22 @@ public class Ipv6ServiceUtils {
         }
     }
 
-    public Ipv6ServiceUtils() {
-    }
+    private final DataBroker broker;
+    private final IMdsalApiManager mdsalUtil;
 
-    public static Ipv6ServiceUtils getInstance() {
-        return INSTANCE;
+    @Inject
+    public Ipv6ServiceUtils(DataBroker broker, IMdsalApiManager mdsalUtil) {
+        this.broker = broker;
+        this.mdsalUtil = mdsalUtil;
     }
 
     /**
      * Retrieves the object from the datastore.
-     * @param broker the data broker.
      * @param datastoreType the data store type.
      * @param path the wild card path.
      * @return the required object.
      */
-    public static <T extends DataObject> Optional<T> read(DataBroker broker, LogicalDatastoreType datastoreType,
-                                                          InstanceIdentifier<T> path) {
+    public <T extends DataObject> Optional<T> read(LogicalDatastoreType datastoreType, InstanceIdentifier<T> path) {
         try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
             return tx.read(datastoreType, path).get();
         } catch (InterruptedException | ExecutionException e) {
@@ -102,15 +104,14 @@ public class Ipv6ServiceUtils {
 
     /**
      * Retrieves the Interface from the datastore.
-     * @param broker the data broker
      * @param interfaceName the interface name
      * @return the interface.
      */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-        .Interface getInterface(DataBroker broker, String interfaceName) {
+    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
+        .Interface getInterface(String interfaceName) {
         Optional<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
             .Interface> optInterface =
-                read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
+                read(LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
         if (optInterface.isPresent()) {
             return optInterface.get();
         }
@@ -148,18 +149,17 @@ public class Ipv6ServiceUtils {
 
     /**
      * Retrieves the interface state.
-     * @param dataBroker the data broker.
      * @param interfaceName the interface name.
      * @return the interface state.
      */
-    public static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
-            .Interface getInterfaceStateFromOperDS(DataBroker dataBroker, String interfaceName) {
+    public org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state
+            .Interface getInterfaceStateFromOperDS(String interfaceName) {
         InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508
                 .interfaces.state.Interface> ifStateId = buildStateInterfaceId(interfaceName);
-        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, dataBroker).orNull();
+        return MDSALUtil.read(LogicalDatastoreType.OPERATIONAL, ifStateId, broker).orNull();
     }
 
-    public String bytesToHexString(byte[] bytes) {
+    public static String bytesToHexString(byte[] bytes) {
         if (bytes == null) {
             return "null";
         }
@@ -178,7 +178,7 @@ public class Ipv6ServiceUtils {
         return buf.toString();
     }
 
-    public byte[] bytesFromHexString(String values) {
+    public static byte[] bytesFromHexString(String values) {
         String target = "";
         if (values != null) {
             target = values;
@@ -192,7 +192,7 @@ public class Ipv6ServiceUtils {
         return ret;
     }
 
-    public int calcIcmpv6Checksum(byte[] packet, Ipv6Header ip6Hdr) {
+    public static int calcIcmpv6Checksum(byte[] packet, Ipv6Header ip6Hdr) {
         long checksum = getSummation(ip6Hdr.getSourceIpv6());
         checksum += getSummation(ip6Hdr.getDestinationIpv6());
         checksum = normalizeChecksum(checksum);
@@ -226,11 +226,11 @@ public class Ipv6ServiceUtils {
         return finalChecksum;
     }
 
-    public boolean validateChecksum(byte[] packet, Ipv6Header ip6Hdr, int recvChecksum) {
+    public static boolean validateChecksum(byte[] packet, Ipv6Header ip6Hdr, int recvChecksum) {
         return calcIcmpv6Checksum(packet, ip6Hdr) == recvChecksum;
     }
 
-    private long getSummation(Ipv6Address addr) {
+    private static long getSummation(Ipv6Address addr) {
         byte[] baddr = null;
         try {
             baddr = InetAddress.getByName(addr.getValue()).getAddress();
@@ -251,7 +251,7 @@ public class Ipv6ServiceUtils {
         return sum;
     }
 
-    private long normalizeChecksum(long value) {
+    private static  long normalizeChecksum(long value) {
         if ((value & 0xffff0000) != 0) {
             value = value & 0xffff;
             value += 1;
@@ -259,7 +259,7 @@ public class Ipv6ServiceUtils {
         return value;
     }
 
-    public byte[] convertEthernetHeaderToByte(EthernetHeader ethPdu) {
+    public static byte[] convertEthernetHeaderToByte(EthernetHeader ethPdu) {
         byte[] data = new byte[16];
         Arrays.fill(data, (byte)0);
 
@@ -270,7 +270,7 @@ public class Ipv6ServiceUtils {
         return data;
     }
 
-    public byte[] convertIpv6HeaderToByte(Ipv6Header ip6Pdu) {
+    public static byte[] convertIpv6HeaderToByte(Ipv6Header ip6Pdu) {
         byte[] data = new byte[128];
         Arrays.fill(data, (byte)0);
 
@@ -292,7 +292,7 @@ public class Ipv6ServiceUtils {
         return data;
     }
 
-    public Ipv6Address getIpv6LinkLocalAddressFromMac(MacAddress mac) {
+    public static Ipv6Address getIpv6LinkLocalAddressFromMac(MacAddress mac) {
         byte[] octets = bytesFromHexString(mac.getValue());
 
         /* As per the RFC2373, steps involved to generate a LLA include
@@ -321,7 +321,7 @@ public class Ipv6ServiceUtils {
         return ipv6LLA;
     }
 
-    public Ipv6Address getIpv6SolicitedNodeMcastAddress(Ipv6Address ipv6Address) {
+    public static Ipv6Address getIpv6SolicitedNodeMcastAddress(Ipv6Address ipv6Address) {
 
         /* According to RFC 4291, a Solicited Node Multicast Address is derived by adding the 24
            lower order bits with the Solicited Node multicast prefix (i.e., FF02::1:FF00:0/104).
@@ -346,7 +346,7 @@ public class Ipv6ServiceUtils {
         return solictedV6Address;
     }
 
-    public MacAddress getIpv6MulticastMacAddress(Ipv6Address ipv6Address) {
+    public static MacAddress getIpv6MulticastMacAddress(Ipv6Address ipv6Address) {
 
         /* According to RFC 2464, a Multicast MAC address is derived by concatenating 32 lower
            order bits of IPv6 Multicast Address with the multicast prefix (i.e., 33:33).
@@ -398,7 +398,7 @@ public class Ipv6ServiceUtils {
     }
 
     public void installIcmpv6NsPuntFlow(short tableId, BigInteger dpId,  Long elanTag, String ipv6Address,
-                                        IMdsalApiManager mdsalUtil,int addOrRemove) {
+            int addOrRemove) {
         List<MatchInfo> neighborSolicitationMatch = getIcmpv6NSMatch(elanTag, ipv6Address);
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
@@ -416,8 +416,7 @@ public class Ipv6ServiceUtils {
         }
     }
 
-    public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, Long elanTag, IMdsalApiManager mdsalUtil,
-                                        int addOrRemove) {
+    public void installIcmpv6RsPuntFlow(short tableId, BigInteger dpId, Long elanTag, int addOrRemove) {
         if (dpId == null || dpId.equals(Ipv6Constants.INVALID_DPID)) {
             return;
         }
@@ -449,14 +448,14 @@ public class Ipv6ServiceUtils {
                 .addAugmentation(StypeOpenflow.class, augBuilder.build()).build();
     }
 
-    private InstanceIdentifier buildServiceId(String interfaceName,
+    private InstanceIdentifier<BoundServices> buildServiceId(String interfaceName,
                                               short priority) {
         return InstanceIdentifier.builder(ServiceBindings.class).child(ServicesInfo.class,
                 new ServicesInfoKey(interfaceName, ServiceModeIngress.class))
                 .child(BoundServices.class, new BoundServicesKey(priority)).build();
     }
 
-    public void bindIpv6Service(DataBroker broker, String interfaceName, Long elanTag, short tableId) {
+    public void bindIpv6Service(String interfaceName, Long elanTag, short tableId) {
         int instructionKey = 0;
         List<Instruction> instructions = new ArrayList<>();
         instructions.add(MDSALUtil.buildAndGetWriteMetadaInstruction(MetaDataUtil.getElanTagMetadata(elanTag),

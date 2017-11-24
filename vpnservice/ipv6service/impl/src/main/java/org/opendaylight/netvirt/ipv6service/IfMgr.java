@@ -27,7 +27,6 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.ipv6service.api.ElementCache;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualNetwork;
@@ -78,8 +77,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private final ConcurrentMap<Uuid, List<VirtualPort>> unprocessedSubnetIntfs = new ConcurrentHashMap<>();
     private final OdlInterfaceRpcService interfaceManagerRpc;
     private final IElanService elanProvider;
-    private final IMdsalApiManager mdsalUtil;
-    private final Ipv6ServiceUtils ipv6ServiceUtils = new Ipv6ServiceUtils();
+    private final Ipv6ServiceUtils ipv6ServiceUtils;
     private final DataBroker dataBroker;
     private final PacketProcessingService packetService;
     private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(portId -> transmitUnsolicitedRA(portId));
@@ -87,12 +85,12 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
     @Inject
     public IfMgr(DataBroker dataBroker, IElanService elanProvider, OdlInterfaceRpcService interfaceManagerRpc,
-            IMdsalApiManager mdsalUtil, PacketProcessingService packetService) {
+            PacketProcessingService packetService, Ipv6ServiceUtils ipv6ServiceUtils) {
         this.dataBroker = dataBroker;
         this.elanProvider = elanProvider;
         this.interfaceManagerRpc = interfaceManagerRpc;
-        this.mdsalUtil = mdsalUtil;
         this.packetService = packetService;
+        this.ipv6ServiceUtils = ipv6ServiceUtils;
         LOG.info("IfMgr is enabled");
     }
 
@@ -352,7 +350,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         if (prevIntf == null) {
             Long elanTag = getNetworkElanTag(networkId);
             // Do service binding for the port and set the serviceBindingStatus to true.
-            ipv6ServiceUtils.bindIpv6Service(dataBroker, portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
+            ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
             intf.setServiceBindingStatus(true);
 
             /* Update the intf dpnId/ofPort from the Operational Store */
@@ -394,7 +392,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
             if (!intf.getServiceBindingStatus()) {
                 Long elanTag = getNetworkElanTag(intf.getNetworkID());
                 LOG.info("In updateHostIntf, service binding for portId {}", portId);
-                ipv6ServiceUtils.bindIpv6Service(dataBroker, portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
+                ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
                 intf.setServiceBindingStatus(true);
             }
         } else {
@@ -422,7 +420,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
     public void updateInterfaceDpidOfPortInfo(Uuid portId) {
         LOG.debug("In updateInterfaceDpidOfPortInfo portId {}", portId);
-        Interface interfaceState = Ipv6ServiceUtils.getInterfaceStateFromOperDS(dataBroker, portId.getValue());
+        Interface interfaceState = ipv6ServiceUtils.getInterfaceStateFromOperDS(portId.getValue());
         if (interfaceState == null) {
             LOG.warn("In updateInterfaceDpidOfPortInfo, port info not found in Operational Store {}.", portId);
             return;
@@ -510,11 +508,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
                 flowStatus = vnet.getRSPuntFlowStatusOnDpnId(dpId);
                 if (action == Ipv6Constants.ADD_FLOW && flowStatus == Ipv6Constants.FLOWS_NOT_CONFIGURED) {
                     ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, elanTag,
-                            mdsalUtil, Ipv6Constants.ADD_FLOW);
+                            Ipv6Constants.ADD_FLOW);
                     vnet.setRSPuntFlowStatusOnDpnId(dpId, Ipv6Constants.FLOWS_CONFIGURED);
                 } else if (action == Ipv6Constants.DEL_FLOW && flowStatus == Ipv6Constants.FLOWS_CONFIGURED) {
                     ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, elanTag,
-                            mdsalUtil, Ipv6Constants.DEL_FLOW);
+                            Ipv6Constants.DEL_FLOW);
                     vnet.setRSPuntFlowStatusOnDpnId(dpId, Ipv6Constants.FLOWS_NOT_CONFIGURED);
                 }
             }
@@ -529,11 +527,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
                 if (action == Ipv6Constants.ADD_FLOW && !dpnIfaceInfo.ndTargetFlowsPunted.contains(ipv6Address)) {
                     ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpnIfaceInfo.getDpId(),
-                            elanTag, ipv6Address.getValue(), mdsalUtil, Ipv6Constants.ADD_FLOW);
+                            elanTag, ipv6Address.getValue(), Ipv6Constants.ADD_FLOW);
                     dpnIfaceInfo.updateNDTargetAddress(ipv6Address, action);
                 } else if (action == Ipv6Constants.DEL_FLOW && dpnIfaceInfo.ndTargetFlowsPunted.contains(ipv6Address)) {
                     ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpnIfaceInfo.getDpId(),
-                            elanTag, ipv6Address.getValue(), mdsalUtil, Ipv6Constants.DEL_FLOW);
+                            elanTag, ipv6Address.getValue(), Ipv6Constants.DEL_FLOW);
                     dpnIfaceInfo.updateNDTargetAddress(ipv6Address, action);
                 }
             }
@@ -550,14 +548,14 @@ public class IfMgr implements ElementCache, AutoCloseable {
                     Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
                     if (vnet.getRSPuntFlowStatusOnDpnId(dpId) == Ipv6Constants.FLOWS_NOT_CONFIGURED) {
                         ipv6ServiceUtils.installIcmpv6RsPuntFlow(NwConstants.IPV6_TABLE, dpId, elanTag,
-                                mdsalUtil, Ipv6Constants.ADD_FLOW);
+                                Ipv6Constants.ADD_FLOW);
                         vnet.setRSPuntFlowStatusOnDpnId(dpId, Ipv6Constants.FLOWS_CONFIGURED);
                     }
 
                     for (Ipv6Address ipv6Address: routerPort.getIpv6Addresses()) {
                         if (!dpnInfo.ndTargetFlowsPunted.contains(ipv6Address)) {
                             ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpId,
-                                    elanTag, ipv6Address.getValue(), mdsalUtil, Ipv6Constants.ADD_FLOW);
+                                    elanTag, ipv6Address.getValue(), Ipv6Constants.ADD_FLOW);
                             dpnInfo.updateNDTargetAddress(ipv6Address, Ipv6Constants.ADD_FLOW);
                         }
                     }

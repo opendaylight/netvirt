@@ -111,8 +111,7 @@ public class VirtualPort implements IVirtualPort  {
             subnetInfo -> Stream.of(subnetInfo.getIpAddr().getIpv6Address())).collect(Collectors.toList());
 
         if (deviceOwner.equalsIgnoreCase(Ipv6Constants.NETWORK_ROUTER_INTERFACE)) {
-            Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
-            Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(new MacAddress(macAddress));
+            Ipv6Address llAddr = Ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(new MacAddress(macAddress));
             ipv6AddrList.add(llAddr);
         }
         return ipv6AddrList;
