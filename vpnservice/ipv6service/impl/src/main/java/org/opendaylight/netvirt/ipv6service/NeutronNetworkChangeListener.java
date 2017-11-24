@@ -47,13 +47,13 @@ public class NeutronNetworkChangeListener extends AsyncDataTreeChangeListenerBas
 
     @Override
     protected void add(InstanceIdentifier<Network> identifier, Network input) {
-        LOG.debug("Add Network notification handler is invoked {} ", input);
+        LOG.info("Add Network notification handler is invoked {} ", input);
         ifMgr.addNetwork(input.getUuid());
     }
 
     @Override
     protected void remove(InstanceIdentifier<Network> identifier, Network input) {
-        LOG.debug("Remove Network notification handler is invoked {} ", input);
+        LOG.info("Remove Network notification handler is invoked {} ", input);
         ifMgr.removeNetwork(input.getUuid());
     }
 

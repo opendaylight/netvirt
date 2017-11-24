@@ -115,7 +115,7 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public static class DpnInterfaceInfo {
-        BigInteger dpId;
+        BigInteger dpId = Ipv6Constants.INVALID_DPID;
         int rsPuntFlowConfigured;
         List<Long> ofPortList;
         List<Ipv6Address> ndTargetFlowsPunted;
@@ -174,7 +174,7 @@ public class VirtualNetwork implements IVirtualNetwork {
         @Override
         public String toString() {
             return "DpnInterfaceInfo [dpId=" + dpId + " rsPuntFlowConfigured=" + rsPuntFlowConfigured + " ofPortList="
-                    + ofPortList + "]";
+                    + ofPortList + "ndTargetFlowsPunted=" + ndTargetFlowsPunted + "]";
         }
     }
 }
