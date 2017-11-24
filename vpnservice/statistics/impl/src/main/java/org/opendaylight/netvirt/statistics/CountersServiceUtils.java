@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
-
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -59,7 +58,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.statistics.rev17012
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg6;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-@SuppressWarnings("deprecation")
 public class CountersServiceUtils {
 
     public static final Long COUNTERS_PULL_END = Long.valueOf(100000);
@@ -227,16 +225,14 @@ public class CountersServiceUtils {
         }
         if (ecr.isFilterExist(CountersUtils.ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME,
                 CountersUtils.TCP_SRC_PORT_FILTER_NAME)) {
-            Integer tcpSrcPort =
-                    Integer.valueOf(ecr.getFilterFromFilterGroup(CountersUtils.ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME,
-                            CountersUtils.TCP_SRC_PORT_FILTER_NAME));
-            matches.add(new MatchTcpSourcePort(Integer.valueOf(tcpSrcPort)));
+            int tcpSrcPort = Integer.parseInt(ecr.getFilterFromFilterGroup(
+                    CountersUtils.ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME, CountersUtils.TCP_SRC_PORT_FILTER_NAME));
+            matches.add(new MatchTcpSourcePort(tcpSrcPort));
         }
         if (ecr.isFilterExist(CountersUtils.ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME,
                 CountersUtils.TCP_DST_PORT_FILTER_NAME)) {
-            Integer tcpDstPort =
-                    Integer.valueOf(ecr.getFilterFromFilterGroup(CountersUtils.ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME,
-                            CountersUtils.TCP_DST_PORT_FILTER_NAME));
+            int tcpDstPort = Integer.parseInt(ecr.getFilterFromFilterGroup(
+                    CountersUtils.ELEMENT_COUNTERS_TCP_FILTER_GROUP_NAME, CountersUtils.TCP_DST_PORT_FILTER_NAME));
             matches.add(new MatchTcpDestinationPort(tcpDstPort));
         }
 
