@@ -45,7 +45,6 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
-import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -113,6 +112,7 @@ public class ElanL2GatewayUtils {
     private final ElanClusterUtils elanClusterUtils;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private final JobCoordinator jobCoordinator;
+    private final ElanUtils elanUtils;
 
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
@@ -121,13 +121,14 @@ public class ElanL2GatewayUtils {
     @Inject
     public ElanL2GatewayUtils(DataBroker broker, ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
             ElanClusterUtils elanClusterUtils, OdlInterfaceRpcService interfaceManagerRpcService,
-            JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator, ElanUtils elanUtils) {
         this.broker = broker;
         this.elanDmacUtils = elanDmacUtils;
         this.elanItmUtils = elanItmUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
         this.jobCoordinator = jobCoordinator;
+        this.elanUtils = elanUtils;
     }
 
     @PreDestroy
@@ -1037,7 +1038,7 @@ public class ElanL2GatewayUtils {
     public List<DpnInterfaces> getElanDpns(String elanName) {
         Set<DpnInterfaces> dpnInterfaces = ElanUtils.getElanInvolvedDPNsFromCache(elanName);
         if (dpnInterfaces == null) {
-            return ElanInstanceManager.getElanDPNByName(broker, elanName);
+            return elanUtils.getElanDPNByName(elanName);
         }
         return new ArrayList<>(dpnInterfaces);
     }

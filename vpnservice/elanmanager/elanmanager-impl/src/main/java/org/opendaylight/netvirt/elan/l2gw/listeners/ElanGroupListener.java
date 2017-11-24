@@ -11,11 +11,13 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
-import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.internal.ElanInterfaceManager;
+import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
@@ -31,21 +33,26 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
     private final ElanInterfaceManager elanInterfaceManager;
     private final DataBroker broker;
-    private final ElanInstanceManager elanInstanceManager;
     private final ElanClusterUtils elanClusterUtils;
+    private final ElanUtils elanUtils;
+    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
 
+    @Inject
     public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db,
-            ElanClusterUtils elanClusterUtils, ElanInstanceManager elanInstanceManager) {
+            ElanClusterUtils elanClusterUtils, ElanUtils elanUtils,
+            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
         super(Group.class, ElanGroupListener.class);
         this.elanInterfaceManager = elanInterfaceManager;
         broker = db;
         this.elanClusterUtils = elanClusterUtils;
-        this.elanInstanceManager = elanInstanceManager;
+        this.elanUtils = elanUtils;
+        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
         LOG.trace("ElanGroupListener registered");
     }
@@ -114,7 +121,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             return;
         }
         boolean updateGroup = false;
-        List<DpnInterfaces> dpns = elanInstanceManager.getElanDPNByName(elanInstance.getElanInstanceName());
+        List<DpnInterfaces> dpns = elanUtils.getElanDPNByName(elanInstance.getElanInstanceName());
         if (dpns.size() > 0) {
             expectedElanFootprint += dpns.size();
         } else {
@@ -130,7 +137,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             }
         }
         if (updateGroup) {
-            List<Bucket> bucketList = elanInterfaceManager.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
+            List<Bucket> bucketList = elanL2GatewayMulticastUtils.getRemoteBCGroupBuckets(elanInstance, null, dpnId, 0,
                     elanInstance.getElanTag());
             expectedElanFootprint--;//remove local bcgroup bucket
             if (bucketList.size() != expectedElanFootprint) {
@@ -140,7 +147,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
             LOG.trace("no of buckets mismatched {} {}", elanInstance.getElanInstanceName(),
                     update.getKey().getGroupId());
             elanClusterUtils.runOnlyInOwnerNode(elanInstance.getElanInstanceName(), "updating broadcast group", () -> {
-                elanInterfaceManager.setupElanBroadcastGroups(elanInstance, dpnId);
+                elanL2GatewayMulticastUtils.setupElanBroadcastGroups(elanInstance, dpnId);
                 return null;
             });
         } else {
