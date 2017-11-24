@@ -8,48 +8,39 @@
 
 package org.opendaylight.netvirt.ipv6service;
 
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import org.opendaylight.netvirt.ipv6service.api.IVirtualSubnet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class VirtualSubnet implements IVirtualSubnet  {
 
-    private Uuid subnetUUID;
-    private Uuid tenantID;
-    private String name;
-    private IpAddress gatewayIp;
-    private IpPrefix subnetCidr;
-    private String ipVersion;
-    private String ipv6AddressMode;
-    private String ipv6RAMode;
+    private final Uuid subnetUUID;
+    private final Uuid tenantID;
+    private final String name;
+    private final IpAddress gatewayIp;
+    private final IpPrefix subnetCidr;
+    private final String ipVersion;
+    private final String ipv6AddressMode;
+    private final String ipv6RAMode;
+
+    // interface list
+    private final ConcurrentMap<Uuid, VirtualPort> interfaces = new ConcurrentHashMap<>();
 
     // associated router
-    private VirtualRouter router;
-    // interface list
-    private HashMap<Uuid, VirtualPort> interfaces;
+    private volatile VirtualRouter router;
 
-
-    /**
-     * Logger instance.
-     */
-    static final Logger LOG = LoggerFactory.getLogger(VirtualSubnet.class);
-
-    void init() {
-        this.interfaces  = new HashMap<>();
-        this.router      = null;
-    }
-
-    public VirtualSubnet() {
-        init();
-    }
-
-    public VirtualSubnet setSubnetUUID(Uuid subnetUUID) {
-        this.subnetUUID = subnetUUID;
-        return this;
+    private VirtualSubnet(Builder builder) {
+        this.subnetUUID = builder.subnetUUID;
+        this.tenantID = builder.tenantID;
+        this.name = builder.name;
+        this.gatewayIp = builder.gatewayIp;
+        this.subnetCidr = builder.subnetCidr;
+        this.ipVersion = builder.ipVersion;
+        this.ipv6AddressMode = builder.ipv6AddressMode;
+        this.ipv6RAMode = builder.ipv6RAMode;
     }
 
     @Override
@@ -62,34 +53,13 @@ public class VirtualSubnet implements IVirtualSubnet  {
         return name;
     }
 
-    public VirtualSubnet setName(String name) {
-        this.name = name;
-        return this;
-    }
-
     @Override
     public Uuid getTenantID() {
         return tenantID;
     }
 
-    public VirtualSubnet setTenantID(Uuid tenantID) {
-        this.tenantID = tenantID;
-        return this;
-    }
-
-    public VirtualSubnet setGatewayIp(IpAddress gwIp) {
-        this.gatewayIp = gwIp;
-        return this;
-    }
-
     public IpAddress getGatewayIp() {
         return gatewayIp;
-    }
-
-    @SuppressWarnings("checkstyle:HiddenField")
-    public VirtualSubnet setIPVersion(String ipVersion) {
-        this.ipVersion = ipVersion;
-        return this;
     }
 
     @Override
@@ -97,28 +67,13 @@ public class VirtualSubnet implements IVirtualSubnet  {
         return ipVersion;
     }
 
-    public VirtualSubnet setSubnetCidr(IpPrefix subnetCidr) {
-        this.subnetCidr = subnetCidr;
-        return this;
-    }
-
     @Override
     public IpPrefix getSubnetCidr() {
         return subnetCidr;
     }
 
-    public VirtualSubnet setIpv6AddressMode(String ipv6AddressMode) {
-        this.ipv6AddressMode = ipv6AddressMode;
-        return this;
-    }
-
     public String getIpv6AddressMode() {
         return ipv6AddressMode;
-    }
-
-    public VirtualSubnet setIpv6RAMode(String ipv6RAMode) {
-        this.ipv6RAMode = ipv6RAMode;
-        return this;
     }
 
     public String getIpv6RAMode() {
@@ -142,14 +97,69 @@ public class VirtualSubnet implements IVirtualSubnet  {
     }
 
     public void removeSelf() {
-        for (VirtualPort intf : interfaces.values()) {
-            if (intf != null) {
-                intf.removeSubnetInfo(subnetUUID);
-            }
-        }
+        interfaces.values().forEach(intf -> intf.removeSubnetInfo(subnetUUID));
 
         if (router != null) {
             router.removeSubnet(this);
+        }
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
+    public static class Builder {
+        private Uuid subnetUUID;
+        private Uuid tenantID;
+        private String name;
+        private IpAddress gatewayIp;
+        private IpPrefix subnetCidr;
+        private String ipVersion;
+        private String ipv6AddressMode;
+        private String ipv6RAMode;
+
+        public Builder subnetUUID(Uuid newSubnetUUID) {
+            this.subnetUUID = newSubnetUUID;
+            return this;
+        }
+
+        public Builder tenantID(Uuid newTenantID) {
+            this.tenantID = newTenantID;
+            return this;
+        }
+
+        public Builder name(String newName) {
+            this.name = newName;
+            return this;
+        }
+
+        public Builder gatewayIp(IpAddress newGatewayIp) {
+            this.gatewayIp = newGatewayIp;
+            return this;
+        }
+
+        public Builder subnetCidr(IpPrefix newSubnetCidr) {
+            this.subnetCidr = newSubnetCidr;
+            return this;
+        }
+
+        public Builder ipVersion(String newIpVersion) {
+            this.ipVersion = newIpVersion;
+            return this;
+        }
+
+        public Builder ipv6AddressMode(String newIpv6AddressMode) {
+            this.ipv6AddressMode = newIpv6AddressMode;
+            return this;
+        }
+
+        public Builder ipv6RAMode(String newIpv6RAMode) {
+            this.ipv6RAMode = newIpv6RAMode;
+            return this;
+        }
+
+        public VirtualSubnet build() {
+            return new VirtualSubnet(this);
         }
     }
 }

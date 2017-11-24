@@ -14,17 +14,8 @@ import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-public class Ipv6TimerWheel {
-    private Timer ipv6PeriodicRATimerWheel;
-    public static final Ipv6TimerWheel INSTANCE = new Ipv6TimerWheel();
-
-    private Ipv6TimerWheel() {
-        ipv6PeriodicRATimerWheel = new HashedWheelTimer();
-    }
-
-    public static Ipv6TimerWheel getInstance() {
-        return INSTANCE;
-    }
+public class Ipv6TimerWheel implements AutoCloseable {
+    private final Timer ipv6PeriodicRATimerWheel = new HashedWheelTimer();
 
     public Timeout setPeriodicTransmissionTimeout(TimerTask task, long delay, TimeUnit unit) {
         Timeout timeout = null;
@@ -42,5 +33,10 @@ public class Ipv6TimerWheel {
                 }
             }
         }
+    }
+
+    @Override
+    public void close() {
+        ipv6PeriodicRATimerWheel.stop();
     }
 }
