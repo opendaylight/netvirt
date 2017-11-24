@@ -8,17 +8,16 @@
 
 package org.opendaylight.netvirt.sfc.translator.portchain;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
-import java.util.concurrent.ThreadFactory;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.sfc.translator.DelegatingDataTreeListener;
 import org.opendaylight.netvirt.sfc.translator.NeutronMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.OvsdbMdsalHelper;
@@ -61,7 +60,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
     private final SfcMdsalHelper sfcMdsalHelper;
     private final NeutronMdsalHelper neutronMdsalHelper;
     private final OvsdbMdsalHelper ovsdbMdsalHelper;
-    private RenderedServicePathService rspService;
+    private final RenderedServicePathService rspService;
 
     public NeutronPortChainListener(DataBroker db, RenderedServicePathService rspService) {
         super(db,new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, PORT_CHAIN_IID));
@@ -69,7 +68,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         this.neutronMdsalHelper = new NeutronMdsalHelper(db);
         this.ovsdbMdsalHelper = new OvsdbMdsalHelper(db);
         this.rspService = rspService;
-        ThreadFactory threadFactory = new ThreadFactoryBuilder().setNameFormat("Port-Chain-Event-Processor").build();
     }
 
     /**
@@ -85,7 +83,8 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                     PortChainTranslator.buildDeleteRenderedServicePathInput(PortChainTranslator
                     .getSFPKey(deletedPortChain));
             if (deleteRenderedPathInput != null) {
-                this.rspService.deleteRenderedPath(deleteRenderedPathInput);
+                JdkFutures.addErrorLogging(rspService.deleteRenderedPath(deleteRenderedPathInput),
+                        LOG, "deleteRenderedPath");
             }
         }
         sfcMdsalHelper.deleteServiceFunctionPath(PortChainTranslator.getSFPKey(deletedPortChain));
@@ -128,7 +127,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         //Mapping of Port Pair UUID and OvsdbPortMetadata of the port pair ingress port
         Map<Uuid, OvsdbPortMetadata> portPairOvsdbMetadata = new HashMap<>();
 
-        Map<Uuid, ServiceFunctionForwarderBuilder> portPairGroupToSFFMap = new HashMap<>();
         List<ServiceFunction> portChainServiceFunctionList = new ArrayList<>();
 
         //Read chain related port pair group, port pair and neutron port from neutron data store
@@ -197,8 +195,6 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                 LOG.info("SFF already exist for Port Pair Group {}. Existing SFF is {}",ppg, existingSff);
                 sffBuilder = new ServiceFunctionForwarderBuilder(existingSff);
             }
-            //Add SFF builder to the map for later reference
-            portPairGroupToSFFMap.put(ppg.getUuid(), sffBuilder);
 
             //Generate all the SF and write it to SFC data store
             for (PortPair portPair : portPairList) {
@@ -210,19 +206,15 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                         metadata,
                         sffBuilder.build());
 
-                if (sfBuilder != null) {
-                    LOG.info("Service Function generated for the Port Pair {} :: {}", portPair, sfBuilder);
-                    //Write the Service Function to SFC data store.
-                    sfcMdsalHelper.addServiceFunction(sfBuilder.build());
+                LOG.info("Service Function generated for the Port Pair {} :: {}", portPair, sfBuilder);
+                //Write the Service Function to SFC data store.
+                sfcMdsalHelper.addServiceFunction(sfBuilder.build());
 
-                    //Add to the list, to populated SFF Service Function Dictionary
-                    portPairSFList.add(sfBuilder);
+                //Add to the list, to populated SFF Service Function Dictionary
+                portPairSFList.add(sfBuilder);
 
-                    //Add the SF to Port Chain related SF list
-                    portChainServiceFunctionList.add(sfBuilder.build());
-                } else {
-                    LOG.warn("Service Function building failed for Port Pair {}", portPair);
-                }
+                //Add the SF to Port Chain related SF list
+                portChainServiceFunctionList.add(sfBuilder.build());
             }
 
             //Update the Service Function Dictionary of SFF
@@ -239,22 +231,20 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                 PortChainTranslator.buildServiceFunctionChain(newPortChain, portChainServiceFunctionList);
 
         //Write SFC to data store
-        if (sfc != null) {
-            LOG.info("Add service function chain {}", sfc);
-            sfcMdsalHelper.addServiceFunctionChain(sfc);
-        } else {
+        if (sfc == null) {
             LOG.warn("Service Function Chain building failed for Port Chain {}", newPortChain);
+            return;
         }
+
+        LOG.info("Add service function chain {}", sfc);
+        sfcMdsalHelper.addServiceFunctionChain(sfc);
 
         // Build Service Function Path Builder
         ServiceFunctionPath sfp = PortChainTranslator.buildServiceFunctionPath(sfc);
+
         //Write SFP to data store
-        if (sfp != null) {
-            LOG.info("Add service function path {}", sfp);
-            sfcMdsalHelper.addServiceFunctionPath(sfp);
-        } else {
-            LOG.warn("Service Function Path building failed for Service Chain {}", sfc);
-        }
+        LOG.info("Add service function path {}", sfp);
+        sfcMdsalHelper.addServiceFunctionPath(sfp);
 
         //TODO:Generate Flow Classifiers and augment RSP on it.
 
@@ -280,7 +270,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             }
         } else {
             LOG.error("Rendered Path Service is not available, can't create Rendered Path for Port Chain",
-                newPortChain);
+                    newPortChain);
         }
     }
 

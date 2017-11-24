@@ -432,7 +432,7 @@ public class OpenFlow13Provider {
         /*
          * NodeId is of the form 'openflow:dpnid'
          */
-        return BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(OF_URI_SEPARATOR)[1]));
+        return BigInteger.valueOf(Long.parseLong(nodeId.getValue().split(OF_URI_SEPARATOR)[1]));
     }
 
 }

@@ -24,8 +24,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
  */
 @Singleton
 public class NetvirtSfcAclListener
-    extends AsyncDataTreeChangeListenerBase<Acl, NetvirtSfcAclListener>
-    implements AutoCloseable {
+    extends AsyncDataTreeChangeListenerBase<Acl, NetvirtSfcAclListener> {
 
     private final DataBroker dataBroker;
     private final ClassifierService classifierService;

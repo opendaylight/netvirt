@@ -98,7 +98,7 @@ public class OvsdbMdsalHelper {
                     break;
                 }
             }
-            OvsdbNodeRef ovsdbNode = bridgeAugmentation.getManagedBy();
+            OvsdbNodeRef ovsdbNode = bridgeAugmentation != null ? bridgeAugmentation.getManagedBy() : null;
             if (ovsdbNode != null) {
                 NodeKey ovsdbNodeKey = ovsdbNode.getValue().firstKeyOf(Node.class);
                 for (Node node : nodes) {

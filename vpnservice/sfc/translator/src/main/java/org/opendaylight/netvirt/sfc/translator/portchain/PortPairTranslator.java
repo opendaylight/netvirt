@@ -13,6 +13,7 @@ import com.google.common.collect.ImmutableBiMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import javax.annotation.Nonnull;
 import org.opendaylight.netvirt.sfc.translator.OvsdbMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.OvsdbPortMetadata;
 import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
@@ -69,6 +70,7 @@ public class PortPairTranslator {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     private static final String SFF_NAME_PARAM = "sff-name";
 
+    @Nonnull
     public static ServiceFunctionBuilder buildServiceFunction(
             PortPair portPair,
             PortPairGroup portPairGroup,
@@ -102,29 +104,22 @@ public class PortPairTranslator {
         sfDataPlaneLocatorBuilder.setTransport(VxlanGpe.class);
 
         //Set locator type
-        if (neutronPort != null) {
-            List<FixedIps> fixedIps = neutronPort.getFixedIps();
-            List<AllowedAddressPairs> attachedIpAddresses = neutronPort.getAllowedAddressPairs();
-            IpAddress ipAddress;
-            if (fixedIps != null && !fixedIps.isEmpty()) {
-                ipAddress = fixedIps.get(0).getIpAddress();
-                sfLocator.setIp(ipAddress);
+        List<FixedIps> fixedIps = neutronPort.getFixedIps();
+        List<AllowedAddressPairs> attachedIpAddresses = neutronPort.getAllowedAddressPairs();
+        if (fixedIps != null && !fixedIps.isEmpty()) {
+            sfLocator.setIp(fixedIps.get(0).getIpAddress());
 
-            } else if (attachedIpAddresses != null && !attachedIpAddresses.isEmpty()) {
-                //Pick up the first ip address
-                ipAddress = attachedIpAddresses.get(0).getIpAddress().getIpAddress();
-                sfLocator.setIp(ipAddress);
-            } else {
-                LOG.warn("No ip address attached to Neutron Port {} related to Port Pair {}", neutronPort, portPair);
-                //Ideally we should exit here, because without IP address OpenDaylight SFC won't be able to find the
-                //respective overlay. But if user passes additional parameter through service_function_param
-                //that can be leveraged here. Parameter passed through service_function_param will take precedence.
-            }
-            sfLocator.setPort(new PortNumber(SF_LOCATOR_PORT));
-
+        } else if (attachedIpAddresses != null && !attachedIpAddresses.isEmpty()) {
+            //Pick up the first ip address
+            sfLocator.setIp(attachedIpAddresses.get(0).getIpAddress().getIpAddress());
         } else {
-            LOG.warn("Neutron port mapped to Port pair ingress/egress port is not found : {}", portPair);
+            LOG.warn("No ip address attached to Neutron Port {} related to Port Pair {}", neutronPort, portPair);
+            //Ideally we should exit here, because without IP address OpenDaylight SFC won't be able to find the
+            //respective overlay. But if user passes additional parameter through service_function_param
+            //that can be leveraged here. Parameter passed through service_function_param will take precedence.
         }
+        sfLocator.setPort(new PortNumber(SF_LOCATOR_PORT));
+
 
         if (ovsdbPortMetadata.getOvsdbPort() != null) {
             String ovsdbPortName = OvsdbMdsalHelper.getOvsdbPortName(ovsdbPortMetadata.getOvsdbPort());
@@ -152,11 +147,10 @@ public class PortPairTranslator {
                     sfDataPlaneLocatorBuilder.setTransport(transportTypeClass);
                 }
                 if (sfParam.getServiceFunctionParameter().equals(DPL_IP_PARAM)) {
-                    IpAddress ipAddress = new IpAddress(new Ipv4Address(sfParam.getServiceFunctionParameterValue()));
-                    sfLocator.setIp(ipAddress);
+                    sfLocator.setIp(new IpAddress(new Ipv4Address(sfParam.getServiceFunctionParameterValue())));
                 }
                 if (sfParam.getServiceFunctionParameter().equals(DPL_PORT_PARAM)) {
-                    sfLocator.setPort(new PortNumber(new Integer(sfParam.getServiceFunctionParameterValue())));
+                    sfLocator.setPort(new PortNumber(Integer.valueOf(sfParam.getServiceFunctionParameterValue())));
                 }
                 if (sfParam.getServiceFunctionParameter().equals(SFF_NAME_PARAM)) {
                     sfDataPlaneLocatorBuilder.setServiceFunctionForwarder(

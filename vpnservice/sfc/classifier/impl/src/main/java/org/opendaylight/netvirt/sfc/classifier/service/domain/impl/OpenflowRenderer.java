@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -43,6 +44,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
+    // FindBugs reports "Useless object stored in variable flows" however it doesn't recognize the usage of forEach.
+    @SuppressFBWarnings("UC_USELESS_OBJECT")
     public void renderNode(NodeId nodeId) {
         List<Flow> flows = new ArrayList<>();
         flows.add(this.openFlow13Provider.createIngressClassifierFilterVxgpeNshFlow(nodeId));
@@ -64,6 +67,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
+    // FindBugs reports "Useless object stored in variable flows" however it doesn't recognize the usage of forEach.
+    @SuppressFBWarnings("UC_USELESS_OBJECT")
     public void renderPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
 
         List<Flow> flows = new ArrayList<>();
@@ -111,6 +116,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
+    // FindBugs reports "Useless object stored in variable flows" however it doesn't recognize the usage of forEach.
+    @SuppressFBWarnings("UC_USELESS_OBJECT")
     public void suppressNode(NodeId nodeId) {
         List<Flow> flows = new ArrayList<>();
         flows.add(this.openFlow13Provider.createIngressClassifierFilterVxgpeNshFlow(nodeId));
@@ -129,6 +136,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
     }
 
     @Override
+    // FindBugs reports "Useless object stored in variable flows" however it doesn't recognize the usage of forEach.
+    @SuppressFBWarnings("UC_USELESS_OBJECT")
     public void suppressPath(NodeId nodeId, Long nsp, short nsi, short nsl, String firstHopIp) {
         List<Flow> flows = new ArrayList<>();
         if (firstHopIp != null) {

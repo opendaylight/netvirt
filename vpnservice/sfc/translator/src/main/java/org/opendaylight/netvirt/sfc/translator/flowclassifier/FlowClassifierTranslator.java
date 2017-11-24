@@ -134,11 +134,12 @@ public class FlowClassifierTranslator {
             neutronPortsBuilder.setSourcePortUuid(flowClassifier.getLogicalSourcePort().getValue());
         }
         if (flowClassifier.getLogicalDestinationPort() != null) {
-            neutronPortsBuilder.setDestinationPortUuid((flowClassifier.getLogicalDestinationPort().getValue()));
+            neutronPortsBuilder.setDestinationPortUuid(flowClassifier.getLogicalDestinationPort().getValue());
         }
-        if (flowClassifier.getL7Parameter() != null) {
-            //It's currently not supported.
-        }
+
+        // currently not supported.
+//        if (flowClassifier.getL7Parameter() != null) {
+//        }
 
         MatchesBuilder matchesBuilder = new MatchesBuilder();
         matchesBuilder.setAceType(aceIpBuilder.build());
