@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.statistics;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -25,7 +24,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-@SuppressWarnings("deprecation")
 public class IngressCountersServiceImpl extends AbstractCountersService {
 
     public IngressCountersServiceImpl(DataBroker db, IInterfaceManager interfaceManager,
