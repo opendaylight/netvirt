@@ -11,6 +11,8 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.infrautils.inject.AbstractLifecycle;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -27,6 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by eaksahu on 3/15/2017.
  */
+@Singleton
 public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwService {
 
     private static final Logger LOG = LoggerFactory.getLogger(L2gwServiceProvider.class);
@@ -36,6 +39,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
     private final ElanClusterUtils elanClusterUtils;
 
+    @Inject
     public L2gwServiceProvider(final DataBroker dataBroker, final ElanClusterUtils elanClusterUtils,
                                ItmRpcService itmRpcService, L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         this.dataBroker = dataBroker;
