@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.math.BigInteger;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -26,6 +29,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInterfaceStateChangeListener
         extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> {
 
@@ -35,6 +39,7 @@ public class ElanInterfaceStateChangeListener
     private final ElanInterfaceManager elanInterfaceManager;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
             final JobCoordinator jobCoordinator) {
         super(Interface.class, ElanInterfaceStateChangeListener.class);
@@ -44,6 +49,7 @@ public class ElanInterfaceStateChangeListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -95,11 +101,6 @@ public class ElanInterfaceStateChangeListener
         InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
                 .getElanInterfaceConfigurationDataPathId(interfaceName);
         elanInterfaceManager.add(elanInterfaceId, elanInterface);
-    }
-
-    @Override
-    public void close() {
-
     }
 
     @Override

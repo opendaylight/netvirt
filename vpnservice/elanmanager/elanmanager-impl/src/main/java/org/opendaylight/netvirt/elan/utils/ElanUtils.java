@@ -66,8 +66,6 @@ import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
-import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
-import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -186,10 +184,8 @@ public class ElanUtils {
 
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
-    private final ElanInstanceManager elanInstanceManager;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private final ItmRpcService itmRpcService;
-    private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final IInterfaceManager interfaceManager;
     private final ElanConfig elanConfig;
     private final ElanItmUtils elanItmUtils;
@@ -208,27 +204,17 @@ public class ElanUtils {
     };
 
     @Inject
-    public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanInstanceManager elanInstanceManager,
-                     OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService,
-                     ElanConfig elanConfig,
-                     IInterfaceManager interfaceManager,
-                     ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanEtreeUtils elanEtreeUtils,
-                     ElanItmUtils elanItmUtils) {
+    public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService, ElanConfig elanConfig,
+            IInterfaceManager interfaceManager, ElanEtreeUtils elanEtreeUtils, ElanItmUtils elanItmUtils) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
-        this.elanInstanceManager = elanInstanceManager;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
         this.itmRpcService = itmRpcService;
         this.interfaceManager = interfaceManager;
         this.elanConfig = elanConfig;
-
-        this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanEtreeUtils = elanEtreeUtils;
         this.elanItmUtils = elanItmUtils;
-    }
-
-    public ElanL2GatewayMulticastUtils getElanL2GatewayMulticastUtils() {
-        return elanL2GatewayMulticastUtils;
     }
 
     public final Boolean isOpenstackVniSemanticsEnforced() {
@@ -895,7 +881,14 @@ public class ElanUtils {
 
     @Nonnull
     public List<DpnInterfaces> getInvolvedDpnsInElan(String elanName) {
-        return elanInstanceManager.getElanDPNByName(elanName);
+        return getElanDPNByName(elanName);
+    }
+
+    @Nonnull
+    public List<DpnInterfaces> getElanDPNByName(String elanInstanceName) {
+        InstanceIdentifier<ElanDpnInterfacesList> elanIdentifier = getElanDpnOperationDataPath(elanInstanceName);
+        return MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, elanIdentifier).toJavaUtil().map(
+                ElanDpnInterfacesList::getDpnInterfaces).orElse(Collections.emptyList());
     }
 
     private void setupLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,

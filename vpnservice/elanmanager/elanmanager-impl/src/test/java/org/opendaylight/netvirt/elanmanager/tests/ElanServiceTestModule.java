@@ -37,6 +37,8 @@ import org.opendaylight.netvirt.elanmanager.tests.utils.VpnManagerTestImpl;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
+import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -111,5 +113,9 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(IBgpManager.class).toInstance(ibgpManager);
         bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
         bind(IElanService.class).to(ElanServiceProvider.class);
+
+        MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
+        bind(MdsalUtils.class).toInstance(mdsalUtils);
+        bind(SouthboundUtils.class).toInstance(new SouthboundUtils(mdsalUtils));
     }
 }

@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.elan.internal;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.Collections;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.liblldp.NetUtils;
 import org.opendaylight.controller.liblldp.PacketException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -42,7 +44,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("deprecation")
+@Singleton
 public class ElanPacketInHandler implements PacketProcessingListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanPacketInHandler.class);
@@ -54,6 +56,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private final EvpnUtils evpnUtils;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils,
             EvpnUtils evpnUtils, ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator) {
         broker = dataBroker;
