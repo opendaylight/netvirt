@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_86474a1d",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:55:36Z",
+      "side": 0,
+      "message": "\"Dead store to instructionKey\" - final increment not needed",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_e6543ecc",
+        "filename": "vpnservice/cloud-servicechain/cloud-servicechain-impl/src/main/java/org/opendaylight/netvirt/cloudservicechain/utils/ElanServiceChainUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:55:36Z",
+      "side": 0,
+      "message": "\"invokes inefficient new Long(long) constructor; use Long.valueOf(long) instead\"",
+      "range": {
+        "startLine": 258,
+        "startChar": 66,
+        "endLine": 258,
+        "endChar": 74
+      },
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
