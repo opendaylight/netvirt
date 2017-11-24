@@ -11,7 +11,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -31,7 +30,7 @@ public class StatisticsProvider {
     private final RpcProviderRegistry rpcProviderRegistry;
     private final IMdsalApiManager mdsalApiManager;
     private final IdManagerService idManagerService;
-    private CounterRetriever counterRetriever;
+    private final CounterRetriever counterRetriever;
     private CountersServiceInterfaceListener csil;
 
     @Inject
@@ -58,5 +57,9 @@ public class StatisticsProvider {
     @PreDestroy
     public void destroy() {
         LOG.info("{} close", getClass().getSimpleName());
+
+        if (csil != null) {
+            csil.close();
+        }
     }
 }

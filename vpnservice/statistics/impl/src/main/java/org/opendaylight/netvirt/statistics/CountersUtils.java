@@ -13,8 +13,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
-
 import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,8 +46,8 @@ public class CountersUtils {
     public static final String TCP_FILTER_NAME = "tcp";
     public static final String UDP_FILTER_NAME = "udp";
 
-    private static final List<String> UNACCUMULATED_COUNTER_GROUPS = new ArrayList<String>(Arrays.asList("Duration"));
-    protected static final Logger LOG = LoggerFactory.getLogger(CountersUtils.class);
+    private static final List<String> UNACCUMULATED_COUNTER_GROUPS = new ArrayList<>(Arrays.asList("Duration"));
+    private static final Logger LOG = LoggerFactory.getLogger(CountersUtils.class);
 
     public static String getNodeId(BigInteger dpId) {
         return IfmConstants.OF_URI_PREFIX + dpId;
@@ -92,10 +92,11 @@ public class CountersUtils {
 
         for (String counterResultId : counters.getResults().keySet()) {
             Map<String, BigInteger> currentResultGroup = counters.getGroups(counterResultId).get(groupName);
-            for (String counterName : currentResultGroup.keySet()) {
-                if (aggregatedCounters.get(counterName) != null) {
-                    aggregatedCounters.put(counterName,
-                            aggregatedCounters.get(counterName).add(currentResultGroup.get(counterName)));
+            for (Entry<String, BigInteger> entry : currentResultGroup.entrySet()) {
+                String counterName = entry.getKey();
+                BigInteger aggregated = aggregatedCounters.get(counterName);
+                if (aggregated != null) {
+                    aggregatedCounters.put(counterName, aggregated.add(entry.getValue()));
                 } else {
                     LOG.warn("missing counter value for: {}", counterName);
                 }

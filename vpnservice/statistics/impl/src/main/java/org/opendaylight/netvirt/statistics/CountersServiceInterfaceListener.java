@@ -16,7 +16,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
-@SuppressWarnings("deprecation")
 public class CountersServiceInterfaceListener
         extends AsyncDataTreeChangeListenerBase<Interface, CountersServiceInterfaceListener>
         implements ClusteredDataTreeChangeListener<Interface> {
