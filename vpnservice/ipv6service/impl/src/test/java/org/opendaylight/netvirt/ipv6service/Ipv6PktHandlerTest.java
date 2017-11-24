@@ -224,8 +224,7 @@ public class Ipv6PktHandlerTest {
         when(ifMgrInstance.getRouterV6InterfaceForNetwork(any())).thenReturn(routerIntf);
         List<Ipv6Address> ipv6AddrList = new ArrayList<>();
         when(routerIntf.getMacAddress()).thenReturn("08:00:27:FE:8F:95");
-        Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
-        Ipv6Address llAddr = ipv6Utils.getIpv6LinkLocalAddressFromMac(new MacAddress("08:00:27:FE:8F:95"));
+        Ipv6Address llAddr = Ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(new MacAddress("08:00:27:FE:8F:95"));
         ipv6AddrList.add(llAddr);
         when(routerIntf.getIpv6Addresses()).thenReturn(ipv6AddrList);
 

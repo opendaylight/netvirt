@@ -38,11 +38,9 @@ import org.slf4j.LoggerFactory;
 public class Ipv6RouterAdvt {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
     private final PacketProcessingService packetService;
-    private final Ipv6ServiceUtils ipv6Utils;
 
     public Ipv6RouterAdvt(PacketProcessingService packetService) {
         this.packetService = packetService;
-        ipv6Utils = Ipv6ServiceUtils.getInstance();
     }
 
     public boolean transmitRtrAdvertisement(Ipv6RtrAdvertType raType, VirtualPort routerPort,
@@ -118,7 +116,7 @@ public class Ipv6RouterAdvt {
                 + prefixListLength * Ipv6Constants.ICMPV6_OPTION_PREFIX_LENGTH);
         raPacket.setNextHeader(Ipv6Constants.ICMP6_NHEADER);
         raPacket.setHopLimit(Ipv6Constants.ICMP_V6_MAX_HOP_LIMIT);
-        raPacket.setSourceIpv6(ipv6Utils.getIpv6LinkLocalAddressFromMac(sourceMac));
+        raPacket.setSourceIpv6(Ipv6ServiceUtils.getIpv6LinkLocalAddressFromMac(sourceMac));
 
         raPacket.setIcmp6Type(Ipv6Constants.ICMP_V6_RA_CODE);
         raPacket.setIcmp6Code((short)0);
@@ -174,10 +172,10 @@ public class Ipv6RouterAdvt {
     private byte[] fillRouterAdvertisementPacket(RouterAdvertisementPacket pdu) {
         ByteBuffer buf = ByteBuffer.allocate(Ipv6Constants.ICMPV6_OFFSET + pdu.getIpv6Length());
 
-        buf.put(ipv6Utils.convertEthernetHeaderToByte(pdu), 0, 14);
-        buf.put(ipv6Utils.convertIpv6HeaderToByte(pdu), 0, 40);
+        buf.put(Ipv6ServiceUtils.convertEthernetHeaderToByte(pdu), 0, 14);
+        buf.put(Ipv6ServiceUtils.convertIpv6HeaderToByte(pdu), 0, 40);
         buf.put(icmp6RAPayloadtoByte(pdu), 0, pdu.getIpv6Length());
-        int checksum = ipv6Utils.calcIcmpv6Checksum(buf.array(), pdu);
+        int checksum = Ipv6ServiceUtils.calcIcmpv6Checksum(buf.array(), pdu);
         buf.putShort(Ipv6Constants.ICMPV6_OFFSET + 2, (short)checksum);
         return buf.array();
     }
@@ -197,7 +195,7 @@ public class Ipv6RouterAdvt {
         buf.putInt((int)pdu.getRetransTime().longValue());
         buf.put((byte)pdu.getOptionSourceAddr().shortValue());
         buf.put((byte)pdu.getSourceAddrLength().shortValue());
-        buf.put(ipv6Utils.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
+        buf.put(Ipv6ServiceUtils.bytesFromHexString(pdu.getSourceLlAddress().getValue()));
 
         for (PrefixList prefix : pdu.getPrefixList()) {
             buf.put((byte)prefix.getOptionType().shortValue());

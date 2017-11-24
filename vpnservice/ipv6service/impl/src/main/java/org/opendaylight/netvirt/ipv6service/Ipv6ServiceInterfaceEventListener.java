@@ -35,16 +35,18 @@ public class Ipv6ServiceInterfaceEventListener
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceInterfaceEventListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
+    private final Ipv6ServiceUtils ipv6ServiceUtils;
 
     /**
      * Intialize the member variables.
      * @param broker the data broker instance.
      */
     @Inject
-    public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr) {
+    public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr, Ipv6ServiceUtils ipv6ServiceUtils) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
         this.dataBroker = broker;
         this.ifMgr = ifMgr;
+        this.ipv6ServiceUtils = ipv6ServiceUtils;
     }
 
     @Override
@@ -96,7 +98,7 @@ public class Ipv6ServiceInterfaceEventListener
         }
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface;
-        iface = Ipv6ServiceUtils.getInterface(dataBroker, add.getName());
+        iface = ipv6ServiceUtils.getInterface(add.getName());
         if (null != iface) {
             LOG.debug("Port {} is a Neutron port", iface.getName());
             NodeConnectorId nodeConnectorId = new NodeConnectorId(ofportIds.get(0));
