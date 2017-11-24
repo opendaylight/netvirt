@@ -51,12 +51,13 @@ public class EvpnMacVrfUtils {
     private final IMdsalApiManager mdsalManager;
     private final EvpnUtils evpnUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanUtils elanUtils;
 
     @Inject
     public EvpnMacVrfUtils(final DataBroker dataBroker, final ElanInstanceManager elanInstanceManager,
                            final IdManagerService idManager, final ElanEvpnFlowUtils elanEvpnFlowUtils,
                            final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils,
-                           final JobCoordinator jobCoordinator) {
+                           final JobCoordinator jobCoordinator, final ElanUtils elanUtils) {
         this.dataBroker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.idManager = idManager;
@@ -64,6 +65,7 @@ public class EvpnMacVrfUtils {
         this.mdsalManager = mdsalManager;
         this.evpnUtils = evpnUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanUtils = elanUtils;
     }
 
     public Long getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
@@ -149,7 +151,7 @@ public class EvpnMacVrfUtils {
             return;
         }
 
-        List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
+        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getElanDPNByName(elanName);
         if (checkEvpnAttachedToNet(elanName)) {
             //TODO(Riyaz) : Check if accessing first nexthop address is right solution
             String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
@@ -182,7 +184,7 @@ public class EvpnMacVrfUtils {
             LOG.error("Error : elanName is null for iid {}", instanceIdentifier);
             return;
         }
-        List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
+        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getElanDPNByName(elanName);
 
         //if (checkEvpnAttachedToNet(elanName)) {
         //TODO(Riyaz) : Check if accessing first nexthop address is right
@@ -214,7 +216,7 @@ public class EvpnMacVrfUtils {
         }
 
         String elanName = elanInstance.getElanInstanceName();
-        List<DpnInterfaces> dpnInterfaceLists = elanInstanceManager.getElanDPNByName(elanName);
+        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getElanDPNByName(elanName);
 
         if (checkEvpnAttachedToNet(elanName)) {
             String nexthopIP = getRoutePathNexthopIp(macVrfEntry);
@@ -259,8 +261,7 @@ public class EvpnMacVrfUtils {
             LOG.error("Error : elanInstance is null for iid {}", instanceIdentifier);
             return;
         }
-        List<DpnInterfaces> dpnInterfaceLists =
-                elanInstanceManager.getElanDPNByName(elanInstance.getElanInstanceName());
+        List<DpnInterfaces> dpnInterfaceLists = elanUtils.getElanDPNByName(elanInstance.getElanInstanceName());
 
         //if (checkEvpnAttachedToNet(elanName)) {
         String nexthopIP = getRoutePathNexthopIp(macVrfEntry);

@@ -15,6 +15,8 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -40,7 +42,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("deprecation")
+@Singleton
 public class ElanSmacFlowEventListener implements SalFlowListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanSmacFlowEventListener.class);
@@ -50,6 +52,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public ElanSmacFlowEventListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
             JobCoordinator jobCoordinator) {
         this.broker = broker;

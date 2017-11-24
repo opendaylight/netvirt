@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -18,6 +21,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeListenerBase<L2gatewayConnection,
         L2GatewayConnectionListener> {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionListener.class);
@@ -25,12 +29,14 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
 
+    @Inject
     public L2GatewayConnectionListener(final DataBroker db, L2GatewayConnectionUtils l2GatewayConnectionUtils) {
         super(L2gatewayConnection.class, L2GatewayConnectionListener.class);
         this.broker = db;
         this.l2GatewayConnectionUtils = l2GatewayConnectionUtils;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
