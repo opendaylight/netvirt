@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_8692aa9d",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyAceFlowProgrammer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:35:29Z",
+      "side": 0,
+      "message": "We shouldn\u0027t suppress deprecation warnings.",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_4681d249",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/PolicyAceFlowWrapper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:35:29Z",
+      "side": 0,
+      "message": "\"Field isn\u0027t final but should be\"",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_a695268a",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 238,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:35:29Z",
+      "side": 0,
+      "message": "\"Possible null pointer dereference of underlayNetworks\"",
+      "range": {
+        "startLine": 238,
+        "startChar": 8,
+        "endLine": 238,
+        "endChar": 24
+      },
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
