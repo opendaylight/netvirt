@@ -12,6 +12,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -51,6 +54,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, ElanNodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanNodeListener.class);
@@ -63,6 +67,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     private final boolean puntLldpToController;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig,
             IdManagerService idManagerService, JobCoordinator jobCoordinator) {
         this.broker = dataBroker;
@@ -74,6 +79,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
@@ -229,7 +235,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     }
 
     private void setupExternalL2vniTableMissFlow(BigInteger dpnId) {
-        List<MatchInfo> matches = new ArrayList<MatchInfo>();
+        List<MatchInfo> matches = new ArrayList<>();
         List<ActionInfo> actionsInfos = Collections.singletonList(new ActionNxResubmit(NwConstants
                         .LPORT_DISPATCHER_TABLE));
         List<InstructionInfo> instructions = Collections.singletonList(new InstructionApplyActions(actionsInfos));
