@@ -1,0 +1,135 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_a6c36689",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CounterRetriever.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:53:52Z",
+      "side": 0,
+      "message": "should not be static",
+      "range": {
+        "startLine": 54,
+        "startChar": 12,
+        "endLine": 54,
+        "endChar": 18
+      },
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_86c0ea7d",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CounterRetriever.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:53:52Z",
+      "side": 0,
+      "message": "enums are static and shouldn\u0027t be used for mutable counters.",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_e6bd5e04",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CountersServiceInterfaceListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:53:52Z",
+      "side": 0,
+      "message": "We shouldn\u0027t suppress deprecation.",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_c6bae209",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CountersServiceUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:53:52Z",
+      "side": 0,
+      "message": "\"Boxed value is unboxed and then immediately reboxed\"",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_263776b2",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CountersUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:53:52Z",
+      "side": 0,
+      "message": "\"Inefficient use of keySet iterator instead of entrySet iterator\"",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_66416e0b",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/StatisticsImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 134,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:53:52Z",
+      "side": 0,
+      "message": "\"Exception is caught when Exception is not thrown\"",
+      "range": {
+        "startLine": 134,
+        "startChar": 17,
+        "endLine": 134,
+        "endChar": 26
+      },
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_4646f224",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/StatisticsImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 959,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-24T23:53:52Z",
+      "side": 0,
+      "message": "\"result must be non-null but is marked as nullable\" - result can\u0027t actually be null",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
