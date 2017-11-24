@@ -67,13 +67,13 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class GeniusProvider {
+    private static final Logger LOG = LoggerFactory.getLogger(GeniusProvider.class);
+    public static final String OPTION_KEY_EXTS = "exts";
+    public static final String OPTION_VALUE_EXTS_GPE = "gpe";
 
     private final DataBroker dataBroker;
     private final IInterfaceManager interfaceMgr;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
-    private static final Logger LOG = LoggerFactory.getLogger(GeniusProvider.class);
-    public static final String OPTION_KEY_EXTS = "exts";
-    public static final String OPTION_VALUE_EXTS_GPE = "gpe";
 
     @Inject
     public GeniusProvider(final DataBroker dataBroker, final RpcProviderRegistry rpcProviderRegistry,
@@ -291,7 +291,7 @@ public class GeniusProvider {
     public List<String> getInterfacesFromNode(NodeId nodeId) {
         // getPortsOnBridge() only returns Tunnel ports, so instead using getDpnInterfaceList.
         GetDpnInterfaceListInputBuilder inputBuilder = new GetDpnInterfaceListInputBuilder();
-        inputBuilder.setDpid(BigInteger.valueOf(Long.valueOf(nodeId.getValue().split(":")[1])));
+        inputBuilder.setDpid(BigInteger.valueOf(Long.parseLong(nodeId.getValue().split(":")[1])));
         GetDpnInterfaceListInput input = inputBuilder.build();
 
         try {

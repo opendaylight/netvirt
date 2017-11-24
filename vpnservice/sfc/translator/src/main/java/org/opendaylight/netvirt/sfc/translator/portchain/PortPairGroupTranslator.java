@@ -62,7 +62,6 @@ public class PortPairGroupTranslator {
 
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     private static final String SFF_DEFAULT_NAME = "sff";
-    private static final String SFF_DPL_SUFFIX = "-dpl";
     private static final String SFF_DPL_FIX_NAME = "vxgpe";
 
     public static ServiceFunctionForwarderBuilder buildServiceFunctionForwarder(

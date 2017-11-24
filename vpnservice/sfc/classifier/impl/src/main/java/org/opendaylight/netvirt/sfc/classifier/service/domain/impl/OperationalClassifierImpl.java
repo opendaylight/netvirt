@@ -9,8 +9,8 @@
 package org.opendaylight.netvirt.sfc.classifier.service.domain.impl;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
@@ -21,7 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 
 public class OperationalClassifierImpl implements ClassifierState {
 
-    private final Set<ClassifierRenderableEntry> entries = new HashSet<>();
+    private final Set<ClassifierRenderableEntry> entries = ConcurrentHashMap.newKeySet();
 
     @Override
     public Set<ClassifierRenderableEntry> getAllEntries() {

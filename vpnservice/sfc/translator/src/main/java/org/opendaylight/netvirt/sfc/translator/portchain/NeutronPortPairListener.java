@@ -14,8 +14,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.sfc.translator.DelegatingDataTreeListener;
-import org.opendaylight.netvirt.sfc.translator.NeutronMdsalHelper;
-import org.opendaylight.netvirt.sfc.translator.OvsdbMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocator;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
@@ -40,17 +38,11 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
     private static final InstanceIdentifier<PortPair> PORT_PAIR_IID =
             InstanceIdentifier.create(Neutron.class).child(PortPairs.class).child(PortPair.class);
 
-    private final DataBroker db;
     private final SfcMdsalHelper sfcMdsalHelper;
-    private final NeutronMdsalHelper neutronMdsalHelper;
-    private final OvsdbMdsalHelper ovsdbMdsalHelper;
 
     public NeutronPortPairListener(DataBroker db) {
         super(db,new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, PORT_PAIR_IID));
-        this.db = db;
         sfcMdsalHelper = new SfcMdsalHelper(db);
-        neutronMdsalHelper = new NeutronMdsalHelper(db);
-        ovsdbMdsalHelper = new OvsdbMdsalHelper(db);
     }
 
     /**
