@@ -549,7 +549,9 @@ public class IfMgr {
         if (vnet != null) {
             Collection<VirtualNetwork.DpnInterfaceInfo> dpnIfaceList = vnet.getDpnIfaceList();
             for (VirtualNetwork.DpnInterfaceInfo dpnIfaceInfo : dpnIfaceList) {
-                if (action == Ipv6Constants.ADD_FLOW && !dpnIfaceInfo.ndTargetFlowsPunted.contains(ipv6Address)) {
+                LOG.info("TESTING:: In programIcmpv6NSPuntFlowForAddress, size = {}, dpnIfaceInfo {}", dpnIfaceList.size(), dpnIfaceInfo);
+                if (action == Ipv6Constants.ADD_FLOW && !dpnIfaceInfo.ndTargetFlowsPunted.contains(ipv6Address)
+                        && dpnIfaceInfo.getDpId() != null) {
                     ipv6ServiceUtils.installIcmpv6NsPuntFlow(NwConstants.IPV6_TABLE, dpnIfaceInfo.getDpId(),
                             elanTag, ipv6Address.getValue(), mdsalUtil, Ipv6Constants.ADD_FLOW);
                     dpnIfaceInfo.updateNDTargetAddress(ipv6Address, action);
