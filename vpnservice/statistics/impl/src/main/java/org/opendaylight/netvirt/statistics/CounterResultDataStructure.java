@@ -15,7 +15,7 @@ import java.util.Set;
 
 public class CounterResultDataStructure {
 
-    private Map<String, Map<String, Map<String, BigInteger>>> results;
+    private final Map<String, Map<String, Map<String, BigInteger>>> results;
 
     public CounterResultDataStructure() {
         results = new HashMap<>();
@@ -25,7 +25,7 @@ public class CounterResultDataStructure {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((results == null) ? 0 : results.hashCode());
+        result = prime * result + (results == null ? 0 : results.hashCode());
         return result;
     }
 

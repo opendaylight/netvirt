@@ -16,12 +16,10 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.sal.binding.api.RpcProviderRegistry;
 import org.opendaylight.infrautils.counters.api.OccurenceCounter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.GetFlowStatisticsInputBuilder;
@@ -47,11 +45,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-@SuppressWarnings("deprecation")
 public class CounterRetriever {
     protected static final Logger LOG = LoggerFactory.getLogger(CounterRetriever.class);
     private final OpendaylightDirectStatisticsService odlDirectStatsService;
-    private static long nodeResultTimeout;
+    private final long nodeResultTimeout;
+    private final Counters counters = new Counters();
 
     @Inject
     public CounterRetriever(final RpcProviderRegistry rpcProviderRegistry,
@@ -79,7 +77,7 @@ public class CounterRetriever {
         try {
             rpcResult = rpcResultFuture.get();
         } catch (InterruptedException | ExecutionException e) {
-            CounterRetrieverCounters.failed_getting_node_connector_counters.inc();
+            counters.failedGettingNodeConnectorCounters.inc();
             LOG.warn("Unable to retrieve node connector counters for port {}", nodeConnectorId);
             return null;
         }
@@ -88,14 +86,14 @@ public class CounterRetriever {
             GetNodeConnectorStatisticsOutput nodeConnectorStatsOutput = rpcResult.getResult();
             return createNodeConnectorResultMapDirect(nodeConnectorStatsOutput, nodeConnectorId);
         } else {
-            CounterRetrieverCounters.failed_getting_rpc_result_for_node_connector_counters.inc();
+            counters.failedGettingRpcResultForNodeConnectorCounters.inc();
             LOG.warn("Unable to retrieve node connector counters for port {}", nodeConnectorId);
             return null;
         }
     }
 
     public CounterResultDataStructure getNodeCountersDirect(Node node) {
-        List<CounterResultDataStructure> countersResults = new ArrayList<CounterResultDataStructure>();
+        List<CounterResultDataStructure> countersResults = new ArrayList<>();
         List<CompletableFuture<NodeConnectorStatisticsSupplierOutput>> futureList = new ArrayList<>();
         for (NodeConnector nodeConnector : node.getNodeConnector()) {
             GetNodeConnectorStatisticsInput gncsi =
@@ -110,7 +108,7 @@ public class CounterRetriever {
                 CompletableFuture<NodeConnectorStatisticsSupplierOutput> completableCurrentResult = futureList.get(i);
                 if (completableCurrentResult == null) {
                     LOG.warn("Unable to retrieve node counters");
-                    CounterRetrieverCounters.failed_getting_node_counters.inc();
+                    counters.failedGettingNodeCounters.inc();
                     return null;
                 }
                 RpcResult<GetNodeConnectorStatisticsOutput> currentResult =
@@ -120,13 +118,13 @@ public class CounterRetriever {
                     countersResults.add(createNodeConnectorResultMapDirect(nodeConnectorStatsOutput,
                             completableCurrentResult.get().getNodeConnectrId()));
                 } else {
-                    CounterRetrieverCounters.failed_getting_node_counters.inc();
+                    counters.failedGettingNodeCounters.inc();
                     LOG.warn("Unable to retrieve node counters");
                     return null;
                 }
             }
         } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            CounterRetrieverCounters.failed_getting_node_counters.inc();
+            counters.failedGettingNodeCounters.inc();
             LOG.warn("Unable to retrieve node counters");
             return null;
         }
@@ -159,7 +157,7 @@ public class CounterRetriever {
         List<NodeConnectorStatisticsAndPortNumberMap> nodeConnectorUpdates =
                 nodeConnectorStatsOutput.getNodeConnectorStatisticsAndPortNumberMap();
         if (nodeConnectorUpdates == null || nodeConnectorUpdates.isEmpty()) {
-            CounterRetrieverCounters.failed_getting_result_map_for_node_connector.inc();
+            counters.failedGettingResultMapForNodeConnectorCounters.inc();
             LOG.warn("Unable to retrieve statistics info for node connector");
             return null;
         }
@@ -211,7 +209,7 @@ public class CounterRetriever {
         try {
             rpcResult = rpcResultFuture.get();
         } catch (InterruptedException | ExecutionException e) {
-            CounterRetrieverCounters.failed_getting_flow_counters.inc();
+            counters.failedGettingFlowCounters.inc();
             LOG.warn("Unable to retrieve flow counters for match {}", match);
             return null;
         }
@@ -220,7 +218,7 @@ public class CounterRetriever {
             GetFlowStatisticsOutput flowStatsOutput = rpcResult.getResult();
             return createSwitchFlowResultMapDirect(flowStatsOutput);
         } else {
-            CounterRetrieverCounters.failed_getting_flow_counters.inc();
+            counters.failedGettingFlowCounters.inc();
             LOG.warn("Unable to retrieve flow counters for match {}", match);
             return null;
         }
@@ -261,21 +259,22 @@ public class CounterRetriever {
         return BigInteger.valueOf(longValue);
     }
 
-    enum CounterRetrieverCounters {
-        failed_getting_node_connector_counters, //
-        failed_getting_rpc_result_for_node_connector_counters, //
-        failed_getting_node_counters, //
-        failed_getting_result_map_for_node_connector, //
-        failed_getting_flow_counters, //
-        ;
-        private OccurenceCounter counter;
+    private static class Counters {
+        OccurenceCounter failedGettingNodeConnectorCounters = new OccurenceCounter(
+                getClass().getEnclosingClass().getSimpleName(), "failed_getting_node_connector_counters", "");
 
-        CounterRetrieverCounters() {
-            counter = new OccurenceCounter(getClass().getEnclosingClass().getSimpleName(), name(), "");
-        }
+        OccurenceCounter failedGettingRpcResultForNodeConnectorCounters = new OccurenceCounter(
+                getClass().getEnclosingClass().getSimpleName(),
+                "failed_getting_rpc_result_for_node_connector_counters", "");
 
-        public void inc() {
-            counter.inc();
-        }
+        OccurenceCounter failedGettingNodeCounters = new OccurenceCounter(
+                getClass().getEnclosingClass().getSimpleName(), "failed_getting_node_counters", "");
+
+        OccurenceCounter failedGettingResultMapForNodeConnectorCounters = new OccurenceCounter(
+                getClass().getEnclosingClass().getSimpleName(),
+                "failed_getting_result_map_for_node_connector_counters", "");
+
+        OccurenceCounter failedGettingFlowCounters = new OccurenceCounter(
+                getClass().getEnclosingClass().getSimpleName(), "failed_getting_flow_counters", "");
     }
 }

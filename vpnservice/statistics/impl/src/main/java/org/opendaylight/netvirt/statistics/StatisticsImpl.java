@@ -19,10 +19,12 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -131,7 +133,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                         .withError(ErrorType.APPLICATION, "failed to get node counters for node: " + dpId)
                         .buildFuture();
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOG.warn("failed to get counter result for node " + dpId, e);
             return RpcResultBuilder.<GetNodeCountersOutput>failed()
                     .withError(ErrorType.APPLICATION, "failed to get node counters for node: " + dpId).buildFuture();
@@ -197,7 +199,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                 return RpcResultBuilder.<GetNodeConnectorCountersOutput>failed()
                         .withError(ErrorType.APPLICATION, "failed to get port counters").buildFuture();
             }
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             LOG.warn("failed to get counter result for port " + portId, e);
         }
 
@@ -606,8 +608,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         }
     }
 
-    private boolean getNodeConnectorResult(List<CounterResult> counters, BigInteger dpId, String portNumber)
-            throws InterruptedException, ExecutionException {
+    private boolean getNodeConnectorResult(List<CounterResult> counters, BigInteger dpId, String portNumber) {
         CounterResultDataStructure counterResultDS =
                 counterRetriever.getNodeConnectorCountersDirect(new NodeId(CountersUtils.getNodeId(dpId)),
                         new NodeConnectorId(CountersUtils.getNodeConnectorId(dpId, portNumber)));
@@ -624,8 +625,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         return !counters.isEmpty();
     }
 
-    private boolean getNodeResult(List<CounterResult> counters, BigInteger dpId)
-            throws InterruptedException, ExecutionException {
+    private boolean getNodeResult(List<CounterResult> counters, BigInteger dpId) {
         InstanceIdentifier<Node> nodeInstanceIdentifier = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, new NodeKey(new NodeId(CountersUtils.getNodeId(dpId)))).build();
         Optional<Node> nodeOptional = MDSALUtil.read(db, LogicalDatastoreType.OPERATIONAL, nodeInstanceIdentifier);
@@ -687,8 +687,9 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         List<Groups> groups = new ArrayList<>();
         Map<String, Map<String, BigInteger>> counterGroups = counterResultDS.getGroups(resultId);
         if (counterGroups != null && !counterGroups.isEmpty()) {
-            for (String groupName : counterGroups.keySet()) {
-                groups.add(createGroupsResult(groupName, counterGroups.get(groupName)));
+            for (Entry<String, Map<String, BigInteger>> entry : counterGroups.entrySet()) {
+                String groupName = entry.getKey();
+                groups.add(createGroupsResult(groupName, entry.getValue()));
             }
             crb.setGroups(groups);
             counters.add(crb.build());
@@ -956,11 +957,11 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             }
 
             @Override
-            public void onSuccess(RpcResult<Void> result) {
-                if (result.isSuccessful()) {
+            public void onSuccess(@Nonnull RpcResult<Void> rpcResult) {
+                if (rpcResult.isSuccessful()) {
                     LOG.debug("Created IdPool for tap");
                 } else {
-                    LOG.error("RPC to create Idpool failed {}", result.getErrors());
+                    LOG.error("RPC to create Idpool failed {}", rpcResult.getErrors());
                 }
             }
         }, MoreExecutors.directExecutor());

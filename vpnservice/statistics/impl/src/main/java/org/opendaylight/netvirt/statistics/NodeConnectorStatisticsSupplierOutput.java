@@ -11,7 +11,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 
-@SuppressWarnings("deprecation")
 public class NodeConnectorStatisticsSupplierOutput {
 
     RpcResult<GetNodeConnectorStatisticsOutput> nodeConnectorStatisticsOutput;
