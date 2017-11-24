@@ -13,12 +13,13 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -45,6 +46,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@Singleton
 public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, String>
         implements ClusteredDataTreeChangeListener<Node> {
 
@@ -64,11 +66,10 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     };
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-    private final Map<InstanceIdentifier<Node>, List<InstanceIdentifier<LocalUcastMacs>>> staleCandidateMacsByNodeId
-            = new ConcurrentHashMap<>();
     private final HAOpClusteredListener haOpClusteredListener;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public LocalUcastMacListener(final DataBroker dataBroker,
                                  final HAOpClusteredListener haOpClusteredListener,
                                  final ElanL2GatewayUtils elanL2GatewayUtils,
@@ -80,6 +81,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     }
 
     @Override
+    @PostConstruct
     public void init() throws Exception {
         ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.dataBroker);
         super.init();
@@ -147,10 +149,6 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
     public void added(final InstanceIdentifier<LocalUcastMacs> identifier, final LocalUcastMacs macAdded) {
         InstanceIdentifier<Node> nodeIid = identifier.firstIdentifierOf(Node.class);
-        if (staleCandidateMacsByNodeId.get(nodeIid) != null) {
-            LOG.trace("Clearing from candidate stale mac {}", identifier);
-            staleCandidateMacsByNodeId.get(nodeIid).remove(identifier);
-        }
         ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
                 identifier, macAdded);
 
