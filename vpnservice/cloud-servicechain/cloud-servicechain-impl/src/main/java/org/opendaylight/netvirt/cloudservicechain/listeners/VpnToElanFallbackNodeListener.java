@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -37,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
-
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +49,8 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Singleton
-public class VpnToElanFallbackNodeListener extends AsyncDataTreeChangeListenerBase<Node, VpnToElanFallbackNodeListener>
-                                           implements AutoCloseable {
+public class VpnToElanFallbackNodeListener
+        extends AsyncDataTreeChangeListenerBase<Node, VpnToElanFallbackNodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnToElanFallbackNodeListener.class);
     private static final String L3_TO_L2_DEFAULT_FLOW_REF = "L3VPN_to_Elan_Fallback_Default_Rule";
