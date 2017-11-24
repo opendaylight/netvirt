@@ -78,7 +78,6 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@SuppressWarnings("deprecation")
 @Singleton
 public class PolicyServiceUtil {
     private static final Logger LOG = LoggerFactory.getLogger(PolicyServiceUtil.class);
@@ -233,6 +232,7 @@ public class PolicyServiceUtil {
             boolean isAdded) {
         if (underlayNetworks == null || underlayNetworks.isEmpty()) {
             LOG.debug("No underlay networks found for policy classifier {}", policyClassifier);
+            return;
         }
 
         underlayNetworks.forEach(underlayNetwork -> coordinator.enqueueJob(underlayNetwork, () -> {

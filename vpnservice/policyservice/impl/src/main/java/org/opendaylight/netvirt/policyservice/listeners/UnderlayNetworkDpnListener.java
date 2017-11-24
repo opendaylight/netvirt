@@ -12,7 +12,6 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -43,7 +42,6 @@ import org.slf4j.LoggerFactory;
  * When new tunnel interfaces are added/removed from underlay network, the
  * corresponding policy classifier group buckets would be updated accordingly.
  */
-@SuppressWarnings("deprecation")
 @Singleton
 public class UnderlayNetworkDpnListener
         extends AsyncDataTreeChangeListenerBase<DpnToInterface, UnderlayNetworkDpnListener> {
