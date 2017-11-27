@@ -18,14 +18,10 @@ public enum L3VPNTransportTypes {
     GRE(ITMConstants.TUNNEL_TYPE_GRE),
     Invalid(ITMConstants.TUNNEL_TYPE_INVALID);
 
-    private String transportType;
+    private final String transportType;
 
     L3VPNTransportTypes(String type) {
         transportType = type;
-    }
-
-    public void setL3VPNTransportTypes(String transportType) {
-        this.transportType = transportType;
     }
 
     private static final Map<String, L3VPNTransportTypes> STR_TO_TYPE_MAP = new HashMap<>();
