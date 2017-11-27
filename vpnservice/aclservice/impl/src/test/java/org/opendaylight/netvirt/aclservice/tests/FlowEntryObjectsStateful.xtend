@@ -58,6 +58,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackEgressFlowsPort2
         + etheregressFlowPort2
         + remoteFlows
+        + remoteFlows
     }
 
     protected def tcpFlows() {
@@ -77,6 +78,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackEgressFlowsPort2
         + tcpEgressFlowPort2
         + tcpEgressFlowPort2
+        + remoteFlows
         + remoteFlows
     }
 
@@ -98,6 +100,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackEgressFlowsPort2
         + udpEgressFlowsPort2
         + remoteFlows
+        + remoteFlows
     }
 
     protected def icmpFlows() {
@@ -117,6 +120,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + fixedConntrackEgressFlowsPort2
         + icmpEgressFlowsPort2
         + icmpEgressFlowsPort2
+        + remoteFlows
         + remoteFlows
     }
 
@@ -159,6 +163,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
     protected def aapFlows() {
         icmpFlows()
         + aapRemoteFlowsPort1
+        + aapRemoteFlowsPort1
         + aapFlowsPort2
     }
 
@@ -194,6 +199,7 @@ class FlowEntryObjectsStateful extends FlowEntryObjectsBase {
         + etherIngressFlowsPort1WithRemoteIpSg("10.0.0.1", "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7")
         + etherIngressFlowsPort1WithRemoteIpSg("10.0.0.2", "ETHERnull_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Ingress98785cc3048-abc3-43cc-89b3-377341426ac7")
         + etherIngressFlowsPort2WithRemoteIpSg()
+        + remoteFlows
     }
 
     protected def etherIngressFlowsPort1WithRemoteIpSg(String ip, String theFlowId) {
