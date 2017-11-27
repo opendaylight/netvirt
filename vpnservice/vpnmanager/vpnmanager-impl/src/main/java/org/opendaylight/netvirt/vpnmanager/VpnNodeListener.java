@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.vpnmanager;
 
-import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,10 +110,8 @@ public class VpnNodeListener extends AsyncClusteredDataTreeChangeListenerBase<No
                 createTableMissForVpnGwFlow(writeFlowTx, dpId);
                 createL3GwMacArpFlows(writeFlowTx, dpId);
                 programTableMissForVpnVniDemuxTable(writeFlowTx, dpId, NwConstants.ADD_FLOW);
-                List<ListenableFuture<Void>> futures = new ArrayList<>();
-                futures.add(writeFlowTx.submit());
-                return futures;
-            });
+                return Collections.singletonList(writeFlowTx.submit());
+            }, 3);
     }
 
     private void makeTableMissFlow(WriteTransaction writeFlowTx, BigInteger dpnId, int addOrRemove) {
