@@ -472,6 +472,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_2cd3d739",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 2215,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-27T09:07:02Z",
+      "side": 1,
+      "message": "This piece of code is also used for all the existing l3 use cases, where a new adjacency is added through subnet-route, IP learning, etc. Your check here will break that.\nYou need to ensure that yoy call addNewAdjToVpnInterface not just for your ipv6 use cases, but also for other existing usecases where a new prefix learning adds an adjacency to the vpn interface",
+      "parentUuid": "9a245df4_d02c7b9b",
+      "range": {
+        "startLine": 2214,
+        "startChar": 32,
+        "endLine": 2215,
+        "endChar": 104
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_fd9eb8b7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 128
