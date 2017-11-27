@@ -13,7 +13,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -63,7 +62,6 @@ public class ServiceListener implements DataTreeChangeListener<Services> {
     @Override
     public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Services>> changes) {
         for (DataTreeModification<Services> change : changes) {
-            final InstanceIdentifier<Services> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Services> mod = change.getRootNode();
 
             switch (mod.getModificationType()) {

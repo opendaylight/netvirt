@@ -139,7 +139,7 @@ public class NexthopManager implements AutoCloseable {
     private final SalGroupService salGroupService;
     private final JobCoordinator jobCoordinator;
     private final FibUtil fibUtil;
-    private L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
+    private volatile L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
 
     /**
      * Provides nexthop functions.
@@ -558,12 +558,9 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    // TODO Clean up the console output
-    @SuppressWarnings("checkstyle:RegexpSinglelineJava")
     public void setConfTransType(String service, String transportType) {
 
         if (!service.equalsIgnoreCase("L3VPN")) {
-            System.out.println("Please provide a valid service name. Available value(s): L3VPN");
             LOG.error("Incorrect service {} provided for setting the transport type.", service);
             return;
         }
@@ -597,9 +594,9 @@ public class NexthopManager implements AutoCloseable {
 
             if (configuredTransTypeFromConfig.isPresent()) {
                 if (configuredTransTypeFromConfig.get().getTransportType().equals(TunnelTypeGre.class)) {
-                    configuredTransportTypeL3VPN.setL3VPNTransportTypes(ITMConstants.TUNNEL_TYPE_GRE);
+                    configuredTransportTypeL3VPN = L3VPNTransportTypes.GRE;
                 } else {
-                    configuredTransportTypeL3VPN.setL3VPNTransportTypes(ITMConstants.TUNNEL_TYPE_VXLAN);
+                    configuredTransportTypeL3VPN = L3VPNTransportTypes.VxLAN;
                 }
                 LOG.trace("configuredTransportType set from config DS to {}",
                     getConfiguredTransportTypeL3VPN().getTransportType());

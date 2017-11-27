@@ -72,7 +72,6 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     @Override
     public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Pods>> changes) {
         for (DataTreeModification<Pods> change : changes) {
-            final InstanceIdentifier<Pods> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Pods> mod = change.getRootNode();
 
             switch (mod.getModificationType()) {
@@ -101,7 +100,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
 
         String network = podInterface.getNetworkId().getValue();
         if (network == null) {
-            LOG.warn("pod {} added without a valid network id {}", podInterface.getUid().getValue(), network);
+            LOG.warn("pod {} added without a valid network id", podInterface.getUid().getValue());
             return;
         }
         // TODO use infrautils caching mechanism to add this info to cache.
