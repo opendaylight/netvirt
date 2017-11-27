@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.cloudservicechain.listeners;
 import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.List;
-
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -27,7 +26,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,8 +36,8 @@ import org.slf4j.LoggerFactory;
  * from that DPN
  */
 @Singleton
-public class ElanDpnInterfacesListener extends AsyncDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfacesListener>
-                                       implements AutoCloseable {
+public class ElanDpnInterfacesListener
+        extends AsyncDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfacesListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDpnInterfacesListener.class);
     private final DataBroker broker;

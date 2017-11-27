@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 @Singleton
-public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfListener> implements AutoCloseable {
+public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VrfListener.class);
     private final DataBroker broker;

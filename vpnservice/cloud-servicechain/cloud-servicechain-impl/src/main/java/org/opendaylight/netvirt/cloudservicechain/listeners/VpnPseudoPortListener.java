@@ -27,8 +27,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class VpnPseudoPortListener
-    extends AsyncClusteredDataTreeChangeListenerBase<VpnToPseudoPortData, VpnPseudoPortListener>
-    implements AutoCloseable {
+    extends AsyncClusteredDataTreeChangeListenerBase<VpnToPseudoPortData, VpnPseudoPortListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortListener.class);
     private final DataBroker dataBroker;
