@@ -12,11 +12,8 @@ import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 
 import java.math.BigInteger;
-import java.net.Inet4Address;
-import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -125,7 +122,7 @@ public class FibHelper {
     public static List<String> getNextHopListFromRoutePaths(final VrfEntry vrfEntry) {
         List<RoutePaths> routePaths = vrfEntry.getRoutePaths();
         if (routePaths == null || routePaths.isEmpty()) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
         return routePaths.stream()
                 .map(RoutePaths::getNexthopAddress)
@@ -159,7 +156,7 @@ public class FibHelper {
         }
         try {
             String ip = getIpFromPrefix(prefix);
-            java.net.Inet4Address ipVersOk = (Inet4Address) java.net.Inet4Address.getByName(ip);
+            java.net.Inet4Address.getByName(ip);
             rep = true;
         } catch (SecurityException | UnknownHostException | ClassCastException e) {
             rep = false;
@@ -179,7 +176,7 @@ public class FibHelper {
         }
         try {
             String ip = getIpFromPrefix(prefix);
-            java.net.Inet6Address ipVersOk = (Inet6Address) java.net.Inet6Address.getByName(ip);
+            java.net.Inet6Address.getByName(ip);
             rep = true;
         } catch (SecurityException | UnknownHostException | ClassCastException e) {
             rep = false;
@@ -198,7 +195,7 @@ public class FibHelper {
         }
         String rep = prefix;
         String[] prefixValues = prefix.split("/");
-        if (prefixValues != null && prefixValues.length > 0) {
+        if (prefixValues.length > 0) {
             rep = prefixValues[0];
         }
         return rep;
@@ -224,7 +221,7 @@ public class FibHelper {
         if (prefixToTest == null || prefixToTest.length() < 7 || subnet == null || subnet.length() < 7) {
             return rep;
         }
-        if ((isIpv4Prefix(prefixToTest) && isIpv4Prefix(subnet))
+        if (isIpv4Prefix(prefixToTest) && isIpv4Prefix(subnet)
                 || isIpv6Prefix(prefixToTest) && isIpv6Prefix(subnet)) {
 
             int ipVersion = 4;
@@ -247,8 +244,8 @@ public class FibHelper {
             int maskPref = -1;
             int maskSub = -1;
             try {
-                maskPref = Integer.valueOf(maskPrefString);
-                maskSub = Integer.valueOf(maskSubString);
+                maskPref = Integer.parseInt(maskPrefString);
+                maskSub = Integer.parseInt(maskSubString);
                 if (exactMatch && maskPref != maskSub) {
                  /*because the mask must be exactly the same between them, the return type is false. This behavior could
                   * be changed to ignored it in including a boolean options to force or not the same mask control*/
@@ -277,9 +274,9 @@ public class FibHelper {
      */
     public static BigInteger packBigInteger(byte[] bytes) {
         BigInteger val = BigInteger.valueOf(0);
-        for (int i = 0; i < bytes.length; i++) {
+        for (byte b : bytes) {
             val = val.shiftLeft(8);
-            val = val.add(BigInteger.valueOf(bytes[i] & 0xff));
+            val = val.add(BigInteger.valueOf(b & 0xff));
         }
         return val;
     }
