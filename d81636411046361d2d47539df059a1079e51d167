@@ -543,6 +543,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_2c88f721",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-27T09:34:22Z",
+      "side": 1,
+      "message": "By \"context\", could you please explain what that means? A subnet is always part of only one vpn (please dont consider internet case for sunet-route), so why is vpnName as a key needed in subnet-op-data?\n\nI am talking in a general sense.Both the file and the feature need not be touched right now, since subnet route feature has to be handled in a different way for ipv6, and I believe there is a new spec for that?",
+      "parentUuid": "9a245df4_906683b9",
+      "range": {
+        "startLine": 84,
+        "startChar": 46,
+        "endLine": 84,
+        "endChar": 47
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dd53f414",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 128
