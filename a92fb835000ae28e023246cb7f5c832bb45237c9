@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_afdcd975",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 352,
+      "author": {
+        "id": 4013
+      },
+      "writtenOn": "2017-11-27T14:30:34Z",
+      "side": 1,
+      "message": "I guess this one kind of old the below link has the current CNI spec. I think it will be better if you add the CNI spec to this document cause in future we will add other functionality to the CNI.\nhttps://docs.google.com/presentation/d/1DPfRSc11CzTa_qzvzQ-P7wQH0dPylag4eYT9sH06ajg/edit?usp\u003dsharing",
+      "range": {
+        "startLine": 352,
+        "startChar": 2,
+        "endLine": 352,
+        "endChar": 21
+      },
+      "revId": "a92fb835000ae28e023246cb7f5c832bb45237c9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
