@@ -85,6 +85,10 @@ public class NeutronPortChangeListenerTest {
     IInterfaceManager interfaceManager;
     @Mock
     IdManagerService idManager;
+    @Mock
+    NeutronvpnUtils neutronvpnUtils;
+    @Mock
+    IPV6InternetDefaultRouteProgrammer ipV6InternetDefRt;
 
     MetricProvider metricProvider = new TestMetricProviderImpl();
 
@@ -98,7 +102,7 @@ public class NeutronPortChangeListenerTest {
         when(mockReadTx.read(any(LogicalDatastoreType.class), any(InstanceIdentifier.class)))
             .thenReturn(Futures.immediateCheckedFuture(Optional.of(mockNetwork)));
         neutronPortChangeListener = new NeutronPortChangeListener(dataBroker, neutronvpnManager, neutronvpnNatManager,
-                gwMacResolver, elanService, jobCoordinator, new NeutronvpnUtils(dataBroker, idManager, jobCoordinator),
+                gwMacResolver, elanService, jobCoordinator, new NeutronvpnUtils(dataBroker, idManager, jobCoordinator, ipV6InternetDefRt),
                 new HostConfigCache(dataBroker, new GuavaCacheProvider(new CacheManagersRegistryImpl())));
         InstanceIdentifier<ElanInstance> elanIdentifierId = InstanceIdentifier.builder(ElanInstances.class)
                 .child(ElanInstance.class,
