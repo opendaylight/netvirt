@@ -22,6 +22,30 @@
       "revId": "51a7bc00bbf02a9ab221dfb8bce6453a25055aea",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_9a083d2f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 121
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-11-28T07:55:40Z",
+      "side": 1,
+      "message": "despite that ipv6/v4 fallbacks are just priority\u003d0 flows with routerId match,  they will not overwrite each other, because there is an the ip-version check in the flows.\n\nso on the one hand, you are right that the hook is not correct. We will make a proposal where the enable/Disable is done on other place.\n\non the other hand,  add/remove the fallback flow on a network assoc/dissoc to the internet bgpvpn could work. however, We will try to hook the \"add first IPv6 subnet\", and \"del next IPv6 subnet\" with the adding/disabling of IPv6 fallback mechanism",
+      "parentUuid": "9a245df4_467f3a15",
+      "range": {
+        "startLine": 8,
+        "startChar": 52,
+        "endLine": 8,
+        "endChar": 53
+      },
+      "revId": "51a7bc00bbf02a9ab221dfb8bce6453a25055aea",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
