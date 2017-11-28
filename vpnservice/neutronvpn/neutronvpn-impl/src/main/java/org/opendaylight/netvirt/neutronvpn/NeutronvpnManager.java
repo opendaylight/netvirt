@@ -2293,6 +2293,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                                             .getInternetVpnId().getValue(),
                                                    neutronvpnUtils.getIpVersionFromString(sn
                                                             .getSubnetIp()), true);
+                                            neutronvpnUtils.updateVpnInstanceWithFallback(
+                                                          sn.getInternetVpnId().getValue(), true);
                                         }
                                     }
                                     addSubnetToVpn(vpn, subnet, sn != null ? sn.getInternetVpnId() : null);
@@ -2326,6 +2328,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                         if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sm, vpn)) {
                                             neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
                                                     neutronvpnUtils.getIpVersionFromString(sm.getSubnetIp()), true);
+                                            neutronvpnUtils.updateVpnInstanceWithFallback(vpn.getValue(),
+                                                    true);
                                         }
                                     }
                                 }
@@ -2385,11 +2389,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                         vpnInstanceIpVersionsToRemove, false);
                             }
                             if (vpnInstanceInternetIpVersionRemoved) {
+                                neutronvpnUtils.updateVpnInstanceWithFallback(
+                                               vpnIdInternet.getValue(), false);
                                 neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnIdInternet.getValue(),
                                                    IpVersionChoice.IPV6, false);
                             }
                         }
                         if (neutronvpnUtils.getIsExternal(network)) {
+                            neutronvpnUtils.updateVpnInstanceWithFallback(vpn.getValue(),
+                                                    false);
                             neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry
                                              .BgpvpnType.VPN, vpn);
                             LOG.debug("Removing IPv6 network subnets...");
