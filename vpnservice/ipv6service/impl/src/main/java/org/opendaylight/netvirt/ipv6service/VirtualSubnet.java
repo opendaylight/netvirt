@@ -89,11 +89,17 @@ public class VirtualSubnet implements IVirtualSubnet  {
     }
 
     public void addInterface(VirtualPort intf) {
-        interfaces.put(intf.getIntfUUID(), intf);
+        Uuid intfUUID = intf.getIntfUUID();
+        if (intfUUID != null) {
+            interfaces.put(intfUUID, intf);
+        }
     }
 
     public void removeInterface(VirtualPort intf) {
-        interfaces.remove(intf.getIntfUUID());
+        Uuid intfUUID = intf.getIntfUUID();
+        if (intfUUID != null) {
+            interfaces.remove(intfUUID);
+        }
     }
 
     public void removeSelf() {

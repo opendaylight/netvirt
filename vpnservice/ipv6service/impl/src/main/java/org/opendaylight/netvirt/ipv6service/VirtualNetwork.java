@@ -35,6 +35,10 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public void updateDpnPortInfo(BigInteger dpnId, Long ofPort, int addOrRemove) {
+        if (dpnId == null) {
+            return;
+        }
+
         DpnInterfaceInfo dpnInterface = dpnIfaceList.computeIfAbsent(dpnId, key -> new DpnInterfaceInfo(dpnId));
         if (addOrRemove == Ipv6Constants.ADD_ENTRY) {
             dpnInterface.updateofPortList(ofPort);
@@ -63,18 +67,18 @@ public class VirtualNetwork implements IVirtualNetwork {
     }
 
     public DpnInterfaceInfo getDpnIfaceInfo(BigInteger dpId) {
-        return dpnIfaceList.get(dpId);
+        return dpId != null ? dpnIfaceList.get(dpId) : null;
     }
 
     public void setRSPuntFlowStatusOnDpnId(BigInteger dpnId, int action) {
-        DpnInterfaceInfo dpnInterface = dpnIfaceList.get(dpnId);
+        DpnInterfaceInfo dpnInterface = getDpnIfaceInfo(dpnId);
         if (null != dpnInterface) {
             dpnInterface.setRsFlowConfiguredStatus(action);
         }
     }
 
     public int getRSPuntFlowStatusOnDpnId(BigInteger dpnId) {
-        DpnInterfaceInfo dpnInterface = dpnIfaceList.get(dpnId);
+        DpnInterfaceInfo dpnInterface = getDpnIfaceInfo(dpnId);
         if (null != dpnInterface) {
             return dpnInterface.getRsFlowConfiguredStatus();
         }
