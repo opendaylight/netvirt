@@ -20,6 +20,8 @@ import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWait
 import org.opendaylight.genius.datastoreutils.testutils.TestableJobCoordinatorEventsWaiter;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
+import org.opendaylight.netvirt.aclservice.AclInterfaceCacheImpl;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.stats.TestOdlDirectStatisticsService;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -68,6 +70,8 @@ public class AclServiceTestModule extends AbstractModule {
                 .toInstance(Mockito.mock(TestOdlDirectStatisticsService.class, realOrException()));
 
         bind(JobCoordinatorEventsWaiter.class).to(TestableJobCoordinatorEventsWaiter.class);
+
+        bind(AclInterfaceCache.class).toInstance(new AclInterfaceCacheImpl());
     }
 
     private AclserviceConfig aclServiceConfig() {

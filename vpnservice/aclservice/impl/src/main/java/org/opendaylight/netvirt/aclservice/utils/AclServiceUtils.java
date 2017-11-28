@@ -46,9 +46,9 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpDestinationPort;
 import org.opendaylight.genius.mdsalutil.matches.MatchUdpSourcePort;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.vpnmanager.api.VpnHelper;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -127,12 +127,15 @@ public final class AclServiceUtils {
     private final AclDataUtil aclDataUtil;
     private final AclserviceConfig config;
     private final IdManagerService idManager;
+    private final AclInterfaceCache aclInterfaceCache;
 
     @Inject
-    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config, IdManagerService idManager) {
+    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config, IdManagerService idManager,
+            AclInterfaceCache aclInterfaceCache) {
         this.aclDataUtil = aclDataUtil;
         this.config = config;
         this.idManager = idManager;
+        this.aclInterfaceCache = aclInterfaceCache;
     }
 
     /**
@@ -761,14 +764,6 @@ public final class AclServiceUtils {
         return null;
     }
 
-    public static Long getElanIdFromAclInterface(String elanInterfaceName) {
-        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(elanInterfaceName);
-        if (null != aclInterface) {
-            return aclInterface.getElanId();
-        }
-        return null;
-    }
-
     public static ElanInterface getElanInterfaceByElanInterfaceName(String elanInterfaceName,DataBroker broker) {
         InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
         return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
@@ -946,8 +941,7 @@ public final class AclServiceUtils {
      * @return true if port is security enabled.
      */
     public static boolean isOfInterest(AclInterface aclInterface) {
-        return aclInterface != null && aclInterface.getPortSecurityEnabled() != null
-                && aclInterface.isPortSecurityEnabled();
+        return aclInterface != null && aclInterface.isPortSecurityEnabled();
     }
 
     /**
@@ -1204,15 +1198,6 @@ public final class AclServiceUtils {
             Class<? extends ServiceModeBase> serviceMode) {
         MatchInfoBase lportMatch = buildLPortTagMatch(lportTag, serviceMode);
         InterfaceServiceUtil.mergeMetadataMatchsOrAdd(flowMatches, lportMatch);
-    }
-
-    static AclInterface buildAclInterfaceState(String interfaceId, InterfaceAcl aclInPort) {
-        AclInterface aclInterface = new AclInterface();
-        aclInterface.setInterfaceId(interfaceId);
-        aclInterface.setPortSecurityEnabled(aclInPort.isPortSecurityEnabled());
-        aclInterface.setSecurityGroups(aclInPort.getSecurityGroups());
-        aclInterface.setAllowedAddressPairs(aclInPort.getAllowedAddressPairs());
-        return aclInterface;
     }
 
     /**

@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -50,8 +51,8 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
     private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);
 
     public StatefulEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
-            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator) {
-        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator);
+            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
+        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator, aclInterfaceCache);
     }
 
     /**
@@ -77,7 +78,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
         matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
-        Long elanId = AclServiceUtils.getElanIdFromAclInterface(portId);
+        Long elanId = getElanIdFromAclInterface(portId);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions;
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
@@ -121,7 +122,7 @@ public class StatefulEgressAclServiceImpl extends AbstractEgressAclServiceImpl {
             matches.add(new MatchEthernetSource(attachMac));
             matches.addAll(AclServiceUtils.buildIpMatches(attachIp, MatchCriteria.MATCH_SOURCE));
 
-            Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
+            Long elanTag = getElanIdFromAclInterface(portId);
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
             actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(),
