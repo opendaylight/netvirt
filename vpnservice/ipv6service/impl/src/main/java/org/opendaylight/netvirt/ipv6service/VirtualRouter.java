@@ -44,19 +44,31 @@ public class VirtualRouter implements IVirtualRouter  {
     }
 
     public void addSubnet(VirtualSubnet snet) {
-        subnets.put(snet.getSubnetUUID(), snet);
+        Uuid subnetUUID = snet.getSubnetUUID();
+        if (subnetUUID != null) {
+            subnets.put(subnetUUID, snet);
+        }
     }
 
     public void removeSubnet(IVirtualSubnet snet) {
-        subnets.remove(snet.getSubnetUUID());
+        Uuid subnetUUID = snet.getSubnetUUID();
+        if (subnetUUID != null) {
+            subnets.remove(subnetUUID);
+        }
     }
 
     public void addInterface(VirtualPort intf) {
-        interfaces.put(intf.getIntfUUID(), intf);
+        Uuid intfUUID = intf.getIntfUUID();
+        if (intfUUID != null) {
+            interfaces.put(intfUUID, intf);
+        }
     }
 
     public void removeInterface(IVirtualPort intf) {
-        interfaces.remove(intf.getIntfUUID());
+        Uuid intfUUID = intf.getIntfUUID();
+        if (intfUUID != null) {
+            interfaces.remove(intfUUID);
+        }
     }
 
     public void removeSelf() {

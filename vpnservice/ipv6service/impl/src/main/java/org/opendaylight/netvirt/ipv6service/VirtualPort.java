@@ -68,7 +68,9 @@ public class VirtualPort implements IVirtualPort  {
     }
 
     public void setSubnetInfo(Uuid snetID, IpAddress fixedIp) {
-        snetInfo.computeIfAbsent(snetID, key -> new SubnetInfo(snetID, fixedIp)).setIpAddr(fixedIp);
+        if (snetID != null) {
+            snetInfo.computeIfAbsent(snetID, key -> new SubnetInfo(snetID, fixedIp)).setIpAddr(fixedIp);
+        }
     }
 
     public void clearSubnetInfo() {
@@ -76,11 +78,13 @@ public class VirtualPort implements IVirtualPort  {
     }
 
     public void removeSubnetInfo(Uuid snetID) {
-        this.snetInfo.remove(snetID);
+        if (snetID != null) {
+            this.snetInfo.remove(snetID);
+        }
     }
 
     public void setSubnet(Uuid snetID, VirtualSubnet subnet) {
-        SubnetInfo subnetInfo = snetInfo.get(snetID);
+        SubnetInfo subnetInfo = snetID != null ? snetInfo.get(snetID) : null;
         if (subnetInfo == null) {
             LOG.info("Subnet {} not associated with the virtual port {}",
                 snetID, intfUUID);
