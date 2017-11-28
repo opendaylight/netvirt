@@ -29,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.MatchCriteria;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -63,18 +64,11 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
 
     /**
      * Initialize the member variables.
-     *
-     * @param dataBroker the data broker instance.
-     * @param mdsalManager the mdsal manager.
-     * @param aclDataUtil
-     *            the acl data util.
-     * @param aclServiceUtils
-     *            the acl service util.
      */
     public StatefulIngressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
-            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator) {
+            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
         // Service mode is w.rt. switch
-        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator);
+        super(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator, aclInterfaceCache);
     }
 
     /**
@@ -100,7 +94,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
         matches.add(buildLPortTagMatch(lportTag));
         matches.add(new NxMatchCtState(AclConstants.TRACKED_NEW_CT_STATE, AclConstants.TRACKED_NEW_CT_STATE_MASK));
 
-        Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
+        Long elanTag = getElanIdFromAclInterface(portId);
         List<ActionInfo> actionsInfos = new ArrayList<>();
         List<InstructionInfo> instructions;
         PacketHandling packetHandling = ace.getActions() != null ? ace.getActions().getPacketHandling() : null;
@@ -149,7 +143,7 @@ public class StatefulIngressAclServiceImpl extends AbstractIngressAclServiceImpl
             List<InstructionInfo> instructions = new ArrayList<>();
             List<ActionInfo> actionsInfos = new ArrayList<>();
 
-            Long elanTag = AclServiceUtils.getElanIdFromAclInterface(portId);
+            Long elanTag = getElanIdFromAclInterface(portId);
             actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag.intValue(),
                     NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE));
             instructions.add(new InstructionApplyActions(actionsInfos));

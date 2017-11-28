@@ -14,10 +14,10 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
@@ -37,14 +37,16 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
     private final AclServiceManager aclServiceManager;
     private final AclClusterUtil aclClusterUtil;
     private final DataBroker dataBroker;
+    private final AclInterfaceCache aclInterfaceCache;
 
     @Inject
     public AclElanInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
-            DataBroker dataBroker) {
+            DataBroker dataBroker, AclInterfaceCache aclInterfaceCache) {
         super(ElanInterface.class, AclElanInterfaceListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
+        this.aclInterfaceCache = aclInterfaceCache;
     }
 
     @Override
@@ -73,28 +75,30 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
     @Override
     protected void add(InstanceIdentifier<ElanInterface> key, ElanInterface elanInterface) {
         String interfaceId = elanInterface.getName();
-        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+        AclInterface aclInterface = aclInterfaceCache.updateIfPresent(interfaceId, (prevAclInterface, builder) -> {
+            if (prevAclInterface.getElanId() == null) {
+                ElanInstance elanInfo = AclServiceUtils.getElanInstanceByName(elanInterface.getElanInstanceName(),
+                        dataBroker);
+                builder.elanId(elanInfo.getElanTag());
+                return true;
+            }
+
+            return false;
+        });
+
         if (aclInterface == null) {
-            LOG.debug("On Add event, ignore if AclInterface is not found in cache");
+            LOG.debug("On Add event, ignore if AclInterface was not found in cache or was not updated");
             return;
         }
-        if (aclInterface.getElanId() == null) {
-            ElanInstance elanInfo = AclServiceUtils.getElanInstanceByName(elanInterface.getElanInstanceName(),
-                    dataBroker);
-            Long elanId = elanInfo.getElanTag();
-            synchronized (AclServiceUtils.getAclKeyForSynchronization(interfaceId).intern()) {
-                // update ElanId
-                aclInterface.setElanId(elanId);
-            }
-            if (aclClusterUtil.isEntityOwner()) {
-                LOG.debug("On add event, notify ACL service manager to BIND ACL for interface: {}", aclInterface);
-                aclServiceManager.notify(aclInterface, null, Action.BIND);
-                // Notify ADD flows, if InterfaceStateListener has processed
-                // before ELanID getting populated
-                if (aclInterface.getDpId() != null) {
-                    LOG.debug("On add event, notify ACL service manager to ADD ACL for interface: {}", aclInterface);
-                    aclServiceManager.notify(aclInterface, null, Action.ADD);
-                }
+
+        if (aclClusterUtil.isEntityOwner()) {
+            LOG.debug("On add event, notify ACL service manager to BIND ACL for interface: {}", aclInterface);
+            aclServiceManager.notify(aclInterface, null, Action.BIND);
+            // Notify ADD flows, if InterfaceStateListener has processed
+            // before ELanID getting populated
+            if (aclInterface.getDpId() != null) {
+                LOG.debug("On add event, notify ACL service manager to ADD ACL for interface: {}", aclInterface);
+                aclServiceManager.notify(aclInterface, null, Action.ADD);
             }
         }
     }
