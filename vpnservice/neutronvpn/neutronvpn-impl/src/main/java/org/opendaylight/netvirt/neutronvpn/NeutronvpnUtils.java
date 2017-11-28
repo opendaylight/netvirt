@@ -85,18 +85,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.RouterDpnListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.neutron.router.dpns.router.dpn.list.DpnVpninterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.FloatingIpPortInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.RouterIdName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.RoutersKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMapping;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.port.info.FloatingIpIdToPortMappingKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.router.id.name.RouterIds;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
@@ -178,13 +182,16 @@ public class NeutronvpnUtils {
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
     private final JobCoordinator jobCoordinator;
+    private IPV6InternetDefaultRouteProgammer ipV6InternetDefRt;
 
     @Inject
     public NeutronvpnUtils(final DataBroker dataBroker, final IdManagerService idManager,
-            final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, final IPV6InternetDefaultRouteProgammer ipV6InternetDefRt) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.jobCoordinator = jobCoordinator;
+        this.ipV6InternetDefRt = ipV6InternetDefRt;
+        ipV6InternetDefRt.setNeutronvpnUtils(this);
     }
 
     protected Subnetmap getSubnetmap(Uuid subnetId) {
@@ -1605,6 +1612,38 @@ public class NeutronvpnUtils {
         return subList;
     }
 
+    public void updateVpnInstanceWithFallback(String vpnName, boolean add) {
+        VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnName);
+        if (vpnInstanceOpDataEntry == null) {
+            // BGPVPN context not found
+            return;
+        }
+        if (vpnInstanceOpDataEntry.getBgpvpnType() != BgpvpnType.BGPVPNInternet) {
+            // not BGPVPN Internet
+            return;
+        }
+        String routerIdUuid = getRouterIdfromVpnInstance(dataBroker, vpnInstanceOpDataEntry.getVrfId());
+        if (routerIdUuid != null) {
+            List<BigInteger> dpnIds = getDpnsForRouter(dataBroker, routerIdUuid);
+            dpnIds = dpnIds.subList(0, dpnIds.size());
+            if (!dpnIds.isEmpty()) {
+                Long vpnId = vpnInstanceOpDataEntry.getVpnId();
+                for (BigInteger dpnId : dpnIds) {
+                    RouterIds rtId = getRouterIds(routerIdUuid);
+                    Long routerIdAsLong = 0L;
+                    if (rtId.getRouterId() != null) {
+                        routerIdAsLong = rtId.getRouterId();
+                    }
+                    if (add) {
+                        ipV6InternetDefRt.installDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    } else {
+                        ipV6InternetDefRt.removeDefaultRoute(dpnId, vpnId, routerIdAsLong);
+                    }
+                }
+            }
+        }
+    }
+
     public void updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType choice, Uuid vpn) {
         String primaryRd = getVpnRd(vpn.getValue());
         if (primaryRd == null) {
@@ -1643,4 +1682,67 @@ public class NeutronvpnUtils {
         return "L3.IPv6" + dpnId.toString() + NwConstants.FLOWID_SEPARATOR + tableId
                 + NwConstants.FLOWID_SEPARATOR + vpnId;
     }
+
+    @Nonnull
+    public List<BigInteger> getDpnsForRouter(DataBroker dataBroker, String routerUuid) {
+        InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
+            .child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();
+        Optional<RouterDpnList> routerDpnListData =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.OPERATIONAL, id);
+        List<BigInteger> dpns = new ArrayList<>();
+        if (routerDpnListData.isPresent()) {
+            List<DpnVpninterfacesList> dpnVpninterfacesList = routerDpnListData.get().getDpnVpninterfacesList();
+            for (DpnVpninterfacesList dpnVpnInterface : dpnVpninterfacesList) {
+                dpns.add(dpnVpnInterface.getDpnId());
+            }
+        }
+        return dpns;
+    }
+
+    public String getRouterIdfromVpnInstance(DataBroker broker, String vpnName) {
+        // returns only router, attached to IPv4 networks
+        InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
+            .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
+        Optional<VpnMap> optionalVpnMap =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
+        if (!optionalVpnMap.isPresent()) {
+            LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
+            return null;
+        }
+        Uuid routerId = optionalVpnMap.get().getRouterId();
+        if (routerId != null) {
+            return routerId.getValue();
+        }
+        LOG.info("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
+        return null;
+    }
+
+    public InstanceIdentifier<Router> buildNeutronRouterIdentifier(Uuid routerUuid) {
+        InstanceIdentifier<Router> routerInstanceIdentifier = InstanceIdentifier.create(Neutron.class)
+             .child(Routers.class).child(Router.class, new RouterKey(routerUuid));
+        return routerInstanceIdentifier;
+    }
+
+    public RouterIds getRouterIds(String routerUuid) {
+        final List<RouterIds> rtList = new ArrayList();
+        InstanceIdentifier<RouterIdName> routersIds = InstanceIdentifier.builder(RouterIdName.class).build();
+        Optional<RouterIdName> routerNameIdOpt = SingleTransactionDataBroker
+            .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                    routersIds);
+        if (routerNameIdOpt.isPresent()) {
+            routerNameIdOpt.get().getRouterIds().forEach(r -> {
+                if (r.getRouterName().equals(routerUuid)) {
+                    rtList.add(r);
+                    return;
+                }
+            });
+        }
+        if (!rtList.isEmpty()) {
+            return rtList.get(0);
+        }
+        return null;
+    }
+
 }
