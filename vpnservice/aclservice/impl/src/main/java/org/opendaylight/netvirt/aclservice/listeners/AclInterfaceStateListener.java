@@ -16,10 +16,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
@@ -45,16 +45,19 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     private final DataBroker dataBroker;
     private final AclDataUtil aclDataUtil;
     private final IInterfaceManager interfaceManager;
+    private final AclInterfaceCache aclInterfaceCache;
 
     @Inject
     public AclInterfaceStateListener(AclServiceManager aclServiceManger, AclClusterUtil aclClusterUtil,
-            DataBroker dataBroker, AclDataUtil aclDataUtil, final IInterfaceManager interfaceManager) {
+            DataBroker dataBroker, AclDataUtil aclDataUtil, IInterfaceManager interfaceManager,
+            AclInterfaceCache aclInterfaceCache) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.aclDataUtil = aclDataUtil;
         this.interfaceManager = interfaceManager;
+        this.aclInterfaceCache = aclInterfaceCache;
     }
 
     @Override
@@ -75,7 +78,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             return;
         }
         String interfaceId = deleted.getName();
-        AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
+        AclInterface aclInterface = aclInterfaceCache.get(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On remove event, notify ACL service manager to remove ACL from interface: {}", aclInterface);
@@ -86,7 +89,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
             }
         }
-        AclInterfaceCacheUtil.removeAclInterfaceFromCache(interfaceId);
+        aclInterfaceCache.remove(interfaceId);
     }
 
     @Override
@@ -122,14 +125,22 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                     added.getName());
             return;
         }
-        AclInterface aclInterface = updateAclInterfaceCache(added);
-        if (AclServiceUtils.isOfInterest(aclInterface)) {
-            if (aclInterface.getSubnetIpPrefixes() == null) {
-                // For upgrades
-                List<IpPrefixOrAddress> subnetIpPrefixes = AclServiceUtils.getSubnetIpPrefixes(dataBroker,
-                        added.getName());
-                aclInterface.setSubnetIpPrefixes(subnetIpPrefixes);
+
+        AclInterface aclInterface = aclInterfaceCache.addOrUpdate(added.getName(), (prevAclInterface, builder) -> {
+            builder.dpId(AclServiceUtils.getDpIdFromIterfaceState(added)).lPortTag(added.getIfIndex())
+                .isMarkedForDelete(false);
+
+            if (AclServiceUtils.isOfInterest(prevAclInterface)) {
+                if (prevAclInterface.getSubnetIpPrefixes() == null) {
+                    // For upgrades
+                    List<IpPrefixOrAddress> subnetIpPrefixes = AclServiceUtils.getSubnetIpPrefixes(dataBroker,
+                            added.getName());
+                    builder.subnetIpPrefixes(subnetIpPrefixes);
+                }
             }
+        });
+
+        if (AclServiceUtils.isOfInterest(aclInterface)) {
             List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 aclDataUtil.addAclInterfaceMap(aclList, aclInterface);
@@ -148,22 +159,5 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Override
     protected AclInterfaceStateListener getDataTreeChangeListener() {
         return AclInterfaceStateListener.this;
-    }
-
-    private AclInterface updateAclInterfaceCache(Interface dataObjectModification) {
-        String interfaceId = dataObjectModification.getName();
-        AclInterface aclInterface = null;
-        synchronized (AclServiceUtils.getAclKeyForSynchronization(interfaceId).intern()) {
-            aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceId);
-            if (aclInterface == null) {
-                aclInterface = new AclInterface();
-                aclInterface.setInterfaceId(interfaceId);
-                AclInterfaceCacheUtil.addAclInterfaceToCache(interfaceId, aclInterface);
-            }
-            aclInterface.setDpId(AclServiceUtils.getDpIdFromIterfaceState(dataObjectModification));
-            aclInterface.setLPortTag(dataObjectModification.getIfIndex());
-            aclInterface.setIsMarkedForDelete(false);
-        }
-        return aclInterface;
     }
 }

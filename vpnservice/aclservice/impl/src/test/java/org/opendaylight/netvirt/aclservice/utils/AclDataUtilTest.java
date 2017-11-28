@@ -68,9 +68,7 @@ public class AclDataUtilTest {
         aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL1), PORT3);
         assertAclInterfaces(ACL1, PORT1, PORT2, PORT3);
 
-        AclInterface updatedPort2 = new AclInterface();
-        updatedPort2.setInterfaceId(PORT2.getInterfaceId());
-        updatedPort2.setDpId(dpId);
+        AclInterface updatedPort2 = AclInterface.builder().interfaceId(PORT2.getInterfaceId()).dpId(dpId).build();
 
         aclDataUtil.addOrUpdateAclInterfaceMap(Arrays.asList(ACL1), updatedPort2);
         assertAclInterfaces(ACL1, PORT1, updatedPort2, PORT3);
@@ -134,10 +132,7 @@ public class AclDataUtilTest {
     }
 
     private static AclInterface newPort(String interfaceId) {
-        AclInterface port = new AclInterface();
-        port.setInterfaceId(interfaceId);
-        port.setDpId(new BigInteger(interfaceId));
-        return port;
+        return AclInterface.builder().interfaceId(interfaceId).dpId(new BigInteger(interfaceId)).build();
     }
 
     private void assertAclInterfaces(Uuid acl, AclInterface... expPorts) {
