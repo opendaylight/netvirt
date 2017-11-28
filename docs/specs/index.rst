@@ -15,6 +15,7 @@ Contents:
    ACLs - ACL reflection on existing traffic <acl-reflection-on-existing-traffic>
    ACLs - Support for protocols that are not supported by conntrack <acl-non-conntrack>
    Coe Netvirt Integration <coe-integration.rst>
+   Chaining Routers for Subnet <router-chaining-for-single-subnet>
    Conntrack Based SNAT <conntrack-based-snat>
    Cross site connectivity with Federation service <federation-plugin>
    DHCP Server with Dynamic Allocation Pool <dhcp-dynamic-allocation-pool>
