@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
@@ -70,17 +71,12 @@ public abstract class AbstractEgressAclServiceImpl extends AbstractAclServiceImp
 
     /**
      * Initialize the member variables.
-     *
-     * @param dataBroker the data broker instance.
-     * @param mdsalManager the mdsal manager instance.
-     * @param aclDataUtil the acl data util.
-     * @param aclServiceUtils the acl service util.
-     * @param jobCoordinator the JobCoordinator
      */
     public AbstractEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
-            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator) {
+            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
         // Service mode is w.rt. switch
-        super(ServiceModeIngress.class, dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator);
+        super(ServiceModeIngress.class, dataBroker, mdsalManager, aclDataUtil, aclServiceUtils,
+                jobCoordinator, aclInterfaceCache);
     }
 
     /**

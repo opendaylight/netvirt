@@ -11,13 +11,12 @@ package org.opendaylight.netvirt.aclservice.shell;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentMap;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclDataCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +26,7 @@ import org.slf4j.LoggerFactory;
 public class DisplayAclDataCaches extends OsgiCommandSupport {
     private static final Logger LOGGER = LoggerFactory.getLogger(DisplayAclDataCaches.class);
     private AclDataCache aclDataCache;
+    private AclInterfaceCache aclInterfaceCache;
     private static final String KEY_TAB = "   %-8s";
     private static final String ACL_INT_TAB = "   %-4s  %-4s  %-4s  %-4s %-4s  %-4s  %-6s  %-20s  %-20s %-4s";
     private static final String ACL_INT_TAB_FOR = KEY_TAB + ACL_INT_TAB;
@@ -63,6 +63,10 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
 
     public void setAclDataCache(AclDataCache aclDataCache) {
         this.aclDataCache = aclDataCache;
+    }
+
+    public void setAclInterfaceCache(AclInterfaceCache aclInterfaceCache) {
+        this.aclInterfaceCache = aclInterfaceCache;
     }
 
     @Override
@@ -292,7 +296,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             return;
         }
         if (all == null && key != null) {
-            AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(key);
+            AclInterface aclInterface = aclInterfaceCache.get(key);
             if (aclInterface == null) {
                 session.getConsole().println("No data found");
                 return;
@@ -313,13 +317,13 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 printAclInterfaceCacheHelp();
                 return;
             }
-            ConcurrentMap<String, AclInterface> map = AclInterfaceCacheUtil.getAclInterfaceCache();
-            if (map == null || map.isEmpty()) {
+            Collection<Entry<String, AclInterface>> entries = aclInterfaceCache.entries();
+            if (entries.isEmpty()) {
                 session.getConsole().println("No data found");
                 return;
             } else {
                 session.getConsole().println(String.format(ACL_INT_HEAD));
-                for (Map.Entry<String, AclInterface> entry : map.entrySet()) {
+                for (Map.Entry<String, AclInterface> entry : entries) {
                     AclInterface aclInterface = entry.getValue();
                     session.getConsole().println(String.format(ACL_INT_TAB_FOR, entry.getKey(),
                             aclInterface.isPortSecurityEnabled(), aclInterface.getInterfaceId(),

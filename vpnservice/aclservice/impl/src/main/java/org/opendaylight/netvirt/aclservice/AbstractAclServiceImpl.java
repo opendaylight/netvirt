@@ -27,10 +27,10 @@ import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
-import org.opendaylight.netvirt.aclservice.api.utils.AclInterfaceCacheUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclDataUtil;
 import org.opendaylight.netvirt.aclservice.utils.AclServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
@@ -54,30 +54,21 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     protected final AclDataUtil aclDataUtil;
     protected final AclServiceUtils aclServiceUtils;
     protected final JobCoordinator jobCoordinator;
+    protected final AclInterfaceCache aclInterfaceCache;
 
     /**
      * Initialize the member variables.
-     *
-     * @param serviceMode
-     *            the service mode
-     * @param dataBroker
-     *            the data broker instance.
-     * @param mdsalManager
-     *            the mdsal manager instance.
-     * @param aclDataUtil
-     *            the acl data util.
-     * @param aclServiceUtils
-     *            the acl service util.
      */
     public AbstractAclServiceImpl(Class<? extends ServiceModeBase> serviceMode, DataBroker dataBroker,
             IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil, AclServiceUtils aclServiceUtils,
-            JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.serviceMode = serviceMode;
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServiceUtils;
         this.jobCoordinator = jobCoordinator;
+        this.aclInterfaceCache = aclInterfaceCache;
     }
 
     @Override
@@ -134,8 +125,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         boolean result = true;
-        boolean isPortSecurityEnable = portAfter.getPortSecurityEnabled();
-        boolean isPortSecurityEnableBefore = portBefore.getPortSecurityEnabled();
+        boolean isPortSecurityEnable = portAfter.isPortSecurityEnabled();
+        boolean isPortSecurityEnableBefore = portBefore.isPortSecurityEnabled();
         // if port security is changed, apply/remove Acls
         if (isPortSecurityEnableBefore != isPortSecurityEnable) {
             LOG.debug("On ACL update, Port security is {} for {}", isPortSecurityEnable ? "Enabled" :
@@ -191,7 +182,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     private void updateAclInterfaceInCache(AclInterface aclInterfaceNew) {
-        AclInterfaceCacheUtil.addAclInterfaceToCache(aclInterfaceNew.getInterfaceId(), aclInterfaceNew);
         aclDataUtil.addOrUpdateAclInterfaceMap(aclInterfaceNew.getSecurityGroups(), aclInterfaceNew);
     }
 
@@ -638,5 +628,13 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(poolName, flowName);
         }
         return priority;
+    }
+
+    protected Long getElanIdFromAclInterface(String elanInterfaceName) {
+        AclInterface aclInterface = aclInterfaceCache.get(elanInterfaceName);
+        if (null != aclInterface) {
+            return aclInterface.getElanId();
+        }
+        return null;
     }
 }
