@@ -380,13 +380,14 @@ public class NexthopManager implements AutoCloseable {
                     listBucketInfo.add(bucket);
                     GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, ipAddress, GroupTypes.GroupAll,
                             listBucketInfo);
-                    LOG.trace("Install LNH Group: id {}, mac address {}, interface {} for prefix {}", groupId,
+                    LOG.info("Install LNH Group: id {}, mac address {}, interface {} for prefix {}", groupId,
                             encMacAddress, ifName, ipAddress);
                     //Try to install group directly on the DPN bypassing the FRM, in order to avoid waiting for the
                     // group to get installed before programming the flows
                     installGroupOnDpn(groupId, dpnId, ipAddress, listBucketInfo, getNextHopKey(vpnId, ipAddress),
                             GroupTypes.GroupAll);
                     // install Group
+                    LOG.info("Install mdsalApiManager.syncInstallGroup Group: id {}",groupId);
                     mdsalApiManager.syncInstallGroup(groupEntity, FIXED_DELAY_IN_MILLISECONDS);
                     // update MD-SAL DS
                     addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
@@ -409,12 +410,14 @@ public class NexthopManager implements AutoCloseable {
 
     private void installGroupOnDpn(long groupId, BigInteger dpnId, String groupName, List<BucketInfo> bucketsInfo,
                                      String nextHopKey, GroupTypes groupType) {
+        LOG.info("installGroupOnDpn {} with key ",groupId);
         NodeRef nodeRef = FibUtil.buildNodeRef(dpnId);
         Buckets buckets = FibUtil.buildBuckets(bucketsInfo);
         GroupRef groupRef = new GroupRef(FibUtil.buildGroupInstanceIdentifier(groupId, dpnId));
         AddGroupInput input = new AddGroupInputBuilder().setNode(nodeRef).setGroupId(new GroupId(groupId))
                 .setBuckets(buckets).setGroupRef(groupRef).setGroupType(groupType)
                 .setGroupName(groupName).build();
+        LOG.info("Group {} with key ",groupId);
         Future<RpcResult<AddGroupOutput>> groupStats = salGroupService.addGroup(input);
         RpcResult<AddGroupOutput> rpcResult = null;
         try {
