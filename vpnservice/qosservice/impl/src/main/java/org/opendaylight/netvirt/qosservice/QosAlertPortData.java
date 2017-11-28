@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.qosservice;
 
 import java.math.BigInteger;
+import java.util.function.Supplier;
 import javax.annotation.concurrent.NotThreadSafe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.rev160613.qos.attributes.qos.policies.QosPolicy;
@@ -21,22 +22,18 @@ public class QosAlertPortData {
     private static final Logger LOG = LoggerFactory.getLogger(QosAlertPortData.class);
     private static final BigInteger BIG_HUNDRED = new BigInteger("100");
 
-    private static volatile BigInteger alertThreshold;
-
     private final Port port;
     private final QosNeutronUtils qosNeutronUtils;
+    private final Supplier<BigInteger> alertThreshold;
     private volatile BigInteger rxPackets;
     private volatile BigInteger rxDroppedPackets;
     private volatile boolean statsDataInit;
 
-    public QosAlertPortData(final Port port, final QosNeutronUtils qosNeutronUtils) {
+    public QosAlertPortData(final Port port, final QosNeutronUtils qosNeutronUtils,
+            final Supplier<BigInteger> alertThreshold) {
         this.port = port;
         this.qosNeutronUtils = qosNeutronUtils;
-    }
-
-    public static void setAlertThreshold(int threshold) {
-        alertThreshold = BigInteger.valueOf(threshold);
-        LOG.debug("setAlertThreshold:{}", alertThreshold);
+        this.alertThreshold = alertThreshold;
     }
 
     public void initPortData() {
@@ -69,7 +66,7 @@ public class QosAlertPortData {
             return;
         }
 
-        if (rxDroppedDiff.multiply(BIG_HUNDRED).compareTo(rxTotalDiff.multiply(alertThreshold)) > 0) {
+        if (rxDroppedDiff.multiply(BIG_HUNDRED).compareTo(rxTotalDiff.multiply(alertThreshold.get())) > 0) {
             LOG.trace(QosConstants.ALERT_MSG_FORMAT, qosPolicy.getName(), qosPolicy.getUuid().getValue(),
                     port.getUuid().getValue(), port.getNetworkId().getValue(), statsData.getPackets().getReceived(),
                                                                                         statsData.getReceiveDrops());
