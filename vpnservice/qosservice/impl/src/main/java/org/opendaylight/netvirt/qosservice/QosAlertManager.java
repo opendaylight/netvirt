@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.function.Supplier;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -67,7 +68,6 @@ public final class QosAlertManager implements Runnable {
 
     };
 
-    private volatile short threshold;
     private volatile boolean alertEnabled;
     private volatile int pollInterval;
     private volatile Thread thread;
@@ -81,6 +81,7 @@ public final class QosAlertManager implements Runnable {
     private final INeutronVpnManager neutronVpnManager;
     private final ConcurrentMap<BigInteger, ConcurrentMap<String, QosAlertPortData>> qosAlertDpnPortNumberMap =
             new ConcurrentHashMap<>();
+    private final AlertThresholdSupplier alertThresholdSupplier = new AlertThresholdSupplier();
 
     @Inject
     public QosAlertManager(final DataBroker dataBroker,
@@ -105,7 +106,6 @@ public final class QosAlertManager implements Runnable {
     public void init() {
         qosEosHandler.addLocalOwnershipChangedListener(this::setQosAlertOwner);
         qosAlertDpnPortNumberMap.clear();
-        QosAlertPortData.setAlertThreshold(threshold);
         statsPollThreadStart = true;
         startStatsPollThread();
         LOG.debug("{} init done", getClass().getSimpleName());
@@ -134,8 +134,8 @@ public final class QosAlertManager implements Runnable {
     public void run() {
         LOG.debug("Qos alert poll thread started");
         while (statsPollThreadStart && alertEnabled) {
-            LOG.debug("Thread loop polling :{} threshold:{} pollInterval:{}", alertEnabled, threshold,
-                    pollInterval);
+            LOG.debug("Thread loop polling :{} threshold:{} pollInterval:{}",
+                    alertEnabled, alertThresholdSupplier.get(), pollInterval);
 
             try {
                 pollDirectStatisticsForAllNodes();
@@ -159,8 +159,9 @@ public final class QosAlertManager implements Runnable {
 
     private void getDefaultConfig() {
         alertEnabled = defaultConfig.isQosAlertEnabled();
-        threshold = defaultConfig.getQosDropPacketThreshold();
         pollInterval = defaultConfig.getQosAlertPollInterval();
+
+        alertThresholdSupplier.set(defaultConfig.getQosDropPacketThreshold());
     }
 
     public void setQosalertConfig(QosalertConfig config) {
@@ -169,11 +170,10 @@ public final class QosAlertManager implements Runnable {
                 config.getQosDropPacketThreshold(), config.isQosAlertEnabled(),
                 config.getQosAlertPollInterval());
 
-        threshold = config.getQosDropPacketThreshold().shortValue();
         alertEnabled = config.isQosAlertEnabled().booleanValue();
         pollInterval = config.getQosAlertPollInterval();
 
-        QosAlertPortData.setAlertThreshold(threshold);
+        alertThresholdSupplier.set(config.getQosDropPacketThreshold().shortValue());
 
         if (thread != null) {
             thread.interrupt();
@@ -186,7 +186,6 @@ public final class QosAlertManager implements Runnable {
     public void restoreDefaultConfig() {
         LOG.debug("Restoring default configuration");
         getDefaultConfig();
-        QosAlertPortData.setAlertThreshold(threshold);
         if (thread != null) {
             thread.interrupt();
         } else {
@@ -201,12 +200,12 @@ public final class QosAlertManager implements Runnable {
 
     public void setPollInterval(int pollInterval) {
         LOG.debug("setting interval {} in config data store", pollInterval);
-        writeConfigDataStore(alertEnabled, threshold, pollInterval);
+        writeConfigDataStore(alertEnabled, alertThresholdSupplier.get().shortValue(), pollInterval);
     }
 
     public void setEnable(boolean alertEnabled) {
         LOG.debug("setting QoS poll to {} in config data store", alertEnabled);
-        writeConfigDataStore(alertEnabled, threshold, pollInterval);
+        writeConfigDataStore(alertEnabled, alertThresholdSupplier.get().shortValue(), pollInterval);
     }
 
     public void addToQosAlertCache(Port port) {
@@ -224,7 +223,7 @@ public final class QosAlertManager implements Runnable {
         LOG.trace("Adding DPN ID {} with port {} port number {}", dpnId, port.getUuid(), portNumber);
 
         qosAlertDpnPortNumberMap.computeIfAbsent(dpnId, key -> new ConcurrentHashMap<>())
-                .put(portNumber, new QosAlertPortData(port, qosNeutronUtils));
+                .put(portNumber, new QosAlertPortData(port, qosNeutronUtils, alertThresholdSupplier));
     }
 
     public void addToQosAlertCache(Network network) {
@@ -378,5 +377,18 @@ public final class QosAlertManager implements Runnable {
     private void initPortStatsData() {
         qosAlertDpnPortNumberMap.values().forEach(portDataMap -> portDataMap.values()
                 .forEach(portData -> portData.initPortData()));
+    }
+
+    private static class AlertThresholdSupplier implements Supplier<BigInteger> {
+        private volatile BigInteger alertThreshold = BigInteger.valueOf(0);
+
+        void set(short threshold) {
+            alertThreshold = BigInteger.valueOf(threshold);
+        }
+
+        @Override
+        public BigInteger get() {
+            return alertThreshold;
+        }
     }
 }
