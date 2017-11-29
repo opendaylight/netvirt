@@ -49,6 +49,12 @@ public class Router extends OsgiCommandSupport {
             required = false, multiValued = false)
     private final String fbit = null;
 
+    private final BgpManager bgpManager;
+
+    public Router(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
+
     private Object usage() {
         session.getConsole().println(
                 "usage: bgp-rtr [" + AS + " as-number] [" + RID + " router-id] ["
@@ -58,10 +64,6 @@ public class Router extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning(session.getConsole())) {
-            return null;
-        }
-        BgpManager bm = Commands.getBgpManager();
         switch (action) {
             case "add":
                 // check: rtr already running?
@@ -99,14 +101,14 @@ public class Router extends OsgiCommandSupport {
                             return null;
                     }
                 }
-                bm.startBgp(asn, rid, stalePath, fb);
+                bgpManager.startBgp(asn, rid, stalePath, fb);
                 break;
             case "del":
                 // check: nothing to stop?
                 if (asNum != null || rid != null || spt != null || fbit != null) {
                     session.getConsole().println("note: option(s) not needed; ignored");
                 }
-                Bgp conf = bm.getConfig();
+                Bgp conf = bgpManager.getConfig();
                 if (conf == null) {
                     session.getConsole().println("error : no BGP configs present");
                     break;
@@ -117,7 +119,7 @@ public class Router extends OsgiCommandSupport {
                             + "before stopping the router instance");
                     break;
                 }
-                bm.stopBgp();
+                bgpManager.stopBgp();
                 break;
             default:
                 return usage();

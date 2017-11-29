@@ -13,6 +13,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.thrift.TException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
@@ -29,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class BgpManager implements AutoCloseable, IBgpManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpManager.class);
     private final DataBroker dataBroker;
@@ -37,6 +42,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     private final FibDSWriter fibDSWriter;
     private volatile long qbgprestartTS = 0;
 
+    @Inject
     public BgpManager(final DataBroker dataBroker,
             final BgpConfigurationManager bcm,
             final FibDSWriter fibDSWriter) {
@@ -45,13 +51,14 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         this.fibDSWriter = fibDSWriter;
     }
 
+    @PostConstruct
     public void init() {
         BgpUtil.setBroker(dataBroker);
-        ConfigureBgpCli.setBgpManager(this);
         LOG.info("{} start", getClass().getSimpleName());
     }
 
     @Override
+    @PreDestroy
     public void close() throws Exception {
         LOG.info("{} close", getClass().getSimpleName());
     }

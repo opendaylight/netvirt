@@ -26,28 +26,34 @@ public class Vrf extends OsgiCommandSupport {
 
     @Argument(name = "add|del", description = "The desired operation",
             required = true, multiValued = false)
-    private String action = null;
+    private final String action = null;
 
     @Option(name = RD, aliases = {"-r"},
             description = "Route distinguisher",
             required = false, multiValued = false)
-    private String rd = null;
+    private final String rd = null;
 
     @Option(name = IR, aliases = {"-i"},
             description = "Import route-targets",
             required = false, multiValued = true)
-    private List<String> irts = null;
+    private final List<String> irts = null;
 
     @Option(name = ER, aliases = {"-e"},
             description = "Export route-targets",
             required = false, multiValued = true)
-    private List<String> erts = null;
+    private final List<String> erts = null;
 
 
     @Option(name = ADDRF, aliases = {"-af"},
             description = "AddressFamily IPV4 or IPV6 or L2VPN (IPv(4 or 6) is on MPLS, L2VPN uses IPV4)",
             required = false, multiValued = false)
-    private String addrf = null;
+    private final String addrf = null;
+
+    private final BgpManager bgpManager;
+
+    public Vrf(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
 
     private Object usage() {
         session.getConsole().println(
@@ -58,10 +64,6 @@ public class Vrf extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning(session.getConsole())) {
-            return null;
-        }
-        BgpManager bm = Commands.getBgpManager();
         AddressFamily af = null;
         if (addrf.compareToIgnoreCase("IPV_4") == 0) {
             af = AddressFamily.IPV4;
@@ -79,7 +81,7 @@ public class Vrf extends OsgiCommandSupport {
                     return null;
                 }
                 // check: rd exists? rd & rt's in format?
-                bm.addVrf(rd, irts, erts, af);
+                bgpManager.addVrf(rd, irts, erts, af);
                 break;
             case "del":
                 if (rd == null) {
@@ -90,7 +92,7 @@ public class Vrf extends OsgiCommandSupport {
                     session.getConsole().println("error: some option(s) not needed; ignored");
                 }
                 // check: rd exists? in format?
-                bm.deleteVrf(rd, true, af);
+                bgpManager.deleteVrf(rd, true, af);
                 break;
             default:
                 return usage();
