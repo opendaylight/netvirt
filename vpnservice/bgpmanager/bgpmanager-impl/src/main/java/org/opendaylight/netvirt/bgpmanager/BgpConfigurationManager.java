@@ -55,7 +55,6 @@ import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFaile
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
@@ -160,8 +159,6 @@ public class BgpConfigurationManager {
     private static final String DEL_WARN = "Config store updated; undo with Add if needed.";
     private static final String UPD_WARN = "Update operation not supported; Config store updated;"
             + " restore with another Update if needed.";
-    private static final int DEFAULT_BATCH_SIZE = 1000;
-    private static final int DEFAULT_BATCH_INTERVAL = 500;
 
     private static final Class<?>[] REACTORS = {
         ConfigServerReactor.class, AsIdReactor.class,
@@ -177,6 +174,7 @@ public class BgpConfigurationManager {
     private final FibDSWriter fibDSWriter;
     private final IVpnLinkService vpnLinkService;
     private final BundleContext bundleContext;
+    private final BgpUtil bgpUtil;
     private volatile Bgp config;
     private final BgpRouter bgpRouter;
     private final BgpSyncHandle bgpSyncHandle = new BgpSyncHandle();
@@ -232,12 +230,14 @@ public class BgpConfigurationManager {
             final EntityOwnershipService entityOwnershipService,
             final FibDSWriter fibDSWriter,
             final IVpnLinkService vpnLinkSrvce,
-            final BundleContext bundleContext)
+            final BundleContext bundleContext,
+            final BgpUtil bgpUtil)
             throws InterruptedException, ExecutionException, TimeoutException {
         this.dataBroker = dataBroker;
         this.fibDSWriter = fibDSWriter;
         this.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
+        this.bgpUtil = bgpUtil;
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         portStartup = getProperty(CONFIG_PORT, DEF_CPORT);
@@ -255,12 +255,6 @@ public class BgpConfigurationManager {
 
         LOG.info("BGP Configuration manager initialized");
         initer.countDown();
-
-        Integer batchSize = Integer.getInteger("batch.size", DEFAULT_BATCH_SIZE);
-
-        Integer batchInterval = Integer.getInteger("batch.wait.time", DEFAULT_BATCH_INTERVAL);
-        BgpUtil.registerWithBatchManager(
-                new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, batchSize, batchInterval));
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
             final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
@@ -1762,7 +1756,7 @@ public class BgpConfigurationManager {
         boolean needUpdate = addToRt2TepMap(rd, tepIp, mac, l2vni);
         if (needUpdate) {
             LOG.info("Adding tepIp {} with RD {} to ELan DS", tepIp, rd);
-            BgpUtil.addTepToElanInstance(dataBroker, rd, tepIp);
+            bgpUtil.addTepToElanInstance(rd, tepIp);
         } else {
             LOG.debug("Skipping the Elan update for RT2 from tep {} rd {}", tepIp, rd);
         }
@@ -1772,7 +1766,7 @@ public class BgpConfigurationManager {
         boolean needUpdate = deleteFromRt2TepMap(rd, tepIp, mac);
         if (needUpdate) {
             LOG.info("Deleting tepIp {} with RD {} to ELan DS", tepIp, rd);
-            BgpUtil.deleteTepFromElanInstance(dataBroker, rd, tepIp);
+            bgpUtil.deleteTepFromElanInstance(rd, tepIp);
         } else {
             LOG.debug("Skipping the Elan update for RT2 withdraw from tep {} rd {}", tepIp, rd);
         }
@@ -1797,7 +1791,7 @@ public class BgpConfigurationManager {
         VrfEntry.EncapType encapType = VrfEntry.EncapType.Mplsgre;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
             encapType = VrfEntry.EncapType.Vxlan;
-            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = BgpUtil.getVpnInstanceOpData(dataBroker, rd);
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = bgpUtil.getVpnInstanceOpData(rd);
             if (vpnInstanceOpDataEntry != null) {
                 if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
                     LOG.info("Got RT2 route for RD {} l3label {} l2label {} from tep {} with mac {} remote RD {}",
@@ -1851,7 +1845,7 @@ public class BgpConfigurationManager {
             fibDSWriter.addFibEntryToDS(rd, macaddress, prefix + "/" + plen, nextHopList, encapType, label, l3vni,
                                         routermac, RouteOrigin.BGP);
             LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, prefix, nextHop, label);
-            String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+            String vpnName = bgpUtil.getVpnNameFromRd(rd);
             if (vpnName != null) {
                 vpnLinkService.leakRouteIfNeeded(vpnName, prefix, nextHopList, label, RouteOrigin.BGP,
                                                  NwConstants.ADD_FLOW);
@@ -1864,7 +1858,7 @@ public class BgpConfigurationManager {
         long vni = 0L;
         boolean macupdate = false;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
-            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = BgpUtil.getVpnInstanceOpData(dataBroker, rd);
+            VpnInstanceOpDataEntry vpnInstanceOpDataEntry = bgpUtil.getVpnInstanceOpData(rd);
             if (vpnInstanceOpDataEntry != null) {
                 vni = vpnInstanceOpDataEntry.getL3vni();
                 if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
@@ -1894,7 +1888,7 @@ public class BgpConfigurationManager {
     public void onUpdateWithdrawRoute(String rd, String prefix, int plen, String nexthop) {
         LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
         fibDSWriter.removeOrUpdateFibEntryFromDS(rd, prefix + "/" + plen, nexthop);
-        String vpnName = BgpUtil.getVpnNameFromRd(dataBroker, rd);
+        String vpnName = bgpUtil.getVpnNameFromRd(rd);
         if (vpnName != null) {
             vpnLinkService.leakRouteIfNeeded(vpnName, prefix, null /*nextHopList*/, 0 /*INVALID_LABEL*/,
                                              RouteOrigin.BGP, NwConstants.DEL_FLOW);
@@ -2293,11 +2287,11 @@ public class BgpConfigurationManager {
     }
 
     private <T extends DataObject> void update(InstanceIdentifier<T> iid, T dto) {
-        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, iid, dto);
+        bgpUtil.update(LogicalDatastoreType.CONFIGURATION, iid, dto);
     }
 
     private <T extends DataObject> void delete(InstanceIdentifier<T> iid) {
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, iid);
+        bgpUtil.delete(LogicalDatastoreType.CONFIGURATION, iid);
     }
 
     public void startConfig(String bgpHost, int thriftPort) {
@@ -2421,7 +2415,7 @@ public class BgpConfigurationManager {
 
     // TODO: add LayerType as arg - supports command
     public void addVrf(String rd, List<String> irts, List<String> erts, AddressFamily addressFamily) {
-        Vrfs vrf = BgpUtil.getVrfFromRd(rd);
+        Vrfs vrf = bgpUtil.getVrfFromRd(rd);
         List<AddressFamiliesVrf> adfList = new ArrayList<>(1);
         if (vrf != null) {
             adfList = vrf.getAddressFamiliesVrf();
@@ -2552,7 +2546,7 @@ public class BgpConfigurationManager {
             adfBuilder.setAfi((long) af_afi.AFI_IP.getValue());
             adfBuilder.setSafi((long) af_safi.SAFI_EVPN.getValue());
         }
-        Vrfs vrfOriginal = BgpUtil.getVrfFromRd(rd);
+        Vrfs vrfOriginal = bgpUtil.getVrfFromRd(rd);
         if (vrfOriginal == null) {
             LOG.error("delVrf: no vrf with existing rd {}. step aborted", rd);
             return false;
@@ -2672,13 +2666,8 @@ public class BgpConfigurationManager {
         try {
             staledFibEntriesMap.clear();
             InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
-            DataBroker db = BgpUtil.getBroker();
-            if (db == null) {
-                LOG.error("Couldn't find BgpUtil dataBroker while creating createStaleFibMap");
-                return;
-            }
 
-            Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(BgpUtil.getBroker(),
+            Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
             if (fibEntries.isPresent()) {
                 List<VrfTables> staleVrfTables = fibEntries.get().getVrfTables();
@@ -2720,13 +2709,8 @@ public class BgpConfigurationManager {
         totalExternalMacRoutes = 0;
         try {
             InstanceIdentifier<FibEntries> id = InstanceIdentifier.create(FibEntries.class);
-            DataBroker db = BgpUtil.getBroker();
-            if (db == null) {
-                LOG.error("Couldn't find BgpUtil dataBroker while deleting external routes");
-                return;
-            }
 
-            Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(BgpUtil.getBroker(),
+            Optional<FibEntries> fibEntries = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                     LogicalDatastoreType.CONFIGURATION, id);
             if (fibEntries.isPresent()) {
                 if (fibEntries.get().getVrfTables() == null) {

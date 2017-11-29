@@ -8,22 +8,22 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadFactory;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
+import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
-import org.opendaylight.genius.utils.batching.ResourceHandler;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
@@ -59,13 +59,38 @@ import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class BgpUtil {
-
+@Singleton
+public class BgpUtil implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
+    private static final String RESOURCE_TYPE = "BGP-RESOURCES";
+    private static final int DEFAULT_BATCH_SIZE = 1000;
+    private static final int DEFAULT_BATCH_INTERVAL = 500;
 
-    private static DataBroker dataBroker;
+    private final DataBroker dataBroker;
 
-    private static BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
+    private final BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
+
+    @Inject
+    public BgpUtil(DataBroker dataBroker) {
+        this.dataBroker = dataBroker;
+    }
+
+    @PostConstruct
+    public void init() {
+        ResourceBatchingManager resBatchingManager = ResourceBatchingManager.getInstance();
+
+        Integer batchSize = Integer.getInteger("batch.size", DEFAULT_BATCH_SIZE);
+        Integer batchInterval = Integer.getInteger("batch.wait.time", DEFAULT_BATCH_INTERVAL);
+
+        resBatchingManager.registerBatchableResource(RESOURCE_TYPE, bgpResourcesBufferQ,
+                new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, batchSize, batchInterval));
+    }
+
+    @Override
+    @PreDestroy
+    public void close() {
+        ResourceBatchingManager.getInstance().deregisterBatchableResource(RESOURCE_TYPE);
+    }
 
     /**
      * get a translation from prefix ipv6 to afi<br>.
@@ -96,18 +121,8 @@ public class BgpUtil {
         return retValue;
     }
 
-    static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-            .setNameFormat("bgp-util-mdsal-%d").build();
-
-    static ExecutorService threadPool = Executors.newFixedThreadPool(1, namedThreadFactory);
-
-    static void registerWithBatchManager(ResourceHandler resourceHandler) {
-        ResourceBatchingManager resBatchingManager = ResourceBatchingManager.getInstance();
-        resBatchingManager.registerBatchableResource("BGP-RESOURCES", bgpResourcesBufferQ, resourceHandler);
-    }
-
-    static <T extends DataObject> void update(DataBroker broker, final LogicalDatastoreType datastoreType,
-                                              final InstanceIdentifier<T> path, final T data) {
+    public <T extends DataObject> void update(final LogicalDatastoreType datastoreType,
+            final InstanceIdentifier<T> path, final T data) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.UPDATE);
         actResource.setInstanceIdentifier(path);
@@ -115,8 +130,8 @@ public class BgpUtil {
         bgpResourcesBufferQ.add(actResource);
     }
 
-    public static <T extends DataObject> void write(DataBroker broker, final LogicalDatastoreType datastoreType,
-                                                    final InstanceIdentifier<T> path, final T data) {
+    public <T extends DataObject> void write(final LogicalDatastoreType datastoreType, final InstanceIdentifier<T> path,
+            final T data) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.CREATE);
         actResource.setInstanceIdentifier(path);
@@ -124,21 +139,13 @@ public class BgpUtil {
         bgpResourcesBufferQ.add(actResource);
     }
 
-    static <T extends DataObject> void delete(DataBroker broker, final LogicalDatastoreType datastoreType,
-                                              final InstanceIdentifier<T> path) {
+    public <T extends DataObject> void delete(final LogicalDatastoreType datastoreType,
+            final InstanceIdentifier<T> path) {
         ActionableResource actResource = new ActionableResourceImpl(path.toString());
         actResource.setAction(ActionableResource.DELETE);
         actResource.setInstanceIdentifier(path);
         actResource.setInstance(null);
         bgpResourcesBufferQ.add(actResource);
-    }
-
-    public static void setBroker(final DataBroker broker) {
-        BgpUtil.dataBroker = broker;
-    }
-
-    public static DataBroker getBroker() {
-        return dataBroker;
     }
 
     // Convert ProtocolType to thrift protocol_type
@@ -172,9 +179,9 @@ public class BgpUtil {
         }
     }
 
-    static VpnInstanceOpDataEntry getVpnInstanceOpData(DataBroker broker, String rd)  {
+    public VpnInstanceOpDataEntry getVpnInstanceOpData(String rd)  {
         InstanceIdentifier<VpnInstanceOpDataEntry> id = getVpnInstanceOpDataIdentifier(rd);
-        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(broker,
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpData = MDSALUtil.read(dataBroker,
                 LogicalDatastoreType.OPERATIONAL, id);
         if (vpnInstanceOpData.isPresent()) {
             return vpnInstanceOpData.get();
@@ -187,9 +194,9 @@ public class BgpUtil {
                 .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
-    private static String getElanNamefromRd(DataBroker broker, String rd)  {
+    private String getElanNamefromRd(String rd)  {
         InstanceIdentifier<EvpnRdToNetwork> id = getEvpnRdToNetworkIdentifier(rd);
-        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(broker,
+        Optional<EvpnRdToNetwork> evpnRdToNetworkOpData = MDSALUtil.read(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, id);
         if (evpnRdToNetworkOpData.isPresent()) {
             return evpnRdToNetworkOpData.get().getNetworkId();
@@ -202,12 +209,12 @@ public class BgpUtil {
                 .child(EvpnRdToNetwork.class, new EvpnRdToNetworkKey(rd)).build();
     }
 
-    public static void addTepToElanInstance(DataBroker broker, String rd, String tepIp) {
+    public void addTepToElanInstance(String rd, String tepIp) {
         if (rd == null || tepIp == null) {
             LOG.error("addTepToElanInstance : Null parameters returning");
             return;
         }
-        String elanName = getElanNamefromRd(broker, rd);
+        String elanName = getElanNamefromRd(rd);
         if (elanName == null) {
             LOG.error("Elan null while processing RT2 for RD {}", rd);
             return;
@@ -218,22 +225,22 @@ public class BgpUtil {
         ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
         externalTepsBuilder.setKey(externalTepsKey);
         externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
-        BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build());
+        update(LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build());
     }
 
-    public static void deleteTepFromElanInstance(DataBroker broker, String rd, String tepIp) {
+    public void deleteTepFromElanInstance(String rd, String tepIp) {
         if (rd == null || tepIp == null) {
             LOG.error("deleteTepFromElanInstance : Null parameters returning");
             return;
         }
-        String elanName = getElanNamefromRd(broker, rd);
+        String elanName = getElanNamefromRd(rd);
         if (elanName == null) {
             LOG.error("Elan null while processing RT2 withdraw for RD {}", rd);
             return;
         }
         LOG.debug("Deleting tepIp {} from elan {}", tepIp, elanName);
         InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, externalTepsId);
+        delete(LogicalDatastoreType.CONFIGURATION, externalTepsId);
     }
 
     private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
@@ -243,8 +250,8 @@ public class BgpUtil {
                 new ExternalTepsKey(tepAdress)).build();
     }
 
-    public static String getVpnNameFromRd(DataBroker dataBroker2, String rd) {
-        VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(dataBroker2, rd);
+    public String getVpnNameFromRd(String rd) {
+        VpnInstanceOpDataEntry vpnInstanceOpData = getVpnInstanceOpData(rd);
         return vpnInstanceOpData != null ? vpnInstanceOpData.getVpnInstanceName() : null;
     }
 
@@ -252,7 +259,7 @@ public class BgpUtil {
      * @param rd is the RouteDistinguisher of vrf
      * @return the vrf of rd or null if no exist
      */
-    public static Vrfs getVrfFromRd(String rd) {
+    public Vrfs getVrfFromRd(String rd) {
         Vrfs vrfs = null;
         KeyedInstanceIdentifier<Vrfs, VrfsKey> id = InstanceIdentifier.create(Bgp.class)
                 .child(Vrfs.class, new VrfsKey(rd));
@@ -277,13 +284,12 @@ public class BgpUtil {
         return layerTypeValue;
     }
 
-    public static void removeVrfEntry(String rd, VrfEntry vrfEntry) {
+    public void removeVrfEntry(String rd, VrfEntry vrfEntry) {
         LOG.debug("removeVrfEntry : vrf {} prefix {}", rd, vrfEntry.getDestPrefix());
         InstanceIdentifier<VrfEntry> vrfEntryId =
                    InstanceIdentifier.builder(FibEntries.class)
                    .child(VrfTables.class, new VrfTablesKey(rd))
                    .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix())).build();
-        BgpUtil.delete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+        delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
     }
-
 }

@@ -25,12 +25,13 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
 
     private final DataBroker broker;
     private final BgpConfigurationManager bgpConfigManager;
+    private final BgpUtil bgpUtil;
 
-    public EvpnRdNetworkListener(DataBroker dataBroker,
-                                 BgpConfigurationManager bgpConfigManager) {
+    public EvpnRdNetworkListener(DataBroker dataBroker, BgpConfigurationManager bgpConfigManager, BgpUtil bgpUtil) {
         super(EvpnRdToNetwork.class, EvpnRdNetworkListener.class);
         this.broker = dataBroker;
         this.bgpConfigManager = bgpConfigManager;
+        this.bgpUtil = bgpUtil;
     }
 
     @Override
@@ -83,14 +84,14 @@ public class EvpnRdNetworkListener extends AsyncDataTreeChangeListenerBase<EvpnR
     private void addExternalTepstoElanInstance(String rd) {
         for (String tepIp: bgpConfigManager.getTepIPs(rd)) {
             LOG.debug("Adding tep {} to Elan Corresponding to RD {}", tepIp, rd);
-            BgpUtil.addTepToElanInstance(broker, rd, tepIp);
+            bgpUtil.addTepToElanInstance(rd, tepIp);
         }
     }
 
     private void deleteExternalTepsfromElanInstance(String rd) {
         for (String tepIp: bgpConfigManager.getTepIPs(rd)) {
             LOG.debug("Deleting tep {} to Elan Corresponding to RD {}", tepIp, rd);
-            BgpUtil.deleteTepFromElanInstance(broker, rd, tepIp);
+            bgpUtil.deleteTepFromElanInstance(rd, tepIp);
         }
     }
 }
