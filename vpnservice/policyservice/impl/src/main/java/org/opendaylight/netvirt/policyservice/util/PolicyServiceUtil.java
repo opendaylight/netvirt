@@ -232,7 +232,8 @@ public class PolicyServiceUtil {
     public void updatePolicyClassifierForUnderlayNetworks(List<String> underlayNetworks, String policyClassifier,
             boolean isAdded) {
         if (underlayNetworks == null || underlayNetworks.isEmpty()) {
-            LOG.debug("No underlay networks found for policy classifier {}", policyClassifier);
+            LOG.error("No underlay networks found for policy classifier {}", policyClassifier);
+            return;
         }
 
         underlayNetworks.forEach(underlayNetwork -> coordinator.enqueueJob(underlayNetwork, () -> {
