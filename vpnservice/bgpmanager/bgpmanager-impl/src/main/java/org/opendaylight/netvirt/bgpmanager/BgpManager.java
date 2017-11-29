@@ -18,7 +18,6 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.apache.thrift.TException;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
@@ -36,24 +35,19 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class BgpManager implements AutoCloseable, IBgpManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpManager.class);
-    private final DataBroker dataBroker;
     private final BgpConfigurationManager bcm;
 
     private final FibDSWriter fibDSWriter;
     private volatile long qbgprestartTS = 0;
 
     @Inject
-    public BgpManager(final DataBroker dataBroker,
-            final BgpConfigurationManager bcm,
-            final FibDSWriter fibDSWriter) {
-        this.dataBroker = dataBroker;
+    public BgpManager(final BgpConfigurationManager bcm, final FibDSWriter fibDSWriter) {
         this.bcm = bcm;
         this.fibDSWriter = fibDSWriter;
     }
 
     @PostConstruct
     public void init() {
-        BgpUtil.setBroker(dataBroker);
         LOG.info("{} start", getClass().getSimpleName());
     }
 

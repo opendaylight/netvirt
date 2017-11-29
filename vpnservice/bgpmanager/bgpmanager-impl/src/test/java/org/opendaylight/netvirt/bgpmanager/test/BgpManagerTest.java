@@ -32,9 +32,8 @@ public class BgpManagerTest extends AbstractDataBrokerTest {
     @Before
     public void setUp() throws Exception {
         dataBroker = getDataBroker();
-        bgpFibWriter = new FibDSWriter(dataBroker);
+        bgpFibWriter = new FibDSWriter(dataBroker, new BgpUtil(dataBroker));
         fibManager = new MockFibManager(dataBroker);
-        BgpUtil.setBroker(dataBroker);
     }
 
     @Test
