@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_f7c4df60",
+        "filename": "vpnservice/policyservice/impl/src/main/java/org/opendaylight/netvirt/policyservice/util/PolicyServiceUtil.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-29T17:52:38Z",
+      "side": 1,
+      "message": "I know it\u0027s a change in behaviour and not directly FB related, but.. seeing this here, and the misisng return that you picked up on, make me think that this LOG here look like one that perhaps really should be a LOG.error instead of debug, what do you think?",
+      "revId": "1add77e745f646181c48c8611c99df606231f9ff",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
