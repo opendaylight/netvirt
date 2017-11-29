@@ -24,15 +24,8 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 
 @Command(scope = "odl", name = "configure-bgp", description = "")
 public class ConfigureBgpCli extends OsgiCommandSupport {
-    private static BgpManager bgpManager;
-    private static BgpConfigurationManager bgpConfigurationManager;
-
     private static final long AS_MIN = 0;
     private static final long AS_MAX = 4294967295L;//2^32-1
-
-    public static void setBgpManager(BgpManager mgr) {
-        bgpManager = mgr;
-    }
 
     @Option(name = "-op", aliases = {"--operation", "--op"}, description = "[start-bgp-server, stop-bgp-server, "
             + "add-neighbor, delete-neighbor, add-route, delete-route,graceful-restart, enable-log ]",
@@ -110,6 +103,14 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
     enum LogLevels {
         emergencies, alerts, critical, errors, warnings, notifications, informational, debugging
+    }
+
+    private final BgpManager bgpManager;
+    private final BgpConfigurationManager bgpConfigurationManager;
+
+    public ConfigureBgpCli(BgpManager bgpManager, BgpConfigurationManager bgpConfigurationManager) {
+        this.bgpManager = bgpManager;
+        this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
     @Override

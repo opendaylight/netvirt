@@ -8,39 +8,10 @@
              odl:type="default" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
-  <reference id="interVpnLinkService"
+  <reference id="iVpnLinkService"
              interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
              availability="optional" />
 
-  <bean id="bgpAlarmBroadcaster"
-        class="org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmBroadcaster"
-        init-method="init" >
-  </bean>
-
-  <bean id="fibDSWriter" class="org.opendaylight.netvirt.bgpmanager.FibDSWriter">
-    <argument ref="dataBroker" />
-  </bean>
-
-  <bean id="bgpCommands" class="org.opendaylight.netvirt.bgpmanager.commands.Commands">
-    <argument ref="bgpManager" />
-  </bean>
-
-  <bean id="bgpManager" class="org.opendaylight.netvirt.bgpmanager.BgpManager"
-        init-method="init" destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="bgpConfigurationManager" />
-    <argument ref="fibDSWriter" />
-  </bean>
   <service ref="bgpManager" odl:type="default"
            interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" />
-
-  <bean id="bgpConfigurationManager"
-        class="org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager"
-        destroy-method="close">
-    <argument ref="dataBroker" />
-    <argument ref="entityOwnershipService" />
-    <argument ref="fibDSWriter" />
-    <argument ref="interVpnLinkService" />
-    <argument ref="blueprintBundleContext" />
-  </bean>
 </blueprint>

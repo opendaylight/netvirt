@@ -51,15 +51,14 @@ public class Multipath extends OsgiCommandSupport {
 
     String multipathEnable;
 
+    private final BgpManager bgpManager;
+
+    public Multipath(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
+
     @Override
     protected Object doExecute() throws Exception {
-
-        if (!Commands.bgpRunning(session.getConsole())) {
-            return null;
-        }
-
-        BgpManager bm = Commands.getBgpManager();
-
         af_afi afi = af_afi.findByValue(1);
         af_safi safi = af_safi.findByValue(5);
 
@@ -96,14 +95,14 @@ public class Multipath extends OsgiCommandSupport {
 
             switch (multipathEnable) {
                 case "enable":
-                    bm.enableMultipath(afi, safi);
+                    bgpManager.enableMultipath(afi, safi);
                     break;
                 case "disable":
-                    bm.disableMultipath(afi, safi);
+                    bgpManager.disableMultipath(afi, safi);
                     break;
                 case "setmaxpath":
                     if (rd != null && maxpath != null) {
-                        bm.multipaths(rd, Integer.parseInt(maxpath));
+                        bgpManager.multipaths(rd, Integer.parseInt(maxpath));
                     }
                     break;
 

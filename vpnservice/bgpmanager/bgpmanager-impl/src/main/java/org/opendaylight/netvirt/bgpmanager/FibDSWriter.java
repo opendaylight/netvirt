@@ -9,10 +9,11 @@ package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -37,11 +38,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdenti
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class FibDSWriter {
     private static final Logger LOG = LoggerFactory.getLogger(FibDSWriter.class);
     private final DataBroker dataBroker;
     private final SingleTransactionDataBroker singleTxDB;
 
+    @Inject
     public FibDSWriter(final DataBroker dataBroker) {
         this.dataBroker = dataBroker;
         this.singleTxDB = new SingleTransactionDataBroker(dataBroker);
@@ -71,7 +74,7 @@ public class FibDSWriter {
                         .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
 
         VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setOrigin(origin.getValue());
-        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, (long)label, l3vni, macAddress,
+        buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni, macAddress,
                 gatewayMacAddress, nextHopList);
         BgpUtil.update(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build());
     }

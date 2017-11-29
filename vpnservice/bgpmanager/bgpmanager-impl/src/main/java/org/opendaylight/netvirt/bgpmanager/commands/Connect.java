@@ -34,6 +34,12 @@ public class Connect extends OsgiCommandSupport {
             multiValued = false)
     String port = null;
 
+    private final BgpManager bgpManager;
+
+    public Connect(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
+
     private Object usage() {
         session.getConsole().println(
                 "usage: bgp-connect [" + HOST + " h] [" + PORT + " p] <add | del>");
@@ -42,10 +48,6 @@ public class Connect extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning(session.getConsole())) {
-            return null;
-        }
-        BgpManager bm = Commands.getBgpManager();
         switch (action) {
             case "add":
                 if (host == null || port == null) {
@@ -57,14 +59,14 @@ public class Connect extends OsgiCommandSupport {
                     return null;
                 }
                 // check: already connected?
-                bm.startConfig(host, Integer.parseInt(port));
+                bgpManager.startConfig(host, Integer.parseInt(port));
                 break;
             case "del":
                 if (host != null || port != null) {
                     session.getConsole().println("note: option(s) not needed; ignored");
                 }
                 // check: nothing to stop?
-                bm.stopConfig();
+                bgpManager.stopConfig();
                 break;
             default:
                 return usage();

@@ -40,6 +40,9 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.Nullable;
+import javax.annotation.PreDestroy;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.apache.thrift.TApplicationException;
 import org.apache.thrift.TException;
 import org.apache.thrift.transport.TTransport;
@@ -131,6 +134,7 @@ import org.osgi.framework.BundleContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class BgpConfigurationManager {
     private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
 
@@ -145,11 +149,8 @@ public class BgpConfigurationManager {
     private static final String DEF_UPORT = "6644";
     private static final String DEF_CHOST = "255.255.255.255"; // Invalid Host IP
     private static final String DEF_CPORT = "0";               // Invalid Port
-    private static final String DEF_SDNC_BGP_MIP = "127.0.0.1";
     private static final String DEF_BGP_SDNC_MIP = "127.0.0.1";
-    private static final String SDNC_BGP_MIP = "vpnservice.bgp.thrift.bgp.mip";
     private static final String BGP_SDNC_MIP = "vpnservice.bgp.thrift.sdnc.mip";
-    private static final Timer IP_ACTIVATION_CHECK_TIMER = new Timer();
     private static final int RESTART_DEFAULT_GR = 90;
     private static final int DS_RETRY_COUNT = 100; //100 retries, each after WAIT_TIME_BETWEEN_EACH_TRY_MILLIS seconds
     private static final long WAIT_TIME_BETWEEN_EACH_TRY_MILLIS = 1000L; //one second sleep after every retry
@@ -183,7 +184,6 @@ public class BgpConfigurationManager {
 
     private final CountDownLatch initer = new CountDownLatch(1);
 
-    private final String odlThriftIp;
     private final String hostStartup;
     private final String portStartup;
 
@@ -227,6 +227,7 @@ public class BgpConfigurationManager {
     private final EntityOwnershipCandidateRegistration candidateRegistration;
     private final EntityOwnershipListenerRegistration entityListenerRegistration;
 
+    @Inject
     public BgpConfigurationManager(final DataBroker dataBroker,
             final EntityOwnershipService entityOwnershipService,
             final FibDSWriter fibDSWriter,
@@ -245,7 +246,6 @@ public class BgpConfigurationManager {
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
         bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
-        odlThriftIp = getProperty(SDNC_BGP_MIP, DEF_SDNC_BGP_MIP);
         registerCallbacks();
 
         entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
@@ -339,6 +339,7 @@ public class BgpConfigurationManager {
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
+    @PreDestroy
     public void close() {
         executor.shutdown();
 

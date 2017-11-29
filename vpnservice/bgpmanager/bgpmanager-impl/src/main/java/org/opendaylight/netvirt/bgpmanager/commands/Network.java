@@ -64,6 +64,12 @@ public class Network extends OsgiCommandSupport {
 
     private final RouteOrigin staticOrigin = RouteOrigin.STATIC;
 
+    private final BgpManager bgpManager;
+
+    public Network(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
+
     private Object usage() {
         session.getConsole().println(
                 "usage: bgp-network [" + RD + " rd] [" + PFX + " prefix/len] ["
@@ -74,10 +80,6 @@ public class Network extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning(session.getConsole())) {
-            return null;
-        }
-        BgpManager bm = Commands.getBgpManager();
         switch (action) {
             case "add":
                 int label = qbgpConstants.LBL_EXPLICIT_NULL;
@@ -107,7 +109,7 @@ public class Network extends OsgiCommandSupport {
                     return null;
                 }
                 LOG.info("ADD: Adding Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
-                bm.addPrefix(rd, null /*maAddress*/, pfx, nh,
+                bgpManager.addPrefix(rd, null /*maAddress*/, pfx, nh,
                         VrfEntry.EncapType.Mplsgre, label, 0 /*l3vni*/, null /*gatewayMacAddress*/, staticOrigin);
                 LOG.info("ADD: Added Fib entry rd {} prefix {} nexthop {} label {}", rd, pfx, nh, label);
                 break;
@@ -125,7 +127,7 @@ public class Network extends OsgiCommandSupport {
                     return null;
                 }
                 LOG.info("REMOVE: Removing Fib entry rd {} prefix {}", rd, pfx);
-                bm.deletePrefix(rd, pfx);
+                bgpManager.deletePrefix(rd, pfx);
                 LOG.info("REMOVE: Removed Fib entry rd {} prefix {}", rd, pfx);
                 break;
             default:

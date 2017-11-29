@@ -8,14 +8,11 @@
 
 package org.opendaylight.netvirt.bgpmanager.commands;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.PrintStream;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
 
-public class Commands {
-    private static BgpManager bm;
+public final class Commands {
     private static final long AS_MIN = 0;
     private static final long AS_MAX = 4294967295L;//2^32-1
 
@@ -23,14 +20,7 @@ public class Commands {
         IPADDR, INT, ASNUM, AFI
     }
 
-    // Suppress this for now - BgpManager should be injected instead of accessing statically
-    @SuppressFBWarnings("ST_WRITE_TO_STATIC_FROM_INSTANCE_METHOD")
-    public Commands(BgpManager bgpm) {
-        bm = bgpm;
-    }
-
-    public static BgpManager getBgpManager() {
-        return bm;
+    private Commands() {
     }
 
     public static boolean isValid(PrintStream ps, String val, Validators type, String name) {
@@ -71,14 +61,6 @@ public class Commands {
                 break;
             default:
                 return false;
-        }
-        return true;
-    }
-
-    public static boolean bgpRunning(PrintStream ps) {
-        if (getBgpManager() == null) {
-            ps.println("error: cannot run command, BgpManager not started");
-            return false;
         }
         return true;
     }

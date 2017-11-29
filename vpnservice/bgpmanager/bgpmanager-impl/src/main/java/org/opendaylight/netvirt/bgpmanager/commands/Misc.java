@@ -40,6 +40,12 @@ public class Misc extends OsgiCommandSupport {
             multiValued = false)
     private final String spt = null;
 
+    private final BgpManager bgpManager;
+
+    public Misc(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
+
     private Object usage() {
         session.getConsole().println(
                 "usage: bgp-misc [<" + LF + " name> <" + LL + " level>] ["
@@ -66,9 +72,6 @@ public class Misc extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        if (!Commands.bgpRunning(session.getConsole())) {
-            return null;
-        }
         if (spt == null && file == null && level == null) {
             return usage();
         }
@@ -79,22 +82,21 @@ public class Misc extends OsgiCommandSupport {
             session.getConsole().println("error: invalid value for " + LL);
             return null;
         }
-        BgpManager bm = Commands.getBgpManager();
         switch (action) {
             case "add":
                 if (spt != null && Commands.isValid(session.getConsole(), spt, Commands.Validators.INT, SP)) {
-                    bm.configureGR(Integer.parseInt(spt));
+                    bgpManager.configureGR(Integer.parseInt(spt));
                 }
                 if (file != null && level != null) {
-                    bm.setQbgpLog(file, level);
+                    bgpManager.setQbgpLog(file, level);
                 }
                 break;
             case "del":
                 if (spt != null) {
-                    bm.delGracefulRestart();
+                    bgpManager.delGracefulRestart();
                 }
                 if (file != null && level != null) {
-                    bm.delLogging();
+                    bgpManager.delLogging();
                 }
                 break;
             default:
