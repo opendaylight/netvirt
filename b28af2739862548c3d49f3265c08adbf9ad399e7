@@ -1,0 +1,76 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_37c157e5",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 183,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-11-29T20:36:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_4679c7fb",
+      "range": {
+        "startLine": 183,
+        "startChar": 49,
+        "endLine": 183,
+        "endChar": 55
+      },
+      "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_97b64b89",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-11-29T20:36:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_66d683c7",
+      "range": {
+        "startLine": 267,
+        "startChar": 98,
+        "endLine": 267,
+        "endChar": 100
+      },
+      "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_574a1384",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-11-29T20:36:39Z",
+      "side": 1,
+      "message": "Correct, I updated to mention your comment",
+      "parentUuid": "7a1969be_26f3eb74",
+      "range": {
+        "startLine": 381,
+        "startChar": 2,
+        "endLine": 383,
+        "endChar": 35
+      },
+      "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
