@@ -16,6 +16,24 @@
       "revId": "8b19ae39fecd1dbf6dc9017bc2cfa69c45254dd2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_dcc90a5c",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-29T14:23:10Z",
+      "side": 1,
+      "message": "I was practicing my Italian :)",
+      "parentUuid": "7a1969be_dc946a46",
+      "revId": "8b19ae39fecd1dbf6dc9017bc2cfa69c45254dd2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
