@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_81b9e9eb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-29T09:54:32Z",
+      "side": 1,
+      "message": "I like the idea of RetryingTxRunner :)",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_a1b4e5f2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-29T09:54:32Z",
+      "side": 1,
+      "message": "This will conflict with jobs related to elan interface which are synchronized based on elanName. I think this was areason why we have used jc here.",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_a1ab4588",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-29T09:54:32Z",
+      "side": 1,
+      "message": "what is the reason for removing dj here ? The intention of having DJ is to sequencing and parallelizing the tasks at different synchronization levels using elan name and elan interface name and reliving dcn thread as early as possible. so are you planning to hold dcn thread till final processing of the event ?",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_e1941d46",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 281,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-29T09:54:32Z",
+      "side": 1,
+      "message": "I think removal of DJ needs extensive testing in scaling scenarios to uncover the issues which i don\u0027t think will be caught in CSIT.\nTo start with, i think we can use TxRunner for not to exploit MDSAL txansactions in applications.",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
