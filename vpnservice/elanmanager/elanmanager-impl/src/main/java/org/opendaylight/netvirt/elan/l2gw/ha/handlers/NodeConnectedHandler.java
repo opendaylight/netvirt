@@ -243,6 +243,7 @@ public class NodeConnectedHandler {
 
         haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(childNode, existingHANodeOptional));
         haBuilder.setSwitches(HwvtepHAUtil.buildSwitchesForHANode(childNode, haNodePath, existingHANodeOptional));
+        haBuilder.setDbVersion(childData.getDbVersion());
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
         tx.merge(OPERATIONAL, haNodePath, haNode, true);
