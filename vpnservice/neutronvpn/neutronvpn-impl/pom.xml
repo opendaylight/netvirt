@@ -105,6 +105,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>alarm-impl</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>jobcoordinator-impl</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
