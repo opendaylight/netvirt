@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_062fcfa2",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 119
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-11-29T06:45:31Z",
+      "side": 1,
+      "message": "Philippe, separation does not mean dividing a review simply based on number of lines.\nAs you can see, these changes are not required at all in this review. and is used only in the next review that is 57413. \nThat is the reason why I requested for this, since anyone looking at this review in this feature, out of context, does not get confused. Because, usually, rewiews are done for atleast the following two goals:\n1) to check feature compatibility\n2) to check language semantics. Any change that is not used in the review will look suspicious to the reviewer. In this case, these changes is related to blueprint wiring, and nothing else",
+      "parentUuid": "9a245df4_265cc64a",
+      "range": {
+        "startLine": 33,
+        "startChar": 10,
+        "endLine": 33,
+        "endChar": 64
+      },
+      "revId": "49cdd34935ad299fa74196650fa1f80ed94a53cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_26c20685",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/IPv6DefaultRouteProgrammer.java",
         "patchSetId": 119
