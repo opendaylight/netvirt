@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
@@ -17,18 +18,22 @@ import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 public class GlobalAugmentationMerger
         extends MergeCommandsAggregator {
 
-    private GlobalAugmentationMerger() {
+    private GlobalAugmentationMerger(DataBroker dataBroker) {
         commands.add(new RemoteMcastCmd());
         commands.add(new RemoteUcastCmd());
         commands.add(new LocalUcastCmd());
         commands.add(new LocalMcastCmd());
-        commands.add(new LogicalSwitchesCmd());
+        commands.add(new LogicalSwitchesCmd(dataBroker));
         commands.add(new SwitchesCmd());
     }
 
-    static GlobalAugmentationMerger instance = new GlobalAugmentationMerger();
+    static GlobalAugmentationMerger instance = new GlobalAugmentationMerger(null);
 
     public static GlobalAugmentationMerger getInstance() {
         return instance;
+    }
+
+    public static GlobalAugmentationMerger getInstance(DataBroker dataBroker) {
+        return new GlobalAugmentationMerger(dataBroker);
     }
 }

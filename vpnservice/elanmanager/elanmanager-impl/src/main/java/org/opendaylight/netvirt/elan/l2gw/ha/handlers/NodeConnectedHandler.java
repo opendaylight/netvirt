@@ -45,7 +45,7 @@ public class NodeConnectedHandler {
 
     static Logger LOG = LoggerFactory.getLogger(NodeConnectedHandler.class);
 
-    GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
+    GlobalAugmentationMerger globalAugmentationMerger;
     PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
     GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
     PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
@@ -54,6 +54,7 @@ public class NodeConnectedHandler {
 
     public NodeConnectedHandler(DataBroker db) {
         this.db = db;
+        globalAugmentationMerger = GlobalAugmentationMerger.getInstance(db);
     }
 
     /**

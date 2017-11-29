@@ -50,7 +50,7 @@ public class HAListeners implements AutoCloseable {
         registerListener(RemoteMcastMacs.class, new RemoteMcastCmd());
         registerListener(LocalUcastMacs.class, new LocalUcastCmd());
         registerListener(RemoteUcastMacs.class, new RemoteUcastCmd());
-        registerListener(LogicalSwitches.class, new LogicalSwitchesCmd());
+        registerListener(LogicalSwitches.class, new LogicalSwitchesCmd(broker));
 
         PhysicalLocatorCmd physicalLocatorCmd = new PhysicalLocatorCmd();
         listeners.add(new PhysicalLocatorListener(broker, PhysicalLocatorListener.class, physicalLocatorCmd,
