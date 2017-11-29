@@ -3,6 +3,8 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.ConfigureBgpCli">
+                <argument ref="bgpManager"/>
+                <argument ref="bgpConfigurationManager"/>
             </action>
         </command>
     </command-bundle>
@@ -10,6 +12,7 @@
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
             <action class="org.opendaylight.netvirt.bgpmanager.DisplayBgpConfigCli">
+                <argument ref="bgpManager"/>
             </action>
         </command>
     </command-bundle>
@@ -29,47 +32,63 @@
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Connect"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Connect">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Neighbor"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Neighbor">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Router"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Router">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Vrf"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Vrf">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Network"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Network">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
 
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Misc"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Misc">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Cache"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Cache">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
     <command-bundle xmlns="http://karaf.apache.org/xmlns/shell/v1.1.0">
         <command>
-            <action class="org.opendaylight.netvirt.bgpmanager.commands.Multipath"/>
+            <action class="org.opendaylight.netvirt.bgpmanager.commands.Multipath">
+                <argument ref="bgpManager"/>
+            </action>
         </command>
     </command-bundle>
 

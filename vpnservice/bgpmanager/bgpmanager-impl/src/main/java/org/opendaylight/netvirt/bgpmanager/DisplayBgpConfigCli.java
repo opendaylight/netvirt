@@ -15,7 +15,6 @@ import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.apache.thrift.transport.TTransport;
 import org.opendaylight.netvirt.bgpmanager.commands.Cache;
-import org.opendaylight.netvirt.bgpmanager.commands.Commands;
 
 
 @Command(scope = "odl", name = "display-bgp-config", description = "")
@@ -25,14 +24,19 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
             required = false, multiValued = false)
     Boolean debug = false;
 
+    private final BgpManager bgpManager;
+
+    public DisplayBgpConfigCli(BgpManager bgpManager) {
+        this.bgpManager = bgpManager;
+    }
+
     @Override
     protected Object doExecute() throws Exception {
         PrintStream ps = session.getConsole();
-        BgpManager bm = Commands.getBgpManager();
 
         if (debug) {
-            ps.printf("%nis ODL Connected to Q-BGP: %s%n", bm.isBgpConnected() ? "TRUE" : "FALSE");
-            final TTransport transport = bm.getBgpConfigurationManager().getTransport();
+            ps.printf("%nis ODL Connected to Q-BGP: %s%n", bgpManager.isBgpConnected() ? "TRUE" : "FALSE");
+            final TTransport transport = bgpManager.getBgpConfigurationManager().getTransport();
             if (transport != null) {
                 ps.printf("%nODL BGP Router transport is open: %s%n",
                         transport.isOpen() ? "TRUE" : "FALSE");
@@ -40,28 +44,30 @@ public class DisplayBgpConfigCli extends OsgiCommandSupport {
                 ps.printf("%nODL BGP Router transport is NULL%n");
             }
             //last ODL connection attempted TS
-            ps.printf("Last ODL connection attempt TS: %s%n", new Date(bm.getConnectTS()));
+            ps.printf("Last ODL connection attempt TS: %s%n", new Date(bgpManager.getConnectTS()));
             //last successful connected TS
-            ps.printf("Last Successful connection TS: %s%n", new Date(bm.getLastConnectedTS()));
+            ps.printf("Last Successful connection TS: %s%n", new Date(bgpManager.getLastConnectedTS()));
             //last ODL started BGP due to configuration trigger TS
-            ps.printf("Last ODL started BGP at: %s%n", new Date(bm.getStartTS()));
+            ps.printf("Last ODL started BGP at: %s%n", new Date(bgpManager.getStartTS()));
             //last Quagga attempted to RESTART the connection
-            ps.printf("Last Quagga BGP, sent reSync at: %s%n", new Date(bm.getQbgprestartTS()));
+            ps.printf("Last Quagga BGP, sent reSync at: %s%n", new Date(bgpManager.getQbgprestartTS()));
 
             //stale cleanup start - end TS
-            ps.printf("Time taken to create stale fib : %s ms%n", bm.getStaleEndTime() - bm.getStaleStartTime());
+            ps.printf("Time taken to create stale fib : %s ms%n",
+                    bgpManager.getStaleEndTime() - bgpManager.getStaleStartTime());
 
             //Config replay start - end TS
             ps.printf("Time taken to create replay configuration : %s ms%n",
-                    bm.getCfgReplayEndTime() - bm.getCfgReplayStartTime());
+                    bgpManager.getCfgReplayEndTime() - bgpManager.getCfgReplayStartTime());
 
             //Stale cleanup time
-            ps.printf("Time taken for Stale FIB cleanup : %s ms%n", bm.getStaleCleanupTime());
+            ps.printf("Time taken for Stale FIB cleanup : %s ms%n", bgpManager.getStaleCleanupTime());
 
-            ps.printf("Total stale entries created %d %n", bm.getBgpConfigurationManager().getTotalStaledCount());
-            ps.printf("Total stale entries cleared %d %n", bm.getBgpConfigurationManager().getTotalCleared());
+            ps.printf("Total stale entries created %d %n", bgpManager.getBgpConfigurationManager()
+                    .getTotalStaledCount());
+            ps.printf("Total stale entries cleared %d %n", bgpManager.getBgpConfigurationManager().getTotalCleared());
         }
-        Cache cache = new Cache();
+        Cache cache = new Cache(bgpManager);
         return cache.show(session);
     }
 }
