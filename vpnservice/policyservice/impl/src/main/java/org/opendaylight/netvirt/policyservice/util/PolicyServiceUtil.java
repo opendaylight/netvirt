@@ -5,7 +5,6 @@
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
  * and is available at http://www.eclipse.org/legal/epl-v10.html
  */
-
 package org.opendaylight.netvirt.policyservice.util;
 
 import com.google.common.base.Optional;
@@ -232,7 +231,8 @@ public class PolicyServiceUtil {
     public void updatePolicyClassifierForUnderlayNetworks(List<String> underlayNetworks, String policyClassifier,
             boolean isAdded) {
         if (underlayNetworks == null || underlayNetworks.isEmpty()) {
-            LOG.debug("No underlay networks found for policy classifier {}", policyClassifier);
+            LOG.error("No underlay networks found for policy classifier {}", policyClassifier);
+            return;
         }
 
         underlayNetworks.forEach(underlayNetwork -> coordinator.enqueueJob(underlayNetwork, () -> {
