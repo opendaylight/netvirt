@@ -144,6 +144,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_baab6b88",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T15:17:11Z",
+      "side": 1,
+      "message": "This really needs to be documented so others know the original author(s) intent. Once the purpose is understood, I think that\u0027s the first step (unless it already is).",
+      "parentUuid": "7a1969be_f7d05cf9",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a1ab4588",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
