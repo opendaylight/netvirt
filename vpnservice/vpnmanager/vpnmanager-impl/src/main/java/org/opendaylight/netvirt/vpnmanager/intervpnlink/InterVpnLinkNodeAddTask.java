@@ -45,13 +45,16 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     private final BigInteger dpnId;
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     public InterVpnLinkNodeAddTask(final DataBroker broker, final IMdsalApiManager mdsalMgr,
-        final VpnFootprintService vpnFootprintService, final BigInteger dpnId) {
+            final VpnFootprintService vpnFootprintService, final BigInteger dpnId,
+            final InterVpnLinkCache interVpnLinkCache) {
         this.broker = broker;
         this.mdsalManager = mdsalMgr;
         this.vpnFootprintService = vpnFootprintService;
         this.dpnId = dpnId;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @Override
@@ -62,7 +65,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
 
         List<BigInteger> firstDpnList = Collections.singletonList(this.dpnId);
         List<BigInteger> secondDpnList = firstDpnList;
-        InterVpnLinkCache.getAllInterVpnLinks().stream()
+        interVpnLinkCache.getAllInterVpnLinks().stream()
             .filter(i -> i.isComplete() && !i.isActive()
                         && shouldConfigureLinkIntoDpn(i.getInterVpnLinkState(), numberOfDpns))
             .forEach(i -> {
@@ -112,7 +115,7 @@ public class InterVpnLinkNodeAddTask implements Callable<List<ListenableFuture<V
     private void installLPortDispatcherTable(InterVpnLinkState interVpnLinkState, List<BigInteger> firstDpnList,
                                              List<BigInteger> secondDpnList) {
         String ivpnLinkName = interVpnLinkState.getKey().getInterVpnLinkName();
-        Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
+        Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
         if (!optVpnLink.isPresent()) {
             LOG.warn("installLPortDispatcherTable: Could not find interVpnLink {}", ivpnLinkName);
             return;

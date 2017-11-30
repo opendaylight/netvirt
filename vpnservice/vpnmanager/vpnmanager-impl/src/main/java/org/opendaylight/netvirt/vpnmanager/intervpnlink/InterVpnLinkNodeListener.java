@@ -49,15 +49,17 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
     private final IMdsalApiManager mdsalManager;
     private final VpnFootprintService vpnFootprintService;
     private final JobCoordinator jobCoordinator;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
     public InterVpnLinkNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalMgr,
                                     final VpnFootprintService vpnFootprintService,
-                                    final JobCoordinator jobCoordinator) {
+                                    final JobCoordinator jobCoordinator, final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalMgr;
         this.vpnFootprintService = vpnFootprintService;
         this.jobCoordinator = jobCoordinator;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @PostConstruct
@@ -88,7 +90,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
         }
         BigInteger dpId = new BigInteger(node[1]);
         jobCoordinator.enqueueJob("IVpnLink" + dpId.toString(),
-            new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, vpnFootprintService, dpId));
+            new InterVpnLinkNodeAddTask(dataBroker, mdsalManager, vpnFootprintService, dpId, interVpnLinkCache));
     }
 
     @Override
@@ -101,7 +103,7 @@ public class InterVpnLinkNodeListener extends AsyncDataTreeChangeListenerBase<No
             return;
         }
         BigInteger dpId = new BigInteger(node[1]);
-        List<InterVpnLinkDataComposite> allInterVpnLinks = InterVpnLinkCache.getAllInterVpnLinks();
+        List<InterVpnLinkDataComposite> allInterVpnLinks = interVpnLinkCache.getAllInterVpnLinks();
         allInterVpnLinks.stream()
                         .filter(ivl -> ivl.stepsOnDpn(dpId))           // Only those affected by DPN going down
                         .forEach(this::reinstallInterVpnLink);         // Move them somewhere else

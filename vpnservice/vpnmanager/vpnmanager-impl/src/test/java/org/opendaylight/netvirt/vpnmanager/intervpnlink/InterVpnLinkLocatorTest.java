@@ -26,7 +26,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.netvirt.vpnmanager.VpnOperDsUtils;
 import org.opendaylight.netvirt.vpnmanager.VpnUtil;
-import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache;
 import org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkDataComposite;
 import org.opendaylight.netvirt.vpnmanager.intervpnlink.L3VpnTestCatalog.L3VpnComposite;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
@@ -52,6 +51,8 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
 
     InterVpnLinkLocator sut;
 
+    InterVpnLinkCacheImpl interVpnLinkCache;
+
     @Before
     public void setUp() throws Exception {
 
@@ -65,19 +66,20 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
                       new InterVpnLinkStatesBuilder().setInterVpnLinkState(Collections.emptyList()).build(), true);
         writeTx.submit().checkedGet();
 
-        InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
+        interVpnLinkCache = new InterVpnLinkCacheImpl(dataBroker);
+        interVpnLinkCache.initialFeed();
 
         // Prepare
         populateL3Vpns(dataBroker, L3VpnTestCatalog.ALL_VPNS);
         InterVpnLinkTestCatalog.populateIvpnLinks(dataBroker, ALL_IVPN_LINKS);
 
         for (InterVpnLinkDataComposite ivl : ALL_IVPN_LINKS) {
-            InterVpnLinkCache.addInterVpnLinkToCaches(ivl.getInterVpnLinkConfig());
-            InterVpnLinkCache.addInterVpnLinkStateToCaches(ivl.getInterVpnLinkState());
+            interVpnLinkCache.addInterVpnLinkToCaches(ivl.getInterVpnLinkConfig());
+            interVpnLinkCache.addInterVpnLinkStateToCaches(ivl.getInterVpnLinkState());
         }
 
         // SUT
-        sut = new InterVpnLinkLocator(dataBroker);
+        sut = new InterVpnLinkLocator(dataBroker, interVpnLinkCache);
     }
 
 
@@ -104,17 +106,17 @@ public class InterVpnLinkLocatorTest extends ConstantSchemaAbstractDataBrokerTes
         List<BigInteger> vpnLink12Dpns = sut.selectSuitableDpns(I_VPN_LINK_12.getInterVpnLinkConfig());
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_12, true, vpnLink12Dpns);
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_12, false, vpnLink12Dpns);
-        InterVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_12.getInterVpnLinkState());
+        interVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_12.getInterVpnLinkState());
 
         List<BigInteger> vpnLink34Dpns = sut.selectSuitableDpns(I_VPN_LINK_34.getInterVpnLinkConfig());
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_34, true, vpnLink34Dpns);
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_34, false, vpnLink34Dpns);
-        InterVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_34.getInterVpnLinkState());
+        interVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_34.getInterVpnLinkState());
 
         List<BigInteger> vpnLink56Dpns = sut.selectSuitableDpns(I_VPN_LINK_56.getInterVpnLinkConfig());
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_56, true, vpnLink56Dpns);
         InterVpnLinkTestCatalog.updateEndpointDpns(I_VPN_LINK_56, false, vpnLink56Dpns);
-        InterVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_56.getInterVpnLinkState());
+        interVpnLinkCache.addInterVpnLinkStateToCaches(I_VPN_LINK_56.getInterVpnLinkState());
 
         assertTrue(vpnLink12Dpns.stream().filter(dpn -> vpnLink34Dpns.contains(dpn)).count() == 0);
         assertTrue(vpnLink12Dpns.stream().filter(dpn -> vpnLink56Dpns.contains(dpn)).count() == 0);
