@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_521221b5",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/L3VPNTransportTypes.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T02:09:06Z",
+      "side": 1,
+      "message": "yeah it should - not sure why eclispe didn\u0027t do that on save.",
+      "parentUuid": "7a1969be_d2d0d1f9",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_12db891c",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2017-11-30T01:31:18Z",
       "side": 1,
       "message": "dunno why you\u0027re making this volatile, but I\u0027m guessing there\u0027s some good reason that I\u0027m too dumb to understand?",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_527981fb",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T02:09:06Z",
+      "side": 1,
+      "message": "dumb is a bit harsh :)  it\u0027s a good question. configuredTransportTypeL3VPN is mutated in the code and, since this is a singleton, you have to assume by multiple threads and thus requires synchronization for thread visibility, hence volatile.  Basically, any field in a class that can be accessed by multiple threads that isn\u0027t final, should be volatile.",
+      "parentUuid": "7a1969be_12db891c",
       "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_d26c5139",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T02:09:06Z",
+      "side": 1,
+      "message": "will do - I didn\u0027t know \"RegexpSinglelineJava\" was related to the use of System.out.",
+      "parentUuid": "7a1969be_92e779e4",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_72ec7dc8",
         "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 4
@@ -64,6 +118,24 @@
       "writtenOn": "2017-11-30T01:31:18Z",
       "side": 1,
       "message": "whoa.. what a beauty did you uncover here... ;)",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_12770904",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T02:09:06Z",
+      "side": 1,
+      "message": "mind-boggling. I have to say I\u0027ve seen the most unique \"techniques\" in netvirt code that I\u0027ve ever seen :)",
+      "parentUuid": "7a1969be_72ec7dc8",
       "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
