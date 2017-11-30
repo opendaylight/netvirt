@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_b29f1550",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:16:19Z",
+      "side": 1,
+      "message": "Tx!",
+      "parentUuid": "7a1969be_81b9e9eb",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a1b4e5f2",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_12ad4989",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:16:19Z",
+      "side": 1,
+      "message": "can you elaborate how it will \"conflict\" ? Unless I\u0027m really missing something, handleunprocessedElanInterfaces via its use of addElanInterface which ends in InterfaceAddWorkerOnElanInterface which does setupEntriesForElanInterface which ends up using ElanUtils.waitForTransactionToComplete is already completely sync anyway, so I\u0027m not sure you really get any perf benefits at scale, do you see what I mean, or am I missing something?",
+      "parentUuid": "7a1969be_a1b4e5f2",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a1ab4588",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2017-11-29T09:54:32Z",
       "side": 1,
       "message": "what is the reason for removing dj here ? The intention of having DJ is to sequencing and parallelizing the tasks at different synchronization levels using elan name and elan interface name and reliving dcn thread as early as possible. so are you planning to hold dcn thread till final processing of the event ?",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_f2c06d2c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:16:19Z",
+      "side": 1,
+      "message": "but this remove() method is in a AsyncDataTreeChangeListenerBase so it\u0027s already not blocking the DataBroker notification thread (is that what you mean by \"dcn\" ?) anyway so that is the point of then using the DJC again to add async in async?\n\nFurthermore, InterfaceRemoveWorkerOnElan anyway only calls removeElanInterface(), which does a few data store operations; like some reads/deletes/writes.. and ends in a blocking waitForTransactionToComplete anyway, and then AFTER that unblocks it uses InterfaceRemoveWorkerOnElanInterface which in turn anyway just calls removeEntriesForElanInterface which again ends in waitForTransactionToComplete, so... aren\u0027t all these major multi-level async indirections completely pointless anyway?",
+      "parentUuid": "7a1969be_a1ab4588",
       "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
