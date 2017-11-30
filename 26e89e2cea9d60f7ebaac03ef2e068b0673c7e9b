@@ -34,6 +34,24 @@
       "revId": "26e89e2cea9d60f7ebaac03ef2e068b0673c7e9b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_92fe596a",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CounterRetriever.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:34:02Z",
+      "side": 1,
+      "message": "No the -1 was for the other point, this was just FYI",
+      "parentUuid": "7a1969be_f2a98d7c",
+      "revId": "26e89e2cea9d60f7ebaac03ef2e068b0673c7e9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
