@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_3294c536",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CounterRetriever.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T00:55:14Z",
+      "side": 1,
+      "message": "I see what you\u0027re doing here but FYI I hope we can rip this out to replace it with infrautils.metrics soon-ish anyway...",
+      "revId": "26e89e2cea9d60f7ebaac03ef2e068b0673c7e9b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
