@@ -72,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_b2cd5560",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T01:33:36Z",
+      "side": 1,
+      "message": "I think the intent is for all operations for an elan instance to be executed serially via the elan name and JC. Unfortunately there\u0027s no comments explaining this subtle mechanism...",
+      "parentUuid": "7a1969be_12ad4989",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a1ab4588",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
