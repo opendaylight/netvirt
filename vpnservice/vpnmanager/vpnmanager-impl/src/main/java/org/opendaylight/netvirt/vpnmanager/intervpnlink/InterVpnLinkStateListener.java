@@ -35,11 +35,14 @@ public class InterVpnLinkStateListener
 
     private final DataBroker dataBroker;
     private final IVpnLinkService ivpnLinkService;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
-    public InterVpnLinkStateListener(final DataBroker dataBroker, final IVpnLinkService interVpnLinkService) {
+    public InterVpnLinkStateListener(final DataBroker dataBroker, final IVpnLinkService interVpnLinkService,
+            final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
         this.ivpnLinkService = interVpnLinkService;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @PostConstruct
@@ -68,12 +71,12 @@ public class InterVpnLinkStateListener
                           InterVpnLinkState after) {
         if (before.getState() == InterVpnLinkState.State.Error && after.getState() == InterVpnLinkState.State.Active) {
             Optional<InterVpnLinkDataComposite> optIVpnLink =
-                InterVpnLinkCache.getInterVpnLinkByName(after.getInterVpnLinkName());
+                    interVpnLinkCache.getInterVpnLinkByName(after.getInterVpnLinkName());
 
             if (!optIVpnLink.isPresent()) {
                 LOG.warn("InterVpnLink became ACTIVE, but could not found its info in Cache");
-                InterVpnLinkCache.addInterVpnLinkStateToCaches(after);
-                optIVpnLink = InterVpnLinkCache.getInterVpnLinkByName(after.getInterVpnLinkName());
+                interVpnLinkCache.addInterVpnLinkStateToCaches(after);
+                optIVpnLink = interVpnLinkCache.getInterVpnLinkByName(after.getInterVpnLinkName());
             }
             ivpnLinkService.handleStaticRoutes(optIVpnLink.get());
         }

@@ -206,10 +206,11 @@ public class InterVpnLinkUtil {
      * @param state Sets the state of the InterVpnLink to Active or Error
      * @param newFirstEndpointState Updates the lportTag and/or DPNs of the 1st endpoint of the InterVpnLink
      * @param newSecondEndpointState Updates the lportTag and/or DPNs of the 2nd endpoint of the InterVpnLink
+     * @param interVpnLinkCache the InterVpnLinkCache
      */
     public static void updateInterVpnLinkState(DataBroker broker, String vpnLinkName, InterVpnLinkState.State state,
-        FirstEndpointState newFirstEndpointState,
-        SecondEndpointState newSecondEndpointState) {
+            FirstEndpointState newFirstEndpointState, SecondEndpointState newSecondEndpointState,
+            InterVpnLinkCache interVpnLinkCache) {
         Optional<InterVpnLinkState> optOldVpnLinkState = getInterVpnLinkState(broker, vpnLinkName);
         if (optOldVpnLinkState.isPresent()) {
             InterVpnLinkState newVpnLinkState =
@@ -219,7 +220,7 @@ public class InterVpnLinkUtil {
                             .build();
             VpnUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION,
                 InterVpnLinkUtil.getInterVpnLinkStateIid(vpnLinkName), newVpnLinkState);
-            InterVpnLinkCache.addInterVpnLinkStateToCaches(newVpnLinkState);
+            interVpnLinkCache.addInterVpnLinkStateToCaches(newVpnLinkState);
         } else {
             InterVpnLinkState newIVpnLinkState =
                 new InterVpnLinkStateBuilder().setKey(new InterVpnLinkStateKey(vpnLinkName))
@@ -230,7 +231,7 @@ public class InterVpnLinkUtil {
                     .build();
             VpnUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                 InterVpnLinkUtil.getInterVpnLinkStateIid(vpnLinkName), newIVpnLinkState);
-            InterVpnLinkCache.addInterVpnLinkStateToCaches(newIVpnLinkState);
+            interVpnLinkCache.addInterVpnLinkStateToCaches(newIVpnLinkState);
         }
     }
 
