@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_d2d0d1f9",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/L3VPNTransportTypes.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:31:18Z",
+      "side": 1,
+      "message": "and now that you\u0027ve removed the idiotic setter here, make this final!",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_12db891c",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:31:18Z",
+      "side": 1,
+      "message": "dunno why you\u0027re making this volatile, but I\u0027m guessing there\u0027s some good reason that I\u0027m too dumb to understand?",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_92e779e4",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 562,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:31:18Z",
+      "side": 1,
+      "message": "with the removal of the System.out you could and should get rid of both the TODO and the @SuppressWarnings(\"checkstyle:RegexpSinglelineJava\") here?",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_72ec7dc8",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 599,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:31:18Z",
+      "side": 1,
+      "message": "whoa.. what a beauty did you uncover here... ;)",
+      "revId": "cdb3532c23f4edafbcaf368a226d8eb745ed9ef1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_32e205d6",
+        "filename": "vpnservice/coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T01:31:18Z",
+      "side": 0,
+      "message": "what was wrong with this that made you remove it?  Seems fine to me...",
+      "revId": "672838d35375a7669d9d65340dce7c3740fdc29b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
