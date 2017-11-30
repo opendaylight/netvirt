@@ -12,9 +12,7 @@ import java.math.BigInteger;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
-import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -28,6 +26,7 @@ import org.opendaylight.genius.mdsalutil.packet.TCP;
 import org.opendaylight.genius.mdsalutil.packet.UDP;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketReceived;
+import org.opendaylight.yangtools.util.concurrent.SpecialExecutors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,29 +36,20 @@ public class NaptPacketInHandler implements PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(NaptPacketInHandler.class);
     private final ConcurrentMap<String,NatPacketProcessingState> incomingPacketMap = new ConcurrentHashMap<>();
     private final NaptEventHandler naptEventHandler;
-    private ExecutorService firstPacketExecutorService;
-    private ExecutorService retryPacketExecutorService;
+    private final ExecutorService firstPacketExecutorService = SpecialExecutors.newBlockingBoundedFastThreadPool(
+            NatConstants.SNAT_PACKET_THEADPOOL_SIZE, Integer.MAX_VALUE, "Napt-firstPacket");
+    private final ExecutorService retryPacketExecutorService = SpecialExecutors.newBlockingBoundedFastThreadPool(
+            NatConstants.SNAT_PACKET_RETRY_THEADPOOL_SIZE, Integer.MAX_VALUE, "Napt-retryPacket");
 
     @Inject
     public NaptPacketInHandler(NaptEventHandler naptEventHandler) {
         this.naptEventHandler = naptEventHandler;
     }
 
-    @PostConstruct
-    public void init() {
-        firstPacketExecutorService = Executors.newFixedThreadPool(NatConstants.SNAT_PACKET_THEADPOOL_SIZE);
-        retryPacketExecutorService = Executors.newFixedThreadPool(NatConstants.SNAT_PACKET_RETRY_THEADPOOL_SIZE);
-    }
-
     @PreDestroy
     public void close() {
-        if (firstPacketExecutorService != null) {
-            firstPacketExecutorService.shutdown();
-        }
-
-        if (retryPacketExecutorService != null) {
-            retryPacketExecutorService.shutdown();
-        }
+        firstPacketExecutorService.shutdown();
+        retryPacketExecutorService.shutdown();
     }
 
     @Override

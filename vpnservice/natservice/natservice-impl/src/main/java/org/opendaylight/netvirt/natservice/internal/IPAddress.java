@@ -9,8 +9,13 @@ package org.opendaylight.netvirt.natservice.internal;
 
 public class IPAddress {
 
-    private String ipAddress;
-    private int prefixLength;
+    private final String ipAddress;
+    private final int prefixLength;
+
+    public IPAddress(String ipAddress, int prefixLength) {
+        this.ipAddress = ipAddress;
+        this.prefixLength = prefixLength;
+    }
 
     public String getIpAddress() {
         return ipAddress;
@@ -18,10 +23,5 @@ public class IPAddress {
 
     public int getPrefixLength() {
         return prefixLength;
-    }
-
-    public IPAddress(String ipAddress, int prefixLength) {
-        this.ipAddress = ipAddress;
-        this.prefixLength = prefixLength;
     }
 }

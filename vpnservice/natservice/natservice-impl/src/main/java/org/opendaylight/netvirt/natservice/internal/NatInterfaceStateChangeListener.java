@@ -39,10 +39,10 @@ public class NatInterfaceStateChangeListener
     extends AsyncDataTreeChangeListenerBase<Interface, NatInterfaceStateChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(NatInterfaceStateChangeListener.class);
+    private static final String NAT_DS = "NATDS";
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final JobCoordinator coordinator;
-    private static final String NAT_DS = "NATDS";
 
     @Inject
     public NatInterfaceStateChangeListener(final DataBroker dataBroker,

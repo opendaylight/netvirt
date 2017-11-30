@@ -61,7 +61,7 @@ public class RouterDpnChangeListener
     private final IElanService elanManager;
     private final JobCoordinator coordinator;
     private final SnatServiceManager natServiceManager;
-    private NatMode natMode = NatMode.Controller;
+    private final NatMode natMode;
 
     @Inject
     public RouterDpnChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -85,9 +85,7 @@ public class RouterDpnChangeListener
         this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
         this.coordinator = coordinator;
-        if (config != null) {
-            this.natMode = config.getNatMode();
-        }
+        this.natMode = config != null ? config.getNatMode() : NatMode.Controller;
     }
 
     @Override
