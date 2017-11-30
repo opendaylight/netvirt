@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_2f2bc9ec",
+        "filename": "vpnservice/fibmanager/fibmanager-api/src/main/java/org/opendaylight/netvirt/fibmanager/api/L3VPNTransportTypes.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T02:09:06Z",
+      "side": 0,
+      "message": "\"setL3VPNTransportTypes(String) unconditionally sets the field transportType\" - the lone call site, NexthopManager.getReqTransType,  should re-assign with a different L3VPNTransportTypes enum rather than mutating the Invalid enum.",
+      "revId": "ac601a730179e0d6690e73457207725c37e91f7b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
