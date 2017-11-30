@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_17aa5870",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-30T12:11:25Z",
+      "side": 1,
+      "message": "I just looked at ManagedNewTransactionRunnerImpl, so applications not doing tx.cancel caused the transaction leaks ?",
+      "parentUuid": "7a1969be_b29f1550",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a1b4e5f2",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
         "patchSetId": 2
@@ -90,6 +108,42 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_17eff8b1",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-30T12:11:25Z",
+      "side": 1,
+      "message": "Manu, can you add relevant comment explaining the need for dj at each places ?",
+      "parentUuid": "7a1969be_b2cd5560",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_f7d05cf9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-30T12:11:25Z",
+      "side": 1,
+      "message": "If you look at the elan specific data stores and OF flows/ groups, some are specific to elan instance which is shared by its elan interfaces, some are specific to elan interface. that was the reason we serialize tasks using elan name and elan interface names. \nIn a scaled scenario, task execution was parallelized when ODL handles too much ELAN instances/interfaces (example: 120 ELANs with 25 ELAN interfaces per ELAN)",
+      "parentUuid": "7a1969be_12ad4989",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a1ab4588",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 2
@@ -119,6 +173,24 @@
       "side": 1,
       "message": "but this remove() method is in a AsyncDataTreeChangeListenerBase so it\u0027s already not blocking the DataBroker notification thread (is that what you mean by \"dcn\" ?) anyway so that is the point of then using the DJC again to add async in async?\n\nFurthermore, InterfaceRemoveWorkerOnElan anyway only calls removeElanInterface(), which does a few data store operations; like some reads/deletes/writes.. and ends in a blocking waitForTransactionToComplete anyway, and then AFTER that unblocks it uses InterfaceRemoveWorkerOnElanInterface which in turn anyway just calls removeEntriesForElanInterface which again ends in waitForTransactionToComplete, so... aren\u0027t all these major multi-level async indirections completely pointless anyway?",
       "parentUuid": "7a1969be_a1ab4588",
+      "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_171d38be",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 226,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-11-30T12:11:25Z",
+      "side": 1,
+      "message": "yes, its AsyncDataTreeChangeListenerBase\u0027s thread (i.e. async of async). It yielded good performance results compared to executing everything on notification thread.",
+      "parentUuid": "7a1969be_f2c06d2c",
       "revId": "f11c52b204149b2613a75095cd9f9b190fca3886",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
