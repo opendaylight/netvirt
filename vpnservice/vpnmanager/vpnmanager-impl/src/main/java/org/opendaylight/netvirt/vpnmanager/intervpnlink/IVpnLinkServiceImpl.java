@@ -62,38 +62,32 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     private final IdManagerService idManager;
     private final IBgpManager bgpManager;
     private final IFibManager fibManager;
-
-    // A couple of listener in order to maintain the InterVpnLink cache
-    private InterVpnLinkCacheFeeder ivpnLinkCacheFeeder;
-    private InterVpnLinkStateCacheFeeder ivpnLinkStateCacheFeeder;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
     public IVpnLinkServiceImpl(final DataBroker dataBroker, final IdManagerService idMgr, final IBgpManager bgpMgr,
-                               final IFibManager fibMgr) {
+                               final IFibManager fibMgr, final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
         this.idManager = idMgr;
         this.bgpManager = bgpMgr;
         this.fibManager = fibMgr;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
-        InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
-        ivpnLinkCacheFeeder = new InterVpnLinkCacheFeeder(dataBroker);
-        ivpnLinkStateCacheFeeder = new InterVpnLinkStateCacheFeeder(dataBroker);
     }
 
     @Override
     @PreDestroy
     public void close() {
-        InterVpnLinkCache.destroyCaches();
     }
 
     @Override
     public void leakRoute(String vpnName, String prefix, List<String> nextHopList, int label, int addOrRemove) {
         LOG.trace("leakRoute: vpnName={}  prefix={}  nhList={}  label={}", vpnName, prefix, nextHopList, label);
-        Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnName);
+        Optional<InterVpnLinkDataComposite> optIVpnLink = interVpnLinkCache.getInterVpnLinkByVpnId(vpnName);
         if (!optIVpnLink.isPresent()) {
             LOG.debug("Vpn {} not involved in any InterVpnLink", vpnName);
             return;
@@ -203,7 +197,7 @@ public class IVpnLinkServiceImpl implements IVpnLinkService, AutoCloseable {
     public void leakRouteIfNeeded(String vpnName, String prefix, List<String> nextHopList, int label,
                                   RouteOrigin origin, int addOrRemove) {
 
-        Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnName);
+        Optional<InterVpnLinkDataComposite> optIVpnLink = interVpnLinkCache.getInterVpnLinkByVpnId(vpnName);
         if (!optIVpnLink.isPresent()) {
             LOG.debug("Vpn {} not involved in any InterVpnLink", vpnName);
             return;
