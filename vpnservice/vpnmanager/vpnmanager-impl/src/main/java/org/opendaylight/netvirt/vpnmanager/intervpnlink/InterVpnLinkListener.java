@@ -92,6 +92,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private final VpnFootprintService vpnFootprintService;
     private final VpnOpDataSyncer vpnOpDataSyncer;
     private final JobCoordinator jobCoordinator;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
     public InterVpnLinkListener(final DataBroker dataBroker, final IdManagerService idManager,
@@ -101,7 +102,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                 final InterVpnLinkLocator interVpnLinkLocator,
                                 final VpnFootprintService vpnFootprintService,
                                 final VpnOpDataSyncer vpnOpDataSyncer,
-                                final JobCoordinator jobCoordinator) {
+                                final JobCoordinator jobCoordinator,
+                                final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.mdsalManager = mdsalManager;
@@ -113,13 +115,13 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         this.vpnFootprintService = vpnFootprintService;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
         this.jobCoordinator = jobCoordinator;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @PostConstruct
     public void start() {
         LOG.info("{} start", getClass().getSimpleName());
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        InterVpnLinkCache.createInterVpnLinkCaches(dataBroker);
     }
 
     @Override
@@ -181,7 +183,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 return;
             }
 
-            InterVpnLinkCache.addInterVpnLinkToCaches(add);
+            interVpnLinkCache.addInterVpnLinkToCaches(add);
 
             // Wait for VPN Operational data ready
             long vpn1Id = VpnUtil.getVpnId(dataBroker, vpn1Name);
@@ -227,7 +229,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                                 .setLportTag(secondVpnLportTag).build();
 
                 InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, ivpnLinkName, InterVpnLinkState.State.Active,
-                        firstEndPointState, secondEndPointState);
+                        firstEndPointState, secondEndPointState, interVpnLinkCache);
 
                 // Note that in the DPN of the firstEndpoint we install the lportTag of the secondEndpoint and viceversa
                 InterVpnLinkUtil.installLPortDispatcherTableFlow(dataBroker, mdsalManager, ivpnLinkName, firstDpnList,
@@ -243,8 +245,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                 InterVpnLinkUtil.updateVpnFootprint(vpnFootprintService, vpn1Name, vpn1PrimaryRd, secondDpnList);
 
                 // Program static routes if needed
-                Optional<InterVpnLinkDataComposite> interVpnLink
-                        = InterVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
+                Optional<InterVpnLinkDataComposite> interVpnLink =
+                        interVpnLinkCache.getInterVpnLinkByName(ivpnLinkName);
                 ivpnLinkService.handleStaticRoutes(interVpnLink.get());
 
                 // Now, if the corresponding flags are activated, there will be some routes exchange
@@ -261,7 +263,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
                         new SecondEndpointStateBuilder().setVpnUuid(vpn2Uuid).setLportTag(secondVpnLportTag)
                                 .setDpId(Collections.emptyList()).build();
                 InterVpnLinkUtil.updateInterVpnLinkState(dataBroker, ivpnLinkName, InterVpnLinkState.State.Error,
-                        firstEndPointState, secondEndPointState);
+                        firstEndPointState, secondEndPointState, interVpnLinkCache);
             }
         }
     }
@@ -269,7 +271,7 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
     private boolean checkVpnAvailability(InterVpnLinkKey key, String vpnName) {
         Preconditions.checkNotNull(vpnName);
 
-        List<InterVpnLinkDataComposite> allInterVpnLinks = InterVpnLinkCache.getAllInterVpnLinks();
+        List<InterVpnLinkDataComposite> allInterVpnLinks = interVpnLinkCache.getAllInterVpnLinks();
         if (allInterVpnLinks.isEmpty()) {
             return true;
         }

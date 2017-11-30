@@ -127,6 +127,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final JobCoordinator jobCoordinator;
     private final IElanService elanManager;
     private final FibUtil fibUtil;
+    private final InterVpnLinkCache interVpnLinkCache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     @Inject
@@ -137,7 +138,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             final BgpRouteVrfEntryHandler bgpRouteVrfEntryHandler,
                             final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler,
                             final JobCoordinator jobCoordinator,
-                            final FibUtil fibUtil) {
+                            final FibUtil fibUtil,
+                            final InterVpnLinkCache interVpnLinkCache) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -149,6 +151,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         this.routerInterfaceVrfEntryHandler = routerInterfaceVrfEntryHandler;
         this.jobCoordinator = jobCoordinator;
         this.fibUtil = fibUtil;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @Override
@@ -415,7 +418,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         Optional<String> optVpnUuid = fibUtil.getVpnNameFromRd(rd);
         if (optVpnUuid.isPresent()) {
             String vpnUuid = optVpnUuid.get();
-            InterVpnLinkDataComposite interVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnUuid).orNull();
+            InterVpnLinkDataComposite interVpnLink = interVpnLinkCache.getInterVpnLinkByVpnId(vpnUuid).orNull();
             if (interVpnLink != null) {
                 LOG.debug("InterVpnLink {} found in Cache linking Vpn {}", interVpnLink.getInterVpnLinkName(), vpnUuid);
                 FibUtil.getFirstNextHopAddress(vrfEntry).ifPresent(routeNexthop -> {
@@ -1492,7 +1495,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         if (optVpnUuid.isPresent()) {
             String vpnUuid = optVpnUuid.get();
             FibUtil.getFirstNextHopAddress(vrfEntry).ifPresent(routeNexthop -> {
-                Optional<InterVpnLinkDataComposite> optInterVpnLink = InterVpnLinkCache.getInterVpnLinkByVpnId(vpnUuid);
+                Optional<InterVpnLinkDataComposite> optInterVpnLink = interVpnLinkCache.getInterVpnLinkByVpnId(vpnUuid);
                 if (optInterVpnLink.isPresent()) {
                     InterVpnLinkDataComposite interVpnLink = optInterVpnLink.get();
                     if (interVpnLink.isIpAddrTheOtherVpnEndpoint(routeNexthop, vpnUuid)) {

@@ -86,6 +86,7 @@ public class VpnManagerImpl implements IVpnManager {
     private final IVpnLinkService ivpnLinkService;
     private final IFibManager fibManager;
     private final IBgpManager bgpManager;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
     public VpnManagerImpl(final DataBroker dataBroker,
@@ -98,7 +99,8 @@ public class VpnManagerImpl implements IVpnManager {
                           final OdlInterfaceRpcService ifaceMgrRpcService,
                           final IVpnLinkService ivpnLinkService,
                           final IFibManager fibManager,
-                          final IBgpManager bgpManager) {
+                          final IBgpManager bgpManager,
+                          final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManagerService;
@@ -110,6 +112,7 @@ public class VpnManagerImpl implements IVpnManager {
         this.ivpnLinkService = ivpnLinkService;
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @PostConstruct
@@ -205,7 +208,7 @@ public class VpnManagerImpl implements IVpnManager {
         // TODO: This is a limitation to be stated in docs. When configuring static route to go to
         // another VPN, there can only be one nexthop or, at least, the nexthop to the interVpnLink should be in
         // first place.
-        Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nextHop);
+        Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nextHop);
         if (optVpnLink.isPresent() && optVpnLink.get().isActive()) {
             InterVpnLinkDataComposite interVpnLink = optVpnLink.get();
             // If the nexthop is the endpoint of Vpn2, then prefix must be advertised to Vpn1 in DC-GW, with nexthops
