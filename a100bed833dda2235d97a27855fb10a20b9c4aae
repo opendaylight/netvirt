@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_7d056dc1",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpAlarmBroadcaster.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T17:56:00Z",
+      "side": 1,
+      "message": "FYI org.opendaylight.infrautils.utils.management.AbstractMXBean",
+      "revId": "a100bed833dda2235d97a27855fb10a20b9c4aae",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
