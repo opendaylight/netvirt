@@ -43,11 +43,12 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchScheduler {
     private static final Logger LOG = LoggerFactory.getLogger(WeightedCentralizedSwitchScheduler.class);
+    private static final Integer INITIAL_SWITCH_WEIGHT = Integer.valueOf(0);
+
     private final Map<BigInteger,Integer> switchWeightsMap = new ConcurrentHashMap<>();
     private final Map<String,String> subnetIdToRouterPortMap = new ConcurrentHashMap<>();
     private final DataBroker dataBroker;
     private final OdlInterfaceRpcService interfaceManager;
-    private final int initialSwitchWeight = 0;
     private final IVpnFootprintService vpnFootprintService;
 
     @Inject
@@ -158,7 +159,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     public boolean addSwitch(BigInteger dpnId) {
         /* Initialize the switch in the map with weight 0 */
         LOG.info("addSwitch: Adding {} dpnId to switchWeightsMap", dpnId);
-        switchWeightsMap.put(dpnId, initialSwitchWeight);
+        switchWeightsMap.put(dpnId, INITIAL_SWITCH_WEIGHT);
         return true;
 
     }
@@ -166,7 +167,7 @@ public class WeightedCentralizedSwitchScheduler implements CentralizedSwitchSche
     @Override
     public boolean removeSwitch(BigInteger dpnId) {
         LOG.info("removeSwitch: Removing {} dpnId to switchWeightsMap", dpnId);
-        if (switchWeightsMap.get(dpnId) != initialSwitchWeight) {
+        if (!INITIAL_SWITCH_WEIGHT.equals(switchWeightsMap.get(dpnId))) {
             NaptSwitches naptSwitches = getNaptSwitches(dataBroker);
             for (RouterToNaptSwitch routerToNaptSwitch : naptSwitches.getRouterToNaptSwitch()) {
                 if (dpnId.equals(routerToNaptSwitch.getPrimarySwitchId())) {

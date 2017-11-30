@@ -87,6 +87,9 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class VpnFloatingIpHandler implements FloatingIPHandler {
     private static final Logger LOG = LoggerFactory.getLogger(VpnFloatingIpHandler.class);
+    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
+    private static final String FLOWID_PREFIX = "NAT.";
+
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
@@ -100,8 +103,6 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
     private final EvpnDnatFlowProgrammer evpnDnatFlowProgrammer;
     private final INeutronVpnManager nvpnManager;
     private final IdManagerService idManager;
-    private static final BigInteger COOKIE_TUNNEL = new BigInteger("9000000", 16);
-    private static final String FLOWID_PREFIX = "NAT.";
 
     @Inject
     public VpnFloatingIpHandler(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,

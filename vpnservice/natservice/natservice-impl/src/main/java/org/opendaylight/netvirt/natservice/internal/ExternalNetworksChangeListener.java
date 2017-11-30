@@ -23,10 +23,8 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
@@ -37,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.floating.ip.info.router.ports.ports.InternalToExternalPortMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.intext.ip.map.ip.mapping.IpMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -51,9 +48,6 @@ public class ExternalNetworksChangeListener
     private final FloatingIPListener floatingIpListener;
     private final ExternalRoutersListener externalRouterListener;
     private final OdlInterfaceRpcService interfaceManager;
-    private final IBgpManager bgpManager;
-    private final VpnRpcService vpnService;
-    private final FibRpcService fibService;
     private final JobCoordinator coordinator;
     private final NatMode natMode;
 
@@ -61,9 +55,6 @@ public class ExternalNetworksChangeListener
     public ExternalNetworksChangeListener(final DataBroker dataBroker, final FloatingIPListener floatingIpListener,
                                           final ExternalRoutersListener externalRouterListener,
                                           final OdlInterfaceRpcService interfaceManager,
-                                          final IBgpManager bgpManager,
-                                          final VpnRpcService vpnService,
-                                          final FibRpcService fibService,
                                           final NatserviceConfig config,
                                           final JobCoordinator coordinator) {
         super(Networks.class, ExternalNetworksChangeListener.class);
@@ -71,9 +62,6 @@ public class ExternalNetworksChangeListener
         this.floatingIpListener = floatingIpListener;
         this.externalRouterListener = externalRouterListener;
         this.interfaceManager = interfaceManager;
-        this.bgpManager = bgpManager;
-        this.vpnService = vpnService;
-        this.fibService = fibService;
         this.coordinator = coordinator;
         if (config != null) {
             this.natMode = config.getNatMode();
