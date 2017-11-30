@@ -146,6 +146,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_5263411a",
+        "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/CountersUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T02:56:42Z",
+      "side": 0,
+      "message": "Done",
+      "parentUuid": "7a1969be_5204e17d",
+      "revId": "29543f3a265dc886a72dc3c764c8cd13e9e9b38a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_66416e0b",
         "filename": "vpnservice/statistics/impl/src/main/java/org/opendaylight/netvirt/statistics/StatisticsImpl.java",
         "patchSetId": 1
