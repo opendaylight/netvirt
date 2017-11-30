@@ -49,15 +49,18 @@ public class VpnRpcServiceImpl implements VpnRpcService {
     private final IFibManager fibManager;
     private final IBgpManager bgpManager;
     private final IVpnManager vpnManager;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
     public VpnRpcServiceImpl(final DataBroker dataBroker, final IdManagerService idManager,
-            final IFibManager fibManager, IBgpManager bgpManager, final IVpnManager vpnManager) {
+            final IFibManager fibManager, IBgpManager bgpManager, final IVpnManager vpnManager,
+            final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
         this.vpnManager = vpnManager;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     /**
@@ -159,7 +162,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        Optional<InterVpnLinkDataComposite> optIVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
+        Optional<InterVpnLinkDataComposite> optIVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optIVpnLink.isPresent()) {
             try {
                 InterVpnLinkUtil.handleStaticRoute(optIVpnLink.get(), vpnInstanceName, destination, nexthop,
@@ -227,7 +230,7 @@ public class VpnRpcServiceImpl implements VpnRpcService {
             return result;
         }
 
-        Optional<InterVpnLinkDataComposite> optVpnLink = InterVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
+        Optional<InterVpnLinkDataComposite> optVpnLink = interVpnLinkCache.getInterVpnLinkByEndpoint(nexthop);
         if (optVpnLink.isPresent()) {
             fibManager.removeOrUpdateFibEntry(dataBroker,  vpnRd, destination, nexthop, /*writeTx*/ null);
             bgpManager.withdrawPrefix(vpnRd, destination);

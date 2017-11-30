@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -23,32 +26,43 @@ import org.slf4j.LoggerFactory;
  * caches updated. Same as InterVpnLinkCacheFeeder but this listens on
  * InterVpnLinkState changes.
  */
+@Singleton
 public class InterVpnLinkStateCacheFeeder
     extends AsyncClusteredDataTreeChangeListenerBase<InterVpnLinkState, InterVpnLinkStateCacheFeeder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkStateCacheFeeder.class);
 
-    public InterVpnLinkStateCacheFeeder(final DataBroker broker) {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+    private final InterVpnLinkCache interVpnLinkCache;
+    private final DataBroker dataBroker;
+
+    @Inject
+    public InterVpnLinkStateCacheFeeder(final DataBroker dataBroker, final InterVpnLinkCache interVpnLinkCache) {
+        this.dataBroker = dataBroker;
+        this.interVpnLinkCache = interVpnLinkCache;
+    }
+
+    @PostConstruct
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
     protected void remove(InstanceIdentifier<InterVpnLinkState> identifier, InterVpnLinkState del) {
         LOG.debug("InterVpnLinkState {} has been removed", del.getInterVpnLinkName());
-        InterVpnLinkCache.removeInterVpnLinkStateFromCache(del);
+        interVpnLinkCache.removeInterVpnLinkStateFromCache(del);
     }
 
     @Override
     protected void update(InstanceIdentifier<InterVpnLinkState> identifier, InterVpnLinkState original,
         InterVpnLinkState update) {
         LOG.debug("InterVpnLinkState {} has been updated", update.getInterVpnLinkName());
-        InterVpnLinkCache.addInterVpnLinkStateToCaches(update);
+        interVpnLinkCache.addInterVpnLinkStateToCaches(update);
     }
 
     @Override
     protected void add(InstanceIdentifier<InterVpnLinkState> identifier, InterVpnLinkState add) {
         LOG.debug("InterVpnLinkState {} has been added", add.getInterVpnLinkName());
-        InterVpnLinkCache.addInterVpnLinkStateToCaches(add);
+        interVpnLinkCache.addInterVpnLinkStateToCaches(add);
     }
 
     @Override

@@ -41,10 +41,12 @@ public class InterVpnLinkLocator {
     protected static final String NBR_OF_DPNS_PROPERTY_NAME = "vpnservice.intervpnlink.number.dpns";
 
     private final DataBroker dataBroker;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
-    public InterVpnLinkLocator(final DataBroker dataBroker) {
+    public InterVpnLinkLocator(final DataBroker dataBroker, final InterVpnLinkCache interVpnLinkCache) {
         this.dataBroker = dataBroker;
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     /**
@@ -66,7 +68,7 @@ public class InterVpnLinkLocator {
             return dpnIdPool;
         }
 
-        List<InterVpnLinkDataComposite> allInterVpnLinks = InterVpnLinkCache.getAllInterVpnLinks();
+        List<InterVpnLinkDataComposite> allInterVpnLinks = interVpnLinkCache.getAllInterVpnLinks();
 
         // 1st criteria is to select those DPNs where there is no InterVpnLink at all
         List<BigInteger> dpnsWithNoIVL = findDPNsWithNoInterVpnLink(dpnIdPool, allInterVpnLinks);

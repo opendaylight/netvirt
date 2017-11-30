@@ -8,6 +8,9 @@
 
 package org.opendaylight.netvirt.vpnmanager.intervpnlink;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -22,18 +25,29 @@ import org.slf4j.LoggerFactory;
  * Clustered listener whose only purpose is to keep global (well, per cluster)
  * caches updated.
  */
+@Singleton
 public class InterVpnLinkCacheFeeder
     extends AsyncClusteredDataTreeChangeListenerBase<InterVpnLink, InterVpnLinkCacheFeeder> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCacheFeeder.class);
 
-    public InterVpnLinkCacheFeeder(final DataBroker broker) {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+    private final InterVpnLinkCache interVpnLinkCache;
+    private final DataBroker dataBroker;
+
+    @Inject
+    public InterVpnLinkCacheFeeder(final DataBroker dataBroker, final InterVpnLinkCache interVpnLinkCache) {
+        this.dataBroker = dataBroker;
+        this.interVpnLinkCache = interVpnLinkCache;
+    }
+
+    @PostConstruct
+    public void init() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
     protected void remove(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink del) {
-        InterVpnLinkCache.removeInterVpnLinkFromCache(del);
+        interVpnLinkCache.removeInterVpnLinkFromCache(del);
     }
 
     @Override
@@ -45,7 +59,7 @@ public class InterVpnLinkCacheFeeder
     protected void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
         LOG.debug("Added interVpnLink {}  with vpn1={} and vpn2={}", add.getName(),
             add.getFirstEndpoint().getVpnUuid(), add.getSecondEndpoint().getVpnUuid());
-        InterVpnLinkCache.addInterVpnLinkToCaches(add);
+        interVpnLinkCache.addInterVpnLinkToCaches(add);
     }
 
     @Override
