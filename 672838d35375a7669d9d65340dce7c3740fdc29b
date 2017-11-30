@@ -34,6 +34,24 @@
       "revId": "672838d35375a7669d9d65340dce7c3740fdc29b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_d2af312a",
+        "filename": "vpnservice/coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-11-30T02:54:33Z",
+      "side": 0,
+      "message": "duh! Right, sorry I didn\u0027t see this is inside an if (network \u003d\u003d null).  OK, makes perfect sense then.",
+      "parentUuid": "7a1969be_f2450db4",
+      "revId": "672838d35375a7669d9d65340dce7c3740fdc29b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
