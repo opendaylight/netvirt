@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_f4121a57",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-11-30T03:40:37Z",
+      "side": 1,
+      "message": "Executors.newFixedThreadPool doesn\u0027t clean up idle threads so use the SpecialExecutors version. Also inlined initialization here so they can be made final.",
+      "revId": "5f738408e0e61863c43b99558780bddc05cc1fe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
