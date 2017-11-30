@@ -256,6 +256,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 if (!elanUtils.isOpenstackVniSemanticsEnforced()) {
                     removeDefaultTermFlow(dpId, elanInfo.getElanTag());
                 }
+                LOG.info("deleting unknown DMAC entry of interface {} on elan: {} present on dpId: {}",
+                        interfaceName ,elanInfo.getElanInstanceName(), dpId);
                 removeUnknownDmacFlow(dpId, elanInfo, flowTx, elanInfo.getElanTag());
                 removeEtreeUnknownDmacFlow(dpId, elanInfo, flowTx);
                 removeElanBroadcastGroup(elanInfo, interfaceInfo, flowTx);
