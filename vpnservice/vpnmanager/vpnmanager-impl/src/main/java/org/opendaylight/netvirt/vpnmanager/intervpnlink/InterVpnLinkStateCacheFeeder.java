@@ -28,27 +28,30 @@ public class InterVpnLinkStateCacheFeeder
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkStateCacheFeeder.class);
 
-    public InterVpnLinkStateCacheFeeder(final DataBroker broker) {
+    private final InterVpnLinkCache interVpnLinkCache;
+
+    public InterVpnLinkStateCacheFeeder(final DataBroker broker, final InterVpnLinkCache interVpnLinkCache) {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @Override
     protected void remove(InstanceIdentifier<InterVpnLinkState> identifier, InterVpnLinkState del) {
         LOG.debug("InterVpnLinkState {} has been removed", del.getInterVpnLinkName());
-        InterVpnLinkCache.removeInterVpnLinkStateFromCache(del);
+        interVpnLinkCache.removeInterVpnLinkStateFromCache(del);
     }
 
     @Override
     protected void update(InstanceIdentifier<InterVpnLinkState> identifier, InterVpnLinkState original,
         InterVpnLinkState update) {
         LOG.debug("InterVpnLinkState {} has been updated", update.getInterVpnLinkName());
-        InterVpnLinkCache.addInterVpnLinkStateToCaches(update);
+        interVpnLinkCache.addInterVpnLinkStateToCaches(update);
     }
 
     @Override
     protected void add(InstanceIdentifier<InterVpnLinkState> identifier, InterVpnLinkState add) {
         LOG.debug("InterVpnLinkState {} has been added", add.getInterVpnLinkName());
-        InterVpnLinkCache.addInterVpnLinkStateToCaches(add);
+        interVpnLinkCache.addInterVpnLinkStateToCaches(add);
     }
 
     @Override

@@ -12,7 +12,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.math.BigInteger;
 import java.util.List;
-import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
@@ -35,19 +34,19 @@ public class FibManagerImpl implements IFibManager {
     private final NexthopManager nexthopManager;
     private final VrfEntryListener vrfEntryListener;
     private IVpnManager vpnmanager;
-    private final DataBroker dataBroker;
     private final FibUtil fibUtil;
+    private final InterVpnLinkCache interVpnLinkCache;
 
     @Inject
-    public FibManagerImpl(final DataBroker dataBroker,
-                          final NexthopManager nexthopManager,
+    public FibManagerImpl(final NexthopManager nexthopManager,
                           final VrfEntryListener vrfEntryListener,
                           final BundleContext bundleContext,
-                          final FibUtil fibUtil) {
-        this.dataBroker = dataBroker;
+                          final FibUtil fibUtil,
+                          final InterVpnLinkCache interVpnLinkCache) {
         this.nexthopManager = nexthopManager;
         this.vrfEntryListener = vrfEntryListener;
         this.fibUtil = fibUtil;
+        this.interVpnLinkCache = interVpnLinkCache;
 
         GlobalEventExecutor.INSTANCE.execute(() -> {
             final WaitingServiceTracker<IVpnManager> tracker = WaitingServiceTracker.create(
@@ -55,11 +54,6 @@ public class FibManagerImpl implements IFibManager {
             vpnmanager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
             LOG.info("FibManagerImpl initialized. IVpnManager={}", vpnmanager);
         });
-    }
-
-    @PostConstruct
-    public void init() {
-        InterVpnLinkCache.createInterVpnLinkCaches(this.dataBroker);  // Idempotent creation
     }
 
     @Override
@@ -173,7 +167,7 @@ public class FibManagerImpl implements IFibManager {
     public void removeInterVPNLinkRouteFlows(final String interVpnLinkName,
                                              final boolean isVpnFirstEndPoint,
                                              final VrfEntry vrfEntry) {
-        Optional<InterVpnLinkDataComposite> optInterVpnLink = InterVpnLinkCache.getInterVpnLinkByName(interVpnLinkName);
+        Optional<InterVpnLinkDataComposite> optInterVpnLink = interVpnLinkCache.getInterVpnLinkByName(interVpnLinkName);
         if (!optInterVpnLink.isPresent()) {
             LOG.warn("Could not find InterVpnLink with name {}. InterVpnLink route flows wont be removed",
                      interVpnLinkName);

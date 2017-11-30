@@ -27,13 +27,16 @@ public class InterVpnLinkCacheFeeder
 
     private static final Logger LOG = LoggerFactory.getLogger(InterVpnLinkCacheFeeder.class);
 
-    public InterVpnLinkCacheFeeder(final DataBroker broker) {
+    private final InterVpnLinkCache interVpnLinkCache;
+
+    public InterVpnLinkCacheFeeder(final DataBroker broker, final InterVpnLinkCache interVpnLinkCache) {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        this.interVpnLinkCache = interVpnLinkCache;
     }
 
     @Override
     protected void remove(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink del) {
-        InterVpnLinkCache.removeInterVpnLinkFromCache(del);
+        interVpnLinkCache.removeInterVpnLinkFromCache(del);
     }
 
     @Override
@@ -45,7 +48,7 @@ public class InterVpnLinkCacheFeeder
     protected void add(InstanceIdentifier<InterVpnLink> identifier, InterVpnLink add) {
         LOG.debug("Added interVpnLink {}  with vpn1={} and vpn2={}", add.getName(),
             add.getFirstEndpoint().getVpnUuid(), add.getSecondEndpoint().getVpnUuid());
-        InterVpnLinkCache.addInterVpnLinkToCaches(add);
+        interVpnLinkCache.addInterVpnLinkToCaches(add);
     }
 
     @Override
