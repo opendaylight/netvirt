@@ -496,6 +496,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_63602a36",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 2215,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-01T08:02:08Z",
+      "side": 1,
+      "message": "the function isAdjacencyEligibleToVpnInternet() has not the good wording.\n\nsince the function does the following:\n\nit checks that the selected BGPVPN is not a BGPVPN Internet, and if it is a BGPVPN Internet, it checks if the adjacency is an IPv6 or IPv4 address. There, it will return FALSE if adjacency is IPv4.\nin all other cases , it returns TRUE.\n\nconclusion: addNewAdjacency is called if the BGPVPN isnot an internet BGPVPN.",
+      "parentUuid": "7a1969be_2cd3d739",
+      "range": {
+        "startLine": 2214,
+        "startChar": 32,
+        "endLine": 2215,
+        "endChar": 104
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_fd9eb8b7",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 128
@@ -555,6 +579,30 @@
       "side": 1,
       "message": "By \"context\", could you please explain what that means? A subnet is always part of only one vpn (please dont consider internet case for sunet-route), so why is vpnName as a key needed in subnet-op-data?\n\nI am talking in a general sense.Both the file and the feature need not be touched right now, since subnet route feature has to be handled in a different way for ipv6, and I believe there is a new spec for that?",
       "parentUuid": "9a245df4_906683b9",
+      "range": {
+        "startLine": 84,
+        "startChar": 46,
+        "endLine": 84,
+        "endChar": 47
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_63794afc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-01T08:02:08Z",
+      "side": 1,
+      "message": "Hi Kiran,\n\nperhaps I did not understand well subnet routing feature for IPv6.\n\nThe changes in https://git.opendaylight.org/gerrit/#/c/57439/128/vpnservice/vpnmanager/vpnmanager-api/src/main/yang/odl-l3vpn.yang@484 are done, so that when a subnetmap belongs to two different VPN ( legacy VPN and IPv6 Internet L3VPN), then 2 subnetmapopdata are created with each one has the VPN key: one for ipv6 Internet L3VPN and the other one for the other BGPVPN.\n\n\u003d\u003e I expect you agree to keep that change.\n\nFor specifically subnet routing, I understand the following:\n- this code is never impacted by IPv6 subnet routing.\nAs consequence, there is no need to do the change for IPv6 Internet L3VPN.\n\n\u003d\u003e Does that mean that I missed some change in relationship with IPv6 Subnet routing ?",
+      "parentUuid": "7a1969be_2c88f721",
       "range": {
         "startLine": 84,
         "startChar": 46,
