@@ -212,7 +212,6 @@ public class TransportZoneNotificationUtil {
         TransportZone zone = mdsalUtils.read(LogicalDatastoreType.CONFIGURATION, inst);
         if (zone != null) {
             try {
-                removeVtep(zone.getZoneName(), dpnId, localIp, null);
                 deleteTransportZone(zone, dpnId, tx);
             } catch (Exception e) {
                 LOG.error("Failed to remove tunnels for dpn {} in zone {}", dpnId, zoneName, e);
