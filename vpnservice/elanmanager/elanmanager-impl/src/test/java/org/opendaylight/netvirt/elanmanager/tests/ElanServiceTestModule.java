@@ -84,6 +84,7 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         ItmRpcService itmRpcService = new ItmRpcTestImpl();
 
         bind(DataBroker.class).toInstance(dataBroker);
+        bind(DataBroker.class).annotatedWith(OsgiService.class).toInstance(dataBroker);
         bind(IdManagerService.class).toInstance(Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS));
         bind(IInterfaceManager.class).toInstance(obj);
         bind(TestInterfaceManager.class).toInstance(obj);
@@ -111,5 +112,4 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
         bind(IElanService.class).to(ElanServiceProvider.class);
     }
-
 }
