@@ -44,8 +44,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfigBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService;
-import org.ops4j.pax.cdi.api.OsgiService;
-
 
 /**
  * Equivalent of src/main/resources/org/opendaylight/blueprint/elanmanager.xml,
@@ -104,7 +102,9 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
         IBgpManager ibgpManager = BgpManagerTestImpl.newInstance(singleTransactionDataBroker);
         bind(ItmRpcService.class).toInstance(itmRpcService);
         bind(ItmRpcTestImpl.class).toInstance((ItmRpcTestImpl)itmRpcService);
-        bind(DataImportBootReady.class).annotatedWith(OsgiService.class).toInstance(new DataImportBootReady() {});
+        //bind(IVpnManager.class).toInstance(ivpnManager);
+        //bind(IBgpManager.class).toInstance(ibgpManager);
+        bind(DataImportBootReady.class).toInstance(new DataImportBootReady() {});
         bind(DiagStatusService.class).toInstance(Mockito.mock(DiagStatusService.class));
         bind(IVpnManager.class).toInstance(ivpnManager);
         bind(IBgpManager.class).toInstance(ibgpManager);

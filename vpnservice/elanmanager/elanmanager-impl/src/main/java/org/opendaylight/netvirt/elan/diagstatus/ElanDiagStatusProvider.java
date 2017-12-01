@@ -7,24 +7,18 @@
  */
 package org.opendaylight.netvirt.elan.diagstatus;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.diagstatus.ServiceDescriptor;
 import org.opendaylight.infrautils.diagstatus.ServiceState;
 import org.opendaylight.infrautils.diagstatus.ServiceStatusProvider;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.ops4j.pax.cdi.api.OsgiServiceProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * ElanDiagStatusProvider which lets ELAN register/unregister for infrautils status and diagnostics related services.
  */
-@Singleton
-@OsgiServiceProvider(classes = ServiceStatusProvider.class)
 public class ElanDiagStatusProvider implements ServiceStatusProvider {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanDiagStatusProvider.class);
@@ -32,7 +26,6 @@ public class ElanDiagStatusProvider implements ServiceStatusProvider {
     private final DiagStatusService diagStatusService;
     private volatile ServiceDescriptor serviceDescriptor;
 
-    @Inject
     public ElanDiagStatusProvider(final ElanServiceProvider elanServiceProvider,
                                   final DiagStatusService diagStatusService) {
         this.diagStatusService = diagStatusService;
@@ -42,7 +35,6 @@ public class ElanDiagStatusProvider implements ServiceStatusProvider {
         diagStatusService.report(serviceDescriptor);
     }
 
-    @PreDestroy
     public void close() {
         serviceDescriptor = new ServiceDescriptor(ElanConstants.ELAN_SERVICE_NAME, ServiceState.UNREGISTERED,
                 "Service Closed");

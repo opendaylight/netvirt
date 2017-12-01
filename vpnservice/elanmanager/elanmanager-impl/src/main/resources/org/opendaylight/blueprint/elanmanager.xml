@@ -471,4 +471,13 @@
     <argument ref="jobCoordinator" />
   </bean>
 
+  <bean id="elanDiagstatusProvider"
+        class="org.opendaylight.netvirt.elan.diagstatus.ElanDiagStatusProvider"
+        destroy-method="close">
+    <argument ref="elanService"/>
+    <argument ref="diagStatusService"/>
+  </bean>
+
+  <service ref="elanDiagstatusProvider" interface="org.opendaylight.infrautils.diagstatus.ServiceStatusProvider"/>
+
 </blueprint>
