@@ -53,6 +53,8 @@ public class VtyshCli extends OsgiCommandSupport {
         "display routing ip bgp ipv4 unicast <ip/mask>",
         "display routing bgp neighbors",
         "display routing bgp neighbors <ip>",
+        "display routing bgp ipv4 summary",
+        "display routing bgp ipv4 vpn summary",
         "display routing bgp ipv4 unicast <ip>",
         "display routing bgp ipv4 unicast <ip/mask>",
         "display routing running-config"
