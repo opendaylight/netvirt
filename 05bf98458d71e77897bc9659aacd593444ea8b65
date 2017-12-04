@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_11b09d8a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 122
+      },
+      "lineNbr": 395,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-04T15:25:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_71ee3124",
+      "range": {
+        "startLine": 395,
+        "startChar": 98,
+        "endLine": 395,
+        "endChar": 102
+      },
+      "revId": "05bf98458d71e77897bc9659aacd593444ea8b65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_91e92d1d",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 122
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-04T10:54:19Z",
       "side": 1,
       "message": "Not required. You are always passing the internetVpnId",
+      "range": {
+        "startLine": 1621,
+        "startChar": 8,
+        "endLine": 1624,
+        "endChar": 9
+      },
+      "revId": "05bf98458d71e77897bc9659aacd593444ea8b65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_b17269e3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 122
+      },
+      "lineNbr": 1624,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-04T15:25:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_91e92d1d",
       "range": {
         "startLine": 1621,
         "startChar": 8,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_d420b39d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 122
+      },
+      "lineNbr": 1628,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-04T15:25:48Z",
+      "side": 1,
+      "message": "done, because we get already a list (with unique ref)",
+      "parentUuid": "7a1969be_11dd3d71",
+      "range": {
+        "startLine": 1628,
+        "startChar": 12,
+        "endLine": 1628,
+        "endChar": 54
+      },
+      "revId": "05bf98458d71e77897bc9659aacd593444ea8b65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_91d00d55",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 122
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_b40ed732",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 122
+      },
+      "lineNbr": 1636,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-04T15:25:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_91d00d55",
+      "range": {
+        "startLine": 1632,
+        "startChar": 20,
+        "endLine": 1636,
+        "endChar": 21
+      },
+      "revId": "05bf98458d71e77897bc9659aacd593444ea8b65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_31e4b93a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 122
@@ -105,6 +201,30 @@
       "writtenOn": "2017-12-04T10:54:19Z",
       "side": 1,
       "message": "fetch vpn-instance-op-data using router-name and then get the vpnId from that, instead of fetching and iterating.",
+      "range": {
+        "startLine": 1728,
+        "startChar": 4,
+        "endLine": 1746,
+        "endChar": 5
+      },
+      "revId": "05bf98458d71e77897bc9659aacd593444ea8b65",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_b1170951",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 122
+      },
+      "lineNbr": 1746,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-04T15:25:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_31e4b93a",
       "range": {
         "startLine": 1728,
         "startChar": 4,
