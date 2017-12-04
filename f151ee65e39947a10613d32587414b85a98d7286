@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_5134d5dd",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-04T09:34:57Z",
+      "side": 1,
+      "message": "Change looks fine. Adding @Vishal and @Faseela to confirm if this can be safely assumed.",
+      "range": {
+        "startLine": 14,
+        "startChar": 0,
+        "endLine": 15,
+        "endChar": 33
+      },
+      "revId": "f151ee65e39947a10613d32587414b85a98d7286",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
