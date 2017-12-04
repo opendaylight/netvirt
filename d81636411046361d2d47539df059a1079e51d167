@@ -615,6 +615,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_d17c4575",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 128
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-04T10:16:20Z",
+      "side": 1,
+      "message": "Philippe, please revert the change made to subnet-op-data, in odl-l3vpn.yang.\nSubnet-route for IPv6 needs to be handled separately, and its not a requirement for us now. Let it be as it is. So, let us not handle subnet-route for IPV6\nAlso, subnet route does not depend on the number of vpns, but only neutron subnet. Its is alse unaffected by internet use-case.",
+      "parentUuid": "7a1969be_63794afc",
+      "range": {
+        "startLine": 84,
+        "startChar": 46,
+        "endLine": 84,
+        "endChar": 47
+      },
+      "revId": "d81636411046361d2d47539df059a1079e51d167",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_dd53f414",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 128
