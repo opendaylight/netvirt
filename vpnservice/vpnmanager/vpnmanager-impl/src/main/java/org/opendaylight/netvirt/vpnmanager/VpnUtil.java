@@ -15,6 +15,10 @@ import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.math.BigInteger;
+import java.net.Inet4Address;
+import java.net.Inet6Address;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -52,7 +56,9 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.InterfaceUtils;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
@@ -126,6 +132,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
@@ -189,6 +196,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.s
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.subnets.rev150712.subnets.attributes.subnets.SubnetKey;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.data.impl.schema.tree.SchemaValidationFailedException;
 import org.slf4j.Logger;
@@ -1843,13 +1851,112 @@ public final class VpnUtil {
     }
 
     public static boolean isSubnetPartOfVpn(Subnetmap sn, String vpnName) {
-        if (vpnName == null || sn == null) {
+        if (vpnName == null || sn == null || sn.getVpnId() == null) {
             return false;
         }
-        if (sn.getVpnId() == null || !sn.getVpnId().getValue().equals(vpnName)) {
+        if (sn.getVpnId().getValue().equals(vpnName)) {
+            return true;
+        } else if (sn.getInternetVpnId() != null
+                && sn.getInternetVpnId().getValue().equals(vpnName)) {
+            return true;
+        }
+        return false;
+    }
+
+    public static boolean isAdjacencyEligibleToVpnInternet(DataBroker dataBroker, Adjacency adjacency) {
+        // returns true if BGPVPN Internet and adjacency is IPv6, false otherwise
+        boolean adjacencyEligible = true;
+        if (adjacency.getAdjacencyType() == AdjacencyType.ExtraRoute) {
+            if (FibHelper.isIpv6Prefix(adjacency.getIpAddress())) {
+                return adjacencyEligible;
+            }
+            return false;
+        } else if (adjacency.getSubnetId() == null) {
+            return adjacencyEligible;
+        }
+        Subnetmap sn = VpnUtil.getSubnetmapFromItsUuid(
+                   dataBroker, adjacency.getSubnetId());
+        if (sn != null && sn.getInternetVpnId() != null) {
+            adjacencyEligible = false;
+        }
+        return adjacencyEligible;
+    }
+
+    public static boolean isAdjacencyEligibleToVpn(DataBroker dataBroker, Adjacency adjacency,
+                      String vpnName, String interfaceName) {
+        // returns true if BGPVPN Internet and adjacency is IPv6, false otherwise
+        boolean adjacencyEligible = true;
+        // if BGPVPN internet, return false if subnetmap has not internetVpnId() filled in
+        if (isBgpVpnInternet(dataBroker, vpnName)) {
+            return isAdjacencyEligibleToVpnInternet(dataBroker, adjacency);
+        }
+        return adjacencyEligible;
+    }
+
+    public static String getInternetVpnFromVpnInstanceList(DataBroker dataBroker,
+                                        List<VpnInstanceNames> vpnInstanceList) {
+        for (VpnInstanceNames vpnInstance : vpnInstanceList) {
+            String vpnName = vpnInstance.getVpnName();
+            if (isBgpVpnInternet(dataBroker, vpnName)) {
+                return vpnName;
+            }
+        }
+        return null;
+    }
+
+    /** Get boolean true if vpn is bgpvpn internet, false otherwise.
+     * @param dataBroker databroker for transaction
+     * @param vpnName name of the input VPN
+     * @return true or false
+     */
+    public static boolean isBgpVpnInternet(DataBroker dataBroker, String vpnName) {
+        String primaryRd = getVpnRd(dataBroker, vpnName);
+        if (primaryRd == null) {
+            LOG.error("isBgpVpnInternet VPN {}."
+                      + "Primary RD not found", vpnName);
             return false;
         }
-        return true;
+        InstanceIdentifier<VpnInstanceOpDataEntry> id = InstanceIdentifier.builder(VpnInstanceOpData.class)
+              .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(primaryRd)).build();
+
+        Optional<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryOptional =
+            read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!vpnInstanceOpDataEntryOptional.isPresent()) {
+            LOG.error("isBgpVpnInternet VPN {}."
+                     + "VpnInstanceOpDataEntry not found", vpnName);
+            return false;
+        }
+        LOG.debug("isBgpVpnInternet VPN {}."
+             + "Successfully VpnInstanceOpDataEntry.getBgpvpnType {}",
+             vpnName, vpnInstanceOpDataEntryOptional.get().getBgpvpnType());
+        if (vpnInstanceOpDataEntryOptional.get().getBgpvpnType() == VpnInstanceOpDataEntry
+               .BgpvpnType.BGPVPNInternet) {
+            return true;
+        }
+        return false;
+    }
+
+    /**Get IpVersionChoice from String IP like x.x.x.x or an representation IPv6.
+     * @param ipAddress String of an representation IP address V4 or V6
+     * @return the IpVersionChoice of the version or IpVersionChoice.UNDEFINED otherwise
+     */
+    public static IpVersionChoice getIpVersionFromString(String ipAddress) {
+        IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
+        int indexIpAddress = ipAddress.indexOf('/');
+        if (indexIpAddress >= 0) {
+            ipAddress = ipAddress.substring(0, indexIpAddress);
+        }
+        try {
+            InetAddress address = InetAddress.getByName(ipAddress);
+            if (address instanceof Inet4Address) {
+                return IpVersionChoice.IPV4;
+            } else if (address instanceof Inet6Address) {
+                return IpVersionChoice.IPV6;
+            }
+        } catch (UnknownHostException | SecurityException e) {
+            ipchoice = IpVersionChoice.UNDEFINED;
+        }
+        return ipchoice;
     }
 
 }
