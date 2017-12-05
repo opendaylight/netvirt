@@ -168,6 +168,17 @@ public final class TestBuilders {
         return managers;
     }
 
+    public static List<Managers> buildManagers1() {
+        ManagersBuilder builder1 = new ManagersBuilder();
+
+        builder1.setKey(new ManagersKey(new Uri("test")));
+        List<ManagerOtherConfigs> otherConfigses = new ArrayList<>();
+        builder1.setManagerOtherConfigs(otherConfigses);
+        List<Managers> managers = new ArrayList<>();
+        managers.add(builder1.build());
+        return managers;
+    }
+
     public static ManagerOtherConfigs buildOtherConfig(String key, String val) {
         ManagerOtherConfigsBuilder otherConfigsBuilder = new ManagerOtherConfigsBuilder();
         ManagerOtherConfigsKey managerOtherConfigsKey = new ManagerOtherConfigsKey(key);

@@ -956,7 +956,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         }
                     }
                     List<Bucket> elanL2GwDevicesBuckets = elanL2GatewayMulticastUtils
-                            .getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpId, bucketId);
+                            .getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnInterface.getDpId(), bucketId);
                     remoteListBucketInfo.addAll(elanL2GwDevicesBuckets);
 
                     if (remoteListBucketInfo.isEmpty()) {
