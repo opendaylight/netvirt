@@ -11,6 +11,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
@@ -35,6 +38,7 @@ import org.slf4j.LoggerFactory;
  * @param <C> - Child DataObject (Subtree)
  * @param <G> - Group type (Mostly key of Subtree DataObject)
  */
+@Singleton
 public abstract class ChildListener<P extends DataObject, C extends DataObject, G>
         implements DataTreeChangeListener<P>, AutoCloseable {
 
@@ -46,6 +50,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
     private ListenerRegistration<?> registration;
     private final boolean processParentDeletes;
 
+    @Inject
     public ChildListener(DataBroker dataBroker, boolean processParentDeletes) {
         this.dataBroker = dataBroker;
         this.processParentDeletes = processParentDeletes;

@@ -19,6 +19,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -45,6 +49,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
+@Singleton
 public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, String>
         implements ClusteredDataTreeChangeListener<Node> {
 
@@ -69,6 +74,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     private final HAOpClusteredListener haOpClusteredListener;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public LocalUcastMacListener(final DataBroker dataBroker,
                                  final HAOpClusteredListener haOpClusteredListener,
                                  final ElanL2GatewayUtils elanL2GatewayUtils,
@@ -80,6 +86,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     }
 
     @Override
+    @PostConstruct
     public void init() throws Exception {
         ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.dataBroker);
         super.init();

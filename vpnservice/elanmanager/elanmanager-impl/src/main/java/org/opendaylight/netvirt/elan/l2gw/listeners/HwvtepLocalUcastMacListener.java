@@ -9,6 +9,10 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import java.util.Collections;
 import java.util.Locale;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
@@ -36,6 +40,7 @@ import org.slf4j.LoggerFactory;
  * according to field 'tunnel_key' of the Logical Switch to which the new MAC
  * belongs.
  */
+@Singleton
 public class HwvtepLocalUcastMacListener extends
         HwvtepClusteredDataTreeChangeListener<LocalUcastMacs, HwvtepLocalUcastMacListener> {
 
@@ -44,6 +49,7 @@ public class HwvtepLocalUcastMacListener extends
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
 
+    @Inject
     public HwvtepLocalUcastMacListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils) {
         super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
 
@@ -52,6 +58,7 @@ public class HwvtepLocalUcastMacListener extends
         ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.broker);
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }

@@ -11,6 +11,9 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -31,6 +34,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<Group, ElanGroupListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanGroupListener.class);
@@ -39,6 +43,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     private final ElanInstanceManager elanInstanceManager;
     private final ElanClusterUtils elanClusterUtils;
 
+    @Inject
     public ElanGroupListener(ElanInterfaceManager elanInterfaceManager, final DataBroker db,
             ElanClusterUtils elanClusterUtils, ElanInstanceManager elanInstanceManager) {
         super(Group.class, ElanGroupListener.class);

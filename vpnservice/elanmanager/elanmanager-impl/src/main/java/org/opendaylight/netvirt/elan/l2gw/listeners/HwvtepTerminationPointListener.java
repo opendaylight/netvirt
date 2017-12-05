@@ -18,6 +18,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -53,6 +56,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener for physical locator presence in operational datastore.
  */
+@Singleton
 public class HwvtepTerminationPointListener
         extends HwvtepClusteredDataTreeChangeListener<TerminationPoint, HwvtepTerminationPointListener> {
 
@@ -62,6 +66,7 @@ public class HwvtepTerminationPointListener
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanClusterUtils elanClusterUtils;
 
+    @Inject
     public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
             ElanClusterUtils elanClusterUtils) {
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);

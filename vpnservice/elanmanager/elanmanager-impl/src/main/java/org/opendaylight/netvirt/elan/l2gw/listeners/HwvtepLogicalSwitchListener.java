@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.jobs.LogicalSwitchAddedJob;
@@ -30,6 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see LogicalSwitches
  */
+@Singleton
 public class HwvtepLogicalSwitchListener extends
         HwvtepClusteredDataTreeChangeListener<LogicalSwitches, HwvtepLogicalSwitchListener> {
 
@@ -62,6 +66,7 @@ public class HwvtepLogicalSwitchListener extends
     /**
      * Instantiates a new hardware vtep logical switch listener.
      */
+    @Inject
     public HwvtepLogicalSwitchListener(ElanL2GatewayUtils elanL2GatewayUtils, ElanClusterUtils elanClusterUtils,
             ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, L2GatewayConnectionUtils l2GatewayConnectionUtils,
             L2GatewayDevice l2GatewayDevice, String logicalSwitchName, Devices physicalDevice, Integer defaultVlanId,
