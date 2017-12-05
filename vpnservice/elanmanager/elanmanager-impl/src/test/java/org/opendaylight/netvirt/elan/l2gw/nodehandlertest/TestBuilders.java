@@ -9,9 +9,13 @@ package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -166,6 +170,13 @@ public final class TestBuilders {
         List<Managers> managers = new ArrayList<>();
         managers.add(builder1.build());
         return managers;
+    }
+
+    public static List<Managers> buildManagers1() {
+        ManagersBuilder builder1 = new ManagersBuilder();
+        builder1.setKey(new ManagersKey(new Uri("test")));
+        builder1.setManagerOtherConfigs(Collections.emptyList());
+        return ImmutableList.of(builder1.build());
     }
 
     public static ManagerOtherConfigs buildOtherConfig(String key, String val) {
