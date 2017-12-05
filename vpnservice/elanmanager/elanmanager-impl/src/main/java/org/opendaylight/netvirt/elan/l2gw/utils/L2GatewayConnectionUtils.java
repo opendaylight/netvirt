@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -56,6 +59,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class L2GatewayConnectionUtils implements AutoCloseable {
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionUtils.class);
 
@@ -67,6 +71,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final JobCoordinator jobCoordinator;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
+    @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
             ElanClusterUtils elanClusterUtils, ElanUtils elanUtils, ElanL2GatewayUtils elanL2GatewayUtils,
             JobCoordinator jobCoordinator) {

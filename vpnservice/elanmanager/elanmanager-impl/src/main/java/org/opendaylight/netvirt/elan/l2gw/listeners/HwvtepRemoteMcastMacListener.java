@@ -12,6 +12,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicBoolean;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
@@ -36,6 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @see RemoteMcastMacs
  */
+@Singleton
 public class HwvtepRemoteMcastMacListener
         extends HwvtepClusteredDataTreeChangeListener<RemoteMcastMacs, HwvtepRemoteMcastMacListener> {
 
@@ -60,6 +64,7 @@ public class HwvtepRemoteMcastMacListener
     /**
      * Instantiates a new remote mcast mac listener.
      */
+    @Inject
     public HwvtepRemoteMcastMacListener(DataBroker broker, ElanUtils elanUtils, String logicalSwitchName,
                                         L2GatewayDevice l2GatewayDevice,
                                         List<IpAddress> expectedPhyLocatorIps,

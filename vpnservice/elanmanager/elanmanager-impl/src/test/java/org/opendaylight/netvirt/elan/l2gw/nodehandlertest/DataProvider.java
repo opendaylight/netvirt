@@ -88,6 +88,13 @@ public final class DataProvider {
         return portNames;
     }
 
+    public static List<String> getPortNameListTor2() {
+        List<String> portNames = new ArrayList<>();
+        portNames.add("s4-eth1");
+        portNames.add("s4-eth2");
+        return portNames;
+    }
+
     public static String getLogicalSwitchDataD1() {
         return logicalSwitchDataD1;
     }
