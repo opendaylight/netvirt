@@ -16,6 +16,24 @@
       "revId": "5f738408e0e61863c43b99558780bddc05cc1fe9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_6fcc8836",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/NaptPacketInHandler.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-05T01:31:16Z",
+      "side": 1,
+      "message": "FTR: When we switch to yangtools 2.0.0 with odlparent 3.0.0 then this will break compilation and we\u0027ll have to add a trailig \"this\" getClass() for the new Class\u003c?\u003e loggerIdentity argument here.",
+      "parentUuid": "7a1969be_f4121a57",
+      "revId": "5f738408e0e61863c43b99558780bddc05cc1fe9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
