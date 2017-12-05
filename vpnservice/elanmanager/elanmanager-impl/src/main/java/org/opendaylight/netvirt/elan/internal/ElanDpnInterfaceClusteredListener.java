@@ -8,6 +8,10 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import java.util.Collections;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
@@ -27,6 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanDpnInterfaceClusteredListener
         extends AsyncClusteredDataTreeChangeListenerBase<DpnInterfaces, ElanDpnInterfaceClusteredListener> {
 
@@ -39,6 +44,7 @@ public class ElanDpnInterfaceClusteredListener
     private final ElanClusterUtils elanClusterUtils;
     private final JobCoordinator jobCoordinator;
 
+    @Inject
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipUtils entityOwnershipUtils,
                                              ElanUtils elanUtils, ElanL2GatewayUtils elanL2GatewayUtils,
                                              ElanClusterUtils elanClusterUtils, JobCoordinator jobCoordinator) {
@@ -50,6 +56,7 @@ public class ElanDpnInterfaceClusteredListener
         this.jobCoordinator = jobCoordinator;
     }
 
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, this.broker);
     }

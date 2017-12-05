@@ -11,6 +11,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -27,6 +31,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Singleton
 public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance,
         ElanInstanceListener> {
 
@@ -36,6 +41,7 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     private final ElanClusterUtils elanClusterUtils;
     private static final Map<String, List<Runnable>> WAITING_JOB_LIST = new ConcurrentHashMap<>();
 
+    @Inject
     public ElanInstanceListener(final DataBroker db, final ElanClusterUtils elanClusterUtils) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
@@ -43,6 +49,7 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
         registerListener(LogicalDatastoreType.CONFIGURATION, db);
     }
 
+    @PostConstruct
     public void init() {
     }
 

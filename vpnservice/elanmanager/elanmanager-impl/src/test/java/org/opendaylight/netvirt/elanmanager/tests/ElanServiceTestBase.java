@@ -54,6 +54,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instru
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActions;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.instruction.apply.actions._case.ApplyActionsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.InstructionBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -75,19 +76,24 @@ public class ElanServiceTestBase {
     protected  @Inject ItmRpcTestImpl itmRpc;
     protected  @Inject ElanInstanceManager elanInstanceManager;
     protected @Inject SingleTransactionDataBroker singleTxdataBroker;
+    protected @Inject OdlInterfaceRpcService odlInterfaceRpcService;
     public static final String ELAN1 = "34701c04-1118-4c65-9425-78a80d49a211";
     public static final Long ELAN1_SEGMENT_ID = 100L;
 
     protected static final BigInteger DPN1_ID = new BigInteger("1");
     protected static final BigInteger DPN2_ID = new BigInteger("2");
+    protected static final BigInteger DPN3_ID = new BigInteger("3");
 
     protected static final String DPN1_ID_STR = "1";
     protected static final String DPN2_ID_STR = "2";
+    protected static final String DPN3_ID_STR = "3";
 
     protected static final String DPN1_TEPIP = "192.168.56.30";
     protected static final String DPN2_TEPIP = "192.168.56.40";
-    protected static final String TOR1_TEPIP = "192.168.56.50";
-    public static final String DCGW_TEPIP = "192.168.56.60";
+    protected static final String DPN3_TEPIP = "192.168.56.50";
+    protected static final String TOR1_TEPIP = "192.168.56.60";
+    protected static final String TOR2_TEPIP = "192.168.56.70";
+    public static final String DCGW_TEPIP = "192.168.56.80";
 
     protected static final String DPN1MAC1 = "10:00:00:00:00:01";
     protected static final String DPN1MAC2 = "10:00:00:00:00:02";
@@ -95,21 +101,40 @@ public class ElanServiceTestBase {
     protected static final String DPN2MAC1 = "10:00:00:00:00:03";
     protected static final String DPN2MAC2 = "10:00:00:00:00:04";
 
-    protected static final String TOR1MAC1 = "10:00:00:00:00:05";
-    protected static final String TOR1MAC2 = "10:00:00:00:00:06";
+    protected static final String DPN3MAC1 = "10:00:00:00:00:05";
+    protected static final String DPN3MAC2 = "10:00:00:00:00:06";
+
+    protected static final String TOR1MAC1 = "10:00:00:00:00:07";
+    protected static final String TOR1MAC2 = "10:00:00:00:00:08";
+
+    protected static final String TOR2MAC1 = "10:00:00:00:00:09";
+    protected static final String TOR2MAC2 = "10:00:00:00:00:10";
 
     protected static final String DPN1TODPN2TNLMAC = "91:00:00:00:00:01";
     protected static final String DPN1TOTOR1TNLMAC = "91:00:00:00:00:02";
     protected static final String DPN1TODCGWTNLMAC = "91:00:00:00:00:03";
+    protected static final String DPN1TODPN3TNLMAC = "91:00:00:00:00:04";
 
     protected static final String DPN2TODPN1TNLMAC = "92:00:00:00:00:01";
     protected static final String DPN2TOTOR1TNLMAC = "92:00:00:00:00:02";
     protected static final String DPN2TODCGWTNLMAC = "92:00:00:00:00:03";
+    protected static final String DPN2TODPN3TNLMAC = "92:00:00:00:00:04";
+
+    protected static final String DPN3TODPN1TNLMAC = "93:00:00:00:00:01";
+    protected static final String DPN3TODPN2TNLMAC = "93:00:00:00:00:02";
+    protected static final String DPN3TOTOR1TNLMAC = "93:00:00:00:00:03";
+
+    protected static final String DPN1TOTOR2TNLMAC = "94:00:00:00:00:01";
+    protected static final String DPN2TOTOR2TNLMAC = "94:00:00:00:00:02";
+    protected static final String DPN3TOTOR2TNLMAC = "94:00:00:00:00:03";
+
 
     protected static final String DPN1IP1 = "10.0.0.11";
     protected static final String DPN1IP2 = "10.0.0.12";
     protected static final String DPN2IP1 = "10.0.0.13";
     protected static final String DPN2IP2 = "10.0.0.14";
+    protected static final String DPN3IP1 = "10.0.0.15";
+    protected static final String DPN3IP2 = "10.0.0.16";
 
     protected static final String EVPNRECVMAC1 = "10:00:00:00:00:51";
     protected static final String EVPNRECVMAC2 = "10:00:00:00:00:52";
@@ -118,6 +143,7 @@ public class ElanServiceTestBase {
     protected static final String EVPNRECVIP2 = "192.168.122.52";
 
     protected static final String TOR1NODEID = "hwvtep://uuid/34701c04-1118-4c65-9425-78a80d49a211";
+    protected static final String TOR2NODEID = "hwvtep://uuid/34701c04-1118-4c65-9425-78a80d49a212";
     protected static final String DCGWID = DCGW_TEPIP;
 
     public static final String RD = "100:1";
@@ -125,7 +151,6 @@ public class ElanServiceTestBase {
 
     protected static Map<String, Pair<InterfaceInfo, String>> ELAN_INTERFACES = new HashMap<>();
     protected static Map<String, TunnelInterfaceDetails> EXTN_INTFS = new HashMap<>();
-
 
     static {
         //Adding elan dpn macs
@@ -141,11 +166,19 @@ public class ElanServiceTestBase {
 
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN2MAC1 ,
                 new ImmutablePair(InterfaceHelper.buildVlanInterfaceInfo("23701c04-2118-4c65-9425-78a80d49a211",
-                DPN2_ID, 3, 12, DPN2MAC1), DPN2IP1));
+                        DPN2_ID, 3, 12, DPN2MAC1), DPN2IP1));
 
         ELAN_INTERFACES.put(ELAN1 + ":" + DPN2MAC2 ,
                 new ImmutablePair(InterfaceHelper.buildVlanInterfaceInfo("23701c04-2218-4c65-9425-78a80d49a211",
-                DPN2_ID, 4, 13, DPN2MAC2), DPN2IP2));
+                        DPN2_ID, 4, 13, DPN2MAC2), DPN2IP2));
+
+        ELAN_INTERFACES.put(ELAN1 + ":" + DPN3MAC1 ,
+                new ImmutablePair(InterfaceHelper.buildVlanInterfaceInfo("23701c04-3118-4c65-9425-78a80d49a211",
+                        DPN3_ID, 5, 14, DPN3MAC1), DPN3IP1));
+
+        ELAN_INTERFACES.put(ELAN1 + ":" + DPN3MAC2 ,
+                new ImmutablePair(InterfaceHelper.buildVlanInterfaceInfo("23701c04-3218-4c65-9425-78a80d49a211",
+                        DPN3_ID, 6, 15, DPN3MAC2), DPN3IP2));
 
         //Adding the external tunnel interfaces
         EXTN_INTFS.put(DPN1_ID_STR + ":" + DPN2_ID_STR, new TunnelInterfaceDetails(DPN1_TEPIP, DPN2_TEPIP, true,
@@ -153,24 +186,54 @@ public class ElanServiceTestBase {
 
         EXTN_INTFS.put(DPN1_ID_STR + ":" + TOR1NODEID, new TunnelInterfaceDetails(DPN1_TEPIP, TOR1_TEPIP, true,
                 InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-12", DPN1_ID, 6, 15, DPN1TOTOR1TNLMAC)));
+        EXTN_INTFS.put(DPN1_ID_STR + ":" + TOR1_TEPIP, EXTN_INTFS.get(DPN1_ID_STR + ":" + TOR1NODEID));
 
         EXTN_INTFS.put(DPN2_ID_STR + ":" + DPN1_ID_STR, new TunnelInterfaceDetails(DPN2_TEPIP, DPN1_TEPIP, true,
                 InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-11", DPN2_ID, 7, 16, DPN2TODPN1TNLMAC)));
 
         EXTN_INTFS.put(DPN2_ID_STR + ":" + TOR1NODEID, new TunnelInterfaceDetails(DPN2_TEPIP, TOR1_TEPIP, true,
                 InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-13", DPN2_ID, 8, 17, DPN2TOTOR1TNLMAC)));
+        EXTN_INTFS.put(DPN2_ID_STR + ":" + TOR1_TEPIP, EXTN_INTFS.get(DPN2_ID_STR + ":" + TOR1NODEID));
 
+        EXTN_INTFS.put(DPN1_ID_STR + ":" + DPN3_ID_STR, new TunnelInterfaceDetails(DPN1_TEPIP, DPN3_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-14", DPN1_ID, 9, 18, DPN1TODPN3TNLMAC)));
+
+        EXTN_INTFS.put(DPN3_ID_STR + ":" + DPN1_ID_STR, new TunnelInterfaceDetails(DPN3_TEPIP, DPN1_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-15", DPN3_ID, 10, 19, DPN3TODPN1TNLMAC)));
+
+        EXTN_INTFS.put(DPN3_ID_STR + ":" + DPN2_ID_STR, new TunnelInterfaceDetails(DPN3_TEPIP, DPN2_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-16", DPN3_ID, 11, 20, DPN3TODPN2TNLMAC)));
+
+        EXTN_INTFS.put(DPN2_ID_STR + ":" + DPN3_ID_STR, new TunnelInterfaceDetails(DPN2_TEPIP, DPN3_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-17", DPN2_ID, 12, 21, DPN2TODPN3TNLMAC)));
+
+        EXTN_INTFS.put(DPN3_ID_STR + ":" + TOR1NODEID, new TunnelInterfaceDetails(DPN3_TEPIP, TOR1_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-18", DPN3_ID, 13, 22, DPN3TOTOR1TNLMAC)));
+        EXTN_INTFS.put(DPN3_ID_STR + ":" + TOR1_TEPIP, EXTN_INTFS.get(DPN3_ID_STR + ":" + TOR1NODEID));
+
+        EXTN_INTFS.put(DPN1_ID_STR + ":" + TOR2NODEID, new TunnelInterfaceDetails(DPN1_TEPIP, TOR2_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-19", DPN1_ID, 14, 23, DPN1TOTOR2TNLMAC)));
+        EXTN_INTFS.put(DPN1_ID_STR + ":" + TOR2_TEPIP, EXTN_INTFS.get(DPN1_ID_STR + ":" + TOR2NODEID));
+
+        EXTN_INTFS.put(DPN2_ID_STR + ":" + TOR2NODEID, new TunnelInterfaceDetails(DPN2_TEPIP, TOR2_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-20", DPN2_ID, 15, 24, DPN2TOTOR2TNLMAC)));
+        EXTN_INTFS.put(DPN2_ID_STR + ":" + TOR2_TEPIP, EXTN_INTFS.get(DPN2_ID_STR + ":" + TOR2NODEID));
+
+        EXTN_INTFS.put(DPN3_ID_STR + ":" + TOR2NODEID, new TunnelInterfaceDetails(DPN3_TEPIP, TOR2_TEPIP, true,
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-21", DPN3_ID, 16, 25, DPN3TOTOR2TNLMAC)));
+        EXTN_INTFS.put(DPN3_ID_STR + ":" + TOR2_TEPIP, EXTN_INTFS.get(DPN3_ID_STR + ":" + TOR2NODEID));
 
         EXTN_INTFS.put(DPN1_ID_STR + ":" + DCGWID, new TunnelInterfaceDetails(DPN1_TEPIP, DCGW_TEPIP, true,
-                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-14", DPN1_ID, 9, 18, DPN1TODCGWTNLMAC)));
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-22", DPN1_ID, 17, 26, DPN1TODCGWTNLMAC)));
 
         EXTN_INTFS.put(DPN2_ID_STR + ":" + DCGWID, new TunnelInterfaceDetails(DPN2_TEPIP, DCGWID, true,
-                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-15", DPN2_ID, 10, 19, DPN2TODCGWTNLMAC)));
+                InterfaceHelper.buildVxlanInterfaceInfo("tun23701c04-23", DPN2_ID, 18, 27, DPN2TODCGWTNLMAC)));
+
     }
 
     protected ConditionFactory getAwaiter() {
         return Awaitility.await("TestableListener")
-                .atMost(30, TimeUnit.SECONDS)//TODO constant
+                .atMost(300, TimeUnit.SECONDS)//TODO constant
                 .pollInterval(100, TimeUnit.MILLISECONDS);
     }
 
@@ -220,21 +283,59 @@ public class ElanServiceTestBase {
         interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN1MAC2).getLeft());
         interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN2MAC1).getLeft());
         interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN2MAC2).getLeft());
+        interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN3MAC1).getLeft());
+        interfaceMgr.addInterfaceInfo(ELAN_INTERFACES.get(ELAN1 + ":" + DPN3MAC2).getLeft());
+
         interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN2_ID_STR));
         interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN2_ID_STR + ":" + DPN1_ID_STR));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN3_ID_STR));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN3_ID_STR + ":" + DPN1_ID_STR));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN2_ID_STR + ":" + DPN3_ID_STR));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN3_ID_STR + ":" + DPN2_ID_STR));
+
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN1_ID_STR + ":" + TOR1NODEID));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN2_ID_STR + ":" + TOR1NODEID));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN3_ID_STR + ":" + TOR1NODEID));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN1_ID_STR + ":" + TOR2NODEID));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN2_ID_STR + ":" + TOR2NODEID));
+        interfaceMgr.addTunnelInterface(EXTN_INTFS.get(DPN3_ID_STR + ":" + TOR2NODEID));
 
         /*Add DPN1 and DPN2 TEPs*/
         itmRpc.addDpn(DPN1_ID, DPN1_TEPIP);
         itmRpc.addDpn(DPN2_ID, DPN2_TEPIP);
+        itmRpc.addDpn(DPN3_ID, DPN3_TEPIP);
 
         /*add external interface*/
         itmRpc.addInterface(DPN1_ID,
                 DPN2_TEPIP, EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN2_ID_STR).getInterfaceInfo().getInterfaceName());
         itmRpc.addInterface(DPN2_ID,
                 DPN1_TEPIP, EXTN_INTFS.get(DPN2_ID_STR + ":" + DPN1_ID_STR).getInterfaceInfo().getInterfaceName());
+        itmRpc.addInterface(DPN1_ID,
+                DPN3_TEPIP, EXTN_INTFS.get(DPN1_ID_STR + ":" + DPN3_ID_STR).getInterfaceInfo().getInterfaceName());
+        itmRpc.addInterface(DPN3_ID,
+                DPN1_TEPIP, EXTN_INTFS.get(DPN3_ID_STR + ":" + DPN1_ID_STR).getInterfaceInfo().getInterfaceName());
+        itmRpc.addInterface(DPN2_ID,
+                DPN3_TEPIP, EXTN_INTFS.get(DPN2_ID_STR + ":" + DPN3_ID_STR).getInterfaceInfo().getInterfaceName());
+        itmRpc.addInterface(DPN3_ID,
+                DPN2_TEPIP, EXTN_INTFS.get(DPN3_ID_STR + ":" + DPN2_ID_STR).getInterfaceInfo().getInterfaceName());
+
 
         itmRpc.addExternalInterface(DPN1_ID,
                 DCGWID, EXTN_INTFS.get(DPN1_ID_STR + ":" + DCGWID).getInterfaceInfo().getInterfaceName());
+        itmRpc.addExternalInterface(DPN1_ID,
+                TOR1NODEID, EXTN_INTFS.get(DPN1_ID_STR + ":" + TOR1NODEID).getInterfaceInfo().getInterfaceName());
+        itmRpc.addExternalInterface(DPN2_ID,
+                TOR1NODEID, EXTN_INTFS.get(DPN2_ID_STR + ":" + TOR1NODEID).getInterfaceInfo().getInterfaceName());
+        itmRpc.addExternalInterface(DPN3_ID,
+                TOR1NODEID, EXTN_INTFS.get(DPN3_ID_STR + ":" + TOR1NODEID).getInterfaceInfo().getInterfaceName());
+        itmRpc.addExternalInterface(DPN1_ID,
+                TOR2NODEID, EXTN_INTFS.get(DPN1_ID_STR + ":" + TOR2NODEID).getInterfaceInfo().getInterfaceName());
+        itmRpc.addExternalInterface(DPN2_ID,
+                TOR2NODEID, EXTN_INTFS.get(DPN2_ID_STR + ":" + TOR2NODEID).getInterfaceInfo().getInterfaceName());
+        itmRpc.addExternalInterface(DPN3_ID,
+                TOR2NODEID, EXTN_INTFS.get(DPN3_ID_STR + ":" + TOR2NODEID).getInterfaceInfo().getInterfaceName());
+
+
     }
 
     protected InstanceIdentifier<Flow> getFlowIid(short tableId, FlowId flowid, BigInteger dpnId) {

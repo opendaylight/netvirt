@@ -15,6 +15,10 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -50,6 +54,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Listener to handle physical switch updates.
  */
+@Singleton
 public class HwvtepPhysicalSwitchListener
         extends HwvtepAbstractDataTreeChangeListener<PhysicalSwitchAugmentation, HwvtepPhysicalSwitchListener>
         implements ClusteredDataTreeChangeListener<PhysicalSwitchAugmentation> {
@@ -122,6 +127,7 @@ public class HwvtepPhysicalSwitchListener
     /**
      * Instantiates a new hwvtep physical switch listener.
      */
+    @Inject
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
             ElanClusterUtils elanClusterUtils, L2gwServiceProvider l2gwServiceProvider,
             HAOpClusteredListener haListener) {
@@ -134,6 +140,7 @@ public class HwvtepPhysicalSwitchListener
     }
 
     @Override
+    @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
