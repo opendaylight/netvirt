@@ -7,6 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.nodehandlertest;
 
+import com.google.common.collect.ImmutableList;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -86,6 +88,10 @@ public final class DataProvider {
         portNames.add("s3-eth6");
         portNames.add("s3-eth7");
         return portNames;
+    }
+
+    public static List<String> getPortNameListTor2() {
+        return ImmutableList.of("s4-eth1", "s4-eth2");
     }
 
     public static String getLogicalSwitchDataD1() {

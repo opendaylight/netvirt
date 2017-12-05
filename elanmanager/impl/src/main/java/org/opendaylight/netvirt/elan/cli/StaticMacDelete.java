@@ -11,6 +11,7 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
+import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,7 +33,7 @@ public class StaticMacDelete  extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() {
+    protected Object doExecute() throws MacNotFoundException {
         LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
                 + staticMacAddress + "\t");
         elanProvider.deleteStaticMacAddress(interfaceName, staticMacAddress);
