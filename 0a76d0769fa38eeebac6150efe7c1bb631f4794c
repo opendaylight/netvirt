@@ -1,0 +1,283 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_aa04ab15",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "shouldn\u0027t this be \u0027single-subnet\u0027?",
+      "range": {
+        "startLine": 42,
+        "startChar": 52,
+        "endLine": 42,
+        "endChar": 65
+      },
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_caff6700",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "move it up, alphabetical order",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_0a0a1f21",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "Is there counterpart openstack doc/spec for it?",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_4a13775c",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "Remove indent, indentation makes it part of code block above.",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_ca2647ba",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_0a217f9f",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "formatting, not sure what is intention here.",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_ea2503ac",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "use .. note:: for note",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_4a3a57ce",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_6a3113ec",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "use emphasize-lines instead of **",
+      "range": {
+        "startLine": 201,
+        "startChar": 23,
+        "endLine": 201,
+        "endChar": 73
+      },
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_4a41b738",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_aa794b95",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_0a6fbfc6",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "same as above",
+      "range": {
+        "startLine": 283,
+        "startChar": 80,
+        "endLine": 283,
+        "endChar": 84
+      },
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_ea7343af",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 349,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "use code-block tag and caption:neutronvpn.yang",
+      "range": {
+        "startLine": 347,
+        "startChar": 0,
+        "endLine": 349,
+        "endChar": 17
+      },
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_4a6897ba",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 438,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "This should capture OpenStack Cli to configure mutiple routers with same subnet. This section is useful when testing or writing CSIT. IT also gives user an idea how to use it.",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_2a655be1",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 554,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-05T18:36:07Z",
+      "side": 1,
+      "message": "not needed. better to add links to any opnstack documentation relevant to this.",
+      "revId": "0a76d0769fa38eeebac6150efe7c1bb631f4794c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
