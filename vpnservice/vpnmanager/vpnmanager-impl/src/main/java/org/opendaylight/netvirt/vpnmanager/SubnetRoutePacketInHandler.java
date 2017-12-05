@@ -201,16 +201,26 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
             VpnManagerCounters.subnet_route_packet_failed.inc();
             return;
         }
-
         if (VpnHelper.doesVpnInterfaceBelongToVpnInstance(vpnIdVpnInstanceName,
-                      vmVpnInterface.getVpnInstanceNames())) {
+               vmVpnInterface.getVpnInstanceNames())
+               && !VpnUtil.isBgpVpnInternet(dataBroker, vpnIdVpnInstanceName)) {
             LOG.trace("Unknown IP is in internal network");
             handlePacketToInternalNetwork(dstIp, dstIpStr, destinationAddress, elanTag);
         } else {
             LOG.trace("Unknown IP is in external network");
-            String vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface);
-            handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName),
-                               vpnName, dstIp, elanTag);
+            String vpnName = VpnUtil.getInternetVpnFromVpnInstanceList(dataBroker,
+                                vmVpnInterface.getVpnInstanceNames());
+            if (vpnName != null) {
+                handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName),
+                                   vpnName, dstIp, elanTag);
+            } else {
+                vpnName = VpnHelper.getFirstVpnNameFromVpnInterface(vmVpnInterface);
+                LOG.trace("Unknown IP is in external network, but internet VPN not found."
+                         + " fallback to first VPN");
+                handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName),
+                                   vpnName, dstIp, elanTag);
+
+            }
         }
     }
 
@@ -311,6 +321,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         return;
     }
 
+    // return only the first VPN subnetopdataentry
     private static SubnetOpDataEntry getTargetSubnetForPacketOut(DataBroker broker, long elanTag, int ipAddress) {
         ElanTagName elanInfo = VpnUtil.getElanInfoByElanTag(broker, elanTag);
         if (elanInfo == null) {
@@ -330,8 +341,17 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         LOG.debug("{} getTargetDpnForPacketOut: Obtained subnetList as {} for network {}", LOGGING_PREFIX, subnetList,
                 elanInfo.getName());
         for (Uuid subnetId : subnetList) {
-            Optional<SubnetOpDataEntry> optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
-                    VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
+            String vpnName = null;
+            Subnetmap sn = VpnUtil.getSubnetmapFromItsUuid(broker, subnetId);
+            if (sn != null && sn.getVpnId() != null) {
+                vpnName = sn.getVpnId().getValue();
+            }
+            if (vpnName == null) {
+                continue;
+            }
+            Optional<SubnetOpDataEntry> optionalSubs;
+            optionalSubs = VpnUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                  VpnUtil.buildSubnetOpDataEntryInstanceIdentifier(subnetId));
             if (!optionalSubs.isPresent()) {
                 continue;
             }
@@ -346,7 +366,6 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                 }
             }
         }
-
         return null;
     }
 
