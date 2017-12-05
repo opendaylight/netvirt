@@ -58,6 +58,12 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${infrautils.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.netvirt</groupId>
+            <artifactId>cache-impl</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>org.ops4j.pax.cdi</groupId>
             <artifactId>pax-cdi-api</artifactId>
             <optional>true</optional>
@@ -173,6 +179,12 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.opendaylight.genius</groupId>
             <artifactId>interfacemanager-impl</artifactId>
             <version>${genius.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.infrautils</groupId>
+            <artifactId>metrics-impl-test</artifactId>
+            <version>${infrautils.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>

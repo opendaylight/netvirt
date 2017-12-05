@@ -9,6 +9,8 @@ package org.opendaylight.netvirt.elanmanager.tests;
 
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 
+import com.google.common.base.Optional;
+
 import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.test.DataBrokerTestModule;
@@ -21,12 +23,17 @@ import org.opendaylight.genius.interfacemanager.renderer.ovs.utilities.BatchingU
 import org.opendaylight.genius.lockmanager.impl.LockManagerServiceImpl;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.internal.MDSALManager;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
+import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.diagstatus.DiagStatusService;
 import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Module;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
+import org.opendaylight.mdsal.eos.common.api.EntityOwnershipState;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.cache.impl.l2gw.L2GatewayCacheImpl;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.tests.utils.BgpManagerTestImpl;
@@ -34,6 +41,7 @@ import org.opendaylight.netvirt.elanmanager.tests.utils.ElanEgressActionsHelper;
 import org.opendaylight.netvirt.elanmanager.tests.utils.IdHelper;
 import org.opendaylight.netvirt.elanmanager.tests.utils.VpnManagerTestImpl;
 import org.opendaylight.netvirt.neutronvpn.NeutronvpnManagerImpl;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -59,7 +67,14 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
     @Override
     protected void configureBindings() {
         DataBroker dataBroker = DataBrokerTestModule.dataBroker();
-        bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
+        EntityOwnershipService mockedEntityOwnershipService = Mockito.mock(EntityOwnershipService.class);
+        EntityOwnershipState mockedEntityOwnershipState = EntityOwnershipState.IS_OWNER;
+        Mockito.when(mockedEntityOwnershipService.getOwnershipState(Mockito.any()))
+                .thenReturn(Optional.of(mockedEntityOwnershipState));
+        bind(EntityOwnershipService.class).toInstance(mockedEntityOwnershipService);
+        bind(L2GatewayCache.class).to(L2GatewayCacheImpl.class);
+        bind(HwvtepNodeHACache.class).to(HwvtepHACache.class);
+        bind(ServiceRecoveryRegistry.class).toInstance(Mockito.mock(ServiceRecoveryRegistry.class));
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
         IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
         bind(IMdsalApiManager.class).toInstance(new MDSALManager(dataBroker,
@@ -80,14 +95,14 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
 
         // Bindings to test infra (fakes & mocks)
 
-        TestInterfaceManager obj = TestInterfaceManager.newInstance(dataBroker);
+        TestInterfaceManager testInterfaceManager = TestInterfaceManager.newInstance(dataBroker);
         ItmRpcService itmRpcService = new ItmRpcTestImpl();
 
         bind(DataBroker.class).toInstance(dataBroker);
         bind(DataBroker.class).annotatedWith(OsgiService.class).toInstance(dataBroker);
         bind(IdManagerService.class).toInstance(Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS));
-        bind(IInterfaceManager.class).toInstance(obj);
-        bind(TestInterfaceManager.class).toInstance(obj);
+        bind(IInterfaceManager.class).toInstance(testInterfaceManager);
+        bind(TestInterfaceManager.class).toInstance(testInterfaceManager);
         InterfaceMetaUtils interfaceMetaUtils = new InterfaceMetaUtils(dataBroker,
                 Mockito.mock(IdHelper.class,  CALLS_REAL_METHODS),
                 Mockito.mock(BatchingUtils.class));
@@ -99,7 +114,9 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
                 interfaceMetaUtils,
                 Mockito.mock(BatchingUtils.class));
 
-        bind(OdlInterfaceRpcService.class).toInstance(ElanEgressActionsHelper.newInstance(interfaceManagerCommonUtils));
+
+        bind(OdlInterfaceRpcService.class).toInstance(ElanEgressActionsHelper.newInstance(interfaceManagerCommonUtils,
+                testInterfaceManager));
         SingleTransactionDataBroker singleTransactionDataBroker = new SingleTransactionDataBroker(dataBroker);
         bind(SingleTransactionDataBroker.class).toInstance(singleTransactionDataBroker);
         IBgpManager ibgpManager = BgpManagerTestImpl.newInstance(singleTransactionDataBroker);
