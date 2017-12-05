@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_801271b2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/LocalUcastMacListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-05T21:44:03Z",
+      "side": 0,
+      "message": "see below line 149",
+      "revId": "e9f4b227287b88fddb4dfafdee7fc251ec0ff362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_601775a4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/LocalUcastMacListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-05T21:44:03Z",
+      "side": 0,
+      "message": "Looked suspicious at first but... huh, this is a get on a private Map without put.. so it has no impact, so you removed - seems fine.",
+      "revId": "e9f4b227287b88fddb4dfafdee7fc251ec0ff362",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
