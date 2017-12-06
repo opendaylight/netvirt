@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
@@ -29,6 +30,7 @@ import org.opendaylight.netvirt.coe.utils.CoeUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.Coe;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.pod_attributes.Interface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -70,72 +72,128 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     }
 
     @Override
-    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Pods>> changes) {
-        for (DataTreeModification<Pods> change : changes) {
-            final DataObjectModification<Pods> mod = change.getRootNode();
+    public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Pods>> collection) {
+        collection.stream().forEach(podsDataTreeModification -> {
+            podsDataTreeModification.getRootNode().getModifiedChildren().stream().filter(
+                dataObjectModification -> dataObjectModification.getDataType().equals(Interface.class))
+                    .forEach(dataObjectModification -> onPodInterfacesChanged(
+                            (DataObjectModification<Interface>) dataObjectModification,
+                            podsDataTreeModification.getRootPath().getRootIdentifier(),
+                            podsDataTreeModification.getRootNode()));
+        }
+        );
+    }
 
-            switch (mod.getModificationType()) {
-                case DELETE:
-                    delete(mod.getDataBefore());
-                    break;
-                case SUBTREE_MODIFIED:
-                    update(mod.getDataBefore(), mod.getDataAfter());
-                    break;
-                case WRITE:
-                    if (mod.getDataBefore() == null) {
-                        add(mod.getDataAfter());
-                    } else {
-                        update(mod.getDataBefore(), mod.getDataAfter());
-                    }
-                    break;
-                default:
-                    LOG.error("Unhandled modification type " + mod.getModificationType());
-                    break;
-            }
+    public void onPodInterfacesChanged(final DataObjectModification<Interface> dataObjectModification,
+                                       final InstanceIdentifier<Pods> rootIdentifier,
+                                       DataObjectModification<Pods> rootNode) {
+        Pods pods = rootNode.getDataAfter();
+        Pods podsBefore = rootNode.getDataBefore();
+        Interface podInterfaceBefore = dataObjectModification.getDataBefore();
+        Interface podInterfaceAfter = dataObjectModification.getDataAfter();
+        switch (dataObjectModification.getModificationType()) {
+            case DELETE:
+                remove(pods, podInterfaceBefore);
+                break;
+            case SUBTREE_MODIFIED:
+                update(pods, podsBefore, podInterfaceBefore, podInterfaceAfter);
+                break;
+            case WRITE:
+                if (podInterfaceBefore == null) {
+                    add(pods, podInterfaceAfter);
+                } else {
+                    update(pods, podsBefore, podInterfaceBefore, podInterfaceAfter);
+                }
+                break;
+            default:
+                LOG.error("Unhandled Modificiation Type{} for {}", dataObjectModification.getModificationType(),
+                        rootIdentifier);
         }
     }
 
-    private void add(Pods podsNew) {
-        Interface podInterface = podsNew.getInterface().get(0);
-
-        String network = podInterface.getNetworkId().getValue();
-        if (network == null) {
-            LOG.warn("pod {} added without a valid network id", podInterface.getUid().getValue());
+    private void add(Pods pods, Interface podInterface) {
+        LOG.trace("Pod added {}",pods);
+        if (pods.getNetworkNS() == null || pods.getHostIpAddress() == null) {
+            LOG.warn("pod {} added with insufficient information to process", pods.getName());
             return;
         }
         // TODO use infrautils caching mechanism to add this info to cache.
 
-        String podInterfaceName = podInterface.getUid().getValue();
-        jobCoordinator.enqueueJob(podInterfaceName, new RendererConfigAddWorker(podInterfaceName, podInterface));
-
+        jobCoordinator.enqueueJob(pods.getName(), new PodConfigAddWorker(dataBroker, pods, podInterface));
     }
 
-    private void update(Pods podsOld, Pods podsNew) {
-        // TODO
+    private void update(Pods podsAfter, Pods podsBefore, Interface podInterfaceBefore, Interface podInterfaceAfter) {
+        LOG.trace("Pod updated before :{}, after :{}",podsBefore, podsAfter);
+        if (!Objects.equals(podsAfter.getNetworkNS(), podsBefore.getNetworkNS())
+                || !Objects.equals(podsAfter.getHostIpAddress(), podsBefore.getHostIpAddress())) {
+            if (podsBefore.getNetworkNS() != null || podsBefore.getHostIpAddress() != null) {
+                // Case where pod is moving from one namespace to another
+                // issue a delete of all previous configuration, and add the new one.
+                jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigRemoveWorker(dataBroker, podsBefore));
+            }
+            jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigAddWorker(dataBroker, podsAfter, podInterfaceAfter));
+        }
+        // TODO use infrautils caching mechanism to add this info to cache.
     }
 
-    private void delete(Pods podsOld) {
-         // TODO
+    private void remove(Pods pods, Interface podInterface) {
+        LOG.trace("Pod reomved {}", pods);
+        if (pods.getNetworkNS() == null || pods.getHostIpAddress() == null) {
+            LOG.warn("pod {} deletion without a valid network id {}", podInterface.getUid().getValue());
+            return;
+        }
+
+        jobCoordinator.enqueueJob(pods.getName(), new PodConfigRemoveWorker(dataBroker, pods));
     }
 
-    private class RendererConfigAddWorker implements Callable<List<ListenableFuture<Void>>> {
-        String podInterfaceName;
-        Interface podInterface;
+    private static class PodConfigAddWorker implements Callable<List<ListenableFuture<Void>>> {
+        private final Pods pods;
+        private final Interface podInterface;
+        private final DataBroker dataBroker;
 
-        RendererConfigAddWorker(String podInterfaceName, Interface podInterface) {
-            this.podInterfaceName = podInterfaceName;
+        PodConfigAddWorker(DataBroker dataBroker, Pods pods, Interface podInterface) {
+            this.pods = pods;
             this.podInterface = podInterface;
+            this.dataBroker = dataBroker;
         }
 
         @Override
         public List<ListenableFuture<Void>> call() {
             LOG.trace("Adding Pod : {}", podInterface);
+            String interfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(podInterface, wrtConfigTxn, dataBroker);
-            LOG.info("interface creation for pod {}", podInterfaceName);
-            String portInterfaceName = CoeUtils.createOfPortInterface(podInterface, wrtConfigTxn, dataBroker);
-            LOG.debug("Creating ELAN Interface for pod {}", podInterfaceName);
-            CoeUtils.createElanInterface(podInterface, portInterfaceName, wrtConfigTxn);
+            String nodeIp = String.valueOf(pods.getHostIpAddress().getValue());
+            ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
+                    pods.getNetworkNS(), nodeIp, podInterface, wrtConfigTxn, dataBroker);
+            LOG.info("interface creation for pod {}", interfaceName);
+            String portInterfaceName = CoeUtils.createOfPortInterface(interfaceName, podInterface, wrtConfigTxn);
+            LOG.debug("Creating ELAN Interface for pod {}", interfaceName);
+            CoeUtils.createElanInterface(podInterface, portInterfaceName,
+                    elanInstance.getElanInstanceName(), wrtConfigTxn);
+            return Collections.singletonList(wrtConfigTxn.submit());
+        }
+    }
+
+    private static class PodConfigRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
+        private final Pods pods;
+        private final DataBroker dataBroker;
+
+        PodConfigRemoveWorker(DataBroker dataBroker, Pods pods) {
+            this.pods = pods;
+            this.dataBroker = dataBroker;
+        }
+
+        @Override
+        public List<ListenableFuture<Void>> call() {
+            String podInterfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
+            LOG.trace("Deleting Pod : {}", podInterfaceName);
+            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+            LOG.debug("Deleting ELAN Interface for pod {}", podInterfaceName);
+            CoeUtils.deleteElanInterface(podInterfaceName, wrtConfigTxn);
+            LOG.info("interface deletion for pod {}", podInterfaceName);
+            CoeUtils.deleteOfPortInterface(podInterfaceName, wrtConfigTxn);
+            // TODO delete elan-instance if this is the last pod in the network
+            // TODO use infrautils cache to maintain this mapping and to decide on elan-instance deletion
             return Collections.singletonList(wrtConfigTxn.submit());
         }
     }

@@ -41,6 +41,8 @@ import org.slf4j.LoggerFactory;
 
 public final class CoeUtils {
     private static final Logger LOG = LoggerFactory.getLogger(CoeUtils.class);
+
+    private static final String SEPARATOR = ":";
     public static final ImmutableBiMap<NetworkAttributes.NetworkType, Class<? extends SegmentTypeBase>>
             NETWORK_MAP =
             new ImmutableBiMap.Builder<NetworkAttributes.NetworkType, Class<? extends SegmentTypeBase>>()
@@ -60,10 +62,12 @@ public final class CoeUtils {
         return id;
     }
 
+    public static String buildInterfaceName(String networkNS, String podName) {
+        return new StringBuilder().append(networkNS).append(SEPARATOR).append(podName).toString();
+    }
+
     static org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
-            .Interface buildInterface(org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611
-                                                         .pod_attributes.Interface podInterface) {
-        String interfaceName = podInterface.getUid().getValue();
+            .Interface buildInterface(String interfaceName) {
         IfL2vlan.L2vlanMode l2VlanMode = IfL2vlan.L2vlanMode.Trunk;
         InterfaceBuilder interfaceBuilder = new InterfaceBuilder();
         IfL2vlanBuilder ifL2vlanBuilder = new IfL2vlanBuilder();
@@ -93,32 +97,41 @@ public final class CoeUtils {
 
     public static void createElanInterface(org.opendaylight.yang.gen.v1.urn.opendaylight.coe
                                                    .northbound.pod.rev170611.pod_attributes.Interface podInterface,
-                                           String name, WriteTransaction wrtConfigTxn) {
-        String elanInstanceName = podInterface.getNetworkId().getValue();
+                                           String elanInterfaceName, String elanInstanceName,
+                                           WriteTransaction wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
-                .class, new ElanInterfaceKey(name)).build();
+                .class, new ElanInterfaceKey(elanInterfaceName)).build();
+        // TODO set static mac entries based on pod interface mac
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
-                .setName(name).setKey(new ElanInterfaceKey(name)).build();
+                .setName(elanInterfaceName).setKey(new ElanInterfaceKey(elanInterfaceName)).build();
         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELAN Interface {}", elanInterface);
     }
 
-    public static String createOfPortInterface(org.opendaylight.yang.gen.v1.urn.opendaylight.coe
+    public static void deleteElanInterface(String elanInterfaceName, WriteTransaction wrtConfigTxn) {
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
+                .class, new ElanInterfaceKey(elanInterfaceName)).build();
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, id);
+        LOG.debug("Deleting ELAN Interface {}", elanInterfaceName);
+    }
+
+    public static String createOfPortInterface(String interfaceName,
+                                               org.opendaylight.yang.gen.v1.urn.opendaylight.coe
                                                        .northbound.pod.rev170611.pod_attributes.Interface podInterface,
-                                               WriteTransaction wrtConfigTxn, DataBroker dataBroker) {
+                                               WriteTransaction wrtConfigTxn) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface inf =
-                buildInterface(podInterface);
+                buildInterface(interfaceName);
         String infName = inf.getName();
-        LOG.debug("Creating OFPort Interface {}", infName);
+        LOG.info("Creating OFPort Interface {}", infName);
         InstanceIdentifier interfaceIdentifier = CoeUtils.buildVlanInterfaceIdentifier(infName);
-        Optional<Interface> optionalInf = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                interfaceIdentifier);
-        if (!optionalInf.isPresent()) {
-            wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
-        } else {
-            LOG.warn("Interface {} is already present", infName);
-        }
+        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier, inf);
         return infName;
+    }
+
+    public static void deleteOfPortInterface(String infName, WriteTransaction wrtConfigTxn) {
+        LOG.debug("Deleting OFPort Interface {}", infName);
+        InstanceIdentifier interfaceIdentifier = CoeUtils.buildVlanInterfaceIdentifier(infName);
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, interfaceIdentifier);
     }
 
     static InstanceIdentifier<ElanInstance> createElanInstanceIdentifier(String elanInstanceName) {
@@ -133,10 +146,15 @@ public final class CoeUtils {
         return CoeUtils.NETWORK_MAP.get(elanInterface.getNetworkType());
     }
 
-    public static ElanInstance createElanInstanceForTheFirstPodInTheNetwork(
-            org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.pod_attributes.Interface
-                    podInterface, WriteTransaction wrtConfigTxn, DataBroker dataBroker) {
-        String elanInstanceName = podInterface.getNetworkId().getValue();
+    public static String buildElanInstanceName(String nodeIp, String networkNS) {
+        return new StringBuilder().append(nodeIp).append(SEPARATOR).append(networkNS).toString();
+    }
+
+    public static ElanInstance createElanInstanceForTheFirstPodInTheNetwork(String networkNS, String nodeIp,
+                                                 org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod
+                                                         .rev170611.pod_attributes.Interface podInterface,
+                                                 WriteTransaction wrtConfigTxn, DataBroker dataBroker) {
+        String elanInstanceName = buildElanInstanceName(nodeIp, networkNS);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
         Optional<ElanInstance> existingElanInstance = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 id);
