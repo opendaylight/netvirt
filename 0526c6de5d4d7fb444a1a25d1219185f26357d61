@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_cdee618b",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_000cc141",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 27
+      },
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_604f7593",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 10
@@ -36,6 +60,24 @@
       "writtenOn": "2017-12-05T18:02:26Z",
       "side": 1,
       "message": "Add a newline above this.",
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_8d4e29c0",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_604f7593",
       "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_6d4bedb0",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_c0446976",
+      "range": {
+        "startLine": 38,
+        "startChar": 47,
+        "endLine": 39,
+        "endChar": 33
+      },
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a0496d8d",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 10
@@ -82,6 +148,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_6de2cda0",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "I don\u0027t know if this is possible inside a code block.",
+      "parentUuid": "7a1969be_a0496d8d",
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_005e8145",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 10
@@ -93,6 +177,30 @@
       "writtenOn": "2017-12-05T18:02:26Z",
       "side": 1,
       "message": "This should be a sub title.\n\nWorkflow\n--------",
+      "range": {
+        "startLine": 72,
+        "startChar": 0,
+        "endLine": 72,
+        "endChar": 9
+      },
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_cdc78111",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_005e8145",
       "range": {
         "startLine": 72,
         "startChar": 0,
@@ -128,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_adccc536",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_e05a454f",
+      "range": {
+        "startLine": 73,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 72
+      },
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_20557d1d",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 10
@@ -139,6 +271,30 @@
       "writtenOn": "2017-12-05T18:02:26Z",
       "side": 1,
       "message": "code-block. Also, this may work better in CLI section of usage.",
+      "range": {
+        "startLine": 108,
+        "startChar": 0,
+        "endLine": 108,
+        "endChar": 116
+      },
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_0dd239d2",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_20557d1d",
       "range": {
         "startLine": 108,
         "startChar": 0,
@@ -174,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_8de589aa",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_60365505",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 112,
+        "endChar": 4
+      },
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_a0404d57",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 10
@@ -185,6 +365,30 @@
       "writtenOn": "2017-12-05T18:02:26Z",
       "side": 1,
       "message": "remove this and add information.",
+      "range": {
+        "startLine": 178,
+        "startChar": 0,
+        "endLine": 178,
+        "endChar": 54
+      },
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_2dd8d5ee",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_a0404d57",
       "range": {
         "startLine": 178,
         "startChar": 0,
@@ -214,6 +418,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_4ddb91ed",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 188,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_e021a5b5",
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_8018b185",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 10
@@ -225,6 +447,24 @@
       "writtenOn": "2017-12-05T18:02:26Z",
       "side": 1,
       "message": "would be good to add https://specs.openstack.org/openstack/neutron-specs/specs/api/ports_binding_extended_attributes__ports_.html too.",
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_edd6bdc4",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-06T10:20:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_8018b185",
       "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
