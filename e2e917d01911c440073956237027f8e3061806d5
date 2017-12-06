@@ -343,6 +343,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_0d423910",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-06T07:01:49Z",
+      "side": 1,
+      "message": "Ok got it, thanks.",
+      "parentUuid": "7a1969be_459feb5f",
+      "range": {
+        "startLine": 57,
+        "startChar": 22,
+        "endLine": 58,
+        "endChar": 23
+      },
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9a245df4_8047acbb",
         "filename": "docs/specs/weighted-napt-selection.rst",
         "patchSetId": 2
@@ -372,6 +396,24 @@
       "side": 1,
       "message": "you did misunderstand what weight means, but get your point on test case and agree. I think may work better with 3 computes.",
       "parentUuid": "9a245df4_8047acbb",
+      "revId": "e2e917d01911c440073956237027f8e3061806d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_6d52cdde",
+        "filename": "docs/specs/weighted-napt-selection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 166,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-06T07:01:49Z",
+      "side": 1,
+      "message": "+1 for a test case with three computes.",
+      "parentUuid": "9a245df4_ba9c675e",
       "revId": "e2e917d01911c440073956237027f8e3061806d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
