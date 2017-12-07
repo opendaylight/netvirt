@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_7e55551c",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-12-07T08:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_11953d40",
+      "range": {
+        "startLine": 44,
+        "startChar": 3,
+        "endLine": 44,
+        "endChar": 9
+      },
+      "revId": "83b143929c010683a0d7eaa25aa3de8c8f6357aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_f1918153",
         "filename": "docs/specs/coe-integration.rst",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-04T12:13:05Z",
       "side": 1,
       "message": "`coe` to highlight.",
+      "range": {
+        "startLine": 51,
+        "startChar": 20,
+        "endLine": 51,
+        "endChar": 25
+      },
+      "revId": "83b143929c010683a0d7eaa25aa3de8c8f6357aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_9e581158",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-12-07T08:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_f1918153",
       "range": {
         "startLine": 51,
         "startChar": 20,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_3e5bdd55",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 137,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-12-07T08:51:59Z",
+      "side": 1,
+      "message": "yeah..thanks..actually interfacename should be namespace:podname..and that will come in external-id from southbound",
+      "parentUuid": "7a1969be_319cb969",
+      "range": {
+        "startLine": 137,
+        "startChar": 10,
+        "endLine": 137,
+        "endChar": 30
+      },
+      "revId": "83b143929c010683a0d7eaa25aa3de8c8f6357aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_d18285ff",
         "filename": "docs/specs/coe-integration.rst",
         "patchSetId": 8
@@ -82,6 +154,30 @@
       "writtenOn": "2017-12-04T12:13:05Z",
       "side": 1,
       "message": "fix indentation. code block not generated correctly",
+      "range": {
+        "startLine": 239,
+        "startChar": 0,
+        "endLine": 258,
+        "endChar": 1
+      },
+      "revId": "83b143929c010683a0d7eaa25aa3de8c8f6357aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_5e5e9946",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-12-07T08:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_d18285ff",
       "range": {
         "startLine": 239,
         "startChar": 0,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_fe49458c",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-12-07T08:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_117c1d20",
+      "range": {
+        "startLine": 270,
+        "startChar": 0,
+        "endLine": 286,
+        "endChar": 1
+      },
+      "revId": "83b143929c010683a0d7eaa25aa3de8c8f6357aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_5176953f",
         "filename": "docs/specs/coe-integration.rst",
         "patchSetId": 8
@@ -128,6 +248,30 @@
       "writtenOn": "2017-12-04T12:13:05Z",
       "side": 1,
       "message": "indentation",
+      "range": {
+        "startLine": 297,
+        "startChar": 0,
+        "endLine": 309,
+        "endChar": 1
+      },
+      "revId": "83b143929c010683a0d7eaa25aa3de8c8f6357aa",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_1e454170",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 309,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2017-12-07T08:51:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_5176953f",
       "range": {
         "startLine": 297,
         "startChar": 0,
