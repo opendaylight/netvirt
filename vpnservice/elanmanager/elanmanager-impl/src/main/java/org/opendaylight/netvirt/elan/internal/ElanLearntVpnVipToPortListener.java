@@ -16,6 +16,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.RetryingManagedNewTransactionRunner;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -34,6 +36,7 @@ public class ElanLearntVpnVipToPortListener extends
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
+    private final ManagedNewTransactionRunner txRunner;
 
     public ElanLearntVpnVipToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
             JobCoordinator jobCoordinator) {
@@ -42,6 +45,7 @@ public class ElanLearntVpnVipToPortListener extends
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
+        this.txRunner = new RetryingManagedNewTransactionRunner(this.broker);
     }
 
     @Override
@@ -99,19 +103,16 @@ public class ElanLearntVpnVipToPortListener extends
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-            if (elanInterface == null) {
-                LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
-                return Collections.emptyList();
-            }
-            WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
-            WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            elanUtils.addMacEntryToDsAndSetupFlows(interfaceManager, interfaceName, macAddress,
-                    elanInterface.getElanInstanceName(), interfaceTx, flowTx, ElanConstants.STATIC_MAC_TIMEOUT);
-            List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(interfaceTx.submit());
-            futures.add(flowTx.submit());
-            return futures;
+            return Collections.singletonList(
+            txRunner.callWithNewReadWriteTransactionAndSubmit(rwTx -> {
+                ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceNameNewAPI(rwTx, interfaceName);
+                if (elanInterface == null) {
+                    LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
+                    return;
+                }
+                elanUtils.addMacEntryToDsAndSetupFlows(interfaceManager, interfaceName, macAddress,
+                        elanInterface.getElanInstanceName(), rwTx, rwTx, ElanConstants.STATIC_MAC_TIMEOUT);
+            }));
         }
     }
 

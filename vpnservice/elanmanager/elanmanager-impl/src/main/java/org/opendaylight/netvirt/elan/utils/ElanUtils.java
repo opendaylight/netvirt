@@ -35,6 +35,7 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -362,6 +363,28 @@ public class ElanUtils {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
     }
 
+    // elan-interfaces Config Container
+    @SuppressWarnings("deprecation")
+    public static ElanInterface getElanInterfaceByElanInterfaceNameNewAPI(ReadWriteTransaction rwtx,
+            String elanInterfaceName) {
+        ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
+        if (elanInterfaceObj != null) {
+            return elanInterfaceObj;
+        }
+        InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+        try {
+            CheckedFuture<Optional<ElanInterface>, ReadFailedException> futureOptional =
+                    rwtx.read(LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
+            Optional<ElanInterface> optional = futureOptional.get();
+            return optional.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("getElanInterfaceByElanInterfaceNameNewAPI: ReadFailedException while reading data from {}"
+                    + " store path {}; returning Optional.absent()", LogicalDatastoreType.CONFIGURATION,
+                    elanInterfaceId, e);
+            return null;
+        }
+    }
+
     public static EtreeInterface getEtreeInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(broker, elanInterfaceName);
         if (elanInterface == null) {
@@ -665,7 +688,7 @@ public class ElanUtils {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                 writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
-                broker, writeFlowGroupTx);
+                    writeFlowGroupTx);
         }
     }
 
@@ -846,9 +869,8 @@ public class ElanUtils {
     }
 
     private void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-                                    boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager,
-                                    DataBroker broker, WriteTransaction writeFlowGroupTx)
-                                    throws ElanException {
+                      boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager, WriteTransaction writeFlowGroupTx)
+                      throws ElanException {
         BigInteger dpId = interfaceInfo.getDpId();
         String ifName = interfaceInfo.getInterfaceName();
         long ifTag = interfaceInfo.getInterfaceTag();
