@@ -184,6 +184,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_5e8979c9",
+        "filename": "docs/specs/sriov-hardware-offload.rst",
+        "patchSetId": 10
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-07T08:08:52Z",
+      "side": 1,
+      "message": "great, thanks!",
+      "parentUuid": "7a1969be_dec72911",
+      "revId": "0526c6de5d4d7fb444a1a25d1219185f26357d61",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_005e8145",
         "filename": "docs/specs/sriov-hardware-offload.rst",
         "patchSetId": 10
