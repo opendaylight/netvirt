@@ -362,6 +362,20 @@ public class ElanUtils {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
     }
 
+    // elan-interfaces Config Container
+    public static Optional<ElanInterface> getElanInterfaceByElanInterfaceName(ReadOnlyTransaction rwtx,
+            String elanInterfaceName) throws ReadFailedException {
+        ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
+        if (elanInterfaceObj != null) {
+            return Optional.of(elanInterfaceObj);
+        }
+        InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+        CheckedFuture<Optional<ElanInterface>, ReadFailedException> futureOptional =
+                rwtx.read(LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
+        Optional<ElanInterface> optional = futureOptional.checkedGet();
+        return optional;
+    }
+
     public static EtreeInterface getEtreeInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(broker, elanInterfaceName);
         if (elanInterface == null) {
@@ -665,7 +679,7 @@ public class ElanUtils {
             setupKnownSmacFlow(elanInfo, interfaceInfo, macTimeout, macAddress, mdsalManager,
                 writeFlowGroupTx);
             setupOrigDmacFlows(elanInfo, interfaceInfo, macAddress, configureRemoteFlows, mdsalManager,
-                broker, writeFlowGroupTx);
+                    writeFlowGroupTx);
         }
     }
 
@@ -846,9 +860,8 @@ public class ElanUtils {
     }
 
     private void setupOrigDmacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo, String macAddress,
-                                    boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager,
-                                    DataBroker broker, WriteTransaction writeFlowGroupTx)
-                                    throws ElanException {
+                      boolean configureRemoteFlows, IMdsalApiManager mdsalApiManager, WriteTransaction writeFlowGroupTx)
+                      throws ElanException {
         BigInteger dpId = interfaceInfo.getDpId();
         String ifName = interfaceInfo.getInterfaceName();
         long ifTag = interfaceInfo.getInterfaceTag();
