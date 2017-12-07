@@ -35,6 +35,7 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -348,6 +349,20 @@ public class ElanUtils {
         return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
     }
 
+    // elan-interfaces Config Container
+    public Optional<ElanInterface> getElanInterfaceByElanInterfaceName(ReadTransaction rwtx,
+            String elanInterfaceName) throws ReadFailedException {
+        ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
+        if (elanInterfaceObj != null) {
+            return Optional.of(elanInterfaceObj);
+        }
+        InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+        CheckedFuture<Optional<ElanInterface>, ReadFailedException> futureOptional =
+                rwtx.read(LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
+        Optional<ElanInterface> optional = futureOptional.checkedGet();
+        return optional;
+    }
+
     public static EtreeInterface getEtreeInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
         ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(broker, elanInterfaceName);
         if (elanInterface == null) {
@@ -641,7 +656,7 @@ public class ElanUtils {
      * @param configureRemoteFlows
      *            true if remote dmac flows should be configured as well
      * @param writeFlowGroupTx
-     *            the flow group tx
+     *            the flow group tx (ConfigDS transaction)
      * @throws ElanException in case of issues creating the flow objects
      */
     public void setupMacFlows(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
@@ -1533,8 +1548,11 @@ public class ElanUtils {
     }
 
     /**
-     * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables
-     * Install SMAC and DMAC flows.
+     * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables.
+     * Install SMAC and DMAC flows.<br>
+     *
+     * @param interfaceTx is a OperationalDS WriteTransaction
+     * @param flowTx is a ConfigDS WriteTransaction
      */
     public void addMacEntryToDsAndSetupFlows(String interfaceName,
             String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx, int macTimeOut)
