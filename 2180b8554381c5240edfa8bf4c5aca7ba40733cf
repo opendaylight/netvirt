@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_f47cc174",
+        "filename": "docs/specs/coe-integration.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-08T12:49:34Z",
+      "side": 1,
+      "message": "This will work bettr as subtitles\n\nChanges toNetvirt\n-----------------\n\nnetvirt changes\n\nDHCP Module\n^^^^^^^^^^^\n\nDhcp changes\n\n\nChanges to Genius\n-----------------\n\ngenius changes",
+      "revId": "2180b8554381c5240edfa8bf4c5aca7ba40733cf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
