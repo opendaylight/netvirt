@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_344bf92c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_942bcd81",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_f420419d",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
         "patchSetId": 1
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-08T11:58:54Z",
       "side": 1,
       "message": "if (!optElanInterface.isPresent())",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_14487d2c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_f420419d",
       "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_b45ec9e7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "I am agree with you.\n\nSo Philippe and me had a discussion about this.\nThen I am waiting from an other his opinion.\n\nBy the way, we were thinking that having multiple writeTransaction was a way to process submits in parallel. \nAs the nested mechanism seems to do the write() one after the other, I was wondering if old method  ( manually call submit() with an array) was doing such parallel job ?\n\nThks",
+      "parentUuid": "7a1969be_343ad9cd",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_71062322",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
@@ -64,6 +118,24 @@
       "writtenOn": "2017-12-08T11:58:54Z",
       "side": 1,
       "message": "I know why you are putting this, because of the get(), but we typically do not put this suppression, even I used to have this habit but now I don\u0027t anymore, because we WILL replace this Guava API - proably in the release after Oxygen.",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_d45d45eb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "Done\n\nsorry this is an eclipse automatic notation. I will delete it.",
+      "parentUuid": "7a1969be_71062322",
       "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_f40fa1df",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_b4ffe900",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_5103270f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
@@ -98,6 +188,24 @@
       "writtenOn": "2017-12-08T11:58:54Z",
       "side": 1,
       "message": "ReadOnlyTransaction would be sufficient here, no need to require a ReadWriteTransaction",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_b42c094c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_5103270f",
       "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_14cb5d73",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "Because I will change the return type as an Optional I could do that.\nBefore, the other method which this come from, returned an Object. So the reference Object could be null if not existing.\n\nindeed, if anyone are expecting to use this method, they should change their code too to get an Optional\u003cElanInterface\u003e present or absent.\n\nThks",
+      "parentUuid": "7a1969be_d40ee533",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_3413f95d",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
@@ -132,6 +258,24 @@
       "writtenOn": "2017-12-08T11:58:54Z",
       "side": 1,
       "message": "this is wrong, because it \"hides\" the error. What I would do is not catch it at all and let it propagate via a throws clause on this method.  If I were you I would use checkedGet() instead of get() to make it throws ReadFailedException instead of InterruptedException | ExecutionException.  Note that the ManagedNewTransactionRunner, intentionally, takes a CheckedConsumer, so it will accept that you call methods that have a \"throws\" clause.",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_141d1d10",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-08T14:46:48Z",
+      "side": 1,
+      "message": "Done\n\nThks very for your help",
+      "parentUuid": "7a1969be_3413f95d",
       "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
