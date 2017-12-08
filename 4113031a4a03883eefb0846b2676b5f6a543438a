@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_942bcd81",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "Optional\u003cElanInterface\u003e optElanInterface if you change it as suggested in ElanUtils",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_f420419d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 109,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "if (!optElanInterface.isPresent())",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_343ad9cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "I\u0027m personally fine with using the same Tx for both here and think this is simpler and better, BUT others may object to this saying that you need to use separate transactions for interface and flow because these could be on different shards.. my personal view is that this is stupid and overhead and loss of transactional consistency and just having only single shard for everything would be recommended.  So lets see if others objects to this.  If they do, then you\u0027ll have to \"nest\" callWithNewReadWriteTransactionAndSubmit to get 2 Tx to keep it like before.",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_71062322",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 367,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "I know why you are putting this, because of the get(), but we typically do not put this suppression, even I used to have this habit but now I don\u0027t anymore, because we WILL replace this Guava API - proably in the release after Oxygen.",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_b4ffe900",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 368,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "do not name this method *NewAPI - just use the same method name as the original one, and Tx instead of DB as 1st argument is just fine any typically done so and clearer (Java allows this)",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_5103270f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "ReadOnlyTransaction would be sufficient here, no need to require a ReadWriteTransaction",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_d40ee533",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 379,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "this is technically changing what the current code does, I doubt this is right.. are you SURE that there is always going to be an ElanInterface?  Because if there is not, you\u0027ll get a IllegalStateException from this get() here.. to keep the original behaviour, you would have to use .orNull() instead of get() here, BUT if I may make a suggestion, all of these null based APIs all over netvirt are very bad anyway; the proper design here would be to return an Optional\u003cElanInterface\u003e instead, and check that instead of null in the caller.",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a1969be_3413f95d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-08T11:58:54Z",
+      "side": 1,
+      "message": "this is wrong, because it \"hides\" the error. What I would do is not catch it at all and let it propagate via a throws clause on this method.  If I were you I would use checkedGet() instead of get() to make it throws ReadFailedException instead of InterruptedException | ExecutionException.  Note that the ManagedNewTransactionRunner, intentionally, takes a CheckedConsumer, so it will accept that you call methods that have a \"throws\" clause.",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
