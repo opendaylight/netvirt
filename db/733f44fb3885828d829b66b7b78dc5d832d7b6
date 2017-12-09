@@ -1,0 +1,7 @@
+Verified+1: jenkins-releng <jenkins-releng@opendaylight.org>
+Code-Review+2: Sridhar Gaddam <sgaddam@redhat.com>
+Submitted-by: Sridhar Gaddam <sgaddam@redhat.com>
+Submitted-at: Sat, 09 Dec 2017 18:41:12 +0000
+Reviewed-on: https://git.opendaylight.org/gerrit/66335
+Project: netvirt
+Branch: refs/heads/stable/nitrogen
