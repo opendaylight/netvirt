@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentMap;
@@ -22,13 +23,14 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @Command(scope = "l2gw", name = "show-cache", description = "display l2gateways cache")
 public class L2GwUtilsCacheCli extends OsgiCommandSupport {
+    private static final String L2GATEWAY_CACHE_NAME = "L2GW";
     private static final String DEMARCATION = "=================================";
 
     @Option(name = "-cache", aliases = {"--cache"}, description = "cache name",
@@ -39,12 +41,18 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
             required = false, multiValued = false)
     String elanName;
 
+    private final L2GatewayCache l2GatewayCache;
+
+    public L2GwUtilsCacheCli(L2GatewayCache l2GatewayCache) {
+        this.l2GatewayCache = l2GatewayCache;
+    }
+
     @Override
     protected Object doExecute() throws IOException {
         if (cacheName == null) {
             session.getConsole().println("Available caches");
             session.getConsole().println(ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME);
-            session.getConsole().println(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
+            session.getConsole().println(L2GATEWAY_CACHE_NAME);
             session.getConsole().println("HA");
             session.getConsole().println("HA_EVENTS");
             return null;
@@ -53,7 +61,7 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
             case ElanL2GwCacheUtils.L2GATEWAY_CONN_CACHE_NAME:
                 dumpElanL2GwCache();
                 break;
-            case L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME:
+            case L2GATEWAY_CACHE_NAME:
                 dumpL2GwCache();
                 break;
             case "HA":
@@ -107,13 +115,12 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     }
 
     private void dumpL2GwCache() {
-        ConcurrentMap<String, L2GatewayDevice> devices = (ConcurrentMap<String, L2GatewayDevice>) CacheUtil
-                .getCache(L2GatewayCacheUtils.L2GATEWAY_CACHE_NAME);
-        if (devices == null) {
+        Collection<L2GatewayDevice> devices = l2GatewayCache.getAll();
+        if (devices.isEmpty()) {
             session.getConsole().println("no devices are present in cache");
             return;
         }
-        for (L2GatewayDevice device : devices.values()) {
+        for (L2GatewayDevice device : devices) {
             session.getConsole().println("device " + device);
         }
     }

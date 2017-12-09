@@ -38,8 +38,8 @@ import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -68,18 +68,21 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final ElanClusterUtils elanClusterUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
+    private final L2GatewayCache l2GatewayCache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
-            JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+            JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+            L2GatewayCache l2GatewayCache) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
+        this.l2GatewayCache = l2GatewayCache;
     }
 
     @Override
@@ -235,7 +238,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         }
         for (Devices l2Device : l2gwDevicesToBeDeleted) {
             String l2DeviceName = l2Device.getDeviceName();
-            L2GatewayDevice l2GatewayDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
+            L2GatewayDevice l2GatewayDevice = l2GatewayCache.get(l2DeviceName);
             String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
             boolean isLastL2GwConnDeleted = false;
             L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
@@ -284,7 +287,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         l2DeviceName, l2GwDeviceName);
                 continue;
             }
-            L2GatewayDevice l2GatewayDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
+            L2GatewayDevice l2GatewayDevice = l2GatewayCache.get(l2DeviceName);
             if (isL2GwDeviceConnected(l2GatewayDevice)) {
                 NodeId hwvtepNodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
 
