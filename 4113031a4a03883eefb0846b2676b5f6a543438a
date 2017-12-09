@@ -107,6 +107,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_ca3abc35",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-09T11:48:36Z",
+      "side": 1,
+      "message": "yes it was; but personally I\u0027ve never really been convinced what the point of this was.. because this is then anyway JobCoordinator enqueueJob(), so that background task job will have to wait for both of those parallel commits, anyway, so... I don\u0027t get why this.  \n\nBut the BIG (!) disadantage is that you loose TX consistency accross the two.  The reason why people do this, I\u0027m told, is  to have the option, by configuration, of sharding different parts of the data tree on different nodes.  But at least we at Red Hat do not actually use this; the performance is horrible, and I\u0027m not sure I\u0027m convinced there is any real tangible practical benefit, at the sort of scale that ODL operates.  So, to me, having several separate write TX in a case such like this seems unnecessary, and only complex-ifies code.  This is a discussion is applicable in many more places than just here, of course.",
+      "parentUuid": "7a1969be_b45ec9e7",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_71062322",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
