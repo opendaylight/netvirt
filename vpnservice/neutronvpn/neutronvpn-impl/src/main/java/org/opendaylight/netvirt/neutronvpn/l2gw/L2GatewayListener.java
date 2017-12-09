@@ -34,8 +34,8 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.elanmanager.api.IL2gwService;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
@@ -58,16 +58,18 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
     private final IL2gwService l2gwService;
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final JobCoordinator jobCoordinator;
+    private final L2GatewayCache l2GatewayCache;
 
     @Inject
     public L2GatewayListener(final DataBroker dataBroker, final EntityOwnershipService entityOwnershipService,
                              final ItmRpcService itmRpcService, final IL2gwService l2gwService,
-                             final JobCoordinator jobCoordinator) {
+                             final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache) {
         this.dataBroker = dataBroker;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.itmRpcService = itmRpcService;
         this.l2gwService = l2gwService;
         this.jobCoordinator = jobCoordinator;
+        this.l2GatewayCache = l2GatewayCache;
     }
 
     @PostConstruct
@@ -141,7 +143,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                     .filter((originalDevice) -> originalDevice.getInterfaces() != null)
                     .forEach((originalDevice) -> {
                         String deviceName = originalDevice.getDeviceName();
-                        L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(deviceName);
+                        L2GatewayDevice l2GwDevice = l2GatewayCache.get(deviceName);
                         NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(
                                 new NodeId(l2GwDevice.getHwvtepNodeId()), deviceName);
                         originalDevice.getInterfaces()
@@ -186,7 +188,9 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
 
     private synchronized void addL2Device(Devices l2Device, L2gateway input) {
         String l2DeviceName = l2Device.getDeviceName();
-        L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.updateCacheUponL2GatewayAdd(l2DeviceName, input.getUuid());
+
+        L2GatewayDevice l2GwDevice = l2GatewayCache.addOrGet(l2DeviceName);
+        l2GwDevice.addL2GatewayId(input.getUuid());
         if (l2GwDevice.getHwvtepNodeId() == null) {
             LOG.info("L2GW provisioning skipped for device {}",l2DeviceName);
         } else {
@@ -198,7 +202,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
 
     private void removeL2Device(Devices l2Device, L2gateway input) {
         final String l2DeviceName = l2Device.getDeviceName();
-        L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(l2DeviceName);
+        L2GatewayDevice l2GwDevice = l2GatewayCache.get(l2DeviceName);
         if (l2GwDevice != null) {
             // Delete ITM tunnels if it's last Gateway deleted and device is connected
             // Also, do not delete device from cache if it's connected
@@ -224,7 +228,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                         return null;
                     });
                 } else {
-                    L2GatewayCacheUtils.removeL2DeviceFromCache(l2DeviceName);
+                    l2GatewayCache.remove(l2DeviceName);
                     // Cleaning up the config DS
                     NodeId nodeId = new NodeId(l2GwDevice.getHwvtepNodeId());
                     NodeId psNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, l2DeviceName);

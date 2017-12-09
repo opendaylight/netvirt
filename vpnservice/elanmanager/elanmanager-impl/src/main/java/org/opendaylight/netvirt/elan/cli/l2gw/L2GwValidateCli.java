@@ -40,8 +40,8 @@ import org.opendaylight.netvirt.elan.l2gw.ha.commands.TerminationPointCmd;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -91,14 +91,17 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private final Map<InstanceIdentifier<Node>, Map<InstanceIdentifier, DataObject>> configNodesData =
             new HashMap<>();
 
+    private final DataBroker dataBroker;
+    private final L2GatewayCache l2GatewayCache;
+
     private List<L2gateway> l2gateways;
     private List<L2gatewayConnection> l2gatewayConnections;
-    private DataBroker dataBroker;
 
     private PrintWriter pw;
 
-    public void setDataBroker(DataBroker dataBroker) {
+    public L2GwValidateCli(DataBroker dataBroker, L2GatewayCache l2GatewayCache) {
         this.dataBroker = dataBroker;
+        this.l2GatewayCache = l2GatewayCache;
     }
 
     @Override
@@ -383,7 +386,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
 
             for (Devices device : devices) {
 
-                L2GatewayDevice l2GatewayDevice = L2GatewayCacheUtils.getL2DeviceFromCache(device.getDeviceName());
+                L2GatewayDevice l2GatewayDevice = l2GatewayCache.get(device.getDeviceName());
                 isValid = verifyL2GatewayDevice(l2gateway, device, l2GatewayDevice);
                 if (!isValid) {
                     continue;

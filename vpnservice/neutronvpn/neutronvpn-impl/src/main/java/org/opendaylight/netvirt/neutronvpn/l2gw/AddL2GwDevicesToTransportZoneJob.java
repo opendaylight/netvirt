@@ -12,9 +12,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentMap;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.slf4j.Logger;
@@ -28,6 +27,7 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<Listenabl
     private static final Logger LOG = LoggerFactory.getLogger(AddL2GwDevicesToTransportZoneJob.class);
     private final ItmRpcService itmRpcService;
     private final TransportZone transportZone;
+    private final L2GatewayCache l2GatewayCache;
 
     /**
      * Instantiates a new adds the l2 gw devices to transport zone job.
@@ -35,10 +35,11 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<Listenabl
      * @param itmRpcService the itm rpc service
      * @param transportZone the transport zone
      */
-    public AddL2GwDevicesToTransportZoneJob(ItmRpcService itmRpcService,
-                                            TransportZone transportZone) {
+    public AddL2GwDevicesToTransportZoneJob(ItmRpcService itmRpcService, TransportZone transportZone,
+            L2GatewayCache l2GatewayCache) {
         this.itmRpcService = itmRpcService;
         this.transportZone = transportZone;
+        this.l2GatewayCache = l2GatewayCache;
         LOG.debug("created AddL2GwDevicesToTransportZone Job for tZone {}", transportZone.getZoneName());
     }
 
@@ -63,8 +64,7 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<Listenabl
         try {
             // When vxlan transport zone is added, add all l2gw devices to that
             // transport zone. Doesn't matter if tz already has data or not.
-            ConcurrentMap<String, L2GatewayDevice> l2GwDevices = L2GatewayCacheUtils.getCache();
-            for (L2GatewayDevice l2gwDevice : l2GwDevices.values()) {
+            for (L2GatewayDevice l2gwDevice : l2GatewayCache.getAll()) {
                 if (!l2gwDevice.getL2GatewayIds().isEmpty()) {
                     LOG.debug("Adding l2gw device [{}] to transport zone [{}]", l2gwDevice.getDeviceName(),
                             this.transportZone.getZoneName());

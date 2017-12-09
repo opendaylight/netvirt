@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.TransportZone;
@@ -33,6 +34,7 @@ public class L2GwTransportZoneListener
     private final DataBroker dataBroker;
     private final ItmRpcService itmRpcService;
     private final JobCoordinator jobCoordinator;
+    private final L2GatewayCache l2GatewayCache;
 
     /**
      * Instantiates a new l2 gw transport zone listener.
@@ -42,11 +44,12 @@ public class L2GwTransportZoneListener
      */
     @Inject
     public L2GwTransportZoneListener(final DataBroker dataBroker, final ItmRpcService itmRpcService,
-            final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache) {
         super(TransportZone.class, L2GwTransportZoneListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.jobCoordinator = jobCoordinator;
+        this.l2GatewayCache = l2GatewayCache;
     }
 
     @Override
@@ -108,7 +111,7 @@ public class L2GwTransportZoneListener
         LOG.trace("Received Transport Zone Add Event: {}", tzNew);
         if (tzNew.getTunnelType().equals(TunnelTypeVxlan.class)) {
             AddL2GwDevicesToTransportZoneJob job =
-                    new AddL2GwDevicesToTransportZoneJob(itmRpcService, tzNew);
+                    new AddL2GwDevicesToTransportZoneJob(itmRpcService, tzNew, l2GatewayCache);
             jobCoordinator.enqueueJob(job.getJobKey(), job);
         }
     }
