@@ -20,13 +20,13 @@
     </command>
     <command>
       <action class="org.opendaylight.netvirt.fibmanager.shell.ConfTransportL3VPNCommand">
-        <property name="fibManager" ref="fibManagerRef"/>
+        <argument ref="fibManagerRef"/>
       </action>
     </command>
 
     <command>
       <action class="org.opendaylight.netvirt.fibmanager.shell.ShowTransportTypeCommand">
-        <property name="fibManager" ref="fibManagerRef"/>
+        <argument ref="fibManagerRef"/>
       </action>
     </command>
 

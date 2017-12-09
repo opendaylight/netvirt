@@ -14,7 +14,7 @@ import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
+import java.util.Locale;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
@@ -71,8 +71,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
     protected Object doExecute() throws Exception {
         PrintStream console = session.getConsole();
         if (prefixOrSubnetOption != null && prefixOrSubnetOption.length() > 0) {
-            prefixOrSubnet = prefixOrSubnetOption.substring(0);
-            prefixOrSubnet = prefixOrSubnet.replace("[", "");
+            prefixOrSubnet = prefixOrSubnetOption.replace("[", "");
             prefixOrSubnet = prefixOrSubnet.replace("]", "");
             if (prefixOrSubnet.indexOf("/") < 0) {
                 String maskFull = null;
@@ -123,7 +122,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
             }
             return null;
         } else {
-            String optionsLowerCase = options != null ? options.toLowerCase() : "";
+            String optionsLowerCase = options != null ? options.toLowerCase(Locale.getDefault()) : "";
             switch (optionsLowerCase) {
                 case "fullhelp":
                     return usage(console);
@@ -140,7 +139,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
                 boolean isL2vpn = false;
                 if (addrFamList != null && addrFamList.size() > 0) {
                     for (String addF : addrFamList) {
-                        switch (addF.toLowerCase()) {
+                        switch (addF.toLowerCase(Locale.getDefault())) {
                             case "ipv4":
                                 isIpv4 = true;
                                 break;

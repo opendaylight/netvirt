@@ -15,16 +15,4 @@ at http://www.eclipse.org/legal/epl-v10.html -->
   <artifactId>statistics-api</artifactId>
   <packaging>bundle</packaging>
   <name>ODL :: netvirt :: ${project.artifactId}</name>
-
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <configuration>
-          <failOnError>true</failOnError>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
 </project>

@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.fibmanager.shell;
 
+import java.util.Locale;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -16,7 +17,7 @@ import org.opendaylight.netvirt.fibmanager.api.L3VPNTransportTypes;
 @Command(scope = "vpnservice", name = "configureTransportType",
     description = "Configure Preferred Transport Type for L3VPN service")
 public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
-    private IFibManager fibManager;
+    private final IFibManager fibManager;
 
     @Option(name = "-s", aliases = {"--service"}, description = "Service", required = false, multiValued = false)
     String service;
@@ -25,7 +26,7 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
         required = false, multiValued = false)
     String transportType;
 
-    public void setFibManager(IFibManager fibManager) {
+    public ConfTransportL3VPNCommand(IFibManager fibManager) {
         this.fibManager = fibManager;
     }
 
@@ -39,8 +40,8 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
             return null;
         }
         if (transportType == null || transportType.isEmpty()
-            ||
-            L3VPNTransportTypes.validateTransportType(transportType.toUpperCase()) == L3VPNTransportTypes.Invalid) {
+            || L3VPNTransportTypes.validateTransportType(transportType.toUpperCase(Locale.getDefault()))
+                    == L3VPNTransportTypes.Invalid) {
             session.getConsole().println("Please provide valid input for Transport type");
             return null;
         }
@@ -53,7 +54,7 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
 
         if (cachedTransType.equals(L3VPNTransportTypes.Invalid.getTransportType())
             || !fibManager.isVPNConfigured()) {
-            fibManager.setConfTransType(service, transportType.toUpperCase());
+            fibManager.setConfTransType(service, transportType.toUpperCase(Locale.getDefault()));
             fibManager.writeConfTransTypeConfigDS();
         } else {
             session.getConsole().println("VPN service already configured with " + cachedTransType

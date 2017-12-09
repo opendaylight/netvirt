@@ -157,7 +157,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 return;
             }
             Collection<AclInterface> aclInterfaceList = aclDataCache.getInterfaceList(uuid);
-            if (aclInterfaceList == null | aclInterfaceList.isEmpty()) {
+            if (aclInterfaceList == null || aclInterfaceList.isEmpty()) {
                 session.getConsole().println("UUID not matched");
                 return;
             } else {
@@ -218,7 +218,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 return;
             }
             Collection<Uuid> remoteUuidLst = aclDataCache.getRemoteAcl(uuidRef);
-            if (remoteUuidLst == null | remoteUuidLst.isEmpty()) {
+            if (remoteUuidLst == null || remoteUuidLst.isEmpty()) {
                 session.getConsole().println("UUID not matched");
                 return;
             } else {
@@ -261,10 +261,6 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
         if (all == null && key != null) {
             Integer val = aclDataCache.getAclFlowPriority(key);
-            if (val == null) {
-                session.getConsole().println("No data found");
-                return;
-            }
             session.getConsole().println(String.format(ACL_DATA_HEAD));
             session.getConsole().println(String.format(ACL_DATA_TAB_FOR, key, val));
 
@@ -277,7 +273,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 return;
             }
             Map<String, Integer> map = aclDataCache.getAclFlowPriorityMap();
-            if (map == null || map.isEmpty()) {
+            if (map.isEmpty()) {
                 session.getConsole().println("No data found");
                 return;
             } else {
