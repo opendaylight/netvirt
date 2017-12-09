@@ -9,15 +9,14 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
 import java.util.List;
-import java.util.concurrent.ConcurrentMap;
 import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
@@ -40,17 +39,18 @@ public class DhcpL2GwUtil {
     };
 
     private final DataBroker dataBroker;
+    private final L2GatewayCache l2GatewayCache;
 
     @Inject
-    public DhcpL2GwUtil(DataBroker dataBroker) {
+    public DhcpL2GwUtil(DataBroker dataBroker, L2GatewayCache l2GatewayCache) {
         this.dataBroker = dataBroker;
+        this.l2GatewayCache = l2GatewayCache;
     }
 
     public IpAddress getHwvtepNodeTunnelIp(InstanceIdentifier<Node> nodeIid) {
-        ConcurrentMap<String, L2GatewayDevice> devices = L2GatewayCacheUtils.getCache();
         String nodeId = nodeIid.firstKeyOf(Node.class).getNodeId().getValue();
         L2GatewayDevice targetDevice = null;
-        for (L2GatewayDevice device : devices.values()) {
+        for (L2GatewayDevice device : l2GatewayCache.getAll()) {
             if (nodeId.equals(device.getHwvtepNodeId())) {
                 targetDevice = device;
                 break;

@@ -18,9 +18,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -28,8 +26,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -562,23 +558,6 @@ public final class HwvtepHAUtil {
                             }
                         }
                     }
-                }
-            }
-        }
-    }
-
-    public static void updateL2GwCacheNodeId(Node updatedChildNode, InstanceIdentifier<Node> iid) {
-        String haNodeIdVal = getNodeIdVal(iid);
-        ConcurrentMap<String, L2GatewayDevice> l2Devices = L2GatewayCacheUtils.getCache();
-        if (l2Devices != null) {
-            for (Entry<String, L2GatewayDevice> entry : l2Devices.entrySet()) {
-                String psName = entry.getKey();
-                L2GatewayDevice l2Device = entry.getValue();
-                if (updatedChildNode.getNodeId().getValue().equals(l2Device.getHwvtepNodeId())) {
-                    LOG.info("Replaced the l2gw device cache entry for device {} with val {}",
-                            l2Device.getDeviceName(), l2Device.getHwvtepNodeId());
-                    l2Device.setHwvtepNodeId(haNodeIdVal);
-                    L2GatewayCacheUtils.addL2DeviceToCache(psName, l2Device);
                 }
             }
         }
