@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a05a424c_ebe64dfe",
+        "filename": "vpnservice/coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-09T21:51:41Z",
+      "side": 1,
+      "message": "Is this inner block needed?",
+      "revId": "1abae1b8bf92d130277c88e9364b9ee7b401ee88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c6d50286_b669554f",
+        "filename": "vpnservice/coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-09T21:51:41Z",
+      "side": 1,
+      "message": "You can make this class static by passing in the DataBroker.",
+      "revId": "1abae1b8bf92d130277c88e9364b9ee7b401ee88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a054ccc_56af65e1",
+        "filename": "vpnservice/coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-09T21:51:41Z",
+      "side": 1,
+      "message": "private final",
+      "revId": "1abae1b8bf92d130277c88e9364b9ee7b401ee88",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
