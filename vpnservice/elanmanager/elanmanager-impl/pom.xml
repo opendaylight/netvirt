@@ -239,13 +239,6 @@
         <artifactId>xtend-maven-plugin</artifactId>
       </plugin>
       <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>findbugs-maven-plugin</artifactId>
-        <configuration>
-          <failOnError>true</failOnError>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.apache.aries.blueprint</groupId>
         <artifactId>blueprint-maven-plugin</artifactId>
       </plugin>

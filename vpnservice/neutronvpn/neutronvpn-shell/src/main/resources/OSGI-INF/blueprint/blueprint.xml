@@ -27,13 +27,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
         <command>
             <action class="org.opendaylight.netvirt.neutronvpn.shell.ShowVpnConfigCommand">
-                <property name="neutronVpnManager" ref="neutronVpnManagerRef"/>
+                <argument ref="neutronVpnManagerRef"/>
             </action>
         </command>
 
         <command>
             <action class="org.opendaylight.netvirt.neutronvpn.shell.ShowNeutronPortsCommand">
-                <property name="neutronVpnManager" ref="neutronVpnManagerRef"/>
+                <argument ref="neutronVpnManagerRef"/>
             </action>
         </command>
 

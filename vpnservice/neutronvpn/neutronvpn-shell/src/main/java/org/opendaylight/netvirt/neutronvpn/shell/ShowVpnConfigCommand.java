@@ -20,9 +20,10 @@ public class ShowVpnConfigCommand extends OsgiCommandSupport {
     @Option(name = "-vid", aliases = {"--vpnid"}, description = "VPN ID", required = false, multiValued = false)
     String vid;
 
-    private INeutronVpnManager neutronVpnManager;
+    private final INeutronVpnManager neutronVpnManager;
 
-    public void setNeutronVpnManager(INeutronVpnManager neutronVpnManager) {
+    public ShowVpnConfigCommand(String vid, INeutronVpnManager neutronVpnManager) {
+        this.vid = vid;
         this.neutronVpnManager = neutronVpnManager;
     }
 

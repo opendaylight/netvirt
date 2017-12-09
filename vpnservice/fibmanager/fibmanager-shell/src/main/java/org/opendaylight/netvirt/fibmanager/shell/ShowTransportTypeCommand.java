@@ -13,9 +13,9 @@ import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 
 @Command(scope = "vpnservice", name = "showTransportType", description = "Displays transport type in use for services")
 public class ShowTransportTypeCommand extends OsgiCommandSupport {
-    private IFibManager fibManager;
+    private final IFibManager fibManager;
 
-    public void setFibManager(IFibManager fibManager) {
+    public ShowTransportTypeCommand(IFibManager fibManager) {
         this.fibManager = fibManager;
     }
 
