@@ -125,6 +125,24 @@
     },
     {
       "key": {
+        "uuid": "7a1969be_0a3cd42e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-09T11:51:45Z",
+      "side": 1,
+      "message": "FYI https://wiki.opendaylight.org/view/Genius:Sharding_evolution",
+      "parentUuid": "7a1969be_ca3abc35",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_71062322",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
