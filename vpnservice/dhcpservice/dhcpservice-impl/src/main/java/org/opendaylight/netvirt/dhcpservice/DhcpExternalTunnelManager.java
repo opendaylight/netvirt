@@ -47,8 +47,8 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -96,6 +96,7 @@ public class DhcpExternalTunnelManager {
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final IInterfaceManager interfaceManager;
     private final JobCoordinator jobCoordinator;
+    private final L2GatewayCache l2GatewayCache;
 
     private final ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache =
             new ConcurrentHashMap<>();
@@ -108,13 +109,14 @@ public class DhcpExternalTunnelManager {
     public DhcpExternalTunnelManager(final DataBroker broker,
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
             final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager,
-            final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache) {
         this.broker = broker;
         this.mdsalUtil = mdsalUtil;
         this.itmRpcService = itmRpcService;
         this.entityOwnershipUtils = new EntityOwnershipUtils(entityOwnershipService);
         this.interfaceManager = interfaceManager;
         this.jobCoordinator = jobCoordinator;
+        this.l2GatewayCache = l2GatewayCache;
     }
 
     @PostConstruct
@@ -719,9 +721,9 @@ public class DhcpExternalTunnelManager {
     }
 
     private L2GatewayDevice getDeviceFromTunnelIp(String elanInstanceName, IpAddress tunnelIp) {
-        ConcurrentMap<String, L2GatewayDevice> devices = L2GatewayCacheUtils.getCache();
+        Collection<L2GatewayDevice> devices = l2GatewayCache.getAll();
         LOG.trace("In getDeviceFromTunnelIp devices {}", devices);
-        for (L2GatewayDevice device : devices.values()) {
+        for (L2GatewayDevice device : devices) {
             if (tunnelIp.equals(device.getTunnelIp())) {
                 return device;
             }

@@ -32,8 +32,8 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
-import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.devices.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.connections.attributes.l2gatewayconnections.L2gatewayConnection;
@@ -64,15 +64,17 @@ public class HwvtepTerminationPointListener
     private final DataBroker broker;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanClusterUtils elanClusterUtils;
+    private final L2GatewayCache l2GatewayCache;
 
     @Inject
     public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-            ElanClusterUtils elanClusterUtils) {
+            ElanClusterUtils elanClusterUtils, L2GatewayCache l2GatewayCache) {
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);
 
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
+        this.l2GatewayCache = l2GatewayCache;
         //No longer needed as port reconciliation is added in plugin
         //registerListener(LogicalDatastoreType.OPERATIONAL, broker);
         LOG.debug("created HwvtepTerminationPointListener");
@@ -158,7 +160,7 @@ public class HwvtepTerminationPointListener
         Node psNode = HwvtepUtils.getHwVtepNode(broker, LogicalDatastoreType.OPERATIONAL, psNodeId);
         if (psNode != null) {
             String psName = psNode.getAugmentation(PhysicalSwitchAugmentation.class).getHwvtepNodeName().getValue();
-            L2GatewayDevice l2GwDevice = L2GatewayCacheUtils.getL2DeviceFromCache(psName);
+            L2GatewayDevice l2GwDevice = l2GatewayCache.get(psName);
             if (l2GwDevice != null) {
                 if (isL2GatewayConfigured(l2GwDevice)) {
                     List<L2gatewayConnection> l2GwConns = L2GatewayConnectionUtils.getAssociatedL2GwConnections(broker,
