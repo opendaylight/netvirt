@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a1969be_8a30c457",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-09T11:39:48Z",
+      "side": 1,
+      "message": "you should not need this (ReadOnlyTransaction) type cast.. if it doesn\u0027t compile without this, then there is some problem we need to fix, because then it would fail with a ClassCastException at runtime.  But you should be able to just remove the cast and it will be fine without, no?",
+      "revId": "6985f0e0f6787556c1c6abfa7e9967c4a74faab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
