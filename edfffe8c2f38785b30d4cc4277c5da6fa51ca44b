@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "123efd7e_579fde62",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/commands.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 4,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-11T22:10:37Z",
+      "side": 0,
+      "message": "correct. Sorry, I tend to clean up little orthogonal things that sort of bug me instead of submitting a separate patch - I\u0027m really really trying to refrain from that :)",
+      "parentUuid": "446c1a3c_d3b27f26",
+      "revId": "edfffe8c2f38785b30d4cc4277c5da6fa51ca44b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "357d8540_a33e8133",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/commands.xml",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "949d8f17_01a8c5cf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/commands.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-11T22:10:37Z",
+      "side": 0,
+      "message": "correct - this one a) does not need to optional, b) is already imported in elanmanager.xml. Another minor orthogonal cleanup thing...",
+      "parentUuid": "357d8540_a33e8133",
+      "revId": "edfffe8c2f38785b30d4cc4277c5da6fa51ca44b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dd6779f9_e6c3523a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/commands.xml",
         "patchSetId": 1
@@ -47,6 +83,30 @@
       "writtenOn": "2017-12-11T21:47:32Z",
       "side": 0,
       "message": "again, as above, this is already in elanmanager.xml",
+      "range": {
+        "startLine": 10,
+        "startChar": 29,
+        "endLine": 10,
+        "endChar": 36
+      },
+      "revId": "edfffe8c2f38785b30d4cc4277c5da6fa51ca44b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2f3899f2_fc63a510",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/resources/org/opendaylight/blueprint/commands.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 10,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-11T22:10:37Z",
+      "side": 0,
+      "message": "yup",
+      "parentUuid": "dd6779f9_e6c3523a",
       "range": {
         "startLine": 10,
         "startChar": 29,

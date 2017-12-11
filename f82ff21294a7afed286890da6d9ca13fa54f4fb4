@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "18c9f7eb_6a23aa7e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-11T22:10:37Z",
+      "side": 1,
+      "message": "elanmanager-impl needs L2GatewayCache so If I put the impl in neutronvpn-impl, the elanmanager.xml would need to optionally \u003creference\u003e it.  You\u0027ve stated that you would prefer to eliminate  optional references so I\u0027m trying not to perpetuate it here. However I\u0027m OK either way if you\u0027d rather not introduce the new bundle.\n\nBTW - I could also move InterVpnLinkCacheImpl to cache-impl and eliminate another InterVpnLinkCacheImpl that I recently had to introduce.",
+      "parentUuid": "e2d266c3_0587ff40",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a696c459_aa75126e",
         "filename": "vpnservice/cache/impl/pom.xml",
         "patchSetId": 1
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "113c0c7e_2d26467a",
+        "filename": "vpnservice/cache/impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-11T22:10:37Z",
+      "side": 1,
+      "message": "sure. I had copied this from another project.",
+      "parentUuid": "a696c459_aa75126e",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "aa65d456_b9cbe96f",
         "filename": "vpnservice/cache/impl/src/main/java/org/opendaylight/netvirt/cache/impl/l2gw/L2GatewayCacheImpl.java",
         "patchSetId": 1
@@ -47,6 +83,24 @@
       "writtenOn": "2017-12-11T21:47:32Z",
       "side": 1,
       "message": "if such a new bundle really is needed (see other comment first), would it not be clearer to create something like vpnservice/neutronvpn/neutronvpn-cache instead of vpnservice/cache/impl ?  The latter seems much too \"top level\", to me.",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c612152a_d9fd4ff6",
+        "filename": "vpnservice/cache/impl/src/main/java/org/opendaylight/netvirt/cache/impl/l2gw/L2GatewayCacheImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-11T22:10:37Z",
+      "side": 1,
+      "message": "This could be used to house other cache implementations like InterVpnLinkCacheImpl that are used across sub-projects so I was trying to keep this generic. The other option is to put each cache implementation into its own bundle but that seems like overkill IMO. \n\nAgain the bundle really isn\u0027t needed and I can remove it if you\u0027re against it but we have no hope of eliminating circular bundle references unless we start splitting things into separate bundles.",
+      "parentUuid": "aa65d456_b9cbe96f",
       "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
