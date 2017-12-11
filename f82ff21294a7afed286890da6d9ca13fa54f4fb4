@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e2d266c3_0587ff40",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T21:47:32Z",
+      "side": 1,
+      "message": "Sorry but I\u0027m not following you here yet - to avoid perpetuating which circular bundle dependencies?  What am I missing if I say that, for the purpose of this change, L2GatewayCacheImpl really could just be put into neutronvpn-impl, without creating a new bundle?  Or is doing this a first step to do more after and subsequently reduce some circular bundle dependencies?  Because this change does not actually seem to remove any dependencies; as far as I gathered, your removal of optional availability on reference import in this change is actually unrelated to having put L2GatewayCacheImpl in a new bundle.  It\u0027s possible that I\u0027m missing something.",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a696c459_aa75126e",
+        "filename": "vpnservice/cache/impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T21:47:32Z",
+      "side": 1,
+      "message": "nit: I usually put this right after \u003cproject\u003e before \u003cparent\u003e",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa65d456_b9cbe96f",
+        "filename": "vpnservice/cache/impl/src/main/java/org/opendaylight/netvirt/cache/impl/l2gw/L2GatewayCacheImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T21:47:32Z",
+      "side": 1,
+      "message": "if such a new bundle really is needed (see other comment first), would it not be clearer to create something like vpnservice/neutronvpn/neutronvpn-cache instead of vpnservice/cache/impl ?  The latter seems much too \"top level\", to me.",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0b23df81_871896b9",
+        "filename": "vpnservice/cache/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T21:47:32Z",
+      "side": 1,
+      "message": "nit: I usually put this right after \u003cproject\u003e before \u003cparent\u003e",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
