@@ -41,3 +41,4 @@ Contents:
    VLAN provider network enhancement <vlan-provider-enhancement>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
    Weighted NAPT Selection <weighted-napt-selection>
+   Support for compute node scalein scalout functionality <compute-node-scalein-and-scaleout>
