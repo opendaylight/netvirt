@@ -1,0 +1,129 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9b49a664_2b9b981d",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T12:37:15Z",
+      "side": 1,
+      "message": "and it will be easier to switch from findbugs to spotbugs",
+      "revId": "f149cc0c03e1262562160a6589e449a14aeedc3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e933f75_2e6d1073",
+        "filename": "vpnservice/aclservice/shell/src/main/java/org/opendaylight/netvirt/aclservice/shell/DisplayAclDataCaches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T12:37:15Z",
+      "side": 1,
+      "message": "oh wow, nice one",
+      "revId": "f149cc0c03e1262562160a6589e449a14aeedc3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f0981953_dc5557fe",
+        "filename": "vpnservice/aclservice/shell/src/main/java/org/opendaylight/netvirt/aclservice/shell/DisplayAclDataCaches.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 221,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T12:37:15Z",
+      "side": 1,
+      "message": "again",
+      "revId": "f149cc0c03e1262562160a6589e449a14aeedc3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33577ea1_2bcd918b",
+        "filename": "vpnservice/fibmanager/fibmanager-shell/src/main/java/org/opendaylight/netvirt/fibmanager/shell/ConfTransportL3VPNCommand.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T12:37:15Z",
+      "side": 1,
+      "message": "OK because BP XML is changed accordingly",
+      "revId": "f149cc0c03e1262562160a6589e449a14aeedc3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6858f225_d6eef9b8",
+        "filename": "vpnservice/fibmanager/fibmanager-shell/src/main/java/org/opendaylight/netvirt/fibmanager/shell/ShowTransportTypeCommand.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T12:37:15Z",
+      "side": 1,
+      "message": "OK because BP XML is changed accordingly",
+      "revId": "f149cc0c03e1262562160a6589e449a14aeedc3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "35ab5466_661a717c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ShowNeutronPortsCommand.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T12:37:15Z",
+      "side": 1,
+      "message": "OK because BP XML is changed accordingly",
+      "revId": "f149cc0c03e1262562160a6589e449a14aeedc3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "39257124_60efc75d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-shell/src/main/java/org/opendaylight/netvirt/neutronvpn/shell/ShowVpnConfigCommand.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-11T12:37:15Z",
+      "side": 1,
+      "message": "OK because BP XML is changed accordingly",
+      "range": {
+        "startLine": 25,
+        "startChar": 24,
+        "endLine": 25,
+        "endChar": 25
+      },
+      "revId": "f149cc0c03e1262562160a6589e449a14aeedc3f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
