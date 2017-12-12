@@ -1767,6 +1767,10 @@ public final class VpnUtil {
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = new ArrayList<>();
 
         final String vpnRd = getVpnRd(broker, vpnName);
+        if (vpnRd == null) {
+            LOG.error("getVpnsImportingMyRoute: vpn {} not present in config DS.", vpnName);
+            return vpnsToImportRoute;
+        }
         final VpnInstanceOpDataEntry vpnInstanceOpDataEntry = VpnUtil.getVpnInstanceOpData(broker, vpnRd);
         if (vpnInstanceOpDataEntry == null) {
             LOG.error("getVpnsImportingMyRoute: Could not retrieve vpn instance op data for {}"
