@@ -27,8 +27,24 @@
         <module>odl-netvirt-coe</module>
         <module>odl-netvirt-impl</module>
         <module>odl-netvirt-openstack</module>
-        <module>odl-netvirt-sfc</module>
         <module>odl-netvirt-ui</module>
     </modules>
+
+    <profiles>
+        <profile>
+            <id>sfc</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>vpnservice-sfc-features</module>
+                <module>odl-netvirt-sfc</module>
+            </modules>
+        </profile>
+        <profile>
+            <!-- When enabled, this empty profile disables the “sfc” profile above -->
+            <id>no-sfc</id>
+        </profile>
+    </profiles>
 
 </project>
