@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "66f159eb_c8c86591",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-12T17:00:54Z",
+      "side": 1,
+      "message": "it seems the timer you are referring is hardset\nso i assume it is the same in all the cluster. right ?",
+      "range": {
+        "startLine": 722,
+        "startChar": 12,
+        "endLine": 722,
+        "endChar": 42
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84c901af_b069ff1c",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-12T17:00:54Z",
+      "side": 1,
+      "message": "just to be sure,\nare there any other reviews related to that support for clustering ?\nwhat I mean is that AsyncDataTreeChangeListenerBase is used in a lot of places yet, and I suppose this review shoul be part of a bigger support?",
+      "range": {
+        "startLine": 31,
+        "startChar": 47,
+        "endLine": 31,
+        "endChar": 87
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
