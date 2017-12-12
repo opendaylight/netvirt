@@ -29,18 +29,21 @@ public class Ipv6ServiceImpl {
     private final IElanService elanProvider;
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtil;
+    private final Ipv6ServiceEosHandler eosHandler;
 
     @Inject
     public Ipv6ServiceImpl(final PacketProcessingService pktProcessingService,
                            final OdlInterfaceRpcService interfaceManagerRpc,
                            final IElanService elanProvider,
                            final DataBroker dataBroker,
-                           final IMdsalApiManager mdsalUtil) {
+                           final IMdsalApiManager mdsalUtil,
+                           final Ipv6ServiceEosHandler eosHandler) {
         this.pktProcessingService = pktProcessingService;
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.elanProvider = elanProvider;
         this.dataBroker = dataBroker;
         this.mdsalUtil = mdsalUtil;
+        this.eosHandler = eosHandler;
         ifMgr = IfMgr.getIfMgrInstance();
     }
 
@@ -51,6 +54,7 @@ public class Ipv6ServiceImpl {
         ifMgr.setElanProvider(elanProvider);
         ifMgr.setDataBroker(dataBroker);
         ifMgr.setMdsalUtilManager(mdsalUtil);
+        ifMgr.setEosHandler(eosHandler);
         final Ipv6PeriodicRAThread ipv6Thread = Ipv6PeriodicRAThread.getInstance();
         Ipv6RouterAdvt.setPacketProcessingService(pktProcessingService);
         Ipv6NeighborSolicitation.setPacketProcessingService(pktProcessingService);

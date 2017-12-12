@@ -16,7 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<Port, NeutronPortChangeListener>
-        implements AutoCloseable {
+public class NeutronPortChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Port,
+        NeutronPortChangeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronPortChangeListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
@@ -40,7 +40,6 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         ifMgr = IfMgr.getIfMgrInstance();
     }
 
-    @Override
     @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());

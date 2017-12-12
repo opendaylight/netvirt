@@ -68,6 +68,7 @@ public class IfMgr {
     private IMdsalApiManager mdsalUtil;
     private final Ipv6ServiceUtils ipv6ServiceUtils = new Ipv6ServiceUtils();
     private DataBroker dataBroker;
+    private Ipv6ServiceEosHandler ipv6ServiceEosHandler;
 
     private static IfMgr ifMgr;
     private Ipv6ServiceUtils ipv6Utils = Ipv6ServiceUtils.getInstance();
@@ -93,6 +94,10 @@ public class IfMgr {
 
     public void setDataBroker(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
+    }
+
+    public void setEosHandler(Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
+        this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
     }
 
     public void setMdsalUtilManager(IMdsalApiManager mdsalUtil) {
@@ -523,6 +528,11 @@ public class IfMgr {
     }
 
     private void programIcmpv6RSPuntFlows(VirtualPort routerPort, int action) {
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skip flow programming.");
+            return;
+        }
+
         Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
         int flowStatus;
         VirtualNetwork vnet = vnetworks.get(routerPort.getNetworkID());
@@ -544,6 +554,11 @@ public class IfMgr {
     }
 
     private void programIcmpv6NSPuntFlowForAddress(VirtualPort routerPort, Ipv6Address ipv6Address, int action) {
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skip flow programming.");
+            return;
+        }
+
         Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
         VirtualNetwork vnet = vnetworks.get(routerPort.getNetworkID());
         if (vnet != null) {
@@ -563,6 +578,11 @@ public class IfMgr {
     }
 
     public void programIcmpv6PuntFlowsIfNecessary(Uuid vmPortId, BigInteger dpId, VirtualPort routerPort) {
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skip flow programming.");
+            return;
+        }
+
         VirtualPort vmPort = vintfs.get(vmPortId);
         if (null != vmPort) {
             VirtualNetwork vnet = vnetworks.get(vmPort.getNetworkID());
@@ -687,7 +707,12 @@ public class IfMgr {
     }
 
     public void transmitUnsolicitedRA(VirtualPort port) {
-        transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
+        if (ipv6ServiceEosHandler.isClusterOwner()) {
+            /* Only the Cluster Owner would be sending out the Periodic RAs.
+             * However, the timer is configured on all the nodes to handle cluster fail-over scenarios.
+             */
+            transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
+        }
         Ipv6TimerWheel timer = Ipv6TimerWheel.getInstance();
         Timeout portTimeout = timer.setPeriodicTransmissionTimeout(port.getPeriodicTimer(),
                                                                    Ipv6Constants.PERIODIC_RA_INTERVAL,
