@@ -15,6 +15,7 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -22,7 +23,6 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.binding.attributes.Profile;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.HostconfigKey;
@@ -35,9 +35,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.por
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.NetworkProviderExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.provider.ext.rev150712.neutron.networks.network.Segments;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
+import org.opendaylight.neutron.spi.NeutronPort;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import java.lang.Exception;
+import java.util.HashMap;
+import java.util.Map;
 
 public class NeutronUtils {
     private static final Logger LOG = LoggerFactory.getLogger(NeutronUtils.class);
@@ -49,6 +57,8 @@ public class NeutronUtils {
     public static final String PORT_STATUS_DOWN = "DOWN";
     public static final String PORT_STATUS_ERROR = "ERROR";
     public static final String PORT_STATUS_NOTAPPLICABLE = "N/A";
+    public static final String BINDING_PROFILE_CAPABILITIES = "capabilities";
+    public static final String SWITCHDEV = "switchdev";
     private static volatile Pattern uuidPattern;
     private static ConcurrentMap<String, Hostconfig> hostConfigMap = new ConcurrentHashMap<>();
 
@@ -194,16 +204,31 @@ public class NeutronUtils {
         }
 
         PortBindingExtension portBinding = port.getAugmentation(PortBindingExtension.class);
-        Profile profile = portBinding.getProfile();
-        if (profile == null) {
-            LOG.debug("Port {} hase no binding:profile values", port.getUuid());
+        String profile = portBinding.getProfile();
+        if (profile == null || profile.isEmpty()) {
+            LOG.debug("Port {} has no binding:profile values", port.getUuid());
             return false;
         }
 
-        List<String> capabilities = profile.getCapabilities();
+        NeutronPort.DictJsonAdapter dictJson = new NeutronPort.DictJsonAdapter();
+        Map<String, JsonElement> mapProfile = null;
+        try {
+            mapProfile = dictJson.unmarshal(profile);
+        } catch (Exception e) {
+            LOG.error("Failed to unmarshal profile {}", profile);
+            return false;
+        }
+        JsonElement capabilities = mapProfile.get(BINDING_PROFILE_CAPABILITIES);
         LOG.debug("Port {} capabilities: {}", port.getUuid(), capabilities);
+        if (capabilities == null || !capabilities.isJsonArray()) {
+            LOG.debug("binding profile capabilities not in array format: {}", capabilities);
+            return false;
+        }
 
-        return capabilities != null && capabilities.contains("switchdev");
+        JsonArray capabilitiesArray = capabilities.getAsJsonArray();
+        Gson gson = new Gson();
+        JsonElement switchdevElement = gson.fromJson(SWITCHDEV, JsonElement.class);
+        return capabilitiesArray.contains(switchdevElement);
     }
 
     public static boolean isPortVnicTypeNormal(Port port) {
