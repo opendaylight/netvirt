@@ -40,3 +40,4 @@ Contents:
    VLAN provider network enhancement <vlan-provider-enhancement>
    VNI based L2 switching, L3 forwarding and NATing <vni-based-l2-switching-l3-forwarding-and-NATing>
    Neutron Port Allocation For DHCP Service <neutron-port-for-dhcp-service>
+   Faster DC-GW Failure Detection
