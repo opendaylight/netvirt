@@ -265,22 +265,18 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     @SuppressFBWarnings("RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE")
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
-        if (original.equals(update)) {
-            return;
-        }
         final String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
-        LOG.debug("UPDATE: Updating Fib Entries to rd {} prefix {} route-paths {}",
-            rd, update.getDestPrefix(), update.getRoutePaths());
+        LOG.debug("UPDATE: Updating Fib Entries with rd {} prefix {} route-paths {}",
+                rd, update.getDestPrefix(), update.getRoutePaths());
         // Handle BGP Routes first
         if (RouteOrigin.value(update.getOrigin()) == RouteOrigin.BGP) {
             bgpRouteVrfEntryHandler.updateFlows(identifier, original, update, rd);
-            LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
-                rd, update.getDestPrefix(), update.getRoutePaths());
+            LOG.info("UPDATE: Updated BGP advertised Fib Entry with rd {} prefix {} route-paths {}",
+                    rd, update.getDestPrefix(), update.getRoutePaths());
             return;
         }
 
-        // Handle Vpn Interface driven Routes next (ie., STATIC and LOCAL)
-        if (FibHelper.isControllerManagedVpnInterfaceRoute(RouteOrigin.value(update.getOrigin()))) {
+        if (RouteOrigin.value(update.getOrigin()) == RouteOrigin.STATIC) {
             List<RoutePaths> originalRoutePath = original.getRoutePaths();
             List<RoutePaths> updateRoutePath = update.getRoutePaths();
             LOG.info("UPDATE: Original route-path {} update route-path {} ", originalRoutePath, updateRoutePath);
@@ -296,7 +292,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             // If original VRF Entry had nexthop null , but update VRF Entry
             // has nexthop , route needs to be created on remote Dpns
             if (originalRoutePath == null || originalRoutePath.isEmpty()
-                && updateRoutePath != null && !updateRoutePath.isEmpty() && usedRds.isEmpty()) {
+                    && updateRoutePath != null && !updateRoutePath.isEmpty() && usedRds.isEmpty()) {
                 // TODO(vivek): Though ugly, Not handling this code now, as each
                 // tep add event will invoke flow addition
                 LOG.trace("Original VRF entry NH is null for destprefix {}. And the prefix is not an extra route."
@@ -307,7 +303,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             // If original VRF Entry had valid nexthop , but update VRF Entry
             // has nexthop empty'ed out, route needs to be removed from remote Dpns
             if (updateRoutePath == null || updateRoutePath.isEmpty()
-                && originalRoutePath != null && !originalRoutePath.isEmpty() && usedRds.isEmpty()) {
+                    && originalRoutePath != null && !originalRoutePath.isEmpty() && usedRds.isEmpty()) {
                 LOG.trace("Original VRF entry had valid NH for destprefix {}. And the prefix is not an extra route."
                         + "This event is IGNORED here.", update.getDestPrefix());
                 return;
@@ -318,7 +314,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             nextHopsRemoved.parallelStream()
                     .forEach(nextHopRemoved -> fibUtil.updateUsedRdAndVpnToExtraRoute(
-                             writeOperTxn, nextHopRemoved, rd, update.getDestPrefix()));
+                            writeOperTxn, nextHopRemoved, rd, update.getDestPrefix()));
             CheckedFuture<Void, TransactionCommitFailedException> operFuture = writeOperTxn.submit();
             try {
                 operFuture.get();
@@ -328,16 +324,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
 
             createFibEntries(identifier, update);
-            LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
-                rd, update.getDestPrefix(), update.getRoutePaths());
+            LOG.info("UPDATE: Updated static Fib Entry with rd {} prefix {} route-paths {}",
+                    rd, update.getDestPrefix(), update.getRoutePaths());
             return;
         }
 
-        /* Handl all other route origins */
-        createFibEntries(identifier, update);
+        //Handle all other routes only on a cluster reboot
+        if (original.equals(update)) {
+            //Reboot use-case)
+            createFibEntries(identifier, update);
+            LOG.info("UPDATE: Updated Non-static Fib Entry with rd {} prefix {} route-paths {}",
+                    rd, update.getDestPrefix(), update.getRoutePaths());
+            return;
+        }
 
-        LOG.info("UPDATE: Updated Fib Entries to rd {} prefix {} route-paths {}",
-            rd, update.getDestPrefix(), update.getRoutePaths());
+        LOG.info("UPDATE: Ignoring update for FIB entry with rd {} prefix {} route-origin {} route-paths {}",
+                rd, update.getDestPrefix(), update.getOrigin(), update.getRoutePaths());
     }
 
     private void createFibEntries(final InstanceIdentifier<VrfEntry> vrfEntryIid, final VrfEntry vrfEntry) {
