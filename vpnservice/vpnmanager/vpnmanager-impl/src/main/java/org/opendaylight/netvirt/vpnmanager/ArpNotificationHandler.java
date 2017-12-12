@@ -237,6 +237,11 @@ public class ArpNotificationHandler implements OdlArputilListener {
                 ip = VpnUtil.getIpPrefix(ip);
                 for (Adjacency adjacs : adjacencyList) {
                     if (adjacs.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
+                        if (adjacs.getIpAddress().equals(ip)) {
+                            LOG.error("The MIP {} is already present as a primary adjacency for interface {} vpn {}."
+                                    + "Skipping adjacency addition.", ip, vpnInterface, vpnName);
+                            return;
+                        }
                         nextHopIpAddr = adjacs.getIpAddress();
                         nextHopMacAddress = adjacs.getMacAddress();
                         break;
