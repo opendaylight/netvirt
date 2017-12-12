@@ -9,66 +9,54 @@ package org.opendaylight.netvirt.cloudservicechain.utils;
 
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.concurrent.ConcurrentMap;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.utils.cache.CacheUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortData;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Manages a per-blade cache, which is feeded by a clustered data change
- * listener.
- *
+ * Manages a per-blade cache, which is fed by a clustered data change listener.
  */
-public final class VpnPseudoPortCache {
+@Singleton
+public class VpnPseudoPortCache {
+    private static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortCache.class);
 
-    public static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortCache.class);
-    public static final String VPNPSEUDOPORT_CACHE_NAME = "VrfToVpnPseudoPortCache";
+    private final DataBroker broker;
+    private final ConcurrentMap<String, Long> cache =  new ConcurrentHashMap<>();
 
-    private VpnPseudoPortCache() { }
-
-    public static void createVpnPseudoPortCache(DataBroker broker) {
-        if (CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME) == null) {
-            CacheUtil.createCache(VPNPSEUDOPORT_CACHE_NAME);
-            initialLoadFromDS(broker);
-        }
+    @Inject
+    public VpnPseudoPortCache(DataBroker broker) {
+        this.broker = broker;
     }
 
-    public static void destroyVpnPseudoPortCache() {
-        if (CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME) != null) {
-            CacheUtil.destroyCache(VPNPSEUDOPORT_CACHE_NAME);
-        }
-    }
-
-    private static void initialLoadFromDS(DataBroker broker) {
+    @PostConstruct
+    public void init() {
         LOG.info("Initial read of Vpn to VpnPseudoPort map from Datastore");
         List<VpnToPseudoPortData> allVpnToPseudoPortData = VpnServiceChainUtils.getAllVpnToPseudoPortData(broker);
         for (VpnToPseudoPortData vpnToPseudoPort : allVpnToPseudoPortData) {
-            addVpnPseudoPortToCache(vpnToPseudoPort.getVrfId(), vpnToPseudoPort.getVpnLportTag());
+            add(vpnToPseudoPort.getVrfId(), vpnToPseudoPort.getVpnLportTag());
         }
     }
 
-    public static void addVpnPseudoPortToCache(String vrfId, long vpnPseudoLportTag) {
+    public void add(@Nonnull String vrfId, long vpnPseudoLportTag) {
         LOG.debug("Adding vpn {} and vpnPseudoLportTag {} to VpnPseudoPortCache", vrfId, vpnPseudoLportTag);
-        ConcurrentHashMap<String, Long> cache =
-            (ConcurrentHashMap<String, Long>) CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME);
-        cache.put(vrfId, vpnPseudoLportTag);
+        cache.put(vrfId, Long.valueOf(vpnPseudoLportTag));
     }
 
-    public static Long getVpnPseudoPortTagFromCache(String vrfId) {
-        ConcurrentHashMap<String, Long> cache =
-            (ConcurrentHashMap<String, Long>) CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME);
+    @Nullable
+    public Long get(@Nonnull String vrfId) {
         return cache.get(vrfId);
     }
 
-    public static void removeVpnPseudoPortFromCache(String vrfId) {
+    @Nullable
+    public Long remove(@Nonnull String vrfId) {
         LOG.debug("Removing vpn {} from VpnPseudoPortCache", vrfId);
-        ConcurrentHashMap<String, Long> cache =
-            (ConcurrentHashMap<String, Long>) CacheUtil.getCache(VPNPSEUDOPORT_CACHE_NAME);
-        cache.remove(vrfId);
+        return cache.remove(vrfId);
     }
-
-
 }

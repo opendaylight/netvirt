@@ -20,21 +20,23 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Singleton
 /**
  * Listens to changes in the Vpn to VpnPseudoPort relationship with the only
  * purpose of updating the VpnPseudoPorts caches in all blades.
  *
  */
+@Singleton
 public class VpnPseudoPortListener
         extends AsyncClusteredDataTreeChangeListenerBase<VpnToPseudoPortData, VpnPseudoPortListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(VpnPseudoPortListener.class);
     private final DataBroker dataBroker;
+    private final VpnPseudoPortCache vpnPseudoPortCache;
 
     @Inject
-    public VpnPseudoPortListener(final DataBroker dataBroker) {
+    public VpnPseudoPortListener(final DataBroker dataBroker, final VpnPseudoPortCache vpnPseudoPortCache) {
         this.dataBroker = dataBroker;
+        this.vpnPseudoPortCache = vpnPseudoPortCache;
     }
 
     @PostConstruct
@@ -45,20 +47,20 @@ public class VpnPseudoPortListener
     @Override
     protected void remove(InstanceIdentifier<VpnToPseudoPortData> identifier, VpnToPseudoPortData del) {
         LOG.trace("Reacting to VpnToPseudoPortData removal: iid={}", identifier);
-        VpnPseudoPortCache.removeVpnPseudoPortFromCache(del.getVrfId());
+        vpnPseudoPortCache.remove(del.getVrfId());
     }
 
     @Override
     protected void update(InstanceIdentifier<VpnToPseudoPortData> identifier, VpnToPseudoPortData original,
                           VpnToPseudoPortData update) {
-        VpnPseudoPortCache.addVpnPseudoPortToCache(update.getVrfId(), update.getVpnLportTag());
+        vpnPseudoPortCache.add(update.getVrfId(), update.getVpnLportTag());
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnToPseudoPortData> identifier, VpnToPseudoPortData add) {
         LOG.trace("Reacting to VpnToPseudoPortData creation:  vrf={}  vpnPseudoLportTag={}  scfTag={}  scfTable={}.",
                   add.getVrfId(), add.getVpnLportTag(), add.getScfTag(), add.getScfTableId());
-        VpnPseudoPortCache.addVpnPseudoPortToCache(add.getVrfId(), add.getVpnLportTag());
+        vpnPseudoPortCache.add(add.getVrfId(), add.getVpnLportTag());
     }
 
     @Override

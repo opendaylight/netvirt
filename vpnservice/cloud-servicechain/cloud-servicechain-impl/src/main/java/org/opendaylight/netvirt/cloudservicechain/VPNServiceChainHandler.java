@@ -33,7 +33,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.cloudservicechain.jobs.AddVpnPseudoPortDataJob;
 import org.opendaylight.netvirt.cloudservicechain.jobs.RemoveVpnPseudoPortDataJob;
-import org.opendaylight.netvirt.cloudservicechain.utils.VpnPseudoPortCache;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
@@ -77,13 +76,11 @@ public class VPNServiceChainHandler implements AutoCloseable {
 
     @PostConstruct
     public void init() {
-        VpnPseudoPortCache.createVpnPseudoPortCache(dataBroker);
     }
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
-        VpnPseudoPortCache.destroyVpnPseudoPortCache();
+    public void close() {
     }
 
     /**

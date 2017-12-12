@@ -44,11 +44,13 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
     private static final Logger LOG = LoggerFactory.getLogger(VrfListener.class);
     private final DataBroker broker;
     private final IMdsalApiManager mdsalMgr;
+    private final VpnPseudoPortCache vpnPseudoPortCache;
 
     @Inject
-    public VrfListener(DataBroker broker, IMdsalApiManager mdsalMgr) {
+    public VrfListener(DataBroker broker, IMdsalApiManager mdsalMgr, VpnPseudoPortCache vpnPseudoPortCache) {
         this.broker = broker;
         this.mdsalMgr = mdsalMgr;
+        this.vpnPseudoPortCache = vpnPseudoPortCache;
     }
 
     @Override
@@ -99,7 +101,7 @@ public class VrfListener extends AsyncDataTreeChangeListenerBase<VrfEntry, VrfLi
      * @param addOrRemove States if the route must be added or removed
      */
     protected void programLabelInAllVpnDpns(String vpnRd, VrfEntry vrfEntry, int addOrRemove) {
-        Long vpnPseudoLPortTag = VpnPseudoPortCache.getVpnPseudoPortTagFromCache(vpnRd);
+        Long vpnPseudoLPortTag = vpnPseudoPortCache.get(vpnRd);
         if (vpnPseudoLPortTag == null) {
             LOG.debug("Vpn with rd={} not related to any VpnPseudoPort", vpnRd);
             return;
