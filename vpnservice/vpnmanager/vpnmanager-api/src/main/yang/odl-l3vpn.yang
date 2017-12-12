@@ -220,6 +220,12 @@ module odl-l3vpn {
             leaf router-interface {
                 type boolean;
             }
+            leaf gateway-mac-address {
+                type string;
+            }
+            leaf lport-tag {
+                type uint32;
+            }
             leaf vpn-interface-state {
               description
                "This flag indicates the state of this interface in the VPN identified by vpn-name.
