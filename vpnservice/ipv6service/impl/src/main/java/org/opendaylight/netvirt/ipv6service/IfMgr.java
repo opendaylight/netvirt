@@ -79,18 +79,21 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private final IElanService elanProvider;
     private final Ipv6ServiceUtils ipv6ServiceUtils;
     private final DataBroker dataBroker;
+    private final Ipv6ServiceEosHandler ipv6ServiceEosHandler;
     private final PacketProcessingService packetService;
     private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(portId -> transmitUnsolicitedRA(portId));
     private final Ipv6TimerWheel timer = new Ipv6TimerWheel();
 
     @Inject
     public IfMgr(DataBroker dataBroker, IElanService elanProvider, OdlInterfaceRpcService interfaceManagerRpc,
-            PacketProcessingService packetService, Ipv6ServiceUtils ipv6ServiceUtils) {
+            PacketProcessingService packetService, Ipv6ServiceUtils ipv6ServiceUtils,
+            Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
         this.dataBroker = dataBroker;
         this.elanProvider = elanProvider;
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.packetService = packetService;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
+        this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
         LOG.info("IfMgr is enabled");
     }
 
@@ -529,6 +532,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
     }
 
     private void programIcmpv6RSPuntFlows(IVirtualPort routerPort, int action) {
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skip flow programming.");
+            return;
+        }
+
         Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
         int flowStatus;
         VirtualNetwork vnet = getNetwork(routerPort.getNetworkID());
@@ -550,6 +558,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
     }
 
     private void programIcmpv6NSPuntFlowForAddress(IVirtualPort routerPort, Ipv6Address ipv6Address, int action) {
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skip flow programming.");
+            return;
+        }
+
         Long elanTag = getNetworkElanTag(routerPort.getNetworkID());
         VirtualNetwork vnet = getNetwork(routerPort.getNetworkID());
         if (vnet != null) {
@@ -570,6 +583,11 @@ public class IfMgr implements ElementCache, AutoCloseable {
     }
 
     public void programIcmpv6PuntFlowsIfNecessary(Uuid vmPortId, BigInteger dpId, VirtualPort routerPort) {
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skip flow programming.");
+            return;
+        }
+
         IVirtualPort vmPort = getPort(vmPortId);
         if (null != vmPort) {
             VirtualNetwork vnet = getNetwork(vmPort.getNetworkID());
@@ -697,7 +715,12 @@ public class IfMgr implements ElementCache, AutoCloseable {
     }
 
     public void transmitUnsolicitedRA(VirtualPort port) {
-        transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
+        if (ipv6ServiceEosHandler.isClusterOwner()) {
+            /* Only the Cluster Owner would be sending out the Periodic RAs.
+               However, the timer is configured on all the nodes to handle cluster fail-over scenarios.
+             */
+            transmitRouterAdvertisement(port, Ipv6RtrAdvertType.UNSOLICITED_ADVERTISEMENT);
+        }
         Timeout portTimeout = timer.setPeriodicTransmissionTimeout(port.getPeriodicTimer(),
                                                                    Ipv6Constants.PERIODIC_RA_INTERVAL,
                                                                    TimeUnit.SECONDS);
