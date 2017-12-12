@@ -1935,6 +1935,15 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 .child(VpnInterface.class, new VpnInterfaceKey(infName)).build();
                         InstanceIdentifier<Adjacency> path = identifier.augmentation(Adjacencies.class)
                             .child(Adjacency.class, new AdjacencyKey(destination));
+                        Optional<Adjacency> existingAdjacency = SingleTransactionDataBroker.syncReadOptional(dataBroker,
+                                LogicalDatastoreType.CONFIGURATION, path);
+                        if (existingAdjacency.isPresent()
+                                && existingAdjacency.get().getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
+                            LOG.error("The route with destination {} nextHop {} is already present as"
+                                            + " a primary adjacency for interface {}. Skipping adjacency addition.",
+                                    destination, nextHop, infName);
+                            continue;
+                        }
                         Adjacency erAdj = new AdjacencyBuilder().setIpAddress(destination)
                             .setNextHopIpList(Collections.singletonList(nextHop)).setKey(new AdjacencyKey(destination))
                             .setAdjacencyType(AdjacencyType.ExtraRoute).build();
@@ -1944,6 +1953,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     } catch (TransactionCommitFailedException e) {
                         LOG.error("exception in adding extra route with destination: {}, next hop: {}",
                             destination, nextHop, e);
+                    } catch (ReadFailedException e) {
+                        LOG.error("Exception on reading data-store ", e);
                     } finally {
                         if (isLockAcquired) {
                             interfaceLock.unlock(infName);
