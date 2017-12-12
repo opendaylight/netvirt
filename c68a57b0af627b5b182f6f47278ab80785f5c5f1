@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bb006085_7147c7b6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-12T08:16:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_c09f4902",
+      "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_40aa391a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 17
@@ -30,6 +48,24 @@
       "writtenOn": "2017-12-05T17:44:17Z",
       "side": 1,
       "message": "what if binding is present for type switchdev? That would be controller restart/upgrade use case. If all we need to create binding for switchdev better check than assume it will never com in create.",
+      "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac404733_a58fe66c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-12T08:16:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_40aa391a",
       "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "b74b7941_9643f383",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-12T08:16:51Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7a1969be_80639119",
+      "range": {
+        "startLine": 187,
+        "startChar": 15,
+        "endLine": 187,
+        "endChar": 50
+      },
+      "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_c06d8906",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 17
@@ -70,6 +130,30 @@
       "writtenOn": "2017-12-05T17:44:17Z",
       "side": 1,
       "message": "why is this needed? portUpdate is not delta but original+updates.",
+      "range": {
+        "startLine": 510,
+        "startChar": 37,
+        "endLine": 510,
+        "endChar": 49
+      },
+      "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d8fa5f46_24677d83",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-12T08:16:51Z",
+      "side": 1,
+      "message": "so maybe the binding attributes are being overridden.\nthe updated port doesn\u0027t hold the binding:profile attribute.",
+      "parentUuid": "7a1969be_c06d8906",
       "range": {
         "startLine": 510,
         "startChar": 37,
