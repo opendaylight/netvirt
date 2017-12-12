@@ -16,6 +16,24 @@
       "revId": "6985f0e0f6787556c1c6abfa7e9967c4a74faab3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "004833f4_0b0704ec",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-12T15:40:00Z",
+      "side": 1,
+      "message": "Hello\nactually, because we have two nearly same signature of methods and only this argument change it, so we have to put the right type of Object to be recognize which signature have to be used.\nit is for why I have to cast it.\nbut in most other way the argument will be directly a ReadOnlyTransaction, or the other Object.\nThks",
+      "parentUuid": "7a1969be_8a30c457",
+      "revId": "6985f0e0f6787556c1c6abfa7e9967c4a74faab3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
