@@ -407,7 +407,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             if (method == TunnelEventProcessingMethod.POPULATESUBNETS) {
                 Optional<VpnInterfaceOpDataEntry> opVpnInterface = VpnUtil
                            .getVpnInterfaceOpDataEntry(dataBroker, intfName, vpnName);
-                if (opVpnInterface.isPresent()) {
+                if (opVpnInterface.isPresent() && !opVpnInterface.get().isScheduledForRemove()) {
                     VpnInterfaceOpDataEntry vpnInterface  = opVpnInterface.get();
                     jobCoordinator.enqueueJob("VPNINTERFACE-" + intfName,
                             new UpdateVpnInterfaceOnTunnelEvent(tunnelAction,
