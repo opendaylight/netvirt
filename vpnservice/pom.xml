@@ -40,10 +40,19 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>vpnservice-artifacts</module>
     <module>statemanager</module>
     <module>statistics</module>
-    <module>sfc</module>
     <module>ovsdb-ui</module>
     <module>alarm</module>
   </modules>
+
+  <profiles>
+    <profile>
+      <id>sfc</id>
+      <modules>
+        <module>sfc</module>
+        <module>vpnservice-sfc-artifacts</module>
+      </modules>
+    </profile>
+  </profiles>
 
   <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
   <build>
