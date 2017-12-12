@@ -15,7 +15,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -34,19 +34,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class Ipv6NodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, Ipv6NodeListener>
-        implements AutoCloseable {
+public class Ipv6NodeListener extends AsyncClusteredDataTreeChangeListenerBase<FlowCapableNode, Ipv6NodeListener> {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6NodeListener.class);
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtil;
+    private final Ipv6ServiceEosHandler ipv6ServiceEosHandler;
 
     @Inject
-    public Ipv6NodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtil) {
+    public Ipv6NodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtil,
+                            final Ipv6ServiceEosHandler ipv6ServiceEosHandler) {
         this.dataBroker = dataBroker;
         this.mdsalUtil = mdsalUtil;
+        this.ipv6ServiceEosHandler = ipv6ServiceEosHandler;
     }
 
-    @Override
     @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
@@ -74,6 +75,11 @@ public class Ipv6NodeListener extends AsyncDataTreeChangeListenerBase<FlowCapabl
     }
 
     private void createTableMissEntry(BigInteger dpnId) {
+        if (!ipv6ServiceEosHandler.isClusterOwner()) {
+            LOG.trace("Not a cluster Owner, skip flow programming.");
+            return;
+        }
+
         List<MatchInfo> matches = new ArrayList<>();
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();

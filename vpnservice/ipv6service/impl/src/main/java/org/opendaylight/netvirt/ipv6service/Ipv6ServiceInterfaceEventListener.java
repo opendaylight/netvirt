@@ -12,10 +12,9 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
@@ -30,8 +29,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class Ipv6ServiceInterfaceEventListener
-        extends AsyncDataTreeChangeListenerBase<Interface, Ipv6ServiceInterfaceEventListener>
-        implements ClusteredDataTreeChangeListener<Interface>, AutoCloseable {
+        extends AsyncClusteredDataTreeChangeListenerBase<Interface, Ipv6ServiceInterfaceEventListener> {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceInterfaceEventListener.class);
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
@@ -47,7 +45,6 @@ public class Ipv6ServiceInterfaceEventListener
         ifMgr = IfMgr.getIfMgrInstance();
     }
 
-    @Override
     @PostConstruct
     public void init() {
         LOG.info("{} init", getClass().getSimpleName());
