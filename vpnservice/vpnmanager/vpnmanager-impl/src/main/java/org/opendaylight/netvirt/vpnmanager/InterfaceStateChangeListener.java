@@ -180,6 +180,8 @@ public class InterfaceStateChangeListener
                                         continue;
                                     }
                                     final VpnInterfaceOpDataEntry vpnInterface = optVpnInterface.get();
+                                    String gwMac = intrf.getPhysAddress() != null ? intrf.getPhysAddress().getValue()
+                                            : vpnInterface.getGatewayMacAddress();
                                     BigInteger dpnId = inputDpId;
                                     if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
                                         dpnId = vpnInterface.getDpnId();
@@ -187,7 +189,7 @@ public class InterfaceStateChangeListener
                                     final int ifIndex = intrf.getIfIndex();
                                     LOG.info("VPN Interface remove event - intfName {} onto vpnName {}"
                                                + " running oper-driver", vpnInterface.getName(), vpnName);
-                                    vpnInterfaceManager.processVpnInterfaceDown(dpnId, ifName, ifIndex, intrf,
+                                    vpnInterfaceManager.processVpnInterfaceDown(dpnId, ifName, ifIndex, gwMac,
                                             vpnInterface, false, writeConfigTxn, writeOperTxn, writeInvTxn);
                                 }
                             }));
@@ -271,7 +273,7 @@ public class InterfaceStateChangeListener
                                             if (optVpnInterface.isPresent()) {
                                                 VpnInterfaceOpDataEntry vpnOpInterface = optVpnInterface.get();
                                                 vpnInterfaceManager.processVpnInterfaceDown(dpnId, vpnIf.getName(),
-                                                        ifIndex, update, vpnOpInterface, true,
+                                                        ifIndex, update.getPhysAddress().getValue(), vpnOpInterface, true,
                                                         writeConfigTxn, writeOperTxn, writeInvTxn);
                                             } else {
                                                 LOG.error("InterfaceStateChangeListener Update DOWN - vpnInterface {}"
