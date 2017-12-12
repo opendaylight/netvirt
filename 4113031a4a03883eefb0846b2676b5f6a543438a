@@ -143,6 +143,24 @@
     },
     {
       "key": {
+        "uuid": "46706165_bbe6a7c4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-12T15:40:00Z",
+      "side": 1,
+      "message": "I agree.",
+      "parentUuid": "7a1969be_0a3cd42e",
+      "revId": "4113031a4a03883eefb0846b2676b5f6a543438a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7a1969be_71062322",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 1
