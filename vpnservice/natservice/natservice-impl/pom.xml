@@ -117,12 +117,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <extensions>true</extensions>
         <configuration>
           <instructions>
-            <!-- This bundle works with Karaf 3 and 4.0 -->
-            <Import-Package>
-              org.apache.karaf.shell.commands;version="[3.0.0,4.1)",
-              org.apache.karaf.shell.console;version="[3.0.0,4.1)",
-              *
-            </Import-Package>
             <!-- We purposely don't export any packages to avoid any dependencies
                  on this bundle and prevent @Singleton annotated classes from being
                  accidently included in another bundle's blueprint XML  -->
