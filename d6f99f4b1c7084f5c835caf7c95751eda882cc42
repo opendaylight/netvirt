@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "209db4ca_42e0a26f",
+        "filename": "resources/tools/odl/netvirt/ds_analyze.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "remove?",
+      "range": {
+        "startLine": 75,
+        "startChar": 8,
+        "endLine": 75,
+        "endChar": 55
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ae49838_eaa365f2",
+        "filename": "resources/tools/odl/netvirt/ds_analyze.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 203,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 203,
+        "startChar": 26,
+        "endLine": 203,
+        "endChar": 38
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e94ffb2a_47dd98dc",
+        "filename": "resources/tools/odl/netvirt/ds_analyze.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 409,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "clean up",
+      "range": {
+        "startLine": 403,
+        "startChar": 0,
+        "endLine": 409,
+        "endChar": 45
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "817d7126_9c031944",
+        "filename": "resources/tools/odl/netvirt/flow_parser.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 132,
+        "startChar": 0,
+        "endLine": 133,
+        "endChar": 46
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89406641_b9b31559",
+        "filename": "resources/tools/odl/netvirt/flow_parser.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 205,
+        "startChar": 0,
+        "endLine": 206,
+        "endChar": 16
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1819510b_b48adaf4",
+        "filename": "resources/tools/odl/netvirt/flow_parser.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 326,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 326,
+        "startChar": 4,
+        "endLine": 326,
+        "endChar": 11
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98018a3e_3711dd69",
+        "filename": "resources/tools/odl/netvirt/netvirt_utils.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "8181?",
+      "range": {
+        "startLine": 14,
+        "startChar": 94,
+        "endLine": 14,
+        "endChar": 98
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ec9812f_1ab395e3",
+        "filename": "resources/tools/odl/netvirt/ovs_get_data.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "?",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 8,
+        "endChar": 17
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c13c1c7b_6a2f76bd",
+        "filename": "resources/tools/odl/netvirt/ovs_get_data.py",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2017-12-13T19:57:03Z",
+      "side": 1,
+      "message": "can you make the TODO and comment block a little\nmore explicit so someone (maybe me) can take it on\nto make it right?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 54,
+        "endChar": 3
+      },
+      "revId": "d6f99f4b1c7084f5c835caf7c95751eda882cc42",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
