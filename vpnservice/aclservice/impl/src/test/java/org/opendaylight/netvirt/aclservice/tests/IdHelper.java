@@ -60,7 +60,31 @@ public final class IdHelper {
         idCacheMap.put("TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F3_10.0.0.1/32Egress98785cc3048-abc3-43cc-89b3-377341426a21", 1028);
         idCacheMap.put("TCP_DESTINATION_80_65535_ipv4_remoteACL_interface_aap_0D:AA:D8:42:30:F4_10.0.0.2/32Egress98785cc3048-abc3-43cc-89b3-377341426a21", 1029);
         idCacheMap.put("TCP_DESTINATION_80_65535Ingress98785cc3048-abc3-43cc-89b3-377341426a22", 1029);
-
+        idCacheMap.put("UDP_DESTINATION_2000_65532Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 240);
+        idCacheMap.put("TCP_DESTINATION_776_65534Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_512_65280Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_334_65534Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_333_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_336_65520Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_352_65504Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_384_65408Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_768_65528Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("UDP_DESTINATION_1_0Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 240);
+        idCacheMap.put("TCP_DESTINATION_1_0Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("TCP_DESTINATION_80_65535Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 240);
+        idCacheMap.put("TCP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 100);
+        idCacheMap.put("UDP_DESTINATION_80_65535Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 100);
+        idCacheMap.put("UDP_DESTINATION_80_65535Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("ETHERnullIngress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 100);
+        idCacheMap.put("ETHERnullEgress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426ac6", 240);
+        idCacheMap.put("ICMP_V6_DESTINATION_23_Egress_123_987_85cc3048-abc3-43cc-89b3-377341426a21", 240);
+        idCacheMap.put("ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426ac7", 240);
+        idCacheMap.put("ICMP_V6_DESTINATION_23_Ingress_123_987_85cc3048-abc3-43cc-89b3-377341426a22", 240);
+        idCacheMap.put("Egress_ACL_Dispatcher_Last_123_987_4", 230);
+        idCacheMap.put("Egress_ACL_Dispatcher_First_123_987_4", 210);
+        idCacheMap.put("Ingress_ACL_Dispatcher_Last_123_987_2", 230);
+        idCacheMap.put("Ingress_ACL_Dispatcher_First_123_987_2", 210);
     }
 
     public static Integer getId(String key) {
