@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.netvirt.elan.l2gw.ha.IidTracker;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeCopier;
@@ -51,8 +52,9 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     @Inject
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler,
                             HAOpClusteredListener haOpClusteredListener,
-                            NodeCopier nodeCopier) throws Exception {
-        super(OPERATIONAL, db);
+                            NodeCopier nodeCopier,
+                            IidTracker iidTracker) throws Exception {
+        super(OPERATIONAL, db, iidTracker);
         this.haEventHandler = haEventHandler;
         this.haOpClusteredListener = haOpClusteredListener;
         this.nodeCopier = nodeCopier;
@@ -172,7 +174,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         }
         InstanceIdentifier<Node> haGlobalPath = hwvtepHACache.getParent(childGlobalPath);
         InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(updatedChildPSNode, haGlobalPath);
-        LOG.error("Copy oper ps update from child {} to parent {}", childPsPath, haPsPath);
+        LOG.debug("Copy oper ps update from child {} to parent {}", childPsPath, haPsPath);
         haEventHandler.copyChildPsOpUpdateToHAParent(updatedChildPSNode, originalChildPSNode, haPsPath, tx);
     }
 
@@ -208,7 +210,6 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
                                               Node childNode,
                                               InstanceIdentifier<Node> haNodePath,
                                               ReadWriteTransaction tx) {
-        LOG.error("Inside readAndCopyChildPsOpToParent");
         String childGlobalNodeId = childNode.getNodeId().getValue();
         List<InstanceIdentifier> childPsIids = new ArrayList<>();
         HwvtepGlobalAugmentation hwvtepGlobalAugmentation = childNode.getAugmentation(HwvtepGlobalAugmentation.class);
@@ -224,7 +225,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         if (childPsIids.isEmpty()) {
             LOG.info("No child ps found for global {}", childGlobalNodeId);
         }
-        LOG.error("Got child PS node of size {}", childPsIids.size());
+        LOG.debug("Got child PS node of size {}", childPsIids.size());
         childPsIids.forEach((psIid) -> {
             try {
                 InstanceIdentifier<Node> childPsIid = psIid;
