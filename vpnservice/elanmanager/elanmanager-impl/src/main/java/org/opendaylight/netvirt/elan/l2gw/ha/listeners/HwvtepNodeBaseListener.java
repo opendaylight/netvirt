@@ -153,7 +153,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     ReadWriteTransaction getTx() {
-        return new BatchedTransaction(dataBroker);
+        return new BatchedTransaction();
     }
 
     //default methods
