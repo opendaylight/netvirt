@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "8903a37a_b2d7696b",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-13T11:39:16Z",
+      "side": 1,
+      "message": "ok\nso that explains why below timer is fired.\nthat should mean that in the cluster, the ODLs must start at the same time. right ? or do we accept some kind of jitter ?",
+      "parentUuid": "35a0b8ce_c9376978",
+      "range": {
+        "startLine": 722,
+        "startChar": 12,
+        "endLine": 722,
+        "endChar": 42
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84c901af_b069ff1c",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 1
@@ -84,6 +108,30 @@
       "side": 1,
       "message": "Actually other services in Netvirt might have added cluster support via a different patch, this patch adds the necessary support in ipv6service alone.",
       "parentUuid": "84c901af_b069ff1c",
+      "range": {
+        "startLine": 31,
+        "startChar": 47,
+        "endLine": 31,
+        "endChar": 87
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07dea752_886d3174",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-13T11:39:16Z",
+      "side": 1,
+      "message": "by parsing the netvirt code, it seems there are still other calls that are not modified, but I suppose this is out of scope of this review.",
+      "parentUuid": "8e81951b_795720a0",
       "range": {
         "startLine": 31,
         "startChar": 47,
