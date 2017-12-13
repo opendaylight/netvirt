@@ -13,7 +13,6 @@ import org.opendaylight.genius.mdsalutil.NwConstants
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable
-import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSha
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetSource
@@ -1351,6 +1350,7 @@ class FlowEntryObjectsBase {
          ]
     }
 
+
     protected def remoteEgressFlowsPort1() {
         #[
             remoteEgressFlowsPort("10.0.0.1")
@@ -1365,41 +1365,81 @@ class FlowEntryObjectsBase {
 
     protected def remoteIngressFlowsPort(String ip) {
         new FlowEntityBuilder >> [
-                dpnId = 123bi
+            dpnId = 123bi
             cookie = 110100480bi
-            flowId = "Acl_Filter_Egress_" + ip + "/32_5000"
+            flowId = "Acl_Filter_Egress_" + ip + "/32_2"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionWriteMetadata(4bi, 16777214bi),
-                new InstructionGotoTable(NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE)
+               new InstructionGotoTable(NwConstants.INGRESS_ACL_COMMITTER_TABLE)
             ]
             matchInfoList = #[
-                new MatchMetadata(83886080000bi, 1099494850560bi),
+                new MatchMetadata(32bi, 16777200bi),
                 new MatchEthernetType(2048L),
                 new MatchIpv4Destination(ip, "32")
             ]
-            priority = 50
-            tableId = NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE
+            priority = 100
+            tableId = NwConstants.INGRESS_REMOTE_ACL_TABLE
         ]
     }
 
     protected def remoteEgressFlowsPort(String ip) {
         new FlowEntityBuilder >> [
-                dpnId = 123bi
+            dpnId = 123bi
             cookie = 110100480bi
-            flowId = "Acl_Filter_Ingress_" + ip + "/32_5000"
+            flowId = "Acl_Filter_Ingress_" + ip + "/32_2"
             flowName = "ACL"
             instructionInfoList = #[
-                new InstructionWriteMetadata(4bi, 16777214bi),
-                new InstructionGotoTable(NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE)
+                new InstructionGotoTable(NwConstants.EGRESS_ACL_COMMITTER_TABLE)
             ]
             matchInfoList = #[
-                new MatchMetadata(83886080000bi, 1099494850560bi),
+                new MatchMetadata(32bi, 16777200bi),
                 new MatchEthernetType(2048L),
                 new MatchIpv4Source(ip, "32")
             ]
-            priority = 50
-            tableId = NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE
+            priority = 100
+            tableId = NwConstants.EGRESS_REMOTE_ACL_TABLE
+        ]
+    }
+
+    protected def remoteIngressFlowsPort3() {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Acl_Filter_Ingress_10.0.0.2/32_4"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionGotoTable(247 as short)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(64bi, 16777200bi),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Source("10.0.0.2", "32")
+                ]
+                priority = 100
+                tableId = 246 as short
+            ]
+        ]
+    }
+
+    protected def remoteEgressFlowsPort3() {
+        #[
+            new FlowEntityBuilder >> [
+                dpnId = 123bi
+                cookie = 110100480bi
+                flowId = "Acl_Filter_Egress_10.0.0.2/32_4"
+                flowName = "ACL"
+                instructionInfoList = #[
+                    new InstructionGotoTable(217 as short)
+                ]
+                matchInfoList = #[
+                    new MatchMetadata(64bi, 16777200bi),
+                    new MatchEthernetType(2048L),
+                    new MatchIpv4Destination("10.0.0.2", "32")
+                ]
+                priority = 100
+                tableId = 216 as short
+            ]
         ]
     }
 
@@ -1683,7 +1723,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetType(2054L),
                     new MatchArpSha(new MacAddress(mac)),
                     new MatchEthernetSource(new MacAddress(mac)),
-                    new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
+                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
                 tableId = NwConstants.INGRESS_ACL_TABLE
