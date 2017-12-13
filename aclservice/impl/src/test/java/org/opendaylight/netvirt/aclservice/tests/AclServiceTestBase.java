@@ -20,7 +20,6 @@ import javax.inject.Inject;
 
 import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -63,7 +62,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore
 public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
@@ -102,6 +100,8 @@ public abstract class AclServiceTestBase {
     static final AllowedAddressPairs AAP_PORT_2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
     static final AllowedAddressPairs AAP_PORT_3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
     static final AllowedAddressPairs AAP_PORT_4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
+
+    FlowEntryObjectsStateful flowEntryObjectsBase = new FlowEntryObjectsStateful();
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
@@ -295,7 +295,6 @@ public abstract class AclServiceTestBase {
 
     abstract void newInterfaceWithTcpDstAclCheck();
 
-    @Ignore
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
         LOG.info("newInterfaceWithUdpDstAcl - start");
@@ -506,18 +505,7 @@ public abstract class AclServiceTestBase {
         newInterfaceWithIcmpAclCheck();
     }
 
-    /**
-     * Test new interface with allowed-address-pair (AAP) having IP prefix 0.0.0.0/0.
-     * <p>
-     * FIXME: This TC works locally but is failing in Jenkins, hence disabling TC for now. This is related to ordering
-     * issue (with FlowEntity objects) with test infra (AssertDataObjects.assertEqualBeans) which needs to be fixed.
-     * </p>
-     *
-     * @throws Exception
-     *             the exception
-     */
     @Test
-    @Ignore
     public void newInterfaceWithAapIpv4All() throws Exception {
         LOG.info("newInterfaceWithAapIpv4All test - start");
 
