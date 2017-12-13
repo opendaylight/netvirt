@@ -13,33 +13,21 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
-import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
-import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
-import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
-import org.opendaylight.netvirt.elan.l2gw.ha.commands.PhysicalLocatorCmd;
-import org.opendaylight.netvirt.elan.l2gw.ha.commands.RemoteMcastCmd;
-import org.opendaylight.netvirt.elan.l2gw.ha.commands.RemoteUcastCmd;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAttributes;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalMcastMacs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LocalUcastMacs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.LogicalSwitches;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteMcastMacs;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
-import org.opendaylight.yangtools.yang.binding.ChildOf;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class HAListeners implements AutoCloseable {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HAListeners.class);
+
     private static final InstanceIdentifier<TerminationPoint> PHYSICAL_PORT_IID =
         InstanceIdentifier.create(NetworkTopology.class)
             .child(Topology.class, new TopologyKey(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID))
@@ -51,7 +39,7 @@ public class HAListeners implements AutoCloseable {
     @Inject
     public HAListeners(DataBroker broker) {
         this.broker = broker;
-        registerListener(LocalMcastMacs.class, new LocalMcastCmd());
+        /*registerListener(LocalMcastMacs.class, new LocalMcastCmd());
         registerListener(RemoteMcastMacs.class, new RemoteMcastCmd());
         registerListener(LocalUcastMacs.class, new LocalUcastCmd());
         registerListener(RemoteUcastMacs.class, new RemoteUcastCmd());
@@ -61,7 +49,7 @@ public class HAListeners implements AutoCloseable {
         listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
                 ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY));
         listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
-                ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
+                ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));*/
     }
 
     @Override
@@ -72,7 +60,7 @@ public class HAListeners implements AutoCloseable {
         }
     }
 
-    private <T extends ChildOf<HwvtepGlobalAttributes>> void registerListener(Class<T> clazz,
+    /*private <T extends ChildOf<HwvtepGlobalAttributes>> void registerListener(Class<T> clazz,
                                                                               MergeCommand mergeCommand) {
         listeners.add(new GlobalAugmentationListener(broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
                 ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY));
@@ -138,5 +126,5 @@ public class HAListeners implements AutoCloseable {
             return !identifier.firstKeyOf(Node.class).getNodeId().getValue()
                     .contains(HwvtepSouthboundConstants.PSWITCH_URI_PREFIX);
         }
-    }
+    }*/
 }
