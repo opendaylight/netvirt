@@ -1580,6 +1580,7 @@ public class ElanUtils {
         DpnInterfaces dpnInterfaces = getElanInterfaceInfoByElanDpn(elanInstanceName, dpnId);
         if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
             LOG.trace("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
+            LOG.trace("JOSH {}", dpnInterfaces);
             return null;
         }
 

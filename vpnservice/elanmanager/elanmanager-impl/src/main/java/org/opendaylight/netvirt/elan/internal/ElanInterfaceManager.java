@@ -1424,6 +1424,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             List<String> interfaceNames, WriteTransaction tx) {
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .setKey(new DpnInterfacesKey(dpId)).build();
+        LOG.warn("JOSH updating {}", dpnInterface);
         tx.put(LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
                 WriteTransaction.CREATE_MISSING_PARENTS);
@@ -1454,6 +1455,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         interfaceNames.add(interfaceName);
         DpnInterfaces dpnInterface = new DpnInterfacesBuilder().setDpId(dpId).setInterfaces(interfaceNames)
                 .setKey(new DpnInterfacesKey(dpId)).build();
+        LOG.warn("JOSH adding {}", dpnInterface);
         tx.put(LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpId), dpnInterface,
                 WriteTransaction.CREATE_MISSING_PARENTS);
