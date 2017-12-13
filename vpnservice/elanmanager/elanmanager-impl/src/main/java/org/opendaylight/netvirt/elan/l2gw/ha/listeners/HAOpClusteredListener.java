@@ -24,6 +24,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.netvirt.elan.l2gw.ha.DataUpdates;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
@@ -102,6 +103,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     void onGlobalNodeUpdate(InstanceIdentifier<Node> childPath,
                             Node updatedChildNode,
                             Node beforeChildNode,
+                            DataUpdates dataUpdates,
                             ReadWriteTransaction tx) {
         boolean wasHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
         addToHACacheIfBecameHAChild(childPath, updatedChildNode, beforeChildNode, tx);
