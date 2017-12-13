@@ -23,6 +23,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.netvirt.elan.l2gw.ha.IidTracker;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
@@ -50,10 +51,12 @@ public class NodeCopier implements INodeCopier {
     PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
     DataBroker db;
     HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    IidTracker iidTracker;
 
     @Inject
-    public NodeCopier(DataBroker db) {
+    public NodeCopier(DataBroker db, IidTracker iidTracker) {
         this.db = db;
+        this.iidTracker = iidTracker;
     }
 
     public void copyGlobalNode(Optional<Node> srcGlobalNodeOptional,
@@ -67,7 +70,7 @@ public class NodeCopier implements INodeCopier {
                 public void onSuccess(Optional<Node> nodeOptional) {
                     HAJobScheduler.getInstance().submitJob(() -> {
                         try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction(db);
+                            ReadWriteTransaction tx1 = new BatchedTransaction(db, iidTracker);
                             if (nodeOptional.isPresent()) {
                                 copyGlobalNode(nodeOptional, srcPath, dstPath, logicalDatastoreType, tx1);
                             } else {
@@ -138,7 +141,7 @@ public class NodeCopier implements INodeCopier {
                 public void onSuccess(Optional<Node> nodeOptional) {
                     HAJobScheduler.getInstance().submitJob(() -> {
                         try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction(db);
+                            ReadWriteTransaction tx1 = new BatchedTransaction(db, iidTracker);
                             if (nodeOptional.isPresent()) {
                                 copyPSNode(nodeOptional,
                                         srcPsPath, dstPsPath, dstGlobalPath, logicalDatastoreType, tx1);
