@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "e724848d_dcfb8476",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-13T12:29:34Z",
+      "side": 1,
+      "message": "There is no issue if ODLs start at different time. Basically the periodic timer is to refresh the IPv6 configuration on the nodes. Its not mandatory that they should be sent out every 60 secs, so jitter will not create any issues.",
+      "parentUuid": "8903a37a_b2d7696b",
+      "range": {
+        "startLine": 722,
+        "startChar": 12,
+        "endLine": 722,
+        "endChar": 42
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84c901af_b069ff1c",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 1
@@ -132,6 +156,30 @@
       "side": 1,
       "message": "by parsing the netvirt code, it seems there are still other calls that are not modified, but I suppose this is out of scope of this review.",
       "parentUuid": "8e81951b_795720a0",
+      "range": {
+        "startLine": 31,
+        "startChar": 47,
+        "endLine": 31,
+        "endChar": 87
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4e349438_7a909794",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-13T12:29:34Z",
+      "side": 1,
+      "message": "Actually not all the listeners have to be Cluster Listeners. It depends on the use-case. In IPv6Service we maintain a cache and want this cache to be populated on all the nodes, hence we require cluster listeners. Other services in netvirt may have a slightly different use-case for which the normal listeners are sufficient.",
+      "parentUuid": "07dea752_886d3174",
       "range": {
         "startLine": 31,
         "startChar": 47,
