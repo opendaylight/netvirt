@@ -70,10 +70,10 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         if (null != aclInterface && aclInterface.isPortSecurityEnabled()
                 && (aclInterface.getVpnId() == null || !aclInterface.getVpnId().contains(vpnId))) {
             List<Long> list = new ArrayList<>();
+            list.add(vpnId);
             if (aclInterface.getVpnId() != null) {
                 list.addAll(aclInterface.getVpnId());
             }
-            list.add(vpnId);
             aclInterface.setVpnId(list);
             aclServiceManager.notify(aclInterface, null, Action.BIND);
         }
