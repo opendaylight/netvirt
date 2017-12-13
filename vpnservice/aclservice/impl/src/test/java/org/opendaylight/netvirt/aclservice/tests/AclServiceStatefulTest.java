@@ -15,7 +15,7 @@ import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeLi
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 
-@Ignore
+//@Ignore
 public class AclServiceStatefulTest extends AclServiceTestBase {
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
