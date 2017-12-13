@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -44,13 +43,13 @@ public class ConfigNodeUpdatedHandler {
                                           ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
 
-        Node existingNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
+        //Node existingNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
         HwvtepGlobalAugmentation updatedGlobal = HwvtepHAUtil.getGlobalAugmentationOfNode(haUpdated);
         HwvtepGlobalAugmentation origGlobal = HwvtepHAUtil.getGlobalAugmentationOfNode(haOriginal);
-        HwvtepGlobalAugmentation existingData = HwvtepHAUtil.getGlobalAugmentationOfNode(existingNode);
+        HwvtepGlobalAugmentation existingData = HwvtepHAUtil.getGlobalAugmentationOfNode(null);
 
         globalAugmentationMerger.mergeConfigUpdate(existingData, updatedGlobal, origGlobal, haChildNodeId, tx);
-        globalNodeMerger.mergeConfigUpdate(existingNode, haUpdated, haOriginal, haChildNodeId, tx);
+        globalNodeMerger.mergeConfigUpdate(null, haUpdated, haOriginal, haChildNodeId, tx);
     }
 
     /**
@@ -70,14 +69,14 @@ public class ConfigNodeUpdatedHandler {
                                       ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
 
-        Node existingNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
+        //Node existingNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
 
         PhysicalSwitchAugmentation updated = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(haUpdated);
         PhysicalSwitchAugmentation orig = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(haOriginal);
-        PhysicalSwitchAugmentation existingData = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(existingNode);
+        PhysicalSwitchAugmentation existingData = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(null);
 
         psAugmentationMerger.mergeConfigUpdate(existingData, updated, orig, haChildNodeId, tx);
-        psNodeMerger.mergeConfigUpdate(existingNode, haUpdated, haOriginal, haChildNodeId, tx);
+        psNodeMerger.mergeConfigUpdate(null, haUpdated, haOriginal, haChildNodeId, tx);
     }
 
 }

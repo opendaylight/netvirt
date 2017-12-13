@@ -11,16 +11,13 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
-import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.PSAugmentationMerger;
@@ -30,7 +27,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Switches;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -79,17 +75,17 @@ public class NodeConnectedHandler {
             throws ReadFailedException, ExecutionException, InterruptedException {
         HwvtepHAUtil.buildGlobalConfigForHANode(tx, childNode, haNodePath, haGlobalCfg);
         copyChildOpToHA(childNode, haNodePath, tx);
-        readAndCopyChildPSOpToHAPS(childNode, haNodePath, tx);
         if (haGlobalCfg.isPresent()) {
             //copy ha config to newly connected child case of reconnected child
-            if (haPSCfg.isPresent()) {
-                /*
+            // The following is taken care by ps node add
+            /*if (haPSCfg.isPresent()) {
+                *//*
                  copy task of physical switch node is done in the next transaction
                  The reason being if it is done in the same transaction,
                  hwvtep plugin is not able to proess this update and send vlanbindings to device
                  as it is expecting the logical switch to be already present in operational ds
                  (created in the device)
-                 */
+                 *//*
                 HAJobScheduler.getInstance().submitJob(() -> {
                     try {
                         hwvtepHACache.updateConnectedNodeStatus(childNodePath);
@@ -104,62 +100,13 @@ public class NodeConnectedHandler {
                     }
                 });
 
-            }
+            }*/
             copyHANodeConfigToChild(haGlobalCfg.get(), childNodePath, tx);
-        }
-        deleteChildPSConfigIfHAPSConfigIsMissing(haGlobalCfg, childNode, tx);
-    }
-
-    private void deleteChildPSConfigIfHAPSConfigIsMissing(Optional<Node> haPSCfg,
-                                                          Node childNode,
-                                                          ReadWriteTransaction tx) throws ReadFailedException {
-        if (haPSCfg.isPresent()) {
-            return;
-        }
-        LOG.info("HA ps node not present cleanup child {}" , childNode);
-        HwvtepGlobalAugmentation augmentation = childNode.getAugmentation(HwvtepGlobalAugmentation.class);
-        if (augmentation != null) {
-            List<Switches> switches = augmentation.getSwitches();
-            if (switches != null) {
-                for (Switches ps : switches) {
-                    HwvtepHAUtil.deleteNodeIfPresent(tx, CONFIGURATION, ps.getSwitchRef().getValue());
-                }
-            }
         } else {
-            LOG.info("Global augumentation not present for connected ha child node {}" , childNode);
+            LOG.info("handleNodeConnected no parent config data found {}", haNodePath);
         }
-    }
-
-    /**
-     * Merge data of child PS node to HA ps node .
-     *
-     * @param childGlobalNode Ha Global Child node
-     * @param haNodePath Ha node path
-     * @param tx  Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
-     */
-    void readAndCopyChildPSOpToHAPS(Node childGlobalNode,
-                                    InstanceIdentifier<Node> haNodePath,
-                                    ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
-
-        if (childGlobalNode == null || childGlobalNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
-            return;
-        }
-        List<Switches> switches = childGlobalNode.getAugmentation(HwvtepGlobalAugmentation.class).getSwitches();
-        if (switches == null) {
-            return;
-        }
-        for (Switches ps : switches) {
-            Node childPsNode = HwvtepHAUtil.readNode(tx, OPERATIONAL,
-                    (InstanceIdentifier<Node>) ps.getSwitchRef().getValue());
-            if (childPsNode != null) {
-                InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(childPsNode, haNodePath);
-                copyChildPSOpToHAPS(childPsNode, haNodePath, haPsPath, tx);
-            }
-        }
+        //The following is taken care by ps node add
+        //deleteChildPSConfigIfHAPSConfigIsMissing(haGlobalCfg, childNode, tx);
     }
 
     /**
@@ -252,24 +199,23 @@ public class NodeConnectedHandler {
      * Copy HA physical switch data to Child Physical switch node of config data tree.
      *
      * @param haPsNode HA physical Switch Node
-     * @param childPath HA Child Node path
+     * @param childPsPath HA Child Node path
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
      * @throws ExecutionException  Exception thrown if Execution fail
      * @throws InterruptedException Thread interrupted Exception
      */
     public void copyHAPSConfigToChildPS(Node haPsNode,
-                                        InstanceIdentifier<Node> childPath,
+                                        InstanceIdentifier<Node> childPsPath,
                                         ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
-        InstanceIdentifier<Node> childPsPath = HwvtepHAUtil.convertPsPath(haPsNode, childPath);
 
         NodeBuilder childPsBuilder = HwvtepHAUtil.getNodeBuilderForPath(childPsPath);
         PhysicalSwitchAugmentationBuilder dstBuilder = new PhysicalSwitchAugmentationBuilder();
         PhysicalSwitchAugmentation src = haPsNode.getAugmentation(PhysicalSwitchAugmentation.class);
 
-        psAugmentationMerger.mergeConfigData(dstBuilder, src, childPath);
-        psNodeMerger.mergeConfigData(childPsBuilder, haPsNode, childPath);
+        psAugmentationMerger.mergeConfigData(dstBuilder, src, childPsPath);
+        psNodeMerger.mergeConfigData(childPsBuilder, haPsNode, childPsPath);
 
         childPsBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstBuilder.build());
         Node childPSNode = childPsBuilder.build();
