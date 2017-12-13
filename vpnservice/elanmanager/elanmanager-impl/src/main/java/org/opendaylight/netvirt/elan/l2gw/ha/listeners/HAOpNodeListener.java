@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.netvirt.elan.l2gw.ha.DataUpdates;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
@@ -87,18 +88,18 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         readAndCopyChildPsOpToParent(childGlobalPath, childNode, haNodePath, tx);
     }
 
-    //Update on global node has been taken care by HAListeners as per perf improvement
     @Override
     void onGlobalNodeUpdate(InstanceIdentifier<Node> childGlobalPath,
                             Node updatedChildNode,
                             Node originalChildNode,
+                            DataUpdates dataUpdates,
                             ReadWriteTransaction tx) throws ReadFailedException {
 
         String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
         if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
             InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childGlobalPath);
             LOG.debug("Copy oper update from child {} to parent {}", childGlobalPath, haPath);
-            haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, tx);
+            haEventHandler.copyChildGlobalOpUpdateToHAParent(haPath, dataUpdates, tx);
             return;//TODO handle unha case
         }
 
@@ -165,6 +166,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     void onPsNodeUpdate(InstanceIdentifier<Node> childPsPath,
                         Node updatedChildPSNode,
                         Node originalChildPSNode,
+                        DataUpdates dataUpdates,
                         ReadWriteTransaction tx) throws ReadFailedException {
         InstanceIdentifier<Node> childGlobalPath = HwvtepHAUtil.getGlobalNodePathFromPSNode(updatedChildPSNode);
         if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
@@ -172,8 +174,8 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         }
         InstanceIdentifier<Node> haGlobalPath = hwvtepHACache.getParent(childGlobalPath);
         InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(updatedChildPSNode, haGlobalPath);
-        LOG.error("Copy oper ps update from child {} to parent {}", childPsPath, haPsPath);
-        haEventHandler.copyChildPsOpUpdateToHAParent(updatedChildPSNode, originalChildPSNode, haPsPath, tx);
+        LOG.debug("Copy oper ps update from child {} to parent {}", childPsPath, haPsPath);
+        haEventHandler.copyChildPsOpUpdateToHAParent(updatedChildPSNode, haPsPath, dataUpdates, tx);
     }
 
     @Override
@@ -208,7 +210,6 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
                                               Node childNode,
                                               InstanceIdentifier<Node> haNodePath,
                                               ReadWriteTransaction tx) {
-        LOG.error("Inside readAndCopyChildPsOpToParent");
         String childGlobalNodeId = childNode.getNodeId().getValue();
         List<InstanceIdentifier> childPsIids = new ArrayList<>();
         HwvtepGlobalAugmentation hwvtepGlobalAugmentation = childNode.getAugmentation(HwvtepGlobalAugmentation.class);
@@ -224,7 +225,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         if (childPsIids.isEmpty()) {
             LOG.info("No child ps found for global {}", childGlobalNodeId);
         }
-        LOG.error("Got child PS node of size {}", childPsIids.size());
+        LOG.debug("Got child PS node of size {}", childPsIids.size());
         childPsIids.forEach((psIid) -> {
             try {
                 InstanceIdentifier<Node> childPsIid = psIid;
