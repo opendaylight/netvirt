@@ -60,14 +60,14 @@ public class NodeConnectedHandler {
      * Merge the child operational data to parent operational data.
      * Merge the child physical switch node operational data to parent physical switch operational node .
      *
-     * @param childNode   Ha child node
+     * @param childNode     Ha child node
      * @param childNodePath Ha child Iid
-     * @param haNodePath  Ha Iid
-     * @param haGlobalCfg Ha Global Config Node
-     * @param haPSCfg Ha Physical Config Node
-     * @param tx Transaction
+     * @param haNodePath    Ha Iid
+     * @param haGlobalCfg   Ha Global Config Node
+     * @param haPSCfg       Ha Physical Config Node
+     * @param tx            Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
+     * @throws ExecutionException   Exception thrown if Execution fail
      * @throws InterruptedException Thread interrupted Exception
      */
     public void handleNodeConnected(Node childNode,
@@ -116,7 +116,7 @@ public class NodeConnectedHandler {
         if (haPSCfg.isPresent()) {
             return;
         }
-        LOG.info("HA ps node not present cleanup child {}" , childNode);
+        LOG.info("HA ps node not present cleanup child {}", childNode);
         HwvtepGlobalAugmentation augmentation = childNode.getAugmentation(HwvtepGlobalAugmentation.class);
         if (augmentation != null) {
             List<Switches> switches = augmentation.getSwitches();
@@ -126,7 +126,7 @@ public class NodeConnectedHandler {
                 }
             }
         } else {
-            LOG.info("Global augumentation not present for connected ha child node {}" , childNode);
+            LOG.info("Global augumentation not present for connected ha child node {}", childNode);
         }
     }
 
@@ -134,10 +134,10 @@ public class NodeConnectedHandler {
      * Merge data of child PS node to HA ps node .
      *
      * @param childGlobalNode Ha Global Child node
-     * @param haNodePath Ha node path
-     * @param tx  Transaction
+     * @param haNodePath      Ha node path
+     * @param tx              Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
+     * @throws ExecutionException   Exception thrown if Execution fail
      * @throws InterruptedException Thread interrupted Exception
      */
     void readAndCopyChildPSOpToHAPS(Node childGlobalNode,
@@ -165,11 +165,11 @@ public class NodeConnectedHandler {
     /**
      * Copy HA global node data to Child HA node of config data tree .
      *
-     * @param srcNode Node which to be transformed
+     * @param srcNode   Node which to be transformed
      * @param childPath Path to which source node will be transformed
-     * @param tx Transaction
+     * @param tx        Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
+     * @throws ExecutionException   Exception thrown if Execution fail
      * @throws InterruptedException Thread interrupted Exception
      */
     private void copyHANodeConfigToChild(Node srcNode,
@@ -196,11 +196,11 @@ public class NodeConnectedHandler {
     /**
      * Copy HA child node to HA node of Operational data tree.
      *
-     * @param childNode HA Child Node
+     * @param childNode  HA Child Node
      * @param haNodePath HA node path
-     * @param tx Transaction
+     * @param tx         Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
+     * @throws ExecutionException   Exception thrown if Execution fail
      * @throws InterruptedException Thread interrupted Exception
      */
     private void copyChildOpToHA(Node childNode,
@@ -234,9 +234,9 @@ public class NodeConnectedHandler {
     /**
      * Merge data to Physical switch from HA node path .
      *
-     * @param psAugmentation  Physical Switch Augmation of Node
-     * @param builder Physical Switch Augmentation Builder
-     * @param haNodePath HA node Path
+     * @param psAugmentation Physical Switch Augmation of Node
+     * @param builder        Physical Switch Augmentation Builder
+     * @param haNodePath     HA node Path
      */
     public void mergeOpManagedByAttributes(PhysicalSwitchAugmentation psAugmentation,
                                            PhysicalSwitchAugmentationBuilder builder,
@@ -251,11 +251,11 @@ public class NodeConnectedHandler {
     /**
      * Copy HA physical switch data to Child Physical switch node of config data tree.
      *
-     * @param haPsNode HA physical Switch Node
+     * @param haPsNode  HA physical Switch Node
      * @param childPath HA Child Node path
-     * @param tx Transaction
+     * @param tx        Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
+     * @throws ExecutionException   Exception thrown if Execution fail
      * @throws InterruptedException Thread interrupted Exception
      */
     public void copyHAPSConfigToChildPS(Node haPsNode,
@@ -280,11 +280,11 @@ public class NodeConnectedHandler {
      * Copy child physical switch node data to HA physical switch data of Operational data tree.
      *
      * @param childPsNode HA child PS node
-     * @param haPath  HA node path
-     * @param haPspath Ha Physical Switch Node path
-     * @param tx Transaction
+     * @param haPath      HA node path
+     * @param haPspath    Ha Physical Switch Node path
+     * @param tx          Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
+     * @throws ExecutionException   Exception thrown if Execution fail
      * @throws InterruptedException Thread interrupted Exception
      */
     public void copyChildPSOpToHAPS(Node childPsNode,
@@ -310,5 +310,4 @@ public class NodeConnectedHandler {
         Node haPsNode = haPSNodeBuilder.build();
         tx.merge(OPERATIONAL, haPspath, haPsNode, true);
     }
-
 }

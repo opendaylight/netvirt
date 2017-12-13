@@ -8,7 +8,6 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -51,14 +50,14 @@ public class OpNodeUpdatedHandler {
                                               ReadWriteTransaction tx) throws ReadFailedException {
 
         InstanceIdentifier<Node> haPSPath = HwvtepHAUtil.convertPsPath(updatedSrcPSNode, haPath);
-        Node existingHAPSNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPSPath);
+        //Node existingHAPSNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPSPath);
 
         PhysicalSwitchAugmentation updatedSrc   = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(updatedSrcPSNode);
         PhysicalSwitchAugmentation origSrc      = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(origSrcPSNode);
-        PhysicalSwitchAugmentation existingData = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(existingHAPSNode);
+        PhysicalSwitchAugmentation existingData = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(null);
 
         psAugmentationMerger.mergeOpUpdate(existingData, updatedSrc, origSrc, haPSPath, tx);
-        psNodeMerger.mergeOpUpdate(existingHAPSNode, updatedSrcPSNode, origSrcPSNode, haPSPath, tx);
+        psNodeMerger.mergeOpUpdate(null, updatedSrcPSNode, origSrcPSNode, haPSPath, tx);
     }
 
     /**
@@ -75,17 +74,13 @@ public class OpNodeUpdatedHandler {
                                                   InstanceIdentifier<Node> haPath,
                                                   ReadWriteTransaction tx) throws ReadFailedException {
 
-        Node existingDstNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPath);
-        if (existingDstNode == null) {
-            //No dst present nothing to copy
-            return;
-        }
-        HwvtepGlobalAugmentation existingData    = HwvtepHAUtil.getGlobalAugmentationOfNode(existingDstNode);
+        //Node existingDstNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPath);
+        HwvtepGlobalAugmentation existingData    = HwvtepHAUtil.getGlobalAugmentationOfNode(null);
         HwvtepGlobalAugmentation updatedSrc = HwvtepHAUtil.getGlobalAugmentationOfNode(updatedSrcNode);
         HwvtepGlobalAugmentation origSrc    = HwvtepHAUtil.getGlobalAugmentationOfNode(origSrcNode);
 
         globalAugmentationMerger.mergeOpUpdate(existingData, updatedSrc, origSrc, haPath, tx);
-        globalNodeMerger.mergeOpUpdate(existingDstNode, updatedSrcNode, origSrcNode, haPath, tx);
+        globalNodeMerger.mergeOpUpdate(null, updatedSrcNode, origSrcNode, haPath, tx);
     }
 
 }

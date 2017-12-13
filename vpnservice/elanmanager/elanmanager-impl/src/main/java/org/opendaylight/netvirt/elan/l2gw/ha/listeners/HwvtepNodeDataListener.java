@@ -53,7 +53,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
         this.mergeCommand = mergeCommand;
         this.datastoreType = datastoreType;
         this.dataTypeName = getClassTypeName();
-        registerListener(this.datastoreType.getDatastoreType() , broker);
+        registerListener(this.datastoreType.getDatastoreType(), broker);
     }
 
     @Override
@@ -136,8 +136,8 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     Map<InstanceIdentifier<T>, ListenableFuture<Boolean>> inprogressOps = new ConcurrentHashMap<>();
 
-    void copyToChild(final InstanceIdentifier<T> parentIdentifier,final T parentData,
-                     final boolean create,final ReadWriteTransaction tx)
+    void copyToChild(final InstanceIdentifier<T> parentIdentifier, final T parentData,
+                     final boolean create, final ReadWriteTransaction tx)
             throws ReadFailedException {
         Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
         if (children == null) {
