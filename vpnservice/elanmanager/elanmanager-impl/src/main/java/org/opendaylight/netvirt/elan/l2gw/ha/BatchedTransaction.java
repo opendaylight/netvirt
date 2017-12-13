@@ -11,7 +11,9 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -22,19 +24,31 @@ import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class BatchedTransaction implements ReadWriteTransaction {
 
+    private static final Logger LOG = LoggerFactory.getLogger(BatchedTransaction.class);
+
     private final DataBroker broker;
+    private final ResourceBatchingManager batchingManager = ResourceBatchingManager.getInstance();
 
     public BatchedTransaction(DataBroker broker) {
         this.broker = broker;
     }
 
+    public DataBroker getBroker() {
+        return broker;
+    }
+
     @Override
     public <T extends DataObject> CheckedFuture<Optional<T>, ReadFailedException> read(
             LogicalDatastoreType logicalDatastoreType, InstanceIdentifier<T> instanceIdentifier) {
-        return broker.newReadOnlyTransaction().read(logicalDatastoreType, instanceIdentifier);
+        //TODO read from batch manager once genius patch is merged
+        try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+            return tx.read(logicalDatastoreType, instanceIdentifier);
+        }
     }
 
     ResourceBatchingManager.ShardResource getShard(LogicalDatastoreType logicalDatastoreType) {
@@ -47,25 +61,25 @@ public class BatchedTransaction implements ReadWriteTransaction {
     @Override
     public <T extends DataObject> void put(
             LogicalDatastoreType logicalDatastoreType, InstanceIdentifier<T> instanceIdentifier, T dataObj) {
-        ResourceBatchingManager.getInstance().put(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
+        batchingManager.put(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
     }
 
     @Override
     public <T extends DataObject> void put(LogicalDatastoreType logicalDatastoreType,
                                            InstanceIdentifier<T> instanceIdentifier, T dataObj, boolean flag) {
-        ResourceBatchingManager.getInstance().put(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
+        batchingManager.put(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
     }
 
     @Override
     public <T extends DataObject> void merge(LogicalDatastoreType logicalDatastoreType,
                                              InstanceIdentifier<T> instanceIdentifier, T dataObj) {
-        ResourceBatchingManager.getInstance().merge(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
+        batchingManager.merge(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
     }
 
     @Override
     public <T extends DataObject> void merge(LogicalDatastoreType logicalDatastoreType,
                                              InstanceIdentifier<T> instanceIdentifier, T dataObj, boolean flag) {
-        ResourceBatchingManager.getInstance().merge(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
+        batchingManager.merge(getShard(logicalDatastoreType), instanceIdentifier, dataObj);
     }
 
     @Override
@@ -75,7 +89,7 @@ public class BatchedTransaction implements ReadWriteTransaction {
 
     @Override
     public void delete(LogicalDatastoreType logicalDatastoreType, InstanceIdentifier<?> instanceIdentifier) {
-        ResourceBatchingManager.getInstance().delete(getShard(logicalDatastoreType), instanceIdentifier);
+        batchingManager.delete(getShard(logicalDatastoreType), instanceIdentifier);
     }
 
     @Override

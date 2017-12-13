@@ -11,6 +11,7 @@ import com.google.common.base.Optional;
 import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.netvirt.elan.l2gw.ha.DataUpdates;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -32,25 +33,22 @@ public interface IHAEventHandler {
             throws ReadFailedException, ExecutionException, InterruptedException;
 
 
-    void copyChildGlobalOpUpdateToHAParent(Node updatedSrcNode,
-                                           Node origSrcNode,
-                                           InstanceIdentifier<Node> haPath,
+    void copyChildGlobalOpUpdateToHAParent(InstanceIdentifier<Node> haPath,
+                                           DataUpdates dataUpdates,
                                            ReadWriteTransaction tx) throws ReadFailedException;
 
     void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
-                                       Node origSrcPSNode,
                                        InstanceIdentifier<Node> haPath,
+                                       DataUpdates dataUpdates,
                                        ReadWriteTransaction tx) throws ReadFailedException;
 
-    void copyHAPSUpdateToChild(Node haUpdated,
-                               Node haOriginal,
-                               InstanceIdentifier<Node> haChildPath,
+    void copyHAPSUpdateToChild(InstanceIdentifier<Node> haChildPath,
+                               DataUpdates dataUpdates,
                                ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException;
 
-    void copyHAGlobalUpdateToChild(Node haUpdated,
-                                   Node haOriginal,
-                                   InstanceIdentifier<Node> haChildPath,
+    void copyHAGlobalUpdateToChild(InstanceIdentifier<Node> haChildPath,
+                                   DataUpdates dataUpdates,
                                    ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException;
 }

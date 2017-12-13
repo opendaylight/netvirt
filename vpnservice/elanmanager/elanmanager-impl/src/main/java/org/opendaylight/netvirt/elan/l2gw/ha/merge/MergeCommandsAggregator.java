@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.netvirt.elan.l2gw.ha.DataUpdates;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -36,28 +38,27 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
                                 AugTypeT src,
                                 InstanceIdentifier<Node> dstPath) {
         for (MergeCommand cmd : commands) {
+            if (cmd instanceof LocalUcastCmd) {
+                continue;
+            }
             cmd.mergeConfigData(builder, src, dstPath);
         }
     }
 
 
-    public void mergeConfigUpdate(AugTypeT existingData,
-                                  AugTypeT updated,
-                                  AugTypeT orig,
-                                  InstanceIdentifier<Node> dstPath,
+    public void mergeConfigUpdate(InstanceIdentifier<Node> dstPath,
+                                  DataUpdates dataUpdates,
                                   ReadWriteTransaction tx) {
         for (MergeCommand cmd : commands) {
-            cmd.mergeConfigUpdate(existingData, updated, orig, dstPath, tx);
+            cmd.mergeConfigUpdate(dstPath, dataUpdates, tx);
         }
     }
 
-    public void mergeOpUpdate(AugTypeT existingData,
-                              AugTypeT updatedSrc,
-                              AugTypeT origSrc,
-                              InstanceIdentifier<Node> dstPath,
+    public void mergeOpUpdate(InstanceIdentifier<Node> dstPath,
+                              DataUpdates dataUpdates,
                               ReadWriteTransaction tx) {
         for (MergeCommand cmd : commands) {
-            cmd.mergeOpUpdate(existingData, updatedSrc, origSrc, dstPath, tx);
+            cmd.mergeOpUpdate(dstPath, dataUpdates, tx);
         }
     }
 }
