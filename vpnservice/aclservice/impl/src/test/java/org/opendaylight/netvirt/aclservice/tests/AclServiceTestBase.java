@@ -31,6 +31,7 @@ import org.opendaylight.genius.datastoreutils.testutils.AsyncEventsWaiter;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorEventsWaiter;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
+import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.testutils.TestIMdsalApiManager;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
@@ -63,7 +64,6 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore
 public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
@@ -102,6 +102,8 @@ public abstract class AclServiceTestBase {
     static final AllowedAddressPairs AAP_PORT_2 = buildAap(IP_PREFIX_2, PORT_MAC_2);
     static final AllowedAddressPairs AAP_PORT_3 = buildAap(IP_PREFIX_3, PORT_MAC_3);
     static final AllowedAddressPairs AAP_PORT_4 = buildAap(IP_PREFIX_4, PORT_MAC_4);
+
+    FlowEntryObjectsStateful flowEntryObjectsBase = new FlowEntryObjectsStateful();
 
     @Inject DataBroker dataBroker;
     @Inject DataBrokerPairsUtil dataBrokerUtil;
@@ -144,7 +146,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterface - end");
     }
 
-    abstract void newInterfaceCheck();
+    void newInterfaceCheck(){
+        assertFlowsInAnyOrder(flowEntryObjectsBase.expectedFlows(PORT_MAC_1));
+    }
 
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
@@ -185,7 +189,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithEtherTypeAcl - end");
     }
 
-    abstract void newInterfaceWithEtherTypeAclCheck();
+     void newInterfaceWithEtherTypeAclCheck() {
+         assertFlowsInAnyOrder(flowEntryObjectsBase.etherFlows());
+    }
 
     @Test
     public void newInterfaceWithMultipleAcl() throws Exception {
@@ -250,7 +256,9 @@ public abstract class AclServiceTestBase {
         newInterfaceWithMultipleAclCheck();
     }
 
-    abstract void newInterfaceWithMultipleAclCheck();
+    void newInterfaceWithMultipleAclCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.multipleAcl());
+    }
 
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
@@ -293,9 +301,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithTcpDstAcl - end");
     }
 
-    abstract void newInterfaceWithTcpDstAclCheck();
+    void newInterfaceWithTcpDstAclCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.tcpFlows());
+    }
 
-    @Ignore
     @Test
     public void newInterfaceWithUdpDstAcl() throws Exception {
         LOG.info("newInterfaceWithUdpDstAcl - start");
@@ -338,7 +347,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithUdpDstAcl - end");
     }
 
-    abstract void newInterfaceWithUdpDstAclCheck();
+    void newInterfaceWithUdpDstAclCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.udpFlows());
+    }
 
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
@@ -368,7 +379,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithIcmpAcl - end");
     }
 
-    abstract void newInterfaceWithIcmpAclCheck();
+    void newInterfaceWithIcmpAclCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.icmpFlows());
+    }
 
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
@@ -402,7 +415,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithDstPortRange - end");
     }
 
-    abstract void newInterfaceWithDstPortRangeCheck();
+    void newInterfaceWithDstPortRangeCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.dstRangeFlows());
+    }
 
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
@@ -436,7 +451,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithDstAllPorts - end");
     }
 
-    abstract void newInterfaceWithDstAllPortsCheck();
+    void newInterfaceWithDstAllPortsCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.dstAllFlows());
+    }
 
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
@@ -479,7 +496,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - end");
     }
 
-    abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
+    void newInterfaceWithTwoAclsHavingSameRulesCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.icmpFlowsForTwoAclsHavingSameRules());
+    }
 
     @Test
     public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
@@ -517,7 +536,6 @@ public abstract class AclServiceTestBase {
      *             the exception
      */
     @Test
-    @Ignore
     public void newInterfaceWithAapIpv4All() throws Exception {
         LOG.info("newInterfaceWithAapIpv4All test - start");
 
@@ -545,7 +563,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithAapIpv4All test - end");
     }
 
-    abstract void newInterfaceWithAapIpv4AllCheck();
+    void newInterfaceWithAapIpv4AllCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.aapWithIpv4AllFlows());
+    }
 
     @Test
     public void newInterfaceWithAap() throws Exception {
@@ -580,7 +600,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithAap test - end");
     }
 
-    abstract void newInterfaceWithAapCheck();
+    void newInterfaceWithAapCheck(){
+        assertFlowsInAnyOrder(flowEntryObjectsBase.aapFlows());
+    }
 
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         asyncEventsWaiter.awaitEventsConsumption();
