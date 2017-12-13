@@ -102,5 +102,4 @@ public class HAEventHandler implements IHAEventHandler {
         }
         configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haUpdated, haOriginal, haChildNodeId, tx);
     }
-
 }
