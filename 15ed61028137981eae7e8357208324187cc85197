@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "35a0b8ce_c9376978",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/IfMgr.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 722,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-13T05:26:53Z",
+      "side": 1,
+      "message": "Yes Philippe, the timer value is hardcoded to 60 seconds. The timer keeps running on all the clusters but only the Cluster Owner would send out the Periodic RAs. We run the timer in all the clusters to handle fail-over scenarios (i.e., a cluster owner going down and some other controller taking the ownership).",
+      "parentUuid": "66f159eb_c8c86591",
+      "range": {
+        "startLine": 722,
+        "startChar": 12,
+        "endLine": 722,
+        "endChar": 42
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "84c901af_b069ff1c",
         "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-12T17:00:54Z",
       "side": 1,
       "message": "just to be sure,\nare there any other reviews related to that support for clustering ?\nwhat I mean is that AsyncDataTreeChangeListenerBase is used in a lot of places yet, and I suppose this review shoul be part of a bigger support?",
+      "range": {
+        "startLine": 31,
+        "startChar": 47,
+        "endLine": 31,
+        "endChar": 87
+      },
+      "revId": "15ed61028137981eae7e8357208324187cc85197",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8e81951b_795720a0",
+        "filename": "vpnservice/ipv6service/impl/src/main/java/org/opendaylight/netvirt/ipv6service/NeutronPortChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-13T05:26:53Z",
+      "side": 1,
+      "message": "Actually other services in Netvirt might have added cluster support via a different patch, this patch adds the necessary support in ipv6service alone.",
+      "parentUuid": "84c901af_b069ff1c",
       "range": {
         "startLine": 31,
         "startChar": 47,
