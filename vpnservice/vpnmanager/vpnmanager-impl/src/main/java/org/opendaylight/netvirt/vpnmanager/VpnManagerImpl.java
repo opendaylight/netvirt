@@ -22,6 +22,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -30,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
@@ -58,6 +60,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.CreateIdPoolInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
@@ -87,6 +90,8 @@ public class VpnManagerImpl implements IVpnManager {
     private final IFibManager fibManager;
     private final IBgpManager bgpManager;
     private final InterVpnLinkCache interVpnLinkCache;
+    private final DataTreeEventCallbackRegistrar eventCallbacks;
+    private final UpgradeState upgradeState;
 
     @Inject
     public VpnManagerImpl(final DataBroker dataBroker,
@@ -100,7 +105,9 @@ public class VpnManagerImpl implements IVpnManager {
                           final IVpnLinkService ivpnLinkService,
                           final IFibManager fibManager,
                           final IBgpManager bgpManager,
-                          final InterVpnLinkCache interVpnLinkCache) {
+                          final InterVpnLinkCache interVpnLinkCache,
+                          final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar,
+                          final UpgradeState upgradeState) {
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.idManager = idManagerService;
@@ -113,6 +120,8 @@ public class VpnManagerImpl implements IVpnManager {
         this.fibManager = fibManager;
         this.bgpManager = bgpManager;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.eventCallbacks = dataTreeEventCallbackRegistrar;
+        this.upgradeState = upgradeState;
     }
 
     @PostConstruct
@@ -473,11 +482,97 @@ public class VpnManagerImpl implements IVpnManager {
         }
 
         String extInterfaceName = elanService.getExternalElanInterface(extNetworkId.getValue(), dpnId);
-        if (extInterfaceName == null) {
-            LOG.warn("Failed to install responder flows for {}. No external interface found for DPN id {}", id, dpnId);
+        if (extInterfaceName != null) {
+            doAddArpResponderFlowsToExternalNetworkIps(
+                    id, fixedIps, macAddress, dpnId, extNetworkId, writeTx, extInterfaceName);
             return;
         }
 
+        LOG.warn("Failed to install responder flows for {}. No external interface found for DPN id {}", id, dpnId);
+
+        if (!upgradeState.isUpgradeInProgress()) {
+            return;
+        }
+
+        // The following through the end of the function deals with an upgrade scenario where the neutron configuration
+        // is restored before the OVS switches reconnect. In such a case, the elan-dpn-interfaces entries will be
+        // missing from the operational data store. In order to mitigate this we use DataTreeEventCallbackRegistrar
+        // to wait for the exact operational md-sal object we need to contain the external interface we need.
+
+        LOG.info("Upgrade in process, waiting for an external interface to appear on dpn {} for elan {}",
+                dpnId, extNetworkId.getValue());
+
+        InstanceIdentifier<DpnInterfaces> dpnInterfacesIid =
+                            elanService.getElanDpnInterfaceOperationalDataPath(extNetworkId.getValue(), dpnId);
+
+        eventCallbacks.onAddOrUpdate(LogicalDatastoreType.OPERATIONAL, dpnInterfacesIid, (unused, alsoUnused) -> {
+            LOG.info("Reattempting write of arp responder for external interfaces for external network {}",
+                    extNetworkId);
+            DpnInterfaces dpnInterfaces = elanService.getElanInterfaceInfoByElanDpn(extNetworkId.getValue(), dpnId);
+            if (dpnInterfaces == null) {
+                LOG.error("Could not retrieve DpnInterfaces for {}, {}", extNetworkId.getValue(), dpnId);
+                return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+            }
+
+            String extIfc = null;
+            for (String dpnInterface : dpnInterfaces.getInterfaces()) {
+                if (interfaceManager.isExternalInterface(dpnInterface)) {
+                    extIfc = dpnInterface;
+                    break;
+                }
+            }
+
+            if (extIfc == null) {
+                if (upgradeState.isUpgradeInProgress()) {
+                    LOG.info("External interface not found yet in elan {} on dpn {}, keep waiting",
+                            extNetworkId.getValue(), dpnInterfaces);
+                    return DataTreeEventCallbackRegistrar.NextAction.CALL_AGAIN;
+                } else {
+                    return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                }
+            }
+
+            final String extIfcFinal = extIfc;
+            ListenableFuture<Void> listenableFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                doAddArpResponderFlowsToExternalNetworkIps(
+                        id, fixedIps, macAddress, dpnId, extNetworkId, tx, extIfcFinal);
+            });
+            ListenableFutures.addErrorLogging(listenableFuture, LOG,
+                    "Error while configuring arp responder for ext. interface");
+
+            return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER; });
+
+    }
+
+    @Override
+    public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+                     BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx) {
+        if (fixedIps == null || fixedIps.isEmpty()) {
+            LOG.debug("No external IPs defined for {}", id);
+            return;
+        }
+
+        LOG.info("Installing ARP responder flows for {} fixed-ips {} on switch {}", id, fixedIps, dpnId);
+
+        if (writeTx == null) {
+            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> {
+                    for (String fixedIp : fixedIps) {
+                        installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
+                                vpnId,fixedIp, tx);
+                    }
+                });
+            ListenableFutures.addErrorLogging(future, LOG, "Commit transaction");
+        } else {
+            for (String fixedIp : fixedIps) {
+                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
+                        fixedIp, writeTx);
+            }
+        }
+    }
+
+    private void doAddArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
+                            BigInteger dpnId, Uuid extNetworkId, WriteTransaction writeTx, String extInterfaceName) {
         Interface extInterfaceState = InterfaceUtils.getInterfaceStateFromOperDS(dataBroker, extInterfaceName);
         if (extInterfaceState == null) {
             LOG.debug("No interface state found for interface {}. Delaying responder flows for {}", extInterfaceName,
@@ -501,33 +596,6 @@ public class VpnManagerImpl implements IVpnManager {
         long vpnId = getVpnIdFromExtNetworkId(extNetworkId);
         addArpResponderFlowsToExternalNetworkIps(id, fixedIps, macAddress, dpnId, vpnId, extInterfaceName, lportTag,
                 writeTx);
-    }
-
-    @Override
-    public void addArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps, String macAddress,
-            BigInteger dpnId, long vpnId, String extInterfaceName, int lportTag, WriteTransaction writeTx) {
-        if (fixedIps == null || fixedIps.isEmpty()) {
-            LOG.debug("No external IPs defined for {}", id);
-            return;
-        }
-
-        LOG.info("Installing ARP responder flows for {} fixed-ips {} on switch {}", id, fixedIps, dpnId);
-
-        if (writeTx == null) {
-            ListenableFuture<Void> future = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                tx -> {
-                    for (String fixedIp : fixedIps) {
-                        installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag,
-                                vpnId,fixedIp, tx);
-                    }
-                });
-            ListenableFutures.addErrorLogging(future, LOG, "Commit transaction");
-        } else {
-            for (String fixedIp : fixedIps) {
-                installArpResponderFlowsToExternalNetworkIp(macAddress, dpnId, extInterfaceName, lportTag, vpnId,
-                        fixedIp, writeTx);
-            }
-        }
     }
 
     @Override
