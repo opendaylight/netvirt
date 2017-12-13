@@ -67,7 +67,7 @@ public class NodeCopier implements INodeCopier {
                 public void onSuccess(Optional<Node> nodeOptional) {
                     HAJobScheduler.getInstance().submitJob(() -> {
                         try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction(db);
+                            ReadWriteTransaction tx1 = new BatchedTransaction();
                             if (nodeOptional.isPresent()) {
                                 copyGlobalNode(nodeOptional, srcPath, dstPath, logicalDatastoreType, tx1);
                             } else {
@@ -138,7 +138,7 @@ public class NodeCopier implements INodeCopier {
                 public void onSuccess(Optional<Node> nodeOptional) {
                     HAJobScheduler.getInstance().submitJob(() -> {
                         try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction(db);
+                            ReadWriteTransaction tx1 = new BatchedTransaction();
                             if (nodeOptional.isPresent()) {
                                 copyPSNode(nodeOptional,
                                         srcPsPath, dstPsPath, dstGlobalPath, logicalDatastoreType, tx1);
