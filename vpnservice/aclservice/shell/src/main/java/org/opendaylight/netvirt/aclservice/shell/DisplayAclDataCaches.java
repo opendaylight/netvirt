@@ -251,12 +251,12 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
 
         if (all != null && key == null) {
-            if (!validateAll(all)) {
+            if (!validateAll()) {
                 printAclTagMapHelp();
                 return;
             }
             Map<String, Integer> map = aclDataCache.getAclTagMap();
-            if (map == null || map.isEmpty()) {
+            if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
                 session.getConsole().println(String.format(ACL_DATA_HEAD));
