@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.netvirt.elan.l2gw.ha.IidTracker;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -40,8 +41,8 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     private final Map<InstanceIdentifier<Node>, Set<Consumer<Optional<Node>>>> waitingJobs = new ConcurrentHashMap<>();
 
     @Inject
-    public HAOpClusteredListener(DataBroker db) throws Exception {
-        super(LogicalDatastoreType.OPERATIONAL, db);
+    public HAOpClusteredListener(DataBroker db, IidTracker iidTracker) throws Exception {
+        super(LogicalDatastoreType.OPERATIONAL, db, iidTracker);
         LOG.info("Registering HAOpClusteredListener");
     }
 

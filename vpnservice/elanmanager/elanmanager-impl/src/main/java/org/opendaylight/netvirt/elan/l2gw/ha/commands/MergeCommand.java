@@ -11,16 +11,22 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 import static org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil.isEmptyList;
 
+import com.google.common.base.Optional;
 import java.io.Serializable;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
+
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
@@ -28,6 +34,7 @@ import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.node.TerminationPoint;
 import org.opendaylight.yangtools.concepts.Builder;
 import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.Identifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -40,6 +47,18 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
         extends BaseCommand<T> implements IMergeCommand<T, Y, Z> {
 
     private static final Logger LOG = LoggerFactory.getLogger(MergeCommand.class);
+
+    Type cmdType;
+
+    public MergeCommand() {
+        cmdType = getCmdType();
+    }
+
+    protected Type getCmdType() {
+        Type type = getClass().getGenericSuperclass();
+        Type classType = ((ParameterizedType)type).getActualTypeArguments()[0];
+        return classType;
+    }
 
     public List<T> transformOpData(List<T> existingData, List<T> src, InstanceIdentifier<Node> nodePath) {
         if (isEmptyList(src)) {
@@ -87,43 +106,31 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
                                 List<T> orig,
                                 InstanceIdentifier<Node> nodePath,
                                 LogicalDatastoreType datastoreType,
-                                ReadWriteTransaction tx) {
+                                ReadWriteTransaction readWriteTransaction) {
 
-        if (updated == null) {
-            updated = new ArrayList<>();
-        }
-        if (orig == null) {
-            orig = new ArrayList<>();
-        }
-        List<T> added   = new ArrayList<>(updated);
+        BatchedTransaction tx = (BatchedTransaction) readWriteTransaction;
+        Map<Class<? extends Identifiable>, List<Identifiable>> updatedData = tx.getUpdatedData();
+        Map<Class<? extends Identifiable>, List<Identifiable>> deletedData = tx.getDeletedData();
 
-        added.removeAll(orig);
-        added = diffOf(added, existing);//do not add the existing data again
-        if (added.size() > 0) {
-            for (T addedItem : added) {
+        List<Identifiable> added   = updatedData.get(cmdType);
+        if (added != null && added.size() > 0) {
+            for (Identifiable addedItem2 : added) {
+                T addedItem = (T)addedItem2;
                 InstanceIdentifier<T> transformedId = generateId(nodePath, addedItem);
                 T transformedItem = transform(nodePath, addedItem);
                 String nodeId = transformedId.firstKeyOf(Node.class).getNodeId().getValue();
-                LOG.trace("adding {} {} {}", getDescription(), nodeId, getKey(transformedItem));
-                tx.put(datastoreType, transformedId, transformedItem, WriteTransaction.CREATE_MISSING_PARENTS);
+                LOG.debug("Adding {} {} {}", getDescription(), nodeId, getKey(transformedItem));
+                writeToMdsal(true, tx, transformedItem, transformedId, datastoreType, 10, tx);
             }
         }
-        List<T> removed = new ArrayList<>(orig);
-        removed = diffByKey(removed, updated);
-
-        List<T> removedTransformed  = new ArrayList<>();
-        for (T ele : removed) {
-            removedTransformed.add(transform(nodePath, ele));
-        }
-
-        List<T> skip = diffByKey(removedTransformed, existing);//skip the ones which are not present in cfg ds
-        removedTransformed = diffByKey(removedTransformed, skip);
-        if (removedTransformed.size() > 0) {
-            for (T removedItem : removedTransformed) {
+        List<Identifiable> removed   = deletedData.get(cmdType);
+        if (removed != null && removed.size() > 0) {
+            for (Identifiable removedItem2 : removed) {
+                T removedItem = (T)removedItem2;
                 InstanceIdentifier<T> transformedId = generateId(nodePath, removedItem);
                 String nodeId = transformedId.firstKeyOf(Node.class).getNodeId().getValue();
-                LOG.trace("removing {} {} {}",getDescription(), nodeId, getKey(removedItem));
-                tx.delete(datastoreType, transformedId);
+                LOG.debug("Removing {} {} {}",getDescription(), nodeId, getKey(removedItem));
+                writeToMdsal(false, tx, null, transformedId, datastoreType, 10, tx);
             }
         }
     }
@@ -216,6 +223,56 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
             return 1;
         }
     }
+
+    private void writeToMdsal(final boolean create,
+                              final ReadWriteTransaction tx,
+                              final T data,
+                              final InstanceIdentifier<T> identifier,
+                              final LogicalDatastoreType datastoreType,
+                              final int trialNo,
+                              BatchedTransaction batchedTransaction) {
+        final boolean copyToChild = datastoreType == CONFIGURATION;
+        String destination = copyToChild ? "child" : "parent";
+        String nodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
+        if (trialNo == 0) {
+            LOG.error("All trials exceed for tx iid {}", identifier);
+            return;
+        }
+        final int trial = trialNo - 1;
+        if (batchedTransaction.isInProgress(datastoreType, identifier)) {
+            if (batchedTransaction.addCallbackIfInProgress(datastoreType, identifier,
+                () -> writeToMdsal(create, tx, data, identifier, datastoreType, trial, batchedTransaction))) {
+                return;
+            }
+        }
+        Optional<T> existingDataOptional = null;
+        try {
+            existingDataOptional = tx.read(datastoreType, identifier).checkedGet();
+        } catch (ReadFailedException ex) {
+            LOG.error("Failed to read data {} from {}", identifier, datastoreType);
+            return;
+        }
+        if (create) {
+            if (isDataUpdated(existingDataOptional, data)) {
+                tx.put(datastoreType, identifier, data);
+            } else {
+                LOG.info("ha copy skipped for {} destination with nodei id {} "
+                        + " dataTypeName {} " , destination, nodeId, getCmdType());
+            }
+        } else {
+            if (existingDataOptional.isPresent()) {
+                tx.delete(datastoreType, identifier);
+            } else {
+                LOG.info("ha delete skipped for {} destination with nodei id {} "
+                        + " dataTypeName {} " , destination, nodeId, getCmdType());
+            }
+        }
+    }
+
+    <T extends DataObject> boolean isDataUpdated(Optional<T> existingDataOptional, T newData) {
+        return !existingDataOptional.isPresent() || !Objects.equals(existingDataOptional.get(), newData);
+    }
+
 
     public abstract List<T> getData(Z node);
 

@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.netvirt.elan.l2gw.ha.IidTracker;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeCopier;
@@ -51,8 +52,9 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     @Inject
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler,
                             HAOpClusteredListener haOpClusteredListener,
-                            NodeCopier nodeCopier) throws Exception {
-        super(OPERATIONAL, db);
+                            NodeCopier nodeCopier,
+                            IidTracker iidTracker) throws Exception {
+        super(OPERATIONAL, db, iidTracker);
         this.haEventHandler = haEventHandler;
         this.haOpClusteredListener = haOpClusteredListener;
         this.nodeCopier = nodeCopier;
