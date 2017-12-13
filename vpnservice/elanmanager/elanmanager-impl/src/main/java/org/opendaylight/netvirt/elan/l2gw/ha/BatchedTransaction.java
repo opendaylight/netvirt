@@ -34,7 +34,7 @@ public class BatchedTransaction implements ReadWriteTransaction {
     @Override
     public <T extends DataObject> CheckedFuture<Optional<T>, ReadFailedException> read(
             LogicalDatastoreType logicalDatastoreType, InstanceIdentifier<T> instanceIdentifier) {
-        return broker.newReadOnlyTransaction().read(logicalDatastoreType, instanceIdentifier);
+        return ResourceBatchingManager.getInstance().read(getShard(logicalDatastoreType).name(), instanceIdentifier);
     }
 
     ResourceBatchingManager.ShardResource getShard(LogicalDatastoreType logicalDatastoreType) {
