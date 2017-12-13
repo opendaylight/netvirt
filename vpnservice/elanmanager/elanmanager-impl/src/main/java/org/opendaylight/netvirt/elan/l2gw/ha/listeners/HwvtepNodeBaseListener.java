@@ -7,7 +7,12 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -23,11 +28,16 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.netvirt.elan.l2gw.ha.IidTracker;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.ListenerRegistration;
+import org.opendaylight.yangtools.yang.binding.DataObject;
+import org.opendaylight.yangtools.yang.binding.Identifiable;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +52,13 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     private final ListenerRegistration<HwvtepNodeBaseListener> registration;
     private final DataBroker dataBroker;
+    protected final IidTracker iidTracker;
 
-    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
+    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType,
+                                  DataBroker dataBroker,
+                                  IidTracker iidTracker) throws Exception {
         this.dataBroker = dataBroker;
-
+        this.iidTracker = iidTracker;
         final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
         registration = looper.loopUntilNoException(() ->
@@ -81,6 +94,11 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
         for (DataTreeModification<Node> change : changes) {
             final InstanceIdentifier<Node> key = change.getRootPath().getRootIdentifier();
             final DataObjectModification<Node> mod = change.getRootNode();
+            final Map<Class<? extends Identifiable>, List<Identifiable>> updatedData = new HashMap<>();
+            final Map<Class<? extends Identifiable>, List<Identifiable>> deletedData = new HashMap<>();
+            extractDataChanged(key, mod, updatedData, deletedData);
+            ((BatchedTransaction)tx).setUpdatedData(updatedData);
+            ((BatchedTransaction)tx).setDeletedData(deletedData);
             String nodeId = key.firstKeyOf(Node.class).getNodeId().getValue();
             Node updated = HwvtepHAUtil.getUpdated(mod);
             Node original = HwvtepHAUtil.getOriginal(mod);
@@ -93,6 +111,81 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             }
         }
     }
+
+    private void extractDataChanged(final InstanceIdentifier<Node> key,
+                                    final DataObjectModification<Node> mod,
+                                    final Map<Class<? extends Identifiable>, List<Identifiable>> updatedData,
+                                    final Map<Class<? extends Identifiable>, List<Identifiable>> deletedData) {
+
+        extractDataChanged(mod.getModifiedChildren(), updatedData, deletedData);
+        DataObjectModification<HwvtepGlobalAugmentation> aug = mod.getModifiedAugmentation(
+                HwvtepGlobalAugmentation.class);
+        if (aug != null && getModificationType(aug) != null) {
+            extractDataChanged(aug.getModifiedChildren(), updatedData, deletedData);
+        }
+        DataObjectModification<PhysicalSwitchAugmentation> psAug = mod.getModifiedAugmentation(
+                PhysicalSwitchAugmentation.class);
+        if (psAug != null && getModificationType(psAug) != null) {
+            extractDataChanged(psAug.getModifiedChildren(), updatedData, deletedData);
+        }
+    }
+
+    private void extractDataChanged(final Collection<DataObjectModification<? extends DataObject>> children,
+                                    final Map<Class<? extends Identifiable>, List<Identifiable>> updatedData,
+                                    final Map<Class<? extends Identifiable>, List<Identifiable>> deletedData) {
+        if (children == null) {
+            return;
+        }
+        for (DataObjectModification<? extends DataObject> child : children) {
+            DataObjectModification.ModificationType type = getModificationType(child);
+            if (type == null) {
+                continue;
+            }
+            InstanceIdentifier instanceIdentifier = null;
+            Class<? extends Identifiable> childClass = (Class<? extends Identifiable>) child.getDataType();
+            switch (type) {
+                case WRITE:
+                case SUBTREE_MODIFIED:
+                    DataObject dataAfter = child.getDataAfter();
+                    if (!(dataAfter instanceof Identifiable)) {
+                        continue;
+                    }
+                    DataObject before = child.getDataBefore();
+                    if (Objects.equals(dataAfter, before)) {
+                        continue;
+                    }
+                    Identifiable identifiable = (Identifiable) dataAfter;
+                    addToUpdatedData(updatedData, childClass, identifiable);
+                    break;
+                case DELETE:
+                    DataObject dataBefore = child.getDataBefore();
+                    if (!(dataBefore instanceof Identifiable)) {
+                        continue;
+                    }
+                    addToUpdatedData(deletedData, childClass, (Identifiable)dataBefore);
+                    break;
+                default: LOG.error("Un-identified event from DTCN");
+            }
+        }
+    }
+
+    private DataObjectModification.ModificationType getModificationType(
+            DataObjectModification<? extends DataObject> mod) {
+        try {
+            return mod.getModificationType();
+        } catch (IllegalStateException e) {
+            //not sure why this getter throws this exception, could be some mdsal bug
+            LOG.warn("Failed to get the modification type for mod {}", mod);
+        }
+        return null;
+    }
+
+    private void addToUpdatedData(Map<Class<? extends Identifiable>, List<Identifiable>> updatedData,
+                                  Class<? extends Identifiable> childClass, Identifiable identifiable) {
+        updatedData.computeIfAbsent(childClass, (cls) -> new ArrayList<>());
+        updatedData.get(childClass).add(identifiable);
+    }
+
 
     private void processDisconnectedNodes(Collection<DataTreeModification<Node>> changes,
                                           ReadWriteTransaction tx)
@@ -153,7 +246,7 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     ReadWriteTransaction getTx() {
-        return new BatchedTransaction(dataBroker);
+        return new BatchedTransaction(dataBroker, iidTracker);
     }
 
     //default methods
