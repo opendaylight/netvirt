@@ -25,6 +25,7 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 public class BatchedTransaction implements ReadWriteTransaction {
 
+    @edu.umd.cs.findbugs.annotations.SuppressWarnings("URF_UNREAD_FIELD")
     private final DataBroker broker;
 
     public BatchedTransaction(DataBroker broker) {
@@ -34,7 +35,7 @@ public class BatchedTransaction implements ReadWriteTransaction {
     @Override
     public <T extends DataObject> CheckedFuture<Optional<T>, ReadFailedException> read(
             LogicalDatastoreType logicalDatastoreType, InstanceIdentifier<T> instanceIdentifier) {
-        return broker.newReadOnlyTransaction().read(logicalDatastoreType, instanceIdentifier);
+        return ResourceBatchingManager.getInstance().read(getShard(logicalDatastoreType).name(), instanceIdentifier);
     }
 
     ResourceBatchingManager.ShardResource getShard(LogicalDatastoreType logicalDatastoreType) {
