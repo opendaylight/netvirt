@@ -233,7 +233,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 
-    protected void getAclTagMap() throws Exception {
+    protected void getAclTagMap() throws Exception {/*
         if (all == null && key == null) {
             printAclTagMapHelp();
             return;
@@ -251,7 +251,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
 
         if (all != null && key == null) {
-            if (!validateAll(all)) {
+            if (!validateAll( )) {
                 printAclTagMapHelp();
                 return;
             }
@@ -264,7 +264,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                         .println(String.format(ACL_DATA_TAB_FOR, entry.getKey(), entry.getValue())));
                 return;
             }
-        }
+        }*/
     }
 
     protected void getAclInterfaceCache() throws Exception {

@@ -63,7 +63,7 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Ignore
+//@Ignore
 public abstract class AclServiceTestBase {
     private static final Logger LOG = LoggerFactory.getLogger(AclServiceTestBase.class);
 
@@ -122,7 +122,7 @@ public abstract class AclServiceTestBase {
         interfaceInfo.setInterfaceName(testInterfaceName);
         return interfaceInfo;
     }
-
+    @Ignore
     @Test
     public void newInterface() throws Exception {
         LOG.info("newInterface - start");
@@ -143,9 +143,11 @@ public abstract class AclServiceTestBase {
         newInterfaceCheck();
         LOG.info("newInterface - end");
     }
-
-    abstract void newInterfaceCheck();
-
+    FlowEntryObjectsStateful flowEntryObjectsBase = new FlowEntryObjectsStateful();
+    void newInterfaceCheck(){
+        assertFlowsInAnyOrder(flowEntryObjectsBase.expectedFlows(PORT_MAC_1));
+    }
+    @Ignore
     @Test
     public void newInterfaceWithEtherTypeAcl() throws Exception {
         LOG.info("newInterfaceWithEtherTypeAcl - start");
@@ -185,8 +187,11 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithEtherTypeAcl - end");
     }
 
-    abstract void newInterfaceWithEtherTypeAclCheck();
+     void newInterfaceWithEtherTypeAclCheck(){
 
+         assertFlowsInAnyOrder(flowEntryObjectsBase.etherFlows());
+    }
+    @Ignore
     @Test
     public void newInterfaceWithMultipleAcl() throws Exception {
         LOG.info("newInterfaceWithEtherTypeAcl - start");
@@ -250,8 +255,11 @@ public abstract class AclServiceTestBase {
         newInterfaceWithMultipleAclCheck();
     }
 
-    abstract void newInterfaceWithMultipleAclCheck();
+    void newInterfaceWithMultipleAclCheck(){
 
+        assertFlowsInAnyOrder(flowEntryObjectsBase.multipleAcl());
+    }
+    @Ignore
     @Test
     public void newInterfaceWithTcpDstAcl() throws Exception {
         LOG.info("newInterfaceWithTcpDstAcl - start");
@@ -293,7 +301,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithTcpDstAcl - end");
     }
 
-    abstract void newInterfaceWithTcpDstAclCheck();
+    void newInterfaceWithTcpDstAclCheck(){
+        assertFlowsInAnyOrder(flowEntryObjectsBase.tcpFlows());
+    }
 
     @Ignore
     @Test
@@ -338,8 +348,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithUdpDstAcl - end");
     }
 
-    abstract void newInterfaceWithUdpDstAclCheck();
-
+    void newInterfaceWithUdpDstAclCheck(){
+        assertFlowsInAnyOrder(flowEntryObjectsBase.udpFlows());
+    }
+    @Ignore
     @Test
     public void newInterfaceWithIcmpAcl() throws Exception {
         LOG.info("newInterfaceWithIcmpAcl - start");
@@ -368,8 +380,8 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithIcmpAcl - end");
     }
 
-    abstract void newInterfaceWithIcmpAclCheck();
-
+    void newInterfaceWithIcmpAclCheck(){assertFlowsInAnyOrder(flowEntryObjectsBase.icmpFlows());}
+    @Ignore
     @Test
     public void newInterfaceWithDstPortRange() throws Exception {
         LOG.info("newInterfaceWithDstPortRange - start");
@@ -402,8 +414,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithDstPortRange - end");
     }
 
-    abstract void newInterfaceWithDstPortRangeCheck();
-
+    void newInterfaceWithDstPortRangeCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.dstRangeFlows());
+    }
+    @Ignore
     @Test
     public void newInterfaceWithDstAllPorts() throws Exception {
         LOG.info("newInterfaceWithDstAllPorts - start");
@@ -436,8 +450,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithDstAllPorts - end");
     }
 
-    abstract void newInterfaceWithDstAllPortsCheck();
-
+    void newInterfaceWithDstAllPortsCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.dstAllFlows());
+    }
+    @Ignore
     @Test
     public void newInterfaceWithTwoAclsHavingSameRules() throws Exception {
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - start");
@@ -479,8 +495,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithTwoAclsHavingSameRules - end");
     }
 
-    abstract void newInterfaceWithTwoAclsHavingSameRulesCheck();
-
+    void newInterfaceWithTwoAclsHavingSameRulesCheck(){
+        assertFlowsInAnyOrder(flowEntryObjectsBase.icmpFlowsForTwoAclsHavingSameRules());
+    }
+    @Ignore
     @Test
     public void newInterfaceWithIcmpAclHavingOverlappingMac() throws Exception {
         newAllowedAddressPair(PORT_1, Collections.singletonList(SG_UUID_1), Collections.singletonList(AAP_PORT_1));
@@ -517,7 +535,7 @@ public abstract class AclServiceTestBase {
      *             the exception
      */
     @Test
-    @Ignore
+
     public void newInterfaceWithAapIpv4All() throws Exception {
         LOG.info("newInterfaceWithAapIpv4All test - start");
 
@@ -545,8 +563,10 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithAapIpv4All test - end");
     }
 
-    abstract void newInterfaceWithAapIpv4AllCheck();
-
+    void newInterfaceWithAapIpv4AllCheck() {
+        assertFlowsInAnyOrder(flowEntryObjectsBase.aapWithIpv4AllFlows());
+    }
+    @Ignore
     @Test
     public void newInterfaceWithAap() throws Exception {
         LOG.info("newInterfaceWithAap test - start");
@@ -580,7 +600,9 @@ public abstract class AclServiceTestBase {
         LOG.info("newInterfaceWithAap test - end");
     }
 
-    abstract void newInterfaceWithAapCheck();
+    void newInterfaceWithAapCheck(){
+        assertFlowsInAnyOrder(flowEntryObjectsBase.aapFlows());
+    }
 
     protected void assertFlowsInAnyOrder(Iterable<FlowEntity> expectedFlows) {
         asyncEventsWaiter.awaitEventsConsumption();
