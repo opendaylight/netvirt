@@ -882,4 +882,14 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         return elanUtils.retrieveNewElanTag(idManager, idKey);
     }
 
+    public InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(
+                                                                String elanInstanceName, BigInteger dpnId) {
+        return ElanUtils.getElanDpnInterfaceOperationalDataPath(elanInstanceName, dpnId);
+    }
+
+    @Override
+    public DpnInterfaces getElanInterfaceInfoByElanDpn(String elanInstanceName, BigInteger dpId) {
+        return elanUtils.getElanInterfaceInfoByElanDpn(elanInstanceName, dpId);
+    }
+
 }
