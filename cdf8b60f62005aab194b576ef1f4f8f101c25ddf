@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "2bdeee3a_686d4df4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/InterfaceStateChangeListener.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 139,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-13T11:42:10Z",
+      "side": 1,
+      "message": "The code executed by the event triggered on a writeCfgTxn.submit() depends on the data written by writeOperTxn.submit().\nHence, we wait for operTxn to finish writing the data, before submitting config and inv transactions.",
+      "parentUuid": "c8ad3e8f_54fa1d76",
+      "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8560197_273cb915",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
@@ -30,6 +48,30 @@
       "writtenOn": "2017-12-12T18:48:10Z",
       "side": 1,
       "message": "use emptyList() as it\u0027s typed - EMPTY_LIST returns List which results in an \"unchecked\" warning.",
+      "range": {
+        "startLine": 1286,
+        "startChar": 54,
+        "endLine": 1286,
+        "endChar": 64
+      },
+      "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c0ef009_7c43c51c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1286,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-13T11:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b8560197_273cb915",
       "range": {
         "startLine": 1286,
         "startChar": 54,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "663509fe_fdf1bff7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1301,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-13T11:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "19ebeb37_628d56c9",
+      "range": {
+        "startLine": 1301,
+        "startChar": 46,
+        "endLine": 1301,
+        "endChar": 56
+      },
+      "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8fcb9ee3_480d444c",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 9
@@ -76,6 +142,24 @@
       "writtenOn": "2017-12-12T18:48:10Z",
       "side": 1,
       "message": "This method is rather large (about 100 lines). Could you break it up?",
+      "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb91e5f1_e7a6d2a7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1353,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-13T11:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8fcb9ee3_480d444c",
       "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -105,6 +189,30 @@
     },
     {
       "key": {
+        "uuid": "39019e10_e946b20e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 252,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-13T11:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4d847720_adb53672",
+      "range": {
+        "startLine": 252,
+        "startChar": 12,
+        "endLine": 252,
+        "endChar": 16
+      },
+      "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5af38638_3c49af81",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
         "patchSetId": 9
@@ -122,6 +230,24 @@
     },
     {
       "key": {
+        "uuid": "185a2a1d_d29d1270",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 254,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-13T11:42:10Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5af38638_3c49af81",
+      "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b1dbe288_f5764c58",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
         "patchSetId": 9
@@ -133,6 +259,24 @@
       "writtenOn": "2017-12-12T18:48:10Z",
       "side": 1,
       "message": "You could just return RpcResultBuilder.success(output).buildFuture().\n\nHowever, why are you doing a blocking read - why not do an async read here and return a Future transformed from the read Future?",
+      "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17f6ee47_0cdc6453",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 262,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-13T11:42:10Z",
+      "side": 1,
+      "message": "Done.\nTom, is this good enough or can it be done better?",
+      "parentUuid": "b1dbe288_f5764c58",
       "revId": "cdf8b60f62005aab194b576ef1f4f8f101c25ddf",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
