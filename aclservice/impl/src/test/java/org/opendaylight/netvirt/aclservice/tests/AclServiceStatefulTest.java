@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.aclservice.tests;
 
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.rules.MethodRule;
 import org.opendaylight.genius.datastoreutils.testutils.JobCoordinatorTestModule;
@@ -15,7 +14,7 @@ import org.opendaylight.genius.datastoreutils.testutils.TestableDataTreeChangeLi
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig.SecurityGroupMode;
 
-@Ignore
+
 public class AclServiceStatefulTest extends AclServiceTestBase {
 
     public @Rule MethodRule guice = new GuiceRule(new AclServiceModule(),
@@ -62,8 +61,7 @@ public class AclServiceStatefulTest extends AclServiceTestBase {
 
     @Override
     void newInterfaceWithTwoAclsHavingSameRulesCheck() {
-        // TODO Fix up — this is broken since the Genius InstructionInfo clean-up
-        //assertFlowsInAnyOrder(FlowEntryObjectsStateful.icmpFlowsForTwoAclsHavingSameRules());
+        assertFlowsInAnyOrder(ipv4statefulentries.icmpFlowsForTwoAclsHavingSameRules());
     }
 
     @Override
