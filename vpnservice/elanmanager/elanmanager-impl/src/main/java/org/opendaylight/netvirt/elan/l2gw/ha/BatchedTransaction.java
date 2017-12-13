@@ -11,7 +11,6 @@ import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -25,16 +24,10 @@ import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 public class BatchedTransaction implements ReadWriteTransaction {
 
-    private final DataBroker broker;
-
-    public BatchedTransaction(DataBroker broker) {
-        this.broker = broker;
-    }
-
     @Override
     public <T extends DataObject> CheckedFuture<Optional<T>, ReadFailedException> read(
             LogicalDatastoreType logicalDatastoreType, InstanceIdentifier<T> instanceIdentifier) {
-        return broker.newReadOnlyTransaction().read(logicalDatastoreType, instanceIdentifier);
+        return ResourceBatchingManager.getInstance().read(getShard(logicalDatastoreType).name(), instanceIdentifier);
     }
 
     ResourceBatchingManager.ShardResource getShard(LogicalDatastoreType logicalDatastoreType) {
