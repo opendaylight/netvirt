@@ -33,6 +33,7 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2gwServiceProvider;
+import org.opendaylight.netvirt.elan.l2gw.utils.StaleVlanBindingsCleaner;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -122,6 +123,7 @@ public class HwvtepPhysicalSwitchListener
 
 
     private final HAOpClusteredListener haOpClusteredListener;
+    private final StaleVlanBindingsCleaner staleVlanBindingsCleaner;
 
     /**
      * Instantiates a new hwvtep physical switch listener.
@@ -129,12 +131,14 @@ public class HwvtepPhysicalSwitchListener
     @Inject
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
             ElanClusterUtils elanClusterUtils, L2gwServiceProvider l2gwServiceProvider,
-            HAOpClusteredListener haListener) {
+                                        StaleVlanBindingsCleaner staleVlanBindingsCleaner,
+                                        HAOpClusteredListener haListener) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.elanClusterUtils = elanClusterUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
+        this.staleVlanBindingsCleaner = staleVlanBindingsCleaner;
         this.haOpClusteredListener = haListener;
     }
 
@@ -316,6 +320,13 @@ public class HwvtepPhysicalSwitchListener
                 LOG.info("l2gw.provision.skip {}", hwvtepNodeId, psName);
             }
         }
+        elanClusterUtils.runOnlyInOwnerNode("Stale entry cleanup", () -> {
+            InstanceIdentifier<Node> globalNodeIid = HwvtepSouthboundUtils.createInstanceIdentifier(
+                    new NodeId(hwvtepNodeId));
+            InstanceIdentifier<Node> psIid = HwvtepSouthboundUtils.createInstanceIdentifier(
+                    HwvtepSouthboundUtils.createManagedNodeId(new NodeId(hwvtepNodeId), psName));
+            staleVlanBindingsCleaner.scheduleStaleCleanup(psName, globalNodeIid, psIid);
+        });
     }
 
 
