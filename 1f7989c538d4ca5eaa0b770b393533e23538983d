@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68de11fd_b4f87516",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 0,
+      "message": "Why is this removed? This part of the code is very important as it queues vpn-interface processing, until the vpn-instance is ready.",
+      "range": {
+        "startLine": 137,
+        "startChar": 4,
+        "endLine": 138,
+        "endChar": 38
+      },
+      "revId": "1f7989c538d4ca5eaa0b770b393533e23538983d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1af53518_8a77a6ec",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 0,
+      "message": "please retain this. we should delay processing of a vpn-interface until its vpn-instance is ready.",
+      "range": {
+        "startLine": 198,
+        "startChar": 4,
+        "endLine": 207,
+        "endChar": 5
+      },
+      "revId": "1f7989c538d4ca5eaa0b770b393533e23538983d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22f14340_b44fe61d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 228,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 0,
+      "message": "please retain this",
+      "range": {
+        "startLine": 224,
+        "startChar": 8,
+        "endLine": 228,
+        "endChar": 9
+      },
+      "revId": "1f7989c538d4ca5eaa0b770b393533e23538983d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c505abdb_23fe739a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1174,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 0,
+      "message": "please retain the nprocessedvent logic.",
+      "range": {
+        "startLine": 1174,
+        "startChar": 8,
+        "endLine": 1174,
+        "endChar": 69
+      },
+      "revId": "1f7989c538d4ca5eaa0b770b393533e23538983d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44c15d47_ceae9b42",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1432,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 0,
+      "message": "retain this",
+      "range": {
+        "startLine": 1432,
+        "startChar": 21,
+        "endLine": 1432,
+        "endChar": 83
+      },
+      "revId": "1f7989c538d4ca5eaa0b770b393533e23538983d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1a22840_28ba75b1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 2041,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 0,
+      "message": "You need to retain these. Please revert back the logic to queue up vpn-interfaces, and then process them only when their vpn-instance is created",
+      "range": {
+        "startLine": 2014,
+        "startChar": 4,
+        "endLine": 2041,
+        "endChar": 5
+      },
+      "revId": "1f7989c538d4ca5eaa0b770b393533e23538983d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

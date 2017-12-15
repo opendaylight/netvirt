@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2a3b983e_b185d3f9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "I think rebasing and resolving merge conflicts have not be resolved correctly. Can you please check this review again?\nFor example, canHandleNewVpnInterface() should not be deleted. Its an important piece of code, and should be retained",
+      "range": {
+        "startLine": 100,
+        "startChar": 14,
+        "endLine": 101,
+        "endChar": 33
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3ead31ca_c1e774d4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "this block does not seem right. Even for a router, an intenal vpn will be created with name\u003drouterId.. Even in this case, for a pure router interface add, you need to set vpnInterfaceOp as inactive, irrespective of whether the vpnInstance is ready or not.\nAlso, you can set the vpnInterfaceOp state in processVpnInterfaceAdjacencies() itself",
+      "range": {
+        "startLine": 227,
+        "startChar": 8,
+        "endLine": 233,
+        "endChar": 9
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "46d792b0_282e5bd1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "again, you need to figure out if its a router-interface add, or vpn-router-assoc before setting the state.",
+      "range": {
+        "startLine": 829,
+        "startChar": 12,
+        "endLine": 829,
+        "endChar": 36
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "73b268bc_599c6e56",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "state",
+      "range": {
+        "startLine": 847,
+        "startChar": 90,
+        "endLine": 847,
+        "endChar": 100
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4051ea2_69a3cab9",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "if removeAdjacenciesFromVpn() is called on a router-interface-delete, you need delete the vpnInterfaceOp. Else, you need to set the state as inactive",
+      "range": {
+        "startLine": 1295,
+        "startChar": 12,
+        "endLine": 1299,
+        "endChar": 69
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "145127cd_40d52309",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1460,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "as commented earlier, you cannot depend on isVpnInstanceReady() to check if the vpn is a bgpvpn or a router interal vpn.\n\nHere again, you need to set state as active/retain state to inactive based on whether the update() is due to bgpvpn-router-assoc or not. \n\nAnd setting state by calling addVpnInterfaceToOperational() can be centralized to within the processVpnInterfaceAdjacencies(), as commented earlier",
+      "range": {
+        "startLine": 1446,
+        "startChar": 20,
+        "endLine": 1460,
+        "endChar": 21
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7b9a0ecf_b54f2013",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 2081,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "you can retain the original code here as well",
+      "range": {
+        "startLine": 2063,
+        "startChar": 12,
+        "endLine": 2081,
+        "endChar": 74
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "babdae05_8d30b9bc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": "where is this method being used in this review?\nIf not used, then please remove it, or move it to the review where it is being used.",
+      "range": {
+        "startLine": 264,
+        "startChar": 41,
+        "endLine": 264,
+        "endChar": 84
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62253511_55638f9a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-15T07:06:43Z",
+      "side": 1,
+      "message": ".equals(vpnName)",
+      "range": {
+        "startLine": 274,
+        "startChar": 44,
+        "endLine": 274,
+        "endChar": 68
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
