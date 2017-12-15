@@ -60,5 +60,15 @@ module elan-config {
             type boolean;
             default true;
         }
+        leaf l2gw-stale-vlan-cleanup-delay-secs {
+            description "Stale vlan bindings cleanup delay after the southbound node is disconnected";
+            type uint16;
+            default 900;
+        }
+        leaf l2gw-logical-switch-delay-secs {
+            description "The delay after which logical switch is deleted after the l2gw connection is deleted";
+            type uint16;
+            default 20;
+        }
     }
 }
