@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.merge;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.concepts.Builder;
@@ -36,6 +37,9 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
                                 AugTypeT src,
                                 InstanceIdentifier<Node> dstPath) {
         for (MergeCommand cmd : commands) {
+            if (cmd instanceof LocalUcastCmd) {
+                continue;
+            }
             cmd.mergeConfigData(builder, src, dstPath);
         }
     }
