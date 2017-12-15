@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,6 +18,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
+import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
@@ -40,17 +42,18 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
     private NodeId hwvtepNodeId;
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
-
+    private final boolean clearUcast;
     private volatile boolean cancelled = false;
 
     private static final Logger LOG = LoggerFactory.getLogger(DeleteLogicalSwitchJob.class);
 
-    public DeleteLogicalSwitchJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils , NodeId hwvtepNodeId,
-                                  String logicalSwitchName) {
+    public DeleteLogicalSwitchJob(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
+                                  NodeId hwvtepNodeId, String logicalSwitchName, boolean clearUcast) {
         this.broker = broker;
         this.hwvtepNodeId = hwvtepNodeId;
         this.logicalSwitchName = logicalSwitchName;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
+        this.clearUcast = clearUcast;
         LOG.debug("created logical switch deleted job for {} on {}", logicalSwitchName, hwvtepNodeId);
     }
 
@@ -69,22 +72,23 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
             return Collections.emptyList();
         }
         LOG.debug("running logical switch deleted job for {} in {}", logicalSwitchName, hwvtepNodeId);
-        List<ListenableFuture<Void>> futures = new ArrayList<>();
-        futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
-        /*
-            Adding extra code to delete entries related to logicalswitch , in case they exist while deleting
-            logicalSwitch.
-            In UT , while macs are being pushed from southbound in to l2gw Device and at the same time l2Gw Connection
-            is deleted , the config tree is left with stale entries .
-            Hence to remove the stale entries for this use case , deleting all entries related to logicalSwitch upon
-            deleting L2gwConnecton.
-         */
         elanL2GatewayUtils.deleteElanMacsFromL2GatewayDevice(hwvtepNodeId.getValue(), logicalSwitchName);
         InstanceIdentifier<LogicalSwitches> logicalSwitch = HwvtepSouthboundUtils
                 .createLogicalSwitchesInstanceIdentifier(hwvtepNodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
                 new MacAddress(ElanConstants.UNKNOWN_DMAC));
         HwvtepUtils.deleteRemoteMcastMac(broker, hwvtepNodeId, remoteMcastMacsKey);
+
+        L2GatewayDevice l2GatewayDevice = new L2GatewayDevice("");
+        l2GatewayDevice.setHwvtepNodeId(hwvtepNodeId.getValue());
+
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
+        if (clearUcast) {
+            LOG.trace("Clearing the local ucast macs of device {} macs ", hwvtepNodeId.getValue());
+            futures.addAll(
+                    elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, logicalSwitchName));
+        }
         return futures;
     }
 }
