@@ -46,4 +46,7 @@ public interface ElanConstants {
     TopologyId OVSDB_TOPOLOGY_ID = new TopologyId(new Uri("ovsdb:1"));
     String OVSDB_BRIDGE_URI_PREFIX = "bridge";
     Class<? extends NxmNxReg> ELAN_REG_ID = NxmNxReg7.class;
+    int L2GW_STALE_VLAN_CLEANUP_DELAY = Integer.getInteger("l2gw.stale.vlan.cleanup.delay.secs", 900);
+    int L2GW_STALE_MAC_CLEANUP_DELAY = Integer.getInteger("l2gw.stale.stale.mac.cleanup.delay.secs", 900);
+    int LOGICAL_SWITCH_DELETE_DELAY = 20000;
 }
