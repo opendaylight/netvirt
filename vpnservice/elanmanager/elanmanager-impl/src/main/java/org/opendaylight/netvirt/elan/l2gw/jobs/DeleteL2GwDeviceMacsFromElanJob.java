@@ -10,10 +10,13 @@ package org.opendaylight.netvirt.elan.l2gw.jobs;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
@@ -21,9 +24,7 @@ import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
-import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,7 +47,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
     private final L2GatewayDevice l2GwDevice;
 
     /** The mac addresses. */
-    private final List<MacAddress> macAddresses;
+    private final Collection<MacAddress> macAddresses;
 
     /**
      * Instantiates a new delete l2 gw device macs from elan job.
@@ -58,7 +59,8 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
      * @param macAddresses
      *            the mac addresses
      */
-    public DeleteL2GwDeviceMacsFromElanJob(String elanName, L2GatewayDevice l2GwDevice, List<MacAddress> macAddresses) {
+    public DeleteL2GwDeviceMacsFromElanJob(String elanName, L2GatewayDevice l2GwDevice,
+                                           Collection<MacAddress> macAddresses) {
         this.elanName = elanName;
         this.l2GwDevice = l2GwDevice;
         this.macAddresses = macAddresses;
@@ -72,7 +74,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
     public String getJobKey() {
         String jobKey = JOB_KEY_PREFIX + this.elanName;
         if (macAddresses != null && macAddresses.size() == 1) {
-            jobKey += ":" + macAddresses.get(0).getValue();
+            jobKey += ":" + macAddresses.iterator().next().getValue();
         }
         return jobKey;
     }
@@ -91,6 +93,7 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
         macAddresses.forEach((mac) -> macs.add(new MacAddress(mac.getValue().toLowerCase())));
 
 
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(this.elanName);
         for (L2GatewayDevice otherDevice : elanL2GwDevices.values()) {
@@ -98,11 +101,10 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
                     && !ElanL2GatewayUtils.areMLAGDevices(this.l2GwDevice, otherDevice)) {
                 final String hwvtepId = otherDevice.getHwvtepNodeId();
                 //This delete is batched using resourcebatchingmnagaer
-                deleteRemoteUcastMacs(new NodeId(hwvtepId), logicalSwitchName, macs);
-                // TODO: why to create a new arraylist for uninstallFuture?
+                futures.addAll(deleteRemoteUcastMacs(new NodeId(hwvtepId), logicalSwitchName, macs));
             }
         }
-        return Collections.emptyList();
+        return futures;
     }
 
     /**
@@ -110,16 +112,17 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
      * @param nodeId NodeId of device
      * @param logicalSwitchName logicalSwitch Name
      * @param lstMac list of macs to be deleted
-     *
+     * @return list of futures
      */
-    public static void deleteRemoteUcastMacs(final NodeId nodeId,
+    public static List<ListenableFuture<Void>> deleteRemoteUcastMacs(final NodeId nodeId,
                                              String logicalSwitchName, final List<MacAddress> lstMac) {
-        if (lstMac != null && !lstMac.isEmpty()) {
-            for (MacAddress mac : lstMac) {
-                InstanceIdentifier<RemoteUcastMacs> remoteUcastMac = HwvtepSouthboundUtils
-                        .createRemoteUcastMacsInstanceIdentifier(nodeId, logicalSwitchName, mac);
-                ResourceBatchingManager.getInstance().delete(ShardResource.CONFIG_TOPOLOGY, remoteUcastMac);
-            }
+        if (lstMac != null) {
+            return lstMac.stream()
+                .map(mac -> HwvtepSouthboundUtils.createRemoteUcastMacsInstanceIdentifier(
+                        nodeId, logicalSwitchName, mac))
+                .map(iid -> ResourceBatchingManager.getInstance().delete(ShardResource.CONFIG_TOPOLOGY, iid))
+                .collect(Collectors.toList());
         }
+        return Collections.emptyList();
     }
 }
