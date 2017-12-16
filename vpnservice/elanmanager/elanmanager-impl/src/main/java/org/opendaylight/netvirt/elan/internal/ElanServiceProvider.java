@@ -41,7 +41,6 @@ import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistrati
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
-import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
@@ -91,7 +90,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private final ElanInstanceManager elanInstanceManager;
     private final ElanBridgeManager bridgeMgr;
     private final DataBroker broker;
-    private final ElanStatusMonitor elanStatusMonitor;
     private final ElanUtils elanUtils;
     private final SouthboundUtils southboundUtils;
     private boolean isL2BeforeL3;
@@ -103,7 +101,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                                ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
                                ElanInterfaceManager elanInterfaceManager,
-                               ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils,
+                               ElanUtils elanUtils,
                                EntityOwnershipService entityOwnershipService,
                                SouthboundUtils southboundUtils) {
         this.idManager = idManager;
@@ -111,7 +109,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         this.elanInstanceManager = elanInstanceManager;
         this.bridgeMgr = bridgeMgr;
         this.broker = dataBroker;
-        this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
         this.southboundUtils = southboundUtils;
 
@@ -133,15 +130,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void start() throws Exception {
         LOG.info("Starting ElanServiceProvider");
-        elanStatusMonitor.reportStatus("STARTING");
         setIsL2BeforeL3();
-        try {
-            createIdPool();
-            elanStatusMonitor.reportStatus("OPERATIONAL");
-        } catch (Exception e) {
-            elanStatusMonitor.reportStatus("ERROR");
-            throw e;
-        }
+        createIdPool();
     }
 
     @Override
