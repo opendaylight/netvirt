@@ -28,7 +28,6 @@ import org.opendaylight.infrautils.inject.guice.testutils.AbstractGuiceJsr250Mod
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.internal.ElanServiceProvider;
-import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.tests.utils.BgpManagerTestImpl;
 import org.opendaylight.netvirt.elanmanager.tests.utils.ElanEgressActionsHelper;
@@ -61,7 +60,6 @@ public class ElanServiceTestModule extends AbstractGuiceJsr250Module {
     protected void configureBindings() {
         DataBroker dataBroker = DataBrokerTestModule.dataBroker();
         bind(EntityOwnershipService.class).toInstance(Mockito.mock(EntityOwnershipService.class));
-        bind(ElanStatusMonitor.class).toInstance(Mockito.mock(ElanStatusMonitor.class));
         bind(INeutronVpnManager.class).toInstance(Mockito.mock(NeutronvpnManagerImpl.class));
         IVpnManager ivpnManager = Mockito.mock(VpnManagerTestImpl.class, CALLS_REAL_METHODS);
         bind(IMdsalApiManager.class).toInstance(new MDSALManager(dataBroker,
