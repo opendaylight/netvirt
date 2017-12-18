@@ -23,6 +23,7 @@ import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -32,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ElanSegmentsBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ProviderTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeVxlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
@@ -187,21 +189,29 @@ public class NeutronNetworkChangeListener
     @Nonnull
     private List<ElanSegments> buildSegments(Network input) {
         Long numSegments = NeutronUtils.getNumberSegmentsFromNeutronNetwork(input);
-        Long index = 0L;
         List<ElanSegments> segments = new ArrayList<>();
-        while (index < numSegments) {
-            index++;
+
+        for (long index = 0L; index < numSegments; index++) {
             ElanSegmentsBuilder elanSegmentsBuilder = new ElanSegmentsBuilder();
-            elanSegmentsBuilder.setSegmentationId(Long.valueOf(NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(
-                    input, index)));
+            elanSegmentsBuilder.setSegmentationId(0L);
+            if (NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index) != null) {
+                try {
+                    elanSegmentsBuilder.setSegmentationId(
+                            Long.valueOf(NeutronUtils.getSegmentationIdFromNeutronNetworkSegment(input, index)));
+                } catch (NumberFormatException error) {
+                    LOG.error("Failed to get the segment id for network {}", input);
+                }
+            }
             if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVxlan.class)) {
                 elanSegmentsBuilder.setSegmentType(SegmentTypeVxlan.class);
             } else if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeVlan.class)) {
                 elanSegmentsBuilder.setSegmentType(SegmentTypeVlan.class);
+            } else if (NeutronUtils.isNetworkSegmentType(input, index, NetworkTypeFlat.class)) {
+                elanSegmentsBuilder.setSegmentType(SegmentTypeFlat.class);
             }
             elanSegmentsBuilder.setSegmentationIndex(index);
             segments.add(elanSegmentsBuilder.build());
-            LOG.debug("Added segment {} to ELANInstance{}", segments.get(Integer.valueOf(index.intValue() - 1)));
+            LOG.debug("Added segment {} to ELANInstance{}", segments.get((int)index - 1));
         }
         return segments;
     }

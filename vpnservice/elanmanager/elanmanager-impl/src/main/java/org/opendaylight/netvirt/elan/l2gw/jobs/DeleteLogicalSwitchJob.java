@@ -86,8 +86,7 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
         futures.add(HwvtepUtils.deleteLogicalSwitch(broker, hwvtepNodeId, logicalSwitchName));
         if (clearUcast) {
             LOG.trace("Clearing the local ucast macs of device {} macs ", hwvtepNodeId.getValue());
-            futures.addAll(
-                    elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, logicalSwitchName));
+            elanL2GatewayUtils.deleteL2GwDeviceUcastLocalMacsFromElan(l2GatewayDevice, logicalSwitchName);
         }
         return futures;
     }
