@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class NvpnJMXAlarmAgent {
 
     private static final String BEANNAME = "SDNC.FM:name=NeutronvpnControlPathAlarmBean";
+    private static final Logger LOG = LoggerFactory.getLogger(NvpnJMXAlarmAgent.class);
 
     public static final String OP_RAISEALARM = "raiseAlarm";
     public static final String OP_CLEARALARM = "clearAlarm";
