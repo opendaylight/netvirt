@@ -75,7 +75,7 @@ public class HwvtepLocalUcastMacListener extends
         // Remove MAC from cache
         elanL2GwDevice.removeUcastLocalMac(macRemoved);
 
-        elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elan, elanL2GwDevice,
+        elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elan, elanName, elanL2GwDevice,
                 Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
     }
 
