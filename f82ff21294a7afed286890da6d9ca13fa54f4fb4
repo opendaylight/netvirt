@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7e10f63e_47d737c5",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-18T15:17:17Z",
+      "side": 1,
+      "message": "yeah no lets avoid optional \u003creference\u003e at all cost; it\u0027s confusing and can \"hide\" start-up errors and could \"misinform\" infrautils.ready and infrautils.diagstatus.  \n\nBut the fact that we need a new bundle just for the cache is probably an indication of a bigger design issue, no? Like if both neutronvpn-impl as well as elanmanager-impl need L2GatewayCache, then... should it perhaps be exposed by either or the other -api? Not sure this makes sense, but something doesn\u0027t seem quite right if we have to introduce a new cache/ bundle.\n\nHaving said that, I don\u0027t want to stand in the way of getting this in as intermediate solution, so I\u0027l +1 it despite some reservation that this is the ideal best later solution.",
+      "parentUuid": "18c9f7eb_6a23aa7e",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a696c459_aa75126e",
         "filename": "vpnservice/cache/impl/pom.xml",
         "patchSetId": 1
