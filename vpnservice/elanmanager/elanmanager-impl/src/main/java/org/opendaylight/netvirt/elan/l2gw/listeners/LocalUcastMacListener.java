@@ -141,7 +141,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
                 elanL2GwDevice.removeUcastLocalMac(macRemoved);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanName);
-                elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elanInstance, elanL2GwDevice,
+                elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elanInstance, elanName, elanL2GwDevice,
                         Collections.singletonList(new MacAddress(macAddress.toLowerCase())));
                 return null;
             });
