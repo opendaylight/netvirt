@@ -34,7 +34,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -69,18 +68,15 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final HAOpClusteredListener haOpClusteredListener;
     private final JobCoordinator jobCoordinator;
-    private final ElanClusterUtils elanClusterUtils;
 
     @Inject
     public LocalUcastMacListener(final DataBroker dataBroker,
                                  final HAOpClusteredListener haOpClusteredListener,
                                  final ElanL2GatewayUtils elanL2GatewayUtils,
-                                 final ElanClusterUtils elanClusterUtils,
                                  final JobCoordinator jobCoordinator) {
         super(dataBroker, false);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.haOpClusteredListener = haOpClusteredListener;
-        this.elanClusterUtils = elanClusterUtils;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -145,11 +141,10 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
                 elanL2GwDevice.removeUcastLocalMac(macRemoved);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanName);
-
-                elanClusterUtils.runOnlyInOwnerNode(elanName + ":" + macAddress,
-                        "Delete l2gw local ucast mac", () -> {
-                        return elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elanInstance, elanL2GwDevice,
-                                Collections.singletonList(new MacAddress(macAddress.toLowerCase()))); });
+                elanL2GatewayUtils.unInstallL2GwUcastMacFromL2gwDevices(elanName, elanL2GwDevice,
+                        Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
+                elanL2GatewayUtils.unInstallL2GwUcastMacFromElanDpns(elanInstance, elanL2GwDevice,
+                        Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
                 return null;
             });
     }
