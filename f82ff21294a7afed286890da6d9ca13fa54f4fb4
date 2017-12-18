@@ -55,6 +55,24 @@
     },
     {
       "key": {
+        "uuid": "2edafbda_e03d5a43",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-18T15:42:57Z",
+      "side": 1,
+      "message": "I hear ya. Unfortunately, neutronvpn-impl, elanmanager-impl, vpnmanager-impl et al are all coupled, ie they use each other\u0027s services so putting things like shared caches in any of them introduces optional references for the others. I\u0027m not crazy about the cache-impl but I don\u0027t know any other solution at this point to avoid optional references.  Perhaps there should be an l2gateway bundle with this cache and other classes as well. I think it\u0027s pretty clear that this code base needs to be re-organized but I don\u0027t know it nearly enough to be able to attempt that. \n\nAs I mentioned before, I\u0027m fine with putting the cache in neutronvpn-imp and adding an optional reference in elanmanager-impl. We already have other optional references so adding another probably doesn\u0027t really matter much at this point.  To fix the others would mean major re-org and splitting out more bundles so perhaps it would be better to wait until (if) that happens, especially since we\u0027re really not completely comfortable with cache-impl. Sam - what do you think?",
+      "parentUuid": "7e10f63e_47d737c5",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a696c459_aa75126e",
         "filename": "vpnservice/cache/impl/pom.xml",
         "patchSetId": 1
