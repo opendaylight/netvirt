@@ -21,7 +21,7 @@ public class EventDispatcher implements AutoCloseable {
 
     private final NaptEventHandler naptEventHandler;
     private final ExecutorService executor = SpecialExecutors.newBoundedSingleThreadExecutor(
-            NatConstants.EVENT_QUEUE_LENGTH, "NatServiceEventDispatcher");
+            NatConstants.EVENT_QUEUE_LENGTH, "NatServiceEventDispatcher", EventDispatcher.class);
 
     @Inject
     public EventDispatcher(final NaptEventHandler naptEventHandler) {
