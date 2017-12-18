@@ -87,6 +87,8 @@ public class ElanBridgeManager implements IElanBridgeManager {
      * @param dataBroker DataBroker
      * @param elanConfig the elan configuration
      * @param interfaceManager InterfaceManager
+     * @param southboundUtils southboutUtils
+     * @param mdsalUtils mdsalUtils
      */
     @Inject
     public ElanBridgeManager(DataBroker dataBroker, ElanConfig elanConfig, IInterfaceManager interfaceManager,
