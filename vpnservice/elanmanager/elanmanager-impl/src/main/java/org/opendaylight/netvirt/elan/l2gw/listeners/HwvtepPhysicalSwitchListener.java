@@ -19,6 +19,7 @@ import java.util.function.Predicate;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -28,6 +29,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -42,6 +44,7 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical._switch.attributes.TunnelIps;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
@@ -132,6 +135,13 @@ public class HwvtepPhysicalSwitchListener
 
     /**
      * Instantiates a new hwvtep physical switch listener.
+     * @param dataBroker DataBroker
+     * @param itmRpcService ItmRpcService
+     * @param elanClusterUtils ElanClusterUtils
+     * @param l2gwServiceProvider L2gwServiceProvider
+     * @param haListener HAOpClusteredListener
+     * @param l2GatewayCache L2GatewayCache
+     * @param staleVlanBindingsCleaner StaleVlanBindingsCleaner
      */
     @Inject
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
@@ -306,6 +316,9 @@ public class HwvtepPhysicalSwitchListener
             }
 
             handleAdd(l2GwDevice);
+            elanClusterUtils.runOnlyInOwnerNode("Update config tunnels IP ", () -> {
+                updateConfigTunnelIp(identifier, phySwitchAdded);
+            });
             return;
         });
     }
@@ -382,5 +395,18 @@ public class HwvtepPhysicalSwitchListener
                     .length());
         }
         return null;
+    }
+
+    private void updateConfigTunnelIp(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
+                                      PhysicalSwitchAugmentation phySwitchAdded) {
+        if (phySwitchAdded.getTunnelIps() != null) {
+            ReadWriteTransaction tx = dataBroker.newReadWriteTransaction();
+            PhysicalSwitchAugmentationBuilder psBuilder = new PhysicalSwitchAugmentationBuilder();
+            psBuilder.setTunnelIps(phySwitchAdded.getTunnelIps());
+            tx.merge(LogicalDatastoreType.CONFIGURATION, identifier, psBuilder.build());
+            LOG.trace("Updating config tunnel ips {}", identifier);
+            ListenableFutures.addErrorLogging(tx.submit(), LOG,
+                    "Failed to update config tunnel ip for iid {}", identifier);
+        }
     }
 }
