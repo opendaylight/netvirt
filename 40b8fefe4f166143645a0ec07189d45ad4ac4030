@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ce588fb5_c379824d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "getVpnInstanceOpDataEntryFromVpnId() function applies to all kind of VPN\nif the VPN is a BGPVPPN, then the primaryRd will be used as index for vpninstanceoperDS\nif the VPN is not a BGPVPN, then the key for vpninstanceoperDS will be the vpnName.\n\nthis is why I added this in this function.",
+      "parentUuid": "3c7641fe_4e98baf4",
+      "range": {
+        "startLine": 1390,
+        "startChar": 8,
+        "endLine": 1395,
+        "endChar": 9
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b7c9a87_1012f12b",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 40
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-15T12:48:10Z",
       "side": 1,
       "message": "same comment as in line 1390",
+      "range": {
+        "startLine": 1653,
+        "startChar": 7,
+        "endLine": 1658,
+        "endChar": 9
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "305b72d7_16abf3cc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 1658,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "updateVpnInstanceOpWithType() function applies to all kind of VPN\nif the VPN is a BGPVPPN, then the primaryRd will be used as index for vpninstanceoperDS\nif the VPN is not a BGPVPN, then the key for vpninstanceoperDS will be the vpnName.\n\nthis is why I added this in this function.",
+      "parentUuid": "7b7c9a87_1012f12b",
       "range": {
         "startLine": 1653,
         "startChar": 7,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2de93630_93481a80",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnConstants.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c54333d6_bed315c1",
+      "range": {
+        "startLine": 20,
+        "startChar": 10,
+        "endLine": 21,
+        "endChar": 42
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cc3c372f_00950925",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 40
@@ -82,6 +154,30 @@
       "writtenOn": "2017-12-15T12:48:10Z",
       "side": 1,
       "message": "This for loop check is already done in the update() method, so nit required here. The parameter newVpnName directly gives you the vpnName present in update.getVpnInstanceNames and not present in original.getVPnInstanceNames. So you can directly bind service here.",
+      "range": {
+        "startLine": 207,
+        "startChar": 7,
+        "endLine": 218,
+        "endChar": 13
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "20b99fef_7682968c",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 218,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "provided that that newvpnname is not a BGPVPN Internet.",
+      "parentUuid": "cc3c372f_00950925",
       "range": {
         "startLine": 207,
         "startChar": 7,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "cc8da88f_4da1df8e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 234,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "I need to know if I will use the first service or the second one.\nthat is why I think I need to account the number of VPNs on that vpn interface.\n- if I have one vpn \u003d\u003e I bindservice defautlservice\n- If I have more than one vpn \u003d\u003e I bindservice with the secodn service ( VPNv6 service)",
+      "parentUuid": "727684f2_d17d31d3",
+      "range": {
+        "startLine": 222,
+        "startChar": 9,
+        "endLine": 234,
+        "endChar": 9
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3612f23a_e84d07d1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 40
@@ -128,6 +248,30 @@
       "writtenOn": "2017-12-15T12:48:10Z",
       "side": 1,
       "message": "should not be using isIpVersionChosen() here?",
+      "range": {
+        "startLine": 282,
+        "startChar": 16,
+        "endLine": 282,
+        "endChar": 56
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ded4c27_9927f62d",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 282,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3612f23a_e84d07d1",
       "range": {
         "startLine": 282,
         "startChar": 16,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "0b05418a_ec4b01e7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f95e3e53_ed9275ad",
+      "range": {
+        "startLine": 288,
+        "startChar": 18,
+        "endLine": 288,
+        "endChar": 63
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b2fe38b8_57f7eaf8",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 40
@@ -174,6 +342,30 @@
       "writtenOn": "2017-12-15T12:48:10Z",
       "side": 1,
       "message": "when will these two conditions be true?\nvpnV4Name/vpnV6name will be set only if there are two bgpvpn names in the vpnNameList for the vpnInterface, which will never happen.\nIt will either be:\n1) One internalVpn name.\n2) two internalVpn names\n3) one internalVpn and one bgpvpnNames\n4) two bgpvpn names.\n\nIn none of the above four cases, will the above two conditions be true at the same time right?",
+      "range": {
+        "startLine": 299,
+        "startChar": 8,
+        "endLine": 300,
+        "endChar": 61
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "99b497bb_314b2a7a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 300,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "vpnV4Name and vpnV6Name are set for BGPVPN, but also for VPN ( case VPN\u003dRouter)\n\nas the bindServices() call must apply to all kind of VPN ( except bgpvpn internet), then that is why this algorith has been made.",
+      "parentUuid": "b2fe38b8_57f7eaf8",
       "range": {
         "startLine": 299,
         "startChar": 8,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "bdad6d00_c9b1dd90",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 319,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "arbitrate provisioning will be set to true at line 295, if VPN is neither ipv4 nor ipv6.\nso this algorith should be used.",
+      "parentUuid": "90efc981_6e739525",
+      "range": {
+        "startLine": 301,
+        "startChar": 16,
+        "endLine": 319,
+        "endChar": 17
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2fbf83b1_49ddd3fc",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 40
@@ -220,6 +436,30 @@
       "writtenOn": "2017-12-15T12:48:10Z",
       "side": 1,
       "message": "move this to line 1267",
+      "range": {
+        "startLine": 1271,
+        "startChar": 8,
+        "endLine": 1275,
+        "endChar": 11
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e43d5c4_eac3221e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 1275,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2fbf83b1_49ddd3fc",
       "range": {
         "startLine": 1271,
         "startChar": 8,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "03f897f9_5c187fb8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 1524,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "right. that implies that line 1587 , no call will be done there. since the intermediate queuee will be used for adding or removing calls.",
+      "parentUuid": "d51779f3_4cd81b5e",
+      "range": {
+        "startLine": 1524,
+        "startChar": 19,
+        "endLine": 1524,
+        "endChar": 25
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7fdc37b6_37541afb",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 40
@@ -266,6 +530,30 @@
       "writtenOn": "2017-12-15T12:48:10Z",
       "side": 1,
       "message": "same comment as in neutronvpnUtils",
+      "range": {
+        "startLine": 1932,
+        "startChar": 7,
+        "endLine": 1938,
+        "endChar": 9
+      },
+      "revId": "40b8fefe4f166143645a0ec07189d45ad4ac4030",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de7a57ec_c03457d3",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 40
+      },
+      "lineNbr": 1938,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-18T12:45:27Z",
+      "side": 1,
+      "message": "getVpnType() function applies to all kind of VPN\nif the VPN is a BGPVPPN, then the primaryRd will be used as index for vpninstanceoperDS\nif the VPN is not a BGPVPN, then the key for vpninstanceoperDS will be the vpnName.\n\nthis is why I added this in this function.",
+      "parentUuid": "7fdc37b6_37541afb",
       "range": {
         "startLine": 1932,
         "startChar": 7,
