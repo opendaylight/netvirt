@@ -64,7 +64,6 @@ public class HwvtepLocalUcastMacListener extends
         LOG.trace("LocalUcastMacs {} removed from {}", macAddress, hwvtepNodeId);
 
         String elanName = getElanName(macRemoved);
-        ElanInstance elan = ElanUtils.getElanInstanceByName(broker, elanName);
 
         L2GatewayDevice elanL2GwDevice = ElanL2GwCacheUtils.getL2GatewayDeviceFromCache(elanName, hwvtepNodeId);
         if (elanL2GwDevice == null) {
@@ -74,9 +73,10 @@ public class HwvtepLocalUcastMacListener extends
 
         // Remove MAC from cache
         elanL2GwDevice.removeUcastLocalMac(macRemoved);
-
-        elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elan, elanL2GwDevice,
+        elanL2GatewayUtils.unInstallL2GwUcastMacFromL2gwDevices(elanName, elanL2GwDevice,
                 Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
+        elanL2GatewayUtils.unInstallL2GwUcastMacFromElanDpns(ElanUtils.getElanInstanceByName(broker, elanName),
+                elanL2GwDevice, Collections.singletonList(new MacAddress(macAddress.toLowerCase(Locale.getDefault()))));
     }
 
     protected String getElanName(LocalUcastMacs mac) {

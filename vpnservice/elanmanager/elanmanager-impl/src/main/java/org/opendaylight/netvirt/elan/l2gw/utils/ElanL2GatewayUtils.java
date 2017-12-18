@@ -14,7 +14,6 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -414,41 +413,62 @@ public class ElanL2GatewayUtils {
     }
 
     /**
-     * Un install l2 gw ucast mac from elan.
-     *
-     * @param elan
-     *            the elan
-     * @param l2GwDevice
-     *            the l2 gw device
-     * @param macAddresses
-     *            the mac addresses
-     * @return the listenable future
+     * Uninstall l2gw macs from other l2gw devices in the elanName provided.
+     * @param elanName - Elan Name for which other l2gw devices will be scanned.
+     * @param l2GwDevice - l2gwDevice whose macs are required to be cleared from other devices.
+     * @param macAddresses - Mac address to be cleared.
      */
-    public List<ListenableFuture<Void>> unInstallL2GwUcastMacFromElan(final ElanInstance elan,
-                                                                      final L2GatewayDevice l2GwDevice,
-                                                                      final Collection<MacAddress> macAddresses) {
+    public void unInstallL2GwUcastMacFromL2gwDevices(final String elanName,
+                                                     final L2GatewayDevice l2GwDevice,
+                                                     final List<MacAddress> macAddresses) {
         if (macAddresses == null || macAddresses.isEmpty()) {
-            return Collections.emptyList();
+            return;
         }
-        final String elanName = elan.getElanInstanceName();
 
-        final List<DpnInterfaces> elanDpns = getElanDpns(elanName);
+        if (elanName == null) {
+            return;
+        }
 
+        DeleteL2GwDeviceMacsFromElanJob job = new DeleteL2GwDeviceMacsFromElanJob(elanName, l2GwDevice,
+                macAddresses);
+        elanClusterUtils.runOnlyInOwnerNode(job.getJobKey(), "delete remote ucast macs in l2gw devices", job);
+    }
+
+    /**
+     * Uninstall l2gw macs from other DPNs in the elan instance provided.
+     * @param elan - Elan Instance for which other DPNs will be scanned.
+     * @param l2GwDevice - l2gwDevice whose macs are required to be cleared from other devices.
+     * @param macAddresses - Mac address to be cleared.
+     */
+    public void unInstallL2GwUcastMacFromElanDpns(final ElanInstance elan,
+                                                                          final L2GatewayDevice l2GwDevice,
+                                                                          final List<MacAddress> macAddresses) {
         List<ListenableFuture<Void>> result = new ArrayList<>();
+        if (macAddresses == null || macAddresses.isEmpty()) {
+            return;
+        }
+        if (elan == null || elan.getElanInstanceName() == null) {
+            LOG.error("Could not delete l2gw ucast macs, Failed to find the elan for device {}",
+                    l2GwDevice.getHwvtepNodeId());
+            return;
+        }
+
+        final List<DpnInterfaces> elanDpns = getElanDpns(elan.getElanInstanceName());
+
         // Retrieve all participating DPNs in this Elan. Populate this MAC in
         // DMAC table. Looping through all DPNs in order to add/remove mac flows
         // in their DMAC table
         for (final MacAddress mac : macAddresses) {
-            for (DpnInterfaces elanDpn : elanDpns) {
-                BigInteger dpnId = elanDpn.getDpId();
-                result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
-                        l2GwDevice.getHwvtepNodeId(), mac.getValue().toLowerCase(Locale.getDefault())));
-            }
+            elanClusterUtils.runOnlyInOwnerNode(elan.getElanInstanceName() + ":" + mac.getValue(),
+                    "delete remote ucast macs in elan DPNs", () -> {
+                    for (DpnInterfaces elanDpn : elanDpns) {
+                        BigInteger dpnId = elanDpn.getDpId();
+                        result.addAll(elanDmacUtils.deleteDmacFlowsToExternalMac(elan.getElanTag(), dpnId,
+                                l2GwDevice.getHwvtepNodeId(), mac.getValue().toLowerCase(Locale.getDefault())));
+                    }
+                    return result;
+                });
         }
-
-        //Batched job
-        result.addAll(new DeleteL2GwDeviceMacsFromElanJob(elanName, l2GwDevice, macAddresses).call());
-        return result;
     }
 
     /**
@@ -959,24 +979,10 @@ public class ElanL2GatewayUtils {
             return Collections.emptyList();
         }
 
-        SettableFuture<Void> settableFuture = SettableFuture.create();
-        getL2GwDeviceLocalMacsAndRunCallback(elanName, l2GatewayDevice, (localMacs) -> {
-            Futures.addCallback(
-                    Futures.allAsList(unInstallL2GwUcastMacFromElan(elan, l2GatewayDevice, localMacs)),
-                    new FutureCallback<List<Void>>() {
-                        @Override
-                        public void onSuccess(List<Void> voids) {
-                            settableFuture.set(null);
-                        }
-
-                        @Override
-                        public void onFailure(Throwable throwable) {
-                            settableFuture.setException(throwable);
-                        }
-                    }, MoreExecutors.directExecutor());
-            return null;
-        });
-        return Lists.newArrayList(settableFuture);
+        List<MacAddress> localMacs = getL2GwDeviceLocalMacs(elanName, l2GatewayDevice);
+        unInstallL2GwUcastMacFromL2gwDevices(elanName, l2GatewayDevice, localMacs);
+        unInstallL2GwUcastMacFromElanDpns(elan, l2GatewayDevice, localMacs);
+        return Collections.emptyList();
     }
 
     public static void createItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
@@ -1063,5 +1069,37 @@ public class ElanL2GatewayUtils {
             return elanUtils.getElanDPNByName(elanName);
         }
         return new ArrayList<>(dpnInterfaces);
+    }
+
+    /**
+     * Gets the l2 gw device local macs.
+     *
+     * @param l2gwDevice
+     *            the l2gw device
+     * @return the l2 gw device local macs
+     */
+    public List<MacAddress> getL2GwDeviceLocalMacs(String elanName, L2GatewayDevice l2gwDevice) {
+        Set<MacAddress> macs = new HashSet<>();
+        if (l2gwDevice == null) {
+            return Collections.emptyList();
+        }
+        Collection<LocalUcastMacs> lstUcastLocalMacs = l2gwDevice.getUcastLocalMacs();
+        if (!lstUcastLocalMacs.isEmpty()) {
+            macs.addAll(lstUcastLocalMacs.stream().filter(Objects::nonNull)
+                    .map(mac -> new MacAddress(mac.getMacEntryKey().getValue().toLowerCase()))
+                    .collect(Collectors.toList()));
+        }
+        Optional<Node> configNode = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
+                HwvtepSouthboundUtils.createInstanceIdentifier(new NodeId(l2gwDevice.getHwvtepNodeId())));
+        if (configNode.isPresent()) {
+            HwvtepGlobalAugmentation augmentation = configNode.get().getAugmentation(HwvtepGlobalAugmentation.class);
+            if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
+                macs.addAll(augmentation.getLocalUcastMacs().stream()
+                        .filter(mac -> getLogicalSwitchName(mac).equals(elanName))
+                        .map(mac -> mac.getMacEntryKey())
+                        .collect(Collectors.toSet()));
+            }
+        }
+        return new ArrayList<>(macs);
     }
 }
