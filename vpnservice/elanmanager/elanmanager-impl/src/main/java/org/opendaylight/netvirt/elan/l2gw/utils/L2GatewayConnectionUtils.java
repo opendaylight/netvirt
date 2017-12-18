@@ -31,11 +31,12 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
+import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener;
-import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
+import org.opendaylight.netvirt.elan.l2gw.listeners.LocalUcastMacListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -69,17 +70,20 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
+    private final HAOpClusteredListener haOpClusteredListener;
 
     @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
-            JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+            JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                                    HAOpClusteredListener haOpClusteredListener) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
+        this.haOpClusteredListener = haOpClusteredListener;
     }
 
     @Override
@@ -294,7 +298,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
                 // Add L2 Gateway device to 'ElanL2GwDevice' cache
                 boolean createLogicalSwitch;
-                LogicalSwitches logicalSwitch = HwvtepUtils.getLogicalSwitch(broker, LogicalDatastoreType.OPERATIONAL,
+                LogicalSwitches logicalSwitch = HwvtepUtils.getLogicalSwitch(broker, LogicalDatastoreType.CONFIGURATION,
                         hwvtepNodeId, elanName);
                 if (logicalSwitch == null) {
                     HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(
@@ -362,8 +366,9 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                     nodeIid), new SettableFutureCallback<Optional<Node>>(settableFuture) {
                         @Override
                         public void onSuccess(@Nonnull Optional<Node> resultNode) {
-                            HwvtepLocalUcastMacListener localUcastMacListener =
-                                    new HwvtepLocalUcastMacListener(broker, elanL2GatewayUtils);
+                            LocalUcastMacListener localUcastMacListener =
+                                    new LocalUcastMacListener(broker, haOpClusteredListener,
+                                            elanL2GatewayUtils, jobCoordinator);
                             settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {

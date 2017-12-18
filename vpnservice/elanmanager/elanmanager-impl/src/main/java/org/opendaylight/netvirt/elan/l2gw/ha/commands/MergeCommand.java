@@ -16,6 +16,7 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.physical.locator.set.attributes.LocatorSet;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TpId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -141,14 +143,28 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
 
     public abstract T transform(InstanceIdentifier<Node> nodePath, T objT);
 
+    List<T> getDataSafe(Z existingData) {
+        if (existingData == null) {
+            return Collections.EMPTY_LIST;
+        }
+        List<T> result = getData(existingData);
+        if (result == null) {
+            return Collections.EMPTY_LIST;
+        }
+        return result;
+    }
+
     @Override
     public void mergeOperationalData(Y dst,
                                      Z existingData,
                                      Z src,
                                      InstanceIdentifier<Node> nodePath) {
-        List<T> origDstData = getData(existingData);
-        List<T> srcData = getData(src);
+        List<T> origDstData = getDataSafe(existingData);
+        List<T> srcData = getDataSafe(src);
         List<T> data = transformOpData(origDstData, srcData, nodePath);
+        if (cmdType == RemoteUcastMacs.class) {
+            return;
+        }
         setData(dst, data);
         if (!isEmptyList(data)) {
             String nodeId = nodePath.firstKeyOf(Node.class).getNodeId().getValue();
@@ -160,7 +176,7 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
     public void mergeConfigData(Y dst,
                                 Z src,
                                 InstanceIdentifier<Node> nodePath) {
-        List<T> data        = getData(src);
+        List<T> data        = getDataSafe(src);
         List<T> transformed = transformConfigData(data, nodePath);
         setData(dst, transformed);
         if (!isEmptyList(data)) {
@@ -175,9 +191,9 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
                                   Z orig,
                                   InstanceIdentifier<Node> nodePath,
                                   ReadWriteTransaction tx) {
-        List<T> updatedData     = getData(updated);
-        List<T> origData        = getData(orig);
-        List<T> existingData    = getData(existing);
+        List<T> updatedData     = getDataSafe(updated);
+        List<T> origData        = getDataSafe(orig);
+        List<T> existingData    = getDataSafe(existing);
         transformUpdate(existingData, updatedData, origData, nodePath, CONFIGURATION, tx);
     }
 
@@ -187,9 +203,9 @@ public abstract class MergeCommand<T extends DataObject, Y extends Builder, Z ex
                               Z origSrc,
                               InstanceIdentifier<Node> nodePath,
                               ReadWriteTransaction tx) {
-        List<T> updatedData     = getData(updatedSrc);
-        List<T> origData        = getData(origSrc);
-        List<T> existingData    = getData(origDst);
+        List<T> updatedData     = getDataSafe(updatedSrc);
+        List<T> origData        = getDataSafe(origSrc);
+        List<T> existingData    = getDataSafe(origDst);
         transformUpdate(existingData, updatedData, origData, nodePath, OPERATIONAL, tx);
     }
 

@@ -85,6 +85,8 @@ public final class HwvtepHAUtil {
     public static final String L2GW_JOB_KEY = ":l2gw";
 
     static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    static HwvtepGlobalAugmentation GLOBAL_AUGMENTATION = new HwvtepGlobalAugmentationBuilder().build();
+    static PhysicalSwitchAugmentation PS_AUGMENTATION = new PhysicalSwitchAugmentationBuilder().build();
 
     private HwvtepHAUtil() { }
 
@@ -413,25 +415,17 @@ public final class HwvtepHAUtil {
     }
 
     public static HwvtepGlobalAugmentation getGlobalAugmentationOfNode(Node node) {
-        HwvtepGlobalAugmentation result = null;
-        if (node != null) {
-            result = node.getAugmentation(HwvtepGlobalAugmentation.class);
+        if (node != null && node.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
+            return node.getAugmentation(HwvtepGlobalAugmentation.class);
         }
-        if (result == null) {
-            result = new HwvtepGlobalAugmentationBuilder().build();
-        }
-        return result;
+        return GLOBAL_AUGMENTATION;
     }
 
     public static PhysicalSwitchAugmentation getPhysicalSwitchAugmentationOfNode(Node psNode) {
-        PhysicalSwitchAugmentation result = null;
-        if (psNode != null) {
-            result = psNode.getAugmentation(PhysicalSwitchAugmentation.class);
+        if (psNode != null && psNode.getAugmentation(PhysicalSwitchAugmentation.class) != null) {
+            return psNode.getAugmentation(PhysicalSwitchAugmentation.class);
         }
-        if (result == null) {
-            result = new PhysicalSwitchAugmentationBuilder().build();
-        }
-        return result;
+        return PS_AUGMENTATION;
     }
 
     /**

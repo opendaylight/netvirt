@@ -174,7 +174,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        //registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
     @Override

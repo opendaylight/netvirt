@@ -41,6 +41,7 @@ import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -289,6 +290,9 @@ public class HwvtepPhysicalSwitchListener
             l2GwDevice = L2GatewayCacheUtils.updateL2GatewayCache(
                     psName, globalNodeId, phySwitchAdded.getTunnelIps());
             handleAdd(l2GwDevice);
+            elanClusterUtils.runOnlyInOwnerNode("", () -> {
+                updateConfigTunnelIp(identifier, phySwitchAdded);
+            });
             return;
         });
     }
@@ -365,5 +369,17 @@ public class HwvtepPhysicalSwitchListener
                     .length());
         }
         return null;
+    }
+
+    private void updateConfigTunnelIp(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
+                                      PhysicalSwitchAugmentation phySwitchAdded) {
+        if (phySwitchAdded.getTunnelIps() != null) {
+            ReadWriteTransaction tx = dataBroker.newReadWriteTransaction();
+            PhysicalSwitchAugmentationBuilder psBuilder = new PhysicalSwitchAugmentationBuilder();
+            psBuilder.setTunnelIps(phySwitchAdded.getTunnelIps());
+            tx.merge(LogicalDatastoreType.CONFIGURATION, identifier, psBuilder.build());
+            LOG.trace("Updating config tunnel ips {}", identifier);
+            tx.submit();
+        }
     }
 }

@@ -13,9 +13,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -68,6 +70,8 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final HAOpClusteredListener haOpClusteredListener;
     private final JobCoordinator jobCoordinator;
+    private Map<InstanceIdentifier<Node>, List<InstanceIdentifier<LocalUcastMacs>>> staleCandidateMacsByNodeId
+            = new ConcurrentHashMap<>();
 
     @Inject
     public LocalUcastMacListener(final DataBroker dataBroker,
@@ -141,13 +145,18 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
                 elanL2GwDevice.removeUcastLocalMac(macRemoved);
                 ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanName);
-                elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elanInstance, elanL2GwDevice,
+                elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elanInstance, elanName, elanL2GwDevice,
                         Collections.singletonList(new MacAddress(macAddress.toLowerCase())));
                 return null;
             });
     }
 
     public void added(final InstanceIdentifier<LocalUcastMacs> identifier, final LocalUcastMacs macAdded) {
+        InstanceIdentifier<Node> nodeIid = identifier.firstIdentifierOf(Node.class);
+        if (staleCandidateMacsByNodeId.get(nodeIid) != null) {
+            LOG.trace("Clearing from candidate stale mac {}", identifier);
+            staleCandidateMacsByNodeId.get(nodeIid).remove(identifier);
+        }
         ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
                 identifier, macAdded);
 

@@ -434,12 +434,19 @@ public class ElanL2GatewayUtils {
      * @param macAddresses
      *            the mac addresses
      */
-    public void unInstallL2GwUcastMacFromElan(final ElanInstance elan, final L2GatewayDevice l2GwDevice,
-            final List<MacAddress> macAddresses) {
+    public void unInstallL2GwUcastMacFromElan(final ElanInstance elan, final String elanName,
+                                              final L2GatewayDevice l2GwDevice, final List<MacAddress> macAddresses) {
         if (macAddresses == null || macAddresses.isEmpty()) {
             return;
         }
-        final String elanName = elan.getElanInstanceName();
+        DeleteL2GwDeviceMacsFromElanJob job = new DeleteL2GwDeviceMacsFromElanJob(elanName, l2GwDevice,
+                macAddresses);
+        elanClusterUtils.runOnlyInOwnerNode("delete remote ucast macs in l2gw devices", job.getJobKey(), job);
+        if (elan == null) {
+            LOG.error("Could not delete l2gw ucast macs, Failed to find the elan {} for device {}",
+                    elanName, l2GwDevice.getHwvtepNodeId());
+            return;
+        }
 
         final List<DpnInterfaces> elanDpns = getElanDpns(elanName);
 
@@ -461,11 +468,6 @@ public class ElanL2GatewayUtils {
                 });
             }
         }
-
-        //Batched job
-        DeleteL2GwDeviceMacsFromElanJob job = new DeleteL2GwDeviceMacsFromElanJob(elanName, l2GwDevice,
-                macAddresses);
-        elanClusterUtils.runOnlyInOwnerNode(job.getJobKey(), "delete remote ucast macs in l2gw devices", job);
     }
 
     /**
@@ -965,7 +967,7 @@ public class ElanL2GatewayUtils {
         }
 
         List<MacAddress> localMacs = getL2GwDeviceLocalMacs(elanName, l2GatewayDevice);
-        unInstallL2GwUcastMacFromElan(elan, l2GatewayDevice, localMacs);
+        unInstallL2GwUcastMacFromElan(elan, elanName, l2GatewayDevice, localMacs);
         return Collections.emptyList();
     }
 
