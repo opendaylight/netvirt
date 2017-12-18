@@ -63,6 +63,16 @@ public class HwvtepLogicalSwitchListener extends
 
     /**
      * Instantiates a new hardware vtep logical switch listener.
+     * @param elanInstanceManager ElanInstanceManager
+     * @param elanL2GatewayUtils ElanL2GatewayUtils
+     * @param elanClusterUtils ElanClusterUtils
+     * @param elanL2GatewayMulticastUtils ElanL2GatewayMulticastUtils
+     * @param l2GatewayConnectionUtils L2GatewayConnectionUtils
+     * @param l2GatewayDevice L2GatewayDevice for which the listener is initiated
+     * @param logicalSwitchName LS name of the network
+     * @param physicalDevice Devices from cache
+     * @param defaultVlanId default vlanId of the LS
+     * @param l2GwConnId L2gateway connection UUID
      */
     public HwvtepLogicalSwitchListener(ElanInstanceManager elanInstanceManager, ElanL2GatewayUtils elanL2GatewayUtils,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
