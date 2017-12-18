@@ -19,6 +19,7 @@ public abstract class BaseCommand<T> {
      * @param updated Updated List
      * @param original Origina list to be compared with
      * @param comparator based on which diff will be returned
+     * @param <T> T extends DataObject
      * @return List of diff based on comparator
      */
     public <T> List<T> diffOf(List<T> updated, final List<T> original, final Comparator comparator) {

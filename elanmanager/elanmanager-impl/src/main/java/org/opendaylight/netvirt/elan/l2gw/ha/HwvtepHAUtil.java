@@ -611,4 +611,12 @@ public final class HwvtepHAUtil {
         }
         return true;
     }
+
+    public static String getPsName(InstanceIdentifier<Node> psNodeIid) {
+        String psNodeId = psNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) +  PHYSICALSWITCH.length());
+        }
+        return null;
+    }
 }
