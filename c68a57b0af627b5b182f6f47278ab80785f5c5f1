@@ -163,6 +163,30 @@
       "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6df390ba_12ba4f19",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-18T08:23:59Z",
+      "side": 1,
+      "message": "That is disturbing. Can you confirm if:\n\n1. Neutron doesn\u0027t send binding in update.\n2. ODL Driver doesn\u0027t\n3. Trasnscriber code doesn\u0027t.\n\nAlso, can you confirm through restconf if post update it contains bindings or not? Present in original not in update would typically mean bindings being removed. Want to make sure we\u0027re not trying to workaround bug somewhere else.",
+      "parentUuid": "d8fa5f46_24677d83",
+      "range": {
+        "startLine": 510,
+        "startChar": 37,
+        "endLine": 510,
+        "endChar": 49
+      },
+      "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
