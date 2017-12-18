@@ -13,6 +13,7 @@ import com.google.common.base.Optional;
 
 import javax.inject.Inject;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
@@ -58,6 +59,7 @@ import org.slf4j.LoggerFactory;
  * @author Michael Vorburger
  * @author Riyazahmed Talikoti
  */
+@Ignore("This relies on flawed interface handling, see GENIUS-109")
 public class ElanServiceTest extends  ElanServiceTestBase {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanServiceTest.class);
