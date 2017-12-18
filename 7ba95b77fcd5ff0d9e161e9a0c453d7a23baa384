@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "f652e33f_d13380c6",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 233,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3ead31ca_c1e774d4",
+      "range": {
+        "startLine": 227,
+        "startChar": 8,
+        "endLine": 233,
+        "endChar": 9
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "46d792b0_282e5bd1",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 90
@@ -59,6 +83,30 @@
       "writtenOn": "2017-12-15T07:06:43Z",
       "side": 1,
       "message": "again, you need to figure out if its a router-interface add, or vpn-router-assoc before setting the state.",
+      "range": {
+        "startLine": 829,
+        "startChar": 12,
+        "endLine": 829,
+        "endChar": 36
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89c0ee60_82c82fd1",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 829,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "46d792b0_282e5bd1",
       "range": {
         "startLine": 829,
         "startChar": 12,
@@ -94,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "37082d63_c4404cbd",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 847,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "73b268bc_599c6e56",
+      "range": {
+        "startLine": 847,
+        "startChar": 90,
+        "endLine": 847,
+        "endChar": 100
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f4051ea2_69a3cab9",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 90
@@ -105,6 +177,30 @@
       "writtenOn": "2017-12-15T07:06:43Z",
       "side": 1,
       "message": "if removeAdjacenciesFromVpn() is called on a router-interface-delete, you need delete the vpnInterfaceOp. Else, you need to set the state as inactive",
+      "range": {
+        "startLine": 1295,
+        "startChar": 12,
+        "endLine": 1299,
+        "endChar": 69
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ecc0ec1_e5b1221a",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1299,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4051ea2_69a3cab9",
       "range": {
         "startLine": 1295,
         "startChar": 12,
@@ -140,6 +236,30 @@
     },
     {
       "key": {
+        "uuid": "3b1c3977_372af330",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 1460,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "145127cd_40d52309",
+      "range": {
+        "startLine": 1446,
+        "startChar": 20,
+        "endLine": 1460,
+        "endChar": 21
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7b9a0ecf_b54f2013",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 90
@@ -151,6 +271,30 @@
       "writtenOn": "2017-12-15T07:06:43Z",
       "side": 1,
       "message": "you can retain the original code here as well",
+      "range": {
+        "startLine": 2063,
+        "startChar": 12,
+        "endLine": 2081,
+        "endChar": 74
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fafb2b9_8e7832d4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 2081,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7b9a0ecf_b54f2013",
       "range": {
         "startLine": 2063,
         "startChar": 12,
@@ -186,6 +330,30 @@
     },
     {
       "key": {
+        "uuid": "68ed057d_8f6bb0ea",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 264,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "done",
+      "parentUuid": "babdae05_8d30b9bc",
+      "range": {
+        "startLine": 264,
+        "startChar": 41,
+        "endLine": 264,
+        "endChar": 84
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62253511_55638f9a",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 90
@@ -197,6 +365,30 @@
       "writtenOn": "2017-12-15T07:06:43Z",
       "side": 1,
       "message": ".equals(vpnName)",
+      "range": {
+        "startLine": 274,
+        "startChar": 44,
+        "endLine": 274,
+        "endChar": 68
+      },
+      "revId": "7ba95b77fcd5ff0d9e161e9a0c453d7a23baa384",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28f9b7b9_43154e20",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 90
+      },
+      "lineNbr": 274,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-18T14:13:40Z",
+      "side": 1,
+      "message": "Done\nthis method is deleted",
+      "parentUuid": "62253511_55638f9a",
       "range": {
         "startLine": 274,
         "startChar": 44,
