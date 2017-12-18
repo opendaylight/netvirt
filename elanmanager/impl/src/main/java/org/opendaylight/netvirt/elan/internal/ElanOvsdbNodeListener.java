@@ -44,6 +44,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
      * @param elanConfig the elan configuration
      * @param bridgeMgr bridge manager
      * @param elanProvider elan provider
+     * @param tzUtil TransportzoneNotificationUtils
      */
     @Inject
     public ElanOvsdbNodeListener(final DataBroker dataBroker, ElanConfig elanConfig,
