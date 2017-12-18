@@ -59,6 +59,14 @@ public class HwvtepRemoteMcastMacListener
 
     /**
      * Instantiates a new remote mcast mac listener.
+     * @param broker DataBroker
+     * @param elanUtils ElanUtils
+     * @param logicalSwitchName LS name of the network
+     * @param l2GatewayDevice L2GatewayDevice
+     * @param expectedPhyLocatorIps List of IP addresses
+     * @param task List of tasks to be executed on callbacks
+     * @param jobCoordinator JobCoordinator
+     * @throws Exception throws Exception
      */
     public HwvtepRemoteMcastMacListener(DataBroker broker, ElanUtils elanUtils, String logicalSwitchName,
                                         L2GatewayDevice l2GatewayDevice,

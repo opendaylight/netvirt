@@ -288,6 +288,11 @@ public class ElanUtils {
      *
      * @deprecated Consider using {@link #read2(LogicalDatastoreType, InstanceIdentifier)} with proper exception
      *             handling instead
+     * @param broker dataBroker
+     * @param datastoreType Logical DataStore type
+     * @param path IID to read
+     * @param <T> T extends DataObject
+     * @return the read value T
      */
     @Deprecated
     @SuppressWarnings("checkstyle:IllegalCatch")
@@ -1038,6 +1043,8 @@ public class ElanUtils {
      *            macAddress
      * @param displayName
      *            display Name
+     * @param elanInstance
+     *            elanInstance
      * @return the flow remote Dmac
      * @throws ElanException in case of issues creating the flow objects
      */
@@ -1538,6 +1545,13 @@ public class ElanUtils {
     /**
      * Add Mac Address to ElanInterfaceForwardingEntries and ElanForwardingTables
      * Install SMAC and DMAC flows.
+     * @param interfaceName interface name
+     * @param macAddress mac addresses
+     * @param elanName elan Name
+     * @param interfaceTx write transaction
+     * @param flowTx flow write transaction
+     * @param macTimeOut timeout value
+     * @throws ElanException elan exception is thrown upon write failure
      */
     public void addMacEntryToDsAndSetupFlows(String interfaceName,
             String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx, int macTimeOut)
@@ -1562,6 +1576,11 @@ public class ElanUtils {
     /**
      * Remove Mac Address from ElanInterfaceForwardingEntries and ElanForwardingTables
      * Remove SMAC and DMAC flows.
+     * @param interfaceName interface name
+     * @param macAddress mac addresses
+     * @param elanName elan name
+     * @param interfaceTx write transaction
+     * @param flowTx flow write transaction
      */
     public void deleteMacEntryFromDsAndRemoveFlows(String interfaceName,
             String macAddress, String elanName, WriteTransaction interfaceTx, WriteTransaction flowTx) {
