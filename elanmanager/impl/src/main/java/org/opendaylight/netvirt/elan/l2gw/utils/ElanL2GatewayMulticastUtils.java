@@ -101,11 +101,9 @@ public class ElanL2GatewayMulticastUtils {
 
     /**
      * Handle mcast for elan l2 gw device add.
-     *
-     * @param elanName
-     *            the elan name
-     * @param device
-     *            the device
+     * @param elanName the elan name
+     * @param elanInstance elanInstace
+     * @param device the device
      * @return the listenable future
      */
     public ListenableFuture<Void> handleMcastForElanL2GwDeviceAdd(String elanName, ElanInstance elanInstance,
