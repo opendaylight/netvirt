@@ -47,6 +47,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxLoadInPort;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
@@ -166,6 +167,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final INeutronVpnManager nvpnManager;
     private final IElanService elanManager;
     private final JobCoordinator coordinator;
+    private final UpgradeState upgradeState;
 
     @Inject
     public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -187,7 +189,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final CentralizedSwitchScheduler centralizedSwitchScheduler,
                                    final NatserviceConfig config,
                                    final IElanService elanManager,
-                                   final JobCoordinator coordinator) {
+                                   final JobCoordinator coordinator,
+                                   final UpgradeState upgradeState) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
@@ -209,6 +212,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.elanManager = elanManager;
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         this.coordinator = coordinator;
+        this.upgradeState = upgradeState;
         if (config != null) {
             this.natMode = config.getNatMode();
         } else {
@@ -239,7 +243,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         long routerId = NatUtil.getVpnId(dataBroker, routerName);
         NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
-        if (natMode == NatMode.Conntrack) {
+        if (natMode == NatMode.Conntrack && !upgradeState.isUpgradeInProgress()) {
             if (bgpVpnUuid != null) {
                 return;
             }
@@ -1188,7 +1192,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         boolean updatedSNATEnabled = update.isEnableSnat();
         LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
             + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
-        if (natMode == NatMode.Conntrack) {
+        if (natMode == NatMode.Conntrack && !upgradeState.isUpgradeInProgress()) {
             if (originalSNATEnabled != updatedSNATEnabled) {
                 BigInteger primarySwitchId;
                 if (originalSNATEnabled) {
