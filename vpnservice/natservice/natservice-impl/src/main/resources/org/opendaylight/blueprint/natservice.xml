@@ -26,6 +26,8 @@
              availability="optional"/>
   <reference id="jobCoordinator"
              interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
+  <reference id="upgradeState"
+             interface="org.opendaylight.genius.mdsalutil.UpgradeState"/>
 
   <odl:rpc-service id="idManagerService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
