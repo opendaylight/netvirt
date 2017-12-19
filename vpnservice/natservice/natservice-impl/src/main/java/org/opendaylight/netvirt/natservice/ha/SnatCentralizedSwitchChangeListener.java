@@ -61,7 +61,7 @@ public class SnatCentralizedSwitchChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
-        LOG.debug("Deleting ", routerToNaptSwitch);
+        LOG.debug("Deleting {}", routerToNaptSwitch);
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router =   natDataUtil.getRouter(routerToNaptSwitch.getRouterName());
         snatServiceManger.notify(router, primarySwitchId, null, SnatServiceManager.Action.SNAT_ALL_SWITCH_DISBL);
@@ -80,7 +80,7 @@ public class SnatCentralizedSwitchChangeListener
 
     @Override
     protected void add(InstanceIdentifier<RouterToNaptSwitch> key, RouterToNaptSwitch routerToNaptSwitch) {
-        LOG.debug("Adding ", routerToNaptSwitch);
+        LOG.debug("Adding {}", routerToNaptSwitch);
         BigInteger primarySwitchId = routerToNaptSwitch.getPrimarySwitchId();
         Routers router = NatUtil.getRoutersFromConfigDS(dataBroker, routerToNaptSwitch.getRouterName());
         natDataUtil.addtoRouterMap(router);
