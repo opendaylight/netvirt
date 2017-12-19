@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e23a7088_990b9208",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1
+      },
+      "writtenOn": "2017-12-19T02:36:30Z",
+      "side": 1,
+      "message": "Instead of dropping a link to the JIRA (which breaks message rendering in the Gerrit UI) LFRE suggests doing the following.\n\nIn the _footer_ add the following:\n\n--[cut]--\nIssue-ID: NETVIRT-916\n--[/cut]--\n\nThis will do a few things.\n1) Put the issue in a readily identifiable location\n2) Let the Gerrit UI link it up properly\n3) Doesn\u0027t tie you to a particular tracker URL as long as you\u0027ve got a way to translate to a new platform such as we\u0027ve done for Bugzilla -\u003e JIRA.",
+      "revId": "feca4dca8c3b1051b9db6eb7e16b197f0c9d2a85",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
