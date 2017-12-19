@@ -16,6 +16,24 @@
       "revId": "91fd0cefb93687d5a46a86a2f8eb2024dc1c8f7d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7c9e985_250e9858",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-19T10:41:33Z",
+      "side": 1,
+      "message": "Hello,\nfirst thanks you for your help.\nI understand your question, but I can\u0027t get any answer from anyone about this. So I am expecting to get this from you if you are agree.\nin fact, because I am thinking that this couple of transaction are dependent each other, why do not execute them in the same thread (same tx)?\ncould you please give me the probably right reason that I try to get since a long time?\n\nThank you for your help.\nNoel",
+      "parentUuid": "2b69f30f_c497201c",
+      "revId": "91fd0cefb93687d5a46a86a2f8eb2024dc1c8f7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
