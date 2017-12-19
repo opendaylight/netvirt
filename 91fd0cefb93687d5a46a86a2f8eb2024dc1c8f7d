@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2b69f30f_c497201c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2017-12-19T10:22:02Z",
+      "side": 1,
+      "message": "is it okay to mix same tx across multiple shards (in this case inventory config and default operational shards) ?",
+      "revId": "91fd0cefb93687d5a46a86a2f8eb2024dc1c8f7d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
