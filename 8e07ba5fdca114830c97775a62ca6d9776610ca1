@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfa85bb3_ca913223",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/LogicalSwitchesCmd.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-19T05:57:30Z",
+      "side": 1,
+      "message": "This very line should copy the replication mode in the src ( in this case parent config node ) to child config builder.\nWe need to see why it is not set in the src (parent config node) . AssociateHwvtepToElanJob.createLogicalSwitch() is the place where it should have got created.",
+      "range": {
+        "startLine": 61,
+        "startChar": 8,
+        "endLine": 61,
+        "endChar": 30
+      },
+      "revId": "8e07ba5fdca114830c97775a62ca6d9776610ca1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
