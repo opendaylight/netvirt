@@ -73,6 +73,24 @@
     },
     {
       "key": {
+        "uuid": "cd0e7485_d96e621f",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2017-12-19T04:58:00Z",
+      "side": 1,
+      "message": "Just to clarify: I\u0027ve actually +1 and am FOR this going in as-is so that we can remove the optional \u003creference\u003e as that seems to me to be the lesser of two evils; I *really* don\u0027t like th optional references, as they can \"hide\" start-up errors and could \"misinform\" infrautils.ready and infrautils.diagstatus.",
+      "parentUuid": "2edafbda_e03d5a43",
+      "revId": "f82ff21294a7afed286890da6d9ca13fa54f4fb4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a696c459_aa75126e",
         "filename": "vpnservice/cache/impl/pom.xml",
         "patchSetId": 1
