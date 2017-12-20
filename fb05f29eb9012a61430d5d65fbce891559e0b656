@@ -143,6 +143,30 @@
     },
     {
       "key": {
+        "uuid": "72b9577d_4b2c1dcc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T18:29:42Z",
+      "side": 1,
+      "message": "Yeah. lets keep the DJC.",
+      "parentUuid": "b9104761_ea70c944",
+      "range": {
+        "startLine": 1300,
+        "startChar": 8,
+        "endLine": 1304,
+        "endChar": 11
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b314f3e_61e73e0b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 41
