@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ce7864b5_28dd4d32",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-20T08:51:13Z",
+      "side": 1,
+      "message": "this should match title length",
+      "range": {
+        "startLine": 6,
+        "startChar": 47,
+        "endLine": 6,
+        "endChar": 73
+      },
+      "revId": "bef97f5f4fa6f404eebbe9d01c6e89214eb6cf2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1c5c030_403febb6",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-20T08:51:13Z",
+      "side": 1,
+      "message": "compute-scalein-scaleout\nor\ncompute-scale-in-out will be better. This should map closesly to title when possible.",
+      "range": {
+        "startLine": 8,
+        "startChar": 46,
+        "endLine": 8,
+        "endChar": 53
+      },
+      "revId": "bef97f5f4fa6f404eebbe9d01c6e89214eb6cf2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c07165b_4a70b183",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 4
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2017-12-20T08:51:13Z",
+      "side": 1,
+      "message": "Not needed. Use bridge-external-ids",
+      "revId": "bef97f5f4fa6f404eebbe9d01c6e89214eb6cf2d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
