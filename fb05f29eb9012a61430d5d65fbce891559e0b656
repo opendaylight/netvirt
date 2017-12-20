@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "b2e65aa5_15f68a91",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-20T15:22:23Z",
+      "side": 1,
+      "message": "correct. in that case, I don\u0027t need this additional code.",
+      "parentUuid": "599ba846_6acd59cf",
+      "range": {
+        "startLine": 1390,
+        "startChar": 8,
+        "endLine": 1395,
+        "endChar": 9
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d9cdc4dd_57062b34",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 41
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-20T10:50:14Z",
       "side": 1,
       "message": "Please make sure you are using the right service index based on whether the the interface belongs to ipv4 or v6, when nbVpnInterfacesAvailable \u003d\u003d 1, similar to what you have done in updateBindServices().\nLet us not simply use L3VPN_SERVICE_INDEX for all cases, as it will cause confusion in understanding and debuggability.",
+      "range": {
+        "startLine": 342,
+        "startChar": 68,
+        "endLine": 342,
+        "endChar": 99
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0987d7f2_ec5e6560",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-20T15:22:23Z",
+      "side": 1,
+      "message": "if we already have an ipv6 VPN instance, then the L3_VPNV6 service index will be used. otherwise, standard l3vpn service index will be used.",
+      "parentUuid": "d9cdc4dd_57062b34",
       "range": {
         "startLine": 342,
         "startChar": 68,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b9104761_ea70c944",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-20T15:22:23Z",
+      "side": 1,
+      "message": "ok to do the changes.\nbut do we keep the job coordinator ?",
+      "parentUuid": "81d4c201_bad2e1e7",
+      "range": {
+        "startLine": 1300,
+        "startChar": 8,
+        "endLine": 1304,
+        "endChar": 11
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4b314f3e_61e73e0b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 41
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "e20b65a1_f0037512",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1826,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-20T15:22:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4b314f3e_61e73e0b",
+      "range": {
+        "startLine": 1820,
+        "startChar": 20,
+        "endLine": 1826,
+        "endChar": 23
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "406ada4b_cdbf436b",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
         "patchSetId": 41
@@ -105,6 +201,30 @@
       "writtenOn": "2017-12-20T10:50:14Z",
       "side": 1,
       "message": "is this required? I dont see priority defined anywhere",
+      "range": {
+        "startLine": 1616,
+        "startChar": 102,
+        "endLine": 1616,
+        "endChar": 110
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8943f00_6ddd7af4",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1616,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2017-12-20T15:22:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "406ada4b_cdbf436b",
       "range": {
         "startLine": 1616,
         "startChar": 102,
