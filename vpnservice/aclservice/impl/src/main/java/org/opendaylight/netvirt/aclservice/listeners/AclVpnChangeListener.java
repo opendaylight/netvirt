@@ -64,9 +64,10 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         LOG.trace("Processing vpn interface {} addition", data.getInterfaceName());
         Long vpnId = data.getVpnId();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(data.getInterfaceName());
+        AclInterface oldAclInterface = buildAclInterfaceFromCache(aclInterface);
         if (null != aclInterface && aclInterface.isPortSecurityEnabled() && !vpnId.equals(aclInterface.getVpnId())) {
             aclInterface.setVpnId(vpnId);
-            aclServiceManager.notify(aclInterface, null, Action.BIND);
+            aclServiceManager.notify(aclInterface, oldAclInterface, Action.REBIND);
         }
     }
 
@@ -83,10 +84,29 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         }
         Long vpnId = data.getVpnId();
         AclInterface aclInterface = AclInterfaceCacheUtil.getAclInterfaceFromCache(interfaceName);
+        AclInterface oldAclInterface = buildAclInterfaceFromCache(aclInterface);
         if (null != aclInterface && aclInterface.isPortSecurityEnabled() && vpnId.equals(aclInterface.getVpnId())) {
             aclInterface.setVpnId(null);
-            aclServiceManager.notify(aclInterface, null, Action.BIND);
+            aclServiceManager.notify(aclInterface, oldAclInterface, Action.REBIND);
         }
+    }
+
+    private AclInterface buildAclInterfaceFromCache(AclInterface cachedAclInterface) {
+        AclInterface aclInterface = new AclInterface();
+        if (cachedAclInterface == null) {
+            aclInterface.setPortSecurityEnabled(false);
+        } else {
+            aclInterface.setInterfaceId(cachedAclInterface.getInterfaceId());
+            aclInterface.setDpId(cachedAclInterface.getDpId());
+            aclInterface.setLPortTag(cachedAclInterface.getLPortTag());
+            aclInterface.setElanId(cachedAclInterface.getElanId());
+            aclInterface.setVpnId(cachedAclInterface.getVpnId());
+
+            aclInterface.setPortSecurityEnabled(cachedAclInterface.isPortSecurityEnabled());
+            aclInterface.setAllowedAddressPairs(cachedAclInterface.getAllowedAddressPairs());
+            aclInterface.setSecurityGroups(cachedAclInterface.getSecurityGroups());
+        }
+        return aclInterface;
     }
 }
 
