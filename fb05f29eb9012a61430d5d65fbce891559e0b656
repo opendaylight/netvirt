@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "599ba846_6acd59cf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1395,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T10:50:14Z",
+      "side": 1,
+      "message": "Please check this again. As far as I know, the getVPnRd() will return vpnName as the rd for router vpns. \nIf it does not, then this code is valid.",
+      "range": {
+        "startLine": 1390,
+        "startChar": 8,
+        "endLine": 1395,
+        "endChar": 9
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9cdc4dd_57062b34",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 342,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T10:50:14Z",
+      "side": 1,
+      "message": "Please make sure you are using the right service index based on whether the the interface belongs to ipv4 or v6, when nbVpnInterfacesAvailable \u003d\u003d 1, similar to what you have done in updateBindServices().\nLet us not simply use L3VPN_SERVICE_INDEX for all cases, as it will cause confusion in understanding and debuggability.",
+      "range": {
+        "startLine": 342,
+        "startChar": 68,
+        "endLine": 342,
+        "endChar": 99
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "81d4c201_bad2e1e7",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1304,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T10:50:14Z",
+      "side": 1,
+      "message": "Need to be within the for loop, and you will have to call unbind service with the right service index.",
+      "range": {
+        "startLine": 1300,
+        "startChar": 8,
+        "endLine": 1304,
+        "endChar": 11
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b314f3e_61e73e0b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1826,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T10:50:14Z",
+      "side": 1,
+      "message": "you need to also unbind service after calling removeVpnInterfaceCall() in line 1738",
+      "range": {
+        "startLine": 1820,
+        "startChar": 20,
+        "endLine": 1826,
+        "endChar": 23
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "406ada4b_cdbf436b",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1616,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T10:50:14Z",
+      "side": 1,
+      "message": "is this required? I dont see priority defined anywhere",
+      "range": {
+        "startLine": 1616,
+        "startChar": 102,
+        "endLine": 1616,
+        "endChar": 110
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ead5127_05091694",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 41
+      },
+      "lineNbr": 1639,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T10:50:14Z",
+      "side": 1,
+      "message": "should you not pass the variable \"service\" from bindService() to use here?",
+      "range": {
+        "startLine": 1639,
+        "startChar": 38,
+        "endLine": 1639,
+        "endChar": 68
+      },
+      "revId": "fb05f29eb9012a61430d5d65fbce891559e0b656",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
