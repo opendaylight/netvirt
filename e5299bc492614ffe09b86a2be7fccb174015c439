@@ -206,6 +206,52 @@
       "revId": "e5299bc492614ffe09b86a2be7fccb174015c439",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7184a75_3caacf7f",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 91
+      },
+      "lineNbr": 1504,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T09:56:47Z",
+      "side": 1,
+      "message": "Setting state here is not required here. addVpnInterfaceToVpn() calls processVpnInterfaceAdjacencies(), that will update the state of the vpn-interface",
+      "range": {
+        "startLine": 1497,
+        "startChar": 24,
+        "endLine": 1504,
+        "endChar": 25
+      },
+      "revId": "e5299bc492614ffe09b86a2be7fccb174015c439",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5a972aa_9baf8740",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 91
+      },
+      "lineNbr": 1512,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2017-12-20T09:56:47Z",
+      "side": 1,
+      "message": "I think the entire block of lines 1482-1516 is not required.\nBecause when you add it to the vpnInterfaceUpdateQueue, VpnInterfaceUpdateTimerTask.run() handles removing the vpn interface from the old vpn instance and adding it to the new vpn instance.",
+      "range": {
+        "startLine": 1512,
+        "startChar": 23,
+        "endLine": 1512,
+        "endChar": 25
+      },
+      "revId": "e5299bc492614ffe09b86a2be7fccb174015c439",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
