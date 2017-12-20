@@ -21,6 +21,8 @@ public interface AclServiceListener {
 
     boolean bindAcl(AclInterface port);
 
+    boolean rebindAcl(AclInterface portBefore, AclInterface portAfter);
+
     boolean unbindAcl(AclInterface port);
 
     boolean applyAce(AclInterface port, String aclName, Ace ace);
