@@ -53,7 +53,6 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
-import org.opendaylight.genius.utils.cache.DataStoreCache;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -719,12 +718,6 @@ public final class VpnUtil {
         return read(broker, LogicalDatastoreType.OPERATIONAL, id).orNull();
     }
 
-    static VpnInstanceOpDataEntry getVpnInstanceOpDataFromCache(DataBroker broker, String rd) {
-        InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
-        return (VpnInstanceOpDataEntry) DataStoreCache.get(VpnConstants.VPN_OP_INSTANCE_CACHE_NAME, id, rd, broker,
-            false);
-    }
-
     static VpnInterface getConfiguredVpnInterface(DataBroker broker, String interfaceName) {
         InstanceIdentifier<VpnInterface> interfaceId = getVpnInterfaceIdentifier(interfaceName);
         Optional<VpnInterface> configuredVpnInterface = read(broker, LogicalDatastoreType.CONFIGURATION, interfaceId);
@@ -1377,30 +1370,6 @@ public final class VpnUtil {
             }
         }
         return gatewayMac;
-    }
-
-    public static boolean isVpnIntfPresentInVpnToDpnList(DataBroker broker,
-                                                      VpnInterface vpnInterface, String vpnName) {
-        BigInteger dpnId = vpnInterface.getDpnId();
-        String rd = VpnUtil.getVpnRd(broker, vpnName);
-        LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT rd {} for VpnInterface {}  VpnInstance {} ", rd ,
-                 vpnInterface.getName(), vpnName);
-        VpnInstanceOpDataEntry vpnInstanceOpData = VpnUtil.getVpnInstanceOpDataFromCache(broker, rd);
-        if (vpnInstanceOpData != null) {
-            LOG.trace("isVpnIntfPresentInVpnToDpnList: GOT VpnInstanceOp {} for rd {} ", vpnInstanceOpData, rd);
-            List<VpnToDpnList> dpnToVpns = vpnInstanceOpData.getVpnToDpnList();
-            if (dpnToVpns != null) {
-                for (VpnToDpnList dpn : dpnToVpns) {
-                    if (dpn.getDpnId().equals(dpnId)) {
-                        return dpn.getVpnInterfaces().stream().anyMatch(
-                            vpnInterfaces -> vpnInterface.getName().equals(vpnInterfaces.getInterfaceName()));
-                    }
-                    LOG.info("isVpnIntfPresentInVpnToDpnList: VpnInterface {} not present in DpnId {} vpn {}",
-                            vpnInterface.getName(), dpn.getDpnId(), vpnName);
-                }
-            }
-        }
-        return false;
     }
 
     public static void setupGwMacIfExternalVpn(DataBroker dataBroker, IMdsalApiManager mdsalManager, BigInteger dpnId,
