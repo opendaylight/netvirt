@@ -30,7 +30,6 @@ public interface VpnConstants {
     long PER_VPN_INSTANCE_OPDATA_MAX_WAIT_TIME_IN_MILLISECONDS = 180000;
     int ELAN_GID_MIN = 200000;
     int INVALID_LABEL = 0;
-    String VPN_OP_INSTANCE_CACHE_NAME = "VpnOpInstanceCache";
     String ARP_MONITORING_ENTITY = "arpmonitoring";
 
     // An IdPool for Pseudo LPort tags, that is, lportTags that are no related to an interface.
