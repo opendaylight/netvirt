@@ -157,7 +157,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
         flowDst = getFlowWithoutCookie(flowDst);
 
         Flow expected = ExpectedObjects.checkDmacOfSameDpn(flowId, interfaceInfo, actualElanInstances);
-        AssertDataObjects.assertEqualBeans(expected, flowDst);
+        AssertDataObjects.assertEqualBeans(getSortedActions(expected), getSortedActions(flowDst));
     }
 
     @Test public void checkDmacOfOtherDPN() throws Exception {
