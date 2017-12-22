@@ -62,6 +62,9 @@ public class AclServiceManagerImpl implements AclServiceManager {
                 case BIND:
                     result = aclServiceListener.bindAcl(port);
                     break;
+                case REBIND:
+                    result = aclServiceListener.rebindAcl(oldPort, port);
+                    break;
                 case UNBIND:
                     result = aclServiceListener.unbindAcl(port);
                     break;

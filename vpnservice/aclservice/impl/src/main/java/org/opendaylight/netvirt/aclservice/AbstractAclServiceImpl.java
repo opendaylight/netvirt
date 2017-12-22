@@ -106,6 +106,24 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     @Override
+    public boolean rebindAcl(AclInterface portBefore, AclInterface portAfter) {
+        if (portAfter == null || portAfter.getSecurityGroups() == null || portBefore == null) {
+            LOG.error("Port and port security groups cannot be null for binding ACL service, portBefore={} ,"
+                    + "portAfter={}", portBefore, portAfter);
+            return false;
+        }
+        if (portAfter.getDpId() != null) {
+            updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW);
+            updateAclInterfaceInCache(portAfter);
+            bindService(portAfter);
+            updateRemoteAclFilterTable(portAfter, NwConstants.ADD_FLOW);
+            return true;
+        }
+        return false;
+    }
+
+
+    @Override
     public boolean unbindAcl(AclInterface port) {
         if (port == null) {
             LOG.error("Port cannot be null for unbinding ACL service");

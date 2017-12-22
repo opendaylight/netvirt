@@ -17,6 +17,7 @@ public interface AclServiceManager {
         UPDATE,
         REMOVE,
         BIND,
+        REBIND,
         UNBIND
     }
 

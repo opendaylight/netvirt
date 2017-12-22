@@ -8,6 +8,9 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import com.google.common.base.Optional;
+
+import java.util.concurrent.atomic.AtomicReference;
+
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -66,9 +69,10 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         AddInterfaceEventData data = notification.getAddInterfaceEventData();
         LOG.trace("Processing vpn interface {} addition", data.getInterfaceName());
         Long vpnId = data.getVpnId();
-
-        AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
+        AtomicReference<AclInterface> oldAclInterface = new AtomicReference<>();
+        AclInterface newAclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
+                oldAclInterface.set(prevAclInterface);
                 if (prevAclInterface.isPortSecurityEnabled() && !vpnId.equals(prevAclInterface.getVpnId())) {
                     builder.vpnId(vpnId);
                     return true;
@@ -77,8 +81,8 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
                 return false;
             });
 
-        if (aclInterface != null) {
-            aclServiceManager.notify(aclInterface, null, Action.BIND);
+        if (newAclInterface != null) {
+            aclServiceManager.notify(newAclInterface, oldAclInterface.get(), Action.REBIND);
         }
     }
 
@@ -94,9 +98,10 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
             return;
         }
         Long vpnId = data.getVpnId();
-
-        AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
+        AtomicReference<AclInterface> oldAclInterface = new AtomicReference<>();
+        AclInterface newAclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
+                oldAclInterface.set(prevAclInterface);
                 if (prevAclInterface.isPortSecurityEnabled() && vpnId.equals(prevAclInterface.getVpnId())) {
                     builder.vpnId(null);
                     return true;
@@ -105,8 +110,8 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
                 return false;
             });
 
-        if (aclInterface != null) {
-            aclServiceManager.notify(aclInterface, null, Action.BIND);
+        if (newAclInterface != null) {
+            aclServiceManager.notify(newAclInterface, oldAclInterface.get(), Action.REBIND);
         }
     }
 }
