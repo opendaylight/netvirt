@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7116288a_cc755169",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-22T10:56:34Z",
+      "side": 1,
+      "message": "Is this a DPNid or hostname?",
+      "range": {
+        "startLine": 37,
+        "startChar": 58,
+        "endLine": 37,
+        "endChar": 76
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8b2c5767_bc2b8b83",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-22T10:56:34Z",
+      "side": 1,
+      "message": "Ideally this should be done by the tenant/admin isn\u0027t it? and Netvirt is not going to do it right? Can you please clarify it and elaborate accordingly.",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 98
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bc1e67b_f183b9dc",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-22T10:56:34Z",
+      "side": 1,
+      "message": "So does it mean that we can invoke \"scalein-computes-start \u003clist\u003e\" \"multiple times\" before calling scalein-computes-end?\n\nWill it be possible for us to give some appropriate error message to user if user invokes \"scalein-computes-start\" without setting the node to maintenance mode?",
+      "range": {
+        "startLine": 43,
+        "startChar": 14,
+        "endLine": 43,
+        "endChar": 51
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4fb08fd_d7486172",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-22T10:56:34Z",
+      "side": 1,
+      "message": "computes",
+      "range": {
+        "startLine": 53,
+        "startChar": 8,
+        "endLine": 53,
+        "endChar": 15
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "060bb67a_86ce2385",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-22T10:56:34Z",
+      "side": 1,
+      "message": "Here its mentioned as \"not scaled\", where as in the YANG model (line 100) its mentioned as \"To recover the dpns which are marked for scale in\".\n\nCan you please elaborate what this RPC does?\nLike say I have a setup with 5 computes - A, B, C, D, E\n\nI start with \"scalein-computes-start A, B\" and there is some error in VM migration/deletion. So user invokes \"scalein-compute-recover _____\". Please fill in the _____ and also what Netvirt does in such a situation. Thanks.",
+      "range": {
+        "startLine": 53,
+        "startChar": 33,
+        "endLine": 53,
+        "endChar": 43
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
