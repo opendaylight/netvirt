@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c1a32c33_6180eb64",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5dfb6f70_5ca81abe",
+      "range": {
+        "startLine": 11,
+        "startChar": 35,
+        "endLine": 11,
+        "endChar": 40
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "29d5c63f_53c7e3fb",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 5
@@ -71,6 +95,54 @@
     },
     {
       "key": {
+        "uuid": "07d550b5_93b6dce6",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "29d5c63f_53c7e3fb",
+      "range": {
+        "startLine": 16,
+        "startChar": 4,
+        "endLine": 16,
+        "endChar": 27
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "839b6e3a_c955eacf",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "070f4808_b7c0b39d",
+      "range": {
+        "startLine": 16,
+        "startChar": 32,
+        "endLine": 16,
+        "endChar": 33
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d2723e82_5020bb7b",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 5
@@ -82,6 +154,30 @@
       "writtenOn": "2017-12-21T12:15:12Z",
       "side": 1,
       "message": "Just a thought: Is \"scale in\" a commonly used term to indicate a resource being removed from the system? \n\nhttp://packetpushers.net/scale-up-vs-scale-out/",
+      "range": {
+        "startLine": 24,
+        "startChar": 2,
+        "endLine": 24,
+        "endChar": 10
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa3f980c_4c196150",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "scale up is increasing the cpu/memory of existing computes.\nscale out is adding new compute\nscale in is the opposite of scale out ( deleting existing compute)",
+      "parentUuid": "d2723e82_5020bb7b",
       "range": {
         "startLine": 24,
         "startChar": 2,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "723a5e60_285b4766",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6138592f_8ab0c421",
+      "range": {
+        "startLine": 33,
+        "startChar": 79,
+        "endLine": 33,
+        "endChar": 89
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "067068b0_e096bc95",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 5
@@ -128,6 +248,30 @@
       "writtenOn": "2017-12-21T12:15:12Z",
       "side": 1,
       "message": "The yang model has compute\u0027s\u0027. Please fix it to avoid any confusion.",
+      "range": {
+        "startLine": 37,
+        "startChar": 25,
+        "endLine": 37,
+        "endChar": 32
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eebc62c8_0e467942",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "067068b0_e096bc95",
       "range": {
         "startLine": 37,
         "startChar": 25,
@@ -186,6 +330,54 @@
     },
     {
       "key": {
+        "uuid": "1c83eade_f2ba31e5",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "right this is not needed we can handle in the netvirt itself.",
+      "parentUuid": "dbd7f4d0_dbc4e25c",
+      "range": {
+        "startLine": 41,
+        "startChar": 2,
+        "endLine": 41,
+        "endChar": 41
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bdfa59d7_a6a54743",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "right",
+      "parentUuid": "9e5abd40_d8f9e653",
+      "range": {
+        "startLine": 41,
+        "startChar": 43,
+        "endLine": 41,
+        "endChar": 68
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9117a1ea_979625cd",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 5
@@ -197,6 +389,30 @@
       "writtenOn": "2017-12-21T12:15:12Z",
       "side": 1,
       "message": "same: Can we automate this in netvirt?",
+      "range": {
+        "startLine": 43,
+        "startChar": 2,
+        "endLine": 43,
+        "endChar": 63
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "479f0ca1_e16a6918",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "It should be possible",
+      "parentUuid": "9117a1ea_979625cd",
       "range": {
         "startLine": 43,
         "startChar": 2,
@@ -232,6 +448,30 @@
     },
     {
       "key": {
+        "uuid": "ab7ee52e_877515a4",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "71e96d86_dcb99f5f",
+      "range": {
+        "startLine": 45,
+        "startChar": 23,
+        "endLine": 45,
+        "endChar": 30
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c604a835_19686625",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 5
@@ -243,6 +483,30 @@
       "writtenOn": "2017-12-21T12:15:12Z",
       "side": 1,
       "message": "\"list of not scaled in computes\" - It is not clear what we have to pass here. Do we have to pass the list of all dpns that are not planned to be removed?",
+      "range": {
+        "startLine": 49,
+        "startChar": 25,
+        "endLine": 49,
+        "endChar": 55
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14394663_3bffb2c5",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c604a835_19686625",
       "range": {
         "startLine": 49,
         "startChar": 25,
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "67275e8c_69347670",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "06986128_2f0f8020",
+      "range": {
+        "startLine": 52,
+        "startChar": 79,
+        "endLine": 52,
+        "endChar": 86
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ad3f6a17_02a48847",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 5
@@ -289,6 +577,30 @@
       "writtenOn": "2017-12-21T12:15:12Z",
       "side": 1,
       "message": "do you mean \"new\"?\n\nAlso, it is not clear what this \"programming few services\" means. Can you please elaborate.",
+      "range": {
+        "startLine": 59,
+        "startChar": 48,
+        "endLine": 59,
+        "endChar": 51
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9958d94_6eaf5993",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ad3f6a17_02a48847",
       "range": {
         "startLine": 59,
         "startChar": 48,
@@ -324,6 +636,30 @@
     },
     {
       "key": {
+        "uuid": "84c719f2_d975baa2",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 174,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bbe0396c_4c4d8c2c",
+      "range": {
+        "startLine": 174,
+        "startChar": 0,
+        "endLine": 174,
+        "endChar": 7
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c93b985f_4117632f",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 5
@@ -335,6 +671,30 @@
       "writtenOn": "2017-12-21T12:15:12Z",
       "side": 1,
       "message": "Can you please add some additional tests which validate that a compute node (hosting an NAPT Switch) that we choose to remove is successfully migrated to a different compute node as part of this operation.",
+      "range": {
+        "startLine": 177,
+        "startChar": 2,
+        "endLine": 177,
+        "endChar": 83
+      },
+      "revId": "4239a491896c729108c67949a7607977ee32040c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c270256_ffd78f01",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 5
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-22T06:13:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c93b985f_4117632f",
       "range": {
         "startLine": 177,
         "startChar": 2,
