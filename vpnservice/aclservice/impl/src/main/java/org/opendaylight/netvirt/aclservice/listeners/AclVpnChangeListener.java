@@ -67,7 +67,8 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
         LOG.trace("Processing vpn interface {} addition", data.getInterfaceName());
         Long vpnId = data.getVpnId();
 
-        AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
+        AclInterface oldaclInterface = aclInterfaceCache.get(data.getInterfaceName());
+        AclInterface newaclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
                 if (prevAclInterface.isPortSecurityEnabled() && !vpnId.equals(prevAclInterface.getVpnId())) {
                     builder.vpnId(vpnId);
@@ -77,8 +78,8 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
                 return false;
             });
 
-        if (aclInterface != null) {
-            aclServiceManager.notify(aclInterface, null, Action.BIND);
+        if (newaclInterface != null) {
+            aclServiceManager.notify(newaclInterface, oldaclInterface, Action.REBIND);
         }
     }
 
@@ -94,7 +95,7 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
             return;
         }
         Long vpnId = data.getVpnId();
-
+        AclInterface oldaclInterface = aclInterfaceCache.get(data.getInterfaceName());
         AclInterface aclInterface = aclInterfaceCache.updateIfPresent(data.getInterfaceName(),
             (prevAclInterface, builder) -> {
                 if (prevAclInterface.isPortSecurityEnabled() && vpnId.equals(prevAclInterface.getVpnId())) {
@@ -106,7 +107,7 @@ public class AclVpnChangeListener implements OdlL3vpnListener {
             });
 
         if (aclInterface != null) {
-            aclServiceManager.notify(aclInterface, null, Action.BIND);
+            aclServiceManager.notify(aclInterface, oldaclInterface, Action.REBIND);
         }
     }
 }
