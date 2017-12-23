@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "faa8f61f_e96173a9",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 120,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T16:53:22Z",
+      "side": 1,
+      "message": "What is the API contract for the return value? It seems it should only return true if rebind was carried out, in which case it should  return false here and true after line 118.",
+      "revId": "4886d90485b4c664951ddd977a1697abb104bee9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ee6901d_c5f29c22",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T16:53:22Z",
+      "side": 1,
+      "message": "This is not atomic with the update. You should capture  the oldAclInterface inside the lambda below using an AtomicReference.",
+      "range": {
+        "startLine": 70,
+        "startChar": 21,
+        "endLine": 70,
+        "endChar": 36
+      },
+      "revId": "4886d90485b4c664951ddd977a1697abb104bee9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "72c60ecd_f3861855",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T16:53:22Z",
+      "side": 1,
+      "message": "newAclInterface",
+      "range": {
+        "startLine": 71,
+        "startChar": 21,
+        "endLine": 71,
+        "endChar": 36
+      },
+      "revId": "4886d90485b4c664951ddd977a1697abb104bee9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03a02ede_73eb7aab",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T16:53:22Z",
+      "side": 1,
+      "message": "same as above",
+      "revId": "4886d90485b4c664951ddd977a1697abb104bee9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
