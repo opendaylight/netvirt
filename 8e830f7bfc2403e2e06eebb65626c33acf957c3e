@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "283f0faf_81f92fdb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T15:57:14Z",
+      "side": 1,
+      "message": "Why not do an async read here instead of blocking? So on cache miss, read async and invoke addMacEntryToDsAndSetupFlows via callback if ElanInterface present,",
+      "range": {
+        "startLine": 112,
+        "startChar": 29,
+        "endLine": 112,
+        "endChar": 64
+      },
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "43c1df8c_e0171d08",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T15:57:14Z",
+      "side": 1,
+      "message": "Why is this casted to ReadOnlyTransaction? The actual type is ReadWriteTransaction which is not a ReadOnlyTransaction. Use ReadTransaction if you don\u0027t care about RO vs RW semantics.",
+      "range": {
+        "startLine": 112,
+        "startChar": 65,
+        "endLine": 112,
+        "endChar": 86
+      },
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "939b7af6_2ded5d02",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T15:57:14Z",
+      "side": 1,
+      "message": "This method really isn\u0027t needed. Let\u0027s not perpetuate more static methods and blocking reads.",
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7e878b4_0de3836f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T15:57:14Z",
+      "side": 1,
+      "message": "These really should be @param",
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
