@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b0c42e30_814cec8b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgammer.java",
+        "patchSetId": 126
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-23T15:29:08Z",
+      "side": 1,
+      "message": "Why is this not injected via constructor and who sets this?",
+      "revId": "f644006c152442c29b003eee2572feacc8e2285a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
