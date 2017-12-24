@@ -30,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
@@ -68,18 +69,21 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final ElanClusterUtils elanClusterUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
-            JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+            JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+            ElanInstanceCache elanInstanceCache) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -363,7 +367,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         @Override
                         public void onSuccess(@Nonnull Optional<Node> resultNode) {
                             HwvtepLocalUcastMacListener localUcastMacListener =
-                                    new HwvtepLocalUcastMacListener(broker, elanL2GatewayUtils);
+                                    new HwvtepLocalUcastMacListener(broker, elanL2GatewayUtils, elanInstanceCache);
                             settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {

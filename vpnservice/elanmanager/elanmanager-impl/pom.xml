@@ -178,6 +178,12 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>caches-test</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
       <groupId>org.opendaylight.openflowplugin</groupId>
       <artifactId>openflowplugin-extension-nicira</artifactId>
       <version>${openflowplugin.version}</version>
