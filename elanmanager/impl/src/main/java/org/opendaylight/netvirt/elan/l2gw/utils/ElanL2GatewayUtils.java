@@ -34,7 +34,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -49,6 +48,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -118,6 +118,7 @@ public class ElanL2GatewayUtils {
     private final OdlInterfaceRpcService interfaceManagerRpcService;
     private final JobCoordinator jobCoordinator;
     private final ElanUtils elanUtils;
+    private final ElanInstanceCache elanInstanceCache;
 
     private final ConcurrentMap<Pair<NodeId, String>, ScheduledFuture> logicalSwitchDeletedTasks
             = new ConcurrentHashMap<>();
@@ -129,7 +130,7 @@ public class ElanL2GatewayUtils {
     public ElanL2GatewayUtils(DataBroker broker, ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
             ElanClusterUtils elanClusterUtils, OdlInterfaceRpcService interfaceManagerRpcService,
             JobCoordinator jobCoordinator, ElanUtils elanUtils,
-            Scheduler scheduler, ElanConfig elanConfig) {
+            Scheduler scheduler, ElanConfig elanConfig, ElanInstanceCache elanInstanceCache) {
         this.broker = broker;
         this.elanDmacUtils = elanDmacUtils;
         this.elanItmUtils = elanItmUtils;
@@ -139,6 +140,7 @@ public class ElanL2GatewayUtils {
         this.elanUtils = elanUtils;
         this.scheduler = scheduler;
         this.elanConfig = elanConfig;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @PreDestroy
@@ -267,7 +269,7 @@ public class ElanL2GatewayUtils {
             if (ls != null) {
                 // Logical switch name is Elan name
                 String elanName = getElanFromLogicalSwitch(ls.getHwvtepNodeName().getValue());
-                return ElanUtils.getElanInstanceByName(broker, elanName);
+                return elanInstanceCache.get(elanName).orNull();
             } else {
                 String macAddress = localUcastMac.getMacEntryKey().getValue();
                 LOG.error("Could not find logical_switch for {} being added/deleted", macAddress);
@@ -485,7 +487,7 @@ public class ElanL2GatewayUtils {
             LOG.trace("No L2 gateway devices in Elan [{}] cache.", elanName);
             return;
         }
-        final ElanInstance elan = ElanUtils.getElanInstanceByName(broker, elanName);
+        final ElanInstance elan = elanInstanceCache.get(elanName).orNull();
         if (elan == null) {
             LOG.error("Could not find Elan by name: {}", elanName);
             return;
@@ -968,7 +970,7 @@ public class ElanL2GatewayUtils {
         LOG.info("Deleting L2GatewayDevice [{}] UcastLocalMacs from elan [{}]", l2GatewayDevice.getHwvtepNodeId(),
                 elanName);
 
-        ElanInstance elan = ElanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elan = elanInstanceCache.get(elanName).orNull();
         if (elan == null) {
             LOG.error("Could not find Elan by name: {}", elanName);
             return;

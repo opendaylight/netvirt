@@ -30,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
@@ -70,6 +71,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
     private final L2GatewayCache l2GatewayCache;
+    private final ElanInstanceCache elanInstanceCache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
     private final HAOpClusteredListener haOpClusteredListener;
 
@@ -77,7 +79,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
             JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-            L2GatewayCache l2GatewayCache, HAOpClusteredListener haOpClusteredListener) {
+            L2GatewayCache l2GatewayCache, HAOpClusteredListener haOpClusteredListener,
+            ElanInstanceCache elanInstanceCache) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -86,6 +89,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         this.jobCoordinator = jobCoordinator;
         this.l2GatewayCache = l2GatewayCache;
         this.haOpClusteredListener = haOpClusteredListener;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -370,7 +374,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         public void onSuccess(@Nonnull Optional<Node> resultNode) {
                             LocalUcastMacListener localUcastMacListener =
                                     new LocalUcastMacListener(broker, haOpClusteredListener,
-                                            elanL2GatewayUtils, jobCoordinator);
+                                            elanL2GatewayUtils, jobCoordinator, elanInstanceCache);
                             settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {

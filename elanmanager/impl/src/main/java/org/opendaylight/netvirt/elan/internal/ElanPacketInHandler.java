@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -55,16 +56,19 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final EvpnUtils evpnUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils,
-            EvpnUtils evpnUtils, ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator) {
+            EvpnUtils evpnUtils, ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator,
+            ElanInstanceCache elanInstanceCache) {
         broker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.evpnUtils = evpnUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -126,13 +130,13 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 if (srcIpAddress.isPresent()) {
                     String prefix = srcIpAddress.get().getIpv4Address().getValue();
                     InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
-                    ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+                    ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
                     evpnUtils.advertisePrefix(elanInstance, macAddress, prefix, interfaceName, interfaceInfo.getDpId());
                 }
                 enqueueJobForMacSpecificTasks(macAddress, elanTag, interfaceName, elanName, physAddress, oldMacEntry,
                         newMacEntry, isVlanOrFlatProviderIface);
 
-                ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+                ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
                 InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
                 if (interfaceInfo == null) {
                     LOG.trace("Interface:{} is not present under Config DS", interfaceName);
@@ -223,7 +227,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
      * Static MAC having been added on a wrong ELAN.
      */
     private void tryAndRemoveInvalidMacEntry(String elanName, MacEntry macEntry) {
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
         if (elanInfo == null) {
             LOG.warn("MAC {} is been added (either statically or dynamically) for an invalid Elan {}. "
                     + "Manual cleanup may be necessary", macEntry.getMacAddress(), elanName);

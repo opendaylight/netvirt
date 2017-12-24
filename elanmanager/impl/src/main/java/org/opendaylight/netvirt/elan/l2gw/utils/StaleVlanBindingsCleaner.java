@@ -14,7 +14,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -24,13 +23,13 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
@@ -77,6 +76,7 @@ public class StaleVlanBindingsCleaner {
     private final Scheduler scheduler;
     private final ElanConfig elanConfig;
     private final L2GatewayCache l2GatewayCache;
+    private final ElanInstanceCache elanInstanceCache;
     private final Map<NodeId, ScheduledFuture> cleanupTasks = new ConcurrentHashMap<>();
 
     @Inject
@@ -85,13 +85,15 @@ public class StaleVlanBindingsCleaner {
                                     final ElanL2GatewayUtils elanL2GatewayUtils,
                                     final Scheduler scheduler,
                                     final ElanConfig elanConfig,
-                                    final L2GatewayCache l2GatewayCache) {
+                                    final L2GatewayCache l2GatewayCache,
+                                    final ElanInstanceCache elanInstanceCache) {
         this.broker = broker;
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.scheduler = scheduler;
         this.elanConfig = elanConfig;
         this.l2GatewayCache = l2GatewayCache;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     private long getCleanupDelay() {
@@ -134,7 +136,7 @@ public class StaleVlanBindingsCleaner {
 
         List<String> validNetworks = connectionsOfDevice.stream()
                 .map((connection) -> connection.getNetworkId().getValue())
-                .filter(elan -> elanUtils.getElanInstanceByName(broker, elan) != null)
+                .filter(elan -> elanInstanceCache.get(elan).isPresent())
                 .collect(Collectors.toList());
 
         List<String> logicalSwitchesOnDevice = getLogicalSwitchesOnDevice(configNode);
