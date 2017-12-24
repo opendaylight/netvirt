@@ -59,6 +59,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -144,6 +145,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
 
     private final Map<String, ConcurrentLinkedQueue<ElanInterface>>
         unProcessedElanInterfaces = new ConcurrentHashMap<>();
@@ -155,7 +157,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final INeutronVpnManager neutronVpnManager, final ElanItmUtils elanItmUtils,
                                 final ElanEtreeUtils elanEtreeUtils, final ElanL2GatewayUtils elanL2GatewayUtils,
                                 final ElanUtils elanUtils, final JobCoordinator jobCoordinator,
-                                final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+                                final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
+                                final ElanInstanceCache elanInstanceCache) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
@@ -169,6 +172,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -185,7 +189,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     @Override
     protected void remove(InstanceIdentifier<ElanInterface> identifier, ElanInterface del) {
         String interfaceName = del.getName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, del.getElanInstanceName());
+        ElanInstance elanInfo = elanInstanceCache.get(del.getElanInstanceName()).orNull();
         /*
          * Handling in case the elan instance is deleted.If the Elan instance is
          * deleted, there is no need to explicitly delete the elan interfaces
@@ -525,7 +529,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                         tx);
             } else {
                 elanForwardingEntriesHandler.addElanInterfaceForwardingTableList(
-                        ElanUtils.getElanInstanceByName(broker, elanName), interfaceName, staticMacEntry, tx);
+                        elanName, interfaceName, staticMacEntry, tx);
             }
             ElanUtils.waitForTransactionToComplete(tx);
         }
@@ -540,7 +544,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             LOG.info("Interface {} is removed from Interface Oper DS due to port down ", interfaceName);
             return;
         }
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 
         if (elanInstance == null) {
             elanInstance = new ElanInstanceBuilder().setElanInstanceName(elanInstanceName)
@@ -549,10 +553,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             List<String> elanInterfaces = new ArrayList<>();
             elanInterfaces.add(interfaceName);
-            ElanUtils.updateOperationalDataStore(broker, idManager,
-                    elanInstance, elanInterfaces, tx);
+            elanInstance = ElanUtils.updateOperationalDataStore(broker, idManager, elanInstance, elanInterfaces, tx);
             ElanUtils.waitForTransactionToComplete(tx);
-            elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
         }
 
         Long elanTag = elanInstance.getElanTag();
@@ -736,7 +738,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             existingMacEntry.get(), tx);
                 } else {
                     elanForwardingEntriesHandler
-                            .addElanInterfaceForwardingTableList(elanInstance, interfaceName, staticMacEntry, tx);
+                            .addElanInterfaceForwardingTableList(elanInstanceName, interfaceName, staticMacEntry, tx);
                 }
 
                 if (isInterfaceOperational) {
@@ -792,7 +794,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 .setKey(new MacEntryKey(physAddress)).build();
         WriteTransaction tx = broker.newWriteOnlyTransaction();
         elanForwardingEntriesHandler.deleteElanInterfaceForwardingEntries(
-                ElanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo, macEntry, tx);
+                elanInstanceCache.get(elanInstanceName).orNull(), interfaceInfo, macEntry, tx);
         ElanUtils.waitForTransactionToComplete(tx);
     }
 
@@ -1514,7 +1516,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         for (ElanDpnInterfacesList elanDpns : elanDpnIf) {
             int cnt = 0;
             String elanName = elanDpns.getElanInstanceName();
-            ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+            ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
             if (elanInfo == null) {
                 LOG.warn("ELAN Info is null for elanName {} that does exist in elanDpnInterfaceList, "
                         + "skipping this ELAN for tunnel handling", elanName);
@@ -1604,10 +1606,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         List<ElanDpnInterfacesList> elanDpnIf = dpnInterfaceLists.getElanDpnInterfacesList();
         for (ElanDpnInterfacesList elanDpns : elanDpnIf) {
             String elanName = elanDpns.getElanInstanceName();
-            ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+            ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
 
             DpnInterfaces dpnInterfaces = elanUtils.getElanInterfaceInfoByElanDpn(elanName, dpId);
-            if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null
+            if (elanInfo == null || dpnInterfaces == null || dpnInterfaces.getInterfaces() == null
                     || dpnInterfaces.getInterfaces().isEmpty()) {
                 continue;
             }

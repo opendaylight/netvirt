@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elanmanager.tests;
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.CONFIGURATION;
 
 import com.google.common.base.Optional;
-
 import javax.inject.Inject;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -25,6 +24,7 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails;
+import org.opendaylight.infrautils.caches.testutils.CacheModule;
 import org.opendaylight.infrautils.inject.guice.testutils.GuiceRule;
 import org.opendaylight.infrautils.testutils.LogRule;
 import org.opendaylight.mdsal.binding.testutils.AssertDataObjects;
@@ -71,7 +71,8 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     // public @Rule RunUntilFailureRule repeater = new RunUntilFailureRule(classRepeater);
 
     public @Rule LogRule logRule = new LogRule();
-    public @Rule MethodRule guice = new GuiceRule(ElanServiceTestModule.class, JobCoordinatorTestModule.class);
+    public @Rule MethodRule guice = new GuiceRule(ElanServiceTestModule.class, JobCoordinatorTestModule.class,
+            CacheModule.class);
     // TODO re-enable after we can await completion of listeners and DJC:
     // Otherwise this too frequently causes spurious test failures, e.g. due to error
     // logs Caused by: java.lang.RuntimeException: java.util.concurrent.ExecutionException: Operation was interrupted

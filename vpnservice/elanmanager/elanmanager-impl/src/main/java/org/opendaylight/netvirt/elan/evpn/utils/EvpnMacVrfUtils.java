@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -20,6 +21,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -50,11 +52,12 @@ public class EvpnMacVrfUtils {
     private final EvpnUtils evpnUtils;
     private final JobCoordinator jobCoordinator;
     private final ElanUtils elanUtils;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public EvpnMacVrfUtils(final DataBroker dataBroker, final IdManagerService idManager,
             final ElanEvpnFlowUtils elanEvpnFlowUtils, final IMdsalApiManager mdsalManager, final EvpnUtils evpnUtils,
-            final JobCoordinator jobCoordinator, final ElanUtils elanUtils) {
+            final JobCoordinator jobCoordinator, final ElanUtils elanUtils, final ElanInstanceCache elanInstanceCache) {
         this.dataBroker = dataBroker;
         this.idManager = idManager;
         this.elanEvpnFlowUtils = elanEvpnFlowUtils;
@@ -62,14 +65,20 @@ public class EvpnMacVrfUtils {
         this.evpnUtils = evpnUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanUtils = elanUtils;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
-    public Long getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
+    @Nullable
+    private Long getElanTagByMacvrfiid(InstanceIdentifier<MacVrfEntry> macVrfEntryIid) {
         String elanName = getElanNameByMacvrfiid(macVrfEntryIid);
         if (elanName == null) {
             LOG.error("getElanTag: elanName is NULL for iid = {}", macVrfEntryIid);
         }
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
+        if (elanInstance == null) {
+            return null;
+        }
+
         Long elanTag = elanInstance.getElanTag();
         if (elanTag == null || elanTag == 0L) {
             elanTag = ElanUtils.retrieveNewElanTag(idManager, elanName);
@@ -131,7 +140,7 @@ public class EvpnMacVrfUtils {
     }
 
     public boolean checkEvpnAttachedToNet(String elanName) {
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(dataBroker, elanName);
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
         String evpnName = EvpnUtils.getEvpnNameFromElan(elanInfo);
         if (evpnName == null) {
             LOG.error("Error : evpnName is null for elanName {}", elanName);
@@ -153,6 +162,10 @@ public class EvpnMacVrfUtils {
             String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
             IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
             Long elanTag = getElanTagByMacvrfiid(instanceIdentifier);
+            if (elanTag == null) {
+                return;
+            }
+
             String dstMacAddress = macVrfEntry.getMac();
             long vni = macVrfEntry.getL2vni();
             jobCoordinator.enqueueJob(dstMacAddress, () -> {
@@ -187,6 +200,10 @@ public class EvpnMacVrfUtils {
         String nexthopIP = macVrfEntry.getRoutePaths().get(0).getNexthopAddress();
         IpAddress ipAddress = new IpAddress(new Ipv4Address(nexthopIP));
         Long elanTag = getElanTagByMacvrfiid(instanceIdentifier);
+        if (elanTag == null) {
+            return;
+        }
+
         String macToRemove = macVrfEntry.getMac();
         jobCoordinator.enqueueJob(macToRemove, () -> {
             List<ListenableFuture<Void>> futures = new ArrayList<>();

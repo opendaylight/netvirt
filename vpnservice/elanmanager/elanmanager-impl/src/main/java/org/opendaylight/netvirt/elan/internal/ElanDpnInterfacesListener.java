@@ -19,6 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
@@ -37,14 +38,17 @@ public class ElanDpnInterfacesListener
     private final IInterfaceManager interfaceManager;
     private final ElanServiceProvider elanService;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public ElanDpnInterfacesListener(final DataBroker dataBroker, final IInterfaceManager interfaceManager,
-                                     final ElanServiceProvider elanService, final JobCoordinator jobCoordinator) {
+                                     final ElanServiceProvider elanService, final JobCoordinator jobCoordinator,
+                                     final ElanInstanceCache elanInstanceCache) {
         this.dataBroker = dataBroker;
         this.interfaceManager = interfaceManager;
         this.elanService = elanService;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @PostConstruct
@@ -69,7 +73,7 @@ public class ElanDpnInterfacesListener
         LOG.debug("received Dpninterfaces update event for dpn {}", update.getDpId());
         BigInteger dpnId = update.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 
         if (elanInstance != null && !elanInstance.isExternal() && ElanUtils.isVlan(elanInstance)) {
             List<String> interfaces = update.getInterfaces();
@@ -89,7 +93,7 @@ public class ElanDpnInterfacesListener
         LOG.debug("received Dpninterfaces add event for dpn {}", dpnInterfaces.getDpId());
         BigInteger dpnId = dpnInterfaces.getDpId();
         String elanInstanceName = identifier.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanInstanceName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
 
         // trigger creation of vlan provider intf for the vlan provider network
         // on br-int patch port for this DPN
