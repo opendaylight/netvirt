@@ -177,7 +177,6 @@ public class ElanUtils {
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
 
     private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
-    private static Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache = new ConcurrentHashMap<>();
     private static Map<String, Set<String>> elanInstanceToInterfacesCache = new ConcurrentHashMap<>();
 
     private final DataBroker broker;
@@ -1605,22 +1604,6 @@ public class ElanUtils {
 
     public static boolean isNotEmpty(Collection collection) {
         return !isEmpty(collection);
-    }
-
-    public static void setElanInstancToDpnsCache(Map<String, Set<DpnInterfaces>> elanInstancToDpnsCache) {
-        ElanUtils.elanInstancToDpnsCache = elanInstancToDpnsCache;
-    }
-
-    public static Set<DpnInterfaces> getElanInvolvedDPNsFromCache(String elanName) {
-        return elanInstancToDpnsCache.get(elanName);
-    }
-
-    public static void addDPNInterfaceToElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
-        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<>()).add(dpnInterfaces);
-    }
-
-    public static void removeDPNInterfaceFromElanInCache(String elanName, DpnInterfaces dpnInterfaces) {
-        elanInstancToDpnsCache.computeIfAbsent(elanName, key -> new HashSet<>()).remove(dpnInterfaces);
     }
 
     public Optional<IpAddress> getSourceIpAddress(Ethernet ethernet) {

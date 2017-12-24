@@ -46,6 +46,7 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -115,6 +116,7 @@ public class ElanL2GatewayUtils {
     private final JobCoordinator jobCoordinator;
     private final ElanUtils elanUtils;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanInstanceDpnsCache elanInstanceDpnsCache;
 
     private final Timer logicalSwitchDeleteJobTimer = new Timer();
     private final ConcurrentMap<Pair<NodeId, String>, TimerTask> logicalSwitchDeletedTasks = new ConcurrentHashMap<>();
@@ -123,7 +125,8 @@ public class ElanL2GatewayUtils {
     @Inject
     public ElanL2GatewayUtils(DataBroker broker, ElanDmacUtils elanDmacUtils, ElanItmUtils elanItmUtils,
             ElanClusterUtils elanClusterUtils, OdlInterfaceRpcService interfaceManagerRpcService,
-            JobCoordinator jobCoordinator, ElanUtils elanUtils, ElanInstanceCache elanInstanceCache) {
+            JobCoordinator jobCoordinator, ElanUtils elanUtils, ElanInstanceCache elanInstanceCache,
+            ElanInstanceDpnsCache elanInstanceDpnsCache) {
         this.broker = broker;
         this.elanDmacUtils = elanDmacUtils;
         this.elanItmUtils = elanItmUtils;
@@ -132,6 +135,7 @@ public class ElanL2GatewayUtils {
         this.jobCoordinator = jobCoordinator;
         this.elanUtils = elanUtils;
         this.elanInstanceCache = elanInstanceCache;
+        this.elanInstanceDpnsCache = elanInstanceDpnsCache;
     }
 
     @PreDestroy
@@ -348,7 +352,7 @@ public class ElanL2GatewayUtils {
             final String macToBeAdded, final LocalUcastMacs localUcastMacs, String interfaceName) {
         final String extDeviceNodeId = extL2GwDevice.getHwvtepNodeId();
         final String elanInstanceName = elan.getElanInstanceName();
-        final List<DpnInterfaces> elanDpns = getElanDpns(elanInstanceName);
+        final Collection<DpnInterfaces> elanDpns = getElanDpns(elanInstanceName);
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
                 .getInvolvedL2GwDevices(elanInstanceName);
 
@@ -445,7 +449,7 @@ public class ElanL2GatewayUtils {
         }
         final String elanName = elan.getElanInstanceName();
 
-        final List<DpnInterfaces> elanDpns = getElanDpns(elanName);
+        final Collection<DpnInterfaces> elanDpns = getElanDpns(elanName);
 
         // Retrieve all participating DPNs in this Elan. Populate this MAC in
         // DMAC table. Looping through all DPNs in order to add/remove mac flows
@@ -1038,11 +1042,12 @@ public class ElanL2GatewayUtils {
     }
 
     @Nonnull
-    public List<DpnInterfaces> getElanDpns(String elanName) {
-        Set<DpnInterfaces> dpnInterfaces = ElanUtils.getElanInvolvedDPNsFromCache(elanName);
-        if (dpnInterfaces == null) {
-            return elanUtils.getElanDPNByName(elanName);
+    public Collection<DpnInterfaces> getElanDpns(String elanName) {
+        Collection<DpnInterfaces> dpnInterfaces = elanInstanceDpnsCache.get(elanName);
+        if (!dpnInterfaces.isEmpty()) {
+            return dpnInterfaces;
         }
-        return new ArrayList<>(dpnInterfaces);
+
+        return elanUtils.getElanDPNByName(elanName);
     }
 }
