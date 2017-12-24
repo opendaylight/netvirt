@@ -15,6 +15,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.TransportZoneNotificationUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
@@ -33,13 +34,16 @@ public class ElanDpnToTransportZoneListener
     private final TransportZoneNotificationUtil transportZoneNotificationUtil;
     private final DataBroker dbx;
     private final Boolean useTransportZone;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public ElanDpnToTransportZoneListener(final DataBroker dbx, final IInterfaceManager interfaceManager,
-            final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu) {
+            final ElanConfig elanConfig, final TransportZoneNotificationUtil tznu,
+            final ElanInstanceCache elanInstanceCache) {
         useTransportZone = elanConfig.isAutoConfigTransportZones();
         transportZoneNotificationUtil = tznu;
         this.dbx = dbx;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @PostConstruct
@@ -63,7 +67,7 @@ public class ElanDpnToTransportZoneListener
         BigInteger dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlanNetwork(dbx, elanInstanceName)) {
+        if (!ElanUtils.isVxlan(elanInstanceCache.get(elanInstanceName).orNull())) {
             LOG.debug("ElanInstance {} is not vxlan network, nothing to do", elanInstanceName);
             return;
         }
@@ -84,7 +88,7 @@ public class ElanDpnToTransportZoneListener
         BigInteger dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlanNetwork(dbx, elanInstanceName)) {
+        if (!ElanUtils.isVxlan(elanInstanceCache.get(elanInstanceName).orNull())) {
             return;
         }
 

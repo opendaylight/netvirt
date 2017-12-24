@@ -43,6 +43,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -86,11 +87,12 @@ public class EvpnUtils {
     private final JobCoordinator jobCoordinator;
     private final IBgpManager bgpManager;
     private final IVpnManager vpnManager;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public EvpnUtils(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
             ItmRpcService itmRpcService, IVpnManager vpnManager, IBgpManager bgpManager,
-            JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache) {
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
@@ -98,6 +100,7 @@ public class EvpnUtils {
         this.vpnManager = vpnManager;
         this.bgpManager = bgpManager;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     public boolean isWithdrawEvpnRT2Routes(ElanInstance original, ElanInstance update) {
@@ -120,7 +123,7 @@ public class EvpnUtils {
             return;
         }
         String rd = vpnManager.getVpnRd(broker, evpnName);
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
         macEntries.stream().filter(isIpv4PrefixAvailable).forEach(macEntry -> {
             InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(macEntry.getInterface());
             if (interfaceInfo == null) {
@@ -425,7 +428,7 @@ public class EvpnUtils {
 
     public void programEvpnL2vniDemuxTable(String elanName, final BiConsumer<String, String> serviceHandler,
                                            BiConsumer<BigInteger, FlowEntity> flowHandler) {
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
         List<String> tunnelInterfaceNameList = getDcGatewayTunnelInterfaceNameList();
         if (tunnelInterfaceNameList.isEmpty()) {
             LOG.info("No DC gateways tunnels while programming l2vni table for elan {}.", elanName);

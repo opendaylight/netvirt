@@ -31,10 +31,10 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
@@ -68,16 +68,19 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final HAOpClusteredListener haOpClusteredListener;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public LocalUcastMacListener(final DataBroker dataBroker,
                                  final HAOpClusteredListener haOpClusteredListener,
                                  final ElanL2GatewayUtils elanL2GatewayUtils,
-                                 final JobCoordinator jobCoordinator) {
+                                 final JobCoordinator jobCoordinator,
+                                 final ElanInstanceCache elanInstanceCache) {
         super(dataBroker, false);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.haOpClusteredListener = haOpClusteredListener;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -140,7 +143,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 }
 
                 elanL2GwDevice.removeUcastLocalMac(macRemoved);
-                ElanInstance elanInstance = ElanUtils.getElanInstanceByName(dataBroker, elanName);
+                ElanInstance elanInstance = elanInstanceCache.get(elanName).orNull();
                 elanL2GatewayUtils.unInstallL2GwUcastMacFromElan(elanInstance, elanL2GwDevice,
                         Collections.singletonList(new MacAddress(macAddress.toLowerCase())));
                 return null;
@@ -157,7 +160,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
         LOG.trace("LocalUcastMacs {} added to {}", macAddress, hwvtepNodeId);
 
-        ElanInstance elan = ElanUtils.getElanInstanceByName(dataBroker, elanName);
+        ElanInstance elan = elanInstanceCache.get(elanName).orNull();
         if (elan == null) {
             LOG.warn("Could not find ELAN for mac {} being added", macAddress);
             return;
