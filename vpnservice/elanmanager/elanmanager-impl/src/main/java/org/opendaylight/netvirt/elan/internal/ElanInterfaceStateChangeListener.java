@@ -38,14 +38,16 @@ public class ElanInterfaceStateChangeListener
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
-            final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, final ElanInstanceCache elanInstanceCache) {
         super(Interface.class, ElanInterfaceStateChangeListener.class);
         broker = db;
         elanInterfaceManager = ifManager;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -73,7 +75,7 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
         String elanInstanceName = elanInterface.getElanInstanceName();
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
         if (elanInstance == null) {
             LOG.debug("No Elan instance is available for the interface:{} ", interfaceName);
             return;

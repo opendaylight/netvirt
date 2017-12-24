@@ -32,6 +32,7 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -41,6 +42,7 @@ import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistrati
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.statusanddiag.ElanStatusMonitor;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -94,6 +96,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private final ElanStatusMonitor elanStatusMonitor;
     private final ElanUtils elanUtils;
     private final SouthboundUtils southboundUtils;
+    private final IMdsalApiManager mdsalManager;
+    private final ElanInstanceCache elanInstanceCache;
     private boolean isL2BeforeL3;
 
     private final EntityOwnershipCandidateRegistration candidateRegistration;
@@ -105,7 +109,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                                ElanInterfaceManager elanInterfaceManager,
                                ElanStatusMonitor elanStatusMonitor, ElanUtils elanUtils,
                                EntityOwnershipService entityOwnershipService,
-                               SouthboundUtils southboundUtils) {
+                               SouthboundUtils southboundUtils, ElanInstanceCache elanInstanceCache,
+                               IMdsalApiManager mdsalManager) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -114,6 +119,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         this.elanStatusMonitor = elanStatusMonitor;
         this.elanUtils = elanUtils;
         this.southboundUtils = southboundUtils;
+        this.elanInstanceCache = elanInstanceCache;
+        this.mdsalManager = mdsalManager;
 
         candidateRegistration = registerCandidate(entityOwnershipService);
     }
@@ -423,7 +430,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public ElanInstance getElanInstance(String elanName) {
-        return ElanUtils.getElanInstanceByName(broker, elanName);
+        return elanInstanceCache.get(elanName).orNull();
     }
 
     @Override
@@ -682,7 +689,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             LOG.trace("ELAN service is after L3VPN in the Netvirt pipeline skip known L3DMAC flows installation");
             return;
         }
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
         if (elanInstance == null) {
             LOG.warn("Null elan instance {}", elanInstanceName);
             return;
@@ -704,7 +711,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             LOG.trace("ELAN service is after L3VPN in the Netvirt pipeline skip known L3DMAC flows installation");
             return;
         }
-        ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
         if (elanInstance == null) {
             LOG.warn("Null elan instance {}", elanInstanceName);
             return;
@@ -859,9 +866,28 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void addArpResponderFlow(ArpResponderInput arpResponderInput) {
-        elanUtils.addArpResponderFlow(arpResponderInput.getDpId(), arpResponderInput.getInterfaceName(),
-                arpResponderInput.getSpa(), arpResponderInput.getSha(), arpResponderInput.getLportTag(),
+        String ingressInterfaceName = arpResponderInput.getInterfaceName();
+        String macAddress = arpResponderInput.getSha();
+        String ipAddress = arpResponderInput.getSpa();
+        int lportTag = arpResponderInput.getLportTag();
+        BigInteger dpnId = arpResponderInput.getDpId();
+
+        LOG.info("Installing the ARP responder flow on DPN {} for Interface {} with MAC {} & IP {}", dpnId,
+                ingressInterfaceName, macAddress, ipAddress);
+        ElanInterface elanIface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, ingressInterfaceName);
+        ElanInstance elanInstance = elanInstanceCache.get(elanIface.getElanInstanceName()).orNull();
+        if (elanInstance == null) {
+            LOG.debug("addArpResponderFlow: elanInstance is null, Failed to install arp responder flow for Interface {}"
+                      + " with MAC {} & IP {}", dpnId,
+                ingressInterfaceName, macAddress, ipAddress);
+            return;
+        }
+        String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);
+        ArpResponderUtil.installFlow(mdsalManager, dpnId, flowId, flowId, NwConstants.DEFAULT_ARP_FLOW_PRIORITY,
+                ArpResponderUtil.generateCookie(lportTag, ipAddress),
+                ArpResponderUtil.getMatchCriteria(lportTag, elanInstance, ipAddress),
                 arpResponderInput.getInstructions());
+        LOG.info("Installed the ARP Responder flow for Interface {}", ingressInterfaceName);
     }
 
     @Override
