@@ -11,14 +11,12 @@ package org.opendaylight.netvirt.elan.evpn.listeners;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnMacVrfUtils;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.EvpnAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -70,7 +68,6 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
     protected void update(InstanceIdentifier<ElanInstance> instanceIdentifier, ElanInstance original,
                           ElanInstance update) {
         String elanName = update.getElanInstanceName();
-        ElanUtils.addElanInstanceIntoCache(elanName, update);
         if (evpnUtils.isWithdrawEvpnRT2Routes(original, update)) {
             evpnUtils.withdrawEvpnRT2Routes(original.getAugmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(original, false);

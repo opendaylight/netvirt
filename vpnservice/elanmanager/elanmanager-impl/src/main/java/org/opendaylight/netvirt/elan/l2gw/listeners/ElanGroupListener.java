@@ -9,13 +9,13 @@ package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import java.math.BigInteger;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -40,15 +40,17 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
     private final ElanClusterUtils elanClusterUtils;
     private final ElanUtils elanUtils;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public ElanGroupListener(DataBroker db, ElanClusterUtils elanClusterUtils, ElanUtils elanUtils,
-            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
+            ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils, ElanInstanceCache elanInstanceCache) {
         super(Group.class, ElanGroupListener.class);
         broker = db;
         this.elanClusterUtils = elanClusterUtils;
         this.elanUtils = elanUtils;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.elanInstanceCache = elanInstanceCache;
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
         LOG.trace("ElanGroupListener registered");
     }
@@ -66,9 +68,7 @@ public class ElanGroupListener extends AsyncClusteredDataTreeChangeListenerBase<
 
 
     ElanInstance getElanInstanceFromGroupId(Group update) {
-        Set<String> elanNames = ElanUtils.getAllElanNames();
-        for (String elanName : elanNames) {
-            ElanInstance elanInstance = ElanUtils.getElanInstanceByName(broker, elanName);
+        for (ElanInstance elanInstance : elanInstanceCache.getAllPresent()) {
             if (elanInstance.getElanTag() != null) {
                 long elanTag = elanInstance.getElanTag();
                 long elanBCGroupId = ElanUtils.getElanRemoteBroadCastGroupID(elanTag);

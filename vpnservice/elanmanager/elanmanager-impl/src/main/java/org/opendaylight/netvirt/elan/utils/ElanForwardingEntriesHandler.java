@@ -61,14 +61,14 @@ public class ElanForwardingEntriesHandler {
 
     }
 
-    public void addElanInterfaceForwardingTableList(ElanInstance elanInstance, String interfaceName,
+    public void addElanInterfaceForwardingTableList(String elanInstanceName, String interfaceName,
                                                     StaticMacEntries staticMacEntries, WriteTransaction tx) {
         MacEntry macEntry = new MacEntryBuilder().setIsStaticAddress(true)
                 .setMacAddress(staticMacEntries.getMacAddress())
                 .setIpPrefix(staticMacEntries.getIpPrefix())
                 .setInterface(interfaceName).setKey(new MacEntryKey(staticMacEntries.getMacAddress())).build();
 
-        createElanForwardingTablesList(elanInstance.getElanInstanceName(), macEntry, tx);
+        createElanForwardingTablesList(elanInstanceName, macEntry, tx);
         createElanInterfaceForwardingTablesList(interfaceName, macEntry, tx);
     }
 

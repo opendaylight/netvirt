@@ -25,6 +25,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -51,14 +52,16 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public ElanSmacFlowEventListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
-            JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache) {
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -103,7 +106,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
                 LOG.info("Deleting the Mac-Entry:{} present on ElanInstance:{}", macEntry, elanInstanceName);
                 if (macEntry != null && interfaceInfo != null) {
                     WriteTransaction deleteFlowTx = broker.newWriteOnlyTransaction();
-                    elanUtils.deleteMacFlows(ElanUtils.getElanInstanceByName(broker, elanInstanceName), interfaceInfo,
+                    elanUtils.deleteMacFlows(elanInstanceCache.get(elanInstanceName).orNull(), interfaceInfo,
                             macEntry, deleteFlowTx);
                     ListenableFuture<Void> result = deleteFlowTx.submit();
                     elanFutures.add(result);

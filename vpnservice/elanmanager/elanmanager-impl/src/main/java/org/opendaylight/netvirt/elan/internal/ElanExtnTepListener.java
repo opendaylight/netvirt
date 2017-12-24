@@ -16,9 +16,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
@@ -34,14 +34,16 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
     private final DataBroker broker;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public ElanExtnTepListener(DataBroker dataBroker, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-            JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache) {
         super(ExternalTeps.class, ElanExtnTepListener.class);
         this.broker = dataBroker;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -74,7 +76,10 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
     @SuppressWarnings("checkstyle:IllegalCatch")
     private void updateElanRemoteBroadCastGroup(final InstanceIdentifier<ExternalTeps> iid) {
         String elanName = iid.firstKeyOf(ElanInstance.class).getElanInstanceName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
+        if (elanInfo == null) {
+            return;
+        }
 
         jobCoordinator.enqueueJob(elanName, () -> {
             SettableFuture<Void> ft = SettableFuture.create();
