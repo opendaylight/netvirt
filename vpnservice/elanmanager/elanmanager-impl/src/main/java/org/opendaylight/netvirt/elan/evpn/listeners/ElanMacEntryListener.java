@@ -15,8 +15,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanForwardingTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -31,11 +31,14 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     private static final Logger LOG = LoggerFactory.getLogger(ElanMacEntryListener.class);
     private final DataBroker broker;
     private final EvpnUtils evpnUtils;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
-    public ElanMacEntryListener(final DataBroker broker, final EvpnUtils evpnUtils) {
+    public ElanMacEntryListener(final DataBroker broker, final EvpnUtils evpnUtils,
+            final ElanInstanceCache elanInstanceCache) {
         this.broker = broker;
         this.evpnUtils = evpnUtils;
+        this.elanInstanceCache = elanInstanceCache;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     protected void add(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
         LOG.info("ElanMacEntryListener : ADD macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
         if (EvpnUtils.getEvpnNameFromElan(elanInfo) == null) {
             LOG.trace("ElanMacEntryListener : Add evpnName is null for elan {} ", elanInfo);
             return;
@@ -73,7 +76,7 @@ public class ElanMacEntryListener extends AsyncDataTreeChangeListenerBase<MacEnt
     protected void remove(InstanceIdentifier<MacEntry> instanceIdentifier, MacEntry macEntry) {
         LOG.info("ElanMacEntryListener : remove macEntry {} ", instanceIdentifier);
         String elanName = instanceIdentifier.firstKeyOf(MacTable.class).getElanInstanceName();
-        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+        ElanInstance elanInfo = elanInstanceCache.get(elanName).orNull();
         if (EvpnUtils.getEvpnNameFromElan(elanInfo) == null) {
             LOG.trace("ElanMacEntryListener : Remove evpnName is null for elan {} ", elanInfo);
             return;

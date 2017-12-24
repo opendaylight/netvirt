@@ -30,6 +30,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanBridgeManager;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
@@ -79,15 +80,18 @@ public class TransportZoneNotificationUtil {
     private final IElanService elanService;
     private final ElanConfig elanConfig;
     private final ElanBridgeManager elanBridgeManager;
+    private final ElanInstanceCache elanInstanceCache;
 
     @Inject
     public TransportZoneNotificationUtil(final DataBroker dbx, final IInterfaceManager interfaceManager,
-            final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager) {
+            final IElanService elanService, final ElanConfig elanConfig, final ElanBridgeManager elanBridgeManager,
+            final ElanInstanceCache elanInstanceCache) {
         this.dataBroker = dbx;
         this.mdsalUtils = new MdsalUtils(dbx);
         this.elanService = elanService;
         this.elanConfig = elanConfig;
         this.elanBridgeManager = elanBridgeManager;
+        this.elanInstanceCache = elanInstanceCache;
         southBoundUtils = new SouthboundUtils(mdsalUtils);
     }
 
@@ -104,7 +108,7 @@ public class TransportZoneNotificationUtil {
                 continue;
             }
 
-            if (ElanUtils.isVxlanNetwork(dataBroker, elanInt.getElanInstanceName())) {
+            if (ElanUtils.isVxlan(elanInstanceCache.get(elanInt.getElanInstanceName()).orNull())) {
                 return true;
             } else {
                 LOG.debug("Non-VXLAN elanInstance: " + elanInt.getElanInstanceName());
