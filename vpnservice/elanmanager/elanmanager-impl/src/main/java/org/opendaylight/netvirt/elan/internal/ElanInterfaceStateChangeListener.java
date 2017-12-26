@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -18,6 +19,7 @@ import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -40,15 +42,18 @@ public class ElanInterfaceStateChangeListener
     private final ElanInterfaceManager elanInterfaceManager;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     @Inject
     public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
-            final JobCoordinator jobCoordinator, final ElanInstanceCache elanInstanceCache) {
+            final JobCoordinator jobCoordinator, final ElanInstanceCache elanInstanceCache,
+            final ElanInterfaceCache elanInterfaceCache) {
         super(Interface.class, ElanInterfaceStateChangeListener.class);
         broker = db;
         elanInterfaceManager = ifManager;
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     @Override
@@ -64,8 +69,8 @@ public class ElanInterfaceStateChangeListener
         }
         LOG.trace("Received interface {} Down event", delIf);
         String interfaceName =  delIf.getName();
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        if (elanInterface == null) {
+        Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
+        if (!elanInterface.isPresent()) {
             LOG.debug("No Elan Interface is created for the interface:{} ", interfaceName);
             return;
         }
@@ -75,7 +80,7 @@ public class ElanInterfaceStateChangeListener
         interfaceInfo.setInterfaceName(interfaceName);
         interfaceInfo.setInterfaceType(InterfaceInfo.InterfaceType.VLAN_INTERFACE);
         interfaceInfo.setInterfaceTag(delIf.getIfIndex());
-        String elanInstanceName = elanInterface.getElanInstanceName();
+        String elanInstanceName = elanInterface.get().getElanInstanceName();
         ElanInstance elanInstance = elanInstanceCache.get(elanInstanceName).orNull();
         if (elanInstance == null) {
             LOG.debug("No Elan instance is available for the interface:{} ", interfaceName);
@@ -97,13 +102,13 @@ public class ElanInterfaceStateChangeListener
         }
         LOG.trace("Received interface {} up event", intrf);
         String interfaceName =  intrf.getName();
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        if (elanInterface == null) {
+        Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
+        if (!elanInterface.isPresent()) {
             return;
         }
         InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
                 .getElanInterfaceConfigurationDataPathId(interfaceName);
-        elanInterfaceManager.add(elanInterfaceId, elanInterface);
+        elanInterfaceManager.add(elanInterfaceId, elanInterface.get());
     }
 
     @Override
