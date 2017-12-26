@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe45b802_3baf72b8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 69
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-26T17:20:34Z",
+      "side": 1,
+      "message": "Why was this added?",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 171,
+        "endChar": 11
+      },
+      "revId": "36549b1e84d2219e8e6e8ace73f6d054eb34eded",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
