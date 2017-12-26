@@ -26,6 +26,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -52,17 +53,20 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     private final IInterfaceManager interfaceManager;
     private final ElanInterfaceManager elanInterfaceManager;
     private final JobCoordinator jobCoordinator;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     @Inject
     public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
                                final ElanInterfaceManager elanInterfaceManager,
-                               final IInterfaceManager interfaceManager, final JobCoordinator jobCoordinator) {
+                               final IInterfaceManager interfaceManager, final JobCoordinator jobCoordinator,
+                               final ElanInterfaceCache elanInterfaceCache) {
         super(ElanInstance.class, ElanInstanceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
         this.elanInterfaceManager = elanInterfaceManager;
         this.interfaceManager = interfaceManager;
         this.jobCoordinator = jobCoordinator;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     @Override
@@ -103,14 +107,13 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
-        ElanUtils.removeAndGetElanInterfaces(elanName).forEach(elanInterfaceName -> {
+        elanInterfaceCache.getInterfaceNames(elanName).forEach(elanInterfaceName -> {
             jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName), () -> {
                 WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
                 LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
                 ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
                 elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
-                ElanUtils.removeElanInterfaceToElanInstanceCache(elanName, elanInterfaceName);
                 LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
                 return Collections.singletonList(writeConfigTxn.submit());
             }, ElanConstants.JOB_MAX_RETRIES);

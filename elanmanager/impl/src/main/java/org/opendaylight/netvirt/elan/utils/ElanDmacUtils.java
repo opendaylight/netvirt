@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.utils;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -22,6 +23,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
@@ -43,12 +45,15 @@ public class ElanDmacUtils {
     private final DataBroker broker;
     private final ElanItmUtils elanItmUtils;
     private final ElanEtreeUtils elanEtreeUtils;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     @Inject
-    public ElanDmacUtils(DataBroker broker, ElanItmUtils elanItmUtils, ElanEtreeUtils elanEtreeUtils) {
+    public ElanDmacUtils(DataBroker broker, ElanItmUtils elanItmUtils, ElanEtreeUtils elanEtreeUtils,
+            ElanInterfaceCache elanInterfaceCache) {
         this.broker = broker;
         this.elanItmUtils = elanItmUtils;
         this.elanEtreeUtils = elanEtreeUtils;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     /**
@@ -246,16 +251,13 @@ public class ElanDmacUtils {
             BigInteger dpnId, String extDeviceNodeId, Long vni,
             String macAddress, String displayName, String interfaceName,
             EtreeLeafTagName etreeLeafTag) throws ElanException {
-        boolean isRoot = false;
+        boolean isRoot;
         if (interfaceName == null) {
             isRoot = true;
         } else {
-            EtreeInterface etreeInterface = ElanUtils.getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
-            if (etreeInterface != null) {
-                if (etreeInterface.getEtreeInterfaceType() == EtreeInterface.EtreeInterfaceType.Root) {
-                    isRoot = true;
-                }
-            }
+            Optional<EtreeInterface> etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceName);
+            isRoot = etreeInterface.isPresent() ? etreeInterface.get().getEtreeInterfaceType()
+                    == EtreeInterface.EtreeInterfaceType.Root : false;
         }
         if (isRoot) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId,
@@ -310,16 +312,13 @@ public class ElanDmacUtils {
             BigInteger dpnId, String extDeviceNodeId, Long vni, String macAddress, String displayName,
             String interfaceName, EtreeLeafTagName etreeLeafTag)throws ElanException {
 
-        boolean isRoot = false;
+        boolean isRoot;
         if (interfaceName == null) {
             isRoot = true;
         } else {
-            EtreeInterface etreeInterface = ElanUtils.getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
-            if (etreeInterface != null) {
-                if (etreeInterface.getEtreeInterfaceType() == EtreeInterface.EtreeInterfaceType.Root) {
-                    isRoot = true;
-                }
-            }
+            Optional<EtreeInterface> etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceName);
+            isRoot = etreeInterface.isPresent() ? etreeInterface.get().getEtreeInterfaceType()
+                    == EtreeInterface.EtreeInterfaceType.Root : false;
         }
         if (isRoot) {
             Flow flow = buildDmacFlowForExternalRemoteMac(dpnId, extDeviceNodeId,
