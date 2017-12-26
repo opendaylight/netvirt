@@ -21,11 +21,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
@@ -66,6 +62,7 @@ import org.opendaylight.genius.mdsalutil.packet.IPv4;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddressBuilder;
@@ -176,9 +173,6 @@ public class ElanUtils {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanUtils.class);
 
-    private static Map<String, ElanInterface> elanInterfaceLocalCache = new ConcurrentHashMap<>();
-    private static Map<String, Set<String>> elanInstanceToInterfacesCache = new ConcurrentHashMap<>();
-
     private final DataBroker broker;
     private final IMdsalApiManager mdsalManager;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
@@ -187,6 +181,7 @@ public class ElanUtils {
     private final ElanConfig elanConfig;
     private final ElanItmUtils elanItmUtils;
     private final ElanEtreeUtils elanEtreeUtils;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     public static final FutureCallback<Void> DEFAULT_CALLBACK = new FutureCallback<Void>() {
         @Override
@@ -203,7 +198,8 @@ public class ElanUtils {
     @Inject
     public ElanUtils(DataBroker dataBroker, IMdsalApiManager mdsalManager,
             OdlInterfaceRpcService interfaceManagerRpcService, ItmRpcService itmRpcService, ElanConfig elanConfig,
-            IInterfaceManager interfaceManager, ElanEtreeUtils elanEtreeUtils, ElanItmUtils elanItmUtils) {
+            IInterfaceManager interfaceManager, ElanEtreeUtils elanEtreeUtils, ElanItmUtils elanItmUtils,
+            ElanInterfaceCache elanInterfaceCache) {
         this.broker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
@@ -212,23 +208,12 @@ public class ElanUtils {
         this.elanConfig = elanConfig;
         this.elanEtreeUtils = elanEtreeUtils;
         this.elanItmUtils = elanItmUtils;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     public final Boolean isOpenstackVniSemanticsEnforced() {
         return elanConfig.isOpenstackVniSemanticsEnforced() != null
                 ? elanConfig.isOpenstackVniSemanticsEnforced() : false;
-    }
-
-    public static void addElanInterfaceIntoCache(String interfaceName, ElanInterface elanInterface) {
-        elanInterfaceLocalCache.put(interfaceName, elanInterface);
-    }
-
-    public static void removeElanInterfaceFromCache(String interfaceName) {
-        elanInterfaceLocalCache.remove(interfaceName);
-    }
-
-    public static ElanInterface getElanInterfaceFromCache(String interfaceName) {
-        return elanInterfaceLocalCache.get(interfaceName);
     }
 
     /**
@@ -305,25 +290,6 @@ public class ElanUtils {
 
     public static InstanceIdentifier<ElanInstance> getElanInstanceIdentifier() {
         return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class).build();
-    }
-
-    // elan-interfaces Config Container
-    public static ElanInterface getElanInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
-        ElanInterface elanInterfaceObj = getElanInterfaceFromCache(elanInterfaceName);
-        if (elanInterfaceObj != null) {
-            return elanInterfaceObj;
-        }
-        InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
-    }
-
-    public static EtreeInterface getEtreeInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
-        ElanInterface elanInterface = getElanInterfaceByElanInterfaceName(broker, elanInterfaceName);
-        if (elanInterface == null) {
-            return null;
-        } else {
-            return elanInterface.getAugmentation(EtreeInterface.class);
-        }
     }
 
     public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
@@ -675,8 +641,8 @@ public class ElanUtils {
             .build();
     }
 
-    private static Long getElanTag(DataBroker broker, ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceInfo.getInterfaceName());
+    private Long getElanTag(DataBroker broker, ElanInstance elanInfo, InterfaceInfo interfaceInfo) {
+        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceInfo.getInterfaceName()).orNull();
         if (etreeInterface == null || etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             return elanInfo.getElanTag();
         } else { // Leaf
@@ -865,23 +831,21 @@ public class ElanUtils {
         Flow flowEntity = buildLocalDmacFlowEntry(elanTag, dpId, ifName, macAddress, elanInfo, ifTag);
         mdsalApiManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
         installEtreeLocalDmacFlow(elanTag, dpId, ifName, macAddress, elanInfo,
-                mdsalApiManager, ifTag, writeFlowGroupTx);
+                ifTag, writeFlowGroupTx);
     }
 
     private void installEtreeLocalDmacFlow(long elanTag, BigInteger dpId, String ifName, String macAddress,
-            ElanInstance elanInfo, IMdsalApiManager mdsalApiManager, long ifTag, WriteTransaction writeFlowGroupTx) {
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, ifName);
-        if (etreeInterface != null) {
-            if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
-                EtreeLeafTagName etreeTagName = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
-                if (etreeTagName == null) {
-                    LOG.warn("Interface {} seems like it belongs to Etree but etreeTagName from elanTag {} is null",
-                             ifName, elanTag);
-                } else {
-                    Flow flowEntity = buildLocalDmacFlowEntry(etreeTagName.getEtreeLeafTag().getValue(), dpId, ifName,
-                            macAddress, elanInfo, ifTag);
-                    mdsalApiManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
-                }
+            ElanInstance elanInfo, long ifTag, WriteTransaction writeFlowGroupTx) {
+        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(ifName).orNull();
+        if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
+            EtreeLeafTagName etreeTagName = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
+            if (etreeTagName == null) {
+                LOG.warn("Interface {} seems like it belongs to Etree but etreeTagName from elanTag {} is null",
+                        ifName, elanTag);
+            } else {
+                Flow flowEntity = buildLocalDmacFlowEntry(etreeTagName.getEtreeLeafTag().getValue(), dpId, ifName,
+                        macAddress, elanInfo, ifTag);
+                mdsalManager.addFlowToTx(dpId, flowEntity, writeFlowGroupTx);
             }
         }
     }
@@ -973,18 +937,16 @@ public class ElanUtils {
                                           WriteTransaction writeFlowGroupTx, ElanInstance elanInstance)
                                           throws ElanException {
         Flow flowEntity;
-        EtreeInterface etreeInterface = getEtreeInterfaceByElanInterfaceName(broker, interfaceName);
-        if (etreeInterface != null) {
-            if (etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
-                EtreeLeafTagName etreeTagName = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
-                if (etreeTagName == null) {
-                    LOG.warn("Interface " + interfaceName
-                            + " seems like it belongs to Etree but etreeTagName from elanTag " + elanTag + " is null.");
-                } else {
-                    flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni,
-                            etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName, elanInstance);
-                    mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
-                }
+        EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceName).orNull();
+        if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
+            EtreeLeafTagName etreeTagName = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
+            if (etreeTagName == null) {
+                LOG.warn("Interface " + interfaceName
+                        + " seems like it belongs to Etree but etreeTagName from elanTag " + elanTag + " is null.");
+            } else {
+                flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni,
+                        etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName, elanInstance);
+                mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
             }
         }
     }
@@ -1645,23 +1607,6 @@ public class ElanUtils {
             }
         }
         return false;
-    }
-
-    public static void addElanInterfaceToElanInstanceCache(String elanInstanceName, String elanInterfaceName) {
-        elanInstanceToInterfacesCache.computeIfAbsent(elanInstanceName, key -> new HashSet<>()).add(elanInterfaceName);
-    }
-
-    public static void removeElanInterfaceToElanInstanceCache(String elanInstanceName, String interfaceName) {
-        Set<String> elanInterfaces = elanInstanceToInterfacesCache.get(elanInstanceName);
-        if (elanInterfaces == null || elanInterfaces.isEmpty()) {
-            return;
-        }
-        elanInterfaces.remove(interfaceName);
-    }
-
-    @Nonnull public static Set<String> removeAndGetElanInterfaces(String elanInstanceName) {
-        Set<String> removed = elanInstanceToInterfacesCache.remove(elanInstanceName);
-        return removed != null ? removed : Collections.emptySet();
     }
 
     public static InstanceIdentifier<Flow> getFlowIid(Flow flow, BigInteger dpnId) {
