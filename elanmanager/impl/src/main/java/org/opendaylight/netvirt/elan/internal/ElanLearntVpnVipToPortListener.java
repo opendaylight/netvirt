@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -25,6 +26,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
@@ -48,16 +50,18 @@ public class ElanLearntVpnVipToPortListener extends
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     @Inject
     public ElanLearntVpnVipToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
-            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache) {
+            JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache, ElanInterfaceCache elanInterfaceCache) {
         super(LearntVpnVipToPort.class, ElanLearntVpnVipToPortListener.class);
         this.broker = broker;
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     @Override
@@ -110,15 +114,15 @@ public class ElanLearntVpnVipToPortListener extends
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-            if (elanInterface == null) {
+            Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
+            if (!elanInterface.isPresent()) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
                 return Collections.emptyList();
             }
             WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
             WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            addMacEntryToDsAndSetupFlows(elanInterface.getElanInstanceName(), interfaceTx,
-                    flowTx, ElanConstants.STATIC_MAC_TIMEOUT);
+            addMacEntryToDsAndSetupFlows(elanInterface.get().getElanInstanceName(), interfaceTx, flowTx,
+                    ElanConstants.STATIC_MAC_TIMEOUT);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(interfaceTx.submit());
             futures.add(flowTx.submit());
@@ -157,15 +161,14 @@ public class ElanLearntVpnVipToPortListener extends
 
         @Override
         public List<ListenableFuture<Void>> call() throws Exception {
-            ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-            if (elanInterface == null) {
+            Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
+            if (!elanInterface.isPresent()) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for delete event", interfaceName);
                 return Collections.emptyList();
             }
             WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
             WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            deleteMacEntryFromDsAndRemoveFlows(elanInterface.getElanInstanceName(), interfaceTx,
-                    flowTx);
+            deleteMacEntryFromDsAndRemoveFlows(elanInterface.get().getElanInstanceName(), interfaceTx, flowTx);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             futures.add(interfaceTx.submit());
             futures.add(flowTx.submit());
