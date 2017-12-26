@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "37e07a78_6389ff56",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 67
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-26T17:12:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "24631ad1_bc0d0aeb",
+      "range": {
+        "startLine": 545,
+        "startChar": 20,
+        "endLine": 545,
+        "endChar": 40
+      },
+      "revId": "ae68a64b0720a28b389dfdce1497237837ac041f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e9f5ef91_b709109e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 67
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e2681fc3_6ad08fb7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 67
+      },
+      "lineNbr": 555,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-26T17:12:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e9f5ef91_b709109e",
+      "range": {
+        "startLine": 555,
+        "startChar": 20,
+        "endLine": 555,
+        "endChar": 40
+      },
+      "revId": "ae68a64b0720a28b389dfdce1497237837ac041f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "64a85718_9761f59b",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
         "patchSetId": 67
@@ -59,6 +107,24 @@
       "writtenOn": "2017-12-23T16:02:45Z",
       "side": 1,
       "message": "The is could be simplified using vpnInstanceList.removeIf(...)",
+      "revId": "ae68a64b0720a28b389dfdce1497237837ac041f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c3a2f3e_412d92fc",
+        "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/java/org/opendaylight/netvirt/vpnmanager/api/VpnHelper.java",
+        "patchSetId": 67
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-26T17:12:24Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "64a85718_9761f59b",
       "revId": "ae68a64b0720a28b389dfdce1497237837ac041f",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
