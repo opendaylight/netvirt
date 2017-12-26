@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a7f5b17e_e1de8339",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-26T13:04:37Z",
+      "side": 1,
+      "message": "it is compute host name",
+      "parentUuid": "7116288a_cc755169",
+      "range": {
+        "startLine": 37,
+        "startChar": 58,
+        "endLine": 37,
+        "endChar": 76
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8b2c5767_bc2b8b83",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 7
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "cd883a63_5e9793ae",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-26T13:04:37Z",
+      "side": 1,
+      "message": "This is admin step only. Netvirt will have to react to these vm deletions/migrations calls by moving the flows which is already happening.",
+      "parentUuid": "8b2c5767_bc2b8b83",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 98
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bc1e67b_f183b9dc",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 7
@@ -59,6 +107,30 @@
       "writtenOn": "2017-12-22T10:56:34Z",
       "side": 1,
       "message": "So does it mean that we can invoke \"scalein-computes-start \u003clist\u003e\" \"multiple times\" before calling scalein-computes-end?\n\nWill it be possible for us to give some appropriate error message to user if user invokes \"scalein-computes-start\" without setting the node to maintenance mode?",
+      "range": {
+        "startLine": 43,
+        "startChar": 14,
+        "endLine": 43,
+        "endChar": 51
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "760e7b65_d8bce3da",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-26T13:04:37Z",
+      "side": 1,
+      "message": "start is called only once\nso is end\ncan odl controller know if the compute is set in maintenance mode or not ?",
+      "parentUuid": "6bc1e67b_f183b9dc",
       "range": {
         "startLine": 43,
         "startChar": 14,
@@ -105,6 +177,30 @@
       "writtenOn": "2017-12-22T10:56:34Z",
       "side": 1,
       "message": "Here its mentioned as \"not scaled\", where as in the YANG model (line 100) its mentioned as \"To recover the dpns which are marked for scale in\".\n\nCan you please elaborate what this RPC does?\nLike say I have a setup with 5 computes - A, B, C, D, E\n\nI start with \"scalein-computes-start A, B\" and there is some error in VM migration/deletion. So user invokes \"scalein-compute-recover _____\". Please fill in the _____ and also what Netvirt does in such a situation. Thanks.",
+      "range": {
+        "startLine": 53,
+        "startChar": 33,
+        "endLine": 53,
+        "endChar": 43
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f71d9f77_031c604d",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2017-12-26T13:04:37Z",
+      "side": 1,
+      "message": "Following is the expected sequence.\n\nscalein-computes-start A,B\ndelete/migrate vms of A ( success )\ndelete/migrate vms of B ( fail )\nscalein-computes-end A\nscalein-computes-recover B\n\nWill update the same.",
+      "parentUuid": "060bb67a_86ce2385",
       "range": {
         "startLine": 53,
         "startChar": 33,
