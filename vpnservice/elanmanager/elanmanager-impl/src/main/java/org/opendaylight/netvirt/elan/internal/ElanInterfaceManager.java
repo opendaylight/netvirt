@@ -60,6 +60,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -146,6 +147,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     private final Map<String, ConcurrentLinkedQueue<ElanInterface>>
         unProcessedElanInterfaces = new ConcurrentHashMap<>();
@@ -158,7 +160,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final ElanEtreeUtils elanEtreeUtils, final ElanL2GatewayUtils elanL2GatewayUtils,
                                 final ElanUtils elanUtils, final JobCoordinator jobCoordinator,
                                 final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-                                final ElanInstanceCache elanInstanceCache) {
+                                final ElanInstanceCache elanInstanceCache,
+                                final ElanInterfaceCache elanInterfaceCache) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.idManager = managerService;
@@ -173,6 +176,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.jobCoordinator = jobCoordinator;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanInstanceCache = elanInstanceCache;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     @Override
@@ -360,7 +364,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         // removing the ElanInterface from the config data_store if interface is
         // not present in Interface config DS
         if (interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName) == null
-                && ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName) != null) {
+                && elanInterfaceCache.get(interfaceName).isPresent()) {
             tx.delete(LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
         }
@@ -1139,8 +1143,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     private int addInterfaceIfRootInterface(int bucketId, String ifName, List<Bucket> listBucket,
             InterfaceInfo ifInfo) {
-        EtreeInterface etreeInterface = ElanUtils.getEtreeInterfaceByElanInterfaceName(broker, ifName);
-        if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
+        Optional<EtreeInterface> etreeInterface = elanInterfaceCache.getEtreeInterface(ifName);
+        if (etreeInterface.isPresent() && etreeInterface.get().getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             listBucket.add(MDSALUtil.buildBucket(getInterfacePortActions(ifInfo), MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
