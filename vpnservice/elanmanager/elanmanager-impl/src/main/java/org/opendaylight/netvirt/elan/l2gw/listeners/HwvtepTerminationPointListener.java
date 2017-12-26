@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -15,8 +16,6 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -78,26 +77,9 @@ public class HwvtepTerminationPointListener
         LOG.debug("created HwvtepTerminationPointListener");
     }
 
-    static Map<InstanceIdentifier<TerminationPoint>, List<Runnable>> waitingJobsList = new ConcurrentHashMap<>();
-    static Map<InstanceIdentifier<TerminationPoint>, Boolean> teps = new ConcurrentHashMap<>();
-
-    public static void runJobAfterPhysicalLocatorIsAvialable(InstanceIdentifier<TerminationPoint> key,
-                                                             Runnable runnable) {
-        if (teps.get(key) != null) {
-            LOG.debug("physical locator already available {} running job ", key);
-            runnable.run();
-            return;
-        }
-        synchronized (HwvtepTerminationPointListener.class) {
-            waitingJobsList.computeIfAbsent(key, k -> new ArrayList<>()).add(runnable);
-            LOG.debug("added the job to wait list of physical locator {}", key);
-        }
-    }
-
     @Override
     protected void removed(InstanceIdentifier<TerminationPoint> identifier, TerminationPoint del) {
         LOG.trace("physical locator removed {}", identifier);
-        teps.remove(identifier);
         final HwvtepPhysicalPortAugmentation portAugmentation =
                 del.getAugmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
@@ -127,18 +109,6 @@ public class HwvtepTerminationPointListener
         }
 
         LOG.trace("physical locator available {}", identifier);
-        teps.put(identifier, true);
-        List<Runnable> runnableList;
-        synchronized (HwvtepTerminationPointListener.class) {
-            runnableList = waitingJobsList.get(identifier);
-            waitingJobsList.remove(identifier);
-        }
-        if (runnableList != null) {
-            LOG.debug("physical locator available {} running jobs ", identifier);
-            runnableList.forEach(Runnable::run);
-        } else {
-            LOG.debug("no jobs are waiting for physical locator {}", identifier);
-        }
     }
 
     @Override
@@ -185,21 +155,26 @@ public class HwvtepTerminationPointListener
                                                            NodeId psNodeId) throws ReadFailedException {
         InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
         final ReadWriteTransaction tx = broker.newReadWriteTransaction();
-        final SettableFuture settableFuture = SettableFuture.create();
+        final SettableFuture<Void> settableFuture = SettableFuture.create();
         List<ListenableFuture<Void>> futures = Collections.singletonList(settableFuture);
         Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid),
-                new SettableFutureCallback(settableFuture) {
-                    @Override
-                    public void onSuccess(@Nonnull Object resultNode) {
-                        Optional<Node> nodeOptional = (Optional<Node>) resultNode;
-                        if (nodeOptional.isPresent()) {
-                            //case of port deleted
-                            tx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
-                            Futures.addCallback(tx.submit(), new SettableFutureCallback(settableFuture),
-                                                MoreExecutors.directExecutor());
-                        }
+            new FutureCallback<Optional<Node>>() {
+                @Override
+                public void onSuccess(@Nonnull Optional<Node> nodeOptional) {
+                    if (nodeOptional.isPresent()) {
+                        //case of port deleted
+                        tx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
+                        Futures.addCallback(tx.submit(), new SettableFutureCallback<>(settableFuture),
+                                MoreExecutors.directExecutor());
                     }
-                }, MoreExecutors.directExecutor());
+                }
+
+                @Override
+                public void onFailure(Throwable failure) {
+                    LOG.error("Read of {} failed", psNodeIid, failure);
+                    tx.cancel();
+                }
+            }, MoreExecutors.directExecutor());
         return futures;
     }
 
