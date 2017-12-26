@@ -7,14 +7,14 @@
  */
 package org.opendaylight.netvirt.elan.statisitcs;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.Futures;
 import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius._interface.statistics.rev150824.ResultCode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.statistics.rev150824.ElanStatisticsService;
@@ -32,13 +32,14 @@ import org.slf4j.LoggerFactory;
 public class ElanStatisticsImpl implements ElanStatisticsService {
     private static final Logger LOG = LoggerFactory.getLogger(ElanStatisticsImpl.class);
 
-    private final DataBroker dataBroker;
     private final IInterfaceManager interfaceManager;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     @Inject
-    public ElanStatisticsImpl(DataBroker dataBroker, IInterfaceManager interfaceManager) {
-        this.dataBroker = dataBroker;
+    public ElanStatisticsImpl(IInterfaceManager interfaceManager,
+            ElanInterfaceCache elanInterfaceCache) {
         this.interfaceManager = interfaceManager;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     @Override
@@ -51,13 +52,13 @@ public class ElanStatisticsImpl implements ElanStatisticsService {
             rpcResultBuilder = RpcResultBuilder.failed();
             return getFutureWithAppErrorMessage(rpcResultBuilder, "Interface name is not provided");
         }
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(dataBroker, interfaceName);
-        if (elanInterface == null) {
+        Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
+        if (!elanInterface.isPresent()) {
             rpcResultBuilder = RpcResultBuilder.failed();
             return getFutureWithAppErrorMessage(rpcResultBuilder,
                     String.format("Interface %s is not a ELAN interface", interfaceName));
         }
-        String elanInstanceName = elanInterface.getElanInstanceName();
+        String elanInstanceName = elanInterface.get().getElanInstanceName();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
         //FIXME [ELANBE] Get this API Later
         short tableId = 0;

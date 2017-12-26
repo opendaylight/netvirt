@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
+import com.google.common.base.Optional;
 import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -16,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
@@ -35,14 +37,16 @@ public class ElanInterfaceConfigListener
     private final DataBroker dataBroker;
     private final ElanInterfaceManager elanInterfaceManager;
     private final JobCoordinator jobCoordinator;
+    private final ElanInterfaceCache elanInterfaceCache;
 
     @Inject
     public ElanInterfaceConfigListener(DataBroker dataBroker, ElanInterfaceManager elanInterfaceManager,
-            JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator, ElanInterfaceCache elanInterfaceCache) {
         super(Interface.class, ElanInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.elanInterfaceManager = elanInterfaceManager;
         this.jobCoordinator = jobCoordinator;
+        this.elanInterfaceCache = elanInterfaceCache;
     }
 
     @Override
@@ -68,8 +72,8 @@ public class ElanInterfaceConfigListener
         }
 
         String interfaceName = intrf.getName();
-        ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(dataBroker, interfaceName);
-        if (elanInterface == null) {
+        Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
+        if (!elanInterface.isPresent()) {
             LOG.debug("There is no ELAN service for interface {}. Ignoring it", interfaceName);
             return;
         }
