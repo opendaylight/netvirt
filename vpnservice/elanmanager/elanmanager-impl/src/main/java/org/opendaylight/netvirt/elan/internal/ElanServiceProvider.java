@@ -44,6 +44,9 @@ import org.opendaylight.mdsal.eos.common.api.CandidateAlreadyRegisteredException
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
+import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
+import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
@@ -97,6 +100,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     private final SouthboundUtils southboundUtils;
     private final IMdsalApiManager mdsalManager;
     private final ElanInstanceCache elanInstanceCache;
+    private final ElanInterfaceCache elanInterfaceCache;
     private boolean isL2BeforeL3;
 
     private final EntityOwnershipCandidateRegistration candidateRegistration;
@@ -109,7 +113,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                                ElanUtils elanUtils,
                                EntityOwnershipService entityOwnershipService,
                                SouthboundUtils southboundUtils, ElanInstanceCache elanInstanceCache,
-                               IMdsalApiManager mdsalManager) {
+                               ElanInterfaceCache elanInterfaceCache, IMdsalApiManager mdsalManager) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
         this.elanInstanceManager = elanInstanceManager;
@@ -118,6 +122,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         this.elanUtils = elanUtils;
         this.southboundUtils = southboundUtils;
         this.elanInstanceCache = elanInstanceCache;
+        this.elanInterfaceCache = elanInterfaceCache;
         this.mdsalManager = mdsalManager;
 
         candidateRegistration = registerCandidate(entityOwnershipService);
@@ -228,7 +233,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public EtreeInterface getEtreeInterfaceByElanInterfaceName(String elanInterface) {
-        return ElanUtils.getEtreeInterfaceByElanInterfaceName(broker, elanInterface);
+        return elanInterfaceCache.getEtreeInterface(elanInterface).orNull();
     }
 
     public static boolean compareWithExistingElanInstance(ElanInstance existingElanInstance, long macTimeOut,
@@ -314,8 +319,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     public void updateElanInterface(String elanInstanceName, String interfaceName,
             List<String> updatedStaticMacAddresses, String newDescription) {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        if (existingElanInterface == null) {
+        Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
+        if (!existingElanInterface.isPresent()) {
             return;
         }
 
@@ -336,8 +341,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void deleteElanInterface(String elanInstanceName, String interfaceName) {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        if (existingElanInterface != null) {
+        Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
+        if (existingElanInterface.isPresent()) {
             ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                     ElanUtils.getElanInterfaceConfigurationDataPathId(interfaceName));
             LOG.debug("deleting the Elan Interface {}", existingElanInterface);
@@ -346,26 +351,22 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public void addStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        PhysAddress updateStaticMacAddress = new PhysAddress(macAddress);
-        if (existingElanInterface != null) {
+        Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
+        if (existingElanInterface.isPresent()) {
             StaticMacEntriesBuilder staticMacEntriesBuilder = new StaticMacEntriesBuilder();
-            StaticMacEntries staticMacEntry = staticMacEntriesBuilder.setMacAddress(updateStaticMacAddress).build();
+            StaticMacEntries staticMacEntry = staticMacEntriesBuilder.setMacAddress(
+                    new PhysAddress(macAddress)).build();
             InstanceIdentifier<StaticMacEntries> staticMacEntriesIdentifier =
-                    ElanUtils.getStaticMacEntriesCfgDataPathIdentifier(interfaceName,
-                    macAddress);
+                    ElanUtils.getStaticMacEntriesCfgDataPathIdentifier(interfaceName, macAddress);
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION, staticMacEntriesIdentifier, staticMacEntry);
-            return;
         }
-
-        return;
     }
 
     @Override
     public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress)
             throws MacNotFoundException {
-        ElanInterface existingElanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
-        if (existingElanInterface != null) {
+        Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
+        if (existingElanInterface.isPresent()) {
             InstanceIdentifier<StaticMacEntries> staticMacEntriesIdentifier =
                     ElanUtils.getStaticMacEntriesCfgDataPathIdentifier(interfaceName,
                     macAddress);
@@ -662,7 +663,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public ElanInterface getElanInterfaceByElanInterfaceName(String interfaceName) {
-        return ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
+        return elanInterfaceCache.get(interfaceName).orNull();
     }
 
     @Override
@@ -865,8 +866,9 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
         LOG.info("Installing the ARP responder flow on DPN {} for Interface {} with MAC {} & IP {}", dpnId,
                 ingressInterfaceName, macAddress, ipAddress);
-        ElanInterface elanIface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, ingressInterfaceName);
-        ElanInstance elanInstance = elanInstanceCache.get(elanIface.getElanInstanceName()).orNull();
+        Optional<ElanInterface> elanIface = elanInterfaceCache.get(ingressInterfaceName);
+        ElanInstance elanInstance = elanIface.isPresent()
+                ? elanInstanceCache.get(elanIface.get().getElanInstanceName()).orNull() : null;
         if (elanInstance == null) {
             LOG.debug("addArpResponderFlow: elanInstance is null, Failed to install arp responder flow for Interface {}"
                       + " with MAC {} & IP {}", dpnId,
