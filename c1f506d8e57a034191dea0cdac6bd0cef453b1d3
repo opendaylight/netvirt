@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "3b2e289c_7e5c8a46",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-26T14:39:41Z",
+      "side": 1,
+      "message": "Ok, please modify the sentence to convey that Admin would migrate the VMs to a different compute host and Netvirt would react accordingly. In the current state, it could lead to confusion that Netvirt would trigger the migration.",
+      "parentUuid": "cd883a63_5e9793ae",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 98
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bc1e67b_f183b9dc",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 7
@@ -131,6 +155,30 @@
       "side": 1,
       "message": "start is called only once\nso is end\ncan odl controller know if the compute is set in maintenance mode or not ?",
       "parentUuid": "6bc1e67b_f183b9dc",
+      "range": {
+        "startLine": 43,
+        "startChar": 14,
+        "endLine": 43,
+        "endChar": 51
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87f9e840_fc0fb4a3",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-26T14:39:41Z",
+      "side": 1,
+      "message": "Please update the description accordingly to convey that start and end (for a compute node) can be called only once.\n\nReg- maintenance mode, AFAIK currently ODL controller does not have this info.",
+      "parentUuid": "760e7b65_d8bce3da",
       "range": {
         "startLine": 43,
         "startChar": 14,
@@ -201,6 +249,30 @@
       "side": 1,
       "message": "Following is the expected sequence.\n\nscalein-computes-start A,B\ndelete/migrate vms of A ( success )\ndelete/migrate vms of B ( fail )\nscalein-computes-end A\nscalein-computes-recover B\n\nWill update the same.",
       "parentUuid": "060bb67a_86ce2385",
+      "range": {
+        "startLine": 53,
+        "startChar": 33,
+        "endLine": 53,
+        "endChar": 43
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "498f7650_336453ab",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-26T14:39:41Z",
+      "side": 1,
+      "message": "Yes, please update the same. With an example, it would be clear to the readers how to use this interface.\n\nAlso, please explain what would happen when scalein-computes-recover is invoked.",
+      "parentUuid": "f71d9f77_031c604d",
       "range": {
         "startLine": 53,
         "startChar": 33,
