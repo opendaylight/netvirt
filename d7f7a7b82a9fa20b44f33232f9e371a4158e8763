@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "81f188cd_1c49f88a",
+        "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/netvirt/aclservice/api/utils/AclInterface.java",
+        "patchSetId": 99
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-27T14:36:03Z",
+      "side": 1,
+      "message": "I will do it. alright.\n\nif you don\u0027t mind,I have just a question:\nwhy  emptylist() is better than EMPTY_LIST please?\nbecause as emptylist is an immutable empty list without any object, I don\u0027t see why it is a better way to use the first instead of the second.\n\nThanks for your explanation\nNoel",
+      "parentUuid": "fe007454_449a81fc",
+      "range": {
+        "startLine": 124,
+        "startChar": 53,
+        "endLine": 124,
+        "endChar": 63
+      },
+      "revId": "d7f7a7b82a9fa20b44f33232f9e371a4158e8763",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f881d3d_d256070f",
         "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/netvirt/aclservice/api/utils/AclInterface.java",
         "patchSetId": 99
@@ -36,6 +60,30 @@
       "writtenOn": "2017-12-26T16:17:53Z",
       "side": 1,
       "message": "emptyList()",
+      "range": {
+        "startLine": 317,
+        "startChar": 55,
+        "endLine": 317,
+        "endChar": 65
+      },
+      "revId": "d7f7a7b82a9fa20b44f33232f9e371a4158e8763",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa8aace0_d555a435",
+        "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/netvirt/aclservice/api/utils/AclInterface.java",
+        "patchSetId": 99
+      },
+      "lineNbr": 317,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-27T14:36:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1f881d3d_d256070f",
       "range": {
         "startLine": 317,
         "startChar": 55,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "90b0223d_d7a473d3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 99
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-27T14:36:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f1115bf9_e210bef3",
+      "range": {
+        "startLine": 91,
+        "startChar": 44,
+        "endLine": 91,
+        "endChar": 76
+      },
+      "revId": "d7f7a7b82a9fa20b44f33232f9e371a4158e8763",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "75f7ff30_8e3d15bc",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
         "patchSetId": 99
@@ -82,6 +154,30 @@
       "writtenOn": "2017-12-26T16:17:53Z",
       "side": 1,
       "message": "We know it\u0027s not empty here since we checked for contains vpnId above. Even if ti was empty, no need to check, just do:\n\n  List\u003cLong\u003e list \u003d new ArrayList\u003c\u003e(prevAclInterface.getVpnIds());",
+      "range": {
+        "startLine": 77,
+        "startChar": 54,
+        "endLine": 77,
+        "endChar": 61
+      },
+      "revId": "d7f7a7b82a9fa20b44f33232f9e371a4158e8763",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de368631_336d4598",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclVpnChangeListener.java",
+        "patchSetId": 99
+      },
+      "lineNbr": 77,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-27T14:36:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75f7ff30_8e3d15bc",
       "range": {
         "startLine": 77,
         "startChar": 54,
