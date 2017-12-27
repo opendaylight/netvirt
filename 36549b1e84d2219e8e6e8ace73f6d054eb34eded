@@ -22,6 +22,30 @@
       "revId": "36549b1e84d2219e8e6e8ace73f6d054eb34eded",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11cf8cab_86cd21af",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 69
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-27T09:25:47Z",
+      "side": 1,
+      "message": "Hi Tom,\n\nBecause I need the singleton from NeutronvpnNatManager, and NeutronvpnNatManager need this singleton too.",
+      "parentUuid": "fe45b802_3baf72b8",
+      "range": {
+        "startLine": 171,
+        "startChar": 4,
+        "endLine": 171,
+        "endChar": 11
+      },
+      "revId": "36549b1e84d2219e8e6e8ace73f6d054eb34eded",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
