@@ -262,7 +262,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
 
             DisAssociateHwvtepFromElanJob disAssociateHwvtepToElanJob =
                     new DisAssociateHwvtepFromElanJob(elanL2GatewayUtils, elanL2GatewayMulticastUtils,
-                            elanL2GwDevice, elanName, () -> elanInstanceManager.getElanInstanceByName(elanName),
+                            elanL2GwDevice, elanName, () -> elanInstanceCache.get(elanName).orNull(),
                             l2Device, defaultVlan, hwvtepNodeId, isLastL2GwConnDeleted);
             elanClusterUtils.runOnlyInOwnerNode(disAssociateHwvtepToElanJob.getJobKey(), "remove l2gw connection job",
                     disAssociateHwvtepToElanJob);
@@ -303,7 +303,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                         hwvtepNodeId, elanName);
                 if (logicalSwitch == null) {
                     HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(
-                            elanInstanceManager, elanL2GatewayUtils, elanClusterUtils, elanL2GatewayMulticastUtils,
+                            elanInstanceCache, elanL2GatewayUtils, elanClusterUtils, elanL2GatewayMulticastUtils,
                             this, l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId);
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     closeables.add(hwVTEPLogicalSwitchListener);
@@ -313,7 +313,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                     createLogicalSwitch = false;
                 }
                 AssociateHwvtepToElanJob associateHwvtepToElanJob = new AssociateHwvtepToElanJob(broker,
-                        elanL2GatewayUtils, elanL2GatewayMulticastUtils, elanInstanceManager, l2GatewayDevice,
+                        elanL2GatewayUtils, elanL2GatewayMulticastUtils, elanInstanceCache, l2GatewayDevice,
                         elanInstance, l2Device, defaultVlan, createLogicalSwitch);
 
                 elanClusterUtils.runOnlyInOwnerNode(associateHwvtepToElanJob.getJobKey(),
