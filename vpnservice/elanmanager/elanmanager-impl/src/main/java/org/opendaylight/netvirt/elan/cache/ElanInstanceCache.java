@@ -8,6 +8,10 @@
 package org.opendaylight.netvirt.elan.cache;
 
 import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -31,6 +35,8 @@ import org.slf4j.LoggerFactory;
 public class ElanInstanceCache extends DataObjectCache<ElanInstance> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceCache.class);
 
+    private final Map<InstanceIdentifier<ElanInstance>, Collection<Runnable>> waitingJobs = new HashMap<>();
+
     @Inject
     public ElanInstanceCache(DataBroker dataBroker, CacheProvider cacheProvider) {
         super(ElanInstance.class, dataBroker, LogicalDatastoreType.CONFIGURATION,
@@ -43,6 +49,33 @@ public class ElanInstanceCache extends DataObjectCache<ElanInstance> {
         } catch (ReadFailedException e) {
             LOG.warn("Error reading ElanInstance {}", elanInstanceName, e);
             return Optional.absent();
+        }
+    }
+
+    public Optional<ElanInstance> get(String elanInstanceName, Runnable runAfterElanIsAvailable) {
+        Optional<ElanInstance> possibleInstance = get(elanInstanceName);
+        if (!possibleInstance.isPresent()) {
+            synchronized (waitingJobs) {
+                possibleInstance = get(elanInstanceName);
+                if (!possibleInstance.isPresent()) {
+                    waitingJobs.computeIfAbsent(ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName),
+                        key -> new ArrayList<>()).add(runAfterElanIsAvailable);
+                }
+            }
+        }
+
+        return possibleInstance;
+    }
+
+    @Override
+    protected void added(InstanceIdentifier<ElanInstance> path, ElanInstance elanInstance) {
+        Collection<Runnable> jobsToRun;
+        synchronized (waitingJobs) {
+            jobsToRun = waitingJobs.remove(path);
+        }
+
+        if (jobsToRun != null) {
+            jobsToRun.forEach(Runnable::run);
         }
     }
 }
