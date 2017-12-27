@@ -34,7 +34,6 @@ import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.l2gw.jobs.AssociateHwvtepToElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DisAssociateHwvtepFromElanJob;
-import org.opendaylight.netvirt.elan.l2gw.listeners.ElanInstanceListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLocalUcastMacListener;
 import org.opendaylight.netvirt.elan.l2gw.listeners.HwvtepLogicalSwitchListener;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -186,16 +185,16 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         LOG.info("Adding L2gateway Connection with ID: {}", input.getKey().getUuid());
 
         Uuid networkUuid = input.getNetworkId();
-        ElanInstance elanInstance = elanInstanceManager.getElanInstanceByName(networkUuid.getValue());
-        //Taking cluster reboot scenario , if Elan instance is not available when l2GatewayConnection add events
-        //comes we need to wait for elaninstance to resolve. Hence updating the map with the runnable .
-        //When elanInstance add comes , it look in to the map and run the associated runnable associated with it.
+
+        // Taking cluster reboot scenario , if Elan instance is not available when l2GatewayConnection add events
+        // comes we need to wait for elaninstance to resolve. Hence updating the map with the runnable .
+        // When elanInstance add comes , it look in to the map and run the associated runnable associated with it.
+        ElanInstance elanInstance = elanInstanceCache.get(networkUuid.getValue(),
+            () -> addL2GatewayConnection(input, l2GwDeviceName)).orNull();
         if (elanInstance == null) {
-            LOG.info("Waiting for elan {}", networkUuid.getValue());
-            ElanInstanceListener.runJobAfterElanIsAvailable(networkUuid.getValue(),
-                () -> addL2GatewayConnection(input, l2GwDeviceName));
             return;
         }
+
         if (!isVxlanNetworkOrVxlanSegment(elanInstance)) {
             LOG.error("Neutron network with id {} is not VxlanNetwork", networkUuid.getValue());
         } else {
