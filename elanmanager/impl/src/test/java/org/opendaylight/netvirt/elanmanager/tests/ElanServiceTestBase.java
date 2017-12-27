@@ -11,13 +11,11 @@ import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import javax.inject.Inject;
-
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.awaitility.Awaitility;
@@ -29,9 +27,9 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.testutils.TestInterfaceManager;
-
 import org.opendaylight.genius.testutils.interfacemanager.TunnelInterfaceDetails;
 import org.opendaylight.genius.testutils.itm.ItmRpcTestImpl;
+import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.internal.ElanInstanceManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
@@ -74,6 +72,7 @@ public class ElanServiceTestBase {
     protected  @Inject TestInterfaceManager interfaceMgr;
     protected  @Inject ItmRpcTestImpl itmRpc;
     protected  @Inject ElanInstanceManager elanInstanceManager;
+    protected  @Inject ElanInstanceCache elanInstanceCache;
     protected @Inject SingleTransactionDataBroker singleTxdataBroker;
     public static final String ELAN1 = "34701c04-1118-4c65-9425-78a80d49a211";
     public static final Long ELAN1_SEGMENT_ID = 100L;
@@ -201,12 +200,7 @@ public class ElanServiceTestBase {
         sortActions(org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.Instruction input) {
         if (input instanceof  ApplyActionsCase) {
             List<Action> action = new ArrayList<>(((ApplyActionsCase)input).getApplyActions().getAction());
-            Collections.sort(action, new Comparator<Action>() {
-                @Override
-                public int compare(Action o1, Action o2) {
-                    return o1.getOrder().compareTo(o2.getOrder());
-                }
-            });
+            Collections.sort(action, (o1, o2) -> o1.getOrder().compareTo(o2.getOrder()));
 
             ApplyActions actions = new ApplyActionsBuilder().setAction(action).build();
             return new ApplyActionsCaseBuilder().setApplyActions(actions).build();
@@ -258,7 +252,7 @@ public class ElanServiceTestBase {
     }
 
     public void addElanInterface(String elanInstanceName, InterfaceInfo interfaceInfo, String prefix) {
-        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
+        ElanInstance existingElanInstance = elanInstanceCache.get(elanInstanceName).orNull();
         String interfaceName = interfaceInfo.getInterfaceName();
 
         if (existingElanInstance != null) {
