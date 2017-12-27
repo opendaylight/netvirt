@@ -16,6 +16,24 @@
       "revId": "f644006c152442c29b003eee2572feacc8e2285a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de07e525_f71c0d3f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgammer.java",
+        "patchSetId": 126
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2017-12-27T14:36:23Z",
+      "side": 1,
+      "message": "Done\nNeutronvpnUtils called it in the next commit...\nthey are reverted to use injection",
+      "parentUuid": "b0c42e30_814cec8b",
+      "revId": "f644006c152442c29b003eee2572feacc8e2285a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
