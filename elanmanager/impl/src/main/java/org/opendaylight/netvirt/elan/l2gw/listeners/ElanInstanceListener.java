@@ -7,10 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -31,14 +28,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance,
-        ElanInstanceListener> {
+public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBase<ElanInstance, ElanInstanceListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceListener.class);
 
     private final DataBroker broker;
     private final ElanClusterUtils elanClusterUtils;
-    private static final Map<String, List<Runnable>> WAITING_JOB_LIST = new ConcurrentHashMap<>();
 
     @Inject
     public ElanInstanceListener(final DataBroker db, final ElanClusterUtils elanClusterUtils) {
@@ -86,15 +81,6 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
 
     @Override
     protected void add(InstanceIdentifier<ElanInstance> identifier, ElanInstance add) {
-        List<Runnable> runnables = WAITING_JOB_LIST.get(add.getElanInstanceName());
-        if (runnables != null) {
-            runnables.forEach(Runnable::run);
-        }
-    }
-
-    public static void runJobAfterElanIsAvailable(String elanName, Runnable runnable) {
-        WAITING_JOB_LIST.computeIfAbsent(elanName, (name) -> new ArrayList<>());
-        WAITING_JOB_LIST.get(elanName).add(runnable);
     }
 
     @Override
