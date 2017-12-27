@@ -36,7 +36,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.Elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.state.Elan;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -173,19 +172,9 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         }
     }
 
-    public ElanInstance getElanInstanceByName(String elanInstanceName) {
-        InstanceIdentifier<ElanInstance> elanIdentifierId = getElanInstanceConfigurationDataPath(elanInstanceName);
-        return MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
-    }
-
     private static InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationDataPath(String elanInstanceName) {
         return InstanceIdentifier.builder(ElanDpnInterfaces.class)
                 .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName)).build();
-    }
-
-    private InstanceIdentifier<ElanInstance> getElanInstanceConfigurationDataPath(String elanInstanceName) {
-        return InstanceIdentifier.builder(ElanInstances.class)
-                .child(ElanInstance.class, new ElanInstanceKey(elanInstanceName)).build();
     }
 
     @Override
