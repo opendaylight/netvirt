@@ -91,7 +91,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     private final IdManagerService idManager;
     private final IInterfaceManager interfaceManager;
-    private final ElanInstanceManager elanInstanceManager;
     private final ElanBridgeManager bridgeMgr;
     private final DataBroker broker;
     private final ElanUtils elanUtils;
@@ -105,7 +104,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Inject
     public ElanServiceProvider(IdManagerService idManager, IInterfaceManager interfaceManager,
-                               ElanInstanceManager elanInstanceManager, ElanBridgeManager bridgeMgr,
+                               ElanBridgeManager bridgeMgr,
                                DataBroker dataBroker,
                                ElanInterfaceManager elanInterfaceManager,
                                ElanUtils elanUtils,
@@ -114,7 +113,6 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                                ElanInterfaceCache elanInterfaceCache, IMdsalApiManager mdsalManager) {
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
-        this.elanInstanceManager = elanInstanceManager;
         this.bridgeMgr = bridgeMgr;
         this.broker = dataBroker;
         this.elanUtils = elanUtils;
@@ -172,10 +170,10 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public boolean createElanInstance(String elanInstanceName, long macTimeout, String description) {
-        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
+        Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(elanInstanceName);
         boolean isSuccess = true;
-        if (existingElanInstance != null) {
-            if (compareWithExistingElanInstance(existingElanInstance, macTimeout, description)) {
+        if (existingElanInstance.isPresent()) {
+            if (compareWithExistingElanInstance(existingElanInstance.get(), macTimeout, description)) {
                 LOG.debug("Elan Instance is already present in the Operational DS {}", existingElanInstance);
                 return true;
             } else {
@@ -200,10 +198,10 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
 
     @Override
     public boolean createEtreeInstance(String elanInstanceName, long macTimeout, String description) {
-        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
+        Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(elanInstanceName);
         boolean isSuccess = true;
-        if (existingElanInstance != null) {
-            if (compareWithExistingElanInstance(existingElanInstance, macTimeout, description)) {
+        if (existingElanInstance.isPresent()) {
+            if (compareWithExistingElanInstance(existingElanInstance.get(), macTimeout, description)) {
                 LOG.warn("Etree Instance is already present in the Operational DS {}", existingElanInstance);
                 return true;
             } else {
@@ -257,8 +255,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     public boolean deleteElanInstance(String elanInstanceName) {
         boolean isSuccess = false;
-        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
-        if (existingElanInstance == null) {
+        Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(elanInstanceName);
+        if (!existingElanInstance.isPresent()) {
             LOG.debug("Elan Instance is not present for {}", elanInstanceName);
             return isSuccess;
         }
@@ -272,8 +270,9 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     public void addEtreeInterface(String etreeInstanceName, String interfaceName, EtreeInterfaceType interfaceType,
             List<String> staticMacAddresses, String description) {
-        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(etreeInstanceName);
-        if (existingElanInstance != null && existingElanInstance.getAugmentation(EtreeInstance.class) != null) {
+        Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(etreeInstanceName);
+        if (existingElanInstance.isPresent()
+                && existingElanInstance.get().getAugmentation(EtreeInstance.class) != null) {
             EtreeInterface etreeInterface = new EtreeInterfaceBuilder().setEtreeInterfaceType(interfaceType).build();
             ElanInterface elanInterface;
             if (staticMacAddresses == null) {
@@ -297,8 +296,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     @Override
     public void addElanInterface(String elanInstanceName, String interfaceName, List<String> staticMacAddresses,
             String description) {
-        ElanInstance existingElanInstance = elanInstanceManager.getElanInstanceByName(elanInstanceName);
-        if (existingElanInstance != null) {
+        Optional<ElanInstance> existingElanInstance = elanInstanceCache.get(elanInstanceName);
+        if (existingElanInstance.isPresent()) {
             ElanInterfaceBuilder elanInterfaceBuilder = new ElanInterfaceBuilder()
                     .setElanInstanceName(elanInstanceName)
                     .setDescription(description).setName(interfaceName)
