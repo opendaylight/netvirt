@@ -18,6 +18,8 @@
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
   <reference id="jobCoordinator"
              interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
+  <reference id="hwvtepNodeHACache"
+             interface="org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache"/>
 
   <odl:rpc-service id="odlInterfaceRpcService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />

@@ -11,21 +11,19 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.HAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
@@ -42,8 +40,6 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         return psNodeId.startsWith(globalNodeId) && psNodeId.contains("physicalswitch");
     };
 
-    static Predicate<InstanceIdentifier<Node>> IS_NOT_HA_CHILD = (iid) -> hwvtepHACache.getParent(iid) == null;
-
     private final IHAEventHandler haEventHandler;
     private final HAOpClusteredListener haOpClusteredListener;
     private final NodeCopier nodeCopier;
@@ -51,8 +47,8 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     @Inject
     public HAOpNodeListener(DataBroker db, HAEventHandler haEventHandler,
                             HAOpClusteredListener haOpClusteredListener,
-                            NodeCopier nodeCopier) throws Exception {
-        super(OPERATIONAL, db);
+                            NodeCopier nodeCopier, HwvtepNodeHACache hwvtepNodeHACache) throws Exception {
+        super(OPERATIONAL, db, hwvtepNodeHACache);
         this.haEventHandler = haEventHandler;
         this.haOpClusteredListener = haOpClusteredListener;
         this.nodeCopier = nodeCopier;
@@ -71,10 +67,10 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         //copy ha global config node to child global config node
         LOG.trace("Node connected {} - Checking if Ha or Non-Ha enabled ", childNode.getNodeId().getValue());
         haOpClusteredListener.onGlobalNodeAdd(childGlobalPath, childNode, tx);
-        if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
+        if (isNotHAChild(childGlobalPath)) {
             return;
         }
-        InstanceIdentifier<Node> haNodePath = hwvtepHACache.getParent(childGlobalPath);
+        InstanceIdentifier<Node> haNodePath = getHwvtepNodeHACache().getParent(childGlobalPath);
         LOG.trace("Ha enabled child node connected {}", childNode.getNodeId().getValue());
         try {
             nodeCopier.copyGlobalNode(Optional.fromNullable(childNode),
@@ -96,14 +92,14 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
 
         String oldHAId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(originalChildNode);
         if (!Strings.isNullOrEmpty(oldHAId)) { //was already ha child
-            InstanceIdentifier<Node> haPath = hwvtepHACache.getParent(childGlobalPath);
+            InstanceIdentifier<Node> haPath = getHwvtepNodeHACache().getParent(childGlobalPath);
             LOG.debug("Copy oper update from child {} to parent {}", childGlobalPath, haPath);
             haEventHandler.copyChildGlobalOpUpdateToHAParent(updatedChildNode, originalChildNode, haPath, tx);
             return;//TODO handle unha case
         }
 
-        HAOpClusteredListener.addToHACacheIfBecameHAChild(childGlobalPath, updatedChildNode, originalChildNode, tx);
-        if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
+        addToHACacheIfBecameHAChild(childGlobalPath, updatedChildNode, originalChildNode, tx);
+        if (isNotHAChild(childGlobalPath)) {
             return;
         }
         LOG.info("{} became ha child ", updatedChildNode.getNodeId().getValue());
@@ -116,13 +112,13 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
                             ReadWriteTransaction tx) throws InterruptedException, ExecutionException,
             ReadFailedException {
         haOpClusteredListener.onGlobalNodeDelete(childGlobalPath, childNode, tx);
-        if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
+        if (isNotHAChild(childGlobalPath)) {
             LOG.info("non ha child global delete {} ", getNodeId(childGlobalPath));
             return;
         }
         LOG.info("ha child global delete {} ", getNodeId(childGlobalPath));
-        InstanceIdentifier<Node> haNodePath = hwvtepHACache.getParent(childGlobalPath);
-        Set<InstanceIdentifier<Node>> children = hwvtepHACache.getChildrenForHANode(haNodePath);
+        InstanceIdentifier<Node> haNodePath = getHwvtepNodeHACache().getParent(childGlobalPath);
+        Set<InstanceIdentifier<Node>> children = getHwvtepNodeHACache().getChildrenForHANode(haNodePath);
         if (haOpClusteredListener.getConnected(children).isEmpty()) {
             LOG.info("All child deleted for ha node {} ", HwvtepHAUtil.getNodeIdVal(haNodePath));
             //ha ps delete is taken care by ps node delete
@@ -145,11 +141,11 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         if (!haOpClusteredListener.getConnectedNodes().contains(childGlobalPath)) {
             return;
         }
-        if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
+        if (isNotHAChild(childGlobalPath)) {
             return;
         }
         LOG.info("ha ps child connected {} ", getNodeId(childPsPath));
-        InstanceIdentifier<Node> haGlobalPath = hwvtepHACache.getParent(childGlobalPath);
+        InstanceIdentifier<Node> haGlobalPath = getHwvtepNodeHACache().getParent(childGlobalPath);
         InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(childPsNode, haGlobalPath);
         try {
             nodeCopier.copyPSNode(Optional.fromNullable(childPsNode), childPsPath, haPsPath, haGlobalPath,
@@ -167,10 +163,10 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
                         Node originalChildPSNode,
                         ReadWriteTransaction tx) throws ReadFailedException {
         InstanceIdentifier<Node> childGlobalPath = HwvtepHAUtil.getGlobalNodePathFromPSNode(updatedChildPSNode);
-        if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
+        if (isNotHAChild(childGlobalPath)) {
             return;
         }
-        InstanceIdentifier<Node> haGlobalPath = hwvtepHACache.getParent(childGlobalPath);
+        InstanceIdentifier<Node> haGlobalPath = getHwvtepNodeHACache().getParent(childGlobalPath);
         InstanceIdentifier<Node> haPsPath = HwvtepHAUtil.convertPsPath(updatedChildPSNode, haGlobalPath);
         LOG.error("Copy oper ps update from child {} to parent {}", childPsPath, haPsPath);
         haEventHandler.copyChildPsOpUpdateToHAParent(updatedChildPSNode, originalChildPSNode, haPsPath, tx);
@@ -184,12 +180,12 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
         //find if all child ps nodes disconnected then delete parent ps node
         haOpClusteredListener.onPsNodeDelete(childPsPath, childPsNode, tx);
         InstanceIdentifier<Node> disconnectedChildGlobalPath = HwvtepHAUtil.getGlobalNodePathFromPSNode(childPsNode);
-        if (IS_NOT_HA_CHILD.test(disconnectedChildGlobalPath)) {
+        if (isNotHAChild(disconnectedChildGlobalPath)) {
             LOG.info("on non ha ps child delete {} ", getNodeId(childPsPath));
             return;
         }
-        InstanceIdentifier<Node> haGlobalPath = hwvtepHACache.getParent(disconnectedChildGlobalPath);
-        Set<InstanceIdentifier<Node>> childPsPaths = hwvtepHACache.getChildrenForHANode(haGlobalPath).stream()
+        InstanceIdentifier<Node> haGlobalPath = getHwvtepNodeHACache().getParent(disconnectedChildGlobalPath);
+        Set<InstanceIdentifier<Node>> childPsPaths = getHwvtepNodeHACache().getChildrenForHANode(haGlobalPath).stream()
                 .map((childGlobalPath) -> HwvtepHAUtil.convertPsPath(childPsNode, childGlobalPath))
                 .collect(Collectors.toSet());
         //TODO validate what if this is null
@@ -239,5 +235,9 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
                 LOG.error("Failed to read child ps node {}", psIid);
             }
         });
+    }
+
+    private boolean isNotHAChild(InstanceIdentifier<Node> nodeId) {
+        return  getHwvtepNodeHACache().getParent(nodeId) == null;
     }
 }

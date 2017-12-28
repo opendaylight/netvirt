@@ -74,6 +74,7 @@
         </command>
         <command>
             <action class="org.opendaylight.netvirt.elan.cli.l2gw.L2GwUtilsCacheCli">
+                <argument ref="hwvtepNodeHACache"/>
             </action>
         </command>
         <command>
@@ -114,7 +115,8 @@
         </command>
         <command>
             <action class="org.opendaylight.netvirt.elan.cli.l2gw.L2GwValidateCli">
-                <property name="dataBroker" ref="dataBrokerRef"/>
+                <argument ref="dataBroker"/>
+                <argument ref="hwvtepNodeHACache"/>
             </action>
         </command>
     </command-bundle>

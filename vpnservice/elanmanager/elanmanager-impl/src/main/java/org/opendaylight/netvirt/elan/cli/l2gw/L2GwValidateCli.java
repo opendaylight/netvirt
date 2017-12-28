@@ -29,7 +29,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LogicalSwitchesCmd;
@@ -93,12 +93,13 @@ public class L2GwValidateCli extends OsgiCommandSupport {
 
     private List<L2gateway> l2gateways;
     private List<L2gatewayConnection> l2gatewayConnections;
-    private DataBroker dataBroker;
-
     private PrintWriter pw;
+    private final DataBroker dataBroker;
+    private final HwvtepNodeHACache hwvtepNodeHACache;
 
-    public void setDataBroker(DataBroker dataBroker) {
+    public L2GwValidateCli(DataBroker dataBroker, HwvtepNodeHACache hwvtepNodeHACache) {
         this.dataBroker = dataBroker;
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
 
     @Override
@@ -221,8 +222,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     private void verifyHANodes() {
         pw.println("Verifying HA nodes");
         boolean parentChildComparison = true;
-        HwvtepHACache haCache = HwvtepHACache.getInstance();
-        Set<InstanceIdentifier<Node>> parentNodes = HwvtepHACache.getInstance().getHAParentNodes();
+        Set<InstanceIdentifier<Node>> parentNodes = hwvtepNodeHACache.getHAParentNodes();
         if (HwvtepHAUtil.isEmpty(parentNodes)) {
             return;
         }
@@ -230,7 +230,7 @@ public class L2GwValidateCli extends OsgiCommandSupport {
             String parentNodeId = parentNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
             Node parentOpNode = operationalNodes.get(parentNodeIid);
             Node parentCfgNode = configNodes.get(parentNodeIid);
-            Set<InstanceIdentifier<Node>> childNodeIids = haCache.getChildrenForHANode(parentNodeIid);
+            Set<InstanceIdentifier<Node>> childNodeIids = hwvtepNodeHACache.getChildrenForHANode(parentNodeIid);
             if (HwvtepHAUtil.isEmpty(childNodeIids)) {
                 pw.println("No child nodes could be found for parent node " + parentNodeId);
                 continue;

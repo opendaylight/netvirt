@@ -20,7 +20,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.genius.utils.cache.CacheUtil;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.utils.L2GatewayCacheUtils;
@@ -38,6 +38,12 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     @Option(name = "-elan", aliases = {"--elan"}, description = "elan name",
             required = false, multiValued = false)
     String elanName;
+
+    private final HwvtepNodeHACache hwvtepNodeHACache;
+
+    public L2GwUtilsCacheCli(HwvtepNodeHACache hwvtepNodeHACache) {
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
+    }
 
     @Override
     protected Object doExecute() throws IOException {
@@ -82,23 +88,23 @@ public class L2GwUtilsCacheCli extends OsgiCommandSupport {
     private void dumpHACache(PrintStream printStream) {
 
         printStream.println("HA enabled nodes");
-        for (InstanceIdentifier<Node> id : HwvtepHACache.getInstance().getHAChildNodes()) {
+        for (InstanceIdentifier<Node> id : hwvtepNodeHACache.getHAChildNodes()) {
             String nodeId = id.firstKeyOf(Node.class).getNodeId().getValue();
             printStream.println(nodeId);
         }
 
         printStream.println("HA parent nodes");
-        for (InstanceIdentifier<Node> id : HwvtepHACache.getInstance().getHAParentNodes()) {
+        for (InstanceIdentifier<Node> id : hwvtepNodeHACache.getHAParentNodes()) {
             String nodeId = id.firstKeyOf(Node.class).getNodeId().getValue();
             printStream.println(nodeId);
-            for (InstanceIdentifier<Node> childId : HwvtepHACache.getInstance().getChildrenForHANode(id)) {
+            for (InstanceIdentifier<Node> childId : hwvtepNodeHACache.getChildrenForHANode(id)) {
                 nodeId = childId.firstKeyOf(Node.class).getNodeId().getValue();
                 printStream.println("    " + nodeId);
             }
         }
 
         printStream.println("Connected Nodes");
-        Map<String, Boolean> nodes = HwvtepHACache.getInstance().getConnectedNodes();
+        Map<String, Boolean> nodes = hwvtepNodeHACache.getNodeConnectionStatuses();
         for (Entry<String, Boolean> entry : nodes.entrySet()) {
             printStream.print(entry.getKey());
             printStream.print("    : connected : ");
