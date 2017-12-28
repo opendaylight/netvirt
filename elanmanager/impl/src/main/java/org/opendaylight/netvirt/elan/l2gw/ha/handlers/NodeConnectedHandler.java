@@ -17,7 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -40,15 +40,16 @@ public class NodeConnectedHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(NodeConnectedHandler.class);
 
-    GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
-    PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
-    GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
-    PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
-    DataBroker db;
-    HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
+    private final PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
+    private final GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
+    private final PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
+    private final DataBroker db;
+    private final HwvtepNodeHACache hwvtepNodeHACache;
 
-    public NodeConnectedHandler(DataBroker db) {
+    public NodeConnectedHandler(final DataBroker db, final HwvtepNodeHACache hwvtepNodeHACache) {
         this.db = db;
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
 
     /**
@@ -89,7 +90,7 @@ public class NodeConnectedHandler {
                  */
                 HAJobScheduler.getInstance().submitJob(() -> {
                     try {
-                        hwvtepHACache.updateConnectedNodeStatus(childNodePath);
+                        hwvtepNodeHACache.updateConnectedNodeStatus(childNodePath);
                         LOG.info("HA child reconnected handleNodeReConnected {}",
                                 childNode.getNodeId().getValue());
                         ReadWriteTransaction tx1 = db.newReadWriteTransaction();
