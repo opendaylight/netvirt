@@ -95,8 +95,8 @@ public class NeutronSubnetGwMacResolver {
                 TimeUnit.MILLISECONDS);
     }
 
-    private void sendArpRequestsToExtGateways() {
-        LOG.trace("Sending ARP requests to exteral gateways");
+    public void sendArpRequestsToExtGateways() {
+        LOG.trace("Sending ARP requests to external gateways");
         for (Router router : neutronvpnUtils.getAllRouters()) {
             sendArpRequestsToExtGateways(router);
         }
