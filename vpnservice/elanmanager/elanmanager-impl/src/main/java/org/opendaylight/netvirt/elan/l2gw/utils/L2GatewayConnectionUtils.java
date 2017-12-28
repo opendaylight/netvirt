@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -69,13 +70,14 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
     private final ElanInstanceCache elanInstanceCache;
+    private final HwvtepNodeHACache hwvtepNodeHACache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
 
     @Inject
     public L2GatewayConnectionUtils(DataBroker dataBroker, ElanInstanceManager elanInstanceManager,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayUtils elanL2GatewayUtils,
             JobCoordinator jobCoordinator, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-            ElanInstanceCache elanInstanceCache) {
+            ElanInstanceCache elanInstanceCache, HwvtepNodeHACache hwvtepNodeHACache) {
         this.broker = dataBroker;
         this.elanInstanceManager = elanInstanceManager;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -83,6 +85,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanInstanceCache = elanInstanceCache;
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
     }
 
     @Override
@@ -302,7 +305,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                 if (logicalSwitch == null) {
                     HwvtepLogicalSwitchListener hwVTEPLogicalSwitchListener = new HwvtepLogicalSwitchListener(
                             elanInstanceCache, elanL2GatewayUtils, elanClusterUtils, elanL2GatewayMulticastUtils,
-                            this, l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId);
+                            this, l2GatewayDevice, elanName, l2Device, defaultVlan, l2GwConnId, hwvtepNodeHACache);
                     hwVTEPLogicalSwitchListener.registerListener(LogicalDatastoreType.OPERATIONAL, broker);
                     closeables.add(hwVTEPLogicalSwitchListener);
                     createLogicalSwitch = true;
@@ -365,8 +368,8 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                     nodeIid), new SettableFutureCallback<Optional<Node>>(settableFuture) {
                         @Override
                         public void onSuccess(@Nonnull Optional<Node> resultNode) {
-                            HwvtepLocalUcastMacListener localUcastMacListener =
-                                    new HwvtepLocalUcastMacListener(broker, elanL2GatewayUtils, elanInstanceCache);
+                            HwvtepLocalUcastMacListener localUcastMacListener = new HwvtepLocalUcastMacListener(broker,
+                                    elanL2GatewayUtils, elanInstanceCache, hwvtepNodeHACache);
                             settableFuture.set(resultNode);
                             Optional<Node> nodeOptional = resultNode;
                             if (nodeOptional.isPresent()) {

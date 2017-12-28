@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import javax.annotation.PostConstruct;
@@ -20,11 +19,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
@@ -88,38 +86,18 @@ public class HwvtepPhysicalSwitchListener
 
     private final ElanClusterUtils elanClusterUtils;
 
-    private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final HwvtepNodeHACache hwvtepNodeHACache;
 
     private final L2gwServiceProvider l2gwServiceProvider;
 
-    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> childConnectedAfterParent =
-        (l2GwDevice, globalIid) -> {
-            return !hwvtepHACache.isHAParentNode(globalIid)
-                    && l2GwDevice != null;
-                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
-                    // thus will always return false. I don't know what the intention is here so commented out for now.
-                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid);
-        };
+    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> childConnectedAfterParent;
 
     private final Predicate<L2GatewayDevice> alreadyHasL2Gwids =
         (l2GwDevice) -> {
             return l2GwDevice != null && HwvtepHAUtil.isEmpty(l2GwDevice.getL2GatewayIds());
         };
 
-    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> parentConnectedAfterChild =
-        (l2GwDevice, globalIid) -> {
-            InstanceIdentifier<Node> existingIid = globalIid;
-            if (l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null) {
-                existingIid = HwvtepHAUtil.convertToInstanceIdentifier(l2GwDevice.getHwvtepNodeId());
-            }
-            return hwvtepHACache.isHAParentNode(globalIid)
-                    && l2GwDevice != null
-                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
-                    // thus will always return false. I don't know what the intention is here so commented out for now.
-                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid)
-                    && Objects.equals(globalIid, hwvtepHACache.getParent(existingIid));
-        };
-
+    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> parentConnectedAfterChild;
 
     private final HAOpClusteredListener haOpClusteredListener;
 
@@ -129,13 +107,35 @@ public class HwvtepPhysicalSwitchListener
     @Inject
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
             ElanClusterUtils elanClusterUtils, L2gwServiceProvider l2gwServiceProvider,
-            HAOpClusteredListener haListener) {
-        super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
+            HAOpClusteredListener haListener, HwvtepNodeHACache hwvtepNodeHACache) {
+        super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class, hwvtepNodeHACache);
         this.dataBroker = dataBroker;
         this.itmRpcService = itmRpcService;
         this.elanClusterUtils = elanClusterUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
         this.haOpClusteredListener = haListener;
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
+
+        childConnectedAfterParent = (l2GwDevice, globalIid) -> {
+            return !hwvtepNodeHACache.isHAParentNode(globalIid)
+                    && l2GwDevice != null;
+            // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
+            // thus will always return false. I don't know what the intention is here so commented out for now.
+            //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid);
+        };
+
+        parentConnectedAfterChild = (l2GwDevice, globalIid) -> {
+            InstanceIdentifier<Node> existingIid = globalIid;
+            if (l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null) {
+                existingIid = HwvtepHAUtil.convertToInstanceIdentifier(l2GwDevice.getHwvtepNodeId());
+            }
+            return hwvtepNodeHACache.isHAParentNode(globalIid)
+                    && l2GwDevice != null
+                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
+                    // thus will always return false. I don't know what the intention is here so commented out for now.
+                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid)
+                    && Objects.equals(globalIid, hwvtepNodeHACache.getParent(existingIid));
+        };
     }
 
     @Override
@@ -259,8 +259,8 @@ public class HwvtepPhysicalSwitchListener
                 LOG.error("Global node is absent {}", globalNodeId);
                 return;
             }
-            HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeIid, node.get());
-            if (hwvtepHACache.isHAEnabledDevice(globalNodeIid)) {
+            HwvtepHAUtil.addToCacheIfHAChildNode(globalNodeIid, node.get(), hwvtepNodeHACache);
+            if (hwvtepNodeHACache.isHAEnabledDevice(globalNodeIid)) {
                 LOG.trace("Ha enabled device {}", globalNodeIid);
                 return;
             }
@@ -287,14 +287,6 @@ public class HwvtepPhysicalSwitchListener
             handleAdd(l2GwDevice);
             return;
         });
-    }
-
-    boolean updateHACacheIfHANode(DataBroker broker, InstanceIdentifier<Node> globalNodeId)
-            throws ExecutionException, InterruptedException {
-        ReadWriteTransaction transaction = broker.newReadWriteTransaction();
-        Node node = transaction.read(LogicalDatastoreType.OPERATIONAL, globalNodeId).get().get();
-        HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node);
-        return hwvtepHACache.isHAEnabledDevice(globalNodeId);
     }
 
     /**

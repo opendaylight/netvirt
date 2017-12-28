@@ -25,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
@@ -67,8 +68,8 @@ public class HwvtepTerminationPointListener
 
     @Inject
     public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-            ElanClusterUtils elanClusterUtils) {
-        super(TerminationPoint.class, HwvtepTerminationPointListener.class);
+            ElanClusterUtils elanClusterUtils, HwvtepNodeHACache hwvtepNodeHACache) {
+        super(TerminationPoint.class, HwvtepTerminationPointListener.class, hwvtepNodeHACache);
 
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;

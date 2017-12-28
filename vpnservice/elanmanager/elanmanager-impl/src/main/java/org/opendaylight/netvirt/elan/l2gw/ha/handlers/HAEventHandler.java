@@ -14,6 +14,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
@@ -25,8 +26,8 @@ public class HAEventHandler implements IHAEventHandler {
     private final OpNodeUpdatedHandler opNodeUpdatedHandler = new OpNodeUpdatedHandler();
 
     @Inject
-    public HAEventHandler(DataBroker db) {
-        nodeConnectedHandler = new NodeConnectedHandler(db);
+    public HAEventHandler(DataBroker db, HwvtepNodeHACache hwvtepNodeHACache) {
+        nodeConnectedHandler = new NodeConnectedHandler(db, hwvtepNodeHACache);
     }
 
     @Override
