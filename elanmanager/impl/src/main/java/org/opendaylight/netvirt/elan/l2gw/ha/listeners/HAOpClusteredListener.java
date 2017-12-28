@@ -8,10 +8,8 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
-import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -26,9 +24,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -42,8 +39,8 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     private final Map<InstanceIdentifier<Node>, Set<Consumer<Optional<Node>>>> waitingJobs = new ConcurrentHashMap<>();
 
     @Inject
-    public HAOpClusteredListener(DataBroker db) throws Exception {
-        super(LogicalDatastoreType.OPERATIONAL, db);
+    public HAOpClusteredListener(DataBroker db, HwvtepNodeHACache hwvtepNodeHACache) throws Exception {
+        super(LogicalDatastoreType.OPERATIONAL, db, hwvtepNodeHACache);
         LOG.info("Registering HAOpClusteredListener");
     }
 
@@ -54,26 +51,26 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     @Override
     synchronized  void onGlobalNodeDelete(InstanceIdentifier<Node> key, Node added, ReadWriteTransaction tx)  {
         connectedNodes.remove(key);
-        hwvtepHACache.updateDisconnectedNodeStatus(key);
+        getHwvtepNodeHACache().updateDisconnectedNodeStatus(key);
     }
 
     @Override
     void onPsNodeDelete(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)  {
         connectedNodes.remove(key);
-        hwvtepHACache.updateDisconnectedNodeStatus(key);
+        getHwvtepNodeHACache().updateDisconnectedNodeStatus(key);
     }
 
     @Override
     void onPsNodeAdd(InstanceIdentifier<Node> key, Node addedPSNode, ReadWriteTransaction tx)    {
         connectedNodes.add(key);
-        hwvtepHACache.updateConnectedNodeStatus(key);
+        getHwvtepNodeHACache().updateConnectedNodeStatus(key);
     }
 
     @Override
     public synchronized void onGlobalNodeAdd(InstanceIdentifier<Node> key, Node updated, ReadWriteTransaction tx) {
         connectedNodes. add(key);
-        addToCacheIfHAChildNode(key, updated);
-        hwvtepHACache.updateConnectedNodeStatus(key);
+        HwvtepHAUtil.addToCacheIfHAChildNode(key, updated, getHwvtepNodeHACache());
+        getHwvtepNodeHACache().updateConnectedNodeStatus(key);
         if (waitingJobs.containsKey(key) && !waitingJobs.get(key).isEmpty()) {
             try {
                 HAJobScheduler jobScheduler = HAJobScheduler.getInstance();
@@ -91,24 +88,15 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
         }
     }
 
-    public static void addToCacheIfHAChildNode(InstanceIdentifier<Node> childPath, Node childNode) {
-        String haId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(childNode);
-        if (!Strings.isNullOrEmpty(haId)) {
-            InstanceIdentifier<Node> parentId = HwvtepHAUtil.createInstanceIdentifierFromHAId(haId);
-            //HwvtepHAUtil.updateL2GwCacheNodeId(childNode, parentId);
-            hwvtepHACache.addChild(parentId, childPath/*child*/);
-        }
-    }
-
     @Override
     void onGlobalNodeUpdate(InstanceIdentifier<Node> childPath,
                             Node updatedChildNode,
                             Node beforeChildNode,
                             DataObjectModification<Node> mod,
                             ReadWriteTransaction tx) {
-        boolean wasHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
+        boolean wasHAChild = getHwvtepNodeHACache().isHAEnabledDevice(childPath);
         addToHACacheIfBecameHAChild(childPath, updatedChildNode, beforeChildNode);
-        boolean isHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
+        boolean isHAChild = getHwvtepNodeHACache().isHAEnabledDevice(childPath);
 
 
         if (!wasHAChild && isHAChild) {
@@ -125,46 +113,6 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
             nodeId = nodeId.substring(idx + "uuid/".length());
         }
         return nodeId;
-    }
-
-    /**
-     * If Normal non-ha node changes to HA node , its added to HA cache.
-     *
-     * @param childPath HA child path which got converted to HA node
-     * @param updatedChildNode updated Child node
-     * @param beforeChildNode non-ha node before updated to HA node
-     */
-    public static void addToHACacheIfBecameHAChild(InstanceIdentifier<Node> childPath,
-                                                   Node updatedChildNode,
-                                                   Node beforeChildNode) {
-        HwvtepGlobalAugmentation updatedAugmentaion = updatedChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
-        HwvtepGlobalAugmentation beforeAugmentaion = null;
-        if (beforeChildNode != null) {
-            beforeAugmentaion = beforeChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
-        }
-        List<Managers> up = null;
-        List<Managers> be = null;
-        if (updatedAugmentaion != null) {
-            up = updatedAugmentaion.getManagers();
-        }
-        if (beforeAugmentaion != null) {
-            be = beforeAugmentaion.getManagers();
-        }
-        if (up != null) {
-            if (be != null) {
-                if (up.size() > 0) {
-                    if (be.size() > 0) {
-                        Managers m1 = up.get(0);
-                        Managers m2 = be.get(0);
-                        if (!m1.equals(m2)) {
-                            LOG.trace("Manager entry updated for node {} ", updatedChildNode.getNodeId().getValue());
-                            addToCacheIfHAChildNode(childPath, updatedChildNode);
-                        }
-                    }
-                }
-            }
-            //TODO handle unhaed case
-        }
     }
 
     public Set<InstanceIdentifier<Node>> getConnected(Set<InstanceIdentifier<Node>> candidateds) {

@@ -14,22 +14,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -94,37 +91,16 @@ public class HwvtepPhysicalSwitchListener
 
     private final ElanClusterUtils elanClusterUtils;
 
-    private final HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final HwvtepNodeHACache hwvtepNodeHACache;
 
     private final L2gwServiceProvider l2gwServiceProvider;
 
-    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> childConnectedAfterParent =
-        (l2GwDevice, globalIid) -> {
-            return !hwvtepHACache.isHAParentNode(globalIid)
-                    && l2GwDevice != null;
-                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
-                    // thus will always return false. I don't know what the intention is here so commented out for now.
-                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid);
-        };
+    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> childConnectedAfterParent;
 
     private final Predicate<L2GatewayDevice> alreadyHasL2Gwids =
         (l2GwDevice) -> l2GwDevice != null && HwvtepHAUtil.isEmpty(l2GwDevice.getL2GatewayIds());
 
-    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> parentConnectedAfterChild =
-        (l2GwDevice, globalIid) -> {
-            InstanceIdentifier<Node> existingIid = globalIid;
-            if (l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null) {
-                existingIid = HwvtepHAUtil.convertToInstanceIdentifier(l2GwDevice.getHwvtepNodeId());
-            }
-            return hwvtepHACache.isHAParentNode(globalIid)
-                    && l2GwDevice != null
-                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
-                    // thus will always return false. I don't know what the intention is here so commented out for now.
-                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid)
-                    && Objects.equals(globalIid, hwvtepHACache.getParent(existingIid));
-        };
-
-
+    private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> parentConnectedAfterChild;
     private final HAOpClusteredListener haOpClusteredListener;
 
     private final L2GatewayCache l2GatewayCache;
@@ -133,20 +109,14 @@ public class HwvtepPhysicalSwitchListener
 
     /**
      * Instantiates a new hwvtep physical switch listener.
-     * @param dataBroker DataBroker
-     * @param itmRpcService ItmRpcService
-     * @param elanClusterUtils ElanClusterUtils
-     * @param l2gwServiceProvider L2gwServiceProvider
-     * @param haListener HAOpClusteredListener
-     * @param l2GatewayCache L2GatewayCache
-     * @param staleVlanBindingsCleaner StaleVlanBindingsCleaner
      */
     @Inject
     public HwvtepPhysicalSwitchListener(final DataBroker dataBroker, ItmRpcService itmRpcService,
             ElanClusterUtils elanClusterUtils, L2gwServiceProvider l2gwServiceProvider,
             HAOpClusteredListener haListener, L2GatewayCache l2GatewayCache,
-            StaleVlanBindingsCleaner staleVlanBindingsCleaner) {
-        super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
+            StaleVlanBindingsCleaner staleVlanBindingsCleaner,
+            HwvtepNodeHACache hwvtepNodeHACache) {
+        super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class, hwvtepNodeHACache);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.itmRpcService = itmRpcService;
@@ -155,6 +125,28 @@ public class HwvtepPhysicalSwitchListener
         this.staleVlanBindingsCleaner = staleVlanBindingsCleaner;
         this.haOpClusteredListener = haListener;
         this.l2GatewayCache = l2GatewayCache;
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
+
+        childConnectedAfterParent = (l2GwDevice, globalIid) -> {
+            return !hwvtepNodeHACache.isHAParentNode(globalIid)
+                    && l2GwDevice != null;
+            // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
+            // thus will always return false. I don't know what the intention is here so commented out for now.
+            //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid);
+        };
+
+        parentConnectedAfterChild = (l2GwDevice, globalIid) -> {
+            InstanceIdentifier<Node> existingIid = globalIid;
+            if (l2GwDevice != null && l2GwDevice.getHwvtepNodeId() != null) {
+                existingIid = HwvtepHAUtil.convertToInstanceIdentifier(l2GwDevice.getHwvtepNodeId());
+            }
+            return hwvtepNodeHACache.isHAParentNode(globalIid)
+                    && l2GwDevice != null
+                    // FIXME: The following call to equals compares different types (String and InstanceIdentifier) and
+                    // thus will always return false. I don't know what the intention is here so commented out for now.
+                    //&& !Objects.equals(l2GwDevice.getHwvtepNodeId(), globalIid)
+                    && Objects.equals(globalIid, hwvtepNodeHACache.getParent(existingIid));
+        };
     }
 
     @Override
@@ -278,8 +270,8 @@ public class HwvtepPhysicalSwitchListener
                 LOG.error("Global node is absent {}", globalNodeId);
                 return;
             }
-            HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeIid, node.get());
-            if (hwvtepHACache.isHAEnabledDevice(globalNodeIid)) {
+            HwvtepHAUtil.addToCacheIfHAChildNode(globalNodeIid, node.get(), hwvtepNodeHACache);
+            if (hwvtepNodeHACache.isHAEnabledDevice(globalNodeIid)) {
                 LOG.trace("Ha enabled device {}", globalNodeIid);
                 return;
             }
@@ -318,15 +310,6 @@ public class HwvtepPhysicalSwitchListener
             elanClusterUtils.runOnlyInOwnerNode("Update config tunnels IP ",
                 () -> updateConfigTunnelIp(identifier, phySwitchAdded));
         });
-    }
-
-    boolean updateHACacheIfHANode(InstanceIdentifier<Node> globalNodeId)
-            throws ExecutionException, InterruptedException {
-        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
-            tx.read(LogicalDatastoreType.OPERATIONAL, globalNodeId).get().toJavaUtil().ifPresent(
-                node -> HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node));
-        }
-        return hwvtepHACache.isHAEnabledDevice(globalNodeId);
     }
 
     /**

@@ -13,6 +13,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -46,8 +47,8 @@ public class HwvtepLocalUcastMacListener extends
     private final ElanInstanceCache elanInstanceCache;
 
     public HwvtepLocalUcastMacListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-            ElanInstanceCache elanInstanceCache) {
-        super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class);
+            ElanInstanceCache elanInstanceCache, HwvtepNodeHACache hwvtepNodeHACache) {
+        super(LocalUcastMacs.class, HwvtepLocalUcastMacListener.class, hwvtepNodeHACache);
 
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;

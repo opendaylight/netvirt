@@ -18,6 +18,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
@@ -61,8 +62,9 @@ public class HwvtepTerminationPointListener
 
     @Inject
     public HwvtepTerminationPointListener(DataBroker broker, ElanL2GatewayUtils elanL2GatewayUtils,
-            ElanClusterUtils elanClusterUtils, L2GatewayCache l2GatewayCache) {
-        super(TerminationPoint.class, HwvtepTerminationPointListener.class);
+            ElanClusterUtils elanClusterUtils, L2GatewayCache l2GatewayCache,
+            HwvtepNodeHACache hwvtepNodeHACache) {
+        super(TerminationPoint.class, HwvtepTerminationPointListener.class, hwvtepNodeHACache);
 
         this.broker = broker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
