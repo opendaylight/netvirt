@@ -14,6 +14,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
@@ -49,18 +50,18 @@ public class HAListeners implements AutoCloseable {
     private final List<HwvtepNodeDataListener<?>> listeners = new ArrayList<>();
 
     @Inject
-    public HAListeners(DataBroker broker) {
+    public HAListeners(DataBroker broker, HwvtepNodeHACache hwvtepNodeHACache) {
         this.broker = broker;
-        registerListener(LocalMcastMacs.class, new LocalMcastCmd());
-        registerListener(RemoteMcastMacs.class, new RemoteMcastCmd());
-        registerListener(LocalUcastMacs.class, new LocalUcastCmd());
-        registerListener(RemoteUcastMacs.class, new RemoteUcastCmd());
-        registerListener(LogicalSwitches.class, new LogicalSwitchesCmd());
+        registerListener(LocalMcastMacs.class, new LocalMcastCmd(), hwvtepNodeHACache);
+        registerListener(RemoteMcastMacs.class, new RemoteMcastCmd(), hwvtepNodeHACache);
+        registerListener(LocalUcastMacs.class, new LocalUcastCmd(), hwvtepNodeHACache);
+        registerListener(RemoteUcastMacs.class, new RemoteUcastCmd(), hwvtepNodeHACache);
+        registerListener(LogicalSwitches.class, new LogicalSwitchesCmd(), hwvtepNodeHACache);
 
         PhysicalLocatorCmd physicalLocatorCmd = new PhysicalLocatorCmd();
-        listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
+        listeners.add(new PhysicalLocatorListener(broker, hwvtepNodeHACache, physicalLocatorCmd,
                 LogicalDatastoreType.CONFIGURATION));
-        listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
+        listeners.add(new PhysicalLocatorListener(broker, hwvtepNodeHACache, physicalLocatorCmd,
                 LogicalDatastoreType.OPERATIONAL));
     }
 
@@ -73,20 +74,21 @@ public class HAListeners implements AutoCloseable {
     }
 
     private <T extends ChildOf<HwvtepGlobalAttributes>> void registerListener(Class<T> clazz,
-                                                                              MergeCommand<T, ?, ?> mergeCommand) {
-        listeners.add(new GlobalAugmentationListener(broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
-                LogicalDatastoreType.CONFIGURATION));
-        listeners.add(new GlobalAugmentationListener(broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
-                LogicalDatastoreType.OPERATIONAL));
+            MergeCommand<T, ?, ?> mergeCommand, HwvtepNodeHACache hwvtepNodeHACache) {
+        listeners.add(new GlobalAugmentationListener(broker, hwvtepNodeHACache, clazz, HwvtepNodeDataListener.class,
+                mergeCommand, LogicalDatastoreType.CONFIGURATION));
+        listeners.add(new GlobalAugmentationListener(broker, hwvtepNodeHACache, clazz, HwvtepNodeDataListener.class,
+                mergeCommand, LogicalDatastoreType.OPERATIONAL));
     }
 
     private static class GlobalAugmentationListener<T extends DataObject
             & ChildOf<HwvtepGlobalAttributes>> extends HwvtepNodeDataListener<T> {
 
-        GlobalAugmentationListener(DataBroker broker, Class<T> clazz, Class<HwvtepNodeDataListener<T>> eventClazz,
+        GlobalAugmentationListener(DataBroker broker, HwvtepNodeHACache hwvtepNodeHACache,
+                                   Class<T> clazz, Class<HwvtepNodeDataListener<T>> eventClazz,
                                    MergeCommand<T, ?, ?> mergeCommand,
                                    LogicalDatastoreType datastoreType) {
-            super(broker, clazz, eventClazz, mergeCommand, datastoreType);
+            super(broker, hwvtepNodeHACache, clazz, eventClazz, mergeCommand, datastoreType);
         }
 
         @Override
@@ -99,9 +101,10 @@ public class HAListeners implements AutoCloseable {
 
     private static class PhysicalLocatorListener extends HwvtepNodeDataListener<TerminationPoint> {
 
-        PhysicalLocatorListener(DataBroker broker, MergeCommand<TerminationPoint, ?, ?> mergeCommand,
-                LogicalDatastoreType datastoreType) {
-            super(broker, TerminationPoint.class, (Class)PhysicalLocatorListener.class, mergeCommand, datastoreType);
+        PhysicalLocatorListener(DataBroker broker, HwvtepNodeHACache hwvtepNodeHACache,
+                MergeCommand<TerminationPoint, ?, ?> mergeCommand, LogicalDatastoreType datastoreType) {
+            super(broker, hwvtepNodeHACache, TerminationPoint.class, (Class)PhysicalLocatorListener.class,
+                    mergeCommand, datastoreType);
         }
 
         @Override
