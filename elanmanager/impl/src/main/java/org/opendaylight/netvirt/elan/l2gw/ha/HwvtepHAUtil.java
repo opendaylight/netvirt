@@ -11,10 +11,10 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType.OPERATIONAL;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.SwitchesCmd;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -74,8 +74,6 @@ public final class HwvtepHAUtil {
     public static final String HWVTEP_URI_PREFIX = "hwvtep";
     public static final String MANAGER_KEY = "managerKey";
     public static final String L2GW_JOB_KEY = ":l2gw";
-
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
 
     private HwvtepHAUtil() { }
 
@@ -366,31 +364,6 @@ public final class HwvtepHAUtil {
         return childNodeIds;
     }
 
-    /**
-     * Return PS children for passed PS node .
-     *
-     * @param psNodId PS node path
-     * @return child Switches
-     */
-    public static Set<InstanceIdentifier<Node>> getPSChildrenIdsForHAPSNode(String psNodId) {
-        if (!psNodId.contains(PHYSICALSWITCH)) {
-            return Collections.emptySet();
-        }
-        String nodeId = convertToGlobalNodeId(psNodId);
-        InstanceIdentifier<Node> iid = convertToInstanceIdentifier(nodeId);
-        if (hwvtepHACache.isHAParentNode(iid)) {
-            Set<InstanceIdentifier<Node>> childSwitchIds = new HashSet<>();
-            Set<InstanceIdentifier<Node>> childGlobalIds = hwvtepHACache.getChildrenForHANode(iid);
-            final String append = psNodId.substring(psNodId.indexOf(PHYSICALSWITCH));
-            for (InstanceIdentifier<Node> childId : childGlobalIds) {
-                String childIdVal = childId.firstKeyOf(Node.class).getNodeId().getValue();
-                childSwitchIds.add(convertToInstanceIdentifier(childIdVal + append));
-            }
-            return childSwitchIds;
-        }
-        return Collections.EMPTY_SET;
-    }
-
     public static HwvtepGlobalAugmentation getGlobalAugmentationOfNode(Node node) {
         HwvtepGlobalAugmentation result = null;
         if (node != null) {
@@ -611,5 +584,14 @@ public final class HwvtepHAUtil {
             }
         }
         return true;
+    }
+
+    public static void addToCacheIfHAChildNode(InstanceIdentifier<Node> childPath, Node childNode,
+            HwvtepNodeHACache hwvtepNodeHACache) {
+        String haId = HwvtepHAUtil.getHAIdFromManagerOtherConfig(childNode);
+        if (!Strings.isNullOrEmpty(haId)) {
+            InstanceIdentifier<Node> parentId = HwvtepHAUtil.createInstanceIdentifierFromHAId(haId);
+            hwvtepNodeHACache.addChild(parentId, childPath/*child*/);
+        }
     }
 }

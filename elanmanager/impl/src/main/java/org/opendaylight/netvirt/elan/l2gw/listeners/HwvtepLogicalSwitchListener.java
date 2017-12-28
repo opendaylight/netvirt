@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.jobs.LogicalSwitchAddedJob;
@@ -67,8 +68,9 @@ public class HwvtepLogicalSwitchListener extends
     public HwvtepLogicalSwitchListener(ElanInstanceCache elanInstanceCache, ElanL2GatewayUtils elanL2GatewayUtils,
             ElanClusterUtils elanClusterUtils, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
             L2GatewayConnectionUtils l2GatewayConnectionUtils, L2GatewayDevice l2GatewayDevice,
-            String logicalSwitchName, Devices physicalDevice, Integer defaultVlanId, Uuid l2GwConnId) {
-        super(LogicalSwitches.class, HwvtepLogicalSwitchListener.class);
+            String logicalSwitchName, Devices physicalDevice, Integer defaultVlanId, Uuid l2GwConnId,
+            HwvtepNodeHACache hwvtepNodeHACache) {
+        super(LogicalSwitches.class, HwvtepLogicalSwitchListener.class, hwvtepNodeHACache);
         this.elanInstanceCache = elanInstanceCache;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
