@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "316782fb_643aaeaf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/UpgradeStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2017-12-28T11:00:02Z",
+      "side": 1,
+      "message": "@Josh, can you please clarify the following.\n\n1. When do we get this notification?\n2. Will there be a single notification or multiple?",
+      "range": {
+        "startLine": 46,
+        "startChar": 16,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "c70f744a2a6e9eae739d4ae83f8ccece87e4f444",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
