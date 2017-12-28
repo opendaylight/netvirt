@@ -22,6 +22,30 @@
       "revId": "c70f744a2a6e9eae739d4ae83f8ccece87e4f444",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5286c1af_f1ecfdfb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/UpgradeStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2017-12-28T11:36:25Z",
+      "side": 1,
+      "message": "1) The notification occurs as part of the upgrade process and is triggered by tripleo (or whatever upgrade tool) modifying the upgrade state via rest. This occurs towards the end of upgrade when all the OVSes have had their flows wiped and have reconnected to ODL and received new flows. \n2) It should happen only once per upgrade, towards the end.",
+      "parentUuid": "316782fb_643aaeaf",
+      "range": {
+        "startLine": 46,
+        "startChar": 16,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "c70f744a2a6e9eae739d4ae83f8ccece87e4f444",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
