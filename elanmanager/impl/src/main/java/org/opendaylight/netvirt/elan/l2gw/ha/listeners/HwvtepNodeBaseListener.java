@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -19,10 +20,12 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
@@ -38,13 +41,14 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     private static final int STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
-    static HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
-
     private final ListenerRegistration<HwvtepNodeBaseListener> registration;
     private final DataBroker dataBroker;
+    private final HwvtepNodeHACache hwvtepNodeHACache;
 
-    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
+    public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker,
+            HwvtepNodeHACache hwvtepNodeHACache) throws Exception {
         this.dataBroker = dataBroker;
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
 
         final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
@@ -54,6 +58,43 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     protected DataBroker getDataBroker() {
         return dataBroker;
+    }
+
+    protected HwvtepNodeHACache getHwvtepNodeHACache() {
+        return hwvtepNodeHACache;
+    }
+
+    /**
+     * If Normal non-ha node changes to HA node , its added to HA cache.
+     *
+     * @param childPath HA child path which got converted to HA node
+     * @param updatedChildNode updated Child node
+     * @param beforeChildNode non-ha node before updated to HA node
+     */
+    protected void addToHACacheIfBecameHAChild(InstanceIdentifier<Node> childPath, Node updatedChildNode,
+            Node beforeChildNode) {
+        HwvtepGlobalAugmentation updatedAugmentaion = updatedChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        HwvtepGlobalAugmentation beforeAugmentaion = null;
+        if (beforeChildNode != null) {
+            beforeAugmentaion = beforeChildNode.getAugmentation(HwvtepGlobalAugmentation.class);
+        }
+        List<Managers> up = null;
+        List<Managers> be = null;
+        if (updatedAugmentaion != null) {
+            up = updatedAugmentaion.getManagers();
+        }
+        if (beforeAugmentaion != null) {
+            be = beforeAugmentaion.getManagers();
+        }
+
+        if (up != null && be != null && up.size() > 0 && be.size() > 0) {
+            Managers m1 = up.get(0);
+            Managers m2 = be.get(0);
+            if (!m1.equals(m2)) {
+                LOG.trace("Manager entry updated for node {} ", updatedChildNode.getNodeId().getValue());
+                HwvtepHAUtil.addToCacheIfHAChildNode(childPath, updatedChildNode, hwvtepNodeHACache);
+            }
+        }
     }
 
     @Override

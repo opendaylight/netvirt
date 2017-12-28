@@ -19,7 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
@@ -44,13 +44,16 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
     private final LogicalDatastoreType datastoreType;
     private final BiConsumer<InstanceIdentifier<T>, T> addOperation;
     private final BiConsumer<InstanceIdentifier<T>, T> removeOperation;
+    private final HwvtepNodeHACache hwvtepNodeHACache;
 
     public HwvtepNodeDataListener(DataBroker broker,
+                                  HwvtepNodeHACache hwvtepNodeHACache,
                                   Class<T> clazz,
                                   Class<HwvtepNodeDataListener<T>> eventClazz,
                                   MergeCommand<T, ?, ?> mergeCommand,
                                   LogicalDatastoreType datastoreType) {
         super(clazz, eventClazz);
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
         this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.mergeCommand = mergeCommand;
         this.datastoreType = datastoreType;
@@ -186,11 +189,11 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     protected Set<InstanceIdentifier<Node>> getChildrenForHANode(InstanceIdentifier identifier) {
         InstanceIdentifier<Node> parent = identifier.firstIdentifierOf(Node.class);
-        return HwvtepHACache.getInstance().getChildrenForHANode(parent);
+        return hwvtepNodeHACache.getChildrenForHANode(parent);
     }
 
     protected InstanceIdentifier<Node> getHAParent(InstanceIdentifier identifier) {
         InstanceIdentifier<Node> child = identifier.firstIdentifierOf(Node.class);
-        return HwvtepHACache.getInstance().getParent(child);
+        return hwvtepNodeHACache.getParent(child);
     }
 }
