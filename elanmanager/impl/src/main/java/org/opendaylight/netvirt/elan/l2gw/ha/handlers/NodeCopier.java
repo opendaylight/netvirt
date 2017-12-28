@@ -15,12 +15,10 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
@@ -45,18 +43,18 @@ public class NodeCopier implements INodeCopier {
 
     static Logger LOG = LoggerFactory.getLogger(NodeCopier.class);
 
-    GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
-    PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
-    GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
-    PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
-    DataBroker db;
-    HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
+    private final PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
+    private final GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
+    private final PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
+    private final DataBroker db;
 
     @Inject
     public NodeCopier(DataBroker db) {
         this.db = db;
     }
 
+    @Override
     public void copyGlobalNode(Optional<Node> srcGlobalNodeOptional,
                         InstanceIdentifier<Node> srcPath,
                         InstanceIdentifier<Node> dstPath,
@@ -139,6 +137,7 @@ public class NodeCopier implements INodeCopier {
         }
     }
 
+    @Override
     public void copyPSNode(Optional<Node> srcPsNodeOptional,
                            InstanceIdentifier<Node> srcPsPath,
                            InstanceIdentifier<Node> dstPsPath,

@@ -19,7 +19,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.MergeCommand;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.RemoteUcastMacs;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -42,8 +42,10 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
     private final MergeCommand mergeCommand;
     private final ResourceBatchingManager.ShardResource datastoreType;
     private final String dataTypeName;
+    private final HwvtepNodeHACache hwvtepNodeHACache;
 
     public HwvtepNodeDataListener(DataBroker broker,
+                                  HwvtepNodeHACache hwvtepNodeHACache,
                                   Class<T> clazz,
                                   Class<HwvtepNodeDataListener<T>> eventClazz,
                                   MergeCommand mergeCommand,
@@ -53,6 +55,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
         this.mergeCommand = mergeCommand;
         this.datastoreType = datastoreType;
         this.dataTypeName = getClassTypeName();
+        this.hwvtepNodeHACache = hwvtepNodeHACache;
         //registerListener(this.datastoreType.getDatastoreType() , broker);
     }
 
@@ -143,7 +146,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                      final boolean create,final ReadWriteTransaction tx)
             throws ReadFailedException {
         Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
-        if (children == null) {
+        if (children.isEmpty()) {
             tx.cancel();
             return;
         }
@@ -189,11 +192,11 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
 
     protected Set<InstanceIdentifier<Node>> getChildrenForHANode(InstanceIdentifier identifier) {
         InstanceIdentifier<Node> parent = identifier.firstIdentifierOf(Node.class);
-        return HwvtepHACache.getInstance().getChildrenForHANode(parent);
+        return hwvtepNodeHACache.getChildrenForHANode(parent);
     }
 
     protected InstanceIdentifier<Node> getHAParent(InstanceIdentifier identifier) {
         InstanceIdentifier<Node> child = identifier.firstIdentifierOf(Node.class);
-        return HwvtepHACache.getInstance().getParent(child);
+        return hwvtepNodeHACache.getParent(child);
     }
 }

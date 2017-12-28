@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
 import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -72,8 +73,9 @@ public class HwvtepRemoteMcastMacListener
                                         L2GatewayDevice l2GatewayDevice,
                                         List<IpAddress> expectedPhyLocatorIps,
                                         Callable<List<ListenableFuture<Void>>> task,
-                                        JobCoordinator jobCoordinator) throws Exception {
-        super(RemoteMcastMacs.class, HwvtepRemoteMcastMacListener.class);
+                                        JobCoordinator jobCoordinator, HwvtepNodeHACache hwvtepNodeHACache)
+                                                throws Exception {
+        super(RemoteMcastMacs.class, HwvtepRemoteMcastMacListener.class, hwvtepNodeHACache);
         this.elanUtils = elanUtils;
         this.nodeId = new NodeId(l2GatewayDevice.getHwvtepNodeId());
         this.taskToRun = task;

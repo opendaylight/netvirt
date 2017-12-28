@@ -15,10 +15,11 @@ import java.util.UUID;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.mockito.Mockito;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.test.AbstractConcurrentDataBrokerTest;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeConnectedHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
@@ -45,9 +46,8 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
     // public @Rule RunUntilFailureRule repeater = new RunUntilFailureRule(classRepeater);
 
     static Logger LOG = LoggerFactory.getLogger(NodeConnectedHandlerTest.class);
-    DataBroker dataBroker;
 
-    NodeConnectedHandler nodeConnectedHandler = new NodeConnectedHandler(this.dataBroker);
+    NodeConnectedHandler nodeConnectedHandler;
     NodeConnectedHandlerUtils handlerUtils = new NodeConnectedHandlerUtils();
 
     String d1UUID;
@@ -84,7 +84,6 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
 
     @Before
     public void setupForHANode() {
-        dataBroker = getDataBroker();
         d1UUID = java.util.UUID.nameUUIDFromBytes("d1uuid".getBytes()).toString();
         d2UUID = java.util.UUID.nameUUIDFromBytes("d2uuid".getBytes()).toString();
         d1NodePath = getInstanceIdentifier(d1UUID);
@@ -102,21 +101,23 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
         d2PsNodePath = createInstanceIdentifier(d2PsNodeIdVal);
 
         haPsNodePath = createInstanceIdentifier(haNodeId.getValue() + "/physicalswitch/" + switchName);
+
+        nodeConnectedHandler = new NodeConnectedHandler(getDataBroker(), Mockito.mock(HwvtepNodeHACache.class));
     }
 
     @Test
     public void testD1Connect() throws Exception {
-        ReadWriteTransaction tx = this.dataBroker.newReadWriteTransaction();
+        ReadWriteTransaction tx = getDataBroker().newReadWriteTransaction();
         handlerUtils.addPsNode(d1PsNodePath, d1NodePath, DataProvider.getPortNameListD1(), tx).checkedGet();
 
-        tx = this.dataBroker.newReadWriteTransaction();
+        tx = getDataBroker().newReadWriteTransaction();
         handlerUtils.addNode(d1NodePath, d1PsNodePath, DataProvider.getLogicalSwitchDataD1(),
                 DataProvider.getLocalUcasMacDataD1(), DataProvider.getLocalMcastDataD1(),
                 DataProvider.getRemoteMcastDataD1(), DataProvider.getRemoteUcasteMacDataD1(),
                 DataProvider.getGlobalTerminationPointIpD1(), tx).checkedGet();
 
         readNodes();
-        tx = this.dataBroker.newReadWriteTransaction();
+        tx = getDataBroker().newReadWriteTransaction();
         nodeConnectedHandler.handleNodeConnected(d1GlobalOpNode.get(), d1NodePath, haNodePath, haGlobalConfigNode,
                 haPsConfigNode, tx);
         tx.submit().checkedGet();
@@ -128,7 +129,7 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
         Assert.assertTrue(d1GlobalOpNode.isPresent() && haGlobalOpNode.isPresent() && d1PsOpNode.isPresent()
                 && haPsOpNode.isPresent());
         TestUtil.verifyHAOpNode(d1GlobalOpNode.get(), haGlobalOpNode.get(),
-                d1PsOpNode.get(), haPsOpNode.get(), haNodePath, d1PsNodePath, haPsNodePath, haNodeId, this.dataBroker);
+                d1PsOpNode.get(), haPsOpNode.get(), haNodePath, d1PsNodePath, haPsNodePath, haNodeId, getDataBroker());
     }
 
     public static InstanceIdentifier<Node> createInstanceIdentifier(String nodeIdString) {
@@ -157,7 +158,7 @@ public class NodeConnectedHandlerTest extends AbstractConcurrentDataBrokerTest {
     }
 
     public void readNodes() throws Exception {
-        ReadOnlyTransaction tx = this.dataBroker.newReadOnlyTransaction();
+        ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction();
         d1GlobalOpNode = TestUtil.readNode(OPERATIONAL, d1NodePath, tx);
         d2GlobalOpNode = TestUtil.readNode(OPERATIONAL, d2NodePath, tx);
         haGlobalOpNode = TestUtil.readNode(OPERATIONAL, haNodePath, tx);

@@ -16,6 +16,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
+import org.opendaylight.genius.utils.hwvtep.HwvtepNodeHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
@@ -46,8 +47,9 @@ public class DhcpMcastMacListener
     public DhcpMcastMacListener(DhcpExternalTunnelManager dhcpManager,
                                 DhcpL2GwUtil dhcpL2GwUtil,
                                 DataBroker dataBroker,
-                                final DhcpserviceConfig config) {
-        super(RemoteMcastMacs.class, DhcpMcastMacListener.class);
+                                final DhcpserviceConfig config,
+                                HwvtepNodeHACache hwvtepNodeHACache) {
+        super(RemoteMcastMacs.class, DhcpMcastMacListener.class, hwvtepNodeHACache);
         this.externalTunnelManager = dhcpManager;
         this.dataBroker = dataBroker;
         this.dhcpL2GwUtil = dhcpL2GwUtil;
