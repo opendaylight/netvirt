@@ -1,0 +1,887 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d343580d_f5638406",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 406,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Declare boolean here instead of on line 402.",
+      "range": {
+        "startLine": 406,
+        "startChar": 8,
+        "endLine": 406,
+        "endChar": 18
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "810fb394_d25a219b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 418,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "This is unused (findbugs didn\u0027t flag this?).",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4aef2a4d_d46b1c5b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 819,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "debug?",
+      "range": {
+        "startLine": 819,
+        "startChar": 12,
+        "endLine": 819,
+        "endChar": 16
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e38000a1_741e0277",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 899,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Should be primitive boolean.",
+      "range": {
+        "startLine": 899,
+        "startChar": 8,
+        "endLine": 899,
+        "endChar": 15
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0fdbd28a_69a97a96",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 903,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "You should create the wrtConfigTxn after successful read below.",
+      "range": {
+        "startLine": 900,
+        "startChar": 8,
+        "endLine": 903,
+        "endChar": 9
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aaafd2cf_415cdc22",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Always try to catch the actual declared exception types - in this case ReadFailedException",
+      "range": {
+        "startLine": 911,
+        "startChar": 17,
+        "endLine": 911,
+        "endChar": 26
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e7f4cb4_067e77d3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 912,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "This means the read failed so we don\u0027t know if it actually exists or not",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ffaad05_3eea61c2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 916,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Doesn\u0027t seem like this is an error condition",
+      "range": {
+        "startLine": 916,
+        "startChar": 16,
+        "endLine": 916,
+        "endChar": 21
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f775f39_3a4e4927",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 929,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "It seems this check should be just after line 924, ie no need to do the put if you\u0027re falling thru to the delete below.",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5518fec_c7b48404",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 941,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "This method does not throw any exceptions so catching Exception isn\u0027t necessary.  Then we can remove the @SuppressWarnings for \"IllegalCatch\" above.",
+      "range": {
+        "startLine": 941,
+        "startChar": 25,
+        "endLine": 941,
+        "endChar": 31
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdfc7ab2_2f30211d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1015,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Is this really an error condition?",
+      "range": {
+        "startLine": 1015,
+        "startChar": 20,
+        "endLine": 1015,
+        "endChar": 25
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9751aed8_0f6b73c2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1018,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "\"Read\" (Updation is not a word)",
+      "range": {
+        "startLine": 1018,
+        "startChar": 23,
+        "endLine": 1018,
+        "endChar": 31
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e64d0114_21651de3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1021,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Should be unlock",
+      "range": {
+        "startLine": 1021,
+        "startChar": 30,
+        "endLine": 1021,
+        "endChar": 37
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "07029f07_58f371ed",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1506,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 1506,
+        "startChar": 16,
+        "endLine": 1506,
+        "endChar": 20
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "31a53664_66c1efd3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1574,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Move this right after line 1569",
+      "range": {
+        "startLine": 1574,
+        "startChar": 8,
+        "endLine": 1574,
+        "endChar": 35
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9de40c3_dc2f7e63",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1670,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Do we really need to block here?",
+      "range": {
+        "startLine": 1670,
+        "startChar": 34,
+        "endLine": 1670,
+        "endChar": 44
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2b4ac4b8_e9a2d6ac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1695,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Why is this offloaded to the JobCoordinator? It seems you could create one WriteTransaction and update all ports in bulk.",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b97f8d48_063149d8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 3053,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Do this async? ...",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84e704d9_518131cf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 3067,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "...and this?...",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "504964a5_00ebfd3a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 3105,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "... and above",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a08c8080_9d69aefd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1512,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "does not expect null so annotate with @Nonnull",
+      "range": {
+        "startLine": 1512,
+        "startChar": 64,
+        "endLine": 1512,
+        "endChar": 68
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "235d6cc0_40c0e5a8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1513,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 1513,
+        "startChar": 12,
+        "endLine": 1513,
+        "endChar": 16
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc53978b_849b1b76",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1522,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "@Nonnull?",
+      "range": {
+        "startLine": 1522,
+        "startChar": 50,
+        "endLine": 1522,
+        "endChar": 54
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4dac1c2_114f8ffe",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1537,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "@Nonnull?",
+      "range": {
+        "startLine": 1537,
+        "startChar": 54,
+        "endLine": 1537,
+        "endChar": 58
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a51fbc15_f1b8ac7d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1544,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 1544,
+        "startChar": 12,
+        "endLine": 1544,
+        "endChar": 16
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df173778_641a42f3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1548,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Declare Uuid here instead of above",
+      "range": {
+        "startLine": 1548,
+        "startChar": 8,
+        "endLine": 1548,
+        "endChar": 27
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "318b6c5b_66036b86",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "you could reduce to \n\n  return externalNetworkUuid !\u003d null ?   \n          getVpnForNetwork(externalNetworkUuid) : null;",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "12a312d7_21c4900f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1561,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "@Nonnull",
+      "range": {
+        "startLine": 1561,
+        "startChar": 56,
+        "endLine": 1561,
+        "endChar": 63
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "114ebeca_94467ee9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1561,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "@Nonnull",
+      "range": {
+        "startLine": 1561,
+        "startChar": 11,
+        "endLine": 1561,
+        "endChar": 26
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a350d23_da4c3c60",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1564,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 1564,
+        "startChar": 12,
+        "endLine": 1564,
+        "endChar": 16
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ae172bd_25e82cf2",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1565,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Declare Uuid here instead of on line 1562. In fact this can be moved just before its first use on line 1574.",
+      "range": {
+        "startLine": 1565,
+        "startChar": 8,
+        "endLine": 1565,
+        "endChar": 15
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0bbb3ac6_667cc56d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1570,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Is this really an error condition?",
+      "range": {
+        "startLine": 1570,
+        "startChar": 16,
+        "endLine": 1570,
+        "endChar": 21
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edd98a41_beea669e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1571,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "return emptyList()",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0758b3ef_d8e02df3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1594,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Is this really an error condition?",
+      "range": {
+        "startLine": 1594,
+        "startChar": 20,
+        "endLine": 1594,
+        "endChar": 25
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6327ae21_ecbbbdb7",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1607,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "@Nonnull",
+      "range": {
+        "startLine": 1607,
+        "startChar": 86,
+        "endLine": 1607,
+        "endChar": 90
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d6f6a12_8a9f2b9a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1610,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "error?",
+      "range": {
+        "startLine": 1610,
+        "startChar": 16,
+        "endLine": 1610,
+        "endChar": 21
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2ffa1059_537deab3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1620,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "error?",
+      "range": {
+        "startLine": 1620,
+        "startChar": 16,
+        "endLine": 1620,
+        "endChar": 21
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b52189ff_ad8a782c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1626,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "error?",
+      "range": {
+        "startLine": 1626,
+        "startChar": 16,
+        "endLine": 1626,
+        "endChar": 21
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c39adf97_92e61596",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "I assume this should say \"Successfully updated...\". However you can\u0027t really declare success until the transaction completes successfully.",
+      "range": {
+        "startLine": 1635,
+        "startChar": 51,
+        "endLine": 1635,
+        "endChar": 63
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d53accd9_724a69d9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "debug",
+      "range": {
+        "startLine": 1635,
+        "startChar": 16,
+        "endLine": 1635,
+        "endChar": 20
+      },
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1baddf59_5735037b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 148
+      },
+      "lineNbr": 1636,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2017-12-29T14:34:15Z",
+      "side": 1,
+      "message": "Why is this enqueued on the JobCoordinator? This block of code is inexpensive and non-blocking so doesn\u0027t really need to be executed on a separate thread.",
+      "revId": "2111a144c55ed717582fb67daaca1052e97cea91",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
