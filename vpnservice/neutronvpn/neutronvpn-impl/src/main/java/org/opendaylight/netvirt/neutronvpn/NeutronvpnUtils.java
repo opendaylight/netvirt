@@ -1482,6 +1482,7 @@ public class NeutronvpnUtils {
 
     /**
      * Get the vpnInstance from its Uuid.
+     * Could get null if it is not found.
      *
      * @param broker to get informations from ds
      * @param vpnId the Uuid of the VPN
