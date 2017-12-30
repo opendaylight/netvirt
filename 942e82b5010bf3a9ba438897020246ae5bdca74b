@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bac390b5_d16ba6a3",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-12-30T02:29:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "765fa2e5_8456dc0c",
+      "range": {
+        "startLine": 11,
+        "startChar": 35,
+        "endLine": 11,
+        "endChar": 44
+      },
+      "revId": "942e82b5010bf3a9ba438897020246ae5bdca74b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3daf5ba6_b3208630",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 58,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-12-30T02:29:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c302862_3f7a749c",
+      "range": {
+        "startLine": 58,
+        "startChar": 13,
+        "endLine": 58,
+        "endChar": 23
+      },
+      "revId": "942e82b5010bf3a9ba438897020246ae5bdca74b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fb75456f_1b7e170d",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 614,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-12-30T02:29:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3e9a9a0_47f5539e",
+      "range": {
+        "startLine": 614,
+        "startChar": 43,
+        "endLine": 614,
+        "endChar": 58
+      },
+      "revId": "942e82b5010bf3a9ba438897020246ae5bdca74b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1c91a93_ed7a1fdf",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 697,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-12-30T02:29:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4087781f_f09019c6",
+      "range": {
+        "startLine": 697,
+        "startChar": 22,
+        "endLine": 697,
+        "endChar": 29
+      },
+      "revId": "942e82b5010bf3a9ba438897020246ae5bdca74b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b03ad978_1d3f4f29",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 11
+      },
+      "lineNbr": 698,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2017-12-30T02:29:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "75a5c96f_fcf638e0",
+      "range": {
+        "startLine": 697,
+        "startChar": 68,
+        "endLine": 698,
+        "endChar": 7
+      },
+      "revId": "942e82b5010bf3a9ba438897020246ae5bdca74b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
