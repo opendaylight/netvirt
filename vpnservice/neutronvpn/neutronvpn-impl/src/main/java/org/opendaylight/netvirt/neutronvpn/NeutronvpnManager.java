@@ -124,6 +124,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.subnetmap.ChainedRouter;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.subnetmap.ChainedRouterBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
@@ -271,14 +273,18 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     LOG.error("subnetmap node for subnet {} does not exist, returning", subnetId.getValue());
                     return null;
                 }
-                if (routerId != null) {
-                    builder.setRouterId(routerId);
-                }
-                if (vpnId != null) {
-                    builder.setVpnId(vpnId);
+
+                if (builder.getVpnId() == null) {
+                    if (routerId != null) {
+                        builder.setRouterId(routerId);
+                    }
+                    if (vpnId != null && builder.getVpnId() == null) {
+                        LOG.info("updateSubnetNode subnetMap node: {} vpnId {} ", subnetId.getValue(), vpnId);
+                        builder.setVpnId(vpnId);
+                    }
                 }
                 subnetmap = builder.build();
-                LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
+                LOG.debug("Creating/Updating subnetMap node: {} ", subnetmap);
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
             }
         } catch (ReadFailedException | TransactionCommitFailedException e) {
@@ -287,13 +293,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return subnetmap;
     }
 
-    protected void updateSubnetNodeWithFixedIp(Uuid subnetId, Uuid routerId,
-                                               Uuid routerInterfacePortId, String fixedIp,
-                                               String routerIntfMacAddress) {
-        Subnetmap subnetmap = null;
-        SubnetmapBuilder builder = null;
+    protected void updateSubnetNodeWithFixedIp(Uuid subnetId, Uuid vpnId, Uuid routerId,
+            Uuid routerInterfacePortId, String fixedIp, String routerIntfMacAddress) {
+        Subnetmap subnetmap;
+        SubnetmapBuilder builder;
         InstanceIdentifier<Subnetmap> id =
-            InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+                InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+        LOG.info("updateSubnetNodeWithFixedIp subnet id {} Router id {} routerIfc {} FixedIp: {} "
+                        + "mac Address {}",
+                subnetId.getValue(), routerId == null ? "null" : routerId.getValue(),
+                routerInterfacePortId == null ? "null" : routerInterfacePortId.getValue(),
+                fixedIp, routerIntfMacAddress);
         try {
             synchronized (subnetId.getValue().intern()) {
                 Optional<Subnetmap> sn =
@@ -301,13 +311,22 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 id);
                 if (sn.isPresent()) {
                     builder = new SubnetmapBuilder(sn.get());
-                    LOG.debug("WithRouterFixedIP: Updating existing subnetmap node for subnet ID {}",
-                        subnetId.getValue());
+                    LOG.debug("WithRouterFixedIP: Updating existing subnetmap node for subnet {}",
+                            builder.build());
                 } else {
                     LOG.error("WithRouterFixedIP: subnetmap node for subnet {} does not exist, returning ",
                         subnetId.getValue());
                     return;
                 }
+                if (routerId != null && builder.getRouterId() != null && !routerId.equals(builder.getRouterId())) {
+                    // update with new chained router
+                    updateSubnetNodeWithChainedRouterFixedIp(vpnId, routerId, routerInterfacePortId, fixedIp,
+                            routerIntfMacAddress, builder);
+                    return;
+                }
+
+                // FOR delete chained all in parameters are null
+                // default one is not null, the router id is null, how do i know the clear one is chained
                 builder.setRouterId(routerId);
                 builder.setRouterInterfacePortId(routerInterfacePortId);
                 builder.setRouterIntfMacAddress(routerIntfMacAddress);
@@ -320,6 +339,139 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (ReadFailedException | TransactionCommitFailedException e) {
             LOG.error("WithRouterFixedIP: subnet map for Router FixedIp failed for node {}",
                 subnetId.getValue(), e);
+        }
+    }
+
+    protected void clearSubnetNodeWithFixedIp(Uuid subnetId, Uuid routerId) {
+        Subnetmap subnetmap;
+        SubnetmapBuilder builder;
+        InstanceIdentifier<Subnetmap> id =
+                InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class, new SubnetmapKey(subnetId)).build();
+        LOG.info("clearSubnetNodeWithFixedIp subnet id {} Router id {}",
+                subnetId.getValue(), routerId == null ? "null" : routerId.getValue());
+        try {
+            synchronized (subnetId.getValue().intern()) {
+                Optional<Subnetmap> sn =
+                        SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                                id);
+                if (sn.isPresent()) {
+                    builder = new SubnetmapBuilder(sn.get());
+                    LOG.debug("clearSubnetNodeWithFixedIp: Updating existing subnetmap node for subnet {}",
+                            builder.build());
+                } else {
+                    LOG.error("clearSubnetNodeWithFixedIp: subnetmap node for subnet {} does not exist, returning ",
+                            subnetId.getValue());
+                    return;
+                }
+
+                if (builder.getRouterId() != null && !builder.getRouterId().equals(routerId)) {
+                    // If clearing chained router
+                    clearChainedRouterFromSubnetNode(routerId, builder, false);
+                    return;
+                } else if (builder.getVpnId() == null) {
+                    // clearing default router
+                    clearDefaultRouterFromSubnetNode(builder);
+                    return;
+                } else {
+                    builder.setRouterId(null);
+                    builder.setRouterInterfacePortId(null);
+                    builder.setRouterIntfMacAddress(null);
+                    builder.setRouterInterfaceFixedIp(null);
+                    subnetmap = builder.build();
+                    LOG.debug("WithRouterFixedIP Creating/Updating subnetMap node for Router FixedIp: {} ",
+                            subnetId.getValue());
+                    SingleTransactionDataBroker.syncWrite(
+                            dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
+                }
+            }
+        } catch (ReadFailedException | TransactionCommitFailedException e) {
+            LOG.error("WithRouterFixedIP: subnet map for Router FixedIp failed for node {}",
+                    subnetId.getValue(), e);
+        }
+    }
+
+    private void updateSubnetNodeWithChainedRouterFixedIp(Uuid vpnId, Uuid routerId,
+            Uuid routerInterfacePortId, String fixedIp, String routerIntfMacAddress,
+            SubnetmapBuilder subnetmapBuilder)
+            throws TransactionCommitFailedException {
+        // VINH TODO vpnId might not needed
+        LOG.info("updateSubnetNodeWithChainedRouter: updating subnetmap {} with vpnId {} "
+                        + "routerid {} routerInterfacePortId {} fixedIp {} routerIntfMacAddress {}",
+                subnetmapBuilder.build(), vpnId, routerId, routerInterfacePortId, fixedIp, routerIntfMacAddress);
+        ChainedRouter chainedRouter = new ChainedRouterBuilder()
+                .setRouterId(routerId).setVpnId(vpnId)
+                .setRouterInterfacePortId(routerInterfacePortId).setRouterInterfaceFixedIp(fixedIp)
+                .setRouterIntfMacAddress(routerIntfMacAddress).build();
+        if (subnetmapBuilder.getChainedRouter() == null) {
+            subnetmapBuilder.setChainedRouter(new ArrayList());
+        }
+        ChainedRouter existingChainedRouter =
+                subnetmapBuilder.getChainedRouter().stream().filter(sRouter -> routerId.equals(sRouter.getRouterId()))
+                .findFirst().orElse(null);
+
+        LOG.info("updateSubnetNodeWithChainedRouter existing chained {} for routerId {}",
+                existingChainedRouter, routerId);
+
+        if (existingChainedRouter == null) {
+            subnetmapBuilder.getChainedRouter().add(chainedRouter);
+        } else {
+            subnetmapBuilder.getChainedRouter()
+                    .set(subnetmapBuilder.getChainedRouter().indexOf(existingChainedRouter), chainedRouter);
+        }
+
+        Subnetmap subnetmap = subnetmapBuilder.build();
+        InstanceIdentifier<Subnetmap> id =
+                InstanceIdentifier.builder(Subnetmaps.class)
+                        .child(Subnetmap.class, new SubnetmapKey(subnetmapBuilder.getId())).build();
+        LOG.info("WithRouterFixedIP adding chained router to subnetmap {} ", subnetmap);
+        SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id,
+                subnetmap);
+    }
+
+    private void clearChainedRouterFromSubnetNode(Uuid routerId, SubnetmapBuilder subnetmapBuilder,
+            boolean clearDefaultRouterId)
+            throws TransactionCommitFailedException {
+        LOG.info("clearChainedRouterFromSubnetNode: clear default router id {} from subnet {}"
+                        + " default vpn {} chained-router {} clearDefaultRouterId {}", routerId,
+                subnetmapBuilder.getId().getValue(), subnetmapBuilder.getRouterId(),
+                subnetmapBuilder.getVpnId(), subnetmapBuilder.getChainedRouter(), clearDefaultRouterId);
+
+        if (subnetmapBuilder.getChainedRouter() != null && !subnetmapBuilder.getChainedRouter().isEmpty()) {
+            subnetmapBuilder.getChainedRouter().removeIf(chainedRouter -> chainedRouter.getRouterId().equals(routerId));
+            if (clearDefaultRouterId) {
+                subnetmapBuilder.setRouterId(null);
+            }
+        }
+        Subnetmap sn = subnetmapBuilder.build();
+        InstanceIdentifier<Subnetmap> id =
+                InstanceIdentifier.builder(Subnetmaps.class)
+                        .child(Subnetmap.class, new SubnetmapKey(subnetmapBuilder.getId())).build();
+        SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, sn);
+    }
+
+    private void clearDefaultRouterFromSubnetNode(SubnetmapBuilder subnetmapBuilder)
+            throws TransactionCommitFailedException {
+        LOG.info("clearDefaultRouterFromSubnetNode: clearing the default port {} vpn {}",
+                subnetmapBuilder.getRouterInterfacePortId(), subnetmapBuilder.getVpnId());
+        if (subnetmapBuilder.getChainedRouter() == null || subnetmapBuilder.getChainedRouter().isEmpty()) {
+            LOG.trace("clearDefaultRouterFromSubnetNode: no chained router to promote");
+            return;
+        }
+        ChainedRouter chainedRouter = promoteToDefaultRouter(subnetmapBuilder);
+        if (chainedRouter != null) {
+            clearChainedRouterFromSubnetNode(chainedRouter.getRouterId(), subnetmapBuilder, true);
+            updateSubnetNodeWithFixedIp(subnetmapBuilder.getId(), chainedRouter.getVpnId(),
+                    chainedRouter.getRouterId(), chainedRouter.getRouterInterfacePortId(),
+                    chainedRouter.getRouterInterfaceFixedIp(), chainedRouter.getRouterIntfMacAddress());
+
+            Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnetmapBuilder.getId());
+            LOG.info("clearDefaultRouterFromSubnetNode AFTER updateSubnetNodeWithFixedIp {}",
+                    sn != null ? sn : "NULL");
+            addSubnetToVpn(chainedRouter.getVpnId(), subnetmapBuilder.getId());
+            LOG.info("promoting to default router ip {} MAC {} Interface {} VPN {}",
+                    chainedRouter.getRouterInterfaceFixedIp(), chainedRouter.getRouterIntfMacAddress(),
+                    chainedRouter.getRouterInterfacePortId(), chainedRouter.getVpnId());
+            nvpnNatManager.handleSubnetsForExternalRouter(chainedRouter.getRouterId(), dataBroker);
         }
     }
 
@@ -737,6 +889,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void createVpnInterface(Uuid vpnId, Port port, WriteTransaction wrtConfigTxn) {
+        if (port == null || port.getUuid() == null) {
+            // VINH TODO check if exception still happens
+            LOG.error("createVpnInterface - port id null");
+            return;
+        }
         String infName = port.getUuid().getValue();
         List<Adjacency> adjList = new ArrayList<>();
         Boolean isRouterInterface = false;
@@ -1266,6 +1423,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             LOG.error("subnetmap is null, cannot add subnet {} to VPN {}", subnet.getValue(), vpnId.getValue());
             return;
         }
+        if (sn.getVpnId() != vpnId) {
+            LOG.info("Chained vpn {} addded to subnet {}, ignored", vpnId, subnet);
+            return;
+        }
+
         VpnMap vpnMap = NeutronvpnUtils.getVpnMap(dataBroker, vpnId);
         if (vpnMap == null) {
             LOG.error("No vpnMap for vpnId {}, cannot add subnet {} to VPN", vpnId.getValue(), subnet.getValue());
@@ -1659,6 +1821,14 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             return;
         }
         Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnet);
+
+        if (!sn.getVpnId().equals(vpnId)) {
+            // TODO explain why?
+            LOG.info("Chained vpn {} removed from subnet {}, ignored...", vpnId, sn);
+            return;
+        }
+
+        // VINH TODO what is isVpnOfTypeL2
         final VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpnId.getValue());
         if (isVpnOfTypeL2(vpnInstance)) {
             neutronEvpnUtils.updateElanAndVpn(vpnInstance, sn.getNetworkId().getValue(),
@@ -1815,6 +1985,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected List<String> dissociateNetworksFromVpn(Uuid vpn, List<Uuid> networks) {
+        // TODO VINH look find scenario
         List<String> failedNwList = new ArrayList<>();
         List<Uuid> passedNwList = new ArrayList<>();
         if (networks != null && !networks.isEmpty()) {
@@ -2314,6 +2485,24 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         } catch (Exception ex) {
             LOG.error("Removal of vpninterfaces {} failed", extElanInterfaces, ex);
         }
+    }
+
+    private ChainedRouter promoteToDefaultRouter(SubnetmapBuilder subnetmapBuilder) {
+        List<ChainedRouter> routers = subnetmapBuilder.getChainedRouter();
+        ChainedRouter promotedCandidate = null;
+        if (routers != null && !routers.isEmpty()) {
+            promotedCandidate = routers.stream()
+                    .filter(router -> NeutronvpnUtils.getVpnForRouter(dataBroker, router.getRouterId(), true) != null)
+                    .findFirst().orElse(null);
+
+            // if none of the chained routers have external gw return the first one
+            if (promotedCandidate == null) {
+                promotedCandidate = routers.get(0);
+            }
+        }
+
+        LOG.trace("promoteToDefaultRouter {}", promotedCandidate);
+        return promotedCandidate;
     }
 
     private void createExternalVpnInterface(Uuid vpnId, String infName, WriteTransaction wrtConfigTxn) {

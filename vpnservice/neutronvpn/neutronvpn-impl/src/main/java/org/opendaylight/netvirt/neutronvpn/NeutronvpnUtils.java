@@ -92,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev15060
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPortKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.subnetmap.ChainedRouter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMapKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.NetworkL3Extension;
@@ -210,6 +211,7 @@ public class NeutronvpnUtils {
         return null;
     }
 
+    // VINH TODO trace this call
     protected static Uuid getVpnForSubnet(DataBroker broker, Uuid subnetId) {
         InstanceIdentifier<Subnetmap> subnetmapIdentifier = buildSubnetMapIdentifier(subnetId);
         Optional<Subnetmap> optionalSubnetMap = read(broker, LogicalDatastoreType.CONFIGURATION, subnetmapIdentifier);
@@ -726,6 +728,14 @@ public class NeutronvpnUtils {
             for (Subnetmap subnetmap : subnetMaps.get().getSubnetmap()) {
                 if (routerId.equals(subnetmap.getRouterId())) {
                     subnetIdList.add(subnetmap.getId());
+                }
+                List<ChainedRouter> chainedRouters = subnetmap.getChainedRouter();
+                if (chainedRouters != null && !chainedRouters.isEmpty()) {
+                    for (ChainedRouter chainedRouter : chainedRouters) {
+                        if (routerId.equals(chainedRouter.getRouterId())) {
+                            subnetIdList.add(subnetmap.getId());
+                        }
+                    }
                 }
             }
         }

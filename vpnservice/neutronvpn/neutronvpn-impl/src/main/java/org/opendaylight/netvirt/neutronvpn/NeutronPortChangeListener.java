@@ -271,7 +271,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     // and addSubnetToVpn here
                     String ipValue = String.valueOf(portIP.getIpAddress().getValue());
                     Uuid subnetId = portIP.getSubnetId();
-                    nvpnManager.updateSubnetNodeWithFixedIp(subnetId, routerId,
+                    nvpnManager.updateSubnetNodeWithFixedIp(subnetId, vpnId, routerId,
                             routerPort.getUuid(), ipValue, routerPort.getMacAddress().getValue());
                     Subnetmap sn = NeutronvpnUtils.getSubnetmap(dataBroker, subnetId);
                     subnetMapList.add(sn);
@@ -328,9 +328,9 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 // NOTE:  Please donot change the order of calls to removeSubnetFromVpn and
                 // and updateSubnetNodeWithFixedIP
                 nvpnManager.removeSubnetFromVpn(vpnId, portIP.getSubnetId());
-                nvpnManager.updateSubnetNodeWithFixedIp(portIP.getSubnetId(), null,
-                        null, null, null);
+                nvpnManager.clearSubnetNodeWithFixedIp(portIP.getSubnetId(), routerId);
                 WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
+                // VINH TODO not to delete ELAN interface if there are more  vpn on the port
                 deleteElanInterface(routerPort.getUuid().getValue(), wrtConfigTxn);
                 deleteOfPortInterface(routerPort, wrtConfigTxn);
                 wrtConfigTxn.submit();

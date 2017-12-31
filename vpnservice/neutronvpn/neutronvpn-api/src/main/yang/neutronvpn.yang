@@ -30,37 +30,18 @@ module neutronvpn {
                 description "The UUID of the tenant that will own the subnet.";
             }
 
-            leaf router-id {
-                type    yang:uuid;
-                description "router to which this subnet belongs";
-            }
-
-            leaf router-interface-port-id {
-                type    yang:uuid;
-                description "port corresponding to router interface on this subnet";
-            }
-
-            leaf router-intf-mac-address {
-                type    string;
-                description "router interface mac address on this subnet";
-            }
-
-            leaf router-interface-fixed-ip {
-                type    string;
-                description "fixed ip of the router interface port on this subnet";
-            }
-
-            leaf vpn-id {
-                type    yang:uuid;
-                description "VPN to which this subnet belongs";
-            }
-
             leaf-list port-list {
                 type yang:uuid;
             }
 
             leaf-list direct-port-list{
                 type yang:uuid;
+            }
+
+            uses submap-vpn-info;
+
+            list chained-router {
+                uses submap-vpn-info;
             }
         }
     }
@@ -78,6 +59,34 @@ module neutronvpn {
                 type    yang:uuid;
                 description "List of UUIDs representing the subnets associated to the network";
             }
+        }
+    }
+
+    grouping submap-vpn-info {
+
+        leaf router-id {
+            type    yang:uuid;
+            description "router to which this subnet belongs";
+        }
+
+        leaf router-interface-port-id {
+            type    yang:uuid;
+            description "port corresponding to router interface on this subnet";
+        }
+
+        leaf router-intf-mac-address {
+            type    string;
+            description "router interface mac address on this subnet";
+        }
+
+        leaf router-interface-fixed-ip {
+            type    string;
+            description "fixed ip of the router interface port on this subnet";
+        }
+
+        leaf vpn-id {
+            type    yang:uuid;
+            description "VPN to which this subnet belongs";
         }
     }
 

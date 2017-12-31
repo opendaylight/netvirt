@@ -92,6 +92,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.C
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.RemoveFibEntryInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig.NatMode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExtRouters;
@@ -124,6 +126,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.SubnetmapKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.subnetmap.ChainedRouter;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.GenerateVpnLabelOutput;
@@ -327,6 +330,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 handleSnatReverseTraffic(primarySwitchId, routers, routerId, routerName, externalIpAddrPrefix,
                         writeFlowInvTx);
             }
+            handleAddChainedRouter(routers, writeFlowInvTx);
         }
         LOG.debug("handleEnableSnat : Exit");
     }
@@ -1182,6 +1186,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         // Check if its update on SNAT flag
         boolean originalSNATEnabled = original.isEnableSnat();
         boolean updatedSNATEnabled = update.isEnableSnat();
+        LOG.debug("update : original {} update {}", original, update);
         LOG.debug("update :called with originalFlag and updatedFlag for SNAT enabled "
             + "as {} and {}", originalSNATEnabled, updatedSNATEnabled);
         if (natMode == NatMode.Conntrack) {
@@ -1211,9 +1216,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
             }
             BigInteger dpnId = getPrimaryNaptSwitch(routerName, routerId);
+            // Router has no interface attached
             if (dpnId == null || dpnId.equals(BigInteger.ZERO)) {
-                // Router has no interface attached
-                return;
+                // if the chained interafce is the only interface added
+                if (!handleChainedInterfaceAddedToExternalRouterWithNoInterfaces(original, update)) {
+                    return;
+                }
             }
             DataStoreJobCoordinator dataStoreCoordinator = DataStoreJobCoordinator.getInstance();
             final long finalBgpVpnId = bgpVpnId;
@@ -1442,12 +1450,21 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     LOG.debug("update : End processing of the External IPs removal during the update operation");
                 }
 
+                handleUpdateExternalChainedRouter(original, update, writeFlowInvTx, removeFlowInvTx);
+
                 //Check if its Update on subnets
                 LOG.debug("update : Checking if this is update on subnets");
                 List<Uuid> originalSubnetIds = original.getSubnetIds();
                 List<Uuid> updatedSubnetIds = update.getSubnetIds();
                 Set<Uuid> addedSubnetIds = new HashSet<>(updatedSubnetIds);
                 addedSubnetIds.removeAll(originalSubnetIds);
+
+                for (Uuid subnetId : originalSubnetIds) {
+                    LOG.info("originalSubnet {}", NatUtil.getSubnetMap(dataBroker, subnetId));
+                }
+                for (Uuid subnetId : addedSubnetIds) {
+                    LOG.info("addedSubnetId {}", NatUtil.getSubnetMap(dataBroker, subnetId));
+                }
 
                 //Check if the Subnet IDs are added during the update.
                 if (addedSubnetIds.size() != 0) {
@@ -1464,6 +1481,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         if (subnetIp != null) {
                             allocateExternalIp(dpnId, update, routerId, routerName, networkId, subnetIp,
                                     writeFlowInvTx);
+                            Subnetmap sn = NatUtil.getSubnetMap(dataBroker, addedSubnetId);
+                            // VINH TODO cleanup
+                            LOG.info("update subnet map {}", sn);
+                            if (sn != null) {
+                                handleAddChainedRouter(update, sn, writeFlowInvTx);
+                            }
                         }
                     }
                     LOG.debug("update : End processing of the Subnet IDs addition during the update operation");
@@ -1472,6 +1495,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 //Check if the Subnet IDs are removed during the update.
                 Set<Uuid> removedSubnetIds = new HashSet<>(originalSubnetIds);
                 removedSubnetIds.removeAll(updatedSubnetIds);
+                for (Uuid subnetId : removedSubnetIds) {
+                    LOG.info("removedSubnetId {}", NatUtil.getSubnetMap(dataBroker, subnetId));
+                    Subnetmap subnetmap = NatUtil.getSubnetMap(dataBroker, subnetId);
+                    if (subnetmap != null) {
+                        handleRemoveChainedRouter(update, subnetmap, removeFlowInvTx);
+                    }
+                }
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 if (removedSubnetIds.size() != 0) {
                     LOG.debug("update : Start processing of the Subnet IDs removal during the update operation");
@@ -1738,6 +1768,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         externalSubnetVpn =  externalSubnetId.getValue();
                         clrRtsFromBgpAndDelFibTs(naptSwitchDpnId, routerId, networkUuid, externalIps, externalSubnetVpn,
                                 router.getExtGwMacAddress(), removeFlowInvTx);
+                        handleRemoveChainedRouter(router, externalSubnetId, removeFlowInvTx);
                     }
                 }
                 if (externalSubnetVpn == null) {
@@ -1757,6 +1788,173 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             LOG.error("handleDisableSnat : Exception while handling disableSNAT for router :{}", routerName, ex);
         }
         LOG.info("handleDisableSnat : Exit");
+    }
+
+    private void handleAddChainedRouter(Routers routers, WriteTransaction writeFlowInvTx) {
+        Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(routers.getExternalIps());
+        LOG.info("handleAddChainedRouter routers {}", routers);
+        if (routers.getSubnetIds() == null) {
+            return;
+        }
+
+//        externalSubnetList.stream().forEach(externalSubnetId -> routers.getSubnetIds().stream().forEach(subnetId ->
+//                handleAddChainedRouter(routers.getRouterName(), NatUtil.getSubnetMap(dataBroker, subnetId),
+//                        externalSubnetId, writeFlowInvTx)));
+        for (Uuid externalSubnetId : externalSubnetList) {
+            for (Uuid subnetId : routers.getSubnetIds()) {
+                Subnetmap subnet = NatUtil.getSubnetMap(dataBroker, subnetId);
+                if (subnet != null) {
+                    handleAddChainedRouterFib(routers.getRouterName(), subnet, externalSubnetId, writeFlowInvTx);
+                }
+            }
+        }
+    }
+
+    private void handleAddChainedRouter(Routers routers, Uuid externalSubnetId, WriteTransaction writeFlowInvTx) {
+        LOG.info("handleAddChainedRouter routers {} externalSubnetId {}", routers, externalSubnetId);
+        for (Uuid subnetId : routers.getSubnetIds()) {
+            Subnetmap subnet = NatUtil.getSubnetMap(dataBroker, subnetId);
+            if (subnet != null) {
+                handleAddChainedRouterFib(routers.getRouterName(), subnet, externalSubnetId, writeFlowInvTx);
+            }
+        }
+    }
+
+    private void handleAddChainedRouter(Routers routers, Subnetmap subnet, WriteTransaction writeFlowInvTx) {
+        LOG.info("handleAddChainedRouter routers {} subnet {}", routers, subnet);
+        Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(routers.getExternalIps());
+        if (subnet == null) {
+            return;
+        }
+        for (Uuid externalSubnetId : externalSubnetList) {
+            handleAddChainedRouterFib(routers.getRouterName(), subnet, externalSubnetId, writeFlowInvTx);
+        }
+    }
+
+    private void handleAddChainedRouterFib(String routerName, Subnetmap subnet, Uuid externalSubnetId,
+            WriteTransaction writeFlowInvTx) {
+        LOG.info("handleAddChainedRouterFib router {} subnet {} externalSubnetId {}",
+                routerName, subnet, externalSubnetId);
+        if (!routerName.equals(subnet.getRouterId())) {
+            if (subnet.getChainedRouter() != null && !subnet.getChainedRouter().isEmpty()) {
+                for (ChainedRouter chainedRouter : subnet.getChainedRouter()) {
+                    if (routerName.equals(chainedRouter.getRouterId().getValue())) {
+                        String rd = NatUtil.getVpnRd(dataBroker, subnet.getVpnId().getValue());
+                        String extSubnetIp = NatUtil.getSubnetIp(dataBroker, externalSubnetId);
+                        if (extSubnetIp != null) {
+                            String chainedRd = NatUtil.getPrimaryRd(
+                                    dataBroker, chainedRouter.getVpnId().getValue());
+                            LOG.info("associate external network attaching to chained "
+                                     + "routers for rd {} chainedRd {} extSubnetIp {}",
+                                    rd, chainedRd, extSubnetIp);
+                            RouterInterface routerInterface =
+                                    new RouterInterfaceBuilder()
+                                            .setUuid(subnet.getId().getValue())
+                                            .setIpAddress(subnet.getSubnetIp()).build();
+                            fibManager.addFibEntryForChainedRouter(dataBroker, rd, chainedRd,
+                                    extSubnetIp, RouteOrigin.CHAINED_EXT, routerInterface, writeFlowInvTx);
+                            fibManager.addFibEntryForChainedRouter(dataBroker, chainedRd, rd,
+                                    subnet.getSubnetIp(), RouteOrigin.CHAINED, null, writeFlowInvTx);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void handleRemoveChainedRouter(Routers routers, Uuid externalSubnetId, WriteTransaction removeFlowInvTx) {
+        LOG.info("handleRemoveChainedRouter routers {} externalSubnetId {}", routers, externalSubnetId);
+        for (Uuid subnetId : routers.getSubnetIds()) {
+            Subnetmap subnetmap = NatUtil.getSubnetMap(dataBroker, subnetId);
+            if (subnetmap != null) {
+                handleRemoveChainedRouterFib(routers.getRouterName(), subnetmap, externalSubnetId, removeFlowInvTx);
+            }
+        }
+    }
+
+    private void handleRemoveChainedRouter(Routers routers, Subnetmap subnetmap, WriteTransaction removeFlowInvTx) {
+        LOG.info("handleRemoveChainedRouter routers {} subnetmap {}", routers, subnetmap);
+        Collection<Uuid> externalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(routers.getExternalIps());
+        for (Uuid externalSubnetId : externalSubnetList) {
+            handleRemoveChainedRouterFib(routers.getRouterName(), subnetmap, externalSubnetId, removeFlowInvTx);
+        }
+    }
+
+    private void handleRemoveChainedRouterFib(String routerName, Subnetmap subnetmap, Uuid externalSubnetId,
+            WriteTransaction removeFlowInvTx) {
+        if (subnetmap != null) {
+            LOG.info("handleRemoveChainedRouterFib for subnet {} router {} externalSubnetId {}",
+                    subnetmap, routerName, externalSubnetId);
+            if (!routerName.equals(subnetmap.getRouterId())) {
+                // VINH TODO check if router is in chained list??
+                String rd = NatUtil.getVpnRd(dataBroker, subnetmap.getVpnId().getValue());
+                String extSubnetIp = NatUtil.getSubnetIp(dataBroker, externalSubnetId);
+                LOG.info("dissociate external network attaching to chained "
+                         + "routers for rd {} extSubnetIp {}", rd, extSubnetIp);
+                if (extSubnetIp != null) {
+                    // delete flows for chained router's external networks
+                    fibManager.removeFibEntry(dataBroker, rd, extSubnetIp, removeFlowInvTx);
+                    String chainedRd = NatUtil.getVpnRd(dataBroker, routerName);
+                    fibManager.removeFibEntry(dataBroker, chainedRd, subnetmap.getSubnetIp(), removeFlowInvTx);
+                }
+            }
+        }
+    }
+
+    private void handleUpdateExternalChainedRouter(Routers original, Routers update, WriteTransaction writeFlowInvTx,
+            WriteTransaction removeFlowInvTx) {
+        LOG.info("handleUpdateExternalChainedRouter for original {} update {}", original, update);
+        Collection<Uuid> oriExternalSubnetList = NatUtil.getExternalSubnetIdsFromExternalIps(original.getExternalIps());
+        Collection<Uuid> updateExternalSubnetList =
+                NatUtil.getExternalSubnetIdsFromExternalIps(original.getExternalIps());
+
+        Collection<Uuid> removedExternalSubnetList = new ArrayList<>(oriExternalSubnetList);
+        removedExternalSubnetList.removeAll(updateExternalSubnetList);
+
+        for (Uuid externalSubnetId : removedExternalSubnetList) {
+            handleRemoveChainedRouter(update, externalSubnetId, removeFlowInvTx);
+        }
+        Collection<Uuid> addedExternalSubnetList = new ArrayList<>(updateExternalSubnetList);
+        addedExternalSubnetList.removeAll(oriExternalSubnetList);
+
+        for (Uuid externalSubnetId : addedExternalSubnetList) {
+            handleAddChainedRouter(update, externalSubnetId, writeFlowInvTx);
+        }
+    }
+
+    private boolean handleChainedInterfaceAddedToExternalRouterWithNoInterfaces(Routers original, Routers update) {
+        LOG.info("handleChainedInterfaceAddedToExternalRouterWithNoInterfaces for original {} update {}",
+                original, update);
+        boolean chainedInterfaceAddedToExternalRouterWithNoInterfaces = false;
+        List<Uuid> originalSubnetIds = original.getSubnetIds();
+        List<Uuid> updatedSubnetIds = update.getSubnetIds();
+        Set<Uuid> addedSubnetIds = new HashSet<>(updatedSubnetIds);
+        addedSubnetIds.removeAll(originalSubnetIds);
+
+        for (Uuid subnetId : addedSubnetIds) {
+            Subnetmap sn = NatUtil.getSubnetMap(dataBroker, subnetId);
+            LOG.info("handleChainedInterfaceAddedToExternalRouterWithNoInterfaces for subnet {}", sn);
+            if (sn != null && sn.getChainedRouter() != null && !sn.getChainedRouter().isEmpty()) {
+                for (ChainedRouter chainRouter : sn.getChainedRouter()) {
+                    String routerName = chainRouter.getRouterId().getValue();
+                    if (original.getRouterName().equals(routerName)) {
+                        Long routerId = NatUtil.getVpnId(dataBroker, routerName);
+                        if (routerId == NatConstants.INVALID_ID) {
+                            LOG.error("update : external router event - Invalid routerId for routerName {}",
+                                    routerName);
+                            return false;
+                        }
+                        BigInteger dpnId = getPrimaryNaptSwitch(sn.getRouterId().getValue(), routerId);
+                        if (dpnId != null) {
+                            updateNaptSwitch(routerName, dpnId);
+                            chainedInterfaceAddedToExternalRouterWithNoInterfaces = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        return chainedInterfaceAddedToExternalRouterWithNoInterfaces;
     }
 
     // TODO Clean up the exception handling
@@ -2108,7 +2306,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             BigInteger naptSwitchDpnId, Uuid networkId, WriteTransaction removeFlowInvTx) {
         LOG.debug("removeFlowsFromNonActiveSwitches : Remove NAPT related flows from non active switches");
 
-        // Remove the flows from the other switches which points to the primary and secondary switches
+        // Remove the flows from the other switches which points to the primary and chained switches
         // for the flows related the router ID.
         List<BigInteger> allSwitchList = naptSwitchSelector.getDpnsForVpn(routerName);
         if (allSwitchList == null || allSwitchList.isEmpty()) {

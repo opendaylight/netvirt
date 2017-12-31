@@ -20,6 +20,8 @@ public enum RouteOrigin {
     INTERVPN("inter-vpn link", "iv"),
     SELF_IMPORTED("self-imported", "si"),
     BGP("bgp", "b"),
+    CHAINED("chained", "ch"),
+    CHAINED_EXT("chained external network", "chext"),
     LOCAL("local", "l");
 
 
@@ -49,6 +51,12 @@ public enum RouteOrigin {
                 break;
             case "b":
                 origin = BGP;
+                break;
+            case "ch":
+                origin = CHAINED;
+                break;
+            case "chext":
+                origin = CHAINED_EXT;
                 break;
             case "l":
                 origin = LOCAL;

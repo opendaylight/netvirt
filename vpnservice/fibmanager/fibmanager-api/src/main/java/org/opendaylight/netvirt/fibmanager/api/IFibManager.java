@@ -76,4 +76,7 @@ public interface IFibManager {
             String destinationIp, int addRemoveOrUpdate, boolean isTunnelUp);
 
     void refreshVrfEntry(String rd, String prefix);
+
+    void addFibEntryForChainedRouter(DataBroker broker, String rd, String newRd, String prefix,
+            RouteOrigin origin, RouterInterface routeInterface, WriteTransaction writeConfigTxn);
 }

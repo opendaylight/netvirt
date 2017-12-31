@@ -64,6 +64,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.N
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.RouterInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRoute;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.SubnetRouteBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTables;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.fibentries.VrfTablesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
@@ -102,6 +104,7 @@ import org.slf4j.LoggerFactory;
 public final class FibUtil {
     private static final Logger LOG = LoggerFactory.getLogger(FibUtil.class);
     private static final String FLOWID_PREFIX = "L3.";
+    private static final BigInteger COOKIE_TABLE_MISS = new BigInteger("8000004", 16);
 
     private FibUtil() {
     }
@@ -316,6 +319,40 @@ public final class FibUtil {
             LOG.debug("Created vrfEntry for router-interface-prefix {} rd {} label {}", prefix, rd, label);
         } catch (Exception e) {
             LOG.error("addFibEntryForRouterInterface: prefix {} rd {} label {} error ", prefix, rd, label, e);
+        }
+    }
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void addFibEntryForChainedRouter(DataBroker broker, String rd, String chainedRd, String prefix,
+            RouteOrigin origin, RouterInterface routerInterface, WriteTransaction writeConfigTxn) {
+
+        if (rd == null || rd.isEmpty()) {
+            LOG.error("Prefix {} not associated with vpn", prefix);
+            return;
+        }
+
+        try {
+            SubnetRoute route = new SubnetRouteBuilder().build();
+            VrfEntry vrfEntry = FibHelper.getVrfEntryBuilder(prefix, origin, chainedRd)
+                    .addAugmentation(SubnetRoute.class, route)
+                    .addAugmentation(RouterInterface.class, routerInterface).build();
+
+            LOG.debug("Created vrfEntry for {} chainedRd {}", prefix, chainedRd);
+
+            // VINH TODO prefix is good enough?
+            InstanceIdentifier<VrfEntry> vrfEntryId =
+                    InstanceIdentifier.builder(FibEntries.class)
+                            .child(VrfTables.class, new VrfTablesKey(rd))
+                            .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
+
+            if (writeConfigTxn != null) {
+                writeConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry, true);
+            } else {
+                MDSALUtil.syncUpdate(broker, LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntry);
+            }
+            LOG.trace("addFibEntryForChainedRouter prefix {} origin {} rd {} newRd {}", prefix, origin, rd, chainedRd);
+        } catch (Exception e) {
+            LOG.error("addFibEntryForChainedRouter: prefix {} rd {} newRd {} error ", prefix, rd, chainedRd, e);
         }
     }
 
@@ -656,6 +693,11 @@ public final class FibUtil {
         }
     }
 
+    public static boolean isChainedRouteOrigin(VrfEntry vrfEntry) {
+        RouteOrigin routeOrigin = RouteOrigin.value(vrfEntry.getOrigin());
+        return routeOrigin == RouteOrigin.CHAINED || routeOrigin == RouteOrigin.CHAINED_EXT;
+    }
+
     private static InstanceIdentifier<DpnLbNexthops> getDpnLbNexthopsIdentifier(BigInteger dpnId,
             String destinationIp) {
         return InstanceIdentifier.builder(DpidL3vpnLbNexthops.class)
@@ -768,6 +810,22 @@ public final class FibUtil {
                 + NwConstants.FLOWID_SEPARATOR + priority + NwConstants.FLOWID_SEPARATOR + destPrefix.getHostAddress();
     }
 
+    static String getFlowRef(BigInteger dpnId, short tableId, String rd, int priority, InetAddress srcPrefix,
+            InetAddress destPrefix) {
+        String flowRef = getFlowRef(dpnId, tableId, rd, priority, destPrefix);
+        if (srcPrefix == null) {
+            return flowRef;
+        } else {
+            return flowRef + NwConstants.FLOWID_SEPARATOR + srcPrefix.getHostAddress();
+        }
+    }
+
+    static String getFlowRef(BigInteger dpnId, short tableId, String rd, int priority) {
+        return FLOWID_PREFIX + dpnId + NwConstants.FLOWID_SEPARATOR + tableId + NwConstants.FLOWID_SEPARATOR + rd
+                          + NwConstants.FLOWID_SEPARATOR + priority;
+    }
+
+
     static String getL3VpnGatewayFlowRef(short l3GwMacTable, BigInteger dpId, long vpnId, String gwMacAddress) {
         return gwMacAddress + NwConstants.FLOWID_SEPARATOR + vpnId + NwConstants.FLOWID_SEPARATOR + dpId
                 + NwConstants.FLOWID_SEPARATOR + l3GwMacTable;
@@ -789,5 +847,17 @@ public final class FibUtil {
         int network = address & netmask;
         int broadcast = network | ~netmask;
         return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
+    }
+
+    static List<Adjacency> getAdjacenciesForVpnInterfaceFromConfig(DataBroker broker, String intfName) {
+        final InstanceIdentifier<VpnInterface> identifier = getVpnInterfaceIdentifier(intfName);
+        InstanceIdentifier<Adjacencies> path = identifier.augmentation(Adjacencies.class);
+        Optional<Adjacencies> adjacencies = MDSALUtil.read(broker, LogicalDatastoreType.CONFIGURATION, path);
+
+        if (adjacencies.isPresent()) {
+            List<Adjacency> nextHops = adjacencies.get().getAdjacency();
+            return nextHops;
+        }
+        return null;
     }
 }

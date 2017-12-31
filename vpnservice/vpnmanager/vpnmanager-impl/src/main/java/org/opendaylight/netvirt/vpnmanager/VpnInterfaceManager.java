@@ -106,8 +106,11 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpntargets.VpnTarget;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.to.extraroutes.vpn.extra.routes.Routes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.subnetmap.ChainedRouter;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.opendaylight.yangtools.yang.common.RpcError;
@@ -770,6 +773,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 RouteOrigin origin = nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency ? RouteOrigin.LOCAL
                         : RouteOrigin.STATIC;
                 input.setNextHop(nextHop).setRd(nextHop.getVrfId()).setRouteOrigin(origin);
+                // VINH TODO LOOK HERE
+                // who delete subnet route
                 registeredPopulator.populateFib(input, writeConfigTxn, writeOperTxn);
             }
         }
@@ -1668,6 +1673,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 + " and elantag {}", rd, prefix, nextHop, label, route.getElantag());
     }
 
+    // TODO VINH use this?
     public void deleteSubnetRouteFibEntryFromDS(String rd, String prefix, String vpnName) {
         fibManager.removeFibEntry(dataBroker, rd, prefix, null);
         List<VpnInstanceOpDataEntry> vpnsToImportRoute = getVpnsImportingMyRoute(vpnName);
@@ -2093,21 +2099,41 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         for (Adjacency adj : adjs) {
             if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                String primaryInterfaceIp = adj.getIpAddress();
-                String macAddress = adj.getMacAddress();
-                String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
+                // get subnet id of sn1
+                Uuid subnetId = adj.getSubnetId();
+                Subnetmap defaultSn = VpnUtil.getSubnetmapFromItsUuid(dataBroker, subnetId);
+                LOG.info("createFibEntryForRouterInterface: adjacency {} defaultSn {}", adj, defaultSn);
+                if (defaultSn == null || defaultSn.getVpnId() == null) {
+                    LOG.error("createFibEntryForRouterInterface: default subnet is null");
+                    return;
+                }
+                String defaultVpnName = defaultSn.getVpnId().getValue();
+                String defaultRd = VpnUtil.getPrimaryRd(dataBroker, defaultVpnName);
+                long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+                LOG.info("createFibEntryForRouterInterface: adjacency {} subnetId {} defaultVpnName {} "
+                        + "defaultRd {} vpnId {}", adj, subnetId, defaultVpnName, defaultRd, vpnId);
+                if (defaultVpnName.equals(vpnName)) {
+                    LOG.info("createFibEntryForRouterInterface: defaultVpn");
+                    String primaryInterfaceIp = adj.getIpAddress();
+                    String macAddress = adj.getMacAddress();
+                    String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
 
-                long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
-                    VpnUtil.getNextHopLabelKey(primaryRd, prefix));
+                    long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
+                            VpnUtil.getNextHopLabelKey(primaryRd, prefix));
 
-                RouterInterface routerInt = new RouterInterfaceBuilder().setUuid(vpnName)
-                        .setIpAddress(primaryInterfaceIp).setMacAddress(macAddress).build();
-                fibManager.addFibEntryForRouterInterface(dataBroker, primaryRd, prefix,
-                        routerInt, label, writeConfigTxn);
-                LOG.info("createFibEntryForRouterInterface: Router interface {} for vpn {} rd {} prefix {} label {}"
-                        + " macAddress {} processed successfully;", interfaceName, vpnName, primaryRd, prefix, label,
-                        macAddress);
-                return;
+                    RouterInterface routerInt = new RouterInterfaceBuilder().setUuid(vpnName)
+                            .setIpAddress(primaryInterfaceIp).setMacAddress(macAddress).build();
+                    fibManager.addFibEntryForRouterInterface(dataBroker, primaryRd, prefix,
+                            routerInt, label, writeConfigTxn);
+                    LOG.info("createFibEntryForRouterInterface: Router interface {} for vpn {} rd {} prefix {} label {}"
+                                    + " macAddress {} processed successfully;", interfaceName, vpnName,
+                            primaryRd, prefix, label,
+                            macAddress);
+                    return;
+                } else {
+                    createFibEntryForChainedRouterInterface(defaultRd, primaryRd, defaultSn, vpnId, writeConfigTxn);
+                    return;
+                }
             }
         }
         LOG.error("createFibEntryForRouterInterface: VPN Interface {} of router addition failed as primary"
@@ -2115,25 +2141,176 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 primaryRd, vpnName);
     }
 
+    private void createFibEntryForChainedRouterInterface(String defaultRd, String chainedRd,
+            Subnetmap defaultSubnetmap, long vpnId, WriteTransaction writeConfigTxn) {
+        LOG.info("createFibEntryForChainedRouterInterface defaultRd {} chainedRd {}", defaultRd, chainedRd);
+
+        // for each other subnets in this vpn
+        VpnInstanceOpDataEntry vpnInstance = VpnUtil.getVpnInstanceOpData(dataBroker, chainedRd);
+        Preconditions.checkNotNull(vpnInstance, "Default Vpn Instance not available " + chainedRd);
+        if (vpnInstance.getVpnToDpnList() == null) {
+            vpnInstance = VpnUtil.getVpnInstanceOpData(dataBroker, defaultRd);
+            Preconditions.checkNotNull(vpnInstance, "Chained Vpn Instance not available " + chainedRd);
+        }
+
+        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        if (vpnToDpnList != null) {
+            for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                LOG.info("createFibEntryForChainedRouterInterface: vpnToDpnList {} ", vpnDpn);
+                List<Uuid> subnetIds = new ArrayList<>();
+                vpnDpn.getVpnInterfaces().forEach(vpnIf -> {
+                    LOG.info("createFibEntryForChainedRouterInterface: ifc {} ", vpnIf);
+                    VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
+                            dataBroker, vpnIf.getInterfaceName()).forEach(otherAdj -> {
+                                if (!subnetIds.contains(otherAdj.getSubnetId())) {
+                                    subnetIds.add(otherAdj.getSubnetId());
+                                }
+                            }
+                    );
+                    subnetIds.forEach(subnet -> {
+                        Subnetmap otherSn = VpnUtil.getSubnetmapFromItsUuid(dataBroker, subnet);
+
+                        LOG.info("createFibEntryForChainedRouterInterface:  default prefix {} chained prefix {} rd {} "
+                                 + "vpnId {} dpn {} ",
+                                otherSn.getSubnetIp(), defaultSubnetmap.getSubnetIp(), defaultRd, vpnId,
+                                vpnDpn.getDpnId());
+                        RouterInterface routerInterface = new RouterInterfaceBuilder()
+                                .setUuid(defaultSubnetmap.getId().getValue())
+                                .setIpAddress(defaultSubnetmap.getSubnetIp()).build();
+
+                        // Add flow to replace vpnId from to default vpn to chained vpn
+                        fibManager.addFibEntryForChainedRouter(dataBroker, defaultRd, chainedRd,
+                                otherSn.getSubnetIp(), RouteOrigin.CHAINED, routerInterface, writeConfigTxn);
+
+                        // Add flow to replace vpnId from to chained vpn to default vpn
+                        fibManager.addFibEntryForChainedRouter(dataBroker, chainedRd, defaultRd,
+                                defaultSubnetmap.getSubnetIp(), RouteOrigin.CHAINED, null, writeConfigTxn);
+                    });
+                });
+            }
+        }
+    }
+
+    private List<String> getExternalSubnetIps(String vpnName) {
+        Routers routers = VpnUtil.getExternalRouter(dataBroker, vpnName);
+        List<String> extSubnetIps = new ArrayList<>();
+        if (routers != null) {
+            List<ExternalIps> extIpss = routers.getExternalIps();
+            for (ExternalIps extips : extIpss) {
+                Uuid extSubnetId = extips.getSubnetId();
+                Subnetmap extSubnetMap = VpnUtil.getSubnetmapFromItsUuid(dataBroker, extSubnetId);
+                if (extSubnetMap != null) {
+
+                    extSubnetIps.add(extSubnetMap.getSubnetIp());
+                    LOG.trace("Added extSubnetIp {}", extSubnetMap.getSubnetIp());
+                }
+            }
+        }
+        return extSubnetIps;
+    }
+
     protected void deleteFibEntryForRouterInterface(VpnInterface vpnInterface, WriteTransaction writeConfigTxn) {
-        List<Adjacency> adjsList = new ArrayList<>();
         Adjacencies adjs = vpnInterface.getAugmentation(Adjacencies.class);
         String rd = VpnUtil.getVpnRd(dataBroker, vpnInterface.getVpnInstanceName());
+        String vpnName = vpnInterface.getVpnInstanceName();
         if (adjs != null) {
-            adjsList = adjs.getAdjacency();
+            List<Adjacency> adjsList = adjs.getAdjacency();
             for (Adjacency adj : adjsList) {
                 if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                    String primaryInterfaceIp = adj.getIpAddress();
-                    String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
-                    fibManager.removeFibEntry(dataBroker, rd, prefix, writeConfigTxn);
-                    LOG.info("deleteFibEntryForRouterInterface: FIB for router interface {} deleted for vpn {} rd {}"
-                            + " prefix {}", vpnInterface.getName(), vpnInterface.getVpnInstanceName(), rd, prefix);
-                    return;
+                    Uuid subnetId = adj.getSubnetId();
+                    Subnetmap defaultSn = VpnUtil.getSubnetmapFromItsUuid(dataBroker, subnetId);
+                    LOG.info("deleteFibEntryForRouterIn subnetId {} defaultSn {}", subnetId, defaultSn);
+                    // Three cases"
+                    // 1. clear default router -
+                    //      there is no default vpn and router, there is no chained routers
+                    // 2. clear default router - there is chained to be promote
+                    //      there is no default vpn and router, there is chained router
+                    // 3. clear chained
+                    //      there is default vpn and router id
+                    if (defaultSn.getVpnId() == null) {
+                        LOG.info("deleteFibEntryForRouterInterface for clearing default router {}", defaultSn);
+                        // if there no chained routers
+                        if (defaultSn.getChainedRouter() == null || defaultSn.getChainedRouter().isEmpty()) {
+                            String primaryInterfaceIp = adj.getIpAddress();
+                            String prefix = VpnUtil.getIpPrefix(primaryInterfaceIp);
+                            fibManager.removeFibEntry(dataBroker, rd, prefix, writeConfigTxn);
+                            // TODO VINH return is needed?
+                            return;
+                        } else {
+                            // delete default router when there is chained routers
+                            // delete for patch flows chained routers to the default router
+                            ChainedRouter chainedRouter = getPromoteChainedRouter(defaultSn);
+                            LOG.info("deleteFibEntryForRouterInterface for clearing default router "
+                                    + " when there is chained routers");
+                            if (chainedRouter != null) {
+                                LOG.info("deleteFibEntryForRouterInterface for clearing default router "
+                                        + " when there is chained routers {}", chainedRouter);
+                                String chainedRouterRd = VpnUtil.getVpnRd(
+                                        dataBroker, chainedRouter.getVpnId().getValue());
+                                deleteFibEntryForChainedRouterInterface(vpnName, rd, chainedRouterRd,
+                                        defaultSn, writeConfigTxn);
+                            }
+                            return;
+                        }
+                    } else {
+                        String defaultVpnName = defaultSn.getVpnId().getValue();
+                        String defaultRd = VpnUtil.getPrimaryRd(dataBroker, defaultVpnName);
+                        if (!defaultVpnName.equals(vpnName)) {
+                            deleteFibEntryForChainedRouterInterface(vpnName, defaultRd, rd,
+                                    defaultSn, writeConfigTxn);
+                        }
+                    }
                 }
             }
         } else {
             LOG.error("deleteFibEntryForRouterInterface: Adjacencies for vpninterface {} is null, rd: {}",
                     vpnInterface.getName(), rd);
+        }
+    }
+
+    private void deleteFibEntryForChainedRouterInterface(String vpnName, String defaultRd, String chainedRd,
+            Subnetmap defaultSubnetmap, WriteTransaction writeConfigTxn) {
+        LOG.info("deleteFibEntryForChainedRouterInterface vpnName {} ", vpnName);
+        List<String> extSubnetIps = getExternalSubnetIps(vpnName);
+
+        // for each other subnets in this vpn
+        VpnInstanceOpDataEntry vpnInstance = VpnUtil.getVpnInstanceOpData(dataBroker, chainedRd);
+        Preconditions.checkNotNull(vpnInstance, "Vpn Instance not available " + chainedRd);
+
+        if (vpnInstance.getVpnToDpnList() == null) {
+            vpnInstance = VpnUtil.getVpnInstanceOpData(dataBroker, defaultRd);
+            Preconditions.checkNotNull(vpnInstance, "Chained Vpn Instance not available " + chainedRd);
+        }
+
+        final Collection<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
+        if (vpnToDpnList != null) {
+            for (VpnToDpnList vpnDpn : vpnToDpnList) {
+                List<Uuid> subnetIds = new ArrayList<>();
+                vpnDpn.getVpnInterfaces().forEach(vpnIf -> {
+                    VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(
+                            dataBroker, vpnIf.getInterfaceName()).forEach(otherAdj -> {
+                                LOG.info("deleteFibEntryForRouterChain: otherAdj {}", otherAdj);
+                                if (!subnetIds.contains(otherAdj.getSubnetId())) {
+                                    subnetIds.add(otherAdj.getSubnetId());
+                                }
+                            }
+                    );
+                    subnetIds.forEach(subnet -> {
+                        Subnetmap otherSn = VpnUtil.getSubnetmapFromItsUuid(dataBroker, subnet);
+                        // First delete flow from to default to new vpn
+                        LOG.info("deleteFibEntryForRouterChain: prefix {} defaultRd {} vpnDpn {}",
+                                otherSn.getSubnetIp(), chainedRd, vpnDpn.getDpnId());
+                        fibManager.removeFibEntry(dataBroker, defaultRd, otherSn.getSubnetIp(),
+                                writeConfigTxn);
+
+                        // Then delete flow from to default to new vpn
+                        LOG.info("deleteFibEntryForRouterChain: " + "prefix {} rd {} vpnDpn {}",
+                                defaultSubnetmap.getSubnetIp(), defaultRd, vpnDpn.getDpnId());
+                        fibManager.removeFibEntry(dataBroker, chainedRd, defaultSubnetmap.getSubnetIp(),
+                                writeConfigTxn);
+                    });
+                });
+            }
         }
     }
 
@@ -2317,5 +2494,24 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             });
                     });
         }));
+    }
+
+    private ChainedRouter getPromoteChainedRouter(Subnetmap subnetmap) {
+        List<ChainedRouter> routers = subnetmap.getChainedRouter();
+        ChainedRouter promotedCandidate = null;
+        if (routers != null && !routers.isEmpty()) {
+            promotedCandidate = routers.stream()
+                    .filter(router -> VpnUtil.getAssociatedExternalNetwork(
+                            dataBroker, router.getRouterId().getValue()) != null)
+                    .findFirst().orElse(null);
+
+            // if none of the chained routers have external gw return the first one
+            if (promotedCandidate == null) {
+                promotedCandidate = routers.get(0);
+            }
+        }
+
+        LOG.trace("VpnInterfaceManager promoteToDefaultRouter {}", promotedCandidate);
+        return promotedCandidate;
     }
 }

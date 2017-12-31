@@ -7,27 +7,23 @@
  */
 package org.opendaylight.netvirt.fibmanager;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg0;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev140421.NxmNxReg1;
 
-public final class FibConstants {
-    static final int DEFAULT_FIB_FLOW_PRIORITY = 10;
-    static final int DEFAULT_PREFIX_LENGTH = 32;
-    static final int DEFAULT_IPV6_PREFIX_LENGTH = 128;
-    static final String PREFIX_SEPARATOR = "/";
-    static final String FLOWID_PREFIX = "L3.";
-    static final String VPN_IDPOOL_NAME = "vpnservices";
-    static final String SEPARATOR = ".";
-    static final String DEFAULT_NEXTHOP_IP = "0.0.0.0";
-    public static final long INVALID_GROUP_ID = -1;
-    public static final Map<Integer, Class<? extends NxmNxReg>> NXM_REG_MAPPING = new ConcurrentHashMap<>();
+public interface FibConstants {
+    int DEFAULT_FIB_FLOW_PRIORITY = 10;
+    int DEFAULT_PREFIX_LENGTH = 32;
+    int DEFAULT_IPV6_PREFIX_LENGTH = 128;
+    String PREFIX_SEPARATOR = "/";
+    String FLOWID_PREFIX = "L3.";
+    String VPN_IDPOOL_NAME = "vpnservices";
+    String SEPARATOR = ".";
+    String DEFAULT_NEXTHOP_IP = "0.0.0.0";
+    long INVALID_GROUP_ID = -1;
+    long INVALID_VPN_ID = -1;
 
-    static {
-        NXM_REG_MAPPING.put(0, NxmNxReg0.class);
-        NXM_REG_MAPPING.put(1, NxmNxReg1.class);
-    }
+    Map<Integer, Class<? extends NxmNxReg>> NXM_REG_MAPPING = ImmutableMap.of(0, NxmNxReg0.class, 1, NxmNxReg1.class);
 }

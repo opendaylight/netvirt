@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.aclservice;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -117,7 +118,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             return false;
         }
         unbindService(port);
-        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
+        if (port.getDpId() != null) {
+            // VINH TODO
+            updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
+        }
         return true;
     }
 
@@ -459,6 +463,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid acl, BigInteger aclId, int addOrRemove) {
         List<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(acl);
         BigInteger dpId = port.getDpId();
+        LOG.info("syncRemoteAclTableFromOtherDpns port {} acl {} aclId {}", port,
+                Arrays.toString(aclInterfaces.toArray()), aclId);
         boolean isFirstPortInDpn = true;
         if (aclInterfaces != null) {
             for (AclInterface aclInterface : aclInterfaces) {

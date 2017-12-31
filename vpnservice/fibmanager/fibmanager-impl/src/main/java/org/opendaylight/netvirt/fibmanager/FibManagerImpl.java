@@ -140,6 +140,12 @@ public class FibManagerImpl implements IFibManager {
     }
 
     @Override
+    public void addFibEntryForChainedRouter(DataBroker broker, String rd, String newRd,
+            String prefix, RouteOrigin origin, RouterInterface routerInterface, WriteTransaction writeConfigTxn) {
+        FibUtil.addFibEntryForChainedRouter(broker, rd, newRd, prefix, origin, routerInterface, writeConfigTxn);
+    }
+
+    @Override
     public void removeOrUpdateFibEntry(DataBroker broker, String rd, String prefix,
                                        String nextHopToRemove, WriteTransaction writeConfigTxn) {
         FibUtil.removeOrUpdateFibEntry(broker, rd, prefix, nextHopToRemove, writeConfigTxn);

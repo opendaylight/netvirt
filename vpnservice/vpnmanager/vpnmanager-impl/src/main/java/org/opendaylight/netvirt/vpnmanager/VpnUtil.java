@@ -1776,4 +1776,19 @@ public final class VpnUtil {
         }
         return isVpnPendingDelete;
     }
+
+    /** Get Subnetmap from its Uuid.
+     * @param broker the data broker for look for data
+     * @param subnetUuid the subnet's Uuid
+     * @return the Subnetmap of Uuid or null if it is not found
+     */
+    public static Subnetmap getSubnetmapFromItsUuid(DataBroker broker, Uuid subnetUuid) {
+        Subnetmap sn = null;
+        InstanceIdentifier<Subnetmap> id = buildSubnetmapIdentifier(subnetUuid);
+        Optional<Subnetmap> optionalSn = read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        if (optionalSn.isPresent()) {
+            sn = optionalSn.get();
+        }
+        return sn;
+    }
 }
