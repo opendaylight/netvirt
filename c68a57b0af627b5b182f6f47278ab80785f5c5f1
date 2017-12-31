@@ -187,6 +187,30 @@
       "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "528088f9_6c85c532",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 510,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2017-12-31T14:00:18Z",
+      "side": 1,
+      "message": "my mistake, changed it to use the updated port.",
+      "parentUuid": "6df390ba_12ba4f19",
+      "range": {
+        "startLine": 510,
+        "startChar": 37,
+        "endLine": 510,
+        "endChar": 49
+      },
+      "revId": "c68a57b0af627b5b182f6f47278ab80785f5c5f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
