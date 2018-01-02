@@ -61,7 +61,7 @@ public class ExternalNetworkGroupInstaller {
         }
 
         if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
-            LOG.debug("installExtNetGroupEntries : Subnet id {} is not an IPv4 subnet, hence skipping.",
+            LOG.error("installExtNetGroupEntries : Subnet id {} is not an IPv4 subnet, hence skipping.",
                     subnetMap.getId());
             return;
         }
@@ -85,7 +85,7 @@ public class ExternalNetworkGroupInstaller {
         }
 
         if (NatUtil.isIPv6Subnet(subnetMap.getSubnetIp())) {
-            LOG.debug("installExtNetGroupEntries : Subnet-id {} is not an IPv4 subnet, hence skipping.",
+            LOG.error("installExtNetGroupEntries : Subnet-id {} is not an IPv4 subnet, hence skipping.",
                     subnetMap.getId());
             return;
         }
