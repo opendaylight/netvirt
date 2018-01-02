@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "72956348_035ee33c",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-02T16:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "774e4ae6_2438f55b",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 31,
+        "endChar": 47
+      },
+      "revId": "99cc7ea5675ca8281f0f0f57794beacad0502b79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5eff7c6_cc5c1ceb",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 8
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e65bb1a7_4c472c18",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-02T16:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5eff7c6_cc5c1ceb",
+      "range": {
+        "startLine": 45,
+        "startChar": 8,
+        "endLine": 45,
+        "endChar": 10
+      },
+      "revId": "99cc7ea5675ca8281f0f0f57794beacad0502b79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "287290a3_1667e643",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 8
@@ -59,6 +107,24 @@
       "writtenOn": "2018-01-02T10:35:49Z",
       "side": 1,
       "message": "As I mentioned in my previous comments, please include what would happen during \"scalein-computes-recover\".\n\nDo we simply remove the node from the tombstoned list? or something else?",
+      "revId": "99cc7ea5675ca8281f0f0f57794beacad0502b79",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1907e4b_e33b0e7a",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-02T16:17:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "287290a3_1667e643",
       "revId": "99cc7ea5675ca8281f0f0f57794beacad0502b79",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
