@@ -21,17 +21,20 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.groups.Group;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
@@ -46,13 +49,18 @@ public class SNATDefaultRouteProgrammer {
     private final IMdsalApiManager mdsalManager;
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
+    private final UpgradeState upgradeState;
+    private final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar;
 
     @Inject
     public SNATDefaultRouteProgrammer(final IMdsalApiManager mdsalManager, final DataBroker dataBroker,
-            final IdManagerService idManager) {
+                                      final IdManagerService idManager, UpgradeState upgradeState,
+                                      DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
+        this.dataTreeEventCallbackRegistrar = dataTreeEventCallbackRegistrar;
+        this.upgradeState = upgradeState;
     }
 
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
@@ -183,30 +191,44 @@ public class SNATDefaultRouteProgrammer {
         Optional<VpnInstanceOpDataEntry> networkVpnInstanceOp =
                 SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
                         LogicalDatastoreType.OPERATIONAL, networkVpnInstanceIdentifier);
-        if (networkVpnInstanceOp.isPresent()) {
-            List<VpnToDpnList> dpnListInVpn = networkVpnInstanceOp.get().getVpnToDpnList();
-            if (dpnListInVpn != null) {
-                for (VpnToDpnList dpn : dpnListInVpn) {
-                    FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn.getDpnId(),
-                            vpnId, subnetId, idManager);
-                    if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
-                        LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Installing flow {} for subnetId {},"
-                                + "vpnId {} on dpn {}", flowEntity, subnetId, vpnId, dpn.getDpnId());
-                        mdsalManager.installFlow(flowEntity);
-                    } else {
-                        LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Removing flow for subnetId {},"
-                                + "vpnId {} with dpn {}", subnetId, vpnId, dpn);
-                        mdsalManager.removeFlow(flowEntity);
-                    }
+
+        if (!networkVpnInstanceOp.isPresent()) {
+            LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Cannot create/remove default FIB route to SNAT flow "
+                            + "for subnet {} vpn-instance-op-data entry for network {} does not exist",
+                    subnetId, networkId);
+            return;
+        }
+
+        List<VpnToDpnList> dpnListInVpn = networkVpnInstanceOp.get().getVpnToDpnList();
+        if (dpnListInVpn == null) {
+            LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Will not add/remove default NAT flow for subnet {} "
+                    + "no dpn set for vpn instance {}", subnetId, networkVpnInstanceOp.get());
+
+            return;
+        }
+
+        for (VpnToDpnList dpn : dpnListInVpn) {
+            FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn.getDpnId(),
+                    vpnId, subnetId, idManager);
+            if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
+                LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Installing flow {} for subnetId {},"
+                        + "vpnId {} on dpn {}", flowEntity, subnetId, vpnId, dpn.getDpnId());
+                // Hack alert. When upgrading conntrack snat installations this flow sometimes gets configured
+                // before the group it references. The result of this is that the flow will not be installed on
+                // the switch. In order to support this we wait for the group to appear.
+                if (upgradeState.isUpgradeInProgress()) {
+                    InstanceIdentifier<Group> iid = NatUtil.iidOfExtNetGroupForDefaultNatForExtSubnet(flowEntity);
+                    dataTreeEventCallbackRegistrar.onAdd(LogicalDatastoreType.OPERATIONAL, iid,
+                            grp -> {mdsalManager.installFlow(flowEntity);
+                                return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;});
+                } else {
+                    mdsalManager.installFlow(flowEntity);
                 }
             } else {
-                LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Will not add/remove default NAT flow for subnet {} "
-                        + "no dpn set for vpn instance {}", subnetId, networkVpnInstanceOp.get());
+                LOG.info("addOrDelDefaultFibRouteToSNATForSubnet : Removing flow for subnetId {},"
+                        + "vpnId {} with dpn {}", subnetId, vpnId, dpn);
+                mdsalManager.removeFlow(flowEntity);
             }
-        } else {
-            LOG.debug("addOrDelDefaultFibRouteToSNATForSubnet : Cannot create/remove default FIB route to SNAT flow "
-                    + "for subnet {} vpn-instance-op-data entry for network {} does not exist",
-                subnetId, networkId);
         }
     }
 }
