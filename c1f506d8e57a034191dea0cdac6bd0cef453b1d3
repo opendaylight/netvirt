@@ -120,6 +120,30 @@
     },
     {
       "key": {
+        "uuid": "9984a783_48621abc",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-02T07:30:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b2e289c_7e5c8a46",
+      "range": {
+        "startLine": 39,
+        "startChar": 2,
+        "endLine": 39,
+        "endChar": 98
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6bc1e67b_f183b9dc",
         "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
         "patchSetId": 7
@@ -179,6 +203,30 @@
       "side": 1,
       "message": "Please update the description accordingly to convey that start and end (for a compute node) can be called only once.\n\nReg- maintenance mode, AFAIK currently ODL controller does not have this info.",
       "parentUuid": "760e7b65_d8bce3da",
+      "range": {
+        "startLine": 43,
+        "startChar": 14,
+        "endLine": 43,
+        "endChar": 51
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94981387_82fc0468",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-02T07:30:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "87f9e840_fc0fb4a3",
       "range": {
         "startLine": 43,
         "startChar": 14,
@@ -273,6 +321,30 @@
       "side": 1,
       "message": "Yes, please update the same. With an example, it would be clear to the readers how to use this interface.\n\nAlso, please explain what would happen when scalein-computes-recover is invoked.",
       "parentUuid": "f71d9f77_031c604d",
+      "range": {
+        "startLine": 53,
+        "startChar": 33,
+        "endLine": 53,
+        "endChar": 43
+      },
+      "revId": "c1f506d8e57a034191dea0cdac6bd0cef453b1d3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6aca9e10_6340eb23",
+        "filename": "docs/specs/compute-node-scalein-and-scaleout.rst",
+        "patchSetId": 7
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-02T07:30:54Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "498f7650_336453ab",
       "range": {
         "startLine": 53,
         "startChar": 33,
