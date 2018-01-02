@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -46,13 +47,15 @@ public class SNATDefaultRouteProgrammer {
     private final IMdsalApiManager mdsalManager;
     private final DataBroker dataBroker;
     private final IdManagerService idManager;
+    private final ExternalNetworkGroupInstaller extNetGroupInstaller;
 
     @Inject
     public SNATDefaultRouteProgrammer(final IMdsalApiManager mdsalManager, final DataBroker dataBroker,
-            final IdManagerService idManager) {
+            final IdManagerService idManager, final ExternalNetworkGroupInstaller extNetGroupInstaller) {
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
         this.idManager = idManager;
+        this.extNetGroupInstaller = extNetGroupInstaller;
     }
 
     private FlowEntity buildDefNATFlowEntity(BigInteger dpId, long vpnId) {
@@ -200,6 +203,9 @@ public class SNATDefaultRouteProgrammer {
         }
 
         for (VpnToDpnList dpn : dpnListInVpn) {
+            String macAddress = NatUtil.getSubnetGwMac(dataBroker, subnet.getId(), networkId);
+            extNetGroupInstaller.installExtNetGroupEntry(new Uuid(networkId), subnet.getId(),
+                    dpn.getDpnId(), macAddress);
             FlowEntity flowEntity = NatUtil.buildDefaultNATFlowEntityForExternalSubnet(dpn.getDpnId(),
                     vpnId, subnetId, idManager);
             if (flowAction == NwConstants.ADD_FLOW || flowAction == NwConstants.MOD_FLOW) {
