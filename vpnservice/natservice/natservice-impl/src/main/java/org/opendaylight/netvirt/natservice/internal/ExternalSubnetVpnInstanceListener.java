@@ -8,18 +8,25 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Optional;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
@@ -35,15 +42,20 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
     private final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer;
     private final IElanService elanService;
     private final IVpnManager vpnManager;
+    private final UpgradeState upgradeState;
+    private final DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar;
 
     @Inject
     public ExternalSubnetVpnInstanceListener(final DataBroker dataBroker,
-            final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
-            final IElanService elanService, final IVpnManager vpnManager) {
+                     final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
+                     final IElanService elanService, final IVpnManager vpnManager,
+                     final UpgradeState upgradeState, DataTreeEventCallbackRegistrar dataTreeEventCallbackRegistrar) {
         this.dataBroker = dataBroker;
         this.snatDefaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.elanService = elanService;
         this.vpnManager = vpnManager;
+        this.upgradeState = upgradeState;
+        this.dataTreeEventCallbackRegistrar = dataTreeEventCallbackRegistrar;
     }
 
     @Override
@@ -117,6 +129,48 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
         LOG.debug("addOrDelDefaultFibRouteToSNATFlow : VpnInstance {} for external subnet {}.",
                 vpnInstanceName, subnet);
         Long vpnId = vpnInstance.getVpnId();
+
+        if (upgradeState.isUpgradeInProgress()) {
+            LOG.info("Upgrade in process, checking for existence of VpnInstanceOpDataEntry's vpn->dpn list");
+            InstanceIdentifier<VpnInstanceOpDataEntry> vpnOpDataIid =
+                    NatUtil.getVpnInstanceOpDataIdentifier(subnet.getExternalNetworkId().getValue());
+
+            Optional<VpnInstanceOpDataEntry> networkVpnInstanceOp;
+            try {
+                networkVpnInstanceOp = SingleTransactionDataBroker.syncReadOptional(
+                                            dataBroker, LogicalDatastoreType.OPERATIONAL, vpnOpDataIid);
+            } catch (ReadFailedException e) {
+                LOG.error("Exception while attempting to read VpnInstanceOpDataEntry", e);
+                return;
+            }
+
+            List<VpnToDpnList> dpnListInVpn = null;
+            if (networkVpnInstanceOp.isPresent()) {
+                dpnListInVpn = networkVpnInstanceOp.get().getVpnToDpnList();
+            }
+
+            if (dpnListInVpn == null) {
+                LOG.info("VpnInstanceOpDataEntry's vpn->dpn list not present, wait for it");
+                dataTreeEventCallbackRegistrar.onAddOrUpdate(LogicalDatastoreType.OPERATIONAL, vpnOpDataIid,
+                    (beforeOpData, afterOpData) -> {
+                        LOG.info("VpnInstanceOpDataEntry added/updated {}", afterOpData);
+                        if (afterOpData.getVpnToDpnList() == null) {
+                            if (upgradeState.isUpgradeInProgress()) {
+                                return DataTreeEventCallbackRegistrar.NextAction.CALL_AGAIN;
+                            } else {
+                                return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                            }
+                        }
+                        snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnet(subnet,
+                                subnet.getExternalNetworkId().getValue(), flowAction, vpnId);
+                        return DataTreeEventCallbackRegistrar.NextAction.UNREGISTER;
+                    });
+                return;
+            }
+            LOG.info("VpnInstanceOpDataEntry's vpn->dpn list present, continue with regular scheduled programming");
+
+        }
+
         snatDefaultRouteProgrammer.addOrDelDefaultFibRouteToSNATForSubnet(subnet,
                 subnet.getExternalNetworkId().getValue(), flowAction, vpnId);
     }
