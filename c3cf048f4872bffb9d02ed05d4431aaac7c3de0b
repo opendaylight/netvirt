@@ -22,6 +22,29 @@
       "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "612cd7e9_80be982e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/LocalUcastMacListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-03T10:59:40Z",
+      "side": 1,
+      "message": "remove this as stale cleanup is already taken care in onParentAdded where it is comparing config and operational",
+      "range": {
+        "startLine": 159,
+        "startChar": 8,
+        "endLine": 159,
+        "endChar": 9
+      },
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
