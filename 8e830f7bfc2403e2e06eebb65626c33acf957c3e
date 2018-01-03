@@ -48,6 +48,54 @@
     },
     {
       "key": {
+        "uuid": "0858558d_a13e0081",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-03T15:09:53Z",
+      "side": 1,
+      "message": "It is not my aim to change the behavior of this code, just use the new api to expect avoid a king of mistake during the transaction, as you can see in jira (NETVIRT-1034).",
+      "parentUuid": "283f0faf_81f92fdb",
+      "range": {
+        "startLine": 112,
+        "startChar": 29,
+        "endLine": 112,
+        "endChar": 64
+      },
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e471b558_29e7d6c0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-03T15:09:53Z",
+      "side": 1,
+      "message": "Done to ReadTransaction",
+      "parentUuid": "43c1df8c_e0171d08",
+      "range": {
+        "startLine": 112,
+        "startChar": 65,
+        "endLine": 112,
+        "endChar": 86
+      },
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "939b7af6_2ded5d02",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 5
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "4e0edb7a_8aec2252",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-03T15:09:53Z",
+      "side": 1,
+      "message": "Ok for non Static method.\nthis method is called from a txrunner (ie txRunner.callWithNewReadWriteTransactionAndSubmit (in a List\u003cListenableFuture\u003cVoid\u003e\u003e call())) so I think that is not a blocking method.\nplease, if you don\u0027t mind, if it is not, could you explain me why please?",
+      "parentUuid": "939b7af6_2ded5d02",
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7e878b4_0de3836f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 5
@@ -76,6 +142,24 @@
       "writtenOn": "2017-12-23T15:57:14Z",
       "side": 1,
       "message": "These really should be @param",
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf5bc05e_84420eed",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1553,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-03T15:09:53Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a7e878b4_0de3836f",
       "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
