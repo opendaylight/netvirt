@@ -131,6 +131,24 @@
     },
     {
       "key": {
+        "uuid": "d7b2a3b1_7e54cd5d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 363,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-03T15:35:54Z",
+      "side": 1,
+      "message": "It blocks on the checkedGet call. However most of the time the ElanInterface should be cached. \n\nBTW - I am moving the interface cache to a new ElanInterfaceCache class derived from https://git.opendaylight.org/gerrit/#/c/66403/10/mdsalutil/mdsalutil-api/src/main/java/org/opendaylight/genius/mdsalutil/cache/DataObjectCache.java.",
+      "parentUuid": "4e0edb7a_8aec2252",
+      "revId": "8e830f7bfc2403e2e06eebb65626c33acf957c3e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a7e878b4_0de3836f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
         "patchSetId": 5
