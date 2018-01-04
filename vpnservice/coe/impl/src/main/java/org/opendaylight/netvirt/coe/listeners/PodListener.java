@@ -93,7 +93,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         Interface podInterfaceAfter = dataObjectModification.getDataAfter();
         switch (dataObjectModification.getModificationType()) {
             case DELETE:
-                remove(pods, podInterfaceBefore);
+                remove(podsBefore, podInterfaceBefore);
                 break;
             case SUBTREE_MODIFIED:
                 update(pods, podsBefore, podInterfaceBefore, podInterfaceAfter);
@@ -138,7 +138,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
     }
 
     private void remove(Pods pods, Interface podInterface) {
-        LOG.trace("Pod reomved {}", pods);
+        LOG.trace("Pod removed {}", pods);
         if (pods.getNetworkNS() == null || pods.getHostIpAddress() == null) {
             LOG.warn("pod {} deletion without a valid network id {}", podInterface.getUid().getValue());
             return;
