@@ -95,7 +95,7 @@ public class NeutronSecurityRuleListener
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier, ace);
         } catch (Exception ex) {
-            LOG.error("Exception occured while adding acl for security rule: ", ex);
+            LOG.error("Exception occured while adding acl for security rule: {}. ", securityRule, ex);
         }
     }
 
@@ -220,7 +220,7 @@ public class NeutronSecurityRuleListener
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier);
         } catch (Exception ex) {
-            LOG.error("Exception occured while removing acl for security rule: ", ex);
+            LOG.error("Exception occured while removing acl for security rule: {}. ", securityRule, ex);
         }
     }
 
