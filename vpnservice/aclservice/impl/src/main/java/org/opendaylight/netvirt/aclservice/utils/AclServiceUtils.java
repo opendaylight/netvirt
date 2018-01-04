@@ -861,10 +861,11 @@ public final class AclServiceUtils {
                 LOG.debug("Allocated ACL ID: {} with key: {} into pool: {}", allocatedId, idKey, poolName);
                 return allocatedId;
             } else {
-                LOG.warn("RPC Call to Get Unique Id returned with Errors {}", rpcResult.getErrors());
+                LOG.error("RPC Call to Get Unique Id for key {} from pool {} returned with Errors {}",
+                        idKey, poolName, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when getting Unique Id", e);
+            LOG.error("Exception when getting Unique Id for key {} from pool {} ", idKey, poolName, e);
         }
         return defaultId;
     }
@@ -875,12 +876,13 @@ public final class AclServiceUtils {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to release Id {} with Key {} returned with Errors {}", idKey, rpcResult.getErrors());
+                LOG.error("RPC Call to release Id with Key {} from pool {} returned with Errors {}",
+                        idKey, poolName, rpcResult.getErrors());
             } else {
                 LOG.debug("Released ACL ID with key: {} from pool: {}", idKey, poolName);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.warn("Exception when releasing Id for key {}", idKey, e);
+            LOG.error("Exception when releasing Id for key {} from pool {} ", idKey, poolName, e);
         }
     }
 
