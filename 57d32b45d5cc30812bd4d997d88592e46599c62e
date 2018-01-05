@@ -1,0 +1,364 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9cbabb20_ec03cf80",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/BatchedTransaction.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "So these 2 Maps aren\u0027t actually used by this class -  it looks to be a just storage depot for sharing Map instances which seems like a code  smell....",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dac49c9c_06c35395",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/BatchedTransaction.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Why do you allow the map to be set? This seems unsafe. What if it\u0027s null or not a thread-safe implementation?",
+      "range": {
+        "startLine": 55,
+        "startChar": 16,
+        "endLine": 55,
+        "endChar": 30
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecd0b1a5_4ff58c28",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/IidTracker.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "What is the purpose of this class and the various methods? Can you add class and method javadocs?",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a6fdbe7d_53d1e6db",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/IidTracker.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "What if there\u0027s already an entry present? It would replace the previous Future and if the previous one ends up completing, it would remove the new entry. It doesn\u0027t seem like that would be desired.",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4f4b1a30_4dd05f95",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/IidTracker.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Why is this needed? Internally it accesses ConcurrentMaps which are thread-safe.",
+      "range": {
+        "startLine": 50,
+        "startChar": 11,
+        "endLine": 50,
+        "endChar": 23
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5d93e8b_993cb8b5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/IidTracker.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 60,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 60,
+        "startChar": 11,
+        "endLine": 60,
+        "endChar": 23
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01e5e8a7_a4468b85",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/IidTracker.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "and here",
+      "range": {
+        "startLine": 66,
+        "startChar": 11,
+        "endLine": 66,
+        "endChar": 23
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a7ce6a28_76d11ca3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/IidTracker.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "This method is deprecated - use the one that takes an Executor (MoreExecutors.directExecutor()).",
+      "range": {
+        "startLine": 72,
+        "startChar": 20,
+        "endLine": 72,
+        "endChar": 31
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0852e678_416dcb99",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/IidTracker.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Why do you remove here? If we get here then either mapping exists or the Future is already complete in which case the mapping is removed by the callback in trackIid.",
+      "range": {
+        "startLine": 85,
+        "startChar": 8,
+        "endLine": 89,
+        "endChar": 9
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b9978a1_8465bf0e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Should be private.",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "952854af_eadc56c4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "It is unsafe to invoke a non-private method from the constructor as it could be overridden but the derived class isn\u0027t initialized yet.",
+      "range": {
+        "startLine": 54,
+        "startChar": 18,
+        "endLine": 54,
+        "endChar": 28
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c9845943_10fdb67d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Seems unsafe and fragile to implicitly assume BatchedTransaction. You should change the method signature to pass BatchedTransaction to make it exlicit.",
+      "range": {
+        "startLine": 111,
+        "startChar": 53,
+        "endLine": 111,
+        "endChar": 73
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76a592fb_85913716",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "This assignment is unnecessary. Just rename addedItem2 to addedItem...",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a9c8db3_55332dcf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "...Same here",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "02e2c3a1_627aec43",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HAListeners.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Why not remove the commented out code here and below? In fact it seems to render this entire class useless so why not just remove the class?",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "108f931f_9e395e82",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 101,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "This looks unsafe and fragile to blindly cast to BatchedTransaction",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "275c811a_66dc2738",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "Does this need to be thread-safe?",
+      "range": {
+        "startLine": 185,
+        "startChar": 61,
+        "endLine": 185,
+        "endChar": 70
+      },
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49a1c2be_0afe373a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T03:35:37Z",
+      "side": 1,
+      "message": "You can combine these atomically w/o an intermediate get:\n\n  computeIfAbsent(...).add(...)",
+      "revId": "57d32b45d5cc30812bd4d997d88592e46599c62e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
