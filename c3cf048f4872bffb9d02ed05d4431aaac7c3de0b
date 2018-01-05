@@ -2,6 +2,120 @@
   "comments": [
     {
       "key": {
+        "uuid": "d414bc0f_2c08adf5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T05:12:38Z",
+      "side": 1,
+      "message": "Please either add a comment explaining why this is commented out or  remove this method entirely.",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83e53c4d_a6f57cab",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T05:12:38Z",
+      "side": 1,
+      "message": "use emptyList as it\u0027s typed",
+      "range": {
+        "startLine": 148,
+        "startChar": 31,
+        "endLine": 148,
+        "endChar": 41
+      },
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0aeeaf74_b1392705",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T05:12:38Z",
+      "side": 1,
+      "message": "same here",
+      "range": {
+        "startLine": 152,
+        "startChar": 31,
+        "endLine": 152,
+        "endChar": 41
+      },
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "449b2b77_b40710f0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T05:12:38Z",
+      "side": 1,
+      "message": "You shouldn\u0027t ignore the returned Future. At least use ListenableFutures.addErrorLogging",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "05f5d3ed_79f9cae3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T05:12:38Z",
+      "side": 1,
+      "message": "The reads done to populate the cache can/should be done async instead of blocking a scheduler thread.",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ef900a9_31fde01c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T05:12:38Z",
+      "side": 1,
+      "message": "This looks like the same data for which this class registers for so this will be duplicated. That doesn\u0027t seem desirable.",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ed7d303c_2dc20fb6",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/LocalUcastMacListener.java",
         "patchSetId": 1
