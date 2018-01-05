@@ -2,6 +2,240 @@
   "comments": [
     {
       "key": {
+        "uuid": "c68823cc_7b5bf133",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DeleteLogicalSwitchJob.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "Should be private final",
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f7383272_f9917da7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 116,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "With the introduction of a singleton scheduler in this project, we should also use it in lieu of this internal timer",
+      "range": {
+        "startLine": 116,
+        "startChar": 24,
+        "endLine": 116,
+        "endChar": 51
+      },
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdc283ff_a7b05620",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 516,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "emptyList",
+      "range": {
+        "startLine": 516,
+        "startChar": 31,
+        "endLine": 516,
+        "endChar": 41
+      },
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "305dec1e_adc4ccde",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1027,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "Why are these methods synchronized?",
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03ef1ec4_acfc78f5",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "These should be final",
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d3b2ef33_df81ece0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "Please list all class members at the top before constructor(s)",
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb50187e_30500e2d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "This is unnecessary since method is static and can\u0027t be overridden",
+      "range": {
+        "startLine": 72,
+        "startChar": 19,
+        "endLine": 72,
+        "endChar": 24
+      },
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ccd330a8_cf036df2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "This is unnecessary since method is private and can\u0027t be overridden",
+      "range": {
+        "startLine": 78,
+        "startChar": 12,
+        "endLine": 78,
+        "endChar": 17
+      },
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cce38546_4af4712f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 102,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "These Map operations should atomic, eg:\n\n  cleanupTasks.compute(psNodeId, (key, existing) -\u003e {\n      if (existing !\u003d null) {\n          existing.cancel(false);\n      }\n\n      return ...schedule(...);\n  }));",
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecbaec62_d9680bba",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "make private",
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d90ce386_4e84cbcc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 106,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "This is not set anywhere",
+      "range": {
+        "startLine": 106,
+        "startChar": 25,
+        "endLine": 106,
+        "endChar": 34
+      },
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "906640be_04c67c32",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanConstants.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "These should not be System properties. Either use a cfg file or \u003ccluster-app-config\u003e.",
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "938de2fe_f942b52c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/SchedulerUtils.java",
         "patchSetId": 3
@@ -13,6 +247,30 @@
       "writtenOn": "2018-01-03T10:49:44Z",
       "side": 1,
       "message": "Make it singleton",
+      "range": {
+        "startLine": 14,
+        "startChar": 28,
+        "endLine": 14,
+        "endChar": 29
+      },
+      "revId": "7bdb4fa736839abe73ca4e39ee8b6c0317088d0a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3fdabcf_43d6d2f4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/SchedulerUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T04:50:05Z",
+      "side": 1,
+      "message": "And make it AutoCloseable to shutdown the executor service.\n\nAlso maybe just name it Scheduler - it\u0027s not really a Utils class.\n\nAnother option is to create the ScheduledExecutorService singleton in the BP XML eliminating the need for this class.",
+      "parentUuid": "938de2fe_f942b52c",
       "range": {
         "startLine": 14,
         "startChar": 28,
