@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bb899310_2cd8652d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 76
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-05T02:29:59Z",
+      "side": 1,
+      "message": "This is a backwards incompatible change since you\u0027re removing the router-id leaf. This has potential impact on upgrade for data that is persisted (ie config data store). If that is the case, on upgrade, the previous router-id leaf will be lost and router-ids list will be empty. The potential upgrade implications of these changes should be evaluated and possibly add migration code if need be.",
+      "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
