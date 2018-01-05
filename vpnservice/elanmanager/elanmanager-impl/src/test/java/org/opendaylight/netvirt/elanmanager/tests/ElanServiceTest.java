@@ -12,10 +12,13 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 import com.google.common.base.Optional;
 
 import javax.inject.Inject;
+
+import com.google.common.util.concurrent.CheckedFuture;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.MethodRule;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -32,6 +35,7 @@ import org.opendaylight.netvirt.elan.evpn.listeners.ElanMacEntryListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.EvpnElanInstanceListener;
 import org.opendaylight.netvirt.elan.evpn.listeners.MacVrfEntryListener;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
+import org.opendaylight.netvirt.elan.rpc.ScaleInRpcManager;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.elanmanager.tests.utils.EvpnTestHelper;
@@ -39,17 +43,32 @@ import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Uri;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.Flow;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.scalein.rpcs.rev171220.ScaleinComputesStartInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.scalein.rpcs.rev171220.ScaleinComputesStartInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeExternalIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeExternalIdsKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+import java.util.Collections;
 
 
 /**
@@ -83,6 +102,7 @@ public class ElanServiceTest extends  ElanServiceTestBase {
     private @Inject IBgpManager bgpManager;
     private @Inject IVpnManager vpnManager;
     private @Inject EvpnTestHelper evpnTestHelper;
+    private @Inject ScaleInRpcManager scaleInRpcManager;
 
     @Before public void before() throws TransactionCommitFailedException {
         setupItm();
@@ -315,4 +335,63 @@ public class ElanServiceTest extends  ElanServiceTestBase {
             return elanInstance.isPresent() && elanInstance.get().getElanTag() != null;
         });
     }
+
+    @Test public void nodeBuilderTest(){
+        ReadWriteTransaction tx = this.dataBroker.newReadWriteTransaction();
+        NodeBuilder nodeBuilder = new NodeBuilder();
+        nodeBuilder.setNodeId(new NodeId("tada"));
+        OvsdbBridgeAugmentation xx = new OvsdbBridgeAugmentationBuilder().build();
+        nodeBuilder.addAugmentation(OvsdbBridgeAugmentation.class,xx);
+        tx.put(LogicalDatastoreType.CONFIGURATION,createInstanceIdentifier("tada"),
+                nodeBuilder.build(),true);
+        tx.submit();
+        awaitForData(LogicalDatastoreType.CONFIGURATION, createInstanceIdentifier("tada"));
+        LOG.error("await done");
+        tx = this.dataBroker.newReadWriteTransaction();
+        CheckedFuture<Optional<Node>, ReadFailedException> x =
+                tx.read(LogicalDatastoreType.CONFIGURATION,createInstanceIdentifier("tada"));
+        try {
+            Node node = x.checkedGet().get();
+            OvsdbBridgeAugmentation ya = node.getAugmentation(OvsdbBridgeAugmentation.class);
+            if(ya!=null) {
+                LOG.error("Present");
+            }else{
+                LOG.error("Not present");
+
+            }
+        } catch (ReadFailedException e) {
+            e.printStackTrace();
+            LOG.error("Read failed");
+        }
+        LOG.error("Successfgully node is created now time to write tomstned flag and read it back");
+        checkRPC("tada");
+    }
+
+    public void checkRPC(String nodeId) {
+        ScaleinComputesStartInput s =
+                new ScaleinComputesStartInputBuilder().setScaleinNodeIds(Collections.singletonList(nodeId)).build();
+        scaleInRpcManager.scaleinComputesStart(s);
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        InstanceIdentifier<BridgeExternalIds> bridgeExternalIdsInstanceIdentifier = createInstanceIdentifier(nodeId)
+                .augmentation(OvsdbBridgeAugmentation.class)
+                .child(BridgeExternalIds.class, new BridgeExternalIdsKey("TOMBSTONED"));
+        Optional<BridgeExternalIds> x =MDSALUtil.read(dataBroker, CONFIGURATION,bridgeExternalIdsInstanceIdentifier);
+        LOG.error("something {}",x.get().getBridgeExternalIdKey());
+        LOG.error("something {}",x.get().getBridgeExternalIdValue());
+    }
+
+    public static InstanceIdentifier<Node> createInstanceIdentifier(String nodeIdString) {
+        NodeId nodeId = new NodeId(new Uri(nodeIdString));
+        NodeKey nodeKey = new NodeKey(nodeId);
+        TopologyKey topoKey = new TopologyKey(new TopologyId(new Uri("ovsdb:1")));
+        return InstanceIdentifier.builder(NetworkTopology.class)
+                .child(Topology.class, topoKey)
+                .child(Node.class, nodeKey)
+                .build();
+    }
+
 }
