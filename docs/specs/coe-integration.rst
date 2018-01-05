@@ -363,4 +363,5 @@ References
 
 * OpenStack Spec  - https://review.openstack.org/#/c/453160
 * kuryr k8s integration - https://review.openstack.org/#/c/281132/14/doc/source/specs/mitaka/kuryr_k8s_integration.rst
-* cni plugin proposal - https://docs.google.com/presentation/d/1LrHPkoLPo6Rgc_DjpqOvUucKPFswaEcfNwO3Z2A3_TA/edit#slide=id.p
+* cni plugin proposal - https://docs.google.com/presentation/d/1-gBGZ1zQQ1d9-ZLPuBbWx5PTb9MgxduRoAl2Z7gL2Zo/edit#slide=id.g29f465fad4_0_86
+* coe cni specification - https://docs.google.com/presentation/d/1DPfRSc11CzTa_qzvzQ-P7wQH0dPylag4eYT9sH06ajg/edit#slide=id.p
