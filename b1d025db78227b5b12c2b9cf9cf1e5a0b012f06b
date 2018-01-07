@@ -34,6 +34,24 @@
       "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8f613e9a_0a1de70c",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-07T15:14:54Z",
+      "side": 1,
+      "message": "Yeah I know this code base is unfortunately littered with sync transactions. The only advantage to do the read async would be to free up the calling thread but since downstream code is going to block anyway, not much point as you said.",
+      "parentUuid": "6d6c65eb_ec691c14",
+      "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
