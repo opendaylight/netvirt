@@ -16,6 +16,24 @@
       "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6d6c65eb_ec691c14",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-07T13:00:03Z",
+      "side": 1,
+      "message": "Two reasons. First, because the subsequent call to scheduleCentralizedSwitch contains sync writes and it\u0027s in a loop. So, it would really be a pretty minor optimization. Also, the point at which this code is invoked, at the end of the upgrade process, is not really a performance crucial stage and not much else should be going on at that point.",
+      "parentUuid": "ce89510b_80b006ae",
+      "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
