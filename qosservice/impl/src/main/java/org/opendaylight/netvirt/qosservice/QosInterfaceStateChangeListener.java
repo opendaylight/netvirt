@@ -89,20 +89,19 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
             if (L2vlan.class.equals(intrf.getType())) {
                 final String interfaceName = intrf.getName();
                 getNeutronPort(interfaceName).ifPresent(port -> {
-                    Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+                    Network network = qosNeutronUtils.getNeutronNetwork(port.getNetworkId());
                     LOG.trace("Qos Service : Received interface {} PORT UP event ", interfaceName);
                     if (port.getAugmentation(QosPortExtension.class) != null) {
                         Uuid portQosUuid = port.getAugmentation(QosPortExtension.class).getQosPolicyId();
                         if (portQosUuid != null) {
                             qosNeutronUtils.addToQosPortsCache(portQosUuid, port);
-                            qosNeutronUtils.handleNeutronPortQosAdd(port, portQosUuid);
+                            qosNeutronUtils.handleQosInterfaceAdd(port, portQosUuid);
                         }
-
                     } else {
                         if (network.getAugmentation(QosNetworkExtension.class) != null) {
                             Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
                             if (networkQosUuid != null) {
-                                qosNeutronUtils.handleNeutronPortQosAdd(port, networkQosUuid);
+                                qosNeutronUtils.handleQosInterfaceAdd(port, networkQosUuid);
                             }
                         }
                     }
@@ -119,16 +118,16 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
     private java.util.Optional<Port> getNeutronPort(String portName) {
         return uuidUtil.newUuidIfValidPattern(portName)
                 .toJavaUtil()
-                .map(neutronVpnManager::getNeutronPort);
+                .map(qosNeutronUtils::getNeutronPort);
     }
 
     private Optional<Port> getNeutronPortForRemove(Interface intrf) {
         final String portName = intrf.getName();
         Optional<Uuid> uuid = uuidUtil.newUuidIfValidPattern(portName);
         if (uuid.isPresent()) {
-            Port port = neutronVpnManager.getNeutronPort(portName);
+            Port port = qosNeutronUtils.getNeutronPort(portName);
             if (port != null) {
-                return Optional.fromJavaUtil(uuid.toJavaUtil().map(neutronVpnManager::getNeutronPort));
+                return Optional.fromJavaUtil(uuid.toJavaUtil().map(qosNeutronUtils::getNeutronPort));
             }
             LOG.trace("Qos Service : interface {} clearing stale flow entries if any", portName);
             qosNeutronUtils.removeStaleFlowEntry(intrf);
@@ -152,7 +151,7 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
                     qosNeutronUtils.handleNeutronPortRemove(port, removeQos.getQosPolicyId(), intrf);
                     qosNeutronUtils.removeFromQosPortsCache(removeQos.getQosPolicyId(), port);
                 } else {
-                    Network network = neutronVpnManager.getNeutronNetwork(port.getNetworkId());
+                    Network network = qosNeutronUtils.getNeutronNetwork(port.getNetworkId());
                     if (network != null && network.getAugmentation(QosNetworkExtension.class) != null) {
                         Uuid networkQosUuid = network.getAugmentation(QosNetworkExtension.class).getQosPolicyId();
                         if (networkQosUuid != null) {
