@@ -68,6 +68,7 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
 
     @Override
     protected void add(InstanceIdentifier<Port> instanceIdentifier, Port port) {
+        qosNeutronUtils.addToPortCache(port);
         if (qosNeutronUtils.hasBandwidthLimitRule(port)) {
             qosAlertManager.addToQosAlertCache(port);
         }
@@ -75,6 +76,7 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
 
     @Override
     protected void remove(InstanceIdentifier<Port> instanceIdentifier, Port port) {
+        qosNeutronUtils.removeFromPortCache(port);
         if (qosNeutronUtils.hasBandwidthLimitRule(port)) {
             qosAlertManager.removeFromQosAlertCache(port);
         }
@@ -82,6 +84,7 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
 
     @Override
     protected void update(InstanceIdentifier<Port> instanceIdentifier, Port original, Port update) {
+        qosNeutronUtils.addToPortCache(update);
         // check for QoS updates
         QosPortExtension updateQos = update.getAugmentation(QosPortExtension.class);
         QosPortExtension originalQos = original.getAugmentation(QosPortExtension.class);
