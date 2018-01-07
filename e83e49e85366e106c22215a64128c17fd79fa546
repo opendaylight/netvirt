@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "c071ac88_352cf2ea",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1427,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-07T11:38:45Z",
+      "side": 1,
+      "message": "Done. Note, at least this time it was my name and not a different four letter word. That was left inside a loop. That outputted thousands of lines into a log. That the CTO of the startup accidentally showed at a meeting with BoA. Luckily, it was taken in stride ;-)",
+      "parentUuid": "cb599f72_a8384484",
+      "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "319d2e59_a6ead0c5",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 3
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "69771cb7_c2628fc7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1458,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-07T11:38:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "319d2e59_a6ead0c5",
+      "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9891164_ee76f5b1",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
         "patchSetId": 3
@@ -47,6 +83,24 @@
       "writtenOn": "2018-01-05T19:40:09Z",
       "side": 1,
       "message": "What\u0027s the reason for these pass through methods? Why can\u0027t callers use ElanUtils directly? This would seem to add unnecessary coupling.",
+      "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f27ec8d8_ecdf75ff",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-07T11:38:45Z",
+      "side": 1,
+      "message": "Yeah...In this case I was just following the established pattern that was there before I got there.",
+      "parentUuid": "f9891164_ee76f5b1",
       "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
