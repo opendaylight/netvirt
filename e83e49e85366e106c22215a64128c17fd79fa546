@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7847d7d2_cb5e4e55",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 1427,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-07T15:09:23Z",
+      "side": 1,
+      "message": "nice :)",
+      "parentUuid": "c071ac88_352cf2ea",
+      "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "319d2e59_a6ead0c5",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 3
@@ -101,6 +119,24 @@
       "side": 1,
       "message": "Yeah...In this case I was just following the established pattern that was there before I got there.",
       "parentUuid": "f9891164_ee76f5b1",
+      "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4833eba_0c7226dd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-07T15:09:23Z",
+      "side": 1,
+      "message": "Unfortunately it may not be best to follow the established \"patterns\" :)",
+      "parentUuid": "f27ec8d8_ecdf75ff",
       "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
