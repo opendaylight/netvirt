@@ -69,6 +69,7 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
 
     @Override
     protected void remove(InstanceIdentifier<Network> instanceIdentifier, Network network) {
+        qosNeutronUtils.removeFromNetworkCache(network);
         if (qosNeutronUtils.hasBandwidthLimitRule(network)) {
             qosAlertManager.removeFromQosAlertCache(network);
         }
@@ -76,6 +77,8 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
 
     @Override
     protected void update(InstanceIdentifier<Network> instanceIdentifier, Network original, Network update) {
+        qosNeutronUtils.addToNetworkCache(update);
+
         QosNetworkExtension updateQos = update.getAugmentation(QosNetworkExtension.class);
         QosNetworkExtension originalQos = original.getAugmentation(QosNetworkExtension.class);
         if (originalQos == null && updateQos != null) {
@@ -114,6 +117,8 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
 
     @Override
     protected void add(InstanceIdentifier<Network> instanceIdentifier, Network network) {
+        qosNeutronUtils.addToNetworkCache(network);
+
         QosNetworkExtension networkQos = network.getAugmentation(QosNetworkExtension.class);
         if (networkQos != null) {
             qosNeutronUtils.addToQosNetworksCache(networkQos.getQosPolicyId(), network);
