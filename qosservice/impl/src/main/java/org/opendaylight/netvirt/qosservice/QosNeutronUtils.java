@@ -111,6 +111,8 @@ public class QosNeutronUtils {
     private final ConcurrentMap<Uuid, ConcurrentMap<Uuid, Port>> qosPortsMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, ConcurrentMap<Uuid, Network>> qosNetworksMap = new ConcurrentHashMap<>();
     private final CopyOnWriteArraySet<Uuid> qosServiceConfiguredPorts = new CopyOnWriteArraySet<>();
+    private final ConcurrentHashMap<Uuid, Port> neutronPortMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<Uuid, Network> neutronNetworkMap = new ConcurrentHashMap<>();
 
     private final QosEosHandler qosEosHandler;
     private final INeutronVpnManager neutronVpnManager;
@@ -214,6 +216,21 @@ public class QosNeutronUtils {
             }
             futures.add(wrtConfigTxn.submit());
             return futures;
+        });
+    }
+
+    public void handleQosInterfaceAdd(Port port, Uuid qosUuid) {
+        LOG.trace("Handling Port add and QoS associated: port: {} qos: {}", port.getUuid(), qosUuid);
+
+        QosPolicy qosPolicy = qosPolicyMap.get(qosUuid);
+
+        jobCoordinator.enqueueJob("QosPort-" + port.getUuid().getValue(), () -> {
+            // handle DSCP Mark Rules update
+            if (qosPolicy != null && qosPolicy.getDscpmarkingRules() != null
+                    && !qosPolicy.getDscpmarkingRules().isEmpty()) {
+                setPortDscpMarking(port, qosPolicy.getDscpmarkingRules().get(0));
+            }
+            return Collections.emptyList();
         });
     }
 
@@ -336,7 +353,7 @@ public class QosNeutronUtils {
         for (Uuid subnetId : subnetIds) {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
-                Port port = neutronVpnManager.getNeutronPort(portId);
+                Port port = getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
@@ -366,7 +383,7 @@ public class QosNeutronUtils {
         for (Uuid subnetId : subnetIds) {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
-                Port port = neutronVpnManager.getNeutronPort(portId);
+                Port port = getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
@@ -399,7 +416,7 @@ public class QosNeutronUtils {
         for (Uuid subnetId: subnetIds) {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
-                Port port = neutronVpnManager.getNeutronPort(portId);
+                Port port = getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
@@ -422,7 +439,7 @@ public class QosNeutronUtils {
         for (Uuid subnetId: subnetIds) {
             List<Uuid> portIds = getPortIdsFromSubnetId(subnetId);
             for (Uuid portId : portIds) {
-                Port port = neutronVpnManager.getNeutronPort(portId);
+                Port port = getNeutronPort(portId);
                 if (port != null && (port.getAugmentation(QosPortExtension.class) == null
                         || port.getAugmentation(QosPortExtension.class).getQosPolicyId() == null)) {
                     jobCoordinator.enqueueJob("QosPort-" + portId.getValue(), () -> {
@@ -833,4 +850,31 @@ public class QosNeutronUtils {
         return qosPolicy;
     }
 
+    public void addToPortCache(Port port) {
+        neutronPortMap.put(port.getUuid(), port);
+    }
+
+    public void removeFromPortCache(Port port) {
+        neutronPortMap.remove(port.getUuid());
+    }
+
+    public Port getNeutronPort(Uuid portUuid) {
+        return neutronPortMap.get(portUuid);
+    }
+
+    public Port getNeutronPort(String portName) {
+        return getNeutronPort(new Uuid(portName));
+    }
+
+    public void addToNetworkCache(Network network) {
+        neutronNetworkMap.put(network.getUuid(), network);
+    }
+
+    public void removeFromNetworkCache(Network network) {
+        neutronNetworkMap.remove(network.getUuid());
+    }
+
+    public Network getNeutronNetwork(Uuid networkUuid) {
+        return neutronNetworkMap.get(networkUuid);
+    }
 }
