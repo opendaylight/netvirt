@@ -16,6 +16,24 @@
       "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4d17bd3_eea8b0b0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 76
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-08T16:09:18Z",
+      "side": 1,
+      "message": "Hello\nI am expecting to have here a list of router id.\nSo, if that is not right, how do you think that I could do this please?\n\nthks for your help",
+      "parentUuid": "bb899310_2cd8652d",
+      "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
