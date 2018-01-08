@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "38fe3206_e33e4890",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T17:34:06Z",
+      "side": 1,
+      "message": "Unfortunately the stack trace is clipped horizontally in my browser.",
+      "parentUuid": "72b0a04a_19ec6351",
+      "range": {
+        "startLine": 59,
+        "startChar": 53,
+        "endLine": 59,
+        "endChar": 66
+      },
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "626d6afd_6a6b14bb",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 22
@@ -113,6 +137,24 @@
       "side": 1,
       "message": "would be more than happy to change this after DataObjectCache is merged.",
       "parentUuid": "0f0bd814_d4e0dcf2",
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "464fec44_e8953e5d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T17:34:06Z",
+      "side": 1,
+      "message": "That should be merged soon so I assume this patch can wait for it",
+      "parentUuid": "03242184_88cb1c71",
       "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -195,6 +237,24 @@
       "side": 1,
       "message": "I agree with you, but 90%+ of the functions here are not commonly used around the project, so I guess the point is to put the common/general functions here.",
       "parentUuid": "8aed5d0e_83d12d02",
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4742da2_0d2b8225",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T17:34:06Z",
+      "side": 1,
+      "message": "right to the first part so why perpetuate this practice even further? How do you know these are common/general functions if there\u0027s only one caller? How does one decide what is common/general - why not just put every private method in NeutronPortChangeListener (and others) here just in case they might be reused?",
+      "parentUuid": "4c75b813_689d149c",
       "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
