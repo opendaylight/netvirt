@@ -34,6 +34,24 @@
       "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b73ad62c_bad938a4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 76
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T17:56:07Z",
+      "side": 1,
+      "message": "To be upgrade-friendly, you should keep the previous router-id leaf but deprecate it. To migrate, you could add a DTCL that  writes the router-id to the router-ids list if not already present. In a future release, router-id can be removed.",
+      "parentUuid": "b4d17bd3_eea8b0b0",
+      "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
