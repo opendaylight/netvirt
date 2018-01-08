@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fcb33675_7a14c7c3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-08T17:53:06Z",
+      "side": 1,
+      "message": "as per the very similiar discussion in https://git.opendaylight.org/gerrit/#/c/66519/, I think this is pointless and should be removed. Functional components should not have to do this, as Blueprint will already log any problem that could happen here, and \"diag\" will show it and infrautils.ready will expose it.  It\u0027s not a big deal, but because people tend to copy/paste from what they see in existing code, I think we should lead the way and illustrate how to do Exception handling correctly (or when not to do any, such as here).",
+      "revId": "1764c0cef4db277290e5d58c8826b9f114f9227d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
