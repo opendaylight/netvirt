@@ -1,0 +1,124 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "801420df_5ceb531a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/HostConfigCache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T23:32:28Z",
+      "side": 1,
+      "message": "ConcurrentMap",
+      "range": {
+        "startLine": 18,
+        "startChar": 12,
+        "endLine": 18,
+        "endChar": 29
+      },
+      "revId": "ca6084f717f45c134d71ceee8810b33a2225539b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c2c3a6e3_8547c103",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/HostConfigCache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T23:32:28Z",
+      "side": 1,
+      "message": "initialize where declared on line 18 and make it final",
+      "revId": "ca6084f717f45c134d71ceee8810b33a2225539b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b2887258_45ed97a4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/HostConfigCache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T23:32:28Z",
+      "side": 1,
+      "message": "annotate hostId and hostConfig with @Nonnull",
+      "revId": "ca6084f717f45c134d71ceee8810b33a2225539b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b859911a_8688a077",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/HostConfigCache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T23:32:28Z",
+      "side": 1,
+      "message": "@Nonnull",
+      "range": {
+        "startLine": 31,
+        "startChar": 33,
+        "endLine": 31,
+        "endChar": 39
+      },
+      "revId": "ca6084f717f45c134d71ceee8810b33a2225539b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4247c9a3_9eb9bc3d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/HostConfigCache.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T23:32:28Z",
+      "side": 1,
+      "message": "@Nonnull",
+      "range": {
+        "startLine": 35,
+        "startChar": 30,
+        "endLine": 35,
+        "endChar": 36
+      },
+      "revId": "ca6084f717f45c134d71ceee8810b33a2225539b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db8bd8c4_803ece5f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 142,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T23:32:28Z",
+      "side": 1,
+      "message": "This can\u0027t be a local var - needs to be injected. You either have to convert this class to a singleton or move this code into NeutronPortChangeListener since it\u0027s only used there as I mentioned in the other patch.  The latter is easier. See what I mean about the added coupling and potential headaches later when you just dump code into static utils classes when it doesn\u0027t need to be?\n\nHere\u0027s what I would do: move the static methods that were added here by the other patch into NeutronPortChangeListener.  Derive the HostConfigCache from DataObjectCache once that patch is merged and inject into NeutronPortChangeListener.  The code here to get from the cache or read from the DS on cache miss is all handled by the DataObjectCache.",
+      "revId": "ca6084f717f45c134d71ceee8810b33a2225539b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
