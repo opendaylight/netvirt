@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "72b0a04a_19ec6351",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-08T15:02:46Z",
+      "side": 1,
+      "message": "I\u0027m having difficulties implementing this (new to java),\ncan you please have a look at:\nhttps://git.opendaylight.org/gerrit/#/c/66939/\n\nthe error message (from karaf.log):\n2018-01-08 13:31:20,275 | ERROR | rint Extender: 1 | BlueprintContainerImpl           | 13 - org.apache.aries.blueprint.core - 1.7.1 | Unable to start blueprint container for bundle org.opendaylight.netvirt.statistics-impl/0.6.0.SNAPSHOT\norg.osgi.service.blueprint.container.ComponentDefinitionException: Unable to load class org.opendaylight.netvirt.neutronvpn.api.utils.HostConfigCache from recipe BeanRecipe[name\u003d\u0027hostConfigCache\u0027]\n        at org.apache.aries.blueprint.di.AbstractRecipe.doLoadType(AbstractRecipe.java:195)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.di.AbstractRecipe.loadType(AbstractRecipe.java:161)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BeanRecipe.loadClass(BeanRecipe.java:250)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BeanRecipe.getType(BeanRecipe.java:917)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BeanRecipe.getInstanceFromType(BeanRecipe.java:341)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BeanRecipe.getInstance(BeanRecipe.java:282)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BeanRecipe.internalCreate2(BeanRecipe.java:830)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BeanRecipe.internalCreate(BeanRecipe.java:811)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.di.AbstractRecipe$1.call(AbstractRecipe.java:79)[13:org.apache.aries.blueprint.core:1.7.1]\n        at java.util.concurrent.FutureTask.run(FutureTask.java:266)[:1.8.0_141]\n        at org.apache.aries.blueprint.di.AbstractRecipe.create(AbstractRecipe.java:88)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BlueprintRepository.createInstances(BlueprintRepository.java:255)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BlueprintRepository.createAll(BlueprintRepository.java:186)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BlueprintContainerImpl.instantiateEagerComponents(BlueprintContainerImpl.java:724)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BlueprintContainerImpl.doRun(BlueprintContainerImpl.java:411)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BlueprintContainerImpl.run(BlueprintContainerImpl.java:276)[13:org.apache.aries.blueprint.core:1.7.1]\n        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)[:1.8.0_141]\n        at java.util.concurrent.FutureTask.run(FutureTask.java:266)[:1.8.0_141]\n        at org.apache.aries.blueprint.container.ExecutorServiceWrapper.run(ExecutorServiceWrapper.java:106)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.utils.threading.impl.DiscardableRunnable.run(DiscardableRunnable.java:48)[13:org.apache.aries.blueprint.core:1.7.1]\n        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)[:1.8.0_141]\n        at java.util.concurrent.FutureTask.run(FutureTask.java:266)[:1.8.0_141]\n        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$201(ScheduledThreadPoolExecutor.java:180)[:1.8.0_141]\n        at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:293)[:1.8.0_141]\n        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)[:1.8.0_141]\n        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)[:1.8.0_141]\n        at java.lang.Thread.run(Thread.java:748)[:1.8.0_141]\nCaused by: java.lang.ClassNotFoundException: org.opendaylight.netvirt.neutronvpn.api.utils.HostConfigCache cannot be found by org.opendaylight.netvirt.statistics-impl_0.6.0.SNAPSHOT\n        at org.eclipse.osgi.internal.loader.BundleLoader.findClassInternal(BundleLoader.java:439)[org.eclipse.osgi-3.10.101.v20150820-1432.jar:]\n        at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:352)[org.eclipse.osgi-3.10.101.v20150820-1432.jar:]\n        at org.eclipse.osgi.internal.loader.BundleLoader.findClass(BundleLoader.java:344)[org.eclipse.osgi-3.10.101.v20150820-1432.jar:]\n        at org.eclipse.osgi.internal.loader.ModuleClassLoader.loadClass(ModuleClassLoader.java:160)[org.eclipse.osgi-3.10.101.v20150820-1432.jar:]\n        at java.lang.ClassLoader.loadClass(ClassLoader.java:357)[:1.8.0_141]\n        at org.eclipse.osgi.internal.framework.EquinoxBundle.loadClass(EquinoxBundle.java:573)[org.eclipse.osgi-3.10.101.v20150820-1432.jar:]\n        at org.apache.aries.blueprint.container.BlueprintContainerImpl.loadClass(BlueprintContainerImpl.java:467)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.BlueprintRepository.loadClass(BlueprintRepository.java:419)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.container.GenericType.parse(GenericType.java:135)[13:org.apache.aries.blueprint.core:1.7.1]\n        at org.apache.aries.blueprint.di.AbstractRecipe.doLoadType(AbstractRecipe.java:168)[13:org.apache.aries.blueprint.core:1.7.1]\n        ... 26 more",
+      "parentUuid": "1a329396_b4e53dec",
+      "range": {
+        "startLine": 59,
+        "startChar": 53,
+        "endLine": 59,
+        "endChar": 66
+      },
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "626d6afd_6a6b14bb",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 22
@@ -42,6 +66,24 @@
     },
     {
       "key": {
+        "uuid": "00abf96c_62e914d4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-08T15:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "626d6afd_6a6b14bb",
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0f0bd814_d4e0dcf2",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 22
@@ -53,6 +95,24 @@
       "writtenOn": "2018-01-05T19:30:32Z",
       "side": 1,
       "message": "So where do we remove from the hostConfigMap when data gets deleted? This Hostconfig cache looks like a good candidate to use the DataObjectCache in https://git.opendaylight.org/gerrit/#/c/66403/10/mdsalutil/mdsalutil-api/src/main/java/org/opendaylight/genius/mdsalutil/cache/DataObjectCache.java which registers a DTCL to populate the cache.",
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03242184_88cb1c71",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-08T15:02:46Z",
+      "side": 1,
+      "message": "would be more than happy to change this after DataObjectCache is merged.",
+      "parentUuid": "0f0bd814_d4e0dcf2",
       "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "49ad33a1_1a77849a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-08T15:02:46Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "49bdb7bb_2bb43ca3",
+      "range": {
+        "startLine": 157,
+        "startChar": 24,
+        "endLine": 157,
+        "endChar": 44
+      },
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8aed5d0e_83d12d02",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 22
@@ -93,6 +177,24 @@
       "writtenOn": "2018-01-05T19:30:32Z",
       "side": 1,
       "message": "Since all of these now methods are only used by NeutronPortChangeListener, why not put them there instead of dumping them as statics in a NeutronUtils class? If there\u0027s a future use in another component, then move code to somewhere common at that point.",
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c75b813_689d149c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-08T15:02:46Z",
+      "side": 1,
+      "message": "I agree with you, but 90%+ of the functions here are not commonly used around the project, so I guess the point is to put the common/general functions here.",
+      "parentUuid": "8aed5d0e_83d12d02",
       "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
