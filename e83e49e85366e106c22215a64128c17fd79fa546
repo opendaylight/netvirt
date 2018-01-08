@@ -90,6 +90,23 @@
     },
     {
       "key": {
+        "uuid": "c80ccdb9_4037b828",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 885,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T15:28:01Z",
+      "side": 1,
+      "message": "Minor thing but ihis should have @Override.",
+      "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f9891164_ee76f5b1",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
         "patchSetId": 3
@@ -155,6 +172,24 @@
       "side": 1,
       "message": "I actually have a real distaste for useless software layers and this \"pattern\" is just that. I totally agree. I just think that until someone has the cycles or desire to refactor it, it\u0027s better to maintain consistency. Otherwise, the code becomes messy and even more confusing.",
       "parentUuid": "a4833eba_0c7226dd",
+      "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "03cb6c10_b6cf84b6",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 893,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-08T15:28:01Z",
+      "side": 1,
+      "message": "I see now that you added these methods to the IElanService interface so they can be accessed by the vpnmanager code which is in a separate bundle and thus doesn\u0027t have access to ElanUtils. This is fine.",
+      "parentUuid": "e83c32a2_3b7069e9",
       "revId": "e83e49e85366e106c22215a64128c17fd79fa546",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
