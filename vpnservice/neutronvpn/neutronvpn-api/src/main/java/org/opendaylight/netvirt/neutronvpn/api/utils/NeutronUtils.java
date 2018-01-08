@@ -16,15 +16,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.regex.Pattern;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.neutron.spi.NeutronDictJsonAdapter;
-import org.opendaylight.ovsdb.utils.mdsal.utils.MdsalUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
@@ -56,7 +54,8 @@ public final class NeutronUtils {
     public static final String BINDING_PROFILE_CAPABILITIES = "capabilities";
     public static final String SWITCHDEV = "switchdev";
     private static volatile Pattern uuidPattern;
-    private static ConcurrentMap<String, Hostconfig> hostConfigMap = new ConcurrentHashMap<>();
+
+    private NeutronUtils() { }
 
     private NeutronUtils() { }
 
@@ -142,26 +141,22 @@ public final class NeutronUtils {
         if (hostId == null) {
             return null;
         }
-        Hostconfig hostConfig = hostConfigMap.get(hostId);
+        HostConfigCache hostConfigCache = new HostConfigCache();
+        Hostconfig hostConfig = hostConfigCache.get(hostId);
         if (hostConfig != null) {
             return hostConfig;
         }
         // validate that the host supports direct port binding
-        MdsalUtils mdsalUtils = new MdsalUtils(dataBroker);
         InstanceIdentifier<Hostconfig> hostConfigKey = hostConfigIid(hostId);
-        hostConfig = mdsalUtils.read(LogicalDatastoreType.OPERATIONAL, hostConfigKey);
-        if (hostConfig != null) {
-            addToHotsConfigCache(hostId, hostConfig);
+        try {
+            hostConfig = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, hostConfigKey);
+        } catch (ReadFailedException e) {
+            LOG.error("getHostConfig: failed to read hostconfig {}", e, hostConfigKey);
+            return null;
         }
+        hostConfigCache.add(hostId, hostConfig);
         return hostConfig;
-    }
-
-    private static void addToHotsConfigCache(String hostId, Hostconfig hostConfig) {
-        if (hostId != null && hostConfig != null) {
-            LOG.debug("Adding hostconfig for host {} to cache: {}",
-                      hostId, hostConfig.getConfig());
-            hostConfigMap.put(hostId, hostConfig);
-        }
     }
 
     private static InstanceIdentifier<Hostconfig> hostConfigIid(String hostId) {
