@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -134,7 +135,14 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                             .state.Interface.OperStatus.Up)) {
                     LOG.debug("On update event, notify ACL service manager to update ACL for interface: {}",
                             interfaceId);
+                    // handle add for AclPortsLookup before processing update
+                    AclServiceUtils.updateAclPortsLookupForInterfaceUpdate(aclInterfaceBefore, aclInterfaceAfter,
+                            dataBroker, NwConstants.ADD_FLOW);
+
                     aclServiceManager.notify(aclInterfaceAfter, aclInterfaceBefore, AclServiceManager.Action.UPDATE);
+                    // handle delete for AclPortsLookup after processing update
+                    AclServiceUtils.updateAclPortsLookupForInterfaceUpdate(aclInterfaceBefore, aclInterfaceAfter,
+                            dataBroker, NwConstants.DEL_FLOW);
                 }
             }
             updateCacheWithAclChange(aclInterfaceBefore, aclInterfaceAfter);
@@ -196,8 +204,8 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 builder.elanId(AclServiceUtils.getElanIdFromInterface(interfaceId, dataBroker));
             }
             if (prevAclInterface == null || isSgChanged) {
-                builder.ingressRemoteAclTags(aclServiceUtils.getRemoteAclTags(sgs, DirectionIngress.class, dataBroker))
-                        .egressRemoteAclTags(aclServiceUtils.getRemoteAclTags(sgs, DirectionEgress.class, dataBroker));
+                builder.ingressRemoteAclTags(aclServiceUtils.getRemoteAclTags(sgs, DirectionIngress.class))
+                        .egressRemoteAclTags(aclServiceUtils.getRemoteAclTags(sgs, DirectionEgress.class));
             }
         });
         // Clone and return the ACL interface object
