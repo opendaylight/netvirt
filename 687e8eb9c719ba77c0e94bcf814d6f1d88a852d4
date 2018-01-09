@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79674f0a_b6faba7c",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-01-09T17:36:45Z",
+      "side": 1,
+      "message": "Is it matching with src_vm_ip or src_vm_subnet_cidr. Since as per the example dump-flows it matches src_subnet_cidr and dst_subnet_cidr. In this case can we rename as \"subnet1_cidr\" and \"subnet2_cidr\". Even openstack also subnet-address with slash notation is called as \"subnet-cidr\".",
+      "range": {
+        "startLine": 175,
+        "startChar": 49,
+        "endLine": 175,
+        "endChar": 56
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40a0d2a7_7fa242a4",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-01-09T17:36:45Z",
+      "side": 1,
+      "message": "Can you please explain little bit more about if the second router is assigned with external-network-2 which router will be acting as default router for the single subnet. Does it choose\u0027d based on the order single subnet is attached to the different routers.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b20fab82_2233b3fe",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-01-09T17:36:45Z",
+      "side": 1,
+      "message": "I am not seeing any example flows on table\u003d26, 46, 21 are matching with router1 vpn-id. Since both the routers are associated with different external network. Based on the destination ip, we will be deciding which router has external destination ip presence, we will be choosing that router has defult gw for that external network traffic. Please correct me if i am wrong.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
