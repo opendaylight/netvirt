@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1a61122a_646dc5eb",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 4
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T16:43:09Z",
+      "side": 1,
+      "message": "nit: did you miss something here?",
+      "range": {
+        "startLine": 11,
+        "startChar": 38,
+        "endLine": 11,
+        "endChar": 43
+      },
+      "revId": "bc8275935007ff7f3d84a6def61edb6b0e9b3da1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
