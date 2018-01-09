@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 
 /**
@@ -19,8 +20,9 @@ import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
  */
 public interface AclConstants {
 
-    short INGRESS_ACL_SERVICE_FLOW_PRIORITY = 1;
-    short EGRESS_ACL_SERVICE_FLOW_PRIORITY = 11;
+    // TODO: Temporarily having below two constants until they are renamed in NwConstants itself.
+    String INGRESS_ACL_SERVICE_NAME = NwConstants.ACL_SERVICE_NAME;
+    short INGRESS_ACL_SERVICE_INDEX = NwConstants.ACL_SERVICE_INDEX;
 
     Integer PROTO_IPV6_DROP_PRIORITY = 63020;
     Integer PROTO_IPV6_ALLOWED_PRIORITY = 63010;
@@ -34,13 +36,13 @@ public interface AclConstants {
     Integer PROTO_PREFIX_MATCH_PRIORITY = 61008;
 
     Integer CT_STATE_UNTRACKED_PRIORITY = 340;
-    Integer CT_STATE_TRACKED_EXIST_PRIORITY = 330;
-    Integer CT_STATE_TRACKED_INVALID_PRIORITY = 320;
+    Integer CT_STATE_TRACKED_EXIST_PRIORITY = 62030;
+    Integer CT_STATE_TRACKED_INVALID_PRIORITY = 62020;
     Integer CT_STATE_TRACKED_NEW_PRIORITY = 310;
     Integer CT_STATE_TRACKED_NEW_DROP_PRIORITY = 50;
     Integer NO_PRIORITY = 50;
 
-    Integer ACE_WITHOUT_REMOTE_ACL_PRIORITY = 240;
+    Integer ACE_DEFAULT_PRIORITY = 1000;
     Integer ACE_LAST_REMOTE_ACL_PRIORITY = 230;
     Integer ACE_GOTO_NEXT_REMOTE_ACL_PRIORITY = 220;
     Integer ACE_FIRST_REMOTE_ACL_PRIORITY = 210;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2018 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -48,20 +48,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Provides the stateful implementation for egress (w.r.t VM) ACL service.
+ * Provides the implementation for egress (w.r.t VM) ACL service.
  *
  * <p>
  * Note: Table names used are w.r.t switch. Hence, switch ingress is VM egress
  * and vice versa.
  */
-public class StatefulEgressAclServiceImpl extends AbstractAclServiceImpl {
+public class EgressAclServiceImpl extends AbstractAclServiceImpl {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StatefulEgressAclServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(EgressAclServiceImpl.class);
 
     /**
      * Initialize the member variables.
      */
-    public StatefulEgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
+    public EgressAclServiceImpl(DataBroker dataBroker, IMdsalApiManager mdsalManager, AclDataUtil aclDataUtil,
             AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator, AclInterfaceCache aclInterfaceCache) {
         // Service mode is w.rt. switch
         super(ServiceModeIngress.class, dataBroker, mdsalManager, aclDataUtil, aclServiceUtils,
@@ -80,10 +80,11 @@ public class StatefulEgressAclServiceImpl extends AbstractAclServiceImpl {
             int instructionKey = 0;
             List<Instruction> instructions = new ArrayList<>();
             instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(getAclAntiSpoofingTable(), ++instructionKey));
-            short serviceIndex = ServiceIndex.getIndex(NwConstants.ACL_SERVICE_NAME, NwConstants.ACL_SERVICE_INDEX);
-            int flowPriority = AclConstants.EGRESS_ACL_SERVICE_FLOW_PRIORITY;
+            short serviceIndex = ServiceIndex.getIndex(AclConstants.INGRESS_ACL_SERVICE_NAME,
+                    AclConstants.INGRESS_ACL_SERVICE_INDEX);
+            int flowPriority = AclConstants.INGRESS_ACL_SERVICE_INDEX;
             BoundServices serviceInfo =
-                    AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "egressacl", interfaceName),
+                    AclServiceUtils.getBoundServices(String.format("%s.%s.%s", "acl", "ingressacl", interfaceName),
                             serviceIndex, flowPriority, AclConstants.COOKIE_ACL_BASE, instructions);
             InstanceIdentifier<BoundServices> path =
                     AclServiceUtils.buildServiceId(interfaceName, serviceIndex, serviceMode);
@@ -119,9 +120,10 @@ public class StatefulEgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void programGeneralFixedRules(AclInterface port, String dhcpMacAddress,
+    protected void programAntiSpoofingRules(AclInterface port, String dhcpMacAddress,
             List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove) {
-        LOG.info("programFixedRules : {} default rules.", action == Action.ADD ? "adding" : "removing");
+        LOG.info("{} programAntiSpoofingRules for port {}, AAPs={}, action={}, addOrRemove={}", this.directionString,
+                port.getInterfaceId(), allowedAddresses, action, addOrRemove);
 
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
@@ -150,12 +152,13 @@ public class StatefulEgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs ip, int addOrRemove) {
+    protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
+            int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, ip, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, aap, dataBroker));
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
-        String flowNameAdded = "Acl_Filter_Egress_" + String.valueOf(ip.getIpAddress().getValue()) + "_" + aclTag;
+        String flowNameAdded = "Acl_Filter_Egress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;
 
         syncFlow(dpId, getAclRemoteAclTable(), flowNameAdded, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
