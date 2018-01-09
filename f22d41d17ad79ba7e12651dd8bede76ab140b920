@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "31aabeec_b5957a67",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1440,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 0,
+      "message": "This method is no longer needed as callers now call isVxlan directly.",
+      "revId": "f22d41d17ad79ba7e12651dd8bede76ab140b920",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "797ec819_5ad11fa8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1577,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 0,
+      "message": "These 2 methods were moved to ElanLearntVpnVipToPortListener",
+      "revId": "f22d41d17ad79ba7e12651dd8bede76ab140b920",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fe9c83b_ed69b848",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/ElanUtils.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1793,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 0,
+      "message": "This code was moved to ElanServiceProvider",
+      "revId": "f22d41d17ad79ba7e12651dd8bede76ab140b920",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}

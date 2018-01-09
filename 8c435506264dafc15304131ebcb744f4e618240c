@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8b99a3b1_c0ac9673",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 532,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 1,
+      "message": "This method really just needs the elan name and not the ElanInstance.",
+      "revId": "8c435506264dafc15304131ebcb744f4e618240c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "646f3b7c_bcb28190",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 556,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 1,
+      "message": "updateOperationalDataStore has the side-effect of updating the ElanInstance in the config DS so the updated instance is returned since the cache may not be updated yet.",
+      "revId": "8c435506264dafc15304131ebcb744f4e618240c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8bd0dd08_c85ce34c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 1,
+      "message": "This method was moved from ElanUtils since it\u0027s the only caller and avoids having to inject the ElanInstanceCache into ElanUtils...",
+      "revId": "8c435506264dafc15304131ebcb744f4e618240c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53642033_a2d66ad8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanLearntVpnVipToPortListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 189,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 1,
+      "message": "...same with this method",
+      "revId": "8c435506264dafc15304131ebcb744f4e618240c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0fb77875_bab5b2cd",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanServiceProvider.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 891,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T06:23:31Z",
+      "side": 1,
+      "message": "This code was moved and inlined from ElanUtils as it was the only caller and avoids having to inject the ElanInstanceCache into ElanUtils.",
+      "revId": "8c435506264dafc15304131ebcb744f4e618240c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
