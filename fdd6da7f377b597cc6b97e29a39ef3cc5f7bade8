@@ -52,6 +52,24 @@
       "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5c28b37_e7a6d117",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 76
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-09T11:34:20Z",
+      "side": 1,
+      "message": "Actually, in any way this uuid have to be directly store in datastore.\nindeed this is just used in neutron invocation.\nSo, with this release we have to make a invocation (cli) with a list (of one or more) router\u0027s uuid it is all.\nnone DTCL listen it.\n\nare you agree with that please?",
+      "parentUuid": "b73ad62c_bad938a4",
+      "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
