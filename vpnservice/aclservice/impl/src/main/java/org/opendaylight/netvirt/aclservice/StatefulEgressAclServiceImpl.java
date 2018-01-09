@@ -150,12 +150,13 @@ public class StatefulEgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs ip, int addOrRemove) {
+    protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
+            int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, ip, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndDstServiceMatch(aclTag, aap, dataBroker));
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
-        String flowNameAdded = "Acl_Filter_Egress_" + String.valueOf(ip.getIpAddress().getValue()) + "_" + aclTag;
+        String flowNameAdded = "Acl_Filter_Egress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;
 
         syncFlow(dpId, getAclRemoteAclTable(), flowNameAdded, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);

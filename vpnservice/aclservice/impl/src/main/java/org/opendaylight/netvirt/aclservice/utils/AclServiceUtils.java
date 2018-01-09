@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -33,6 +34,8 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
@@ -60,7 +63,6 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.Ipv4Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
-import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
@@ -100,11 +102,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclPortsLookup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortsSubnetIpPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIpKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.AclIpPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.AclIpPrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesKey;
@@ -694,6 +704,25 @@ public final class AclServiceUtils {
         return matches;
     }
 
+    public static Collection<? extends MatchInfoBase> buildMatchesForLPortTagAndConntrackClassifierType(int lportTag,
+            AclConntrackClassifierType conntrackClassifierType, Class<? extends ServiceModeBase> serviceMode) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        if (serviceMode != null && serviceMode.isAssignableFrom(ServiceModeEgress.class)) {
+            matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+            matches.add(AclServiceUtils.buildAclConntrackClassifierTypeMatch(conntrackClassifierType));
+        } else {
+            // In case of ingress service mode, only metadata is used for
+            // matching both lportTag and conntrackClassifierType. Hence performing "or"
+            // operation on both lportTag and conntrackClassifierType metadata.
+            BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
+                    .or(MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()));
+            BigInteger metaDataMask =
+                    MetaDataUtil.METADATA_MASK_LPORT_TAG.or(MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
+            matches.add(new MatchMetadata(metaData, metaDataMask));
+        }
+        return matches;
+    }
+
     public static InstructionWriteMetadata getWriteMetadataForAclClassifierType(
             AclConntrackClassifierType conntrackClassifierType) {
         return new InstructionWriteMetadata(
@@ -848,6 +877,10 @@ public final class AclServiceUtils {
             return false;
         }
         return true;
+    }
+
+    public static boolean isNotIpAllNetwork(AllowedAddressPairs aap) {
+        return isNotIpv4AllNetwork(aap) && isNotIpv6AllNetwork(aap);
     }
 
     private static String getAapFlowId(AllowedAddressPairs aap) {
@@ -1078,71 +1111,71 @@ public final class AclServiceUtils {
         deleteIdPool(AclConstants.ACL_TAG_POOL_NAME);
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(Integer aclTag, AllowedAddressPairs ip,
+    public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(Integer aclTag, AllowedAddressPairs aap,
             DataBroker dataBroker) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.add(buildAclTagMetadataMatch(aclTag));
-        if (ip.getIpAddress().getIpAddress() != null) {
-            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+        if (aap.getIpAddress().getIpAddress() != null) {
+            if (aap.getIpAddress().getIpAddress().getIpv4Address() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
                 MatchIpv4Source srcMatch = new MatchIpv4Source(
-                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                        new Ipv4Prefix(aap.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
                 flowMatches.add(srcMatch);
-            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+            } else if (aap.getIpAddress().getIpAddress().getIpv6Address() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
                 MatchIpv6Source srcMatch = new MatchIpv6Source(
-                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                        new Ipv6Prefix(aap.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
                 flowMatches.add(srcMatch);
             }
-        } else if (ip.getIpAddress().getIpPrefix() != null) {
-            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+        } else if (aap.getIpAddress().getIpPrefix() != null) {
+            if (aap.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
-                MatchIpv4Source srcMatch = new MatchIpv4Source(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                MatchIpv4Source srcMatch = new MatchIpv4Source(aap.getIpAddress().getIpPrefix().getIpv4Prefix());
                 flowMatches.add(srcMatch);
-            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+            } else if (aap.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
-                MatchIpv6Source srcMatch = new MatchIpv6Source(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                MatchIpv6Source srcMatch = new MatchIpv6Source(aap.getIpAddress().getIpPrefix().getIpv6Prefix());
                 flowMatches.add(srcMatch);
             }
         }
         return flowMatches;
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Integer aclTag, AllowedAddressPairs ip,
+    public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Integer aclTag, AllowedAddressPairs aap,
             DataBroker dataBroker) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
         flowMatches.add(buildAclTagMetadataMatch(aclTag));
 
-        if (ip.getIpAddress().getIpAddress() != null) {
-            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+        if (aap.getIpAddress().getIpAddress() != null) {
+            if (aap.getIpAddress().getIpAddress().getIpv4Address() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
                 MatchIpv4Destination dstMatch = new MatchIpv4Destination(
-                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                        new Ipv4Prefix(aap.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
                 flowMatches.add(dstMatch);
-            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+            } else if (aap.getIpAddress().getIpAddress().getIpv6Address() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
                 MatchIpv6Destination dstMatch = new MatchIpv6Destination(
-                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                        new Ipv6Prefix(aap.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
                 flowMatches.add(dstMatch);
             }
-        } else if (ip.getIpAddress().getIpPrefix() != null) {
-            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+        } else if (aap.getIpAddress().getIpPrefix() != null) {
+            if (aap.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
                 MatchIpv4Destination dstMatch =
-                        new MatchIpv4Destination(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                        new MatchIpv4Destination(aap.getIpAddress().getIpPrefix().getIpv4Prefix());
                 flowMatches.add(dstMatch);
-            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+            } else if (aap.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
                 MatchIpv6Destination dstMatch =
-                        new MatchIpv6Destination(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                        new MatchIpv6Destination(aap.getIpAddress().getIpPrefix().getIpv6Prefix());
                 flowMatches.add(dstMatch);
             }
         }
@@ -1191,7 +1224,7 @@ public final class AclServiceUtils {
      * @return true, if successful
      */
     public static boolean doesAceHaveRemoteGroupId(final SecurityRuleAttr aceAttr) {
-        return aceAttr.getRemoteGroupId() != null;
+        return aceAttr != null && aceAttr.getRemoteGroupId() != null;
     }
 
     public SortedSet<Integer> getRemoteAclTags(List<Uuid> aclIds, Class<? extends DirectionBase> direction,
@@ -1220,8 +1253,15 @@ public final class AclServiceUtils {
                 LOG.warn("ACL {} not found in config DS.", aclId.getValue());
                 continue;
             }
-            AccessListEntries accessListEntries = acl.getAccessListEntries();
-            List<Ace> aceList = accessListEntries.getAce();
+            remoteAclIds.addAll(getRemoteAclIdsByDirection(acl, direction));
+        }
+        return remoteAclIds;
+    }
+
+    public static Set<Uuid> getRemoteAclIdsByDirection(Acl acl, Class<? extends DirectionBase> direction) {
+        Set<Uuid> remoteAclIds = new HashSet<>();
+        List<Ace> aceList = acl.getAccessListEntries().getAce();
+        if (aceList != null) {
             for (Ace ace : aceList) {
                 SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
                 if (aceAttr.getDirection().equals(direction) && doesAceHaveRemoteGroupId(aceAttr)) {
@@ -1231,4 +1271,206 @@ public final class AclServiceUtils {
         }
         return remoteAclIds;
     }
+
+    /**
+     * Skip delete in case of overlapping IP.
+     *
+     * <p>
+     * When there are multiple ports (e.g., p1, p2, p3) having same AAP (e.g.,
+     * 224.0.0.5) configured which are part of single SG, there would be single
+     * flow in remote ACL table. When one of these ports (say p1) is deleted,
+     * the single flow which is configured in remote ACL table shouldn't be
+     * deleted. It should be deleted only when there are no more references to
+     * it.
+     *
+     * @param portId the port id
+     * @param remoteAclId the remote Acl Id
+     * @param ipPrefix the ip prefix
+     * @param broker the broker
+     * @param addOrRemove the add or remove
+     * @return true, if successful
+     */
+    public static boolean skipDeleteInCaseOfOverlappingIP(String portId, Uuid remoteAclId, IpPrefixOrAddress ipPrefix,
+            DataBroker broker, int addOrRemove) {
+        boolean skipDelete = false;
+        if (addOrRemove != NwConstants.DEL_FLOW) {
+            return skipDelete;
+        }
+        AclIpPrefixes aclIpPrefixes =
+                AclServiceUtils.getAclIpPrefixesFromOperDs(broker, remoteAclId.getValue(), ipPrefix);
+        if (aclIpPrefixes != null && aclIpPrefixes.getPortIds() != null) {
+            List<String> ignorePorts = Lists.newArrayList(portId);
+            List<PortIds> portIds = new ArrayList<>(aclIpPrefixes.getPortIds());
+            // Checking if there are any other ports excluding ignorePorts
+            long noOfRemotePorts =
+                    portIds.stream().map(x -> x.getPortId()).filter(y -> !ignorePorts.contains(y)).count();
+            if (noOfRemotePorts > 0) {
+                skipDelete = true;
+            }
+        }
+        return skipDelete;
+    }
+
+    public static void deleteAclPortsLookupEntry(String aclName, DataBroker broker)
+            throws TransactionCommitFailedException {
+        SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, aclPortsByIpPath(aclName));
+    }
+
+    public static InstanceIdentifier<AclPortsByIp> aclPortsByIpPath(String aclName) {
+        InstanceIdentifier<AclPortsByIp> path = InstanceIdentifier.builder(AclPortsLookup.class)
+                .child(AclPortsByIp.class, new AclPortsByIpKey(aclName)).build();
+        return path;
+    }
+
+    public static InstanceIdentifier<AclIpPrefixes> getAclIpPrefixesPath(String aclName, IpPrefixOrAddress ipPrefix) {
+        return InstanceIdentifier.builder(AclPortsLookup.class).child(AclPortsByIp.class, new AclPortsByIpKey(aclName))
+                .child(AclIpPrefixes.class, new AclIpPrefixesKey(ipPrefix)).build();
+    }
+
+    public static InstanceIdentifier<PortIds> getPortIdsPathInAclPortsLookup(String ruleName,
+            IpPrefixOrAddress ipPrefix, String portId) {
+        return InstanceIdentifier.builder(AclPortsLookup.class).child(AclPortsByIp.class, new AclPortsByIpKey(ruleName))
+                .child(AclIpPrefixes.class, new AclIpPrefixesKey(ipPrefix)).child(PortIds.class, new PortIdsKey(portId))
+                .build();
+    }
+
+    public static void updateAclPortsLookupForInterfaceUpdate(AclInterface portBefore, AclInterface portAfter,
+            DataBroker broker, int addOrRemove) {
+        LOG.debug("Processing interface update for port {}, addOrRemove={}", portAfter.getInterfaceId(), addOrRemove);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            List<AllowedAddressPairs> addedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
+                    portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
+            if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
+                updateAclPortsLookup(portAfter, portAfter.getSecurityGroups(), addedAllowedAddressPairs,
+                        NwConstants.ADD_FLOW, broker);
+            }
+
+            List<Uuid> addedAcls = getUpdatedAclList(portAfter.getSecurityGroups(), portBefore.getSecurityGroups());
+            if (addedAcls != null && !addedAcls.isEmpty()) {
+                updateAclPortsLookup(portAfter, addedAcls, portAfter.getAllowedAddressPairs(), NwConstants.ADD_FLOW,
+                        broker);
+            }
+        } else {
+            List<AllowedAddressPairs> deletedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
+                    portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
+            if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
+                updateAclPortsLookup(portAfter, portAfter.getSecurityGroups(), deletedAllowedAddressPairs,
+                        NwConstants.DEL_FLOW, broker);
+            }
+
+            List<Uuid> deletedAcls = getUpdatedAclList(portBefore.getSecurityGroups(), portAfter.getSecurityGroups());
+            if (deletedAcls != null && !deletedAcls.isEmpty()) {
+                updateAclPortsLookup(portAfter, deletedAcls, portAfter.getAllowedAddressPairs(), NwConstants.DEL_FLOW,
+                        broker);
+            }
+        }
+    }
+
+    public static void updateAclPortsLookup(AclInterface port, List<Uuid> aclList,
+            List<AllowedAddressPairs> allowedAddresses, int addOrRemove, DataBroker broker) {
+        String portId = port.getInterfaceId();
+        LOG.trace("Updating AclPortsLookup for port={}, acls={}, AAPs={}, addOrRemove={}", portId, aclList,
+                allowedAddresses, addOrRemove);
+
+        if (aclList == null || allowedAddresses == null || allowedAddresses.isEmpty()) {
+            LOG.warn("aclList or allowedAddresses is null. port={}, acls={}, AAPs={}, addOrRemove={}", portId, aclList,
+                    allowedAddresses, addOrRemove);
+            return;
+        }
+        for (Uuid aclId : aclList) {
+            String aclName = aclId.getValue();
+            synchronized (aclName.intern()) {
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
+                for (AllowedAddressPairs aap : allowedAddresses) {
+                    PortIds portIdObj = new PortIdsBuilder().setKey(new PortIdsKey(portId)).setPortId(portId).build();
+                    InstanceIdentifier<PortIds> path =
+                            AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
+                    if (addOrRemove == NwConstants.ADD_FLOW) {
+                        tx.put(LogicalDatastoreType.OPERATIONAL, path, portIdObj, true);
+                    } else {
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, path);
+                    }
+                }
+                AclServiceUtils.waitForTransactionToComplete(tx);
+
+                if (addOrRemove == NwConstants.DEL_FLOW) {
+                    cleanUpStaleEntriesInAclPortsLookup(aclName, broker);
+                }
+            }
+        }
+    }
+
+    public static void cleanUpStaleEntriesInAclPortsLookup(String aclName, DataBroker broker) {
+        AclPortsByIp aclPortsByIp = AclServiceUtils.getAclPortsByIpFromOperDs(broker, aclName);
+        if (aclPortsByIp == null) {
+            return;
+        }
+        boolean deleteEntireAcl = false;
+        List<AclIpPrefixes> ipPrefixes = aclPortsByIp.getAclIpPrefixes();
+        if (ipPrefixes == null || ipPrefixes.isEmpty()) {
+            deleteEntireAcl = true;
+        } else {
+            boolean deleteMap = true;
+            for (AclIpPrefixes ipPrefix : ipPrefixes) {
+                if (ipPrefix.getPortIds() != null && !ipPrefix.getPortIds().isEmpty()) {
+                    deleteMap = false;
+                    break;
+                }
+            }
+            deleteEntireAcl = deleteMap;
+        }
+        WriteTransaction txDeleteMap = broker.newWriteOnlyTransaction();
+        boolean wrTxPresent = false;
+        if (deleteEntireAcl) {
+            txDeleteMap.delete(LogicalDatastoreType.OPERATIONAL, AclServiceUtils.aclPortsByIpPath(aclName));
+            wrTxPresent = true;
+        } else {
+            for (AclIpPrefixes ipPrefix : ipPrefixes) {
+                if (ipPrefix.getPortIds() == null || ipPrefix.getPortIds().isEmpty()) {
+                    InstanceIdentifier<AclIpPrefixes> delPath =
+                            AclServiceUtils.getAclIpPrefixesPath(aclName, ipPrefix.getIpPrefix());
+                    txDeleteMap.delete(LogicalDatastoreType.OPERATIONAL, delPath);
+                    wrTxPresent = true;
+                }
+            }
+        }
+        if (wrTxPresent) {
+            AclServiceUtils.waitForTransactionToComplete(txDeleteMap);
+        } else {
+            txDeleteMap.cancel();
+        }
+        LOG.trace("Clean up of stale entries in AclPortsLookup is done for Acl={}, deleteEntireAcl={}", aclName,
+                deleteEntireAcl);
+    }
+
+    public static AclPortsByIp getAclPortsByIpFromOperDs(DataBroker broker, String aclName) {
+        InstanceIdentifier<AclPortsByIp> path = aclPortsByIpPath(aclName);
+        Optional<AclPortsByIp> optAclPortsByIp = read(broker, LogicalDatastoreType.OPERATIONAL, path);
+        if (optAclPortsByIp.isPresent()) {
+            return optAclPortsByIp.get();
+        }
+        return null;
+    }
+
+    public static AclIpPrefixes getAclIpPrefixesFromOperDs(DataBroker broker, String aclName,
+            IpPrefixOrAddress ipPrefix) {
+        InstanceIdentifier<AclIpPrefixes> path = getAclIpPrefixesPath(aclName, ipPrefix);
+        Optional<AclIpPrefixes> optAclPortsByIp = read(broker, LogicalDatastoreType.OPERATIONAL, path);
+        if (optAclPortsByIp.isPresent()) {
+            return optAclPortsByIp.get();
+        }
+        return null;
+    }
+
+    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
+            WriteTransaction tx) {
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore", e);
+        }
+        return futures;
+    }
+
 }
