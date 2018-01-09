@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a558600d_2740f63e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "nit: please remove the additional ones.",
+      "range": {
+        "startLine": 12,
+        "startChar": 15,
+        "endLine": 12,
+        "endChar": 67
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd173a11_51aba970",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "This should be something like \nhttps://git.opendaylight.org/gerrit/#/q/topic:faster-dcgw-failure-detection",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 22
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59e5dcba_617df965",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "It would be good if you expand the first occurrence of any abbreviations in your doc.\n\nFor example:\nDC-Gwy (Data Center Gateway)",
+      "range": {
+        "startLine": 16,
+        "startChar": 35,
+        "endLine": 16,
+        "endChar": 38
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "59123580_1570733f",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "Please expand the first occurrence.",
+      "range": {
+        "startLine": 21,
+        "startChar": 15,
+        "endLine": 21,
+        "endChar": 18
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d282ca6_5a364fa5",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "ditto",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 22
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5e79ec2_f2342c0a",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "nit: keepalive (no space in between)",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 14
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ddf4cae_17fe0c23",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "nit: timers are negotiated \"during a BGP Peering session\" and the least values between the two neighbors is selected.",
+      "range": {
+        "startLine": 32,
+        "startChar": 26,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4822823e_0f71009d",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "nit: Please wrap your sentences to some reasonable limits (would make it easy to read/review)",
+      "range": {
+        "startLine": 34,
+        "startChar": 153,
+        "endLine": 34,
+        "endChar": 229
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8a648a0_a6e80b23",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "A question: This is a simple BGP peering session between ODL and DC-GW but is NOT a Tunnel (i.e., MPLS/GRE or VxLAN) right?",
+      "range": {
+        "startLine": 41,
+        "startChar": 28,
+        "endLine": 41,
+        "endChar": 44
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94c69d2c_42cdc005",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "Just for understanding - there will NOT be any tunnel, but we use BFD protocol to identify the state of the connection. Is this correct?",
+      "range": {
+        "startLine": 91,
+        "startChar": 46,
+        "endLine": 91,
+        "endChar": 95
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5b3b1f71_f396c675",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "When the connection is lost, how can QBGP purge/remove routes in failed DC-GW. I hope you want to convey that routes pointing to the failed DC-GW are removed from the dataplane?",
+      "range": {
+        "startLine": 92,
+        "startChar": 146,
+        "endLine": 92,
+        "endChar": 167
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b7c17340_e7efd47c",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "bfdd is run on the ODL Controller node right? In a cluster setup we would have multiple controllers, so each controller runs an instance of bfdd?",
+      "range": {
+        "startLine": 149,
+        "startChar": 41,
+        "endLine": 149,
+        "endChar": 86
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9edb45e0_0b6b8927",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-09T08:56:00Z",
+      "side": 1,
+      "message": "Please eloborate this - i.e., who (DCGW/ODL/XXX)? MUST support ....",
+      "range": {
+        "startLine": 241,
+        "startChar": 2,
+        "endLine": 241,
+        "endChar": 54
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
