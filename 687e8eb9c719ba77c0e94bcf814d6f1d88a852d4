@@ -56,6 +56,23 @@
       "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1556223_c44332b1",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-01-09T17:39:27Z",
+      "side": 1,
+      "message": "Please put more clear on which router vpn-id is matching here.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
