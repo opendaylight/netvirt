@@ -46,6 +46,30 @@
       "revId": "c70f744a2a6e9eae739d4ae83f8ccece87e4f444",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "323b7f60_14509823",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/UpgradeStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-01-09T23:11:50Z",
+      "side": 1,
+      "message": "When you mention towards the end of upgrade - does it have to be that way? This might be fragile if it has to be that way and we can\u0027t guarantee it is.",
+      "parentUuid": "5286c1af_f1ecfdfb",
+      "range": {
+        "startLine": 46,
+        "startChar": 16,
+        "endLine": 46,
+        "endChar": 22
+      },
+      "revId": "c70f744a2a6e9eae739d4ae83f8ccece87e4f444",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
