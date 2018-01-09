@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2017 Red Hat, Inc. and others. All rights reserved.
+ * Copyright (c) 2016 Red Hat, Inc. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
+import com.google.common.util.concurrent.CheckedFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -30,14 +31,23 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
+import org.opendaylight.genius.mdsalutil.ActionInfo;
+import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.NxMatchInfo;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack.NxCtAction;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
+import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchArpSpa;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
@@ -61,6 +71,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.AccessListEntries;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpPrefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
@@ -99,11 +111,19 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.AclPortsLookup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.PortsSubnetIpPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIp;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.AclPortsByIpKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.AclIpPrefixes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.AclIpPrefixesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.acl.ports.lookup.acl.ports.by.ip.acl.ip.prefixes.PortIdsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.ports.subnet.ip.prefixes.PortSubnetIpPrefixesKey;
@@ -198,10 +218,7 @@ public final class AclServiceUtils {
      * @return the instance identifier
      */
     public static InstanceIdentifier<Acl> getAclInstanceIdentifier(String aclKey) {
-        return InstanceIdentifier
-                .builder(AccessLists.class)
-                .child(Acl.class,
-                        new AclKey(aclKey,Ipv4Acl.class))
+        return InstanceIdentifier.builder(AccessLists.class).child(Acl.class, new AclKey(aclKey, Ipv4Acl.class))
                 .build();
     }
 
@@ -570,31 +587,13 @@ public final class AclServiceUtils {
         return flowMatches;
     }
 
-    private List<MatchInfoBase> buildAclIdMetadataMatches(Uuid remoteAclId) {
-        List<MatchInfoBase> flowMatches = new ArrayList<>();
-        BigInteger aclId = buildAclId(remoteAclId);
-        if (aclId.intValue() != AclConstants.INVALID_ACL_TAG) {
-            MatchMetadata metadataMatch = new MatchMetadata(getAclTagMetadata(aclId),
-                    MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
-            flowMatches.add(metadataMatch);
-        } else {
-            LOG.error("Failed building metadata match for Acl id match. Failed to allocate id");
-        }
-        return flowMatches;
-    }
-
-    public static MatchInfoBase buildAclTagMetadataMatch(Integer aclTag) {
-        return new MatchMetadata(getAclTagMetadata(BigInteger.valueOf(aclTag)),
+    public static MatchInfoBase buildRemoteAclTagMetadataMatch(Integer remoteAclTag) {
+        return new MatchMetadata(getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)),
                 MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
     }
 
-    public BigInteger buildAclId(Uuid remoteAclId) {
-        Integer aclId = allocateAclTag(remoteAclId.getValue());
-        return BigInteger.valueOf(aclId);
-    }
-
-    public static BigInteger getAclTagMetadata(BigInteger aclTag) {
-        return aclTag.shiftLeft(4);
+    public static BigInteger getRemoteAclTagMetadata(BigInteger remoteAclTag) {
+        return remoteAclTag.shiftLeft(4);
     }
 
     /**
@@ -668,20 +667,39 @@ public final class AclServiceUtils {
         }
     }
 
-    public static List<MatchInfoBase> buildMatchesForLPortTagAndRemoteAclTag(Integer lportTag, Integer aclTag,
+    public static List<MatchInfoBase> buildMatchesForLPortTagAndRemoteAclTag(Integer lportTag, Integer remoteAclTag,
             Class<? extends ServiceModeBase> serviceMode) {
         List<MatchInfoBase> matches = new ArrayList<>();
         if (serviceMode != null && serviceMode.isAssignableFrom(ServiceModeEgress.class)) {
             matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
-            matches.add(AclServiceUtils.buildAclTagMetadataMatch(aclTag));
+            matches.add(AclServiceUtils.buildRemoteAclTagMetadataMatch(remoteAclTag));
         } else {
             // In case of ingress service mode, only metadata is used for
             // matching both lportTag and aclTag. Hence performing "or"
             // operation on both lportTag and aclTag metadata.
-            BigInteger metaData =
-                    MetaDataUtil.getLportTagMetaData(lportTag).or(getAclTagMetadata(BigInteger.valueOf(aclTag)));
-            BigInteger metaDataMask = MetaDataUtil.METADATA_MASK_LPORT_TAG
-                    .or(MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
+            BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
+                    .or(getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)));
+            BigInteger metaDataMask =
+                    MetaDataUtil.METADATA_MASK_LPORT_TAG.or(MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
+            matches.add(new MatchMetadata(metaData, metaDataMask));
+        }
+        return matches;
+    }
+
+    public static Collection<? extends MatchInfoBase> buildMatchesForLPortTagAndConntrackClassifierType(int lportTag,
+            AclConntrackClassifierType conntrackClassifierType, Class<? extends ServiceModeBase> serviceMode) {
+        List<MatchInfoBase> matches = new ArrayList<>();
+        if (serviceMode != null && serviceMode.isAssignableFrom(ServiceModeEgress.class)) {
+            matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
+            matches.add(AclServiceUtils.buildAclConntrackClassifierTypeMatch(conntrackClassifierType));
+        } else {
+            // In case of ingress service mode, only metadata is used for
+            // matching both lportTag and conntrackClassifierType. Hence performing "or"
+            // operation on both lportTag and conntrackClassifierType metadata.
+            BigInteger metaData = MetaDataUtil.getLportTagMetaData(lportTag)
+                    .or(MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackClassifierType.getValue()));
+            BigInteger metaDataMask =
+                    MetaDataUtil.METADATA_MASK_LPORT_TAG.or(MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
             matches.add(new MatchMetadata(metaData, metaDataMask));
         }
         return matches;
@@ -695,7 +713,7 @@ public final class AclServiceUtils {
     }
 
     public static InstructionWriteMetadata getWriteMetadataForRemoteAclTag(Integer remoteAclTag) {
-        return new InstructionWriteMetadata(getAclTagMetadata(BigInteger.valueOf(remoteAclTag)),
+        return new InstructionWriteMetadata(getRemoteAclTagMetadata(BigInteger.valueOf(remoteAclTag)),
                 MetaDataUtil.METADATA_MASK_REMOTE_ACL_TAG);
     }
 
@@ -704,75 +722,6 @@ public final class AclServiceUtils {
         return new MatchMetadata(
                 MetaDataUtil.getAclConntrackClassifierTypeFromMetaData(conntrackSupportedType.getValue()),
                 MetaDataUtil.METADATA_MASK_ACL_CONNTRACK_CLASSIFIER_TYPE);
-    }
-
-    public static List<Ace> getAceWithRemoteAclId(DataBroker dataBroker, AclInterface port, Uuid remoteAcl) {
-        List<Ace> remoteAclRuleList = new ArrayList<>();
-        List<Uuid> aclList = port.getSecurityGroups();
-        for (Uuid aclId : aclList) {
-            Acl acl = getAcl(dataBroker, aclId.getValue());
-            List<Ace> aceList = acl.getAccessListEntries().getAce();
-            for (Ace ace : aceList) {
-                Uuid tempRemoteAcl = getAccesssListAttributes(ace).getRemoteGroupId();
-                if (tempRemoteAcl != null && tempRemoteAcl.equals(remoteAcl)) {
-                    remoteAclRuleList.add(ace);
-                }
-            }
-        }
-        return remoteAclRuleList;
-    }
-
-    public Map<String, List<MatchInfoBase>> getFlowForRemoteAcl(AclInterface aclInterface, Uuid remoteAclId,
-            String ignoreInterfaceId, Map<String, List<MatchInfoBase>> flowMatchesMap, boolean isSourceIpMacMatch) {
-        boolean singleAcl = false;
-        Collection<AclInterface> interfaceList = null;
-        if (aclInterface.getSecurityGroups() != null && aclInterface.getSecurityGroups().size() == 1) {
-            singleAcl = true;
-        } else {
-            interfaceList = aclDataUtil.getInterfaceList(remoteAclId);
-            if (flowMatchesMap == null || interfaceList == null || interfaceList.isEmpty()) {
-                return null;
-            }
-        }
-        Map<String, List<MatchInfoBase>> updatedFlowMatchesMap = new HashMap<>();
-        MatchInfoBase ipv4Match = MatchEthernetType.IPV4;
-        MatchInfoBase ipv6Match = MatchEthernetType.IPV6;
-        for (Entry<String, List<MatchInfoBase>> entry : flowMatchesMap.entrySet()) {
-            String flowName = entry.getKey();
-            List<MatchInfoBase> flows = entry.getValue();
-            if (singleAcl) {
-                LOG.debug("port {} is in only one SG. "
-                        + "Doesn't adding it's IPs {} to matches (handled in acl id match)",
-                        aclInterface.getLPortTag(), aclInterface.getAllowedAddressPairs());
-                List<MatchInfoBase> matchInfoBaseList = addFlowMatchForAclId(remoteAclId, flows);
-                String flowId = flowName + "_remoteACL_id_" + remoteAclId.getValue();
-                updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
-                continue;
-            }
-            for (AclInterface port : interfaceList) {
-                if (port.getInterfaceId().equals(ignoreInterfaceId)) {
-                    continue;
-                }
-
-                // get allow address pair
-                List<AllowedAddressPairs> allowedAddressPair = port.getAllowedAddressPairs();
-                // iterate over allow address pair and update match type
-                for (AllowedAddressPairs aap : allowedAddressPair) {
-                    List<MatchInfoBase> matchInfoBaseList;
-                    String flowId;
-                    if (flows.contains(ipv4Match) && isIPv4Address(aap) && isNotIpv4AllNetwork(aap)) {
-                        matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                        flowId = flowName + "_ipv4_remoteACL_interface_aap_" + getAapFlowId(aap);
-                        updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
-                    } else if (flows.contains(ipv6Match) && !isIPv4Address(aap) && isNotIpv6AllNetwork(aap)) {
-                        matchInfoBaseList = updateAAPMatches(isSourceIpMacMatch, flows, aap);
-                        flowId = flowName + "_ipv6_remoteACL_interface_aap_" + getAapFlowId(aap);
-                        updatedFlowMatchesMap.put(flowId, matchInfoBaseList);
-                    }
-                }
-            }
-        }
-        return updatedFlowMatchesMap;
     }
 
     public AclserviceConfig getConfig() {
@@ -843,6 +792,10 @@ public final class AclServiceUtils {
         return true;
     }
 
+    public static boolean isNotIpAllNetwork(AllowedAddressPairs aap) {
+        return isNotIpv4AllNetwork(aap) && isNotIpv6AllNetwork(aap);
+    }
+
     private static String getAapFlowId(AllowedAddressPairs aap) {
         return aap.getMacAddress().getValue() + "_" + String.valueOf(aap.getIpAddress().getValue());
     }
@@ -901,13 +854,6 @@ public final class AclServiceUtils {
         } else {
             matchInfoBaseList = AclServiceUtils.buildIpMatches(aap.getIpAddress(), MatchCriteria.MATCH_DESTINATION);
         }
-        matchInfoBaseList.addAll(flows);
-        return matchInfoBaseList;
-    }
-
-    public List<MatchInfoBase> addFlowMatchForAclId(Uuid remoteAclId, List<MatchInfoBase> flows) {
-        List<MatchInfoBase> matchInfoBaseList;
-        matchInfoBaseList = buildAclIdMetadataMatches(remoteAclId);
         matchInfoBaseList.addAll(flows);
         return matchInfoBaseList;
     }
@@ -1071,71 +1017,71 @@ public final class AclServiceUtils {
         deleteIdPool(AclConstants.ACL_TAG_POOL_NAME);
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(Integer aclTag, AllowedAddressPairs ip,
+    public static List<? extends MatchInfoBase> buildIpAndSrcServiceMatch(Integer aclTag, AllowedAddressPairs aap,
             DataBroker dataBroker) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.add(buildAclTagMetadataMatch(aclTag));
-        if (ip.getIpAddress().getIpAddress() != null) {
-            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+        flowMatches.add(buildRemoteAclTagMetadataMatch(aclTag));
+        if (aap.getIpAddress().getIpAddress() != null) {
+            if (aap.getIpAddress().getIpAddress().getIpv4Address() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
                 MatchIpv4Source srcMatch = new MatchIpv4Source(
-                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                        new Ipv4Prefix(aap.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
                 flowMatches.add(srcMatch);
-            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+            } else if (aap.getIpAddress().getIpAddress().getIpv6Address() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
                 MatchIpv6Source srcMatch = new MatchIpv6Source(
-                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                        new Ipv6Prefix(aap.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
                 flowMatches.add(srcMatch);
             }
-        } else if (ip.getIpAddress().getIpPrefix() != null) {
-            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+        } else if (aap.getIpAddress().getIpPrefix() != null) {
+            if (aap.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
-                MatchIpv4Source srcMatch = new MatchIpv4Source(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                MatchIpv4Source srcMatch = new MatchIpv4Source(aap.getIpAddress().getIpPrefix().getIpv4Prefix());
                 flowMatches.add(srcMatch);
-            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+            } else if (aap.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
-                MatchIpv6Source srcMatch = new MatchIpv6Source(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                MatchIpv6Source srcMatch = new MatchIpv6Source(aap.getIpAddress().getIpPrefix().getIpv6Prefix());
                 flowMatches.add(srcMatch);
             }
         }
         return flowMatches;
     }
 
-    public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Integer aclTag, AllowedAddressPairs ip,
+    public static List<? extends MatchInfoBase> buildIpAndDstServiceMatch(Integer aclTag, AllowedAddressPairs aap,
             DataBroker dataBroker) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.add(buildAclTagMetadataMatch(aclTag));
+        flowMatches.add(buildRemoteAclTagMetadataMatch(aclTag));
 
-        if (ip.getIpAddress().getIpAddress() != null) {
-            if (ip.getIpAddress().getIpAddress().getIpv4Address() != null) {
+        if (aap.getIpAddress().getIpAddress() != null) {
+            if (aap.getIpAddress().getIpAddress().getIpv4Address() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
                 MatchIpv4Destination dstMatch = new MatchIpv4Destination(
-                        new Ipv4Prefix(ip.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
+                        new Ipv4Prefix(aap.getIpAddress().getIpAddress().getIpv4Address().getValue() + "/32"));
                 flowMatches.add(dstMatch);
-            } else if (ip.getIpAddress().getIpAddress().getIpv6Address() != null) {
+            } else if (aap.getIpAddress().getIpAddress().getIpv6Address() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
                 MatchIpv6Destination dstMatch = new MatchIpv6Destination(
-                        new Ipv6Prefix(ip.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
+                        new Ipv6Prefix(aap.getIpAddress().getIpAddress().getIpv6Address().getValue() + "/128"));
                 flowMatches.add(dstMatch);
             }
-        } else if (ip.getIpAddress().getIpPrefix() != null) {
-            if (ip.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
+        } else if (aap.getIpAddress().getIpPrefix() != null) {
+            if (aap.getIpAddress().getIpPrefix().getIpv4Prefix() != null) {
                 MatchEthernetType ipv4EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV4);
                 flowMatches.add(ipv4EthMatch);
                 MatchIpv4Destination dstMatch =
-                        new MatchIpv4Destination(ip.getIpAddress().getIpPrefix().getIpv4Prefix());
+                        new MatchIpv4Destination(aap.getIpAddress().getIpPrefix().getIpv4Prefix());
                 flowMatches.add(dstMatch);
-            } else if (ip.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
+            } else if (aap.getIpAddress().getIpPrefix().getIpv6Prefix() != null) {
                 MatchEthernetType ipv6EthMatch = new MatchEthernetType(NwConstants.ETHTYPE_IPV6);
                 flowMatches.add(ipv6EthMatch);
                 MatchIpv6Destination dstMatch =
-                        new MatchIpv6Destination(ip.getIpAddress().getIpPrefix().getIpv6Prefix());
+                        new MatchIpv6Destination(aap.getIpAddress().getIpPrefix().getIpv6Prefix());
                 flowMatches.add(dstMatch);
             }
         }
@@ -1143,9 +1089,11 @@ public final class AclServiceUtils {
     }
 
     public static boolean isOfAclInterest(Acl acl) {
-        List<Ace> aceList = acl.getAccessListEntries().getAce();
-        if (aceList != null && !aceList.isEmpty()) {
-            return aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null;
+        if (acl.getAccessListEntries() != null) {
+            List<Ace> aceList = acl.getAccessListEntries().getAce();
+            if (aceList != null && !aceList.isEmpty()) {
+                return aceList.get(0).getAugmentation(SecurityRuleAttr.class) != null;
+            }
         }
         return false;
     }
@@ -1184,13 +1132,12 @@ public final class AclServiceUtils {
      * @return true, if successful
      */
     public static boolean doesAceHaveRemoteGroupId(final SecurityRuleAttr aceAttr) {
-        return aceAttr.getRemoteGroupId() != null;
+        return aceAttr != null && aceAttr.getRemoteGroupId() != null;
     }
 
-    public SortedSet<Integer> getRemoteAclTags(List<Uuid> aclIds, Class<? extends DirectionBase> direction,
-            DataBroker dataBroker) {
+    public SortedSet<Integer> getRemoteAclTags(List<Uuid> aclIds, Class<? extends DirectionBase> direction) {
         SortedSet<Integer> remoteAclTags = new TreeSet<>();
-        Set<Uuid> remoteAclIds = AclServiceUtils.getRemoteAclIdsByDirection(aclIds, direction, dataBroker);
+        Set<Uuid> remoteAclIds = getRemoteAclIdsByDirection(aclIds, direction);
         for (Uuid remoteAclId : remoteAclIds) {
             Integer remoteAclTag = getAclTag(remoteAclId);
             if (remoteAclTag != null && remoteAclTag != AclConstants.INVALID_ACL_TAG) {
@@ -1200,22 +1147,28 @@ public final class AclServiceUtils {
         return remoteAclTags;
     }
 
-    public static Set<Uuid> getRemoteAclIdsByDirection(List<Uuid> aclIds, Class<? extends DirectionBase> direction,
-            DataBroker broker) {
+    public Set<Uuid> getRemoteAclIdsByDirection(List<Uuid> aclIds, Class<? extends DirectionBase> direction) {
         Set<Uuid> remoteAclIds = new HashSet<>();
         if (aclIds == null || aclIds.isEmpty()) {
             return remoteAclIds;
         }
 
         for (Uuid aclId : aclIds) {
-            Acl acl = AclServiceUtils.getAcl(broker, aclId.getValue());
+            Acl acl = this.aclDataUtil.getAcl(aclId.getValue());
             if (null == acl) {
-                LOG.warn("ACL {} not found in config DS.", aclId.getValue());
+                LOG.warn("ACL {} not found in cache.", aclId.getValue());
                 continue;
             }
-            AccessListEntries accessListEntries = acl.getAccessListEntries();
-            List<Ace> aceList = accessListEntries.getAce();
-            for (Ace ace : aceList) {
+            remoteAclIds.addAll(getRemoteAclIdsByDirection(acl, direction));
+        }
+        return remoteAclIds;
+    }
+
+    public static Set<Uuid> getRemoteAclIdsByDirection(Acl acl, Class<? extends DirectionBase> direction) {
+        Set<Uuid> remoteAclIds = new HashSet<>();
+        AccessListEntries accessListEntries = acl.getAccessListEntries();
+        if (accessListEntries != null && accessListEntries.getAce() != null) {
+            for (Ace ace : accessListEntries.getAce()) {
                 SecurityRuleAttr aceAttr = AclServiceUtils.getAccesssListAttributes(ace);
                 if (aceAttr.getDirection().equals(direction) && doesAceHaveRemoteGroupId(aceAttr)) {
                     remoteAclIds.add(aceAttr.getRemoteGroupId());
@@ -1224,4 +1177,273 @@ public final class AclServiceUtils {
         }
         return remoteAclIds;
     }
+
+    /**
+     * Skip delete in case of overlapping IP.
+     *
+     * <p>
+     * When there are multiple ports (e.g., p1, p2, p3) having same AAP (e.g.,
+     * 224.0.0.5) configured which are part of single SG, there would be single
+     * flow in remote ACL table. When one of these ports (say p1) is deleted,
+     * the single flow which is configured in remote ACL table shouldn't be
+     * deleted. It should be deleted only when there are no more references to
+     * it.
+     *
+     * @param portId the port id
+     * @param remoteAclId the remote Acl Id
+     * @param ipPrefix the ip prefix
+     * @param broker the broker
+     * @param addOrRemove the add or remove
+     * @return true, if successful
+     */
+    public static boolean skipDeleteInCaseOfOverlappingIP(String portId, Uuid remoteAclId, IpPrefixOrAddress ipPrefix,
+            DataBroker broker, int addOrRemove) {
+        boolean skipDelete = false;
+        if (addOrRemove != NwConstants.DEL_FLOW) {
+            return skipDelete;
+        }
+        AclIpPrefixes aclIpPrefixes =
+                AclServiceUtils.getAclIpPrefixesFromOperDs(broker, remoteAclId.getValue(), ipPrefix);
+        if (aclIpPrefixes != null && aclIpPrefixes.getPortIds() != null) {
+            List<String> ignorePorts = Lists.newArrayList(portId);
+            List<PortIds> portIds = new ArrayList<>(aclIpPrefixes.getPortIds());
+            // Checking if there are any other ports excluding ignorePorts
+            long noOfRemotePorts =
+                    portIds.stream().map(x -> x.getPortId()).filter(y -> !ignorePorts.contains(y)).count();
+            if (noOfRemotePorts > 0) {
+                skipDelete = true;
+            }
+        }
+        return skipDelete;
+    }
+
+    public static void deleteAclPortsLookupEntry(String aclName, DataBroker broker)
+            throws TransactionCommitFailedException {
+        SingleTransactionDataBroker.syncDelete(broker, LogicalDatastoreType.OPERATIONAL, aclPortsByIpPath(aclName));
+    }
+
+    public static InstanceIdentifier<AclPortsByIp> aclPortsByIpPath(String aclName) {
+        InstanceIdentifier<AclPortsByIp> path = InstanceIdentifier.builder(AclPortsLookup.class)
+                .child(AclPortsByIp.class, new AclPortsByIpKey(aclName)).build();
+        return path;
+    }
+
+    public static InstanceIdentifier<AclIpPrefixes> getAclIpPrefixesPath(String aclName, IpPrefixOrAddress ipPrefix) {
+        return InstanceIdentifier.builder(AclPortsLookup.class).child(AclPortsByIp.class, new AclPortsByIpKey(aclName))
+                .child(AclIpPrefixes.class, new AclIpPrefixesKey(ipPrefix)).build();
+    }
+
+    public static InstanceIdentifier<PortIds> getPortIdsPathInAclPortsLookup(String ruleName,
+            IpPrefixOrAddress ipPrefix, String portId) {
+        return InstanceIdentifier.builder(AclPortsLookup.class).child(AclPortsByIp.class, new AclPortsByIpKey(ruleName))
+                .child(AclIpPrefixes.class, new AclIpPrefixesKey(ipPrefix)).child(PortIds.class, new PortIdsKey(portId))
+                .build();
+    }
+
+    public static void updateAclPortsLookupForInterfaceUpdate(AclInterface portBefore, AclInterface portAfter,
+            DataBroker broker, int addOrRemove) {
+        LOG.debug("Processing interface update for port {}, addOrRemove={}", portAfter.getInterfaceId(), addOrRemove);
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            List<AllowedAddressPairs> addedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
+                    portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
+            if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
+                updateAclPortsLookup(portAfter, portAfter.getSecurityGroups(), addedAllowedAddressPairs,
+                        NwConstants.ADD_FLOW, broker);
+            }
+
+            List<Uuid> addedAcls = getUpdatedAclList(portAfter.getSecurityGroups(), portBefore.getSecurityGroups());
+            if (addedAcls != null && !addedAcls.isEmpty()) {
+                updateAclPortsLookup(portAfter, addedAcls, portAfter.getAllowedAddressPairs(), NwConstants.ADD_FLOW,
+                        broker);
+            }
+        } else {
+            List<AllowedAddressPairs> deletedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
+                    portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
+            if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
+                updateAclPortsLookup(portAfter, portAfter.getSecurityGroups(), deletedAllowedAddressPairs,
+                        NwConstants.DEL_FLOW, broker);
+            }
+
+            List<Uuid> deletedAcls = getUpdatedAclList(portBefore.getSecurityGroups(), portAfter.getSecurityGroups());
+            if (deletedAcls != null && !deletedAcls.isEmpty()) {
+                updateAclPortsLookup(portAfter, deletedAcls, portAfter.getAllowedAddressPairs(), NwConstants.DEL_FLOW,
+                        broker);
+            }
+        }
+    }
+
+    public static void updateAclPortsLookup(AclInterface port, List<Uuid> aclList,
+            List<AllowedAddressPairs> allowedAddresses, int addOrRemove, DataBroker broker) {
+        String portId = port.getInterfaceId();
+        LOG.trace("Updating AclPortsLookup for port={}, acls={}, AAPs={}, addOrRemove={}", portId, aclList,
+                allowedAddresses, addOrRemove);
+
+        if (aclList == null || allowedAddresses == null || allowedAddresses.isEmpty()) {
+            LOG.warn("aclList or allowedAddresses is null. port={}, acls={}, AAPs={}, addOrRemove={}", portId, aclList,
+                    allowedAddresses, addOrRemove);
+            return;
+        }
+        for (Uuid aclId : aclList) {
+            String aclName = aclId.getValue();
+            synchronized (aclName.intern()) {
+                WriteTransaction tx = broker.newWriteOnlyTransaction();
+                for (AllowedAddressPairs aap : allowedAddresses) {
+                    PortIds portIdObj = new PortIdsBuilder().setKey(new PortIdsKey(portId)).setPortId(portId).build();
+                    InstanceIdentifier<PortIds> path =
+                            AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
+                    if (addOrRemove == NwConstants.ADD_FLOW) {
+                        tx.put(LogicalDatastoreType.OPERATIONAL, path, portIdObj, true);
+                    } else {
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, path);
+                    }
+                }
+                AclServiceUtils.waitForTransactionToComplete(tx);
+
+                if (addOrRemove == NwConstants.DEL_FLOW) {
+                    cleanUpStaleEntriesInAclPortsLookup(aclName, broker);
+                }
+            }
+        }
+    }
+
+    public static void cleanUpStaleEntriesInAclPortsLookup(String aclName, DataBroker broker) {
+        AclPortsByIp aclPortsByIp = AclServiceUtils.getAclPortsByIpFromOperDs(broker, aclName);
+        if (aclPortsByIp == null) {
+            return;
+        }
+        boolean deleteEntireAcl = false;
+        List<AclIpPrefixes> ipPrefixes = aclPortsByIp.getAclIpPrefixes();
+        if (ipPrefixes == null || ipPrefixes.isEmpty()) {
+            deleteEntireAcl = true;
+        } else {
+            boolean deleteMap = true;
+            for (AclIpPrefixes ipPrefix : ipPrefixes) {
+                if (ipPrefix.getPortIds() != null && !ipPrefix.getPortIds().isEmpty()) {
+                    deleteMap = false;
+                    break;
+                }
+            }
+            deleteEntireAcl = deleteMap;
+        }
+        WriteTransaction txDeleteMap = broker.newWriteOnlyTransaction();
+        boolean wrTxPresent = false;
+        if (deleteEntireAcl) {
+            txDeleteMap.delete(LogicalDatastoreType.OPERATIONAL, AclServiceUtils.aclPortsByIpPath(aclName));
+            wrTxPresent = true;
+        } else {
+            for (AclIpPrefixes ipPrefix : ipPrefixes) {
+                if (ipPrefix.getPortIds() == null || ipPrefix.getPortIds().isEmpty()) {
+                    InstanceIdentifier<AclIpPrefixes> delPath =
+                            AclServiceUtils.getAclIpPrefixesPath(aclName, ipPrefix.getIpPrefix());
+                    txDeleteMap.delete(LogicalDatastoreType.OPERATIONAL, delPath);
+                    wrTxPresent = true;
+                }
+            }
+        }
+        if (wrTxPresent) {
+            AclServiceUtils.waitForTransactionToComplete(txDeleteMap);
+        } else {
+            txDeleteMap.cancel();
+        }
+        LOG.trace("Clean up of stale entries in AclPortsLookup is done for Acl={}, deleteEntireAcl={}", aclName,
+                deleteEntireAcl);
+    }
+
+    public static AclPortsByIp getAclPortsByIpFromOperDs(DataBroker broker, String aclName) {
+        InstanceIdentifier<AclPortsByIp> path = aclPortsByIpPath(aclName);
+        Optional<AclPortsByIp> optAclPortsByIp = read(broker, LogicalDatastoreType.OPERATIONAL, path);
+        if (optAclPortsByIp.isPresent()) {
+            return optAclPortsByIp.get();
+        }
+        return null;
+    }
+
+    public static AclIpPrefixes getAclIpPrefixesFromOperDs(DataBroker broker, String aclName,
+            IpPrefixOrAddress ipPrefix) {
+        InstanceIdentifier<AclIpPrefixes> path = getAclIpPrefixesPath(aclName, ipPrefix);
+        Optional<AclIpPrefixes> optAclPortsByIp = read(broker, LogicalDatastoreType.OPERATIONAL, path);
+        if (optAclPortsByIp.isPresent()) {
+            return optAclPortsByIp.get();
+        }
+        return null;
+    }
+
+    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
+            WriteTransaction tx) {
+        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
+        try {
+            futures.get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("Error writing to datastore", e);
+        }
+        return futures;
+    }
+
+    /**
+     * Gets the ace flow priority.
+     *
+     * @param aclName the acl name
+     * @return the ace flow priority
+     */
+    public Integer getAceFlowPriority(String aclName) {
+        Integer priority = AclConstants.ACE_DEFAULT_PRIORITY;
+        Integer aclTag = getAclTag(new Uuid(aclName));
+        if (aclTag != null && aclTag != AclConstants.INVALID_ACL_TAG) {
+            // To handle overlapping rules, aclTag is added to priority
+            priority += aclTag;
+        } else {
+            LOG.warn("aclTag=[] is null or invalid for aclName={}", aclTag, aclName);
+        }
+        return priority;
+    }
+
+    /**
+     * Returns the hard timeout based on the protocol when a ACL rule removed from the instance.
+     * It will returns the timeout configured in the {@link AclserviceConfig} class.
+     *
+     * @param ace the ace
+     * @param aclServiceUtils acl service utils
+     * @return the hard time out
+     */
+    public static Integer getHardTimoutForApplyStatefulChangeOnExistingTraffic(Ace ace,
+            AclServiceUtils aclServiceUtils) {
+        int hardTimeout = AclConstants.SECURITY_GROUP_ICMP_IDLE_TIME_OUT;
+        Matches matches = ace.getMatches();
+        AceIp acl = (AceIp) matches.getAceType();
+        Short protocol = acl.getProtocol();
+        if (protocol == null) {
+            return hardTimeout;
+        } else if (protocol == NwConstants.IP_PROT_TCP) {
+            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupTcpIdleTimeout();
+        } else if (protocol == NwConstants.IP_PROT_UDP) {
+            hardTimeout = aclServiceUtils.getConfig().getSecurityGroupUdpIdleTimeout();
+        }
+        return hardTimeout;
+    }
+
+    /**
+     * This method creates and returns the ct_mark instruction when a ACL rule removed from the
+     * instance. This instruction will reset the ct_mark value and stops the existing traffics.
+     *
+     * @param filterTable the filterTable
+     * @param elanId the Elan id
+     * @return list of instruction
+     */
+    public static List<InstructionInfo> createCtMarkInstructionForNewState(Short filterTable, Long elanId) {
+
+        List<InstructionInfo> instructions = new ArrayList<>();
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        List<NxCtAction> ctActionsList = new ArrayList<>();
+        NxCtAction nxCtMarkClearAction = new ActionNxConntrack.NxCtMark(AclConstants.CT_MARK_NEW_STATE);
+        ctActionsList.add(nxCtMarkClearAction);
+
+        ActionNxConntrack actionNxConntrack = new ActionNxConntrack(2, 1, 0, elanId.intValue(),
+            (short) 255, ctActionsList);
+        actionsInfos.add(actionNxConntrack);
+        instructions.add(new InstructionApplyActions(actionsInfos));
+        instructions.add(new InstructionGotoTable(filterTable));
+
+        return instructions;
+    }
+
 }

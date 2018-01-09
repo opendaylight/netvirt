@@ -7,6 +7,7 @@
  */
 package org.opendaylight.netvirt.aclservice;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.inject.Inject;
@@ -14,6 +15,7 @@ import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.AclServiceListener;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,6 +88,16 @@ public class AclServiceManagerImpl implements AclServiceManager {
                 aclServiceListener.applyAce(port, aclName, ace);
             } else if (action == Action.REMOVE) {
                 aclServiceListener.removeAce(port, aclName, ace);
+            }
+        }
+    }
+
+    @Override
+    public void notifyAcl(Acl aclBefore, Acl aclAfter, Collection<AclInterface> portsBefore, Action action) {
+        for (AclServiceListener aclServiceListener : aclServiceListeners) {
+            LOG.debug("Acl action {} invoking class {}", action, aclServiceListener.getClass().getName());
+            if (action == Action.UPDATE) {
+                aclServiceListener.updateRemoteAcl(aclBefore, aclAfter, portsBefore);
             }
         }
     }
