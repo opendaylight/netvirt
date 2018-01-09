@@ -16,6 +16,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -80,11 +81,16 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         String interfaceId = deleted.getName();
         AclInterface aclInterface = aclInterfaceCache.remove(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
+            List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On remove event, notify ACL service manager to remove ACL from interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
+
+                if (aclList != null) {
+                    AclServiceUtils.updateAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs(),
+                            NwConstants.DEL_FLOW, this.dataBroker);
+                }
             }
-            List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
             }
@@ -150,6 +156,10 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             }
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On add event, notify ACL service manager to add ACL for interface: {}", aclInterface);
+                if (aclList != null) {
+                    AclServiceUtils.updateAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs(),
+                            NwConstants.ADD_FLOW, this.dataBroker);
+                }
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }
