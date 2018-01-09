@@ -13,6 +13,8 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.SortedSet;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.interfaces._interface.AllowedAddressPairs;
 
@@ -138,6 +140,16 @@ public final class AclInterface {
      */
     public List<IpPrefixOrAddress> getSubnetIpPrefixes() {
         return subnetIpPrefixes;
+    }
+
+    /**
+     * Gets the remote acl tags.
+     *
+     * @param direction the direction
+     * @return the remote acl tags
+     */
+    public SortedSet<Integer> getRemoteAclTags(Class<? extends DirectionBase> direction) {
+        return DirectionEgress.class.equals(direction) ? egressRemoteAclTags : ingressRemoteAclTags;
     }
 
     /**
