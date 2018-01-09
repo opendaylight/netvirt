@@ -33,6 +33,24 @@
       "revId": "3027e013cad38c2abc6d7f2db263c88895d3dda6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a1fda4af_5df2a14e",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1568,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T15:34:08Z",
+      "side": 1,
+      "message": "You can\u0027t scheduleWithFixedDelay a Callable as a Callable returns a result and thus executes only once.  We don\u0027t want to propagate exceptions to the executor as that will cancel future executions of the task.  However we shouldn\u0027t treat ReadFailedException as not present, instead bail he current executon.",
+      "parentUuid": "df5fefed_8b7c00af",
+      "revId": "3027e013cad38c2abc6d7f2db263c88895d3dda6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
