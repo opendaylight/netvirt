@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016, 2017 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
+ * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -178,7 +178,7 @@ public final class AclLiveStatisticsHelper {
                     if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
                         portEgressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portEgressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
-                    } else if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY)) {
+                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)) {
                         portEgressBytesBuilder.setDropCount(flowStats.getByteCount().getValue());
                         portEgressPacketsBuilder.setDropCount(flowStats.getPacketCount().getValue());
                     }
@@ -189,7 +189,7 @@ public final class AclLiveStatisticsHelper {
                     if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_INVALID_PRIORITY)) {
                         portIngressBytesBuilder.setInvalidDropCount(flowStats.getByteCount().getValue());
                         portIngressPacketsBuilder.setInvalidDropCount(flowStats.getPacketCount().getValue());
-                    } else if (flowStats.getPriority().equals(AclConstants.CT_STATE_TRACKED_NEW_DROP_PRIORITY)) {
+                    } else if (flowStats.getPriority().equals(AclConstants.ACL_PORT_SPECIFIC_DROP_PRIORITY)) {
                         portIngressBytesBuilder.setDropCount(flowStats.getByteCount().getValue());
                         portIngressPacketsBuilder.setDropCount(flowStats.getPacketCount().getValue());
                     }
