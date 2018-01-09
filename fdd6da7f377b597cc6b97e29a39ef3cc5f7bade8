@@ -88,6 +88,24 @@
       "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ea29f09_64785e18",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 76
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-09T16:25:45Z",
+      "side": 1,
+      "message": "Hello Tom,\nactually, these datas in generated yang model are not in order to be put in data base.\nindeed these datas come from rest api (for example), then arrive in netvirt/neutron, then this object from yang disappear here (when the method is finished (and GC job too), only their variables will continue to live (as uuid(s)), and if in this list we get only one uuid we will make only one action, so, if we get two uuid we will make two action (two different call of another method with each uuid separatly) and so on.",
+      "parentUuid": "a02c69e4_b076d16b",
+      "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
