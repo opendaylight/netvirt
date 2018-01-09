@@ -70,6 +70,24 @@
       "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a02c69e4_b076d16b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/yang/neutronvpn.yang",
+        "patchSetId": 76
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-09T16:02:26Z",
+      "side": 1,
+      "message": "sorry I didn\u0027t follow that at all. I\u0027m really not familiar with the semantics of the neutron data models or associated code - I\u0027m just pointing out that this is an incompatible yang change and we need to consider what will happen on upgrade. Maybe it\u0027s not an issue  - I don\u0027t know either way.  Perhaps someone else who knows this code can chime in...",
+      "parentUuid": "e5c28b37_e7a6d117",
+      "revId": "fdd6da7f377b597cc6b97e29a39ef3cc5f7bade8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
