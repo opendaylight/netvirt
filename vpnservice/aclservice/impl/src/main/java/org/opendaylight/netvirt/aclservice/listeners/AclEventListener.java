@@ -7,17 +7,25 @@
  */
 package org.opendaylight.netvirt.aclservice.listeners;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.netvirt.aclservice.utils.AclClusterUtil;
@@ -28,6 +36,9 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.cont
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.Ace;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.SecurityRuleAttr;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
@@ -44,16 +55,18 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
     private final DataBroker dataBroker;
     private final AclDataUtil aclDataUtil;
     private final AclServiceUtils aclServiceUtils;
+    private final AclInterfaceCache aclInterfaceCache;
 
     @Inject
     public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker,
-            AclDataUtil aclDataUtil, AclServiceUtils aclServicUtils) {
+            AclDataUtil aclDataUtil, AclServiceUtils aclServicUtils, AclInterfaceCache aclInterfaceCache) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServicUtils;
+        this.aclInterfaceCache = aclInterfaceCache;
     }
 
     @Override
@@ -72,14 +85,25 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Override
     protected void remove(InstanceIdentifier<Acl> key, Acl acl) {
+        String aclName = acl.getAclName();
         if (!AclServiceUtils.isOfAclInterest(acl)) {
-            LOG.trace("{} does not have SecurityRuleAttr augmentation", acl.getAclName());
+            LOG.trace("{} does not have SecurityRuleAttr augmentation", aclName);
             return;
         }
 
         LOG.trace("On remove event, remove ACL: {}", acl);
-        this.aclServiceUtils.releaseAclTag(acl.getAclName());
-        updateRemoteAclCache(acl.getAccessListEntries().getAce(), acl.getAclName(), AclServiceManager.Action.REMOVE);
+        this.aclServiceUtils.releaseAclTag(aclName);
+        updateRemoteAclCache(acl.getAccessListEntries().getAce(), aclName, AclServiceManager.Action.REMOVE);
+
+        if (aclClusterUtil.isEntityOwner()) {
+            synchronized (aclName.intern()) {
+                try {
+                    AclServiceUtils.deleteAclPortsLookupEntry(aclName, this.dataBroker);
+                } catch (TransactionCommitFailedException e) {
+                    LOG.error("Failed to delete AclPortsByIp data for ACL={}", aclName, e);
+                }
+            }
+        }
     }
 
     @Override
@@ -91,21 +115,27 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         }
 
         String aclName = aclAfter.getAclName();
-        Collection<AclInterface> interfaceList = aclDataUtil.getInterfaceList(new Uuid(aclName));
-        // find and update added ace rules in acl
+        Collection<AclInterface> interfacesBefore =
+                ImmutableSet.copyOf(aclDataUtil.getInterfaceList(new Uuid(aclName)));
+        // Find and update added ace rules in acl
         List<Ace> addedAceRules = getChangedAceList(aclAfter, aclBefore);
-        updateRemoteAclCache(addedAceRules, aclName, AclServiceManager.Action.ADD);
-        if (interfaceList != null && aclClusterUtil.isEntityOwner()) {
-            LOG.debug("On update event, add Ace rules: {} for ACL: {}", addedAceRules, aclName);
-            updateAceRules(interfaceList, aclName, addedAceRules, AclServiceManager.Action.ADD);
-        }
-        // find and update deleted ace rules in acl
+
+        // Find and update deleted ace rules in acl
         List<Ace> deletedAceRules = getChangedAceList(aclBefore, aclAfter);
-        if (interfaceList != null && aclClusterUtil.isEntityOwner()) {
+
+        if (interfacesBefore != null && aclClusterUtil.isEntityOwner()) {
             LOG.debug("On update event, remove Ace rules: {} for ACL: {}", deletedAceRules, aclName);
-            updateAceRules(interfaceList, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
+            updateAceRules(interfacesBefore, aclName, deletedAceRules, AclServiceManager.Action.REMOVE);
+
         }
-        updateRemoteAclCache(deletedAceRules, aclName, AclServiceManager.Action.REMOVE);
+        updateAclCaches(aclBefore, aclAfter, interfacesBefore);
+
+        if (interfacesBefore != null && aclClusterUtil.isEntityOwner()) {
+            LOG.debug("On update event, add Ace rules: {} for ACL: {}", addedAceRules, aclName);
+            updateAceRules(interfacesBefore, aclName, addedAceRules, AclServiceManager.Action.ADD);
+
+            aclServiceManager.notifyAcl(aclBefore, aclAfter, AclServiceManager.Action.UPDATE);
+        }
     }
 
     private void updateAceRules(Collection<AclInterface> interfaceList, String aclName, List<Ace> aceList,
@@ -150,12 +180,77 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         }
         for (Ace ace : aceList) {
             SecurityRuleAttr aceAttributes = ace.getAugmentation(SecurityRuleAttr.class);
-            if (aceAttributes != null && aceAttributes.getRemoteGroupId() != null) {
+            if (AclServiceUtils.doesAceHaveRemoteGroupId(aceAttributes)) {
                 if (action == AclServiceManager.Action.ADD) {
-                    aclDataUtil.addRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
+                    aclDataUtil.addRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName),
+                            aceAttributes.getDirection());
                 } else {
-                    aclDataUtil.removeRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName));
+                    aclDataUtil.removeRemoteAclId(aceAttributes.getRemoteGroupId(), new Uuid(aclName),
+                            aceAttributes.getDirection());
                 }
+            }
+        }
+    }
+
+    private void updateAclCaches(Acl aclBefore, Acl aclAfter, Collection<AclInterface> aclInterfaces) {
+        updateAclCaches(aclBefore, aclAfter, aclInterfaces, DirectionEgress.class);
+        updateAclCaches(aclBefore, aclAfter, aclInterfaces, DirectionIngress.class);
+    }
+
+    private void updateAclCaches(Acl aclBefore, Acl aclAfter, Collection<AclInterface> aclInterfaces,
+            Class<? extends DirectionBase> direction) {
+        Uuid aclId = new Uuid(aclAfter.getAclName());
+        Set<Uuid> remoteAclsBefore = AclServiceUtils.getRemoteAclIdsByDirection(aclBefore, direction);
+        Set<Uuid> remoteAclsAfter = AclServiceUtils.getRemoteAclIdsByDirection(aclAfter, direction);
+
+        Set<Uuid> remoteAclsDeleted = new HashSet<>(remoteAclsBefore);
+        remoteAclsDeleted.removeAll(remoteAclsAfter);
+        for (Uuid remoteAcl : remoteAclsDeleted) {
+            aclDataUtil.removeRemoteAclId(remoteAcl, aclId, direction);
+        }
+
+        Set<Uuid> remoteAclsAdded = new HashSet<>(remoteAclsAfter);
+        remoteAclsAdded.removeAll(remoteAclsBefore);
+        for (Uuid remoteAcl : remoteAclsAdded) {
+            aclDataUtil.addRemoteAclId(remoteAcl, aclId, direction);
+        }
+
+        if (remoteAclsDeleted.isEmpty() && remoteAclsAdded.isEmpty()) {
+            return;
+        }
+
+        SortedSet<Integer> remoteAclTagsAdded = remoteAclsAdded.stream().map(id -> aclServiceUtils.getAclTag(id))
+                .collect(Collectors.toCollection(TreeSet::new));
+        SortedSet<Integer> remoteAclTagsDeleted = remoteAclsDeleted.stream().map(id -> aclServiceUtils.getAclTag(id))
+                .collect(Collectors.toCollection(TreeSet::new));
+
+        if (aclInterfaces != null) {
+            for (AclInterface aclInterface : aclInterfaces) {
+                AclInterface aclInterfaceInCache =
+                        aclInterfaceCache.addOrUpdate(aclInterface.getInterfaceId(), (prevAclInterface, builder) -> {
+                            List<Uuid> aclIds = aclInterface.getSecurityGroups();
+                            SortedSet<Integer> remoteAclTags;
+                            if (aclIds != null && aclIds.size() == 1) {
+                                SortedSet<Integer> remoteAclTagsInCache = prevAclInterface.getRemoteAclTags(direction);
+                                if (remoteAclTagsInCache == null) {
+                                    remoteAclTags = remoteAclTagsAdded;
+                                } else {
+                                    remoteAclTags = new TreeSet<>(remoteAclTagsInCache);
+                                    remoteAclTags.removeAll(remoteAclTagsDeleted);
+                                    remoteAclTags.addAll(remoteAclTagsAdded);
+                                }
+                            } else {
+                                // In case if interface is having multiple ACLs.
+                                remoteAclTags = aclServiceUtils.getRemoteAclTags(aclIds, direction, dataBroker);
+                            }
+                            if (DirectionEgress.class.equals(direction)) {
+                                builder.egressRemoteAclTags(remoteAclTags);
+                            } else {
+                                builder.ingressRemoteAclTags(remoteAclTags);
+                            }
+                        });
+
+                aclDataUtil.addOrUpdateAclInterfaceMap(aclInterface.getSecurityGroups(), aclInterfaceInCache);
             }
         }
     }

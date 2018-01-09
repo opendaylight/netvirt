@@ -18,6 +18,9 @@ import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclDataCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,13 +39,14 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             + "\n   -------------------------------------------------------------------------------------------------";
     private static final String REM_ID_TAB = "   %-20s  ";
     private static final String REM_ID_TAB_FOR = KEY_TAB + REM_ID_TAB;
-    private static final String REM_ID_HEAD = String.format(REM_ID_TAB_FOR, "UUID", "Values")
+    private static final String REM_ID_HEAD = String.format(REM_ID_TAB_FOR, "Remote-ACL-ID", "ACL-ID")
             + "\n   -------------------------------------------------------------------------";
     private static final String ACL_DATA_TAB_FOR = "   %-8s %-8s  ";
     private static final String ACL_DATA_HEAD = String.format(ACL_DATA_TAB_FOR, "ACL-ID", "ACL-TAG")
             + "\n   -------------------------------------------------------------------------";
     private final String exeCmdStr = "exec display-acl-data-cache -op ";
-    private final String opSelections = "[ aclInterface | remoteAclId | aclTag | aclInterfaceCache ]";
+    private final String opSelections =
+            "[ aclInterface | ingressRemoteAclId | egressRemoteAclId | aclTag | aclInterfaceCache ]";
     private final String opSelStr = exeCmdStr + opSelections;
 
 
@@ -50,7 +54,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             "--op" }, description = opSelections, required = false, multiValued = false)
     private String op;
 
-    @Option(name = "--uuid", description = "uuid for aclInterface/remoteAclId", required = false, multiValued = false)
+    @Option(name = "--uuid", description = "uuid for aclInterface/ingressRemoteAclId/egressRemoteAclId",
+            required = false, multiValued = false)
     private String uuidStr;
 
 
@@ -86,8 +91,11 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             case "aclInterface":
                 getAclInterfaceMap();
                 break;
-            case "remoteAclId":
-                getRemoteAclIdMap();
+            case "ingressRemoteAclId":
+                getRemoteAclIdMap(DirectionIngress.class);
+                break;
+            case "egressRemoteAclId":
+                getRemoteAclIdMap(DirectionEgress.class);
                 break;
             case "aclTag":
                 getAclTagMap();
@@ -190,7 +198,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 
-    protected void getRemoteAclIdMap() throws Exception {
+    protected void getRemoteAclIdMap(Class<? extends DirectionBase> direction) throws Exception {
         if (all == null && uuidStr == null) {
             printRemoteAclIdMapHelp();
         } else if (all == null) {
@@ -202,14 +210,20 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 log.error("Invalid uuid" + e);
                 return;
             }
-            Collection<Uuid> remoteUuidLst = aclDataCache.getRemoteAcl(uuidRef);
+            Collection<Uuid> remoteUuidLst = aclDataCache.getRemoteAcl(uuidRef, direction);
             if (remoteUuidLst == null || remoteUuidLst.isEmpty()) {
                 session.getConsole().println("UUID not matched");
             } else {
                 session.getConsole().println(REM_ID_HEAD);
-                session.getConsole().print(String.format(KEY_TAB, uuidRef.toString()));
+                session.getConsole().print(String.format(KEY_TAB, uuidRef.getValue()));
+                boolean first = true;
                 for (Uuid uuid : remoteUuidLst) {
-                    session.getConsole().println(String.format(REM_ID_TAB, uuid.getValue()));
+                    if (first) {
+                        session.getConsole().println(String.format(REM_ID_TAB, uuid.getValue()));
+                        first = false;
+                    } else {
+                        session.getConsole().println(String.format(REM_ID_TAB_FOR, "", uuid.getValue()));
+                    }
                 }
             }
         } else if (uuidStr == null) {
@@ -218,15 +232,27 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 return;
             }
 
-            Map<Uuid, Collection<Uuid>> map = aclDataCache.getRemoteAclIdMap();
+            Map<Uuid, Collection<Uuid>> map =
+                    DirectionEgress.class.equals(direction) ? aclDataCache.getEgressRemoteAclIdMap()
+                            : aclDataCache.getIngressRemoteAclIdMap();
             if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
                 session.getConsole().println(REM_ID_HEAD);
                 for (Entry<Uuid, Collection<Uuid>> entry: map.entrySet()) {
-                    session.getConsole().print(String.format(KEY_TAB, entry.getKey().toString()));
-                    for (Uuid uuid: entry.getValue()) {
-                        session.getConsole().println(String.format(REM_ID_TAB, uuid.getValue()));
+                    session.getConsole().print(String.format(KEY_TAB, entry.getKey().getValue()));
+                    if (entry.getValue() == null || entry.getValue().isEmpty()) {
+                        session.getConsole().println(String.format(REM_ID_TAB, ""));
+                    } else {
+                        boolean first = true;
+                        for (Uuid uuid : entry.getValue()) {
+                            if (first) {
+                                session.getConsole().println(String.format(REM_ID_TAB, uuid.getValue()));
+                                first = false;
+                            } else {
+                                session.getConsole().println(String.format(REM_ID_TAB_FOR, "", uuid.getValue()));
+                            }
+                        }
                     }
                 }
             }
