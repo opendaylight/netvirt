@@ -63,15 +63,15 @@ public class AclServiceImplFactory extends AbstractLifecycle {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
-    public StatefulIngressAclServiceImpl createIngressAclServiceImpl() {
+    public IngressAclServiceImpl createIngressAclServiceImpl() {
         LOG.info("creating ingress acl service");
-        return new StatefulIngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator,
+        return new IngressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator,
                 aclInterfaceCache);
     }
 
-    public StatefulEgressAclServiceImpl createEgressAclServiceImpl() {
+    public EgressAclServiceImpl createEgressAclServiceImpl() {
         LOG.info("creating egress acl service");
-        return new StatefulEgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator,
+        return new EgressAclServiceImpl(dataBroker, mdsalManager, aclDataUtil, aclServiceUtils, jobCoordinator,
                 aclInterfaceCache);
     }
 

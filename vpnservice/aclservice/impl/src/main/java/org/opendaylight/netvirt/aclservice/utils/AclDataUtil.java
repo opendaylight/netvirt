@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -23,15 +24,49 @@ import java.util.concurrent.ConcurrentMap;
 import javax.inject.Singleton;
 import org.opendaylight.netvirt.aclservice.api.utils.AclDataCache;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
 
 @Singleton
 public class AclDataUtil implements AclDataCache {
 
+    private final ConcurrentMap<String, Acl> aclMap = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, ConcurrentMap<String, AclInterface>> aclInterfaceMap = new ConcurrentHashMap<>();
-    private final Map<Uuid, Set<Uuid>> remoteAclIdMap = new ConcurrentHashMap<>();
-    private final Map<String, Integer> aclTagMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, Set<Uuid>> ingressRemoteAclIdMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<Uuid, Set<Uuid>> egressRemoteAclIdMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, Integer> aclTagMap = new ConcurrentHashMap<>();
+
+    /**
+     * Adds the acl.
+     *
+     * @param acl the acl
+     */
+    public void addAcl(Acl acl) {
+        this.aclMap.put(acl.getAclName(), acl);
+    }
+
+    /**
+     * Removes the acl.
+     *
+     * @param aclName the acl name
+     * @return the acl
+     */
+    public Acl removeAcl(String aclName) {
+        return this.aclMap.remove(aclName);
+    }
+
+    /**
+     * Gets the acl.
+     *
+     * @param aclName the acl name
+     * @return the acl
+     */
+    @Override
+    public Acl getAcl(String aclName) {
+        return this.aclMap.get(aclName);
+    }
 
     public void addAclInterfaceMap(List<Uuid> aclList, AclInterface port) {
         for (Uuid acl : aclList) {
@@ -62,7 +97,7 @@ public class AclDataUtil implements AclDataCache {
     @Override
     public Collection<AclInterface> getInterfaceList(Uuid acl) {
         final ConcurrentMap<String, AclInterface> interfaceMap = aclInterfaceMap.get(acl);
-        return interfaceMap != null ? interfaceMap.values() : null;
+        return interfaceMap != null ? interfaceMap.values() : Collections.emptySet();
     }
 
     /**
@@ -70,11 +105,13 @@ public class AclDataUtil implements AclDataCache {
      * remote ACL ID.
      *
      * @param remoteAclId the remote acl id
+     * @param direction the direction
      * @return the set of ACL interfaces per ACL (in a map) which has specified
      *         remote ACL ID.
      */
-    public Map<String, Set<AclInterface>> getRemoteAclInterfaces(Uuid remoteAclId) {
-        Collection<Uuid> remoteAclList = getRemoteAcl(remoteAclId);
+    public Map<String, Set<AclInterface>> getRemoteAclInterfaces(Uuid remoteAclId,
+            Class<? extends DirectionBase> direction) {
+        Collection<Uuid> remoteAclList = getRemoteAcl(remoteAclId, direction);
         if (remoteAclList == null) {
             return null;
         }
@@ -91,31 +128,32 @@ public class AclDataUtil implements AclDataCache {
         return mapOfAclWithInterfaces;
     }
 
-    public void addRemoteAclId(Uuid remoteAclId, Uuid aclId) {
-        remoteAclIdMap.computeIfAbsent(remoteAclId, key -> ConcurrentHashMap.newKeySet()).add(aclId);
+    public void addRemoteAclId(Uuid remoteAclId, Uuid aclId, Class<? extends DirectionBase> direction) {
+        getRemoteAclIdMap(direction).computeIfAbsent(remoteAclId, key -> ConcurrentHashMap.newKeySet()).add(aclId);
     }
 
-    public void removeRemoteAclId(Uuid remoteAclId, Uuid aclId) {
-        Set<Uuid> aclList = remoteAclIdMap.get(remoteAclId);
+    public void removeRemoteAclId(Uuid remoteAclId, Uuid aclId, Class<? extends DirectionBase> direction) {
+        Set<Uuid> aclList = getRemoteAclIdMap(direction).get(remoteAclId);
         if (aclList != null) {
             aclList.remove(aclId);
         }
     }
 
     @Override
-    public Collection<Uuid> getRemoteAcl(Uuid remoteAclId) {
-        return remoteAclIdMap.get(remoteAclId);
+    public Collection<Uuid> getRemoteAcl(Uuid remoteAclId, Class<? extends DirectionBase> direction) {
+        return getRemoteAclIdMap(direction).get(remoteAclId);
     }
 
     /**
      * Gets the set of ACL interfaces per ACL (in a map) which has remote ACL.
      *
+     * @param direction the direction
      * @return the set of ACL interfaces per ACL (in a map) which has remote ACL.
      */
-    public Map<String, Set<AclInterface>> getAllRemoteAclInterfaces() {
+    public Map<String, Set<AclInterface>> getAllRemoteAclInterfaces(Class<? extends DirectionBase> direction) {
         Map<String, Set<AclInterface>> mapOfAclWithInterfaces = new HashMap<>();
-        for (Uuid remoteAcl : remoteAclIdMap.keySet()) {
-            Map<String, Set<AclInterface>> map = getRemoteAclInterfaces(remoteAcl);
+        for (Uuid remoteAcl : getRemoteAclIdMap(direction).keySet()) {
+            Map<String, Set<AclInterface>> map = getRemoteAclInterfaces(remoteAcl, direction);
             if (map != null) {
                 mapOfAclWithInterfaces.putAll(map);
             }
@@ -137,12 +175,12 @@ public class AclDataUtil implements AclDataCache {
     /**
      * Removes the acl tag from the cache.
      *
-     * @param key the key
+     * @param aclName the acl name
      * @return the previous value associated with key, or null if there was no
      *         mapping for key.
      */
-    public Integer removeAclTag(final String key) {
-        return this.aclTagMap.remove(key);
+    public Integer removeAclTag(final String aclName) {
+        return this.aclTagMap.remove(aclName);
     }
 
     /**
@@ -177,13 +215,27 @@ public class AclDataUtil implements AclDataCache {
         return builder.build();
     }
 
+    private ConcurrentMap<Uuid, Set<Uuid>> getRemoteAclIdMap(Class<? extends DirectionBase> direction) {
+        return DirectionEgress.class.equals(direction) ? egressRemoteAclIdMap : ingressRemoteAclIdMap;
+    }
+
     @Override
-    public Map<Uuid, Collection<Uuid>> getRemoteAclIdMap() {
-        return ImmutableMap.copyOf(remoteAclIdMap);
+    public Map<Uuid, Collection<Uuid>> getEgressRemoteAclIdMap() {
+        return ImmutableMap.copyOf(egressRemoteAclIdMap);
+    }
+
+    @Override
+    public Map<Uuid, Collection<Uuid>> getIngressRemoteAclIdMap() {
+        return ImmutableMap.copyOf(ingressRemoteAclIdMap);
     }
 
     @Override
     public Map<String, Integer> getAclTagMap() {
         return ImmutableMap.copyOf(aclTagMap);
+    }
+
+    @Override
+    public Map<String, Acl> getAclMap() {
+        return ImmutableMap.copyOf(aclMap);
     }
 }

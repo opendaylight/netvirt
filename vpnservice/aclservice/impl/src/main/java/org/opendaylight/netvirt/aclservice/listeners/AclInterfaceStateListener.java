@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.aclservice.listeners;
 
 import java.util.List;
+import java.util.SortedSet;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,6 +17,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -27,6 +29,8 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.re
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionEgress;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.DirectionIngress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.InterfaceAcl;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.rev160608.IpPrefixOrAddress;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -46,11 +50,12 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     private final AclDataUtil aclDataUtil;
     private final IInterfaceManager interfaceManager;
     private final AclInterfaceCache aclInterfaceCache;
+    private final AclServiceUtils aclServiceUtils;
 
     @Inject
     public AclInterfaceStateListener(AclServiceManager aclServiceManger, AclClusterUtil aclClusterUtil,
             DataBroker dataBroker, AclDataUtil aclDataUtil, IInterfaceManager interfaceManager,
-            AclInterfaceCache aclInterfaceCache) {
+            AclInterfaceCache aclInterfaceCache, AclServiceUtils aclServicUtils) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
         this.aclClusterUtil = aclClusterUtil;
@@ -58,6 +63,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         this.aclDataUtil = aclDataUtil;
         this.interfaceManager = interfaceManager;
         this.aclInterfaceCache = aclInterfaceCache;
+        this.aclServiceUtils = aclServicUtils;
     }
 
     @Override
@@ -80,12 +86,17 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         String interfaceId = deleted.getName();
         AclInterface aclInterface = aclInterfaceCache.remove(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
+            List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On remove event, notify ACL service manager to remove ACL from interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.UNBIND);
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
+
+                if (aclList != null) {
+                    AclServiceUtils.updateAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs(),
+                            NwConstants.DEL_FLOW, this.dataBroker);
+                }
             }
-            List<Uuid> aclList = aclInterface.getSecurityGroups();
             if (aclList != null) {
                 aclDataUtil.removeAclInterfaceMap(aclList, aclInterface);
             }
@@ -137,6 +148,11 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                             added.getName());
                     builder.subnetIpPrefixes(subnetIpPrefixes);
                 }
+                SortedSet<Integer> ingressRemoteAclTags =
+                        aclServiceUtils.getRemoteAclTags(aclInPort.getSecurityGroups(), DirectionIngress.class);
+                SortedSet<Integer> egressRemoteAclTags =
+                        aclServiceUtils.getRemoteAclTags(aclInPort.getSecurityGroups(), DirectionEgress.class);
+                builder.ingressRemoteAclTags(ingressRemoteAclTags).egressRemoteAclTags(egressRemoteAclTags);
             }
         });
 
@@ -152,6 +168,10 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
             if (aclClusterUtil.isEntityOwner()) {
                 LOG.debug("On add event, notify ACL service manager to add ACL for interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.BIND);
+                if (aclList != null) {
+                    AclServiceUtils.updateAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs(),
+                            NwConstants.ADD_FLOW, this.dataBroker);
+                }
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }
         }
