@@ -94,4 +94,42 @@ module aclservice {
             }
         }
     }
+
+    container acl-ports-lookup {
+        config false;
+        description "Container used to manage list of ports per ACL based on
+            port's IP address/prefix (including IP address/prefix specified in
+            allowed-address-pair)";
+
+        list acl-ports-by-ip {
+            key "acl-name";
+            description "Refers to an ACL which are associated with list of
+                ports filtered based on IP address/prefix.";
+
+            leaf acl-name {
+                type string;
+                description "ACL name.";
+            }
+            list acl-ip-prefixes {
+                key "ip-prefix";
+                description "IP Prefixes and Allowed-Address-Pairs owned by
+                    ports where all such ports enforce the same ACL identified
+                    by acl-name";
+
+                leaf ip-prefix {
+                    type ip-prefix-or-address;
+                    description "IP address/prefix";
+                }
+                list port-ids {
+                    key "port-id";
+                    description "Contains a list of ports that are enforcing
+                        the same ACL identified by acl-name.";
+                    leaf port-id {
+                        type string;
+                        description "Port UUID string";
+                    }
+                }
+            }
+        }
+    }
 }

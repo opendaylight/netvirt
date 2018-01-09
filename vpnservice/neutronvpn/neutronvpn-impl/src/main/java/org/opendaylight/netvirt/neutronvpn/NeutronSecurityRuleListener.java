@@ -8,13 +8,16 @@
 package org.opendaylight.netvirt.neutronvpn;
 
 import com.google.common.collect.ImmutableBiMap;
+import java.util.Collections;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.AclKey;
@@ -66,11 +69,13 @@ public class NeutronSecurityRuleListener
             ProtocolIcmpV6.class, NeutronSecurityRuleConstants.PROTOCOL_ICMPV6);
 
     private final DataBroker dataBroker;
+    private final JobCoordinator jobCoordinator;
 
     @Inject
-    public NeutronSecurityRuleListener(final DataBroker dataBroker) {
+    public NeutronSecurityRuleListener(final DataBroker dataBroker, final JobCoordinator jobCoordinator) {
         super(SecurityRule.class, NeutronSecurityRuleListener.class);
         this.dataBroker = dataBroker;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @Override
@@ -86,17 +91,15 @@ public class NeutronSecurityRuleListener
     }
 
     @Override
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void add(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("added securityRule: {}", securityRule);
-        try {
+
+        jobCoordinator.enqueueJob("SG-" + securityRule.getSecurityGroupId().getValue(), () -> {
             Ace ace = toAceBuilder(securityRule).build();
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
-            MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier, ace);
-        } catch (Exception ex) {
-            LOG.error("Exception occured while adding acl for security rule: {}. ", securityRule, ex);
-        }
+            SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier, ace);
+            return Collections.emptyList();
+        }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
     private InstanceIdentifier<Ace> getAceInstanceIdentifier(SecurityRule securityRule) {
@@ -212,16 +215,14 @@ public class NeutronSecurityRuleListener
     }
 
     @Override
-    // TODO Clean up the exception handling
-    @SuppressWarnings("checkstyle:IllegalCatch")
     protected void remove(InstanceIdentifier<SecurityRule> instanceIdentifier, SecurityRule securityRule) {
         LOG.trace("removed securityRule: {}", securityRule);
-        try {
+
+        jobCoordinator.enqueueJob("SG-" + securityRule.getSecurityGroupId().getValue(), () -> {
             InstanceIdentifier<Ace> identifier = getAceInstanceIdentifier(securityRule);
-            MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier);
-        } catch (Exception ex) {
-            LOG.error("Exception occured while removing acl for security rule: {}. ", securityRule, ex);
-        }
+            SingleTransactionDataBroker.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, identifier);
+            return Collections.emptyList();
+        }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
     @Override
