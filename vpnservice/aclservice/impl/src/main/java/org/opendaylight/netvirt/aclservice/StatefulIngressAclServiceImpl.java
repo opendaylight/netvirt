@@ -174,12 +174,13 @@ public class StatefulIngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs ip, int addOrRemove) {
+    protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
+            int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
-        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(aclTag, ip, dataBroker));
+        flowMatches.addAll(AclServiceUtils.buildIpAndSrcServiceMatch(aclTag, aap, dataBroker));
 
         List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getGotoInstructionInfo(getAclCommitterTable());
-        String flowNameAdded = "Acl_Filter_Ingress_" + String.valueOf(ip.getIpAddress().getValue()) + "_" + aclTag;
+        String flowNameAdded = "Acl_Filter_Ingress_" + String.valueOf(aap.getIpAddress().getValue()) + "_" + aclTag;
 
         syncFlow(dpId, getAclRemoteAclTable(), flowNameAdded, AclConstants.ACL_DEFAULT_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, flowMatches, instructions, addOrRemove);
