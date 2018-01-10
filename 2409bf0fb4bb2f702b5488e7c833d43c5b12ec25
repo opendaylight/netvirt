@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "f10e07ea_8f4c7b2a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/DataProvider.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-10T09:12:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ceb8aaee_f3008010",
+      "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "253ed3dc_9b70a514",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/TestBuilders.java",
         "patchSetId": 6
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-09T11:12:33Z",
       "side": 1,
       "message": "you could use Collections.emptyList() ?",
+      "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "037545c4_d38ad496",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/TestBuilders.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 176,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-10T09:12:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "253ed3dc_9b70a514",
       "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "4a7fc565_e72a05e2",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elan/l2gw/nodehandlertest/TestBuilders.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-10T09:12:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6a238e35_e30864aa",
+      "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4262abe6_6bb3bffa",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
         "patchSetId": 6
@@ -64,6 +118,24 @@
       "writtenOn": "2018-01-09T11:12:33Z",
       "side": 1,
       "message": "please don\u0027t use the @Deprecated MDSALUtil.syncWrite in new code anymore, but SingleTransactionDataBroker.syncWrite() instead; in particular as you already introduced a singleTxdataBroker field here, so use that instead of mixing use with the old util.",
+      "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dcc87135_605dd096",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-10T09:12:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4262abe6_6bb3bffa",
       "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "91c43ef6_79109a37",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 567,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-10T09:12:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "50cf20e0_009c4929",
+      "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "787eff7e_972e52e5",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/Verifications.java",
         "patchSetId": 6
@@ -98,6 +188,24 @@
       "writtenOn": "2018-01-09T11:12:33Z",
       "side": 1,
       "message": "a private getter for a field is a bit unusual - why not just directly use the awaiter field wherever you need it within this class?",
+      "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "612f7cf8_77f2eb0e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/Verifications.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-10T09:12:39Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "787eff7e_972e52e5",
       "revId": "2409bf0fb4bb2f702b5488e7c833d43c5b12ec25",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
