@@ -73,6 +73,30 @@
     },
     {
       "key": {
+        "uuid": "8ecca8d2_3682f6fd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 59,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-10T13:14:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "38fe3206_e33e4890",
+      "range": {
+        "startLine": 59,
+        "startChar": 53,
+        "endLine": 59,
+        "endChar": 66
+      },
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "626d6afd_6a6b14bb",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 22
@@ -255,6 +279,24 @@
       "side": 1,
       "message": "right to the first part so why perpetuate this practice even further? How do you know these are common/general functions if there\u0027s only one caller? How does one decide what is common/general - why not just put every private method in NeutronPortChangeListener (and others) here just in case they might be reused?",
       "parentUuid": "4c75b813_689d149c",
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d1e1ab1_af053aa9",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-10T13:14:43Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f4742da2_0d2b8225",
       "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
