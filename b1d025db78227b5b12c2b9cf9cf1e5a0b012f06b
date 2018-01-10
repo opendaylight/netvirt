@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "73c635d9_84df94de",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 193,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-10T09:31:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bea0215e_ab684ec2",
+      "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "011281ed_e725557a",
         "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-09T22:56:14Z",
       "side": 1,
       "message": "final",
+      "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "33131bd4_f415205f",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-10T09:31:16Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "011281ed_e725557a",
       "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -100,6 +136,24 @@
       "writtenOn": "2018-01-09T22:56:14Z",
       "side": 1,
       "message": "the other module has checks around the externalIps before calling the scehduleCentralizedSwitch - does it matter that those checks are not done here?",
+      "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "784e0019_cbc60686",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-10T09:31:16Z",
+      "side": 1,
+      "message": "Done. And that was a great catch. I had initially just been hacking away at testing this solution and wanted to validate that it worked and forgot to go back and stick those in. Thanks so much for this catch.",
+      "parentUuid": "99fc8a90_254eb248",
       "revId": "b1d025db78227b5b12c2b9cf9cf1e5a0b012f06b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
