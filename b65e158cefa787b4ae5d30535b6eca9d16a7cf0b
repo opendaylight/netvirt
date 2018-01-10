@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b6bd681d_5aacdf1f",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 205,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-01-10T13:58:06Z",
+      "side": 1,
+      "message": "when you talk about process, you mean external package( and process) ?",
+      "range": {
+        "startLine": 205,
+        "startChar": 0,
+        "endLine": 205,
+        "endChar": 25
+      },
+      "revId": "b65e158cefa787b4ae5d30535b6eca9d16a7cf0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7e1a710f_b5a2059c",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 2
+      },
+      "lineNbr": 251,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-01-10T13:58:06Z",
+      "side": 1,
+      "message": "as you intend to modify aliveness-monitor, does that mean that genius should also be modified too ? ( new dependency? )",
+      "range": {
+        "startLine": 251,
+        "startChar": 1,
+        "endLine": 251,
+        "endChar": 7
+      },
+      "revId": "b65e158cefa787b4ae5d30535b6eca9d16a7cf0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
