@@ -185,6 +185,24 @@
     },
     {
       "key": {
+        "uuid": "4cc57f77_4dabcb7a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 153,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-10T16:26:37Z",
+      "side": 1,
+      "message": "The DataObjectCache patch has been merged",
+      "parentUuid": "464fec44_e8953e5d",
+      "revId": "62440fbc5519360e6ec06a54a6a2cce79b1197ba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49bdb7bb_2bb43ca3",
         "filename": "vpnservice/neutronvpn/neutronvpn-api/src/main/java/org/opendaylight/netvirt/neutronvpn/api/utils/NeutronUtils.java",
         "patchSetId": 22
