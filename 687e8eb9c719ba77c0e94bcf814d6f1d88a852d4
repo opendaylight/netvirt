@@ -42,6 +42,29 @@
     },
     {
       "key": {
+        "uuid": "f36631dc_a2c262f5",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-01-10T10:41:35Z",
+      "side": 1,
+      "message": "Whenever an router is associated with private-bgpvpn-id, then the vpn-id of this bgp-vpn will be used instead of router-id.\n\nIt would be good to cover this UC with internal router associated with private-bgp-vpn.\n\nRef command:\nneutron bgpvpn-create --name PrivateBgpVpn1 --route-distinguishers 1:1 --route-targets 1:1 --import-targets 1:1 --export-targets 1:1 \n \nneutron bgpvpn-router-assoc-create --router router1 PrivateBgpVpn1",
+      "range": {
+        "startLine": 269,
+        "startChar": 43,
+        "endLine": 269,
+        "endChar": 60
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b20fab82_2233b3fe",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -70,6 +93,23 @@
       "writtenOn": "2018-01-09T17:39:27Z",
       "side": 1,
       "message": "Please put more clear on which router vpn-id is matching here.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "49f1fe09_8a7b7aac",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-01-10T10:41:35Z",
+      "side": 1,
+      "message": "Please cover Conntrack-based SNAT UC table flows(as they are different from Controller-based SNAT)\n\nRef : https://github.com/opendaylight/netvirt/blob/master/docs/specs/conntrack-based-snat.rst",
       "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
