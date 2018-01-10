@@ -107,9 +107,9 @@ public class TunnelStateChangeListener
     protected void add(InstanceIdentifier<StateTunnelList> key, StateTunnelList tunnelState) {
         LOG.trace("Tunnel state {} added", tunnelState);
         if (isVxlanTunnel(tunnelState)) {
-            bindService(tunnelState.getTunnelInterfaceName());
             updateTunnelToUnderlayNetworkOperDs(tunnelState, true);
         } else if (isLogicalGroupTunnel(tunnelState)) {
+            bindService(tunnelState.getTunnelInterfaceName());
             populatePolicyRoutesToDpn(tunnelState, NwConstants.ADD_FLOW);
         }
     }
