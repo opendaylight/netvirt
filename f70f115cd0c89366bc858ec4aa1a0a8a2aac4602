@@ -255,6 +255,30 @@
     },
     {
       "key": {
+        "uuid": "d3af9b8b_f06c73c0",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-01-10T14:10:59Z",
+      "side": 1,
+      "message": "the flow for informing connection lost is the following one:\nBFDD \u003d(1)\u003d\u003e BGPD \u003d(2)\u003d\u003e ODL\n\n(1) BFD tells neighbor DCGW1 is lost\n(2) BGP tells ODL that entrie X1, X2, ... from DCGW1 are flushed",
+      "parentUuid": "5b3b1f71_f396c675",
+      "range": {
+        "startLine": 92,
+        "startChar": 146,
+        "endLine": 92,
+        "endChar": 167
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7c17340_e7efd47c",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 1
@@ -266,6 +290,30 @@
       "writtenOn": "2018-01-09T08:56:00Z",
       "side": 1,
       "message": "bfdd is run on the ODL Controller node right? In a cluster setup we would have multiple controllers, so each controller runs an instance of bfdd?",
+      "range": {
+        "startLine": 149,
+        "startChar": 41,
+        "endLine": 149,
+        "endChar": 86
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bc08bebb_12d67548",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-01-10T14:10:59Z",
+      "side": 1,
+      "message": "I would say, BFD will move along with BGPD, .\nif current controller node is broken, then BFD and BGPD are automatically instantiated on the other controller node.",
+      "parentUuid": "b7c17340_e7efd47c",
       "range": {
         "startLine": 149,
         "startChar": 41,
