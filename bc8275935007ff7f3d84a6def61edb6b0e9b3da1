@@ -22,6 +22,23 @@
       "revId": "bc8275935007ff7f3d84a6def61edb6b0e9b3da1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "89cb77d8_ec752a5b",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/SNATDefaultRouteProgrammer.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 206,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-01-10T01:18:48Z",
+      "side": 1,
+      "message": "Hi Josh, Any specific reason why this again moved out of if condition. I moved this inside if condition of NwConstants.ADD_FLOW/NwConstants.MOD_FLOW as we require group installation only during installflow(not during removeflow)",
+      "revId": "bc8275935007ff7f3d84a6def61edb6b0e9b3da1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
