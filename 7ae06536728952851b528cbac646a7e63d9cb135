@@ -1,0 +1,112 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ada5ce72_40063f96",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/HostConfigCache.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-10T16:26:37Z",
+      "side": 1,
+      "message": "Derive from DataObjectCache.",
+      "revId": "7ae06536728952851b528cbac646a7e63d9cb135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d02e3cd2_d4f15ddd",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/HostConfigCache.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-10T16:26:37Z",
+      "side": 1,
+      "message": "No need for this method",
+      "revId": "7ae06536728952851b528cbac646a7e63d9cb135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62e25b85_a8756e56",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/HostConfigCache.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 26,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-10T16:26:37Z",
+      "side": 1,
+      "message": "This method becomes:\n\n  InstanceIdentifier\u003cHostconfig\u003e hostConfigPath \u003d\n     InstanceIdentifier.builder(Neutron.class)\n                .child(Hostconfigs.class)\n                .child(Hostconfig.class, new HostconfigKey(hostId, \"ODL L2\"))\n                .build();\n  return get(hostConfigPath);",
+      "revId": "7ae06536728952851b528cbac646a7e63d9cb135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afcb9db9_1b6ed52d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/HostConfigCache.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-10T16:26:37Z",
+      "side": 1,
+      "message": "No need for this method",
+      "revId": "7ae06536728952851b528cbac646a7e63d9cb135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17468dc5_a3dc033f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-10T16:26:37Z",
+      "side": 1,
+      "message": "Please order statics before non-statics",
+      "revId": "7ae06536728952851b528cbac646a7e63d9cb135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f50b1b58_592b15db",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 449,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-10T16:26:37Z",
+      "side": 1,
+      "message": "not needed - handled by DataObjectCache",
+      "range": {
+        "startLine": 439,
+        "startChar": 0,
+        "endLine": 449,
+        "endChar": 26
+      },
+      "revId": "7ae06536728952851b528cbac646a7e63d9cb135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
