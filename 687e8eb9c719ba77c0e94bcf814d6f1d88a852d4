@@ -25,6 +25,23 @@
     },
     {
       "key": {
+        "uuid": "f71b1e5c_8acd1af8",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-01-10T11:32:56Z",
+      "side": 1,
+      "message": "Hi Vinh,\n\nI see UC-2 doesn’t holds good for handling external network with provider type as “GRE”. Consider the following topology for understanding the problem UC.\n\n1)Network1 –\u003e Subnetwork1 (10.10.10.0/24) -\u003e VM1 (10.0.0.5) \n2)Router1 - \u003e Subenetwork1 (default router)\n3)Router2 -\u003e Subenetwork1 (chained router)\n4)Router1 -\u003e ExternalNetwork1 (100.100.100.0/24) -\u003e ExternalBGPVPN1 (100:1)\n5)Router2 -\u003e ExternalNetwork2 (200.200.200.0/24) -\u003e ExternalBGPVPN2 (200:1)\n\nOn DC-GW side, loopback-ips are consider as below\n1)ExternalBGPVPN1 (100:1) having loopback-ip (15.15.15.15)\n2)ExternalBGPVPN2 (200:1) having loopback-ip (25.25.25.25)\n\nThese loopback IPs are got learned on ODL controller via BGP session and the corresponding flows were got installed on the FIB_TABLE (21) as mentioned below sample flows.\n\ncookie\u003d0x8000003, duration\u003d1065.662s, table\u003d21, n_packets\u003d102, n_bytes\u003d7285, priority\u003d42,ip,metadata\u003d0x23a64/0xfffffffe,nw_dst\u003d15.15.15.15 actions\u003dpush_mpls:0x8847,set_field:786433-\u003empls_label,output:2\ncookie\u003d0x8000003, duration\u003d1065.662s, table\u003d21, n_packets\u003d102, n_bytes\u003d7285, priority\u003d42,ip,metadata\u003d0x23a54/0xfffffffe,nw_dst\u003d25.25.25.25 actions\u003dpush_mpls:0x8847,set_field:786433-\u003empls_label,output:2\n\nNote:\nmetadata mapping: \n0x23a64 is ExternalBGPVPN1 (100:1)\n0x23a54 is ExternalBGPVPN2 (200:1)\n\nNow SNAT case, if the VM1(10.0.0.5) is initiate a traffic to 25.25.25.25, the following l3vpn flow match will not happen.\n\nFIB table (21) match: vpn-id\u003drouter1-id,src-ip\u003dsubnet1-ip,dst-ip\u003dext-subnet2-ip set vpn-id\u003drouter2-id \u003d\u003etable 26   \u003e\u003e\u003e\u003e\u003e destination IP is not an CIDR format like UC-1 used for checking the subnet.\n\nHere how can we differentiate the router selection for the learned BGP VPN routes (15.15.15.15, 25.25.25.25)?. (We can’t go with default router. Since default router has connectivity to the different external network than the second chained router).\n\nIn FIB_TABLE (21) based on the external subnet CIDR match criteria will not work for choosing the correct ``router-vpn-id`` to go out the external network traffic. Please let me know your inputs.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40a0d2a7_7fa242a4",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
