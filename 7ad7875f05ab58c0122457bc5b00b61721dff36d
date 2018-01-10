@@ -16,6 +16,24 @@
       "revId": "7ad7875f05ab58c0122457bc5b00b61721dff36d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8cd2a337_09471100",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-10T18:45:11Z",
+      "side": 1,
+      "message": "I couldn\u0027t find anything else and even discussed it with Aswin...Dunno.",
+      "parentUuid": "76ece578_52b7e541",
+      "revId": "7ad7875f05ab58c0122457bc5b00b61721dff36d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
