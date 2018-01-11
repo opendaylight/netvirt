@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "b210f645_0472fad8",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1503,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-11T16:17:31Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "876b2e27_77245312",
+      "revId": "3027e013cad38c2abc6d7f2db263c88895d3dda6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "df5fefed_8b7c00af",
         "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 2
@@ -48,6 +66,24 @@
       "side": 1,
       "message": "You can\u0027t scheduleWithFixedDelay a Callable as a Callable returns a result and thus executes only once.  We don\u0027t want to propagate exceptions to the executor as that will cancel future executions of the task.  However we shouldn\u0027t treat ReadFailedException as not present, instead bail he current executon.",
       "parentUuid": "df5fefed_8b7c00af",
+      "revId": "3027e013cad38c2abc6d7f2db263c88895d3dda6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6bde3f4b_b99474ad",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1568,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-11T16:17:31Z",
+      "side": 1,
+      "message": "OK. I see how you\u0027ve changed it to now and that works for me.",
+      "parentUuid": "a1fda4af_5df2a14e",
       "revId": "3027e013cad38c2abc6d7f2db263c88895d3dda6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
