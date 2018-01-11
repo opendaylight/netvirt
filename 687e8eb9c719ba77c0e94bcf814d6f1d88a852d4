@@ -2,6 +2,75 @@
   "comments": [
     {
       "key": {
+        "uuid": "7281db1e_164c6bc2",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2018-01-11T04:32:35Z",
+      "side": 1,
+      "message": "how can this be configured by ODL? when a router i/f is added into the subnet, only 1 will get the IP corresponding to the default g/w IP, that should become the default router, right? any other router i/fs added into the n/w will get other IPs from the subnet. (not sure if this logic has been updated in more recent openstack releases)",
+      "range": {
+        "startLine": 15,
+        "startChar": 58,
+        "endLine": 15,
+        "endChar": 59
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db10204c_55c5bbca",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2018-01-11T04:32:35Z",
+      "side": 1,
+      "message": "need to make sure this property is stored in config, so that order of reading during md-sal does not affect default router selection",
+      "range": {
+        "startLine": 16,
+        "startChar": 78,
+        "endLine": 16,
+        "endChar": 79
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4ef808ca_a38671c0",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 4534
+      },
+      "writtenOn": "2018-01-11T04:32:35Z",
+      "side": 1,
+      "message": "shouldnt this be defined by vm config? when the subnet is configured, the default g/w for the vm is set, and used by dhcp to configure the vms tables. based on this, vm will arp for mac of its next hop, and odl needs to return the mac corresponding to the ip address of that router. i dont know how ODL will be able to choose any router for fwding here. the only chaining via netvirt might be possible if a user adds a static route into 1 router which points to the next router, in which case 1 fib lookup could be punted to go into the next fib.\neither that, or we need to manipulate the specific prefix routes and/or default routes published to vm\u0027s to ensure the right router forwards the pkts received.",
+      "range": {
+        "startLine": 22,
+        "startChar": 86,
+        "endLine": 22,
+        "endChar": 87
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "79674f0a_b6faba7c",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
