@@ -16,6 +16,24 @@
       "revId": "c32d3987fdef8de9222c7a0256fd8f58f2327f13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd89c370_c8fcfb0a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cache/ElanInstanceDpnsCache.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-11T15:31:31Z",
+      "side": 1,
+      "message": "I don\u0027t really agree that it isn\u0027t a \"cache\" just b/c it doesn\u0027t evict entries automatically. I have never heard of that and, from what I know, people have been using the term cache for years for something that stores data in some form (could be a map, a list etc). In fact any cache that stores key/values is typically backed by a map/hash table so it really is map.\n\nThat said, map vs cache debate is just silly semantics IMO. If you really feel strongly about it then I\u0027ll rename to Map (although I\u0027ve already used Cache in other areas, eg DataObjectCache which technically should be DataObjectMap according to your definition).",
+      "parentUuid": "0f3a43e5_f0b75a56",
+      "revId": "c32d3987fdef8de9222c7a0256fd8f58f2327f13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
