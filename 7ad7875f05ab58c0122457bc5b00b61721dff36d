@@ -34,6 +34,24 @@
       "revId": "7ad7875f05ab58c0122457bc5b00b61721dff36d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e5a021f2_ea878452",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-11T11:19:18Z",
+      "side": 1,
+      "message": "OK, I poked around a little more and found the following:\n\n1) ExternalRoutersListener.add checks that NatUtil.getVpnForRouter returns null because (I THINK) if it does not return null it means that this router belongs to a bgp vpn and then we do not want to schedule the snat switch.\n\n2) ExternalRoutersListener.update checks that NatUtil.getVpnId(routerName) returns a valid vpnId.  \n\nSince add and update check these different things I am a little confused. I will raise this issue with Ericsson on our weekly upgrade call.",
+      "parentUuid": "8cd2a337_09471100",
+      "revId": "7ad7875f05ab58c0122457bc5b00b61721dff36d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
