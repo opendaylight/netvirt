@@ -18,8 +18,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
 import java.util.List;
 import org.apache.commons.lang3.ArrayUtils;
-import org.opendaylight.controller.liblldp.HexEncode;
-import org.opendaylight.controller.liblldp.NetUtils;
+import org.opendaylight.openflowplugin.libraries.liblldp.HexEncode;
+import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
 
 public class DHCPOptions {
 
