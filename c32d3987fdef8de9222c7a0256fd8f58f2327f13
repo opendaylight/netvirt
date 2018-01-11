@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0f3a43e5_f0b75a56",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cache/ElanInstanceDpnsCache.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-11T15:01:14Z",
+      "side": 1,
+      "message": "I\u0027m sorry if I\u0027m a pain going harping on about this, but would it be terrible if I -1 this just for naming - IMHO this is a *Map and NOT a *Cache - for the reasons explained in the infrautils.Cache JavaDoc, see https://javadocs.opendaylight.org/org.opendaylight.infrautils/oxygen/org/opendaylight/infrautils/caches/Cache.html ... this class has no CacheFunction, but relies on add() and remove() therefore this really just a (very thin wrapper around) a Map?",
+      "revId": "c32d3987fdef8de9222c7a0256fd8f58f2327f13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
