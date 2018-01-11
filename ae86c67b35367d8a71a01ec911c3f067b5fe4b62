@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fb8fe578_9ea88aeb",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-01-11T09:40:39Z",
+      "side": 1,
+      "message": "please don\u0027t use any proprietary words like CEE",
+      "revId": "ae86c67b35367d8a71a01ec911c3f067b5fe4b62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "55dd41b2_2391935e",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-01-11T09:40:39Z",
+      "side": 1,
+      "message": "Please use ODL instead of CSC (please don\u0027t use any proprietary words)",
+      "revId": "ae86c67b35367d8a71a01ec911c3f067b5fe4b62",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
