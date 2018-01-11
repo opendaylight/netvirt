@@ -27,12 +27,12 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
-import org.opendaylight.controller.liblldp.BitBufferHelper;
-import org.opendaylight.controller.liblldp.BufferException;
-import org.opendaylight.controller.liblldp.HexEncode;
-import org.opendaylight.controller.liblldp.NetUtils;
-import org.opendaylight.controller.liblldp.Packet;
-import org.opendaylight.controller.liblldp.PacketException;
+import org.opendaylight.openflowplugin.libraries.liblldp.BitBufferHelper;
+import org.opendaylight.openflowplugin.libraries.liblldp.BufferException;
+import org.opendaylight.openflowplugin.libraries.liblldp.HexEncode;
+import org.opendaylight.openflowplugin.libraries.liblldp.NetUtils;
+import org.opendaylight.openflowplugin.libraries.liblldp.Packet;
+import org.opendaylight.openflowplugin.libraries.liblldp.PacketException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
