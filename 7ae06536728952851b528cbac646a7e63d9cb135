@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "6be5c499_e42d173f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/HostConfigCache.java",
+        "patchSetId": 24
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 7928
+      },
+      "writtenOn": "2018-01-11T09:16:37Z",
+      "side": 1,
+      "message": "Can Hostconfig used for DataObjectCache ? since Hostconfig does not extend DataObject.",
+      "parentUuid": "ada5ce72_40063f96",
+      "revId": "7ae06536728952851b528cbac646a7e63d9cb135",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d02e3cd2_d4f15ddd",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/HostConfigCache.java",
         "patchSetId": 24
