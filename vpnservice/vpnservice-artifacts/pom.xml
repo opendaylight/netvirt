@@ -54,13 +54,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <classifier>features</classifier>
         <type>xml</type>
       </dependency>
-      <dependency>
+      <!--<dependency>
         <groupId>${project.groupId}</groupId>
         <artifactId>odl-netvirt-ui</artifactId>
         <version>${project.version}</version>
         <classifier>features</classifier>
         <type>xml</type>
-      </dependency>
+      </dependency>-->
     </dependencies>
   </dependencyManagement>
 
