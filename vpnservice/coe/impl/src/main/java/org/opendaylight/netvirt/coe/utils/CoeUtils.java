@@ -147,7 +147,11 @@ public final class CoeUtils {
     }
 
     public static String buildElanInstanceName(String nodeIp, String networkNS) {
-        return new StringBuilder().append(nodeIp).append(SEPARATOR).append(networkNS).toString();
+        //return new StringBuilder().append(nodeIp).append(SEPARATOR).append(networkNS).toString();
+        // We were previously planning to have ELAN only within single node, and use L3VPN for
+        // connectivity across nodes. But further discussions have led to the decision that we
+        // will use L2 itself across nodes.
+        return networkNS;
     }
 
     public static ElanInstance createElanInstanceForTheFirstPodInTheNetwork(String networkNS, String nodeIp,
@@ -163,7 +167,7 @@ public final class CoeUtils {
         }
         Class<? extends SegmentTypeBase> segmentType = getSegmentTypeFromNetwork(podInterface);
         String segmentationId = String.valueOf(podInterface.getSegmentationId());
-        //FIXME String physicalNetworkName = ??
+        // FIXME String physicalNetworkName = ??
         // TODO external network support not added currently
         Boolean isExternal = false;
         ElanInstance elanInstance = CoeUtils.buildElanInstance(elanInstanceName, segmentType,
