@@ -19,7 +19,8 @@ import javax.management.MalformedObjectNameException;
 import javax.management.ObjectName;
 import javax.management.ReflectionException;
 
-import jline.internal.Log;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class NvpnJMXAlarmAgent {
 
@@ -27,17 +28,19 @@ public class NvpnJMXAlarmAgent {
 
     public static final String OP_RAISEALARM = "raiseAlarm";
     public static final String OP_CLEARALARM = "clearAlarm";
+    private Logger log;
 
     public MBeanServer mbs = null;
     private ObjectName alarmName = null;
     private NvpnNbrControlPathAlarm alarmBean = new NvpnNbrControlPathAlarm();
 
     public NvpnJMXAlarmAgent() {
+        log = LoggerFactory.getLogger(this.getClass());
         mbs = ManagementFactory.getPlatformMBeanServer();
         try {
             alarmName = new ObjectName(BEANNAME);
         } catch (MalformedObjectNameException e) {
-            Log.error("ObjectName instance creation failed for BEANAME {}, error: {}", BEANNAME, e);
+            log.error("ObjectName instance creation failed for BEANAME {}, error: {}", BEANNAME, e);
         }
     }
 
@@ -45,9 +48,9 @@ public class NvpnJMXAlarmAgent {
         try {
             mbs.invoke(alarmName, OP_CLEARALARM, new Object[] {alarmId, text, src, details}, new String[] {
                     String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName()});
-            Log.debug("Invoked clearAlarm function for Mbean {} with source {} for details {}", BEANNAME, src, details);
+            log.debug("Invoked clearAlarm function for Mbean {} with source {} for details {}", BEANNAME, src, details);
         } catch (InstanceNotFoundException | MBeanException | ReflectionException e) {
-            Log.error("Invoking clearAlarm method failed for Mbean {}", alarmName);
+            log.error("Invoking clearAlarm method failed for Mbean {}", alarmName);
         }
     }
 
@@ -55,9 +58,9 @@ public class NvpnJMXAlarmAgent {
         try {
             mbs.invoke(alarmName, OP_RAISEALARM, new Object[] {alarmId, text, src, details}, new String[] {
                     String.class.getName(), String.class.getName(), String.class.getName(), String.class.getName()});
-            Log.debug("Invoked raiseAlarm function for Mbean {} with source {} for details {}",BEANNAME, src , details);
+            log.debug("Invoked raiseAlarm function for Mbean {} with source {} for details {}",BEANNAME, src , details);
         } catch (InstanceNotFoundException | MBeanException | ReflectionException e) {
-            Log.error("Invoking raiseAlarm method failed for Mbean {}", alarmName);
+            log.error("Invoking raiseAlarm method failed for Mbean {}", alarmName);
         }
     }
 
@@ -65,16 +68,16 @@ public class NvpnJMXAlarmAgent {
         try {
             if (!mbs.isRegistered(alarmName)) {
                 mbs.registerMBean(alarmBean, alarmName);
-                Log.debug("Registered Mbean {} successfully", alarmName);
+                log.debug("Registered Mbean {} successfully", alarmName);
             }
         } catch (javax.management.InstanceAlreadyExistsException | javax.management.MBeanRegistrationException
                 | javax.management.NotCompliantMBeanException e) {
-            Log.info("Registeration failed for Mbean " + alarmName + " : " + e);
+            log.info("Registeration failed for Mbean " + alarmName + " : " + e);
         }
         try {
             mbs.addNotificationListener(alarmName, alarmBean, null, null);
         } catch (InstanceNotFoundException e2) {
-            Log.error("Registeration of listener failed for Mbean {}", alarmName);
+            log.error("Registeration of listener failed for Mbean {}", alarmName);
         }
     }
 
@@ -82,15 +85,15 @@ public class NvpnJMXAlarmAgent {
         try {
             mbs.removeNotificationListener(alarmName, alarmBean);
         } catch (InstanceNotFoundException | ListenerNotFoundException e1) {
-            Log.error("unregisteration of listener failed for Mbean {}", alarmName);
+            log.error("unregisteration of listener failed for Mbean {}", alarmName);
         }
         try {
             if (mbs.isRegistered(alarmName)) {
                 mbs.unregisterMBean(alarmName);
-                Log.debug("Unregistered Mbean {} successfully", alarmName);
+                log.debug("Unregistered Mbean {} successfully", alarmName);
             }
         } catch (InstanceNotFoundException | MBeanRegistrationException e2) {
-            Log.error("UnRegisteration failed for Mbean {}", alarmName);
+            log.error("UnRegisteration failed for Mbean {}", alarmName);
         }
     }
 
