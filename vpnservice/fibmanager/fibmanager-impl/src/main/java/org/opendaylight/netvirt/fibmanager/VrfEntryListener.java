@@ -1335,27 +1335,27 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         tx.delete(LogicalDatastoreType.CONFIGURATION,
                                 VpnExtraRouteHelper.getUsedRdsIdentifier(vpnId, vrfEntry.getDestPrefix()));
                     }
-                    Optional<AdjacenciesOp> optAdjacencies =
-                            MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                    FibUtil.getAdjListPathOp(ifName, vpnName));
-                    int numAdj = 0;
-                    if (optAdjacencies.isPresent()) {
-                        numAdj = optAdjacencies.get().getAdjacency().size();
-                    }
-                    //remove adjacency corr to prefix
-                    if (numAdj > 1) {
-                        LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {} vpnName {}", vpnId,
-                                vrfEntry.getDestPrefix(), vpnName);
-                        tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                FibUtil.getAdjacencyIdentifierOp(ifName, vpnName, vrfEntry.getDestPrefix()));
-                    } else {
-                        //this is last adjacency (or) no more adjacency left for this vpn interface, so
-                        //clean up the vpn interface from DpnToVpn list
-                        LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.",
-                                ifName, prefixInfo.getDpnId(), rd);
-                        tx.delete(LogicalDatastoreType.OPERATIONAL,
-                                FibUtil.getVpnInterfaceOpDataEntryIdentifier(ifName, vpnName));
-                    }
+                }
+                Optional<AdjacenciesOp> optAdjacencies =
+                    MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                                   FibUtil.getAdjListPathOp(ifName, vpnName));
+                int numAdj = 0;
+                if (optAdjacencies.isPresent()) {
+                    numAdj = optAdjacencies.get().getAdjacency().size();
+                }
+                //remove adjacency corr to prefix
+                if (numAdj > 1) {
+                    LOG.info("cleanUpOpDataForFib: remove adjacency for prefix: {} {} vpnName {}", vpnId,
+                             vrfEntry.getDestPrefix(), vpnName);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL,
+                              FibUtil.getAdjacencyIdentifierOp(ifName, vpnName, vrfEntry.getDestPrefix()));
+                } else {
+                    //this is last adjacency (or) no more adjacency left for this vpn interface, so
+                    //clean up the vpn interface from DpnToVpn list
+                    LOG.info("Clean up vpn interface {} from dpn {} to vpn {} list.",
+                             ifName, prefixInfo.getDpnId(), rd);
+                    tx.delete(LogicalDatastoreType.OPERATIONAL,
+                              FibUtil.getVpnInterfaceOpDataEntryIdentifier(ifName, vpnName));
                 }
             }));
         }
