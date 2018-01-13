@@ -48,6 +48,30 @@
     },
     {
       "key": {
+        "uuid": "9121f441_5e882f61",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "cd173a11_51aba970",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 22
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "59e5dcba_617df965",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 1
@@ -117,6 +141,30 @@
     },
     {
       "key": {
+        "uuid": "e00ac9f1_85ce6702",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0d282ca6_5a364fa5",
+      "range": {
+        "startLine": 30,
+        "startChar": 19,
+        "endLine": 30,
+        "endChar": 22
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b5e79ec2_f2342c0a",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 1
@@ -163,6 +211,54 @@
     },
     {
       "key": {
+        "uuid": "ccac6d2e_e236db48",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4ddf4cae_17fe0c23",
+      "range": {
+        "startLine": 32,
+        "startChar": 26,
+        "endLine": 32,
+        "endChar": 47
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "78627ca8_a2726a76",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5e79ec2_f2342c0a",
+      "range": {
+        "startLine": 32,
+        "startChar": 4,
+        "endLine": 32,
+        "endChar": 14
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4822823e_0f71009d",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 1
@@ -174,6 +270,30 @@
       "writtenOn": "2018-01-09T08:56:00Z",
       "side": 1,
       "message": "nit: Please wrap your sentences to some reasonable limits (would make it easy to read/review)",
+      "range": {
+        "startLine": 34,
+        "startChar": 153,
+        "endLine": 34,
+        "endChar": 229
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c3d4b99e_d7437033",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 34,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4822823e_0f71009d",
       "range": {
         "startLine": 34,
         "startChar": 153,
@@ -209,6 +329,30 @@
     },
     {
       "key": {
+        "uuid": "226bce16_4233276c",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Yes, BGP control plane is a simple peering. Today we do not have a mechanism to monitor Data Path : MPLS over GRE.",
+      "parentUuid": "a8a648a0_a6e80b23",
+      "range": {
+        "startLine": 41,
+        "startChar": 28,
+        "endLine": 41,
+        "endChar": 44
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94c69d2c_42cdc005",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 1
@@ -220,6 +364,30 @@
       "writtenOn": "2018-01-09T08:56:00Z",
       "side": 1,
       "message": "Just for understanding - there will NOT be any tunnel, but we use BFD protocol to identify the state of the connection. Is this correct?",
+      "range": {
+        "startLine": 91,
+        "startChar": 46,
+        "endLine": 91,
+        "endChar": 95
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "44769581_4c2ec334",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "There is no tunnel configured between BFDD and QBGP. Its a plane packet communication.",
+      "parentUuid": "94c69d2c_42cdc005",
       "range": {
         "startLine": 91,
         "startChar": 46,
@@ -279,6 +447,54 @@
     },
     {
       "key": {
+        "uuid": "7c44512d_7596e511",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5b3b1f71_f396c675",
+      "range": {
+        "startLine": 92,
+        "startChar": 146,
+        "endLine": 92,
+        "endChar": 167
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3eaf3cf7_d1386387",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "We expect BGP shall convey peerdown notification to ODL/BgpManager.",
+      "parentUuid": "d3af9b8b_f06c73c0",
+      "range": {
+        "startLine": 92,
+        "startChar": 146,
+        "endLine": 92,
+        "endChar": 167
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b7c17340_e7efd47c",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 1
@@ -326,6 +542,54 @@
     },
     {
       "key": {
+        "uuid": "e7985115_72d0442f",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "It is expected to run only on ONE node, In CEE environment pacemaker configuration takes care of making ACTIVE only on one node",
+      "parentUuid": "b7c17340_e7efd47c",
+      "range": {
+        "startLine": 149,
+        "startChar": 41,
+        "endLine": 149,
+        "endChar": 86
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0582c99a_450caee9",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 149,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bc08bebb_12d67548",
+      "range": {
+        "startLine": 149,
+        "startChar": 41,
+        "endLine": 149,
+        "endChar": 86
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9edb45e0_0b6b8927",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 1
@@ -337,6 +601,30 @@
       "writtenOn": "2018-01-09T08:56:00Z",
       "side": 1,
       "message": "Please eloborate this - i.e., who (DCGW/ODL/XXX)? MUST support ....",
+      "range": {
+        "startLine": 241,
+        "startChar": 2,
+        "endLine": 241,
+        "endChar": 54
+      },
+      "revId": "f70f115cd0c89366bc858ec4aa1a0a8a2aac4602",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab512ef9_40e7672e",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 241,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-13T05:32:34Z",
+      "side": 1,
+      "message": "Thank you done",
+      "parentUuid": "9edb45e0_0b6b8927",
       "range": {
         "startLine": 241,
         "startChar": 2,
