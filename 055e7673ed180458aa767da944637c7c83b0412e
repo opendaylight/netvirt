@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "05927c8a_eb5fe0e3",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-14T15:08:38Z",
+      "side": 1,
+      "message": "Nice! thank you.",
+      "parentUuid": "2e696b1e_248c9eb5",
+      "range": {
+        "startLine": 428,
+        "startChar": 54,
+        "endLine": 428,
+        "endChar": 81
+      },
+      "revId": "055e7673ed180458aa767da944637c7c83b0412e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6b9b9017_f3eaa57f",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 25
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-14T14:30:25Z",
       "side": 1,
       "message": "unused",
+      "range": {
+        "startLine": 460,
+        "startChar": 46,
+        "endLine": 460,
+        "endChar": 73
+      },
+      "revId": "055e7673ed180458aa767da944637c7c83b0412e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b2779a1_038cf7be",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 7595
+      },
+      "writtenOn": "2018-01-14T15:08:38Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6b9b9017_f3eaa57f",
       "range": {
         "startLine": 460,
         "startChar": 46,
