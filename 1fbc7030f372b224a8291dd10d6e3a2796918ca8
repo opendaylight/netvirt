@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "27d1a341_1d636617",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgammer.java",
+        "patchSetId": 137
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-15T15:03:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "510f770a_5078db76",
+      "range": {
+        "startLine": 33,
+        "startChar": 37,
+        "endLine": 33,
+        "endChar": 46
+      },
+      "revId": "1fbc7030f372b224a8291dd10d6e3a2796918ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae23549d_d159364a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgammer.java",
         "patchSetId": 137
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-15T13:14:01Z",
       "side": 1,
       "message": "Since the defaultIP is only used in flowRef, can we hard-code it instead of calling java.net.Inet6Address.getByName?",
+      "range": {
+        "startLine": 44,
+        "startChar": 0,
+        "endLine": 50,
+        "endChar": 9
+      },
+      "revId": "1fbc7030f372b224a8291dd10d6e3a2796918ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "643d9066_d8c26de0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgammer.java",
+        "patchSetId": 137
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-15T15:03:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae23549d_d159364a",
       "range": {
         "startLine": 44,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "b81c3f7f_c7c4020a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/IPV6InternetDefaultRouteProgammer.java",
+        "patchSetId": 137
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-15T15:03:40Z",
+      "side": 1,
+      "message": "No, I do not.\n\"L3.IPv6\" is just a old remark",
+      "parentUuid": "40ac5eee_7fbeb113",
+      "range": {
+        "startLine": 90,
+        "startChar": 23,
+        "endLine": 90,
+        "endChar": 30
+      },
+      "revId": "1fbc7030f372b224a8291dd10d6e3a2796918ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "af2b1664_c4bf8496",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
         "patchSetId": 137
@@ -82,6 +154,30 @@
       "writtenOn": "2018-01-15T13:14:01Z",
       "side": 1,
       "message": "nit: Please move interface to the next line to be consistent with the other references in this file.",
+      "range": {
+        "startLine": 27,
+        "startChar": 35,
+        "endLine": 27,
+        "endChar": 44
+      },
+      "revId": "1fbc7030f372b224a8291dd10d6e3a2796918ca8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b441ffc_57d0b9c8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/resources/org/opendaylight/blueprint/neutronvpn.xml",
+        "patchSetId": 137
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-15T15:03:40Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "af2b1664_c4bf8496",
       "range": {
         "startLine": 27,
         "startChar": 35,
