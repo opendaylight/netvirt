@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "39dc990b_e9154e66",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 152
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T11:56:07Z",
+      "side": 1,
+      "message": "As @Tom mentioned in his earlier comments, do we really require this to be logged as error. Can we change it to debug/info?",
+      "range": {
+        "startLine": 914,
+        "startChar": 16,
+        "endLine": 914,
+        "endChar": 21
+      },
+      "revId": "554abe09bdd3ebd808e9f585f653cabfd614a50a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
