@@ -71,6 +71,75 @@
     },
     {
       "key": {
+        "uuid": "f152ff69_9ca4cf6f",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-01-15T09:14:42Z",
+      "side": 1,
+      "message": "We would also need more use cases where VPNs are associated with routers. \n1. Router 1 and Router 2 are associated with different VPNs\n2. Router 1 and Router 2 are associated with the same VPN.",
+      "range": {
+        "startLine": 75,
+        "startChar": 1,
+        "endLine": 89,
+        "endChar": 64
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cf437f3a_8556f7a3",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-01-15T09:14:42Z",
+      "side": 1,
+      "message": "I do not completely understand what it means to have two routers with external network. Typically, the FIB entry corresponding to the external networks would be the default route (0.0.0.0). If we have two routers with external networks, the second one will not be used. Is this use case to reach specific IP address in external networks?",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 43
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "32c858f4_2c1147fb",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-01-15T09:14:42Z",
+      "side": 1,
+      "message": "In use case 1, when the VM ARPs for the GW MAC, it would get Router1\u0027s MAC address. Let\u0027s assume that the VM wants to access a node in subnet 1a (connected to Router 2). As explained above, the packet will get forwarded to subnet 1a.\n\nThe response from subnet 1a is directly routed from Router 2. In this case, the packet would carry the SMAC set to the Router2\u0027s MAC address (in the forward direction, the DMAC was set to Router1\u0027s MAC address). Can this cause any problems?",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 42
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "79674f0a_b6faba7c",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -199,6 +268,75 @@
       "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b8fc3933_13476a5a",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-01-15T09:14:42Z",
+      "side": 1,
+      "message": "There must be another yang that maintains the notion of \"default router\" (or we need to provide the rule for deciding the default router, in the use case 2, where both routers are attached to external networks). This information must be persisted. This is required because across reboots, there is no guarantee that the router-1/router-2 events may arrive out of order. If this happens, we may choose router-2 as default router. This would cause data plane impact.",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 1
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a9dbb5f_009f0554",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-01-15T09:14:42Z",
+      "side": 1,
+      "message": "To be compliant with RFC 6020, this should not be deleted. That would make the yang incompatible for upgrade. Instead we should retain these fields by using the keyword \"deprecated\". We can remove this in the next release.",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 428,
+        "endChar": 13
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d4e1108b_961711d5",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-01-15T09:14:42Z",
+      "side": 1,
+      "message": "For OF switches that forward packets by taking them table by table, resubmits will cause a significant data plane impact. Only for OVS switches (and switches with similar architecture), there will not be any impact.",
+      "range": {
+        "startLine": 454,
+        "startChar": 0,
+        "endLine": 454,
+        "endChar": 4
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
