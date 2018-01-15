@@ -1641,11 +1641,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     return futures;
                 });
                 //update subnet-vpn association
-                if (port != null && port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
-                    removeFromSubnetNode(subnet, sn.getNetworkId(), sn.getRouterId(), vpnId, portId);
-                } else {
-                    removeFromSubnetNode(subnet, sn.getNetworkId(), sn.getRouterId(), vpnId, null);
-                }
+                removeFromSubnetNode(subnet, null, null, vpnId, null);
             }
         }
     }
