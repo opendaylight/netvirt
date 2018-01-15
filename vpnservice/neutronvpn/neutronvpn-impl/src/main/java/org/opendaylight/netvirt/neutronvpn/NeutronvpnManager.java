@@ -1418,14 +1418,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         futures.add(wrtConfigTxn.submit());
                         return futures;
                     });
-                    //update subnet-vpn association
-                    if (port != null && port.getDeviceOwner().equals(NeutronConstants.DEVICE_OWNER_ROUTER_INF)) {
-                        removeFromSubnetNode(subnet, sn.getNetworkId(), sn.getRouterId(), vpnId, portId);
-                    } else {
-                        removeFromSubnetNode(subnet, sn.getNetworkId(), sn.getRouterId(), vpnId, null);
-                    }
                 }
             }
+            //update subnet-vpn association
+            removeFromSubnetNode(subnet, null, null, vpnId, null);
+
         } else {
             LOG.error("Subnetmap for subnet {} not found", subnet.getValue());
         }
