@@ -8,12 +8,10 @@
 
 package org.opendaylight.netvirt.sfc.translator;
 
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.ServiceFunctions;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionKey;
@@ -22,7 +20,6 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev1407
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChainKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.ServiceFunctionForwarders;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.ServiceFunctionPaths;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPath;
@@ -145,6 +142,16 @@ public class SfcMdsalHelper {
         }
     }
 
+    public void updateServiceFunctionForwarder(ServiceFunctionForwarder sff) {
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
+        LOG.info("Update Service Function Forwarder {} to config data store at {}",sff, sffIid);
+        try {
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, sffIid, sff);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error writing {} to {}", sff, sffIid, e);
+        }
+    }
+
     public void deleteServiceFunctionForwarder(ServiceFunctionForwarderKey sffKey) {
         InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sffKey);
         LOG.info("Delete Service Function Forwarder from config data store at {}", sffIid);
@@ -213,36 +220,5 @@ public class SfcMdsalHelper {
 
     private static InstanceIdentifier<ServiceFunctionPath> getSFPPath(ServiceFunctionPathKey key) {
         return SFP_IID.builder().child(ServiceFunctionPath.class, key).build();
-    }
-
-    @Nullable
-    public ServiceFunctionForwarder getExistingSFF(String ipAddress) {
-        ServiceFunctionForwarders existingSffs =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, SFF_IID).orNull();
-
-        if (existingSffs != null && existingSffs.getServiceFunctionForwarder() != null) {
-            for (ServiceFunctionForwarder forwarder : existingSffs.getServiceFunctionForwarder()) {
-                if (forwarder.getIpMgmtAddress() != null && ipAddress.equals(
-                        forwarder.getIpMgmtAddress().getIpv4Address().getValue())) {
-                    return forwarder;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public void addNetvirLogicalSff() {
-        ServiceFunctionForwarderBuilder sffBuilder = new ServiceFunctionForwarderBuilder();
-        sffBuilder.setName(new SffName(NETVIRT_LOGICAL_SFF_NAME));
-        ServiceFunctionForwarder sff = sffBuilder.build();
-        this.addServiceFunctionForwarder(sff);
-    }
-
-    void removeNetvirtLogicalSff() {
-        SffName netvirtLogicalSffName = new SffName(NETVIRT_LOGICAL_SFF_NAME);
-        ServiceFunctionForwarderKey netvirtLogicalSffKey = new ServiceFunctionForwarderKey(netvirtLogicalSffName);
-        this.deleteServiceFunctionForwarder(netvirtLogicalSffKey);
     }
 }

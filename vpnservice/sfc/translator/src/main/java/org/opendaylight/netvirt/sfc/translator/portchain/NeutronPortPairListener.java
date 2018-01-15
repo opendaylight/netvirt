@@ -8,20 +8,15 @@
 
 package org.opendaylight.netvirt.sfc.translator.portchain;
 
-import java.util.List;
-import java.util.Optional;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.sfc.translator.DelegatingDataTreeListener;
 import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocator;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderKey;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.service.function.forwarder.ServiceFunctionDictionary;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.PortPairs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pairs.PortPair;
@@ -53,55 +48,19 @@ public class NeutronPortPairListener extends DelegatingDataTreeListener<PortPair
      */
     @Override
     public void remove(InstanceIdentifier<PortPair> path, PortPair deletedPortPair) {
+        LOG.info("Received remove port pair event {}", deletedPortPair);
 
         ServiceFunctionKey sfKey = PortPairTranslator.getSFKey(deletedPortPair);
-        ServiceFunction serviceFunction = sfcMdsalHelper.readServiceFunction(sfKey);
-        if (serviceFunction == null) {
-            LOG.info("Service Function related to Port Pair {} don't exist.", deletedPortPair);
-            return;
-        }
-
-        List<SfDataPlaneLocator> sfDataPlaneLocatorList = serviceFunction.getSfDataPlaneLocator();
-        if (sfDataPlaneLocatorList == null) {
-            return;
-        }
-
-        for (SfDataPlaneLocator sfDpl : sfDataPlaneLocatorList) {
-
-            ServiceFunctionForwarder sff = Optional.ofNullable(sfDpl.getServiceFunctionForwarder())
-                    .map(ServiceFunctionForwarderKey::new)
-                    .map(sfcMdsalHelper::readServiceFunctionForwarder)
-                    .orElse(null);
-            if (sff == null) {
-                continue;
-            }
-
-            List<ServiceFunctionDictionary> serviceFunctionDictionaryList = sff.getServiceFunctionDictionary();
-            if (serviceFunctionDictionaryList == null) {
-                continue;
-            }
-
-            boolean isSfDictionaryRemoved = serviceFunctionDictionaryList.stream()
-                    .filter(serviceFunctionDictionary -> sfKey.getName().equals(serviceFunctionDictionary.getName()))
-                    .findFirst()
-                    .map(serviceFunctionDictionaryList::remove)
-                    .orElse(false);
-
-            if (isSfDictionaryRemoved && serviceFunctionDictionaryList.isEmpty()) {
-                //If the current SF is last SF attach to SFF, delete the SFF
-                sfcMdsalHelper.deleteServiceFunctionForwarder(sff.getKey());
-            } else if (isSfDictionaryRemoved) {
-                //If there are SF attached to the SFF, just update the SFF dictionary by removing
-                // this deleted SF.
-                ServiceFunctionForwarderBuilder sffBuilder = new ServiceFunctionForwarderBuilder(sff);
-                LOG.info("Remove the SF {} from SFF {} dictionary and update in data store.",
-                        sfKey.getName(),
-                        sfDpl.getServiceFunctionForwarder());
-                sfcMdsalHelper.addServiceFunctionForwarder(sffBuilder.build());
-            }
-        }
-
+        LOG.info("Removing service function {}", sfKey);
         sfcMdsalHelper.removeServiceFunction(sfKey);
+
+        ServiceFunctionForwarder sff;
+        ServiceFunctionForwarder updatedSff;
+        SffName sffName = new SffName(SfcMdsalHelper.NETVIRT_LOGICAL_SFF_NAME);
+        sff = sfcMdsalHelper.readServiceFunctionForwarder(new ServiceFunctionForwarderKey(sffName));
+        updatedSff = PortPairGroupTranslator.removePortPairFromServiceFunctionForwarder(sff, deletedPortPair);
+        LOG.info("Updating service function forwarder as {}", updatedSff);
+        sfcMdsalHelper.addServiceFunctionForwarder(updatedSff);
     }
 
     /**
