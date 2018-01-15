@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "444e3d4e_ea70bf94",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "Please set the topic of this spec to \"faster-dcgw-failure-detection\"",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 75
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37caa19c_22f7b3e2",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "\"with VMs in other DC\" (what do you say?)\n\nExternal connectivity could mean internet connectivity as well, but you started the sentence with \"Inter DC connectivity\", so clarifying it.",
+      "range": {
+        "startLine": 9,
+        "startChar": 300,
+        "endLine": 9,
+        "endChar": 324
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e30f16f_22d505f2",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "nit: It would be ideal if you expand the first occurrence than this one (i.e., in Line 7).",
+      "range": {
+        "startLine": 9,
+        "startChar": 155,
+        "endLine": 9,
+        "endChar": 176
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e4fddc2_ad663598",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "nit: Quagga",
+      "range": {
+        "startLine": 9,
+        "startChar": 86,
+        "endLine": 9,
+        "endChar": 91
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2d01633b_9ef1405d",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "nit: communication",
+      "range": {
+        "startLine": 9,
+        "startChar": 260,
+        "endLine": 9,
+        "endChar": 272
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b4154d30_b2c8a748",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "nit: Since you already expanded the first occurrence, this is optional.",
+      "range": {
+        "startLine": 17,
+        "startChar": 16,
+        "endLine": 17,
+        "endChar": 39
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bd2baabf_3ad05d7c",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "nit: you can remove this select",
+      "range": {
+        "startLine": 32,
+        "startChar": 46,
+        "endLine": 32,
+        "endChar": 52
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "68c72ec4_15f0b00d",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "Is it an HA of DC-GW or HA for ODL (i.e., multiple instances of ODL running)? From the diagram below, it looks like HA for DC-GW. Will the same be applicable even if we have HA for ODL as well?",
+      "range": {
+        "startLine": 36,
+        "startChar": 3,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f4c7788_f6a8c520",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "The sentences are pretty long (some more than 250 chars). Please wrap your sentences.",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 259
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf9b60ac_c628fd6d",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "nit: prefixes",
+      "range": {
+        "startLine": 95,
+        "startChar": 17,
+        "endLine": 95,
+        "endChar": 25
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fa2030d9_6b39ab4b",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "Do we need this?",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 32
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "30e9c3d5_7d78a8c0",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "Is the \"bgp-controller-node\" same as ODL controller node or can it be different as well?",
+      "range": {
+        "startLine": 160,
+        "startChar": 7,
+        "endLine": 160,
+        "endChar": 26
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cce436b7_efbe00a6",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-15T07:36:25Z",
+      "side": 1,
+      "message": "Is it TODO?",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 62
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
