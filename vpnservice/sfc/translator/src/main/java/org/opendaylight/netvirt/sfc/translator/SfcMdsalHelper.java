@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.sfc.translator;
 
-import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
@@ -145,6 +144,16 @@ public class SfcMdsalHelper {
         }
     }
 
+    public void updateServiceFunctionForwarder(ServiceFunctionForwarder sff) {
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sff.getKey());
+        LOG.info("Update Service Function Forwarder {} to config data store at {}",sff, sffIid);
+        try {
+            SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION, sffIid, sff);
+        } catch (TransactionCommitFailedException e) {
+            LOG.error("Error writing {} to {}", sff, sffIid, e);
+        }
+    }
+
     public void deleteServiceFunctionForwarder(ServiceFunctionForwarderKey sffKey) {
         InstanceIdentifier<ServiceFunctionForwarder> sffIid = getSFFPath(sffKey);
         LOG.info("Delete Service Function Forwarder from config data store at {}", sffIid);
@@ -213,24 +222,6 @@ public class SfcMdsalHelper {
 
     private static InstanceIdentifier<ServiceFunctionPath> getSFPPath(ServiceFunctionPathKey key) {
         return SFP_IID.builder().child(ServiceFunctionPath.class, key).build();
-    }
-
-    @Nullable
-    public ServiceFunctionForwarder getExistingSFF(String ipAddress) {
-        ServiceFunctionForwarders existingSffs =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.CONFIGURATION, SFF_IID).orNull();
-
-        if (existingSffs != null && existingSffs.getServiceFunctionForwarder() != null) {
-            for (ServiceFunctionForwarder forwarder : existingSffs.getServiceFunctionForwarder()) {
-                if (forwarder.getIpMgmtAddress() != null && ipAddress.equals(
-                        forwarder.getIpMgmtAddress().getIpv4Address().getValue())) {
-                    return forwarder;
-                }
-            }
-        }
-
-        return null;
     }
 
     public void addNetvirLogicalSff() {
