@@ -20,8 +20,6 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.sfc.translator.DelegatingDataTreeListener;
 import org.opendaylight.netvirt.sfc.translator.NeutronMdsalHelper;
-import org.opendaylight.netvirt.sfc.translator.OvsdbMdsalHelper;
-import org.opendaylight.netvirt.sfc.translator.OvsdbPortMetadata;
 import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.flowclassifier.FlowClassifierTranslator;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInput;
@@ -29,21 +27,17 @@ import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev1407
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInput;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePathService;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfc.rev140701.service.function.chain.grouping.ServiceFunctionChain;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.ServiceFunctionPath;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.Acl;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.flow.classifier.rev160511.sfc.flow.classifiers.attributes.sfc.flow.classifiers.SfcFlowClassifier;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.PortChains;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.chains.PortChain;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pair.groups.PortPairGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pairs.PortPair;
-import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -59,14 +53,12 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             InstanceIdentifier.create(Neutron.class).child(PortChains.class).child(PortChain.class);
     private final SfcMdsalHelper sfcMdsalHelper;
     private final NeutronMdsalHelper neutronMdsalHelper;
-    private final OvsdbMdsalHelper ovsdbMdsalHelper;
     private final RenderedServicePathService rspService;
 
     public NeutronPortChainListener(DataBroker db, RenderedServicePathService rspService) {
         super(db,new DataTreeIdentifier<>(LogicalDatastoreType.CONFIGURATION, PORT_CHAIN_IID));
         this.sfcMdsalHelper = new SfcMdsalHelper(db);
         this.neutronMdsalHelper = new NeutronMdsalHelper(db);
-        this.ovsdbMdsalHelper = new OvsdbMdsalHelper(db);
         this.rspService = rspService;
     }
 
@@ -117,19 +109,15 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
     }
 
     private void processPortChain(PortChain newPortChain) {
+
         //List of Port Pair Group attached to the Port Chain
         List<PortPairGroup> portPairGroupList = new ArrayList<>();
         //Port Pair Group and associated Port Pair
         Map<Uuid, List<PortPair>> groupPortPairsList = new HashMap<>();
-        //Map of Port Pair uuid and Port pair ingress port related Neutron Port
-        Map<Uuid, Port> portPairToNeutronPortMap = new HashMap<>();
-
-        //Mapping of Port Pair UUID and OvsdbPortMetadata of the port pair ingress port
-        Map<Uuid, OvsdbPortMetadata> portPairOvsdbMetadata = new HashMap<>();
 
         List<ServiceFunction> portChainServiceFunctionList = new ArrayList<>();
 
-        //Read chain related port pair group, port pair and neutron port from neutron data store
+        //Read chain related port pair group from neutron data store
         for (Uuid ppgUuid : newPortChain.getPortPairGroups()) {
             PortPairGroup ppg = neutronMdsalHelper.getNeutronPortPairGroup(ppgUuid);
             if (ppg != null) {
@@ -137,95 +125,40 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                 portPairGroupList.add(ppg);
                 for (Uuid ppUuid : ppg.getPortPairs()) {
                     PortPair pp = neutronMdsalHelper.getNeutronPortPair(ppUuid);
-                    if (pp != null) {
-                        portPairList.add(pp);
-                        //NOTE:Assuming that ingress and egress port is same.
-                        Port neutronPort = neutronMdsalHelper.getNeutronPort(pp.getIngress());
-                        if (neutronPort != null) {
-                            portPairToNeutronPortMap.put(pp.getIngress(), neutronPort);
-                        }
+                    if (pp == null) {
+                        LOG.error("Port pair {} does not exist in the neutron data store", ppUuid);
+                        return;
                     }
+                    portPairList.add(pp);
                 }
                 groupPortPairsList.put(ppgUuid, portPairList);
             }
         }
 
-        Topology ovsdbTopology = ovsdbMdsalHelper.getOvsdbTopologyTree();
-
-        //Read ovsdb port details related to neutron port. Each Port pair has two neutron port
-        //With the current implementation, i am assuming that we support SF only with single port
-        //that act as a ingress as well as egress.
-        for (Map.Entry<Uuid, Port> neutronPortEntry : portPairToNeutronPortMap.entrySet()) {
-            OvsdbPortMetadata ovsdbPortMetadata =
-                    ovsdbMdsalHelper.getOvsdbPortMetadata(
-                            neutronPortEntry.getValue().getKey().getUuid(),
-                            ovsdbTopology);
-
-            if (ovsdbPortMetadata != null) {
-                portPairOvsdbMetadata.put(neutronPortEntry.getKey(), ovsdbPortMetadata);
-            }
-        }
-
-        // Ensure that netvirt logical SFF is there
-        sfcMdsalHelper.addNetvirLogicalSff();
-
         //For each port pair group
         for (PortPairGroup ppg : portPairGroupList) {
-            List<ServiceFunctionBuilder> portPairSFList = new ArrayList<>();
 
             List<PortPair> portPairList =  groupPortPairsList.get(ppg.getUuid());
-            Map<Uuid, OvsdbPortMetadata> metadataList = new HashMap<>();
-            //Generate OvsdbPortMetadata for list of all the port pair
-            for (PortPair portPair : portPairList) {
-                OvsdbPortMetadata metadata = portPairOvsdbMetadata.get(portPair.getIngress());
-
-                if (metadata != null) {
-                    metadataList.put(portPair.getIngress(), metadata);
-                }
-            }
-
-            //Build the SFF Builder from port pair group
-            ServiceFunctionForwarderBuilder sffBuilder =
-                    PortPairGroupTranslator.buildServiceFunctionForwarder(ppg,portPairList, metadataList);
-            LOG.info("SFF generated for Port Pair Group {} :: {}",ppg, sffBuilder);
-            //Check if SFF already exist
-            ServiceFunctionForwarder existingSff =
-                    sfcMdsalHelper.getExistingSFF(sffBuilder.getIpMgmtAddress().getIpv4Address().getValue());
-            if (existingSff != null) {
-                LOG.info("SFF already exist for Port Pair Group {}. Existing SFF is {}",ppg, existingSff);
-                sffBuilder = new ServiceFunctionForwarderBuilder(existingSff);
-            }
 
             //Generate all the SF and write it to SFC data store
             for (PortPair portPair : portPairList) {
-                OvsdbPortMetadata metadata = portPairOvsdbMetadata.get(portPair.getIngress());
                 //Build the service function for the given port pair.
-                ServiceFunctionBuilder sfBuilder = PortPairTranslator.buildServiceFunction(portPair,
-                        ppg,
-                        portPairToNeutronPortMap.get(portPair.getIngress()),
-                        metadata,
-                        sffBuilder.build());
+                ServiceFunction serviceFunction = PortPairTranslator.buildServiceFunction(portPair, ppg);
+                portChainServiceFunctionList.add(serviceFunction);
 
-                LOG.info("Service Function generated for the Port Pair {} :: {}", portPair, sfBuilder);
                 //Write the Service Function to SFC data store.
-                sfcMdsalHelper.addServiceFunction(sfBuilder.build());
-
-                //Add to the list, to populated SFF Service Function Dictionary
-                portPairSFList.add(sfBuilder);
-
-                //Add the SF to Port Chain related SF list
-                portChainServiceFunctionList.add(sfBuilder.build());
+                LOG.info("Add Service Function {} for Port Pair {}", serviceFunction, portPair);
+                sfcMdsalHelper.addServiceFunction(serviceFunction);
             }
 
-            //Update the Service Function Dictionary of SFF
-            for (ServiceFunctionBuilder sf : portPairSFList) {
-                PortPairGroupTranslator.buildServiceFunctionDictonary(sffBuilder, sf.build());
-                LOG.info("Updating Service Function dictionary of SFF {} for SF {}", sffBuilder, sf);
-            }
+            //Build the SFF Builder from port pair group
+            ServiceFunctionForwarder serviceFunctionForwarder;
+            serviceFunctionForwarder = PortPairGroupTranslator.buildServiceFunctionForwarder(ppg, portPairList);
             // Send SFF create request
-            LOG.info("Add Service Function Forwarder {} for Port Pair Group {}", sffBuilder.build(), ppg);
-            sfcMdsalHelper.addServiceFunctionForwarder(sffBuilder.build());
+            LOG.info("Update Service Function Forwarder with {} for Port Pair Group {}", serviceFunctionForwarder, ppg);
+            sfcMdsalHelper.updateServiceFunctionForwarder(serviceFunctionForwarder);
         }
+
         //Build Service Function Chain Builder
         ServiceFunctionChain sfc =
                 PortChainTranslator.buildServiceFunctionChain(newPortChain, portChainServiceFunctionList);
