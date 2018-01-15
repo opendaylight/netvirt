@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "79afdc86_4ce5df2d",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "444e3d4e_ea70bf94",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 75
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "37caa19c_22f7b3e2",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 8
@@ -117,6 +141,102 @@
     },
     {
       "key": {
+        "uuid": "3e906b37_5e397f80",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2d01633b_9ef1405d",
+      "range": {
+        "startLine": 9,
+        "startChar": 260,
+        "endLine": 9,
+        "endChar": 272
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fe870fdd_095ac089",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Done\nIMO: BGP-VPN implies internet connectivity. I updated the document with \"internet connectivity\" as well..",
+      "parentUuid": "37caa19c_22f7b3e2",
+      "range": {
+        "startLine": 9,
+        "startChar": 300,
+        "endLine": 9,
+        "endChar": 324
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ff467ee9_e384776d",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3e30f16f_22d505f2",
+      "range": {
+        "startLine": 9,
+        "startChar": 155,
+        "endLine": 9,
+        "endChar": 176
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc6b755b_3f88254e",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Thank you",
+      "parentUuid": "2e4fddc2_ad663598",
+      "range": {
+        "startLine": 9,
+        "startChar": 86,
+        "endLine": 9,
+        "endChar": 91
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b4154d30_b2c8a748",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 8
@@ -128,6 +248,30 @@
       "writtenOn": "2018-01-15T07:36:25Z",
       "side": 1,
       "message": "nit: Since you already expanded the first occurrence, this is optional.",
+      "range": {
+        "startLine": 17,
+        "startChar": 16,
+        "endLine": 17,
+        "endChar": 39
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "87fb662d_96cb494a",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b4154d30_b2c8a748",
       "range": {
         "startLine": 17,
         "startChar": 16,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "78736666_7c66af81",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bd2baabf_3ad05d7c",
+      "range": {
+        "startLine": 32,
+        "startChar": 46,
+        "endLine": 32,
+        "endChar": 52
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "68c72ec4_15f0b00d",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 8
@@ -174,6 +342,30 @@
       "writtenOn": "2018-01-15T07:36:25Z",
       "side": 1,
       "message": "Is it an HA of DC-GW or HA for ODL (i.e., multiple instances of ODL running)? From the diagram below, it looks like HA for DC-GW. Will the same be applicable even if we have HA for ODL as well?",
+      "range": {
+        "startLine": 36,
+        "startChar": 3,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0e06a8a0_79d0f095",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Its HA for DC-Gwy. Updated it.\nHA for ODL is already present, depends of scenario where the VM is present (invisible IP, subport, Interface-IP)",
+      "parentUuid": "68c72ec4_15f0b00d",
       "range": {
         "startLine": 36,
         "startChar": 3,
@@ -209,6 +401,30 @@
     },
     {
       "key": {
+        "uuid": "713241c4_b92a702e",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Updated the sentence (made shorter), not below 80 characters as rst document will give errors, if I break sentence.",
+      "parentUuid": "3f4c7788_f6a8c520",
+      "range": {
+        "startLine": 91,
+        "startChar": 0,
+        "endLine": 91,
+        "endChar": 259
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "bf9b60ac_c628fd6d",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 8
@@ -220,6 +436,30 @@
       "writtenOn": "2018-01-15T07:36:25Z",
       "side": 1,
       "message": "nit: prefixes",
+      "range": {
+        "startLine": 95,
+        "startChar": 17,
+        "endLine": 95,
+        "endChar": 25
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7d72c831_2724bf2c",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bf9b60ac_c628fd6d",
       "range": {
         "startLine": 95,
         "startChar": 17,
@@ -255,6 +495,30 @@
     },
     {
       "key": {
+        "uuid": "a3c497b7_75506ff1",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "we dont need this, will remove it thank you",
+      "parentUuid": "fa2030d9_6b39ab4b",
+      "range": {
+        "startLine": 153,
+        "startChar": 0,
+        "endLine": 155,
+        "endChar": 32
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "30e9c3d5_7d78a8c0",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 8
@@ -278,6 +542,30 @@
     },
     {
       "key": {
+        "uuid": "1f64fea9_8a1f1ba9",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 160,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "It will be one of the ODL nodes (where the qbgp process is present).",
+      "parentUuid": "30e9c3d5_7d78a8c0",
+      "range": {
+        "startLine": 160,
+        "startChar": 7,
+        "endLine": 160,
+        "endChar": 26
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cce436b7_efbe00a6",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 8
@@ -289,6 +577,30 @@
       "writtenOn": "2018-01-15T07:36:25Z",
       "side": 1,
       "message": "Is it TODO?",
+      "range": {
+        "startLine": 167,
+        "startChar": 0,
+        "endLine": 167,
+        "endChar": 62
+      },
+      "revId": "2b207b172c8350e8eb921a92bef73e1cb4befb13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e18cde55_71f25070",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-15T15:30:34Z",
+      "side": 1,
+      "message": "As of now, we dont have any plan to implement secured BFD communication. Will remove this for now.",
+      "parentUuid": "cce436b7_efbe00a6",
       "range": {
         "startLine": 167,
         "startChar": 0,
