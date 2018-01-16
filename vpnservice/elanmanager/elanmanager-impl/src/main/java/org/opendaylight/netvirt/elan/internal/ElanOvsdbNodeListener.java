@@ -81,6 +81,7 @@ public class ElanOvsdbNodeListener extends AsyncDataTreeChangeListenerBase<Node,
                 && !integrationBridgeExist)) {
             doNodeUpdate(update);
         }
+        bridgeMgr.handleNewProviderNetBridges(original, update);
         if (integrationBridgeExist) {
             tzUtil.handleOvsdbNodeUpdate(original, update, identifier.firstKeyOf(Node.class).getNodeId().getValue());
         }
