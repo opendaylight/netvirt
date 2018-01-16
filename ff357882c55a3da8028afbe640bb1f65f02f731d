@@ -22,6 +22,30 @@
       "revId": "ff357882c55a3da8028afbe640bb1f65f02f731d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "195a1ecc_e05d9dc6",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 140
+      },
+      "lineNbr": 1668,
+      "author": {
+        "id": 6988
+      },
+      "writtenOn": "2018-01-16T17:13:42Z",
+      "side": 1,
+      "message": "yes of course. I will do it.",
+      "parentUuid": "49d7aa00_c59fa351",
+      "range": {
+        "startLine": 1665,
+        "startChar": 0,
+        "endLine": 1668,
+        "endChar": 5
+      },
+      "revId": "ff357882c55a3da8028afbe640bb1f65f02f731d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
