@@ -679,7 +679,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     }
 
     protected void installSnatMissEntry(BigInteger dpnId, List<BucketInfo> bucketInfo,
-            String routerName, long routerId) {
+            String routerName, long routerId, WriteTransaction writeFlowInvTx) {
         LOG.debug("installSnatMissEntry : called for dpnId {} with primaryBucket {} ",
             dpnId, bucketInfo.get(0));
         // Install the select group
@@ -696,7 +696,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     + "on Non NAPT DPN {} for router {}", NwConstants.PSNAT_TABLE, dpnId, routerName);
             return;
         }
-        mdsalManager.installFlow(flowEntity);
+        mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
     }
 
     long installGroup(BigInteger dpnId, String routerName, List<BucketInfo> bucketInfo) {
@@ -854,7 +854,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
 
         listBucketInfo.add(0, bucketPrimary);
-        installSnatMissEntry(dpnId, listBucketInfo, routerName, routerId);
+        installSnatMissEntry(dpnId, listBucketInfo, routerName, routerId, writeFlowInvTx);
     }
 
     List<BucketInfo> getBucketInfoForNonNaptSwitches(BigInteger nonNaptSwitchId,
@@ -901,12 +901,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         installSnatMissEntryForPrimrySwch(dpnId, routerName, routerId, writeFlowInvTx);
         installTerminatingServiceTblEntry(dpnId, routerName, routerId, writeFlowInvTx);
         //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the router ID.
-        installNaptPfibEntry(dpnId, routerId, writeFlowInvTx);
+        installNaptPfibEntry(dpnId, routerId);
         Long vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
         installNaptPfibEntriesForExternalSubnets(routerName, dpnId, writeFlowInvTx);
         //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
         if (vpnId != null && vpnId != NatConstants.INVALID_ID) {
-            installNaptPfibEntry(dpnId, vpnId, writeFlowInvTx);
+            installNaptPfibEntry(dpnId, vpnId);
         }
     }
 
@@ -919,10 +919,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return listBucketInfo;
     }
 
-    public void installNaptPfibEntry(BigInteger dpnId, long segmentId, WriteTransaction writeFlowInvTx) {
+    public void installNaptPfibEntry(BigInteger dpnId, long segmentId) {
         LOG.debug("installNaptPfibEntry : called for dpnId {} and segmentId {} ", dpnId, segmentId);
         FlowEntity naptPfibFlowEntity = buildNaptPfibFlowEntity(dpnId, segmentId);
-        mdsalManager.addFlowToTx(naptPfibFlowEntity, writeFlowInvTx);
+        mdsalManager.installFlow(naptPfibFlowEntity);
     }
 
     public FlowEntity buildNaptPfibFlowEntity(BigInteger dpId, long segmentId) {
@@ -2590,7 +2590,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
                 LOG.debug("{} in the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table in the"
                         + "Primary switch {}", logMsg, changedVpnId, primarySwitchId);
-                installNaptPfibEntryWithBgpVpn(primarySwitchId, routerId, changedVpnId, writeFlowInvTx);
+                installNaptPfibEntryWithBgpVpn(primarySwitchId, routerId, changedVpnId);
 
                 LOG.debug("{} in the NAPT flows for the Outbound NAPT table (table ID 46) and the "
                         + "INBOUND NAPT table (table ID 44) in the Primary switch {}",
@@ -2602,7 +2602,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 Long vpnId = NatUtil.getNetworkVpnIdFromRouterId(dataBroker, routerId);
                 //Install the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table matching on the VPN ID.
                 if (vpnId != NatConstants.INVALID_ID) {
-                    installNaptPfibEntry(primarySwitchId, vpnId, writeFlowInvTx);
+                    installNaptPfibEntry(primarySwitchId, vpnId);
                 }
             }
         }
@@ -2777,12 +2777,11 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         return flowEntity;
     }
 
-    public void installNaptPfibEntryWithBgpVpn(BigInteger dpnId, long segmentId, long changedVpnId,
-                                               WriteTransaction writeFlowInvTx) {
+    public void installNaptPfibEntryWithBgpVpn(BigInteger dpnId, long segmentId, long changedVpnId) {
         LOG.debug("installNaptPfibEntryWithBgpVpn : called for dpnId {} and segmentId {} ,BGP VPN ID {}",
             dpnId, segmentId, changedVpnId);
         FlowEntity naptPfibFlowEntity = buildNaptPfibFlowEntityWithUpdatedVpnId(dpnId, segmentId, changedVpnId);
-        mdsalManager.addFlowToTx(naptPfibFlowEntity, writeFlowInvTx);
+        mdsalManager.installFlow(naptPfibFlowEntity);
     }
 
     public FlowEntity buildNaptPfibFlowEntityWithUpdatedVpnId(BigInteger dpId, long segmentId, long changedVpnId) {
@@ -2821,7 +2820,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
             if (subnetVpnId != -1) {
                 LOG.debug("installNaptPfibEntriesForExternalSubnets : called for dpnId {} "
                     + "and vpnId {}", dpnId, subnetVpnId);
-                installNaptPfibEntry(dpnId, subnetVpnId, writeFlowInvTx);
+                installNaptPfibEntry(dpnId, subnetVpnId);
             }
         }
     }
