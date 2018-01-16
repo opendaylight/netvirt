@@ -12,6 +12,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.re
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentationBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.bridge.attributes.BridgeOtherConfigsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.node.attributes.ManagedNodeEntry;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -175,6 +177,55 @@ public class ElanBridgeManager implements IElanBridgeManager {
             prepareIntegrationBridge(ovsdbNode, node);
         }
 
+    }
+
+    public void handleNewProviderNetBridges(Node originalNode, Node updatedNode) {
+        if (!isOvsdbNode(updatedNode)) {
+            return;
+        }
+
+        List<ManagedNodeEntry> originalManagedNodes = getManagedNodeEntries(originalNode);
+        if (originalManagedNodes == null) {
+            return;
+        }
+        List<ManagedNodeEntry> updatedManagedNodes = getManagedNodeEntries(updatedNode);
+        if (updatedManagedNodes == null) {
+            return;
+        }
+        updatedManagedNodes.removeAll(originalManagedNodes);
+        if (updatedManagedNodes.isEmpty()) {
+            return;
+        }
+        LOG.debug("handleNewProviderNetBridges checking if any of these are provider nets {}", updatedManagedNodes);
+
+        Node brInt = southboundUtils.readBridgeNode(updatedNode, INTEGRATION_BRIDGE);
+        if (brInt == null) {
+            LOG.info("handleNewProviderNetBridges, br-int not found");
+            return;
+        }
+
+        Collection<String> providerVals = getOpenvswitchOtherConfigMap(updatedNode, PROVIDER_MAPPINGS_KEY).values();
+        for (ManagedNodeEntry nodeEntry : updatedManagedNodes) {
+            String bridgeName = nodeEntry.getBridgeRef().getValue().firstKeyOf(Node.class).getNodeId().getValue();
+            bridgeName = bridgeName.substring(bridgeName.lastIndexOf('/') + 1);
+            if (bridgeName.equals(INTEGRATION_BRIDGE)) {
+                continue;
+            }
+            if (providerVals.contains(bridgeName)) {
+                patchBridgeToBrInt(brInt, southboundUtils.readBridgeNode(updatedNode, bridgeName), bridgeName);
+            }
+        }
+
+
+    }
+
+    private List<ManagedNodeEntry> getManagedNodeEntries(Node node) {
+        OvsdbNodeAugmentation ovsdbNode = southboundUtils.extractNodeAugmentation(node);
+        if (ovsdbNode == null) {
+            return null;
+        }
+
+        return ovsdbNode.getManagedNodeEntry();
     }
 
     private void prepareIntegrationBridge(Node ovsdbNode, Node brIntNode) {
