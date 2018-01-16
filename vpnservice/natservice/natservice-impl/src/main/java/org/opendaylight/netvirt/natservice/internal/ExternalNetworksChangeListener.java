@@ -249,7 +249,7 @@ public class ExternalNetworksChangeListener
                 if (vpnId != -1) {
                     LOG.debug("associateExternalNetworkWithVPN : Calling externalRouterListener installNaptPfibEntry "
                             + "for dpnId {} and vpnId {}", dpnId, vpnId);
-                    externalRouterListener.installNaptPfibEntry(dpnId, vpnId, writeFlowInvTx);
+                    externalRouterListener.installNaptPfibEntry(dpnId, vpnId);
                 }
             }
         }

@@ -26,6 +26,8 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.met
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class NodeIdToDpnConverter {
@@ -34,23 +36,27 @@ public class NodeIdToDpnConverter {
     private final CacheProvider cacheProvider;
     private final Map<NodeId, BigInteger> nodeToDpnId = new ConcurrentHashMap<>();
     private DataObjectCache<BridgeRefEntry> dpnBridgeRefCache;
+    private static final Logger LOG = LoggerFactory.getLogger(NodeIdToDpnConverter.class);
 
     @Inject
     public NodeIdToDpnConverter(final DataBroker dataBroker, CacheProvider cacheProvider) {
         this.dataBroker = dataBroker;
         this.cacheProvider = cacheProvider;
+		init();
     }
 
-    @PostConstruct
     void init() {
+		LOG.info("Init method called");
         dpnBridgeRefCache = new DataObjectCache<BridgeRefEntry>(BridgeRefEntry.class, dataBroker,
                 LogicalDatastoreType.OPERATIONAL, getBridgeRefEntryIdentifier(),
                 cacheProvider) {
             @Override
             protected void added(InstanceIdentifier<BridgeRefEntry> path, BridgeRefEntry dataObject) {
+                LOG.info("NodeIdToDpnConverter path:{} dataObject:{}", path, dataObject);
                 addBridgeRef(path, dataObject);
             }
         };
+		LOG.info("dpnBridgeRefCache initiated to {}", dpnBridgeRefCache);
     }
 
     @PreDestroy
@@ -72,7 +78,7 @@ public class NodeIdToDpnConverter {
         InstanceIdentifier<Node> iid = (InstanceIdentifier<Node>) dataObject.getBridgeReference().getValue();
         NodeId nodeId = iid.firstKeyOf(Node.class).getNodeId();
         nodeToDpnId.put(nodeId, dataObject.getDpid());
-        return  nodeId;
+        return nodeId;
     }
 
     public BigInteger getDpnId(NodeId nodeId) {
@@ -81,6 +87,9 @@ public class NodeIdToDpnConverter {
 
     public NodeId getNodeId(BigInteger dpnId) throws ReadFailedException {
         InstanceIdentifier<BridgeRefEntry> path = getBridgeRefEntryIdentifier(dpnId);
+        LOG.info("NodeIdToDpnConverter:getNodeId path:{}", path);
+		LOG.info("dpnBridgeRefCache : {}", dpnBridgeRefCache);
+        LOG.info("NodeIdToDpnConverter:getNodeId dpnBridgeRefCache.get(path):{}", dpnBridgeRefCache.get(path));
         BridgeRefEntry bridgeRefEntry = dpnBridgeRefCache.get(path).orNull();
         if (bridgeRefEntry != null) {
             return addBridgeRef(path, bridgeRefEntry);

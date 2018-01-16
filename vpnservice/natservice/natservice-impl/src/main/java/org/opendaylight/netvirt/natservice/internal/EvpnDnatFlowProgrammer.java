@@ -134,8 +134,7 @@ public class EvpnDnatFlowProgrammer {
         String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
         //Inform to FIB and BGP
         NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, fibExternalIp,
-                nextHopIp, l3Vni, floatingIpInterface, floatingIpPortMacAddress,
-                writeFlowInvTx, RouteOrigin.STATIC, dpnId);
+                nextHopIp, l3Vni, floatingIpInterface, floatingIpPortMacAddress, RouteOrigin.STATIC, dpnId);
 
         /* Install the flow table L3_FIB_TABLE (table=21)-> PDNAT_TABLE (table=25)
          * (SNAT to DNAT reverse traffic: If the DPN has both SNAT and  DNAT configured )

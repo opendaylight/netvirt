@@ -168,7 +168,6 @@ public final class NatEvpnUtil {
                                                  long l3Vni,
                                                  String interfaceName,
                                                  String gwMacAddress,
-                                                 WriteTransaction writeTx,
                                                  RouteOrigin origin, BigInteger dpId) {
         try {
             LOG.info("addRoutesForVxLanProvType : Adding Fib entry rd {} prefix {} nextHop {} l3Vni {}",
@@ -183,7 +182,7 @@ public final class NatEvpnUtil {
 
             fibManager.addOrUpdateFibEntry(broker, rd, null /*macAddress*/, prefix,
                     Collections.singletonList(nextHopIp), VrfEntry.EncapType.Vxlan, NatConstants.DEFAULT_LABEL_VALUE,
-                    l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, writeTx);
+                    l3Vni, gwMacAddress, null /* parent-vpn-rd */, origin, null);
             /* Publish to Bgp only if its an INTERNET VPN */
             if ((rd != null) && (!rd.equalsIgnoreCase(vpnName))) {
                 bgpManager.advertisePrefix(rd, null /*macAddress*/, prefix, Collections.singletonList(nextHopIp),

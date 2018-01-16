@@ -54,9 +54,9 @@ public class TombstonedNodeManagerImpl implements TombstonedNodeManager {
         this.dataBroker = dataBroker;
         this.cacheProvider = cacheProvider;
         this.nodeIdToDpnConverter = nodeIdToDpnConverter;
+		init();
     }
 
-    @PostConstruct
     void init() {
         bridgeExternalIdsCache = new DataObjectCache<BridgeExternalIds>(BridgeExternalIds.class, dataBroker,
                 LogicalDatastoreType.CONFIGURATION, ScaleInConstants.BRIDGE_EXTERNAL_IID,
@@ -64,6 +64,7 @@ public class TombstonedNodeManagerImpl implements TombstonedNodeManager {
             @Override
             @SuppressWarnings({"all"})
             protected void removed(InstanceIdentifier<BridgeExternalIds> path, BridgeExternalIds dataObject) {
+                LOG.info("removed() called for {}", dataObject);
                 InstanceIdentifier<Node> nodePath = path.firstIdentifierOf(Node.class);
                 if (isNodePresentInConfig(nodePath)) {
                     BigInteger dpnId = nodeIdToDpnConverter.getDpnId(path.firstKeyOf(Node.class).getNodeId());
@@ -81,6 +82,7 @@ public class TombstonedNodeManagerImpl implements TombstonedNodeManager {
                 }
             }
         };
+		LOG.info("bridgeExternalIdsCache : {}", bridgeExternalIdsCache);
     }
 
     @PreDestroy
