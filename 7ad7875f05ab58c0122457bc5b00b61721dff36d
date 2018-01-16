@@ -52,6 +52,24 @@
       "revId": "7ad7875f05ab58c0122457bc5b00b61721dff36d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "405b55bf_9569f2a3",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/UpgradeStateListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-01-16T05:44:42Z",
+      "side": 1,
+      "message": "The implementation is little different for controller and conntrack. Unlike controller based, conntrack based flow programming happens as a response centralized switch scheduling and there could be multiple listeners for this.(One of VXLAN/GRE, one for FLAT/VLAN). So to respond for the centralized switch schedule event needs to be decided by each listeners[1] based on the n/w type. Hence we don\u0027t require any explicit check here.\n\nIn controller based flow programming is in response external router add and it is a single class programming the flows based on the n/w type and hence we need a check. Here centralized switch selection is a part of flow programming and natservice don\u0027t have listener for centralized switch scheduling.\n\n[1]https://git.opendaylight.org/gerrit/#/c/56709/",
+      "parentUuid": "e5a021f2_ea878452",
+      "revId": "7ad7875f05ab58c0122457bc5b00b61721dff36d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
