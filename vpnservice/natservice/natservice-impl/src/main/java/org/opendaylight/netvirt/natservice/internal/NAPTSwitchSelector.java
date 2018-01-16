@@ -20,7 +20,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.netvirt.scaleinservice.api.TombstonedNodeManager;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.NaptSwitches;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchBuilder;
@@ -33,10 +35,12 @@ import org.slf4j.LoggerFactory;
 public class NAPTSwitchSelector {
     private static final Logger LOG = LoggerFactory.getLogger(NAPTSwitchSelector.class);
     private final DataBroker dataBroker;
+    private final TombstonedNodeManager tombstonedNodeManager;
 
     @Inject
-    public NAPTSwitchSelector(final DataBroker dataBroker) {
+    public NAPTSwitchSelector(final DataBroker dataBroker, final TombstonedNodeManager tombstonedNodeManager) {
         this.dataBroker = dataBroker;
+        this.tombstonedNodeManager = tombstonedNodeManager;
     }
 
     BigInteger selectNewNAPTSwitch(String routerName) {
@@ -48,7 +52,13 @@ public class NAPTSwitchSelector {
                     routerName);
             return BigInteger.ZERO;
         }
-
+        try {
+            LOG.debug("selectNewNAPTSwitch : routerSwitches before filtering : {}", routerSwitches);
+            routerSwitches = tombstonedNodeManager.filterTombStoned(routerSwitches);
+            LOG.debug("selectNewNAPTSwitch : routerSwitches after filtering : {}", routerSwitches);
+        } catch (ReadFailedException ex) {
+            LOG.error("selectNewNAPTSwitch : filterTombStoned Exception thrown", ex);
+        }
         Set<SwitchWeight> switchWeights = new TreeSet<>();
         for (BigInteger dpn : routerSwitches) {
             if (naptSwitchWeights.get(dpn) != null) {
