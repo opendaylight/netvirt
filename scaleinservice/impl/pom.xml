@@ -16,7 +16,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <relativePath>../../commons/binding-parent</relativePath>
     </parent>
 
-    <artifactId>natservice-impl</artifactId>
+    <artifactId>scale-in-impl</artifactId>
     <name>ODL :: netvirt :: ${project.artifactId}</name>
     <packaging>bundle</packaging>
     <modelVersion>4.0.0</modelVersion>
@@ -25,14 +25,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.controller</groupId>
-            <artifactId>sal-binding-broker-impl</artifactId>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
@@ -51,18 +43,13 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
-            <artifactId>itm-api</artifactId>
-            <version>${genius.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.genius</groupId>
             <artifactId>mdsalutil-api</artifactId>
             <version>${genius.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.opendaylight.infrautils</groupId>
-            <artifactId>counters-api</artifactId>
-            <version>${infrautils.version}</version>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>itm-api</artifactId>
+            <version>${genius.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -77,11 +64,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fibmanager-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>natservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -105,6 +87,25 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             <version>${openflowplugin.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-broker-impl</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin</groupId>
+            <artifactId>openflowplugin-extension-nicira</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin.model</groupId>
+            <artifactId>model-flow-base</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.openflowplugin.model</groupId>
+            <artifactId>model-flow-service</artifactId>
+            <version>${openflowplugin.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-api-mockito</artifactId>
             <scope>test</scope>
@@ -112,6 +113,80 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <dependency>
             <groupId>org.powermock</groupId>
             <artifactId>powermock-module-junit4</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.infrautils</groupId>
+            <artifactId>counters-api</artifactId>
+            <version>${infrautils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.infrautils</groupId>
+            <artifactId>caches-guava-impl</artifactId>
+            <version>${infrautils.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.opendaylight.yangtools</groupId>
+            <artifactId>testutils</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>mdsalutil-api</artifactId>
+            <version>${genius.version}</version>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>mdsalutil-impl</artifactId>
+            <version>${genius.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.controller</groupId>
+            <artifactId>sal-binding-broker-impl</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.mdsal</groupId>
+            <artifactId>mdsal-binding-test-utils</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>lockmanager-impl</artifactId>
+            <version>${genius.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.infrautils</groupId>
+            <artifactId>inject.guice.testutils</artifactId>
+            <version>${infrautils.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.infrautils</groupId>
+            <artifactId>infrautils-testutils</artifactId>
+            <version>${infrautils.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>mdsalutil-testutils</artifactId>
+            <version>${genius.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>testutils</artifactId>
+            <version>${genius.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -134,29 +209,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                         <Export-Package/>
                     </instructions>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-artifacts</id>
-                        <goals>
-                            <goal>attach-artifact</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <artifacts>
-                                <artifact>
-                                    <file>${project.build.directory}/classes/initial/netvirt-natservice-config.xml
-                                    </file>
-                                    <type>xml</type>
-                                    <classifier>config</classifier>
-                                </artifact>
-                            </artifacts>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>
