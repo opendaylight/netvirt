@@ -248,7 +248,7 @@ public class NaptSwitchHA {
             NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE, naptPFibflowRef);
         LOG.info("removeSnatFlowsInOldNaptSwitch : Remove the flow in table {} for the old napt switch "
                 + "with the DPN ID {} and router ID {}", NwConstants.NAPT_PFIB_TABLE, naptSwitch, routerId);
-        mdsalManager.removeFlowToTx(naptPFibFlowEntity, removeFlowInvTx);
+        mdsalManager.removeFlow(naptPFibFlowEntity);
 
         // Remove the NAPT_PFIB_TABLE(47) flow entry forwards the packet to Fib Table for outbound traffic
         // matching on the vpn ID.
@@ -277,7 +277,7 @@ public class NaptSwitchHA {
                             NatUtil.buildFlowEntity(naptSwitch, NwConstants.NAPT_PFIB_TABLE, naptFibflowRef);
                     LOG.info("removeSnatFlowsInOldNaptSwitch : Remove the flow in table {} for the old napt switch"
                             + " with the DPN ID {} and vpnId {}", NwConstants.NAPT_PFIB_TABLE, naptSwitch, vpnId);
-                    mdsalManager.removeFlowToTx(naptFibFlowEntity, removeFlowInvTx);
+                    mdsalManager.removeFlow(naptFibFlowEntity);
                 } else {
                     LOG.error("removeSnatFlowsInOldNaptSwitch : Invalid vpnId retrieved for routerId {}",
                             routerId);
@@ -473,7 +473,7 @@ public class NaptSwitchHA {
             boolean naptUpdated = updateNaptSwitch(routerName, naptSwitch);
             if (naptUpdated) {
                 //update group of ordinary switch point to naptSwitch tunnel port
-                updateNaptSwitchBucketStatus(routerName, routerId, naptSwitch);
+                updateNaptSwitchBucketStatus(routerName, routerId, naptSwitch, writeFlowInvTx);
             } else {
                 LOG.error("isNaptSwitchDown : Failed to update naptSwitch model for newNaptSwitch {} for router {}",
                         naptSwitch, routerName);
@@ -536,7 +536,8 @@ public class NaptSwitchHA {
         return null;
     }
 
-    public void updateNaptSwitchBucketStatus(String routerName, long routerId, BigInteger naptSwitch) {
+    public void updateNaptSwitchBucketStatus(String routerName, long routerId,
+            BigInteger naptSwitch, WriteTransaction writeFlowInvTx) {
         LOG.debug("updateNaptSwitchBucketStatus : called");
 
         List<BigInteger> dpnList = naptSwitchSelector.getDpnsForVpn(routerName);
@@ -550,7 +551,13 @@ public class NaptSwitchHA {
                 LOG.debug("updateNaptSwitchBucketStatus : Updating SNAT_TABLE missentry for DpnId {} "
                         + "which is not naptSwitch for router {}", dpn, routerName);
                 List<BucketInfo> bucketInfoList = handleGroupInNeighborSwitches(dpn, routerName, routerId, naptSwitch);
+                if (bucketInfoList.isEmpty()) {
+                    LOG.error("Failed to populate bucketInfo for orinaryswitch {} whose naptSwitch {} for router {} ",
+                            dpn,naptSwitch,routerName);
+                    continue;
+                }
                 modifySnatGroupEntry(dpn, bucketInfoList, routerName);
+                externalRouterListener.installSnatMissEntry(dpn, bucketInfoList, routerName, routerId, writeFlowInvTx);
             }
         }
     }
@@ -894,7 +901,7 @@ public class NaptSwitchHA {
             //Table 47 point to table 21 for inbound traffic
             LOG.debug("installSnatFlows : installNaptPfibEntry in naptswitch with dpnId {} for router {}",
                 naptSwitch, routerId);
-            externalRouterListener.installNaptPfibEntry(naptSwitch, routerId, writeFlowInvTx);
+            externalRouterListener.installNaptPfibEntry(naptSwitch, routerId);
 
             //Table 47 point to group
             LOG.debug("installSnatFlows : installNaptPfibExternalOutputFlow in naptswitch with dpnId {} for router {}",
@@ -928,7 +935,7 @@ public class NaptSwitchHA {
             //Table 47 point to table 21 for inbound traffic
             LOG.debug("installSnatFlows : installNaptPfibEntry in naptswitch with dpnId {} for router {} "
                     + "with BgpVpnId {}", naptSwitch, routerId, routerVpnId);
-            externalRouterListener.installNaptPfibEntryWithBgpVpn(naptSwitch, routerId, routerVpnId, writeFlowInvTx);
+            externalRouterListener.installNaptPfibEntryWithBgpVpn(naptSwitch, routerId, routerVpnId);
         }
 
         Uuid networkId = NatUtil.getNetworkIdFromRouterName(dataBroker, routerName);
@@ -946,7 +953,7 @@ public class NaptSwitchHA {
                         shouldInstallNaptPfibWithExtNetworkVpnId = false;
                         LOG.debug("installSnatFlows : installNaptPfibEntry fin naptswitch with dpnId {} for "
                                 + "BgpVpnId {}", naptSwitch, externalSubnetVpnId);
-                        externalRouterListener.installNaptPfibEntry(naptSwitch, externalSubnetVpnId, writeFlowInvTx);
+                        externalRouterListener.installNaptPfibEntry(naptSwitch, externalSubnetVpnId);
                     }
                 }
             }
@@ -954,7 +961,7 @@ public class NaptSwitchHA {
                 //NAPT PFIB table point to FIB table for outbound traffic - using external networkID as vpnID.
                 LOG.debug("installSnatFlows : installNaptPfibEntry fin naptswitch with dpnId {} for "
                     + "BgpVpnId {}", naptSwitch, vpnId);
-                externalRouterListener.installNaptPfibEntry(naptSwitch, vpnId, writeFlowInvTx);
+                externalRouterListener.installNaptPfibEntry(naptSwitch, vpnId);
             } else if (vpnId != NatConstants.INVALID_ID) {
                 LOG.debug("installSnatFlows : Associated BgpvpnId not found for router {}", routerId);
             }

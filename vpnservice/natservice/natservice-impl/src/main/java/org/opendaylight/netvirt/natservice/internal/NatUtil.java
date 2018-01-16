@@ -30,11 +30,15 @@ import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.globals.IfmConstants;
+import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
+import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -88,6 +92,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -205,6 +210,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.match.rev14
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.add.group.input.buckets.bucket.action.action.NxActionResubmitRpcAddGroupCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nodes.node.table.flow.instructions.instruction.instruction.apply.actions._case.apply.actions.action.action.NxActionRegLoadNodesNodeTableFlowApplyActionsCase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowplugin.extension.nicira.action.rev140714.nx.action.reg.load.grouping.NxRegLoad;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbBridgeAugmentation;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NodeId;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.TopologyKey;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
+import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
@@ -1920,6 +1932,136 @@ public final class NatUtil {
                     router.getNetworkId(), writeTx);
         }
         writeTx.submit();
+    }
+
+
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void removeSNATFromDPN(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            IdManagerService idManager, NaptSwitchHA naptSwitchHA, BigInteger dpnId,
+            String routerName, long routerId, long routerVpnId,
+            ProviderTypes extNwProvType, WriteTransaction removeFlowInvTx) {
+        //irrespective of naptswitch or non-naptswitch, SNAT default miss entry need to be removed
+        //remove miss entry to NAPT switch
+        //if naptswitch elect new switch and install Snat flows and remove those flows in oldnaptswitch
+
+        Collection<String> externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+        if (extNwProvType == null) {
+            return;
+        }
+        //Get the external IP labels other than VXLAN provider type. Since label is not applicable for VXLAN
+        Map<String, Long> externalIpLabel;
+        if (extNwProvType == ProviderTypes.VXLAN) {
+            externalIpLabel = null;
+        } else {
+            externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        }
+        BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
+            LOG.error("removeSNATFromDPN : No naptSwitch is selected for router {}", routerName);
+            return;
+        }
+        try {
+            boolean naptStatus =
+                naptSwitchHA.isNaptSwitchDown(routerName, routerId, dpnId, naptSwitch, routerVpnId,
+                        externalIpCache, removeFlowInvTx);
+            if (!naptStatus) {
+                LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
+                    dpnId, routerName);
+                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
+                FlowEntity flowEntity = null;
+                try {
+                    flowEntity = naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
+                        NatConstants.DEL_FLOW);
+                    if (flowEntity == null) {
+                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
+                                + "with dpnId:{} groupId:{}", routerName, dpnId, groupId);
+                        return;
+                    }
+                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}", flowEntity);
+                    mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+
+                } catch (Exception ex) {
+                    LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
+                        flowEntity, ex);
+                    return;
+                }
+                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
+                    dpnId, routerName);
+
+                //remove group
+                GroupEntity groupEntity = null;
+                try {
+                    groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
+                        GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
+                    LOG.info("removeSNATFromDPN : Removing NAPT GroupEntity:{}", groupEntity);
+                    mdsalManager.removeGroup(groupEntity);
+                } catch (Exception ex) {
+                    LOG.error("removeSNATFromDPN : Failed to remove group entity {}", groupEntity, ex);
+                    return;
+                }
+                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
+                    dpnId, routerName);
+            } else {
+                naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptSwitch,
+                        externalIpLabel, removeFlowInvTx);
+                //remove table 26 flow ppointing to table46
+                FlowEntity flowEntity = null;
+                try {
+                    flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName, routerVpnId,
+                        NatConstants.DEL_FLOW);
+                    if (flowEntity == null) {
+                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router {} with dpnId {}",
+                                routerName, dpnId);
+                        return;
+                    }
+                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity for router {} with "
+                        + "dpnId {} in napt switch {}", routerName, dpnId, naptSwitch);
+                    mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+
+                } catch (Exception ex) {
+                    LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
+                        flowEntity, ex);
+                    return;
+                }
+                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
+                    dpnId, routerName);
+
+                //best effort to check IntExt model
+                naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, removeFlowInvTx);
+            }
+        } catch (Exception ex) {
+            LOG.error("removeSNATFromDPN : Exception while handling naptSwitch down for router {}", routerName, ex);
+        }
+    }
+
+    public static boolean isDpnTomstoned(DataBroker dataBroker, BigInteger primarySwitch) {
+
+        // TODO read inventory Node Config DS and check Tomstaned is configured
+        /*NodeId brNodeId = new NodeId(
+                managerNodeId + "/" + ITMConstants.BRIDGE_URI_PREFIX + "/" + ITMConstants.DEFAULT_BRIDGE_NAME);
+        InstanceIdentifier<Node> nodeIid = InstanceIdentifier.create(NetworkTopology.class)
+                .child(Topology.class, new TopologyKey(IfmConstants.OVSDB_TOPOLOGY_ID))
+                .child(Node.class, new NodeKey(brNodeId));
+
+        Node node;
+        try {
+            node = SingleTransactionDataBroker.syncRead(dataBroker,
+                    LogicalDatastoreType.CONFIGURATION, nodeIid);
+        } catch (ReadFailedException arg4) {
+            LOG.error("Failed to read Node for " + nodeIid, arg4);
+            return null;
+        }
+
+        OvsdbBridgeAugmentation bridge = node
+                .getAugmentation(OvsdbBridgeAugmentation.class);
+        if (bridge == null) {
+            LOG.error("Node {} has no bridge augmentation");
+            return null;
+        } else {
+            this.addBridgeForNodeIid(nodeIid, bridge);
+            return bridge;
+        }*/
+        return true;
     }
 
     public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(

@@ -119,7 +119,7 @@ public class EvpnSnatFlowProgrammer {
          */
         //Inform to BGP
         NatEvpnUtil.addRoutesForVxLanProvType(dataBroker, bgpManager, fibManager, vpnName, rd, externalIp,
-                nextHopIp, l3Vni, null /*InterfaceName*/, gwMacAddress, writeTx, RouteOrigin.STATIC, dpnId);
+                nextHopIp, l3Vni, null /*InterfaceName*/, gwMacAddress, RouteOrigin.STATIC, dpnId);
 
         //Install custom FIB routes - FIB table.
         List<Instruction> customInstructions = new ArrayList<>();
