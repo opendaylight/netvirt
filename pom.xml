@@ -54,6 +54,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
         <module>cloud-servicechain</module>
         <module>coe</module>
         <module>commons</module>
+        <module>scaleinservice</module>
         <module>dhcpservice</module>
         <module>elanmanager</module>
         <module>features</module>
