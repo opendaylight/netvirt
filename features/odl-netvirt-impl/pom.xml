@@ -154,6 +154,11 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>scaleinservice-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>natservice-impl</artifactId>
             <version>${project.version}</version>
         </dependency>

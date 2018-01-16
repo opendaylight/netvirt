@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+             interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+             odl:type="default" />
+
+  <reference id="cacheProvider"
+             interface="org.opendaylight.infrautils.caches.CacheProvider"/>
+
+  <odl:rpc-implementation ref="scaleInRpcManager"/>
+
+  <service ref="tombstonedNodeManagerImpl"
+           interface="org.opendaylight.netvirt.scaleinservice.api.TombstonedNodeManager" />
+
+  <service ref="scaleInRpcManager"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.scalein.rpcs.rev171220.ScaleinRpcService"/>
+
+</blueprint>
