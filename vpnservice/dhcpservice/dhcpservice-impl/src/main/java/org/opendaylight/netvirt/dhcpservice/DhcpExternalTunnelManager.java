@@ -50,6 +50,7 @@ import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronUtils;
+import org.opendaylight.netvirt.scaleinservice.api.TombstonedNodeManager;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface.OperStatus;
@@ -104,9 +105,10 @@ public class DhcpExternalTunnelManager {
             new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<IpAddress, String>, Set<String>> availableVMCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<BigInteger, String>, Port> vniMacAddressToPortCache = new ConcurrentHashMap<>();
+    private final TombstonedNodeManager tombstonedNodeManager;
 
     @Inject
-    public DhcpExternalTunnelManager(final DataBroker broker,
+    public DhcpExternalTunnelManager(final DataBroker broker, final TombstonedNodeManager tombstonedNodeManager,
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
             final EntityOwnershipService entityOwnershipService, final IInterfaceManager interfaceManager,
             final JobCoordinator jobCoordinator, final L2GatewayCache l2GatewayCache) {
@@ -117,6 +119,7 @@ public class DhcpExternalTunnelManager {
         this.interfaceManager = interfaceManager;
         this.jobCoordinator = jobCoordinator;
         this.l2GatewayCache = l2GatewayCache;
+        this.tombstonedNodeManager = tombstonedNodeManager;
     }
 
     @PostConstruct
@@ -166,6 +169,13 @@ public class DhcpExternalTunnelManager {
                 updateVniMacToPortCache(new BigInteger(segmentationId), macAddress, port);
             }
         }
+        tombstonedNodeManager.addOnRecoveryCallback((dpnId) -> {
+            jobCoordinator.enqueueJob(dpnId.toString(), () -> {
+                handleDesignatedDpnDown(DhcpMConstants.INVALID_DPID, DhcpServiceUtils.getListOfDpns(broker));
+                return null;
+            });
+            return null;
+        });
     }
 
     public BigInteger designateDpnId(IpAddress tunnelIp, String elanInstanceName, List<BigInteger> dpns) {
@@ -422,6 +432,12 @@ public class DhcpExternalTunnelManager {
      */
     private BigInteger chooseDpn(IpAddress tunnelIp, String elanInstanceName,
             List<BigInteger> dpns) {
+        try {
+            dpns = tombstonedNodeManager.filterTombStoned(dpns);
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read ", e);
+            throw new RuntimeException(e);
+        }
         BigInteger designatedDpnId = DhcpMConstants.INVALID_DPID;
         if (dpns != null && dpns.size() != 0) {
             List<BigInteger> candidateDpns = DhcpServiceUtils.getDpnsForElan(elanInstanceName, broker);
