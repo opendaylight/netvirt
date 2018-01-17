@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "84139c58_edfa6f30",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-17T13:02:44Z",
+      "side": 1,
+      "message": "I\u0027m just curious, was this just a bug? Why should deleting the Vrf entries and vpn-\u003edpn mapping be dependent on whether there is an extra route? Not technically a code review quesiton, just a question ;-)",
+      "revId": "cefb69e125ec0f5a58e0b8e596684719052de968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
