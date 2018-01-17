@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9dc2d5e5_7d907ff7",
+        "filename": "vpnservice/scale-in/scale-in-api/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/TombstonedNodeManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-17T12:31:39Z",
+      "side": 1,
+      "message": "Why is this called \"recovery\" isn\u0027t this more of scale out?",
+      "revId": "d49ed14a859210b62649e332bf26f8f91ff0f7df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "810dc1d6_c6ff81db",
+        "filename": "vpnservice/scale-in/scale-in-api/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/TombstonedNodeManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-17T12:31:39Z",
+      "side": 1,
+      "message": "This sentence if grammatically unclear. In fact the function filters a lit of dpns potentially containing scaled in and not scaled in and returns just those that are not. I think the comment would be clearer if it said, \"Filters out scaled in dpns from a list of dpns\" or somehting like that.",
+      "revId": "d49ed14a859210b62649e332bf26f8f91ff0f7df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c721ebdd_944ccfd1",
+        "filename": "vpnservice/scale-in/scale-in-impl/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/ScaleInRpcManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-17T12:31:39Z",
+      "side": 1,
+      "message": "Is this function supposed to be the same as scaleinComputesStart? It\u0027s the same. Also, what is hte meaning of \"recover\"?",
+      "revId": "d49ed14a859210b62649e332bf26f8f91ff0f7df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
