@@ -52,6 +52,24 @@
       "revId": "c32d3987fdef8de9222c7a0256fd8f58f2327f13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "163beaca_bd17b1b0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cache/ElanInstanceDpnsCache.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-17T01:39:12Z",
+      "side": 1,
+      "message": "I guess we can agree to disagree on the definition of a cache which is fine. As I mentioned, to me a cache is just something that stores data. A map is a possible implementation of a cache and how data is added/removed  is an implementation detail. But maybe I\u0027m just behind the times wrt what a cache is :)",
+      "parentUuid": "d246882d_319d8ebf",
+      "revId": "c32d3987fdef8de9222c7a0256fd8f58f2327f13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
