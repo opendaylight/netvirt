@@ -34,6 +34,24 @@
       "revId": "c32d3987fdef8de9222c7a0256fd8f58f2327f13",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d246882d_319d8ebf",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cache/ElanInstanceDpnsCache.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-17T00:51:55Z",
+      "side": 1,
+      "message": "DataObjectCache can re-read from the datastore if its content got cleared (evicted, due to size).  This thing cannot, by its very API.  But I\u0027m going to give up insisting and will +1 it anyway.",
+      "parentUuid": "cd89c370_c8fcfb0a",
+      "revId": "c32d3987fdef8de9222c7a0256fd8f58f2327f13",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
