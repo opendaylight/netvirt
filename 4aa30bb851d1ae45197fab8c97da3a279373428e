@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a7209799_68644d72",
+        "filename": "vpnservice/scale-in/scale-in-impl/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/ScaleInRpcManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T05:53:55Z",
+      "side": 1,
+      "message": "2018",
+      "range": {
+        "startLine": 2,
+        "startChar": 17,
+        "endLine": 2,
+        "endChar": 21
+      },
+      "revId": "4aa30bb851d1ae45197fab8c97da3a279373428e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cf56344_d2a96d0f",
+        "filename": "vpnservice/scale-in/scale-in-impl/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/ScaleInRpcManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 47,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T05:53:55Z",
+      "side": 1,
+      "message": "move it to constants file",
+      "range": {
+        "startLine": 47,
+        "startChar": 56,
+        "endLine": 47,
+        "endChar": 58
+      },
+      "revId": "4aa30bb851d1ae45197fab8c97da3a279373428e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
