@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ea51c3fb_691cd945",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-17T11:35:48Z",
+      "side": 1,
+      "message": "The diagrams in the generated document are not rendered properly. Also, sections like \"Implementation\" and \"Testing\" have some rendering issues. Please fix it.",
+      "range": {
+        "startLine": 3,
+        "startChar": 0,
+        "endLine": 3,
+        "endChar": 30
+      },
+      "revId": "14cc5b1f92b34afa194ef6f298c4b564df7c3be3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "60856893_4db5b326",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-17T11:35:48Z",
+      "side": 1,
+      "message": "@Siva, is this problem not applicable for EVPN?",
+      "range": {
+        "startLine": 8,
+        "startChar": 3,
+        "endLine": 8,
+        "endChar": 8
+      },
+      "revId": "14cc5b1f92b34afa194ef6f298c4b564df7c3be3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
