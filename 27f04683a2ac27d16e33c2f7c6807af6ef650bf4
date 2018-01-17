@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aba33219_4ad95b74",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 1038,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-17T18:50:38Z",
+      "side": 1,
+      "message": "Why is this method still synchronized?",
+      "range": {
+        "startLine": 1038,
+        "startChar": 11,
+        "endLine": 1038,
+        "endChar": 23
+      },
+      "revId": "27f04683a2ac27d16e33c2f7c6807af6ef650bf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5aeeb9bd_7c7d0d10",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-17T18:50:38Z",
+      "side": 1,
+      "message": "These should be final",
+      "revId": "27f04683a2ac27d16e33c2f7c6807af6ef650bf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7ff8df1b_db38f6ba",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/Scheduler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-17T18:50:38Z",
+      "side": 1,
+      "message": "No need for empty constructor",
+      "revId": "27f04683a2ac27d16e33c2f7c6807af6ef650bf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e34cf617_b82414e7",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/utils/Scheduler.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-17T18:50:38Z",
+      "side": 1,
+      "message": "No need to declare throws",
+      "range": {
+        "startLine": 28,
+        "startChar": 24,
+        "endLine": 28,
+        "endChar": 40
+      },
+      "revId": "27f04683a2ac27d16e33c2f7c6807af6ef650bf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
