@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "c6a0a938_19c39698",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-17T09:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "4413cd80_c3757971",
+      "range": {
+        "startLine": 7,
+        "startChar": 0,
+        "endLine": 9,
+        "endChar": 328
+      },
+      "revId": "75f6f7aa8badbe2c0483c5d3299f38f0836c5f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "edeaf791_4a713f36",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-17T06:13:12Z",
       "side": 1,
       "message": "You can probably remove this.",
+      "range": {
+        "startLine": 266,
+        "startChar": 0,
+        "endLine": 271,
+        "endChar": 76
+      },
+      "revId": "75f6f7aa8badbe2c0483c5d3299f38f0836c5f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0c6f431c_9bb1dcbf",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 271,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-17T09:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "edeaf791_4a713f36",
       "range": {
         "startLine": 266,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4524f806_ab1b93eb",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 276,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-17T09:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f18c56d5_f86e2c99",
+      "range": {
+        "startLine": 276,
+        "startChar": 0,
+        "endLine": 276,
+        "endChar": 54
+      },
+      "revId": "75f6f7aa8badbe2c0483c5d3299f38f0836c5f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3a58e2bd_7075be21",
         "filename": "docs/specs/index.rst",
         "patchSetId": 12
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "71af32e4_af2addee",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-17T09:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a58e2bd_7075be21",
+      "range": {
+        "startLine": 44,
+        "startChar": 3,
+        "endLine": 44,
+        "endChar": 75
+      },
+      "revId": "75f6f7aa8badbe2c0483c5d3299f38f0836c5f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0da1a1dc_03d630ea",
         "filename": "docs/specs/index.rst",
         "patchSetId": 12
@@ -105,6 +201,30 @@
       "writtenOn": "2018-01-17T06:13:12Z",
       "side": 1,
       "message": "You missed adding the link to this SPEC",
+      "range": {
+        "startLine": 45,
+        "startChar": 3,
+        "endLine": 45,
+        "endChar": 33
+      },
+      "revId": "75f6f7aa8badbe2c0483c5d3299f38f0836c5f11",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91d8cb23_980a995d",
+        "filename": "docs/specs/index.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-17T09:00:45Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0da1a1dc_03d630ea",
       "range": {
         "startLine": 45,
         "startChar": 3,
