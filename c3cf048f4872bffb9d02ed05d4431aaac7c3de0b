@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "a30af28f_94b2bf05",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 177,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T17:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d414bc0f_2c08adf5",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "83e53c4d_a6f57cab",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
         "patchSetId": 1
@@ -30,6 +48,30 @@
       "writtenOn": "2018-01-05T05:12:38Z",
       "side": 1,
       "message": "use emptyList as it\u0027s typed",
+      "range": {
+        "startLine": 148,
+        "startChar": 31,
+        "endLine": 148,
+        "endChar": 41
+      },
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0496e2d9_52e1028d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T17:12:47Z",
+      "side": 1,
+      "message": "will move it to diff patch",
+      "parentUuid": "83e53c4d_a6f57cab",
       "range": {
         "startLine": 148,
         "startChar": 31,
@@ -65,6 +107,30 @@
     },
     {
       "key": {
+        "uuid": "72c44758_367b0440",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/commands/MergeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T17:12:47Z",
+      "side": 1,
+      "message": "will move it to diff patch",
+      "parentUuid": "0aeeaf74_b1392705",
+      "range": {
+        "startLine": 152,
+        "startChar": 31,
+        "endLine": 152,
+        "endChar": 41
+      },
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "449b2b77_b40710f0",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
         "patchSetId": 1
@@ -76,6 +142,24 @@
       "writtenOn": "2018-01-05T05:12:38Z",
       "side": 1,
       "message": "You shouldn\u0027t ignore the returned Future. At least use ListenableFutures.addErrorLogging",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed8bafee_3f5bdcf0",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 382,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T17:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "449b2b77_b40710f0",
       "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -99,6 +183,24 @@
     },
     {
       "key": {
+        "uuid": "ffe34bfd_efed49ed",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T17:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "05f5d3ed_79f9cae3",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "8ef900a9_31fde01c",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
         "patchSetId": 1
@@ -110,6 +212,24 @@
       "writtenOn": "2018-01-05T05:12:38Z",
       "side": 1,
       "message": "This looks like the same data for which this class registers for so this will be duplicated. That doesn\u0027t seem desirable.",
+      "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eb32311f_2aae58eb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 158,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-17T17:12:47Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8ef900a9_31fde01c",
       "revId": "c3cf048f4872bffb9d02ed05d4431aaac7c3de0b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
