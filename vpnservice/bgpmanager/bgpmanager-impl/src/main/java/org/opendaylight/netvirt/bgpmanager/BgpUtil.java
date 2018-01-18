@@ -24,6 +24,7 @@ import org.opendaylight.genius.utils.batching.ActionableResource;
 import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
 import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
@@ -291,5 +292,45 @@ public class BgpUtil implements AutoCloseable {
                    .child(VrfTables.class, new VrfTablesKey(rd))
                    .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix())).build();
         delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+    }
+
+    /**
+     * This method returns metric key
+     *
+     * Pattern to be followed for key generation:
+     *
+     * odl.<projectName>.<moduleName>.entitycounter.entitytype:
+     *         bgp-peer.entityid:<asid=value;neighborip=value>.<countername>
+     * odl.<projectName>.<moduleName>.aggregatecounter.[source:
+     *         <application-or-service-name>].totalprefixes
+     * odl.<projectName>.<moduleName>.entitycounter.entitytype:
+     *         bgp-rd.entityid:<rd=value>.<countername>
+     *
+     */
+    public static String generateBgpCounterKey(
+            String as, String rx, String tx, String strIp, String rd) {
+        String moduleName = "odl.netvirt.bgpmanager";
+        String entityTypeBgpPeer = ".entitycounter.entitytype:bgp-peer.entityid:<asid=";
+        String neighbourIp = ";neighborip=";
+        String angularBracket = ">.";
+        String aggregateCounter = ".aggregatecounter.[source:";
+        String totalPrefixes = "].totalprefixes";
+        String entityTypeBgpRd = ".entitycounter.entitytype:bgp-rd.entityid:<rd=";
+
+        String counterKey = moduleName;
+        if (rx != null) {
+            counterKey += entityTypeBgpPeer + as + neighbourIp + strIp + angularBracket
+                    + BgpConstants.BGP_COUNTER_NBR_PKTS_RX;
+        } else if (tx != null) {
+            counterKey += entityTypeBgpPeer + as + neighbourIp + strIp + angularBracket
+                    + BgpConstants.BGP_COUNTER_NBR_PKTS_TX;
+        } else if (rd != null) {
+            counterKey += entityTypeBgpRd + rd + angularBracket
+                    + BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT;
+        } else {
+            counterKey += aggregateCounter + BgpConstants.BGP_COUNTER_TOTAL_PFX
+                    + totalPrefixes;
+        }
+        return counterKey;
     }
 }

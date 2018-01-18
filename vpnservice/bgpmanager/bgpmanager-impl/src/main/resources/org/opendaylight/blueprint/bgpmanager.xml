@@ -11,6 +11,8 @@
   <reference id="iVpnLinkService"
              interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.IVpnLinkService"
              availability="optional" />
+  <reference id="metricProvider"
+             interface="org.opendaylight.infrautils.metrics.MetricProvider" />
 
   <service ref="bgpManager" odl:type="default"
            interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" />
