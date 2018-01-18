@@ -194,8 +194,6 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         jobCoordinator.enqueueJob(ElanUtils.getElanMacDPNKey(elanTag, macAddress, interfaceInfo.getDpId()), () -> {
             macMigrationFlowsCleanup(interfaceName, elanInstance, oldMacEntry, isVlanOrFlatProviderIface);
             BigInteger dpId = interfaceManager.getDpnForInterface(interfaceName);
-            elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
-                    Collections.singletonList(physAddress));
             ElanManagerCounters.unknown_smac_pktin_learned.inc();
             WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
             elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
@@ -240,8 +238,6 @@ public class ElanPacketInHandler implements PacketProcessingListener {
         WriteTransaction flowDeletetx = broker.newWriteOnlyTransaction();
         elanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, flowDeletetx);
         flowDeletetx.submit();
-        elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo,
-                Collections.singletonList(macEntry.getMacAddress()));
     }
 
 }
