@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.internal;
 
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlan;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.base.Optional;
@@ -255,7 +254,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 removeEtreeBroadcastGrups(elanInfo, interfaceInfo, flowTx);
                 if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
                     if (elanUtils.isOpenstackVniSemanticsEnforced()) {
-                        elanUtils.removeTerminatingServiceAction(dpId, elanInfo.getSegmentationId().intValue());
+                        elanUtils.removeTerminatingServiceAction(dpId,
+                                elanUtils.getVxlanSegmentationId(elanInfo).intValue());
                     }
                     unsetExternalTunnelTable(dpId, elanInfo);
                 }
@@ -823,7 +823,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             // Terminating Service , UnknownDMAC Table.
             // The 1st ELAN Interface in a DPN must program the INTERNAL_TUNNEL_TABLE, but only if the network type
             // for ELAN Instance is VxLAN
-            if (isVxlan(elanInstance)) {
+            if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
                 setupTerminateServiceTable(elanInstance, dpId, writeFlowGroupTx);
             }
             setupUnknownDMacTable(elanInstance, dpId, writeFlowGroupTx);
@@ -947,8 +947,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                             try {
                                 List<Action> remoteListActionInfo = elanItmUtils.getInternalTunnelItmEgressAction(
                                         dpnInterface.getDpId(), otherFes.getDpId(),
-                                        elanUtils.isOpenstackVniSemanticsEnforced() ? elanInfo.getSegmentationId()
-                                                : elanTag);
+                                        elanUtils.isOpenstackVniSemanticsEnforced()
+                                                ? elanUtils.getVxlanSegmentationId(elanInfo) : elanTag);
                                 if (!remoteListActionInfo.isEmpty()) {
                                     remoteListBucketInfo.add(MDSALUtil.buildBucket(remoteListActionInfo, MDSALUtil
                                             .GROUP_WEIGHT, bucketId, MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
@@ -1252,7 +1252,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             listMatchInfoBase = ElanUtils.getTunnelMatchesForServiceId((int) elanTag);
             instructionInfos = getInstructionsForOutGroup(ElanUtils.getElanLocalBCGId(elanTag));
         } else {
-            serviceId = elanInfo.getSegmentationId();
+            serviceId = elanUtils.getVxlanSegmentationId(elanInfo);
             listMatchInfoBase = buildMatchesForVni(serviceId);
             instructionInfos = getInstructionsIntOrExtTunnelTable(elanTag);
         }

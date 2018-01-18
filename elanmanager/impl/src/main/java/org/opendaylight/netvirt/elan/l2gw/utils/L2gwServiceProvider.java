@@ -53,7 +53,7 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
                                               String hwvtepNodeId, IpAddress tunnelIpAddr) {
         elanClusterUtils.runOnlyInOwnerNode(hwvtepNodeId, "Handling Physical Switch add create itm tunnels ",
             () -> {
-                ElanL2GatewayUtils.createItmTunnels(itmRpcService, hwvtepNodeId, psName, tunnelIpAddr);
+                ElanL2GatewayUtils.createItmTunnels(dataBroker, itmRpcService, hwvtepNodeId, psName, tunnelIpAddr);
                 return Collections.emptyList();
             });
 

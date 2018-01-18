@@ -49,11 +49,11 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, broker);
+        registerListener(LogicalDatastoreType.OPERATIONAL, broker);
     }
 
     @Override
-    protected InstanceIdentifier<ExternalTeps> getWildCardPath() {
+    public InstanceIdentifier<ExternalTeps> getWildCardPath() {
         return InstanceIdentifier.create(ElanInstances.class).child(ElanInstance.class).child(ExternalTeps.class);
     }
 
