@@ -114,6 +114,9 @@ module elan {
                 leaf tep-ip {
                     type inet:ip-address;
                 }
+                leaf nodeid {
+                    type string;
+                }
             }
         }
     }

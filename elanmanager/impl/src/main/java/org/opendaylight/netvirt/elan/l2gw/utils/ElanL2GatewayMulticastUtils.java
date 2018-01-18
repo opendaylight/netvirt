@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlan;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
@@ -24,6 +24,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -34,6 +36,7 @@ import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
@@ -50,10 +53,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.Desi
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp.rev160428.designated.switches._for.external.tunnels.DesignatedSwitchForTunnelKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTepsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepLogicalSwitchRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepNodeName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepPhysicalLocatorAugmentation;
@@ -111,7 +118,20 @@ public class ElanL2GatewayMulticastUtils {
      */
     public ListenableFuture<Void> handleMcastForElanL2GwDeviceAdd(String elanName, ElanInstance elanInstance,
             L2GatewayDevice device) {
+        InstanceIdentifier<ExternalTeps> tepPath = buildExternalTepPath(elanName, device.getTunnelIp());
+        JdkFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            tx.put(LogicalDatastoreType.CONFIGURATION, tepPath, buildExternalTeps(device));
+        }), LOG, "Failed to write to config external tep {}", tepPath);
         return updateMcastMacsForAllElanDevices(elanName, elanInstance, device, true/* updateThisDevice */);
+    }
+
+    public static InstanceIdentifier<ExternalTeps> buildExternalTepPath(String elan, IpAddress tepIp) {
+        return InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, new ElanInstanceKey(elan))
+                .child(ExternalTeps.class, new ExternalTepsKey(tepIp)).build();
+    }
+
+    protected ExternalTeps buildExternalTeps(L2GatewayDevice device) {
+        return new ExternalTepsBuilder().setTepIp(device.getTunnelIp()).setNodeid(device.getHwvtepNodeId()).build();
     }
 
     /**
@@ -181,8 +201,6 @@ public class ElanL2GatewayMulticastUtils {
 
         SettableFuture<Void> ft = SettableFuture.create();
         ft.set(null);
-
-        updateRemoteBroadcastGroupForAllElanDpns(elanInstance);
 
         List<DpnInterfaces> dpns = elanUtils.getElanDPNByName(elanName);
 
@@ -308,14 +326,13 @@ public class ElanL2GatewayMulticastUtils {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
 
-        if (isVxlan(elanInfo)) {
+        if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
             listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId,
-                    elanUtils.isOpenstackVniSemanticsEnforced() ? elanInfo.getSegmentationId() : elanTag));
+                    elanUtils.isOpenstackVniSemanticsEnforced()
+                            ? elanUtils.getVxlanSegmentationId(elanInfo) : elanTag));
         }
         listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,
-            getNextAvailableBucketId(listBucketInfo.size())));
-        listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnId,
-            getNextAvailableBucketId(listBucketInfo.size())));
+                getNextAvailableBucketId(listBucketInfo.size())));
         listBucketInfo.addAll(getRemoteBCGroupBucketsOfElanExternalTeps(elanInfo, dpnId,
                 getNextAvailableBucketId(listBucketInfo.size())));
         return listBucketInfo;
@@ -344,19 +361,29 @@ public class ElanL2GatewayMulticastUtils {
     public List<Bucket> getRemoteBCGroupBucketsOfElanExternalTeps(ElanInstance elanInfo, BigInteger dpnId,
             int bucketId) {
         List<Bucket> listBucketInfo = new ArrayList<>();
-        List<ExternalTeps> teps = elanInfo.getExternalTeps();
+        ElanInstance operElanInstance = null;
+        try {
+            operElanInstance = new SingleTransactionDataBroker(broker).syncRead(LogicalDatastoreType.OPERATIONAL,
+                    InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.getKey())
+                            .build());
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read elan instance operational path {}", elanInfo);
+            return Collections.emptyList();
+        }
+        List<ExternalTeps> teps = operElanInstance.getExternalTeps();
         if (teps == null || teps.isEmpty()) {
             return listBucketInfo;
         }
         for (ExternalTeps tep : teps) {
+            String externalTep = tep.getNodeid() != null ? tep.getNodeid() : tep.getTepIp().toString();
             String interfaceName = elanItmUtils.getExternalTunnelInterfaceName(String.valueOf(dpnId),
-                    tep.getTepIp().toString());
+                    externalTep);
             if (interfaceName == null) {
                 LOG.error("Could not get interface name to ext tunnel {} {}", dpnId, tep.getTepIp());
                 continue;
             }
             List<Action> listActionInfo = elanItmUtils.buildTunnelItmEgressActions(interfaceName,
-                    elanInfo.getSegmentationId());
+                    elanUtils.getVxlanSegmentationId(elanInfo));
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
@@ -538,11 +565,15 @@ public class ElanL2GatewayMulticastUtils {
      */
     public List<ListenableFuture<Void>> handleMcastForElanL2GwDeviceDelete(String elanName,
             ElanInstance elanInstance, L2GatewayDevice l2GatewayDevice) {
+        ListenableFuture<Void> deleteTepFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            tx.delete(LogicalDatastoreType.CONFIGURATION,
+                    buildExternalTepPath(elanName, l2GatewayDevice.getTunnelIp()));
+        });
         ListenableFuture<Void> updateMcastMacsFuture = updateMcastMacsForAllElanDevices(
                 elanName, elanInstance, l2GatewayDevice, false/* updateThisDevice */);
         ListenableFuture<Void> deleteRemoteMcastMacFuture = deleteRemoteMcastMac(
                 new NodeId(l2GatewayDevice.getHwvtepNodeId()), elanName);
-        return Arrays.asList(updateMcastMacsFuture, deleteRemoteMcastMacFuture);
+        return Arrays.asList(updateMcastMacsFuture, deleteRemoteMcastMacFuture, deleteTepFuture);
     }
 
     /**

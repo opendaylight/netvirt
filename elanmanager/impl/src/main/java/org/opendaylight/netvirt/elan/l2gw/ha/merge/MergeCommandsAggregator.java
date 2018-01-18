@@ -114,9 +114,9 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
 
                 String destination = datastoreType == CONFIGURATION ? "child" : "parent";
                 if (create) {
-                    if (isDataUpdated(existingDataOptional, data)) {
+                    if (isDataUpdated(existingDataOptional, transformedItem)) {
                         LOG.debug("Copy to {} {} {}", destination, datastoreType, transformedId);
-                        tx.put(datastoreType, transformedId, data, true);
+                        tx.put(datastoreType, transformedId, transformedItem, true);
                     } else {
                         LOG.debug("Data not updated skip copy to {}", transformedId);
                     }

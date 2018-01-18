@@ -48,9 +48,11 @@ import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceDpnsCache;
+import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteL2GwDeviceMacsFromElanJob;
 import org.opendaylight.netvirt.elan.l2gw.jobs.DeleteLogicalSwitchJob;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
@@ -70,13 +72,17 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.TransportZones;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rev160406.transport.zones.transport.zone.subnets.DeviceVteps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.AddL2GwDeviceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.config.rev150710.ElanConfig;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan._interface.forwarding.entries.ElanInterfaceMac;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.forwarding.tables.MacTable;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.elan.instance.ExternalTeps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.forwarding.entries.MacEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712.l2gateway.attributes.Devices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalAugmentation;
@@ -974,13 +980,14 @@ public class ElanL2GatewayUtils {
         unInstallL2GwUcastMacFromElanDpns(elan, l2GatewayDevice, localMacs);
     }
 
-    public static void createItmTunnels(ItmRpcService itmRpcService, String hwvtepId, String psName,
-            IpAddress tunnelIp) {
+    public static void createItmTunnels(DataBroker dataBroker, ItmRpcService itmRpcService,
+                                        String hwvtepId, String psName, IpAddress tunnelIp) {
         AddL2GwDeviceInputBuilder builder = new AddL2GwDeviceInputBuilder();
         builder.setTopologyId(HwvtepSouthboundConstants.HWVTEP_TOPOLOGY_ID.getValue());
         builder.setNodeId(HwvtepSouthboundUtils.createManagedNodeId(new NodeId(hwvtepId), psName).getValue());
         builder.setIpAddress(tunnelIp);
         try {
+            deleteStaleTunnelsOfHwvtepInITM(dataBroker, itmRpcService, hwvtepId, psName, tunnelIp);
             Future<RpcResult<Void>> result = itmRpcService.addL2GwDevice(builder.build());
             RpcResult<Void> rpcResult = result.get();
             if (rpcResult.isSuccessful()) {
@@ -990,6 +997,74 @@ public class ElanL2GatewayUtils {
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("RPC to create ITM tunnels failed", e);
+        }
+    }
+
+    private static void deleteStaleTunnelsOfHwvtepInITM(DataBroker dataBroker,
+                                                        ItmRpcService itmRpcService,
+                                                        String globalNodeId,
+                                                        String psName,
+                                                        IpAddress tunnelIp) {
+        try {
+            Optional<TransportZones> tzonesoptional = readTransportZone(dataBroker);
+            if (!tzonesoptional.isPresent() || tzonesoptional.get().getTransportZone() == null) {
+                return;
+            }
+            String psNodeId = globalNodeId + HwvtepHAUtil.PHYSICALSWITCH + psName;
+            tzonesoptional.get().getTransportZone().stream()
+                .filter(transportZone -> transportZone.getSubnets() != null)
+                .flatMap(transportZone -> transportZone.getSubnets().stream())
+                .filter(subnet -> subnet.getDeviceVteps() != null)
+                .flatMap(subnet -> subnet.getDeviceVteps().stream())
+                .filter(deviceVteps -> Objects.equals(getPsName(deviceVteps), psName)) //get device with same ps name
+                .filter(deviceVteps -> !Objects.equals(psNodeId, deviceVteps.getNodeId())
+                        || !Objects.equals(tunnelIp, deviceVteps.getIpAddress()))//node id or tunnel ip is changed
+                .forEach(deviceVteps -> deleteStaleL2gwTep(dataBroker, itmRpcService, deviceVteps));
+        } catch (ReadFailedException e) {
+            LOG.error("Failed delete stale tunnels for {}", globalNodeId);
+        }
+    }
+
+    private static Optional<TransportZones> readTransportZone(DataBroker dataBroker) throws ReadFailedException {
+        return new SingleTransactionDataBroker(dataBroker).syncReadOptional(LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.builder(TransportZones.class).build());
+    }
+
+    private static Optional<ElanInstances> readElanInstances(DataBroker dataBroker) throws ReadFailedException {
+        return new SingleTransactionDataBroker(dataBroker).syncReadOptional(LogicalDatastoreType.CONFIGURATION,
+                InstanceIdentifier.builder(ElanInstances.class).build());
+    }
+
+    private static String getPsName(DeviceVteps deviceVteps) {
+        return HwvtepHAUtil.getPsName(HwvtepHAUtil.convertToInstanceIdentifier(deviceVteps.getNodeId()));
+    }
+
+    private static void deleteStaleL2gwTep(DataBroker dataBroker,
+                                           ItmRpcService itmRpcService,
+                                           DeviceVteps deviceVteps) {
+        String psName = HwvtepHAUtil.getPsName(HwvtepHAUtil.convertToInstanceIdentifier(deviceVteps.getNodeId()));
+        String globalNodeId = HwvtepHAUtil.convertToGlobalNodeId(deviceVteps.getNodeId());
+        try {
+            LOG.info("Deleting stale tep {} ", deviceVteps);
+            L2GatewayUtils.deleteItmTunnels(itmRpcService, globalNodeId, psName, deviceVteps.getIpAddress());
+            Optional<ElanInstances> optionalElan = readElanInstances(dataBroker);
+            if (!optionalElan.isPresent()) {
+                return;
+            }
+            JdkFutures.addErrorLogging(
+                new ManagedNewTransactionRunnerImpl(dataBroker).callWithNewReadWriteTransactionAndSubmit(tx -> {
+                    optionalElan.get().getElanInstance().stream()
+                        .flatMap(elan -> elan.getExternalTeps().stream()
+                                .map(externalTep -> ElanL2GatewayMulticastUtils.buildExternalTepPath(
+                                        elan.getElanInstanceName(), externalTep.getTepIp())))
+                        .filter(externalTepIid -> Objects.equals(
+                                deviceVteps.getIpAddress(), externalTepIid.firstKeyOf(ExternalTeps.class).getTepIp()))
+                        .peek(externalTepIid -> LOG.info("Deleting stale external tep {}", externalTepIid))
+                        .forEach(externalTepIid -> tx.delete(LogicalDatastoreType.CONFIGURATION, externalTepIid));
+                }), LOG, "Failed to delete stale external teps {}", deviceVteps);
+            Thread.sleep(10000);//TODO remove the sleep currently it waits for interfacemgr to finish the cleanup
+        } catch (ReadFailedException | InterruptedException e) {
+            LOG.error("Failed to delete stale l2gw tep {}", deviceVteps, e);
         }
     }
 

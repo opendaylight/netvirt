@@ -67,7 +67,7 @@ public class ElanDpnToTransportZoneListener
         BigInteger dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlan(elanInstanceCache.get(elanInstanceName).orNull())) {
+        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
             LOG.debug("ElanInstance {} is not vxlan network, nothing to do", elanInstanceName);
             return;
         }
@@ -88,7 +88,7 @@ public class ElanDpnToTransportZoneListener
         BigInteger dpId = dataObjectModification.getDpId();
         String elanInstanceName = key.firstKeyOf(ElanDpnInterfacesList.class).getElanInstanceName();
 
-        if (!ElanUtils.isVxlan(elanInstanceCache.get(elanInstanceName).orNull())) {
+        if (!ElanUtils.isVxlanNetworkOrVxlanSegment(elanInstanceCache.get(elanInstanceName).orNull())) {
             return;
         }
 
