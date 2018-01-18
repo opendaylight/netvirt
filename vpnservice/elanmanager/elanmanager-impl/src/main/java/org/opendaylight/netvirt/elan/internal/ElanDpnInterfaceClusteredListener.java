@@ -12,8 +12,11 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -42,10 +45,15 @@ public class ElanDpnInterfaceClusteredListener
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final ElanClusterUtils elanClusterUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanInterfaceManager elanInterfaceManager;
+    private final IInterfaceManager interfaceManager;
+
 
     @Inject
     public ElanDpnInterfaceClusteredListener(DataBroker broker, EntityOwnershipUtils entityOwnershipUtils,
                                              ElanL2GatewayUtils elanL2GatewayUtils,
+                                             ElanInterfaceManager elanInterfaceManager,
+                                             IInterfaceManager interfaceManager,
                                              ElanClusterUtils elanClusterUtils, JobCoordinator jobCoordinator,
                                              ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
         this.broker = broker;
@@ -54,6 +62,8 @@ public class ElanDpnInterfaceClusteredListener
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanInterfaceManager = elanInterfaceManager;
+        this.interfaceManager = interfaceManager;
     }
 
     @PostConstruct
@@ -99,6 +109,13 @@ public class ElanDpnInterfaceClusteredListener
 
                     // updating remote mcast mac on l2gw devices
                     elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
+
+                    ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+
+                    ReadWriteTransaction tx = broker.newReadWriteTransaction();
+                    elanInterfaceManager.removeElanGroups(elanInfo, dpnInterfaces.getDpId(), tx);
+                    elanInterfaceManager.setElanAndEtreeBCGrouponOtherDpns(elanInfo, dpnInterfaces.getDpId());
+                    return Collections.singletonList(tx.submit());
                 }
             } finally {
                 ElanUtils.removeDPNInterfaceFromElanInCache(getElanName(identifier), dpnInterfaces);
@@ -135,6 +152,17 @@ public class ElanDpnInterfaceClusteredListener
 
                     // updating remote mcast mac on l2gw devices
                     elanL2GatewayMulticastUtils.updateRemoteMcastMacOnElanL2GwDevices(elanName);
+
+
+                    if (dpnInterfaces.getInterfaces().size() == 1) {
+                        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(
+                                dpnInterfaces.getInterfaces().get(0));
+                        ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, elanName);
+                        ReadWriteTransaction tx = broker.newReadWriteTransaction();
+                        elanInterfaceManager.installEntriesForFirstInterfaceonDpn(elanInfo,
+                                interfaceInfo, dpnInterfaces, true, tx);
+                        return Collections.singletonList(tx.submit());
+                    }
                 }
             } finally {
                 ElanUtils.addDPNInterfaceToElanInCache(getElanName(identifier), dpnInterfaces);
