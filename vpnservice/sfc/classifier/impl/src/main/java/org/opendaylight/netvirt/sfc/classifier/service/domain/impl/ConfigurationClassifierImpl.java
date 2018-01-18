@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.eclipse.jdt.annotation.NonNull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -73,47 +74,170 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .map(AccessListEntries::getAce)
                 .filter(Objects::nonNull)
                 .flatMap(List::stream)
-                .map(this::getEntries)
+                .map(this::getEntriesForAce)
                 .flatMap(Set::stream)
                 .collect(Collectors.toSet());
     }
 
-    public List<Acl> readAcls() {
+    private List<Acl> readAcls() {
         InstanceIdentifier<AccessLists> aclsIID = InstanceIdentifier.builder(AccessLists.class).build();
-        com.google.common.base.Optional<AccessLists> acls =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, aclsIID);
+        Optional<AccessLists> acls;
+        acls = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, aclsIID).toJavaUtil();
         LOG.trace("Acls read from datastore: {}", acls);
-        return acls.toJavaUtil().map(AccessLists::getAcl).orElse(Collections.emptyList());
+        return acls.map(AccessLists::getAcl).orElse(Collections.emptyList());
     }
 
-    public Set<ClassifierRenderableEntry> getEntries(Ace ace) {
+    private Set<ClassifierRenderableEntry> getEntriesForAce(Ace ace) {
+        LOG.info("Generating classifier entries for Ace: {}", ace.getRuleName());
+        LOG.trace("Ace details: {}", ace);
 
-        LOG.trace("Get entries for Ace {}", ace);
+        Optional<NetvirtsfcAclActions> sfcActions = Optional.ofNullable(ace.getActions())
+                .map(actions -> actions.getAugmentation(RedirectToSfc.class));
+        String rspName = sfcActions.map(NetvirtsfcAclActions::getRspName).map(Strings::emptyToNull).orElse(null);
+        String sfpName = sfcActions.map(NetvirtsfcAclActions::getSfpName).map(Strings::emptyToNull).orElse(null);
+
+        if (rspName == null && sfpName == null) {
+            LOG.debug("Ace has no valid SFC redirect action, ignoring");
+            return Collections.emptySet();
+        }
+        if (rspName != null && sfpName != null) {
+            LOG.error("Ace has both a SFP and a RSP as redirect actions, ignoring as not supported");
+            return Collections.emptySet();
+        }
 
         Matches matches = ace.getMatches();
-
         if (matches == null) {
-            LOG.trace("Ace has no matches");
+            LOG.warn("Ace has no matches, ignoring");
             return Collections.emptySet();
         }
 
-        RenderedServicePath rsp = Optional.ofNullable(ace.getActions())
-                .map(actions -> actions.getAugmentation(RedirectToSfc.class))
-                .map(NetvirtsfcAclActions::getRspName)
-                .flatMap(sfcProvider::getRenderedServicePath)
+        NeutronNetwork network = matches.getAugmentation(NeutronNetwork.class);
+        if (sfpName != null && network != null) {
+            LOG.error("Ace has a SFP redirect action with a neutron network match, ignoring as not supported");
+            return Collections.emptySet();
+        }
+
+        String sourcePort = Optional.ofNullable(matches.getAugmentation(NeutronPorts.class))
+                .map(NeutronPorts::getSourcePortUuid)
+                .map(Strings::emptyToNull)
+                .orElse(null);
+        String destinationPort = Optional.ofNullable(matches.getAugmentation(NeutronPorts.class))
+                .map(NeutronPorts::getDestinationPortUuid)
+                .map(Strings::emptyToNull)
                 .orElse(null);
 
+        if (rspName != null) {
+            return getEntriesForRspRedirect(sourcePort, destinationPort, network, rspName, matches);
+        }
+
+        return getEntriesForSfpRedirect(sourcePort, destinationPort, sfpName, matches);
+    }
+
+    private Set<ClassifierRenderableEntry> getEntriesForRspRedirect(
+            String sourcePort,
+            String destinationPort,
+            NeutronNetwork neutronNetwork,
+            String rspName,
+            Matches matches) {
+
+        List<String> interfaces = new ArrayList<>();
+        if (neutronNetwork != null) {
+            interfaces.addAll(netvirtProvider.getLogicalInterfacesFromNeutronNetwork(neutronNetwork));
+        }
+
+        RenderedServicePath rsp = sfcProvider.getRenderedServicePath(rspName).orElse(null);
         if (rsp == null) {
-            LOG.trace("Ace has no valid SFC redirect action");
+            LOG.error("RSP {} could not be read from database", rspName);
             return Collections.emptySet();
         }
+
+        if (rsp.isReversePath()) {
+            interfaces.add(destinationPort);
+            if (sourcePort != null) {
+                LOG.warn("Source port ignored with redirect to reverse RSP");
+            }
+        } else {
+            if (destinationPort != null) {
+                LOG.warn("Destination port ignored with redirect to forward RSP");
+            }
+            interfaces.add(sourcePort);
+        }
+
+        if (interfaces.isEmpty()) {
+            LOG.warn("Ace has no interfaces to match against");
+            return Collections.emptySet();
+        }
+
+        return this.buildEntries(interfaces, matches, rsp);
+    }
+
+    private Set<ClassifierRenderableEntry> getEntriesForSfpRedirect(
+            String sourcePort,
+            String destinationPort,
+            String sfpName,
+            Matches matches) {
+
+        if (sourcePort == null && destinationPort == null) {
+            LOG.warn("Ace has no interfaces to match against");
+            return Collections.emptySet();
+        }
+
+        if (Objects.equals(sourcePort, destinationPort)) {
+            LOG.error("Specifying the same source and destination port is not valid configuration");
+            return Collections.emptySet();
+        }
+
+        List<String> rspNames = sfcProvider.readServicePathState(sfpName).orElse(Collections.emptyList());
+        if (rspNames.isEmpty()) {
+            LOG.warn("There is currently no RSPs for SFP {}", sfpName);
+            return Collections.emptySet();
+        }
+
+        Set<ClassifierRenderableEntry> entries = new HashSet<>();
+        boolean haveAllRsps = false;
+        RenderedServicePath forwardRsp = null;
+        RenderedServicePath reverseRsp = null;
+        for (String anRspName : rspNames) {
+            RenderedServicePath rsp = sfcProvider.getRenderedServicePath(anRspName).orElse(null);
+            if (rsp.isReversePath() && destinationPort != null) {
+                reverseRsp = rsp;
+                haveAllRsps = forwardRsp != null || sourcePort == null;
+            }
+            if (!rsp.isReversePath() && sourcePort != null) {
+                forwardRsp = rsp;
+                haveAllRsps = reverseRsp != null || destinationPort == null;
+            }
+            if (haveAllRsps) {
+                break;
+            }
+        }
+
+        if (reverseRsp != null) {
+            entries.addAll(this.buildEntries(Collections.singletonList(destinationPort), matches, reverseRsp));
+        } else if (destinationPort != null) {
+            LOG.warn("No reverse RSP found for SFP {} and destination port {}", sfpName, destinationPort);
+        }
+
+        if (forwardRsp != null) {
+            entries.addAll(this.buildEntries(Collections.singletonList(sourcePort), matches, forwardRsp));
+        } else if (sourcePort != null) {
+            LOG.warn("No forward RSP found for SFP {} and source port {}", sfpName, sourcePort);
+        }
+
+        return entries;
+    }
+
+    private Set<ClassifierRenderableEntry> buildEntries(
+            @NonNull List<String> interfaces,
+            @NonNull Matches matches,
+            @NonNull RenderedServicePath rsp) {
 
         Long nsp = rsp.getPathId();
         Short nsi = rsp.getStartingIndex();
         Short nsl = rsp.getRenderedServicePathHop() == null ? null : (short) rsp.getRenderedServicePathHop().size();
 
         if (nsp == null || nsi == null || nsl == null) {
-            LOG.trace("RSP has no valid NSI or NSP or length");
+            LOG.error("RSP has no valid NSI or NSP or length");
             return Collections.emptySet();
         }
 
@@ -138,27 +262,10 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        List<String> interfaces = new ArrayList<>();
-        NeutronNetwork network = matches.getAugmentation(NeutronNetwork.class);
-        if (network != null) {
-            interfaces.addAll(netvirtProvider.getLogicalInterfacesFromNeutronNetwork(network));
-        }
-
-        Optional.ofNullable(matches.getAugmentation(NeutronPorts.class))
-                .map(NeutronPorts::getSourcePortUuid)
-                .filter(port -> !Strings.isNullOrEmpty(port) && !interfaces.contains(port))
-                .ifPresent(interfaces::add);
-
-        if (interfaces.isEmpty()) {
-            LOG.error("Ace has no neutron entity to match against");
-            return Collections.emptySet();
-        }
-
         Map<NodeId, List<InterfaceKey>> nodeToInterfaces = new HashMap<>();
         for (String iface : interfaces) {
-            geniusProvider.getNodeIdFromLogicalInterface(iface).ifPresent(
-                nodeId -> nodeToInterfaces.computeIfAbsent(nodeId, key -> new ArrayList<>()).add(
-                        new InterfaceKey(iface)));
+            geniusProvider.getNodeIdFromLogicalInterface(iface).ifPresent(nodeId ->
+                    nodeToInterfaces.computeIfAbsent(nodeId, key -> new ArrayList<>()).add(new InterfaceKey(iface)));
         }
 
         LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);

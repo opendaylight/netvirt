@@ -179,8 +179,9 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         LOG.info("Add service function path {}", sfp);
         sfcMdsalHelper.addServiceFunctionPath(sfp);
 
-        //TODO:Generate Flow Classifiers and augment RSP on it.
-
+        // TODO This can be removed after oxygen
+        // In Oxygen, RSP will be automatically created from the SFP without
+        // the need to call the rpc, which will be deprecated
         if (this.rspService != null) {
             // Build Create Rendered Service Path input
             CreateRenderedPathInput rpInput = PortChainTranslator.buildCreateRenderedServicePathInput(sfp);
@@ -192,8 +193,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                 try {
                     if (result.get() != null) {
                         CreateRenderedPathOutput output = result.get().getResult();
-                        LOG.debug("RSP name received from SFC : {}", output.getName());
-                        processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), output.getName());
+                        LOG.debug("RSP created on SFC : {}", output.getName());
                     } else {
                         LOG.error("RSP creation failed : {}", rpInput);
                     }
@@ -205,13 +205,16 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
             LOG.error("Rendered Path Service is not available, can't create Rendered Path for Port Chain",
                     newPortChain);
         }
+
+        // Add ACLs from flow classifiers
+        processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), sfp.getName().getValue());
     }
 
-    private void processFlowClassifiers(PortChain pc, List<Uuid> flowClassifiers, String rspName) {
+    private void processFlowClassifiers(PortChain pc, List<Uuid> flowClassifiers, String sfpName) {
         for (Uuid uuid : flowClassifiers) {
             SfcFlowClassifier fc = neutronMdsalHelper.getNeutronFlowClassifier(uuid);
             if (fc != null) {
-                Acl acl = FlowClassifierTranslator.buildAcl(fc, rspName);
+                Acl acl = FlowClassifierTranslator.buildAcl(fc, sfpName);
                 if (acl != null) {
                     sfcMdsalHelper.addAclFlowClassifier(acl);
                 } else {

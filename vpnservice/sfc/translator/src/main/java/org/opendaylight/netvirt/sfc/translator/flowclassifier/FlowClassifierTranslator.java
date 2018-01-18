@@ -55,7 +55,7 @@ public final class FlowClassifierTranslator {
         return buildAcl(flowClassifier, null);
     }
 
-    public static Acl buildAcl(SfcFlowClassifier flowClassifier, String rspName) {
+    public static Acl buildAcl(SfcFlowClassifier flowClassifier, String sfpName) {
         LOG.info("OpenStack Networking SFC pushed Flow classifier : {}", flowClassifier);
         AclBuilder aclBuilder = new AclBuilder();
         AceBuilder aceBuilder = new AceBuilder();
@@ -148,8 +148,8 @@ public final class FlowClassifierTranslator {
         matchesBuilder.addAugmentation(NeutronPorts.class, neutronPortsBuilder.build());
 
         //Set redirect-to-rsp action if rsp name is provided
-        if (rspName != null) {
-            redirectToSfcBuilder.setRspName(rspName);
+        if (sfpName != null) {
+            redirectToSfcBuilder.setSfpName(sfpName);
             actionsBuilder.addAugmentation(RedirectToSfc.class, redirectToSfcBuilder.build());
             aceBuilder.setActions(actionsBuilder.build());
         }
