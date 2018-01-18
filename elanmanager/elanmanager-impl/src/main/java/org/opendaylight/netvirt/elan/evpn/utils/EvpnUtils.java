@@ -212,7 +212,7 @@ public class EvpnUtils {
             return;
         }
         int vpnLabel = 0;
-        long l2vni = elanInfo.getSegmentationId();
+        long l2vni = elanUtils.getVxlanSegmentationId(elanInfo);
         long l3vni = 0;
         String gatewayMacAddr = null;
         String l3VpName = getL3vpnNameFromElan(elanInfo);
@@ -403,7 +403,7 @@ public class EvpnUtils {
     private void programEvpnL2vniFlow(ElanInstance elanInfo, BiConsumer<BigInteger, FlowEntity> flowHandler) {
         long elanTag = elanInfo.getElanTag();
         List<MatchInfo> mkMatches = new ArrayList<>();
-        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(elanInfo.getSegmentationId())));
+        mkMatches.add(new MatchTunnelId(BigInteger.valueOf(elanUtils.getVxlanSegmentationId(elanInfo))));
         NWUtil.getOperativeDPNs(broker).forEach(dpnId -> {
             LOG.debug("Updating tunnel flow to dpnid {}", dpnId);
             List<InstructionInfo> instructions = getInstructionsForExtTunnelTable(elanTag);
