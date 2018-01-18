@@ -14,9 +14,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
@@ -28,16 +29,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBase<StateTunnelList,
+public class ElanTunnelInterfaceStateListener extends AsyncClusteredDataTreeChangeListenerBase<StateTunnelList,
     ElanTunnelInterfaceStateListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanTunnelInterfaceStateListener.class);
     private final DataBroker dataBroker;
     private final ElanInterfaceManager elanInterfaceManager;
     private final ElanUtils elanUtils;
+    private final ElanClusterUtils elanClusterUtils;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public ElanTunnelInterfaceStateListener(final DataBroker dataBroker,
+                                            final ElanClusterUtils elanClusterUtils,
             final ElanInterfaceManager elanInterfaceManager, final ElanUtils elanUtils,
             final JobCoordinator jobCoordinator) {
         super(StateTunnelList.class, ElanTunnelInterfaceStateListener.class);
@@ -45,9 +48,9 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
         this.elanInterfaceManager = elanInterfaceManager;
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanClusterUtils = elanClusterUtils;
     }
 
-    @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
@@ -69,6 +72,10 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
 
     @Override
     protected void add(InstanceIdentifier<StateTunnelList> key, StateTunnelList add) {
+        elanClusterUtils.runOnlyInOwnerNode("Handle Tunnel interfaceState", () -> addInternal(key, add));
+    }
+
+    private void addInternal(InstanceIdentifier<StateTunnelList> key, StateTunnelList add) {
         LOG.info("processing add state for StateTunnelList {}", add);
         if (!isInternalTunnel(add)) {
             LOG.trace("tunnel {} is not a internal vxlan tunnel", add);
