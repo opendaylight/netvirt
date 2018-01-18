@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "527efe87_048c1485",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-18T03:34:59Z",
+      "side": 1,
+      "message": "The problem remains same in EVPN scenario. The differentiating factor in EVPN is the tunnel between ODL/OVS \u003c\u003e DC-GWy is VXLAN. As of now we are under impression bfd can be enabled in VXLAN tunnel. If the bfd support is available over VXLAN tunnel, we can enable tunnel monitoring and let the DataPath switch the traffic to surviving gateway.",
+      "parentUuid": "dd2645f3_3cdf4216",
+      "range": {
+        "startLine": 8,
+        "startChar": 3,
+        "endLine": 8,
+        "endChar": 8
+      },
+      "revId": "2695ac4b7898fdac659f2e2b316147cfd20b0bb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d97c76aa_d0864d1c",
         "filename": "docs/specs/faster-dcgw-failure-detection.rst",
         "patchSetId": 15
@@ -36,6 +60,24 @@
       "writtenOn": "2018-01-17T16:07:32Z",
       "side": 1,
       "message": "Please remove the spaces",
+      "revId": "2695ac4b7898fdac659f2e2b316147cfd20b0bb5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aa76fd56_c1628c83",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 15
+      },
+      "lineNbr": 117,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-01-18T03:34:59Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d97c76aa_d0864d1c",
       "revId": "2695ac4b7898fdac659f2e2b316147cfd20b0bb5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
