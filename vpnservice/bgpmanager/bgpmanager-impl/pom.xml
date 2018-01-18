@@ -72,7 +72,11 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>truth</artifactId>
       <scope>test</scope>
     </dependency>
-
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>metrics-api</artifactId>
+      <version>${infrautils.version}</version>
+    </dependency>
   </dependencies>
 
   <build>
