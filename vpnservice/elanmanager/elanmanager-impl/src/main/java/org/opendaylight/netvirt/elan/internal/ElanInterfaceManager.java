@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -61,6 +61,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanEtreeUtils;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
@@ -126,7 +127,8 @@ import org.slf4j.LoggerFactory;
  * @see org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface
  */
 @Singleton
-public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager> {
+public class ElanInterfaceManager
+        extends AsyncClusteredDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
     private static final boolean SH_FLAG_SET = true;
@@ -144,6 +146,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanClusterUtils elanClusterUtils;
 
     private final Map<String, ConcurrentLinkedQueue<ElanInterface>>
         unProcessedElanInterfaces = new ConcurrentHashMap<>();
@@ -155,6 +158,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final INeutronVpnManager neutronVpnManager, final ElanItmUtils elanItmUtils,
                                 final ElanEtreeUtils elanEtreeUtils, final ElanL2GatewayUtils elanL2GatewayUtils,
                                 final ElanUtils elanUtils, final JobCoordinator jobCoordinator,
+                                final ElanClusterUtils elanClusterUtils,
                                 final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
@@ -169,9 +173,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
+        this.elanClusterUtils = elanClusterUtils;
     }
 
-    @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
@@ -184,6 +188,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @Override
     protected void remove(InstanceIdentifier<ElanInterface> identifier, ElanInterface del) {
+        elanClusterUtils.runOnlyInOwnerNode("Remove interface",
+            () -> removeInterface(identifier, del));
+    }
+
+    private void removeInterface(InstanceIdentifier<ElanInterface> identifier, ElanInterface del) {
         String interfaceName = del.getName();
         ElanInstance elanInfo = ElanUtils.getElanInstanceByName(broker, del.getElanInstanceName());
         /*
@@ -480,6 +489,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                         mac.getMacAddress().getValue(), elanTag)));
     }
 
+    @Override
+    protected void update(InstanceIdentifier<ElanInterface> identifier, ElanInterface original, ElanInterface update) {
+        elanClusterUtils.runOnlyInOwnerNode("Update elan interface",
+            () -> updateInterface(identifier, original, update));
+    }
     /*
     * Possible Scenarios for update
     *   a. if orig={1,2,3,4}   and updated=null or updated={}
@@ -497,8 +511,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         e. if orig = {1,2,3,4} updated={2,3,4,5}
         then 1 should be removed , 5 should be added
     * */
-    @Override
-    protected void update(InstanceIdentifier<ElanInterface> identifier, ElanInterface original, ElanInterface update) {
+    private void updateInterface(InstanceIdentifier<ElanInterface> identifier, ElanInterface original,
+                                   ElanInterface update) {
         // updating the static-Mac Entries for the existing elanInterface
         String elanName = update.getElanInstanceName();
         String interfaceName = update.getName();
@@ -533,6 +547,11 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
 
     @Override
     protected void add(InstanceIdentifier<ElanInterface> identifier, ElanInterface elanInterfaceAdded) {
+        elanClusterUtils.runOnlyInOwnerNode("Add elan interface",
+            () -> addInterface(identifier, elanInterfaceAdded));
+    }
+
+    private void addInterface(InstanceIdentifier<ElanInterface> identifier, ElanInterface elanInterfaceAdded) {
         String elanInstanceName = elanInterfaceAdded.getElanInstanceName();
         String interfaceName = elanInterfaceAdded.getName();
         InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(interfaceName);
