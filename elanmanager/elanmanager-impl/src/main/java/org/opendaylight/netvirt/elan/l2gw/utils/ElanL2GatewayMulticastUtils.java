@@ -7,7 +7,7 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
-import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlan;
+import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
@@ -313,9 +313,10 @@ public class ElanL2GatewayMulticastUtils {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanDpnInterfacesList elanDpns = elanUtils.getElanDpnInterfacesList(elanInfo.getElanInstanceName());
 
-        if (isVxlan(elanInfo)) {
+        if (isVxlanNetworkOrVxlanSegment(elanInfo)) {
             listBucketInfo.addAll(getRemoteBCGroupTunnelBuckets(elanDpns, dpnId, bucketId,
-                    elanUtils.isOpenstackVniSemanticsEnforced() ? elanInfo.getSegmentationId() : elanTag));
+                    elanUtils.isOpenstackVniSemanticsEnforced()
+                            ? elanUtils.getVxlanSegmentationId(elanInfo) : elanTag));
         }
         listBucketInfo.addAll(getRemoteBCGroupExternalPortBuckets(elanDpns, dpnInterfaces, dpnId,
             getNextAvailableBucketId(listBucketInfo.size())));
@@ -361,7 +362,7 @@ public class ElanL2GatewayMulticastUtils {
                 continue;
             }
             List<Action> listActionInfo = elanItmUtils.buildTunnelItmEgressActions(interfaceName,
-                    elanInfo.getSegmentationId());
+                    elanUtils.getVxlanSegmentationId(elanInfo));
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
             bucketId++;
