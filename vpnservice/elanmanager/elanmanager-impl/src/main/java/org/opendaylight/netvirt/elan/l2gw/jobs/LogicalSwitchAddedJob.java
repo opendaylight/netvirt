@@ -12,7 +12,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
-import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -59,7 +58,7 @@ public class LogicalSwitchAddedJob implements Callable<List<ListenableFuture<Voi
     }
 
     public String getJobKey() {
-        return logicalSwitchName + HwvtepHAUtil.L2GW_JOB_KEY;
+        return logicalSwitchName;
     }
 
     @Override
