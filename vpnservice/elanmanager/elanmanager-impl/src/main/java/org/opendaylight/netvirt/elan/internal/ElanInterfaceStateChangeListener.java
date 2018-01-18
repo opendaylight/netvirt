@@ -13,10 +13,11 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -31,24 +32,25 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanInterfaceStateChangeListener
-        extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> {
+        extends AsyncClusteredDataTreeChangeListenerBase<Interface, ElanInterfaceStateChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceStateChangeListener.class);
 
     private final DataBroker broker;
     private final ElanInterfaceManager elanInterfaceManager;
     private final JobCoordinator jobCoordinator;
+    private final ElanClusterUtils elanClusterUtils;
 
     @Inject
     public ElanInterfaceStateChangeListener(final DataBroker db, final ElanInterfaceManager ifManager,
-            final JobCoordinator jobCoordinator) {
+            final JobCoordinator jobCoordinator, ElanClusterUtils elanClusterUtils) {
         super(Interface.class, ElanInterfaceStateChangeListener.class);
         broker = db;
         elanInterfaceManager = ifManager;
         this.jobCoordinator = jobCoordinator;
+        this.elanClusterUtils = elanClusterUtils;
     }
 
-    @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.OPERATIONAL, broker);
@@ -56,6 +58,10 @@ public class ElanInterfaceStateChangeListener
 
     @Override
     protected void remove(InstanceIdentifier<Interface> identifier, Interface delIf) {
+        elanClusterUtils.runOnlyInOwnerNode("Remove interface", () -> removeInterface(identifier, delIf));
+    }
+
+    private void removeInterface(InstanceIdentifier<Interface> identifier, Interface delIf) {
         if (!L2vlan.class.equals(delIf.getType())) {
             return;
         }
@@ -89,6 +95,10 @@ public class ElanInterfaceStateChangeListener
 
     @Override
     protected void add(InstanceIdentifier<Interface> identifier, Interface intrf) {
+        elanClusterUtils.runOnlyInOwnerNode("Add interface", () -> addInterface(identifier, intrf));
+    }
+
+    private void addInterface(InstanceIdentifier<Interface> identifier, Interface intrf) {
         if (!L2vlan.class.equals(intrf.getType())) {
             return;
         }
