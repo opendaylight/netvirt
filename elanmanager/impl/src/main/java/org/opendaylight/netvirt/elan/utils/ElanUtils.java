@@ -943,8 +943,8 @@ public class ElanUtils {
         Flow flowEntity;
         // if openstack-vni-semantics are enforced, segmentation ID is passed as network VNI for VxLAN based provider
         // networks, 0 otherwise
-        long lportTagOrVni = !isOpenstackVniSemanticsEnforced() ? lportTag : isVxlan(elanInstance)
-                ? elanInstance.getSegmentationId() : 0;
+        long lportTagOrVni = !isOpenstackVniSemanticsEnforced() ? lportTag : isVxlanNetworkOrVxlanSegment(elanInstance)
+                ? getVxlanSegmentationId(elanInstance) : 0;
         flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni, elanTag, macAddress, displayName,
                 elanInstance);
         mdsalManager.addFlowToTx(srcDpId, flowEntity, writeFlowGroupTx);
@@ -1013,7 +1013,7 @@ public class ElanUtils {
                         elanInstance);
                 }
                 actions = getEgressActionsForInterface(interfaceName, null);
-            } else if (isVxlan(elanInstance)) {
+            } else if (isVxlanNetworkOrVxlanSegment(elanInstance)) {
                 actions = elanItmUtils.getInternalTunnelItmEgressAction(srcDpId, destDpId, lportTagOrVni);
             }
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));

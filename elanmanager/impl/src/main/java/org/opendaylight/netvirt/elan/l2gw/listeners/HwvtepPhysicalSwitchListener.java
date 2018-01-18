@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -24,6 +25,7 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
@@ -248,7 +250,7 @@ public class HwvtepPhysicalSwitchListener
                                 existingDevice.getDeviceName(), existingDevice.getTunnelIp());
                         Thread.sleep(10000L);//TODO remove these sleeps
                         LOG.info("Creating itm tunnels for device {}", existingDevice.getDeviceName());
-                        ElanL2GatewayUtils.createItmTunnels(itmRpcService, hwvtepId, psName,
+                        ElanL2GatewayUtils.createItmTunnels(dataBroker, itmRpcService, hwvtepId, psName,
                                 phySwitchAfter.getTunnelIps().get(0).getTunnelIpsKey());
                         return Collections.emptyList();
                     }
@@ -321,7 +323,11 @@ public class HwvtepPhysicalSwitchListener
 
             handleAdd(l2GwDevice);
             elanClusterUtils.runOnlyInOwnerNode("Update config tunnels IP ", () -> {
-                updateConfigTunnelIp(identifier, phySwitchAdded);
+                try {
+                    updateConfigTunnelIp(identifier, phySwitchAdded);
+                } catch (ReadFailedException e) {
+                    LOG.error("Failed to update tunnel ips {}", identifier);
+                }
             });
             return;
         });
@@ -403,16 +409,20 @@ public class HwvtepPhysicalSwitchListener
     }
 
     private void updateConfigTunnelIp(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
-                                      PhysicalSwitchAugmentation phySwitchAdded) {
+                                      PhysicalSwitchAugmentation phySwitchAdded) throws ReadFailedException {
         if (phySwitchAdded.getTunnelIps() != null) {
             ListenableFutures.addErrorLogging(
                 txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                    Optional<PhysicalSwitchAugmentation> existingSwitch = tx.read(
+                            LogicalDatastoreType.CONFIGURATION, identifier).checkedGet();
                     PhysicalSwitchAugmentationBuilder psBuilder = new PhysicalSwitchAugmentationBuilder();
+                    if (existingSwitch.isPresent()) {
+                        psBuilder = new PhysicalSwitchAugmentationBuilder(existingSwitch.get());
+                    }
                     psBuilder.setTunnelIps(phySwitchAdded.getTunnelIps());
-                    tx.merge(LogicalDatastoreType.CONFIGURATION, identifier, psBuilder.build());
+                    tx.put(LogicalDatastoreType.CONFIGURATION, identifier, psBuilder.build(), true);
                     LOG.trace("Updating config tunnel ips {}", identifier);
-                }),
-                LOG, "Failed to update config tunnel ip for iid {}", identifier);
+                }), LOG, "Failed to update the config tunnel ips {}", identifier);
         }
     }
 }

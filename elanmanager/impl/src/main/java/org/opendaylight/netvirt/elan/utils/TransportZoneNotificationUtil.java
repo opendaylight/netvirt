@@ -108,7 +108,8 @@ public class TransportZoneNotificationUtil {
                 continue;
             }
 
-            if (ElanUtils.isVxlan(elanInstanceCache.get(elanInt.getElanInstanceName()).orNull())) {
+            if (ElanUtils.isVxlanNetworkOrVxlanSegment(
+                    elanInstanceCache.get(elanInt.getElanInstanceName()).orNull())) {
                 return true;
             } else {
                 LOG.debug("Non-VXLAN elanInstance: " + elanInt.getElanInstanceName());
