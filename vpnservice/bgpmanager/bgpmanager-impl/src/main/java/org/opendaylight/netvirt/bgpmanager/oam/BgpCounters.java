@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.oam;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -17,7 +18,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.management.ManagementFactory;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
@@ -29,12 +29,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.concurrent.ConcurrentHashMap;
+
 import javax.annotation.Nonnull;
-import javax.management.InstanceNotFoundException;
-import javax.management.JMException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
+import javax.inject.Inject;
+
+import org.opendaylight.infrautils.metrics.Counter;
+import org.opendaylight.infrautils.metrics.Labeled;
+import org.opendaylight.infrautils.metrics.MetricDescriptor;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,24 +52,19 @@ public class BgpCounters implements Runnable, AutoCloseable {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpCounters.class);
 
-    private final Map<String, String> countersMap = new ConcurrentHashMap<>();
+    private final Map<String, String> totalPfxMap = new ConcurrentHashMap<>();
+
     private final String bgpSdncMip;
+    private final MetricProvider metricProvider;
 
-    private volatile BgpCountersBroadcaster bgpStatsBroadcaster;
-
-    public BgpCounters(String mipAddress) {
-        bgpSdncMip = mipAddress;
+    @Inject
+    public BgpCounters(String mipAddress, final MetricProvider metricProvider) {
+        this.metricProvider = metricProvider;
+        this.bgpSdncMip = mipAddress;
     }
 
     @Override
     public void close() {
-        if (bgpStatsBroadcaster != null) {
-            try {
-                ManagementFactory.getPlatformMBeanServer().unregisterMBean(bgpStatsON());
-            } catch (MBeanRegistrationException | InstanceNotFoundException | MalformedObjectNameException e) {
-                LOG.warn("Error unregistering BgpCountersBroadcaster", e);
-            }
-        }
     }
 
     @Override
@@ -83,32 +80,10 @@ public class BgpCounters implements Runnable, AutoCloseable {
             parseIpBgpSummary();
             parseIpBgpVpnv4All();
             parseIpBgpVpnv6All();
-            parseIpBgpVpnv6All();
             parseBgpL2vpnEvpnAll();
-            if (LOG.isDebugEnabled()) {
-                dumpCounters();
-            }
-            if (bgpStatsBroadcaster == null) {
-                //First time execution
-                try {
-                    bgpStatsBroadcaster = new BgpCountersBroadcaster();
-                    ManagementFactory.getPlatformMBeanServer().registerMBean(bgpStatsBroadcaster, bgpStatsON());
-                    LOG.info("BGP Counters MBean Registered :::");
-                } catch (JMException e) {
-                    LOG.error("Error registering BgpCountersBroadcaster", e);
-                    return;
-                }
-            }
-            bgpStatsBroadcaster.setBgpCountersMap(countersMap);
             LOG.debug("Finished updating the counters from BGP");
         } catch (IOException e) {
             LOG.error("Failed to publish bgp counters ", e);
-        }
-    }
-
-    private void dumpCounters() {
-        for (Map.Entry<String, String> entry : countersMap.entrySet()) {
-            LOG.debug("{}, Value = {}", entry.getKey(), entry.getValue());
         }
     }
 
@@ -249,13 +224,13 @@ public class BgpCounters implements Runnable, AutoCloseable {
                     final String rx = result[3];
                     final String tx = result[4];
 
-                    countersMap.put(
-                            BgpConstants.BGP_COUNTER_NBR_PKTS_RX + ":BGP_Nbr_IP_" + strIp + "_AS_" + as
-                                    + "_PktsReceived",
-                            rx);
-                    countersMap.put(
-                            BgpConstants.BGP_COUNTER_NBR_PKTS_TX + ":BGP_Nbr_IP_" + strIp + "_AS_" + as + "_PktsSent",
-                            tx);
+                    Counter counter = getCounter(BgpConstants.BGP_COUNTER_NBR_PKTS_RX, as,
+                            rx, null, strIp, null);
+                    updateCounter(counter, Long.parseLong(rx));
+
+                    counter = getCounter(BgpConstants.BGP_COUNTER_NBR_PKTS_TX, as,
+                            null, tx, strIp, null);
+                    updateCounter(counter, Long.parseLong(tx));
                 }
             }
         } catch (IOException e) {
@@ -365,20 +340,27 @@ public class BgpCounters implements Runnable, AutoCloseable {
         }
         /*populate the "BgpTotalPrefixes" counter by combining
         the prefixes that are calculated per RD basis*/
-        int bgpTotalPfxs = calculateBgpTotalPrefixes();
+        long bgpTotalPfxs = calculateBgpTotalPrefixes();
         LOG.trace("BGP Total Prefixes:{}",bgpTotalPfxs);
-        countersMap.put(BgpConstants.BGP_COUNTER_TOTAL_PFX,String.valueOf(bgpTotalPfxs));
+        Counter counter = getCounter(BgpConstants.BGP_COUNTER_TOTAL_PFX, null, null, null,
+                null, null);
+        updateCounter(counter, bgpTotalPfxs);
     }
 
     private int processRouteCount(String rd, int startIndex, List<String> inputStrs) {
         int num = startIndex;
-        int routeCount = 0;
-        String key = BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT + ":BGP_RD_" + rd + "_route_count";
+        long routeCount = 0;
 
-        for (String str = inputStrs.get(num); str != null && !str.trim().equals("") && num < inputStrs.size();
+        String bgpRdRouteCountKey = BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT + rd;
+        Counter counter = getCounter(BgpConstants.BGP_COUNTER_RD_ROUTE_COUNT, null, null, null,
+                null, rd);
+
+        for (String str = inputStrs.get(num); str != null && !str.trim().equals("")
+                && num < inputStrs.size();
                 str = inputStrs.get(num)) {
             if (str.contains("Route Distinguisher")) {
-                countersMap.put(key, Integer.toString(routeCount));
+                totalPfxMap.put(bgpRdRouteCountKey, Long.toString(routeCount));
+                updateCounter(counter, routeCount);
                 return num - 1;
             }
             routeCount++;
@@ -394,17 +376,17 @@ public class BgpCounters implements Runnable, AutoCloseable {
             // by sending a big number back.
             return Integer.MAX_VALUE;
         }
-        countersMap.put(key, Integer.toString(routeCount));
+        updateCounter(counter, routeCount);
         return num - 1;
     }
 
-    private int calculateBgpTotalPrefixes() {
-        return countersMap.entrySet().stream().filter(entry -> entry.getKey().contains(BgpConstants
-                .BGP_COUNTER_RD_ROUTE_COUNT)).map(Map.Entry::getValue).mapToInt(Integer::parseInt).sum();
+    private Long calculateBgpTotalPrefixes() {
+        return totalPfxMap.entrySet().stream()
+                .map(Map.Entry::getValue).mapToLong(Long::parseLong).sum();
     }
 
     private void resetCounters() {
-        countersMap.clear();
+        totalPfxMap.clear();
         resetFile("cmd_ip_bgp_summary.txt");
         resetFile("cmd_bgp_ipv4_unicast_statistics.txt");
         resetFile(BGP_VPNV4_FILE);
@@ -475,7 +457,99 @@ public class BgpCounters implements Runnable, AutoCloseable {
                                                    af_afi.AFI_IP);
     }
 
-    private static ObjectName bgpStatsON() throws MalformedObjectNameException {
-        return new ObjectName("SDNC.PM:type=BgpCountersBroadcaster");
+    /**
+     * This method updates Counter values.
+     * @param counter object of the Counter
+     * @param counterValue value of Counter
+     */
+    private void updateCounter(Counter counter, long counterValue) {
+        try {
+            /*Reset counter to zero*/
+            counter.decrement(counter.get());
+            /*Set counter to specified value*/
+            counter.increment(counterValue);
+        } catch (IllegalStateException e) {
+            LOG.error("Exception occured during updating the Counter {}", counter, e);
+        }
     }
+
+    /**
+     * Returns the counter.
+     * This method returns counter and also creates counter if does not exist.
+     *
+     * @param counterName name of the counter.
+     * @param asValue as value.
+     * @param rxValue rx value.
+     * @param txValue tx value.
+     * @param neighborIp neighbor Ipaddress.
+     * @param rdValue rd value.
+     * @return counter object.
+     */
+    private Counter getCounter(String counterName, String asValue,
+            String rxValue, String txValue, String neighborIp, String rdValue) {
+        String counterTypeEntityCounter = "entitycounter";
+        String labelKeyEntityType = "entitytype";
+
+        String labelValEntityTypeBgpPeer = "bgp-peer";
+        String labelKeyAsId = "asid";
+        String labelKeyNeighborIp = "neighborip";
+
+        String labelValEntityTypeBgpRd = "bgp-rd";
+        String labelKeyRd = "rd";
+
+        String counterTypeAggregateCounter = "aggregatecounter";
+        String labelKeyCounterName = "name";
+
+        Counter counter = null;
+
+        if (rxValue != null) {
+            /*
+             * Following is the key pattern for Counter BgpNeighborPacketsReceived
+             * netvirt.bgpmanager.entitycounter{entitytype=bgp-peer, asid=value, neighborip=value, name=countername}
+             * */
+            Labeled<Labeled<Labeled<Labeled<Counter>>>> labeledCounter =
+                    metricProvider.newCounter(MetricDescriptor.builder().anchor(this).project("netvirt")
+                        .module("bgpmanager").id(counterTypeEntityCounter).build(),
+                        labelKeyEntityType, labelKeyAsId,
+                        labelKeyNeighborIp, labelKeyCounterName);
+            counter = labeledCounter.label(labelValEntityTypeBgpPeer).label(asValue)
+                    .label(neighborIp).label(counterName);
+        } else if (txValue != null) {
+            /*
+             * Following is the key pattern for Counter BgpNeighborPacketsSent
+             * netvirt.bgpmanager.entitycounter{entitytype=bgp-peer, asid=value, neighborip=value, name=countername}
+             * */
+            Labeled<Labeled<Labeled<Labeled<Counter>>>> labeledCounter =
+                    metricProvider.newCounter(MetricDescriptor.builder().anchor(this).project("netvirt")
+                        .module("bgpmanager").id(counterTypeEntityCounter).build(),
+                        labelKeyEntityType, labelKeyAsId,
+                        labelKeyNeighborIp, labelKeyCounterName);
+            counter = labeledCounter.label(labelValEntityTypeBgpPeer).label(asValue)
+                    .label(neighborIp).label(counterName);
+        } else if (rdValue != null) {
+            /*
+             * Following is the key pattern for Counter BgpRdRouteCount
+             * netvirt.bgpmanager.entitycounter{entitytype=bgp-rd, rd=value, name=countername}
+             * */
+            Labeled<Labeled<Labeled<Counter>>> labeledCounter =
+                    metricProvider.newCounter(MetricDescriptor.builder().anchor(this).project("netvirt")
+                        .module("bgpmanager").id(counterTypeEntityCounter).build(),
+                        labelKeyEntityType, labelKeyRd,
+                        labelKeyCounterName);
+            counter = labeledCounter.label(labelValEntityTypeBgpRd).label(rdValue)
+                    .label(counterName);
+        } else {
+            /*
+             * Following is the key pattern for Counter BgpTotalPrefixes:Bgp_Total_Prefixes
+             * netvirt.bgpmanager.aggregatecounter{name=countername}
+             * */
+            Labeled<Counter> labeledCounter =
+                    metricProvider.newCounter(MetricDescriptor.builder().anchor(this).project("netvirt")
+                        .module("bgpmanager").id(counterTypeAggregateCounter).build(),
+                        labelKeyCounterName);
+            counter = labeledCounter.label(counterName);
+        }
+        return counter;
+    }
+
 }

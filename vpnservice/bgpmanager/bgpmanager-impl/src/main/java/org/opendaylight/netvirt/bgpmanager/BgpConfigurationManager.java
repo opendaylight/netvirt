@@ -55,6 +55,7 @@ import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
+import org.opendaylight.infrautils.metrics.MetricProvider;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListenerRegistration;
@@ -223,6 +224,7 @@ public class BgpConfigurationManager {
     private final EntityOwnershipUtils entityOwnershipUtils;
     private final EntityOwnershipCandidateRegistration candidateRegistration;
     private final EntityOwnershipListenerRegistration entityListenerRegistration;
+    private final MetricProvider metricProvider;
 
     @Inject
     public BgpConfigurationManager(final DataBroker dataBroker,
@@ -230,13 +232,15 @@ public class BgpConfigurationManager {
             final FibDSWriter fibDSWriter,
             final IVpnLinkService vpnLinkSrvce,
             final BundleContext bundleContext,
-            final BgpUtil bgpUtil)
+            final BgpUtil bgpUtil,
+            final MetricProvider metricProvider)
             throws InterruptedException, ExecutionException, TimeoutException {
         this.dataBroker = dataBroker;
         this.fibDSWriter = fibDSWriter;
         this.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
         this.bgpUtil = bgpUtil;
+        this.metricProvider = metricProvider;
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         portStartup = getProperty(CONFIG_PORT, DEF_CPORT);
@@ -1636,7 +1640,6 @@ public class BgpConfigurationManager {
                     String host = getConfigHost();
                     int port = getConfigPort();
                     LOG.info("connecting  to bgp host {} ", host);
-
                     bgpRouter.connect(host, port);
                     LOG.info("no config to push in bgp replay task ");
                     return;
@@ -2063,7 +2066,6 @@ public class BgpConfigurationManager {
         String host = getConfigHost();
         int port = getConfigPort();
         LOG.error("connecting  to bgp host {} ", host);
-
         boolean res = bgpRouter.connect(host, port);
         if (!res) {
             String msg = "Cannot connect to BGP config server at " + host + ":" + port;
@@ -2833,7 +2835,8 @@ public class BgpConfigurationManager {
     }
 
     private void startBgpCountersTask() {
-        if (getBgpCounters() == null && bgpCountersReference.compareAndSet(null, new BgpCounters(getBgpSdncMipIp()))) {
+        if (getBgpCounters() == null && bgpCountersReference.compareAndSet(null,
+                new BgpCounters(getBgpSdncMipIp(), metricProvider))) {
             bgpCountersTask = executor.scheduleAtFixedRate(bgpCountersReference.get(), 0, 120 * 1000,
                     TimeUnit.MILLISECONDS);
             LOG.info("Bgp Counters task scheduled for every two minutes.");
