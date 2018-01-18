@@ -31,6 +31,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -213,18 +214,20 @@ public class ElanL2GatewayUtils {
      * Removes the given MAC Addresses from all the External Devices belonging
      * to the specified ELAN.
      *
-     * @param elanInstance
-     *            the elan instance
+     * @param elanName
+     *            the elan instance name
      * @param macAddresses
      *            the mac addresses
+     * @return the list of listenable futures
      */
-    public void removeMacsFromElanExternalDevices(ElanInstance elanInstance, List<PhysAddress> macAddresses) {
+    public List<ListenableFuture<Void>> removeMacsFromElanExternalDevices(String elanName,
+                                                                          List<PhysAddress> macAddresses) {
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils
-                .getInvolvedL2GwDevices(elanInstance.getElanInstanceName());
-        for (L2GatewayDevice l2GatewayDevice : elanL2GwDevices.values()) {
-            removeRemoteUcastMacsFromExternalDevice(l2GatewayDevice.getHwvtepNodeId(),
-                    elanInstance.getElanInstanceName(), macAddresses);
-        }
+                .getInvolvedL2GwDevices(elanName);
+        return elanL2GwDevices.values().stream()
+                .map(l2GatewayDevice -> removeRemoteUcastMacsFromExternalDevice(
+                        l2GatewayDevice.getHwvtepNodeId(), elanName, macAddresses))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -976,26 +979,29 @@ public class ElanL2GatewayUtils {
         return MDSALUtil.NODE_PREFIX + MDSALUtil.SEPARATOR + dpnId.toString();
     }
 
-    public void scheduleAddDpnMacInExtDevices(String elanName, BigInteger dpId,
+    public List<ListenableFuture<Void>> scheduleAddDpnMacInExtDevices(String elanName, BigInteger dpId,
             List<PhysAddress> staticMacAddresses) {
         ConcurrentMap<String, L2GatewayDevice> elanDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
-        for (final L2GatewayDevice externalDevice : elanDevices.values()) {
-            scheduleAddDpnMacsInExtDevice(elanName, dpId, staticMacAddresses, externalDevice);
-        }
+        return elanDevices.values().stream()
+                .map(externalDevice -> scheduleAddDpnMacsInExtDevice(
+                        elanName, dpId, staticMacAddresses, externalDevice))
+                .collect(Collectors.toList());
     }
 
-    public void scheduleAddDpnMacsInExtDevice(final String elanName, BigInteger dpId,
+    public ListenableFuture<Void> scheduleAddDpnMacsInExtDevice(final String elanName, BigInteger dpId,
             final List<PhysAddress> staticMacAddresses, final L2GatewayDevice externalDevice) {
         NodeId nodeId = new NodeId(externalDevice.getHwvtepNodeId());
         final IpAddress dpnTepIp = elanItmUtils.getSourceDpnTepIp(dpId, nodeId);
         LOG.trace("Dpn Tep IP: {} for dpnId: {} and nodeId: {}", dpnTepIp, dpId, nodeId);
         if (dpnTepIp == null) {
             LOG.error("could not install dpn mac in l2gw TEP IP not found for dpnId {} and nodeId {}", dpId, nodeId);
-            return;
+            return Futures.immediateFailedFuture(
+                    new IllegalStateException("Failed to find dpn tepIp " + dpId));
         }
 
         //TODO: to  be batched in genius
-        HwvtepUtils.installUcastMacs(broker, externalDevice.getHwvtepNodeId(), staticMacAddresses, elanName, dpnTepIp);
+        return HwvtepUtils.installUcastMacs(
+                broker, externalDevice.getHwvtepNodeId(), staticMacAddresses, elanName, dpnTepIp);
     }
 
     public void scheduleDeleteLogicalSwitch(final NodeId hwvtepNodeId, final String lsName) {
