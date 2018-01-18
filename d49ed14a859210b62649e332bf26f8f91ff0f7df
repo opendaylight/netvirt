@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "68ad3aaf_914eb155",
+        "filename": "vpnservice/scale-in/scale-in-api/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/TombstonedNodeManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 30,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-18T11:45:22Z",
+      "side": 1,
+      "message": "mentioned in the other comment",
+      "parentUuid": "9dc2d5e5_7d907ff7",
+      "revId": "d49ed14a859210b62649e332bf26f8f91ff0f7df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "810dc1d6_c6ff81db",
         "filename": "vpnservice/scale-in/scale-in-api/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/TombstonedNodeManager.java",
         "patchSetId": 2
@@ -36,6 +54,24 @@
     },
     {
       "key": {
+        "uuid": "f25afa46_7802bf7f",
+        "filename": "vpnservice/scale-in/scale-in-api/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/TombstonedNodeManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-18T11:45:22Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "810dc1d6_c6ff81db",
+      "revId": "d49ed14a859210b62649e332bf26f8f91ff0f7df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c721ebdd_944ccfd1",
         "filename": "vpnservice/scale-in/scale-in-impl/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/ScaleInRpcManager.java",
         "patchSetId": 2
@@ -47,6 +83,24 @@
       "writtenOn": "2018-01-17T12:31:39Z",
       "side": 1,
       "message": "Is this function supposed to be the same as scaleinComputesStart? It\u0027s the same. Also, what is hte meaning of \"recover\"?",
+      "revId": "d49ed14a859210b62649e332bf26f8f91ff0f7df",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a95d562_f877c911",
+        "filename": "vpnservice/scale-in/scale-in-impl/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/ScaleInRpcManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 44,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-01-18T11:45:22Z",
+      "side": 1,
+      "message": "The following is the workflow.\nscalein-start \u003ccomputes-list\u003e\nmigrate vms of each such compute\nfor whichever computes vm migration is not totally successful\nscalein-recover \u003cfailed comptutes\u003e\nfor whichever computes vm migration is success\nscalein-end \u003csuccess computes\u003e\n\nFor recovered computes deleted the tombstoned flag",
+      "parentUuid": "c721ebdd_944ccfd1",
       "revId": "d49ed14a859210b62649e332bf26f8f91ff0f7df",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
