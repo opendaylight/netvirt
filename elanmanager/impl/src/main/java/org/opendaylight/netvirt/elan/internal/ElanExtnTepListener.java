@@ -14,9 +14,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
+import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -27,24 +28,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<ExternalTeps, ElanExtnTepListener> {
+public class ElanExtnTepListener extends AsyncClusteredDataTreeChangeListenerBase<ExternalTeps, ElanExtnTepListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanExtnTepListener.class);
 
     private final DataBroker broker;
     private final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils;
     private final JobCoordinator jobCoordinator;
+    private final ElanClusterUtils elanClusterUtils;
 
     @Inject
     public ElanExtnTepListener(DataBroker dataBroker, ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
-            JobCoordinator jobCoordinator) {
+            JobCoordinator jobCoordinator, ElanClusterUtils elanClusterUtils) {
         super(ExternalTeps.class, ElanExtnTepListener.class);
         this.broker = dataBroker;
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.jobCoordinator = jobCoordinator;
+        this.elanClusterUtils = elanClusterUtils;
     }
 
-    @Override
     @PostConstruct
     public void init() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
@@ -57,8 +59,10 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
 
     @Override
     protected void add(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
-        LOG.trace("ExternalTeps add received {}", instanceIdentifier);
-        updateElanRemoteBroadCastGroup(instanceIdentifier);
+        elanClusterUtils.runOnlyInOwnerNode("Add External tep", () -> {
+            LOG.trace("ExternalTeps add received {}", instanceIdentifier);
+            updateElanRemoteBroadCastGroup(instanceIdentifier);
+        });
     }
 
     @Override
@@ -67,8 +71,10 @@ public class ElanExtnTepListener extends AsyncDataTreeChangeListenerBase<Externa
 
     @Override
     protected void remove(InstanceIdentifier<ExternalTeps> instanceIdentifier, ExternalTeps tep) {
-        LOG.trace("ExternalTeps remove received {}", instanceIdentifier);
-        updateElanRemoteBroadCastGroup(instanceIdentifier);
+        elanClusterUtils.runOnlyInOwnerNode("Remove External tep", () -> {
+            LOG.trace("ExternalTeps remove received {}", instanceIdentifier);
+            updateElanRemoteBroadCastGroup(instanceIdentifier);
+        });
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
