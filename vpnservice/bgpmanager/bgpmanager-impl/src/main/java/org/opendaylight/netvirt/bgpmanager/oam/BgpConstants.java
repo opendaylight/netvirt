@@ -24,4 +24,5 @@ public interface BgpConstants {
     String BGP_DEF_LOG_LEVEL = "errors";
     String BGP_DEF_LOG_FILE = "/var/log/bgp_debug.log";
     long DEFAULT_ETH_TAG = 0L;
+    String SDNC_PM_TYPE = "SDNC.PM:type=BgpCountersBroadcaster";
 }
