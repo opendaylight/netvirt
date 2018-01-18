@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
-import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -57,7 +56,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
     }
 
     public String getJobKey() {
-        return elanName + HwvtepHAUtil.L2GW_JOB_KEY;
+        return elanName;
     }
 
     @Override
