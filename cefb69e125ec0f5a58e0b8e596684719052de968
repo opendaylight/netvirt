@@ -16,6 +16,24 @@
       "revId": "cefb69e125ec0f5a58e0b8e596684719052de968",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5d5c139b_de719e53",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/src/main/java/org/opendaylight/netvirt/fibmanager/VrfEntryListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 1338,
+      "author": {
+        "id": 536
+      },
+      "writtenOn": "2018-01-18T05:48:38Z",
+      "side": 1,
+      "message": "Josh, as you said delete is not dependent on extra route existence. It is a bug in the code here.",
+      "parentUuid": "84139c58_edfa6f30",
+      "revId": "cefb69e125ec0f5a58e0b8e596684719052de968",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
