@@ -31,6 +31,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -70,15 +71,29 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
         installSnatMissEntryForPrimrySwch(dpnId, routerId, elanId, addOrRemove);
         installTerminatingServiceTblEntry(dpnId, routerId, elanId, addOrRemove);
-        List<ExternalIps> externalIps = routers.getExternalIps();
+
         String extGwMacAddress = NatUtil.getExtGwMacAddFromRouterName(getDataBroker(), routerName);
         createOutboundTblTrackEntry(dpnId, routerId, extGwMacAddress, addOrRemove);
-        createOutboundTblEntry(dpnId, routerId, externalIps, elanId, extGwMacAddress, addOrRemove);
-        installNaptPfibFlow(routers, dpnId, routerId, externalIps, routerName, addOrRemove);
+        List<ExternalIps> externalIps = routers.getExternalIps();
+        if (externalIps.isEmpty()) {
+            LOG.error("AbstractSnatService: installSnatCommonEntriesForNaptSwitch no externalIP present"
+                    + " for routerId {}",
+                    routerId);
+            return;
+        }
+        //The logic now handle only one external IP per router, others if present will be ignored.
+        String externalIp = externalIps.get(0).getIpAddress();
+        Uuid externalSubnetId = externalIps.get(0).getSubnetId();
+        long extSubnetId = NatConstants.INVALID_ID;
+        if (addOrRemove == NwConstants.ADD_FLOW) {
+            extSubnetId = NatUtil.getExternalSubnetVpnId(getDataBroker(),externalSubnetId);
+        }
+        createOutboundTblEntry(dpnId, routerId, externalIp, elanId, extGwMacAddress, addOrRemove);
+        installNaptPfibFlow(routers, dpnId, routerId, routerName, extSubnetId, addOrRemove);
 
         //Install Inbound NAT entries
         Long extNetId = NatUtil.getVpnId(getDataBroker(), routers.getNetworkId().getValue());
-        installInboundEntry(dpnId, routerId, extNetId, externalIps, elanId, addOrRemove);
+        installInboundEntry(dpnId, routerId, routerName, extNetId, externalIp, elanId, extSubnetId, addOrRemove);
         installNaptPfibEntry(dpnId, routerId, addOrRemove);
 
     }
@@ -158,19 +173,13 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
 
     }
 
-    protected void createOutboundTblEntry(BigInteger dpnId, long routerId, List<ExternalIps> externalIps,
+    protected void createOutboundTblEntry(BigInteger dpnId, long routerId, String externalIp,
             int elanId, String extGwMacAddress,  int addOrRemove) {
         LOG.info("createOutboundTblEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(TRACKED_NEW_CT_STATE, TRACKED_NEW_CT_MASK));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
-        if (externalIps.isEmpty()) {
-            LOG.error("createOutboundTblEntry : no externalIP present for routerId {}", routerId);
-            return;
-        }
-        //The logic now handle only one external IP per router, others if present will be ignored.
-        String externalIp = externalIps.get(0).getIpAddress();
         List<ActionInfo> actionsInfos = new ArrayList<>();
         if (addOrRemove == NwConstants.ADD_FLOW) {
             actionsInfos.add(new ActionSetFieldEthernetSource(new MacAddress(extGwMacAddress)));
@@ -193,19 +202,16 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
     }
 
-    protected void installNaptPfibFlow(Routers routers, BigInteger dpnId, long routerId, List<ExternalIps> externalIps,
-            String routerName, int addOrRemove) {
+    protected void installNaptPfibFlow(Routers routers, BigInteger dpnId, long routerId,
+            String routerName, long extSubnetId, int addOrRemove) {
         Long extNetId = NatUtil.getVpnId(getDataBroker(), routers.getNetworkId().getValue());
-        LOG.info("installNaptPfibFlow : dpId {}, extNetId {}, srcIp {}", dpnId, extNetId, externalIps);
+        LOG.info("installNaptPfibFlow : dpId {}, extNetId {}", dpnId, extNetId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(SNAT_CT_STATE, SNAT_CT_STATE_MASK));
         matches.add(new MatchMetadata(MetaDataUtil.getVpnIdMetadata(routerId), MetaDataUtil.METADATA_MASK_VRFID));
         List<ActionInfo> listActionInfo = new ArrayList<>();
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            //The logic now handle only one external IP per router, others if present will be ignored.
-            String externalIp = externalIps.get(0).getIpAddress();
-            long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(getDataBroker(), routerName, externalIp);
             if (extSubnetId == NatConstants.INVALID_ID) {
                 LOG.error("installNaptPfibFlow : external subnet id is invalid.");
                 return;
@@ -224,20 +230,13 @@ public class ConntrackBasedSnatService extends AbstractSnatService {
                 flowRef, NwConstants.COOKIE_SNAT_TABLE, matches, instructions, addOrRemove);
     }
 
-    protected void installInboundEntry(BigInteger dpnId, long routerId, Long extNetId, List<ExternalIps> externalIps,
-            int elanId, int addOrRemove) {
+    protected void installInboundEntry(BigInteger dpnId, long routerId, String routerName, Long extNetId,
+            String externalIp, int elanId, long extSubnetId, int addOrRemove) {
         LOG.info("installInboundEntry : dpId {} and routerId {}", dpnId, routerId);
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
-        if (externalIps.isEmpty()) {
-            LOG.error("installInboundEntry : no externalIP present for routerId {}", routerId);
-            return;
-        }
-        String externalIp = externalIps.get(0).getIpAddress();
         matches.add(new MatchIpv4Destination(externalIp,"32"));
-        String routerName = NatUtil.getRouterName(getDataBroker(), routerId);
         if (addOrRemove == NwConstants.ADD_FLOW) {
-            long extSubnetId = NatUtil.getVpnIdFromExternalSubnet(getDataBroker(), routerName, externalIp);
             if (extSubnetId == NatConstants.INVALID_ID) {
                 LOG.error("installInboundEntry : external subnet id is invalid.");
                 return;
