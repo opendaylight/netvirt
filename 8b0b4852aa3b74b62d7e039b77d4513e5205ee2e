@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "27bab55d_be0e4f18",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 29
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 7374
+      },
+      "writtenOn": "2018-01-18T00:00:02Z",
+      "side": 1,
+      "message": "define constants in NeutronConstants.java",
+      "range": {
+        "startLine": 79,
+        "startChar": 0,
+        "endLine": 81,
+        "endChar": 56
+      },
+      "revId": "8b0b4852aa3b74b62d7e039b77d4513e5205ee2e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
