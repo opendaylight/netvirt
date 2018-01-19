@@ -34,7 +34,7 @@
         <profile>
             <id>sfc</id>
             <activation>
-                <!--activeByDefault>true</activeByDefault-->
+                <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
                 <module>vpnservice-sfc-features</module>
