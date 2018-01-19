@@ -87,11 +87,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.IfIndexesInterfaceMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406._if.indexes._interface.map.IfIndexInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpnInterfaceListOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeExternal;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeHwvtep;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
@@ -116,6 +122,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adj
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOpBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.DpnToVpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.LearntVpnVipToPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.PrefixToInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RouterInterfaces;
@@ -127,6 +134,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnToExtraroutes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.DpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.DpnListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnNames;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnNamesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.learnt.vpn.vip.to.port.data.LearntVpnVipToPortKey;
@@ -444,6 +455,16 @@ public final class VpnUtil {
         return InstanceIdentifier.builder(VpnInstanceOpData.class)
             .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd))
             .child(VpnToDpnList.class, new VpnToDpnListKey(dpnId)).build();
+    }
+
+    static InstanceIdentifier<VpnNames> getDpnToVpnListVpnInstanceIdentifier(BigInteger dpnId, String vpnName) {
+        return InstanceIdentifier.builder(DpnToVpnList.class).child(DpnList.class, new DpnListKey(dpnId))
+                .child(VpnNames.class,new VpnNamesKey(vpnName)).build();
+    }
+
+    static InstanceIdentifier<DpnList> getDpnToVpnListIdentifier(BigInteger dpnId) {
+        return InstanceIdentifier.builder(DpnToVpnList.class)
+                .child(DpnList.class, new DpnListKey(dpnId)).build();
     }
 
     public static BigInteger getCookieArpFlow(int interfaceTag) {
@@ -1852,4 +1873,36 @@ public final class VpnUtil {
         return true;
     }
 
+    static int getTunnelType(StateTunnelList stateTunnelList) {
+        int tunTypeVal = 0;
+        if (stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeInternal.class) {
+            tunTypeVal = VpnConstants.ITMTunnelLocType.Internal.getValue();
+        } else if (stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeExternal.class) {
+            tunTypeVal = VpnConstants.ITMTunnelLocType.External.getValue();
+        } else if (stateTunnelList.getDstInfo().getTepDeviceType() == TepTypeHwvtep.class) {
+            tunTypeVal = VpnConstants.ITMTunnelLocType.Hwvtep.getValue();
+        } else {
+            tunTypeVal = VpnConstants.ITMTunnelLocType.Invalid.getValue();
+        }
+        return tunTypeVal;
+    }
+
+    static List<String> getDpnInterfaceList(OdlInterfaceRpcService intfRpcService, BigInteger dpnId) {
+        Future<RpcResult<GetDpnInterfaceListOutput>> result;
+        List<String> dpnInterfaceList = new ArrayList<>();
+        try {
+            result = intfRpcService.getDpnInterfaceList(
+                    new GetDpnInterfaceListInputBuilder().setDpid(dpnId).build());
+            RpcResult<GetDpnInterfaceListOutput> rpcResult = result.get();
+            if (!rpcResult.isSuccessful()) {
+                LOG.warn("RPC Call to GetDpnInterfaceList for dpnid {} returned with Errors {}", dpnId,
+                        rpcResult.getErrors());
+            } else {
+                dpnInterfaceList = rpcResult.getResult().getInterfacesList();
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.warn("Exception when querying for GetDpnInterfaceList for dpnid {}", dpnId, e);
+        }
+        return dpnInterfaceList;
+    }
 }

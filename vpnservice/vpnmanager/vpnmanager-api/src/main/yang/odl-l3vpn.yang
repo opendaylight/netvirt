@@ -537,6 +537,24 @@ module odl-l3vpn {
         }
     }
 
+    container dpn-to-vpn-list {
+        config false;
+        list dpn-list {
+            key dpnId;
+            leaf dpnId {
+                type uint64;
+            }
+            list vpn-names {
+                key vpn-instance-name;
+                leaf vpn-instance-name {
+                    type string;
+                }
+                leaf vrf-id {
+                    type string;
+                }
+            }
+        }
+    }
 
     grouping dpn-in-vpn-event {
         leaf dpn-id { type uint64; }
