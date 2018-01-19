@@ -2,6 +2,52 @@
   "comments": [
     {
       "key": {
+        "uuid": "e774b385_763f468f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 4922
+      },
+      "writtenOn": "2018-01-19T09:35:48Z",
+      "side": 1,
+      "message": "use infrautils.version",
+      "range": {
+        "startLine": 78,
+        "startChar": 6,
+        "endLine": 78,
+        "endChar": 39
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25d98117_abbf7907",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 4922
+      },
+      "writtenOn": "2018-01-19T09:35:48Z",
+      "side": 1,
+      "message": "this is not required..remove it..since there won\u0027t be application providing JMX MBean",
+      "range": {
+        "startLine": 27,
+        "startChar": 3,
+        "endLine": 27,
+        "endChar": 64
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "62f4a3fa_52aa7307",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
         "patchSetId": 4
@@ -13,6 +59,29 @@
       "writtenOn": "2018-01-18T14:21:31Z",
       "side": 1,
       "message": "erm... I don\u0027t think this will work, does?  BgpCounters does not seem to be a Blueprint managed Bean, so @Inject does nothing here.  I think what you probably want do is add a private final MetricProvider metricProvider; in line 69, and set it in the constructor, and where there is a new BgpCounters pass the MetricProvider?  If that class is not a Blueprint managed Bean either, then you need to go up the call chain until the one that is, and then in there you can do @Inject @OsgiService for the MetricProvider.",
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fa0aefb_45a29e64",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 4922
+      },
+      "writtenOn": "2018-01-19T09:35:48Z",
+      "side": 1,
+      "message": "remove this method.This is not required and will pollute the logs.",
+      "range": {
+        "startLine": 101,
+        "startChar": 3,
+        "endLine": 105,
+        "endChar": 5
+      },
       "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -47,6 +116,52 @@
       "writtenOn": "2018-01-18T14:21:31Z",
       "side": 1,
       "message": "how about a helper method instead, like https://git.opendaylight.org/gerrit/#/c/67237/1..2/interfacemanager/interfacemanager-impl/src/main/java/org/opendaylight/genius/interfacemanager/IfmUtil.java ?",
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e6553ca2_0729988f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 4922
+      },
+      "writtenOn": "2018-01-19T09:35:48Z",
+      "side": 1,
+      "message": "Remove this method, not needed",
+      "range": {
+        "startLine": 487,
+        "startChar": 3,
+        "endLine": 489,
+        "endChar": 5
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51757da6_50057e56",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 4922
+      },
+      "writtenOn": "2018-01-19T09:35:48Z",
+      "side": 1,
+      "message": "/* should be /** JavaDoc",
+      "range": {
+        "startLine": 491,
+        "startChar": 4,
+        "endLine": 491,
+        "endChar": 6
+      },
       "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
