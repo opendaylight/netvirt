@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9fe48115_79f91a0c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7935
+      },
+      "writtenOn": "2018-01-19T10:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e774b385_763f468f",
+      "range": {
+        "startLine": 78,
+        "startChar": 6,
+        "endLine": 78,
+        "endChar": 39
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "25d98117_abbf7907",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpConstants.java",
         "patchSetId": 4
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-19T09:35:48Z",
       "side": 1,
       "message": "this is not required..remove it..since there won\u0027t be application providing JMX MBean",
+      "range": {
+        "startLine": 27,
+        "startChar": 3,
+        "endLine": 27,
+        "endChar": 64
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aca85e0a_901e331e",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpConstants.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 7935
+      },
+      "writtenOn": "2018-01-19T10:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "25d98117_abbf7907",
       "range": {
         "startLine": 27,
         "startChar": 3,
@@ -65,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "70767378_ebe44422",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7935
+      },
+      "writtenOn": "2018-01-19T10:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "62f4a3fa_52aa7307",
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fa0aefb_45a29e64",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
         "patchSetId": 4
@@ -76,6 +142,30 @@
       "writtenOn": "2018-01-19T09:35:48Z",
       "side": 1,
       "message": "remove this method.This is not required and will pollute the logs.",
+      "range": {
+        "startLine": 101,
+        "startChar": 3,
+        "endLine": 105,
+        "endChar": 5
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5120d201_a8f77f82",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7935
+      },
+      "writtenOn": "2018-01-19T10:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6fa0aefb_45a29e64",
       "range": {
         "startLine": 101,
         "startChar": 3,
@@ -145,6 +235,30 @@
     },
     {
       "key": {
+        "uuid": "b2cbfe17_0b000008",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 489,
+      "author": {
+        "id": 7935
+      },
+      "writtenOn": "2018-01-19T10:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e6553ca2_0729988f",
+      "range": {
+        "startLine": 487,
+        "startChar": 3,
+        "endLine": 489,
+        "endChar": 5
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51757da6_50057e56",
         "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
         "patchSetId": 4
@@ -156,6 +270,30 @@
       "writtenOn": "2018-01-19T09:35:48Z",
       "side": 1,
       "message": "/* should be /** JavaDoc",
+      "range": {
+        "startLine": 491,
+        "startChar": 4,
+        "endLine": 491,
+        "endChar": 6
+      },
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7634659d_2bafd37c",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 491,
+      "author": {
+        "id": 7935
+      },
+      "writtenOn": "2018-01-19T10:20:23Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51757da6_50057e56",
       "range": {
         "startLine": 491,
         "startChar": 4,
