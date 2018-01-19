@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "050a09ec_79c4953a",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "When the first router i/f is added into the subnet it gets the default g/w IP. For adding chained route i/fs into the same network we need to to do the following:\n1) create a new neutron port to the subnet:\n  openstack port create --fixed-ip subnet\u003d\u003csubnet\u003e,ip-address\u003d\u003cipaddress\u003e --network \u003cnetwork\u003e\n\n2) Add the above port to the chained router\n  openstack router add port \u003cchained router id\u003e \u003cport added in1)\u003e",
+      "parentUuid": "7281db1e_164c6bc2",
+      "range": {
+        "startLine": 15,
+        "startChar": 58,
+        "endLine": 15,
+        "endChar": 59
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "db10204c_55c5bbca",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -36,6 +60,30 @@
       "writtenOn": "2018-01-11T04:32:35Z",
       "side": 1,
       "message": "need to make sure this property is stored in config, so that order of reading during md-sal does not affect default router selection",
+      "range": {
+        "startLine": 16,
+        "startChar": 78,
+        "endLine": 16,
+        "endChar": 79
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "633c277e_2466be7b",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "The the default router is sore in neutronvpn:subnetmaps container, please see \u0027YANG changes\u0027 section. Could you give an example on how to properly persist the default router info in config DS",
+      "parentUuid": "db10204c_55c5bbca",
       "range": {
         "startLine": 16,
         "startChar": 78,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "0a08a3fd_31b44a0c",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "In this feature we are trying to avoid extra configurations to VM or routers. Static routes are needed to be added in both routers for forward and reverse paths. The proposed changes accomplishes the chaining of routers by adding flows to convert vpnId from one router to another.",
+      "parentUuid": "4ef808ca_a38671c0",
+      "range": {
+        "startLine": 22,
+        "startChar": 86,
+        "endLine": 22,
+        "endChar": 87
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f152ff69_9ca4cf6f",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -82,6 +154,30 @@
       "writtenOn": "2018-01-15T09:14:42Z",
       "side": 1,
       "message": "We would also need more use cases where VPNs are associated with routers. \n1. Router 1 and Router 2 are associated with different VPNs\n2. Router 1 and Router 2 are associated with the same VPN.",
+      "range": {
+        "startLine": 75,
+        "startChar": 1,
+        "endLine": 89,
+        "endChar": 64
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "83d32885_ac2d2224",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "Hi Ashvin, do you mean associate private BGP VPN to routers?\nThis feature will only support Flat and and VLAN external networks. BGP VPNs that are based on GRE and Vxlan are not supported. The spec will be updated with these limitations.",
+      "parentUuid": "f152ff69_9ca4cf6f",
       "range": {
         "startLine": 75,
         "startChar": 1,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "d5bcb50d_ec60900b",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "Yes, the subnet can reach specific IP address in the external networks; However the traffic to/from internet will be routed via the default router only",
+      "parentUuid": "cf437f3a_8556f7a3",
+      "range": {
+        "startLine": 114,
+        "startChar": 12,
+        "endLine": 128,
+        "endChar": 43
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "32c858f4_2c1147fb",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -128,6 +248,30 @@
       "writtenOn": "2018-01-15T09:14:42Z",
       "side": 1,
       "message": "In use case 1, when the VM ARPs for the GW MAC, it would get Router1\u0027s MAC address. Let\u0027s assume that the VM wants to access a node in subnet 1a (connected to Router 2). As explained above, the packet will get forwarded to subnet 1a.\n\nThe response from subnet 1a is directly routed from Router 2. In this case, the packet would carry the SMAC set to the Router2\u0027s MAC address (in the forward direction, the DMAC was set to Router1\u0027s MAC address). Can this cause any problems?",
+      "range": {
+        "startLine": 155,
+        "startChar": 0,
+        "endLine": 164,
+        "endChar": 42
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e176bc48_b8c29461",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 164,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "The response from subnet1a attached to router 2 will arrive to the VM in subnet attached to router 1 as illustrated in lines 201-204. \n\n201: GW Mac table (19) match: vpn-id\u003drouter2-id,dst-mac\u003drouter2-interface-mac \u003d\u003e\n202: FIB table (21) match: vpn-id\u003drouter2-id,dst-ip\u003dsubnet1-ip set vpn-id\u003drouter1-id \u003d\u003e\n203: Subnet Route table (22) match: vpn-id\u003drouter1-id resubmit table 21 \u003d\u003e\n204: FIB table (21) match: vpn-id\u003drouter1-id,dst-ip\u003dsubnet1-vm-ip \u003d\u003e OF Group for subnet1\u0027s VM\n\n\nAt line 204, table 21, the OF group for the VM will set the SMAC as router1 GW mac and the DMAC as the VM\u0027s. Therefore, it seems that the ARP request and response have the router1\u0027s GW mac as DMAC and SMAC respectively.\n\nExample of the OF group for VM as follows:\n\ngroup_id\u003d150001,type\u003dall,bucket\u003dactions\u003dset_field:fa:16:3e:a3:6b:e2-\u003eeth_src,set_field:fa:16:3e:1b:c4:09-\u003eeth_dst,load:0x200-\u003eNXM_NX_REG6[],resubmit(,220)\n\nwhere fa:16:3e:a3:6b is the router1\u0027s gw mac and a:16:3e:1b:c4:09 is the VM\u0027s mac",
+      "parentUuid": "32c858f4_2c1147fb",
       "range": {
         "startLine": 155,
         "startChar": 0,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "04282e6d_e2489033",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 175,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "updated",
+      "parentUuid": "79674f0a_b6faba7c",
+      "range": {
+        "startLine": 175,
+        "startChar": 49,
+        "endLine": 175,
+        "endChar": 56
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f71b1e5c_8acd1af8",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -180,6 +348,24 @@
     },
     {
       "key": {
+        "uuid": "23fb9510_94a5038a",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 253,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "BGPVPN that based on Vxlan and GRE external provider network types are not supported. The spec will be updated with such limitations",
+      "parentUuid": "f71b1e5c_8acd1af8",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "40a0d2a7_7fa242a4",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -191,6 +377,24 @@
       "writtenOn": "2018-01-09T17:36:45Z",
       "side": 1,
       "message": "Can you please explain little bit more about if the second router is assigned with external-network-2 which router will be acting as default router for the single subnet. Does it choose\u0027d based on the order single subnet is attached to the different routers.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6b25db0_e118028b",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "When adding the second router to the single subnet the default router is selected as:\n  * the first router - if the first router connects to an external network\n  * the second router - if the second router connects to an external network and the first router does not.",
+      "parentUuid": "40a0d2a7_7fa242a4",
       "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -220,6 +424,30 @@
     },
     {
       "key": {
+        "uuid": "b9f92665_f50c73a2",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 269,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "This spec will only support flat and vlan external network provider type. GRE and Vxlan based BGPVPN will not be supported. The spec will be updated with these limitations.",
+      "parentUuid": "f36631dc_a2c262f5",
+      "range": {
+        "startLine": 269,
+        "startChar": 43,
+        "endLine": 269,
+        "endChar": 60
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b20fab82_2233b3fe",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -231,6 +459,24 @@
       "writtenOn": "2018-01-09T17:36:45Z",
       "side": 1,
       "message": "I am not seeing any example flows on table\u003d26, 46, 21 are matching with router1 vpn-id. Since both the routers are associated with different external network. Based on the destination ip, we will be deciding which router has external destination ip presence, we will be choosing that router has defult gw for that external network traffic. Please correct me if i am wrong.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d07be791_54101fa9",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 272,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "The example for traffic within router1 domain are not included in the spec since I think it follows existing pipelines for router1\u0027s vpn. The spec only includes examples for new scenarios.\n\nYou are correct, for traffic with specific ips in external network we will decide which router for routing based on the destination ip address. For traffic to the internet the default router is always selected.",
+      "parentUuid": "b20fab82_2233b3fe",
       "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -254,6 +500,24 @@
     },
     {
       "key": {
+        "uuid": "7f083f8b_ab31c1e1",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "Modified as \u0027router2-vpn-id\u0027",
+      "parentUuid": "f1556223_c44332b1",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "49f1fe09_8a7b7aac",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -271,6 +535,24 @@
     },
     {
       "key": {
+        "uuid": "e1a4b8fe_528f9d32",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "Updated with conntrack-based SNAT scenarios",
+      "parentUuid": "49f1fe09_8a7b7aac",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b8fc3933_13476a5a",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -282,6 +564,30 @@
       "writtenOn": "2018-01-15T09:14:42Z",
       "side": 1,
       "message": "There must be another yang that maintains the notion of \"default router\" (or we need to provide the rule for deciding the default router, in the use case 2, where both routers are attached to external networks). This information must be persisted. This is required because across reboots, there is no guarantee that the router-1/router-2 events may arrive out of order. If this happens, we may choose router-2 as default router. This would cause data plane impact.",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 1
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5cce6bf_ddc45bbc",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "Could you please give an example of how to persist the \"default router\" notion?",
+      "parentUuid": "b8fc3933_13476a5a",
       "range": {
         "startLine": 393,
         "startChar": 0,
@@ -317,6 +623,30 @@
     },
     {
       "key": {
+        "uuid": "d4eb810c_4215bd68",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "Sorry I am familiar with the yang incompatibility upgrade requirement. Is it ok that we don\u0027t delete these fields, they are now used in the \u0027submap-vpn-info\u0027 grouping. Therefore, from java perspective, these fields are still direct attributes for the class Subnetmap???",
+      "parentUuid": "0a9dbb5f_009f0554",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 428,
+        "endChar": 13
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "d4e1108b_961711d5",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -328,6 +658,30 @@
       "writtenOn": "2018-01-15T09:14:42Z",
       "side": 1,
       "message": "For OF switches that forward packets by taking them table by table, resubmits will cause a significant data plane impact. Only for OVS switches (and switches with similar architecture), there will not be any impact.",
+      "range": {
+        "startLine": 454,
+        "startChar": 0,
+        "endLine": 454,
+        "endChar": 4
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "24ad27e3_7acff704",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 454,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-01-19T22:54:42Z",
+      "side": 1,
+      "message": "Will add your statement into the specs. Thanks",
+      "parentUuid": "d4e1108b_961711d5",
       "range": {
         "startLine": 454,
         "startChar": 0,
