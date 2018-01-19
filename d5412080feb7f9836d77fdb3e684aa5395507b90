@@ -320,6 +320,24 @@
       "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5066b2e0_2575b43f",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 7865
+      },
+      "writtenOn": "2018-01-19T11:30:17Z",
+      "side": 1,
+      "message": "Hi Michael,\n\nI do not think Meter could be an exact fit though it has a getCount to find current mark-level. This is mainly because, Meter\u0027s overall contract is to provide throughput output - ie.getXXMinuteRate and getMeanRate. In order to compute the rates (which is a promised contract of Meter), its implementation can have internal rate-measuring mechanism which could be a overhead in this context. Since Counter is not obliged to build any such additional capability, relative overhead would be lesser than Meter and hence the choice. \n\nOf course, there is one possibility to create something like \"SettableCounter\" or encapsulate this zeroization/clear/reset in infrautils\u0027 org.opendaylight.infrautils.metrics.Counter which can hide this logic in one common place so that we can prevent DRY at application level",
+      "parentUuid": "70545fd3_08eee912",
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
