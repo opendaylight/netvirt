@@ -14,14 +14,22 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import com.google.common.util.concurrent.CheckedFuture;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.OdlL3vpnListener;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.RemoveInterfaceFromDpnOnVpnEvent;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.add.dpn.event.AddEventData;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.DpnList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnInstancesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnInstancesKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.remove.dpn.event.RemoveEventData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
@@ -41,7 +49,29 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
 
     @Override
     public void onAddDpnEvent(AddDpnEvent notification) {
+        AddEventData event = notification.getAddEventData();
+        final String rd = event.getRd();
+        final String vpnName = event.getVpnName();
+        BigInteger dpnId = event.getDpnId();
+        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
 
+        LOG.trace("Add Dpn Event notification received for rd {} VpnName {} DpnId {}", rd , vpnName, dpnId);
+        synchronized (dpnId.toString().intern()) {
+            /*DpnToVpnList contains list of VPNs having footprint on a given DPN*/
+            InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.dpn.to.vpn.list.dpn.list.VpnInstances> id =
+                    VpnUtil.getDpnToVpnListVpnInstanceIdentifier(dpnId, vpnName);
+
+            VpnInstancesBuilder vpnInstancesBuilder = new VpnInstancesBuilder().setVpnInstanceName(vpnName).setVrfId(rd);
+            writeTxn.put(LogicalDatastoreType.OPERATIONAL, id, vpnInstancesBuilder.build(), true);
+
+            CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+            try {
+                futures.get();
+            } catch (InterruptedException | ExecutionException e) {
+                LOG.error("onAddDpnEvent: Error updating dpnToVpnList for dpn {} vpn {} ", dpnId, vpnName);
+                throw new RuntimeException(e.getMessage());
+            }
+        }
     }
 
     @Override
@@ -55,6 +85,7 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
         LOG.trace("Remove Dpn Event notification received for rd {} VpnName {} DpnId {}", rd, vpnName, dpnId);
 
         synchronized (vpnName.intern()) {
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
             InstanceIdentifier<VpnInstanceOpDataEntry> id = VpnUtil.getVpnInstanceOpDataIdentifier(rd);
             Optional<VpnInstanceOpDataEntry> vpnOpValue =
                 VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
@@ -70,13 +101,39 @@ public class DpnInVpnChangeListener implements OdlL3vpnListener {
                     }
                 }
                 if (flushDpnsOnVpn) {
-                    WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
                     deleteDpn(vpnToDpnList, rd, writeTxn);
                     try {
                         writeTxn.submit().get();
                     } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Error removing dpnToVpnList for vpn {} ", vpnName);
                         throw new RuntimeException(e.getMessage(), e);
+                    }
+                }
+            }
+        }
+
+        synchronized (dpnId.toString().intern()) {
+            WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
+            /*Remove VpnName from DpnToVpnList for a given DPN*/
+            InstanceIdentifier<DpnList> id = VpnUtil.getDpnToVpnListIdentifier(dpnId);
+            Optional<DpnList> dpnListOptional = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+            VpnInstances vpnInstance = new VpnInstancesBuilder().setVpnInstanceName(vpnName).setVrfId(rd).build();
+
+            if (dpnListOptional.isPresent()) {
+                List<VpnInstances> vpnInstanceList = dpnListOptional.get().getVpnInstances();
+
+                if (vpnInstanceList.remove(vpnInstance)) {
+                    if (vpnInstanceList.isEmpty()) {
+                        writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id);
+                    } else {
+                        writeTxn.delete(LogicalDatastoreType.OPERATIONAL, id.child(VpnInstances.class, new VpnInstancesKey(vpnName)));
+                    }
+                    CheckedFuture<Void, TransactionCommitFailedException> futures = writeTxn.submit();
+                    try {
+                        futures.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        LOG.error("onRemoveDpnEvent: Error deleting entry in dpnToVpnList for dpn {} ", dpnId);
+                        throw new RuntimeException(e.getMessage());
                     }
                 }
             }

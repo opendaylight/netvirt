@@ -670,8 +670,8 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateSubnetRouteOnTunnelUpEvent(Uuid subnetId, BigInteger dpnId) {
-        LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Subnet {} Dpn {}", LOGGING_PREFIX, subnetId.getValue(),
+    public void updateSubnetRouteOnTepAddEvent(Uuid subnetId, BigInteger dpnId) {
+        LOG.info("{} updateSubnetRouteOnTepAddEvent: Subnet {} Dpn {}", LOGGING_PREFIX, subnetId.getValue(),
                 dpnId.toString());
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -683,11 +683,11 @@ public class VpnSubnetRouteHandler {
                     LogicalDatastoreType.OPERATIONAL,
                     subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
-                    LOG.error("{} updateSubnetRouteOnTunnelUpEvent: SubnetOpDataEntry for subnet {} is not available",
+                    LOG.error("{} updateSubnetRouteOnTepAddEvent: SubnetOpDataEntry for subnet {} is not available",
                             LOGGING_PREFIX, subnetId.getValue());
                     return;
                 }
-                LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Subnet {} subnetIp {} vpnName {} rd {} TaskState {}"
+                LOG.info("{} updateSubnetRouteOnTepAddEvent: Subnet {} subnetIp {} vpnName {} rd {} TaskState {}"
                         + " lastTaskState {} Dpn {}", LOGGING_PREFIX, subnetId.getValue(),
                         optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
                         optionalSubs.get().getVrfId(), optionalSubs.get().getRouteAdvState(),
@@ -707,27 +707,27 @@ public class VpnSubnetRouteHandler {
                 }
                 subOpEntry = subOpBuilder.build();
                 MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                LOG.info("{} updateSubnetRouteOnTunnelUpEvent: Updated subnetopdataentry to OP Datastore tunnel up"
+                LOG.info("{} updateSubnetRouteOnTepAddEvent: Updated subnetopdataentry to OP Datastore tunnel up"
                         + " on dpn {} for subnet {} subnetIp {} vpnName {} rd {} TaskState {} lastTaskState {}",
                         LOGGING_PREFIX, dpnId.toString(), subnetId.getValue(), subOpEntry.getSubnetCidr(),
                         subOpEntry.getVpnName(), subOpEntry.getVrfId(), subOpEntry.getRouteAdvState(),
                         subOpEntry.getLastAdvState());
             } catch (RuntimeException ex) {
-                LOG.error("{} updateSubnetRouteOnTunnelUpEvent: updating subnetRoute for subnet {} on dpn {}",
+                LOG.error("{} updateSubnetRouteOnTepAddEvent: updating subnetRoute for subnet {} on dpn {}",
                         LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (RuntimeException e) {
-            LOG.error("{} updateSubnetRouteOnTunnelUpEvent: Unable to handle tunnel up event for subnetId {} dpnId {}"
+            LOG.error("{} updateSubnetRouteOnTepAddEvent: Unable to handle tunnel up event for subnetId {} dpnId {}"
                     + " with exception {}", LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), e);
         }
     }
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void updateSubnetRouteOnTunnelDownEvent(Uuid subnetId, BigInteger dpnId) {
-        LOG.info("updateSubnetRouteOnTunnelDownEvent: Subnet {} Dpn {}", subnetId.getValue(), dpnId.toString());
+    public void updateSubnetRouteOnTepDelEvent(Uuid subnetId, BigInteger dpnId) {
+        LOG.info("updateSubnetRouteOnTepDelEvent: Subnet {} Dpn {}", subnetId.getValue(), dpnId.toString());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -739,11 +739,11 @@ public class VpnSubnetRouteHandler {
                     LogicalDatastoreType.OPERATIONAL,
                     subOpIdentifier);
                 if (!optionalSubs.isPresent()) {
-                    LOG.error("{} updateSubnetRouteOnTunnelDownEvent: SubnetOpDataEntry for subnet {}"
+                    LOG.error("{} updateSubnetRouteOnTepDelEvent: SubnetOpDataEntry for subnet {}"
                             + " is not available", LOGGING_PREFIX, subnetId.getValue());
                     return;
                 }
-                LOG.debug("{} updateSubnetRouteOnTunnelDownEvent: Dpn {} Subnet {} subnetIp {} vpnName {} rd {}"
+                LOG.debug("{} updateSubnetRouteOnTepDelEvent: Dpn {} Subnet {} subnetIp {} vpnName {} rd {}"
                         + " TaskState {} lastTaskState {}", LOGGING_PREFIX, dpnId.toString(), subnetId.getValue(),
                         optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
                         optionalSubs.get().getVrfId(), optionalSubs.get().getRouteAdvState(),
@@ -755,20 +755,20 @@ public class VpnSubnetRouteHandler {
                     electNewDpnForSubnetRoute(subOpBuilder, dpnId, subnetId, null /*networkId*/, true);
                     subOpEntry = subOpBuilder.build();
                     MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier, subOpEntry);
-                    LOG.info("{} updateSubnetRouteOnTunnelDownEvent: Subnet {} Dpn {} subnetIp {} vpnName {} rd {}"
+                    LOG.info("{} updateSubnetRouteOnTepDelEvent: Subnet {} Dpn {} subnetIp {} vpnName {} rd {}"
                             + " TaskState {} lastTaskState {}", LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(),
                             optionalSubs.get().getSubnetCidr(), optionalSubs.get().getVpnName(),
                             optionalSubs.get().getVrfId(), optionalSubs.get().getRouteAdvState(),
                             optionalSubs.get().getLastAdvState());
                 }
             } catch (RuntimeException ex) {
-                LOG.error("{} updateSubnetRouteOnTunnelDownEvent: Updation of SubnetOpDataEntry for subnet {}"
+                LOG.error("{} updateSubnetRouteOnTepDelEvent: Updation of SubnetOpDataEntry for subnet {}"
                         + " on dpn {} failed {}", LOGGING_PREFIX, subnetId.getValue(), dpnId, ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (RuntimeException e) {
-            LOG.error("{} updateSubnetRouteOnTunnelDownEvent: Unable to handle tunnel down event for subnetId {}"
+            LOG.error("{} updateSubnetRouteOnTepDelEvent: Unable to handle tunnel down event for subnetId {}"
                     + " dpnId {} with exception {}", LOGGING_PREFIX, subnetId.getValue(), dpnId.toString(), e);
         }
     }
