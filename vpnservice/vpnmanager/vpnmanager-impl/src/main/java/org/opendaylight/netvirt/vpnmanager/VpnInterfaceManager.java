@@ -740,6 +740,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 + "obtained, cannot create ARP responder flow for interface name {}, vpnName {}, "
                                 + "gwIp {}",
                                 interfaceName, vpnName, gatewayIp.get());
+                            // FIXME == This is just for testing purpose
+                            arpResponderHandler.addArpResponderFlow(dpnId, lportTag, vpnName, vpnId, interfaceName,
+                                    subnetId, "10.11.1.1", interfaceState.getPhysAddress().getValue());
+                            VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
+                                    vpnId, writeInvTxn, NwConstants.ADD_FLOW, interfaceState);
                         }
                     }
                 } else {
