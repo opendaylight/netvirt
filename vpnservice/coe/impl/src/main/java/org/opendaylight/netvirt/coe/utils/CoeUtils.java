@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2017 - 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -8,20 +8,54 @@
 
 package org.opendaylight.netvirt.coe.utils;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.UUID;
+import org.apache.commons.lang3.tuple.Pair;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInstances;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargets;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.VpnTargetsBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTarget;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.af.config.vpntargets.VpnTargetKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstance;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.VpnInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv4FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.instances.vpn.instance.Ipv6FamilyBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterface;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.VpnInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNames;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNamesBuilder;
+import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.vpn.interfaces.vpn._interface.VpnInstanceNamesKey;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.InterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.NetworkAttributes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.coe.Pods;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfL2vlanBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.PodidentifierInfo;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifier;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifierBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.coe.meta.rev180118.podidentifier.info.PodIdentifierKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeBase;
@@ -35,6 +69,17 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntriesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.Adjacencies;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.AdjacencyKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.OvsdbTerminationPointAugmentation;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.InterfaceExternalIds;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.rev150105.ovsdb.port._interface.attributes.PortExternalIds;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,11 +146,56 @@ public final class CoeUtils {
                                            WriteTransaction wrtConfigTxn) {
         InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
                 .class, new ElanInterfaceKey(elanInterfaceName)).build();
-        // TODO set static mac entries based on pod interface mac
         ElanInterface elanInterface = new ElanInterfaceBuilder().setElanInstanceName(elanInstanceName)
                 .setName(elanInterfaceName).setKey(new ElanInterfaceKey(elanInterfaceName)).build();
         wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
         LOG.debug("Creating new ELAN Interface {}", elanInterface);
+    }
+
+    public static void updateElanInterfaceWithStaticMac(String macAddress, IpAddress ipAddress,
+                                           String elanInterfaceName,
+                                           WriteTransaction wrtConfigTxn) {
+        InstanceIdentifier<ElanInterface> id = InstanceIdentifier.builder(ElanInterfaces.class).child(ElanInterface
+                .class, new ElanInterfaceKey(elanInterfaceName)).build();
+        PhysAddress physAddress = PhysAddress.getDefaultInstance(macAddress);
+        List<StaticMacEntries> staticMacEntriesList = new ArrayList<>();
+        StaticMacEntries staticMacEntries = new StaticMacEntriesBuilder().setKey(new StaticMacEntriesKey(
+                physAddress)).setMacAddress(physAddress).setIpPrefix(ipAddress).build();
+        staticMacEntriesList.add(staticMacEntries);
+        ElanInterface elanInterface = new ElanInterfaceBuilder().setName(elanInterfaceName)
+                .setKey(new ElanInterfaceKey(elanInterfaceName)).setStaticMacEntries(staticMacEntriesList).build();
+        wrtConfigTxn.merge(LogicalDatastoreType.CONFIGURATION, id, elanInterface);
+        LOG.debug("Updating ELAN Interface with static mac {}", elanInterface);
+    }
+
+    public static void createPodNameToPodUuidMap(String podName, InstanceIdentifier<Pods> pod,
+                                                 WriteTransaction writeTransaction) {
+        InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
+                .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
+        PodIdentifier podIdentifier = new PodIdentifierBuilder().setKey(new PodIdentifierKey(podName))
+                .setPodName(podName).setPodUuid(pod).build();
+        writeTransaction.put(LogicalDatastoreType.OPERATIONAL, id, podIdentifier);
+        LOG.debug("Creating podnametouuid map {} to {}", podName, pod);
+    }
+
+    public static void deletePodNameToPodUuidMap(String podName,
+                                                 WriteTransaction writeTransaction) {
+        InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
+                .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
+        writeTransaction.delete(LogicalDatastoreType.OPERATIONAL, id);
+        LOG.debug("Deleting podnametouuid map for {}", podName);
+    }
+
+    public static InstanceIdentifier<Pods> getPodUUIDforPodName(String podName,
+                                            ReadTransaction readTransaction) throws ReadFailedException {
+        InstanceIdentifier<PodIdentifier> id = InstanceIdentifier.builder(PodidentifierInfo.class)
+                .child(PodIdentifier.class, new PodIdentifierKey(podName)).build();
+        InstanceIdentifier<?> instanceIdentifier = readTransaction.read(LogicalDatastoreType.OPERATIONAL, id)
+                .checkedGet().toJavaUtil().map(PodIdentifier::getPodUuid).orElse(null);
+        if (instanceIdentifier != null) {
+            return (InstanceIdentifier<Pods>) instanceIdentifier;
+        }
+        return null;
     }
 
     public static void deleteElanInterface(String elanInterfaceName, WriteTransaction wrtConfigTxn) {
@@ -116,8 +206,6 @@ public final class CoeUtils {
     }
 
     public static String createOfPortInterface(String interfaceName,
-                                               org.opendaylight.yang.gen.v1.urn.opendaylight.coe
-                                                       .northbound.pod.rev170611.pod_attributes.Interface podInterface,
                                                WriteTransaction wrtConfigTxn) {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface inf =
                 buildInterface(interfaceName);
@@ -153,13 +241,13 @@ public final class CoeUtils {
     public static ElanInstance createElanInstanceForTheFirstPodInTheNetwork(String networkNS, String nodeIp,
                                                  org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod
                                                          .rev170611.pod_attributes.Interface podInterface,
-                                                 WriteTransaction wrtConfigTxn, DataBroker dataBroker) {
+                                                 ReadWriteTransaction wrtConfigTxn) throws ReadFailedException {
         String elanInstanceName = buildElanInstanceName(nodeIp, networkNS);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        Optional<ElanInstance> existingElanInstance = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                id);
-        if (existingElanInstance.isPresent()) {
-            return existingElanInstance.get();
+        ElanInstance existingElanInstance = wrtConfigTxn.read(LogicalDatastoreType.CONFIGURATION, id)
+                .checkedGet().orNull();
+        if (existingElanInstance != null) {
+            return existingElanInstance;
         }
         Class<? extends SegmentTypeBase> segmentType = getSegmentTypeFromNetwork(podInterface);
         String segmentationId = String.valueOf(podInterface.getSegmentationId());
@@ -172,4 +260,177 @@ public final class CoeUtils {
         LOG.info("ELAN instance created for the first pod in the network {}", podInterface.getUid());
         return elanInstance;
     }
+
+    public static Pair<String, String> getAttachedInterfaceAndMac(OvsdbTerminationPointAugmentation ovsdbTp) {
+        String interfaceName = null;
+        String macAddress = null;
+        if (ovsdbTp != null) {
+            List<InterfaceExternalIds> ifaceExtIds = ovsdbTp.getInterfaceExternalIds();
+            if (ifaceExtIds != null) {
+                Iterator var2 = ifaceExtIds.iterator();
+                while (var2.hasNext()) {
+                    InterfaceExternalIds entry = (InterfaceExternalIds)var2.next();
+                    if (entry.getExternalIdKey().equals("iface-id")) {
+                        interfaceName = entry.getExternalIdValue();
+                        break;
+                    }
+                }
+            }
+            List<PortExternalIds> portExtIds = ovsdbTp.getPortExternalIds();
+            if (portExtIds != null) {
+                Iterator var2 = portExtIds.iterator();
+                while (var2.hasNext()) {
+                    PortExternalIds entry = (PortExternalIds)var2.next();
+                    if (entry.getExternalIdKey().equals("attached-mac")) {
+                        macAddress = entry.getExternalIdValue();
+                        break;
+                    }
+                }
+            }
+        }
+
+        return Pair.of(interfaceName, macAddress);
+    }
+
+    public static InstanceIdentifier<PodIdentifier> getPodMetaInstanceId(String externalInterfaceId) {
+        return InstanceIdentifier.builder(PodidentifierInfo.class)
+                .child(PodIdentifier.class, new PodIdentifierKey(externalInterfaceId)).build();
+    }
+
+    public static void createVpnInstance(String vpnName, List<String> rd, List<String> irt, List<String> ert,
+                                   VpnInstance.Type type, long l3vni, IpVersionChoice ipVersion,
+                                   ReadWriteTransaction tx) throws ReadFailedException {
+        List<VpnTarget> vpnTargetList = new ArrayList<>();
+        LOG.debug("Creating/Updating a new vpn-instance node: {} ", vpnName);
+
+        VpnInstanceBuilder builder = new VpnInstanceBuilder().setKey(new VpnInstanceKey(vpnName))
+                .setVpnInstanceName(vpnName)
+                .setType(type).setL3vni(l3vni);
+        if (irt != null && !irt.isEmpty()) {
+            if (ert != null && !ert.isEmpty()) {
+                List<String> commonRT = new ArrayList<>(irt);
+                commonRT.retainAll(ert);
+
+                for (String common : commonRT) {
+                    irt.remove(common);
+                    ert.remove(common);
+                    VpnTarget vpnTarget =
+                            new VpnTargetBuilder().setKey(new VpnTargetKey(common)).setVrfRTValue(common)
+                                    .setVrfRTType(VpnTarget.VrfRTType.Both).build();
+                    vpnTargetList.add(vpnTarget);
+                }
+            }
+            for (String importRT : irt) {
+                VpnTarget vpnTarget =
+                        new VpnTargetBuilder().setKey(new VpnTargetKey(importRT)).setVrfRTValue(importRT)
+                                .setVrfRTType(VpnTarget.VrfRTType.ImportExtcommunity).build();
+                vpnTargetList.add(vpnTarget);
+            }
+        }
+
+        if (ert != null && !ert.isEmpty()) {
+            for (String exportRT : ert) {
+                VpnTarget vpnTarget =
+                        new VpnTargetBuilder().setKey(new VpnTargetKey(exportRT)).setVrfRTValue(exportRT)
+                                .setVrfRTType(VpnTarget.VrfRTType.ExportExtcommunity).build();
+                vpnTargetList.add(vpnTarget);
+            }
+        }
+
+        VpnTargets vpnTargets = new VpnTargetsBuilder().setVpnTarget(vpnTargetList).build();
+
+        Ipv4FamilyBuilder ipv4vpnBuilder = new Ipv4FamilyBuilder().setVpnTargets(vpnTargets);
+        Ipv6FamilyBuilder ipv6vpnBuilder = new Ipv6FamilyBuilder().setVpnTargets(vpnTargets);
+
+        if (rd != null && !rd.isEmpty()) {
+            ipv4vpnBuilder.setRouteDistinguisher(rd);
+            ipv6vpnBuilder.setRouteDistinguisher(rd);
+        }
+
+        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV4)) {
+            builder.setIpv4Family(ipv4vpnBuilder.build());
+        }
+        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.IPV6)) {
+            builder.setIpv6Family(ipv6vpnBuilder.build());
+        }
+        if (ipVersion != null && ipVersion.isIpVersionChosen(IpVersionChoice.UNDEFINED)) {
+            builder.setIpv4Family(ipv4vpnBuilder.build());
+        }
+        VpnInstance newVpn = builder.build();
+        LOG.debug("Creating/Updating vpn-instance for {} ", vpnName);
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        tx.put(LogicalDatastoreType.CONFIGURATION, vpnIdentifier, newVpn);
+    }
+
+    static void deleteVpnInstance(String vpnName, WriteTransaction wrtConfigTxn) {
+        LOG.debug("Deleting vpn-instance for {} ", vpnName);
+        InstanceIdentifier<VpnInstance> vpnIdentifier = InstanceIdentifier.builder(VpnInstances.class)
+                .child(VpnInstance.class, new VpnInstanceKey(vpnName)).build();
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIdentifier);
+    }
+
+    static InstanceIdentifier<VpnInterface> buildVpnInterfaceIdentifier(String ifName) {
+        InstanceIdentifier<VpnInterface> id = InstanceIdentifier.builder(VpnInterfaces.class).child(VpnInterface
+                .class, new VpnInterfaceKey(ifName)).build();
+        return id;
+    }
+
+    public static void createVpnInterface(String vpnName, Pods pod, String interfaceName, String macAddress,
+                                          boolean isRouterInterface, WriteTransaction wrtConfigTxn) {
+        LOG.trace("createVpnInterface for Port: {}, isRouterInterface: {}", interfaceName, isRouterInterface);
+        List<VpnInstanceNames> listVpn = new ArrayList<>();
+        listVpn.add(new VpnInstanceNamesBuilder().setKey(new VpnInstanceNamesKey(vpnName))
+                .setVpnName(vpnName).setAssociatedSubnetType(VpnInstanceNames.AssociatedSubnetType
+                        .V4Subnet).build());
+        VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
+                .setName(interfaceName)
+                .setVpnInstanceNames(listVpn)
+                .setRouterInterface(isRouterInterface);
+        Adjacencies adjs = createPortIpAdjacencies(pod, interfaceName, macAddress, isRouterInterface);
+        if (adjs != null) {
+            vpnb.addAugmentation(Adjacencies.class, adjs);
+        }
+        VpnInterface vpnIf = vpnb.build();
+        LOG.info("Creating vpn interface {}", vpnIf);
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = buildVpnInterfaceIdentifier(interfaceName);
+        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier, vpnIf);
+
+    }
+
+    public static void deleteVpnInterface(String interfaceName, WriteTransaction wrtConfigTxn) {
+        LOG.trace("deleteVpnInterface for Pod {}", interfaceName);
+        InstanceIdentifier<VpnInterface> vpnIfIdentifier = buildVpnInterfaceIdentifier(interfaceName);
+        wrtConfigTxn.delete(LogicalDatastoreType.CONFIGURATION, vpnIfIdentifier);
+    }
+
+    static Adjacencies createPortIpAdjacencies(Pods pod, String interfaceName, String macAddress,
+                                                  Boolean isRouterInterface) {
+        List<Adjacency> adjList = new ArrayList<>();
+        LOG.trace("create config adjacencies for Port: {}", interfaceName);
+        IpAddress ip = pod.getInterface().get(0).getIpAddress();
+        String ipValue = ip.getIpv4Address() != null ? ip.getIpv4Address().getValue() : ip.getIpv6Address().getValue();
+        String ipPrefix = ip.getIpv4Address() != null ? ipValue + "/32" : ipValue + "/128";
+        String hostIp = new String(pod.getHostIpAddress().getValue());
+        UUID subnetId = UUID.nameUUIDFromBytes(hostIp.getBytes(StandardCharsets.UTF_8));
+        Adjacency vmAdj = new AdjacencyBuilder().setKey(new AdjacencyKey(ipPrefix)).setIpAddress(ipPrefix)
+                .setMacAddress(macAddress).setAdjacencyType(Adjacency.AdjacencyType.PrimaryAdjacency)
+                .setSubnetId(new Uuid(subnetId.toString())).build();
+        if (!adjList.contains(vmAdj)) {
+            adjList.add(vmAdj);
+        }
+
+        //if (isRouterInterface) {
+            // TODO
+            // create extraroute Adjacence for each ipValue,
+            // because router can have IPv4 and IPv6 subnet ports, or can have
+            // more that one IPv4 subnet port or more than one IPv6 subnet port
+            //List<Adjacency> erAdjList = getAdjacencyforExtraRoute(vpnId, routeList, ipValue);
+            //if (!erAdjList.isEmpty()) {
+            //    adjList.addAll(erAdjList);
+            //}
+        //}
+        return new AdjacenciesBuilder().setAdjacency(adjList).build();
+    }
+
 }
