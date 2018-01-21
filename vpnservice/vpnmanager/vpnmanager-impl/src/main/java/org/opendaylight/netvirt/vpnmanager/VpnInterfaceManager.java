@@ -33,6 +33,7 @@ import java.util.stream.Collectors;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -698,7 +699,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                       VpnUtil.getIpPrefix(nextHop.getIpAddress());
                 LOG.debug("processVpnInterfaceAdjacencies: Not Adding prefix {} to interface {}"
                       + " as the subnet is not part of vpn {}", prefix, interfaceName, vpnName);
-                continue;
+                //continue;
             }
             if (nextHop.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
                 String prefix = VpnUtil.getIpPrefix(nextHop.getIpAddress());
@@ -746,6 +747,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     LOG.warn("processVpnInterfaceAdjacencies: Gateway IP for subnet ID {} could not be obtained, "
                         + "cannot create ARP responder flow for interface name {}, vpnName {}",
                         subnetId, interfaceName, vpnName);
+                    // FIXME == This is just for testing purpose
+                    gwMac = InterfaceUtils.getMacAddressFromInterfaceState(interfaceState);
+                    String[] adjacencyIp = nextHop.getIpAddress().split("/");
+                    String gatewayIP = adjacencyIp[0].replaceFirst("\\d+$", "1");
+                    arpResponderHandler.addArpResponderFlow(dpnId, lportTag, vpnName, vpnId, interfaceName,
+                            subnetId, gatewayIP, interfaceState.getPhysAddress().getValue());
+                    VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
+                            vpnId, writeInvTxn, NwConstants.ADD_FLOW, interfaceState);
                 }
                 LOG.info("processVpnInterfaceAdjacencies: Added prefix {} to interface {} with nextHops {} on dpn {}"
                         + " for vpn {}", prefix, interfaceName, nhList, dpnId, vpnName);
