@@ -85,7 +85,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
                             .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
                     InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
-                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName, interfaceInfo);
+                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName, interfaceInfo, false);
                     ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
                             elanInterfaceId);
                 }

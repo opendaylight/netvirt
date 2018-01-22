@@ -25,14 +25,17 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
     private final String interfaceName;
     private final ElanInstance elanInfo;
     private final InterfaceInfo interfaceInfo;
+    private final boolean isInterfaceStateRemoved;
     private final ElanInterfaceManager dataChangeListener;
     private final boolean isLastElanInterface;
 
     public InterfaceRemoveWorkerOnElanInterface(String interfaceName, ElanInstance elanInfo,
-            InterfaceInfo interfaceInfo, ElanInterfaceManager dataChangeListener, boolean isLastElanInterface) {
+            InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved, ElanInterfaceManager dataChangeListener,
+            boolean isLastElanInterface) {
         this.interfaceName = interfaceName;
         this.elanInfo = elanInfo;
         this.interfaceInfo = interfaceInfo;
+        this.isInterfaceStateRemoved = isInterfaceStateRemoved;
         this.dataChangeListener = dataChangeListener;
         this.isLastElanInterface = isLastElanInterface;
     }
@@ -40,7 +43,8 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
     @Override
     public String toString() {
         return "InterfaceRemoveWorkerOnElanInterface [key=" + interfaceName + ", elanInfo=" + elanInfo
-                + ", interfaceInfo=" + interfaceInfo + ", isLastElanInterface=" + isLastElanInterface + "]";
+                + ", interfaceInfo=" + interfaceInfo + ", isInterfaceStateRemoved=" + isInterfaceStateRemoved
+                + ", isLastElanInterface=" + isLastElanInterface + "]";
     }
 
     @Override
@@ -49,7 +53,7 @@ public class InterfaceRemoveWorkerOnElanInterface implements Callable<List<Liste
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
             futures.addAll(dataChangeListener.removeEntriesForElanInterface(elanInfo, interfaceInfo, interfaceName,
-                    isLastElanInterface));
+                    isInterfaceStateRemoved, isLastElanInterface));
         } catch (RuntimeException e) {
             LOG.error("Error while processing for interface {} and elan {}", interfaceName, elanInfo, e);
             ElanUtils.addToListenableFutureIfTxException(e, futures);

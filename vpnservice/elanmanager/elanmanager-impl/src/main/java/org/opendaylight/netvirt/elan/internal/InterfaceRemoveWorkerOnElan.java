@@ -26,14 +26,16 @@ public class InterfaceRemoveWorkerOnElan implements Callable<List<ListenableFutu
     private final ElanInstance elanInfo;
     private final String interfaceName;
     private final InterfaceInfo interfaceInfo;
+    private final boolean isInterfaceStateRemoved;
     private final ElanInterfaceManager dataChangeListener;
 
     public InterfaceRemoveWorkerOnElan(String key, ElanInstance elanInfo, String interfaceName,
-            InterfaceInfo interfaceInfo, ElanInterfaceManager dataChangeListener) {
+            InterfaceInfo interfaceInfo, boolean isInterfaceStateRemoved, ElanInterfaceManager dataChangeListener) {
         this.key = key;
         this.elanInfo = elanInfo;
         this.interfaceName = interfaceName;
         this.interfaceInfo = interfaceInfo;
+        this.isInterfaceStateRemoved = isInterfaceStateRemoved;
         this.dataChangeListener = dataChangeListener;
     }
 
@@ -49,7 +51,8 @@ public class InterfaceRemoveWorkerOnElan implements Callable<List<ListenableFutu
     public List<ListenableFuture<Void>> call() throws Exception {
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         try {
-            futures.addAll(dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo));
+            futures.addAll(dataChangeListener.removeElanInterface(elanInfo, interfaceName, interfaceInfo,
+                    isInterfaceStateRemoved));
         } catch (RuntimeException e) {
             LOG.error("Error while processing key {} for elan interface {} and elan {}",
                     key, interfaceName, elanInfo, e);
