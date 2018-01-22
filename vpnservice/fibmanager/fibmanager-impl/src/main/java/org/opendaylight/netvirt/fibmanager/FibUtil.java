@@ -284,9 +284,11 @@ public class FibUtil {
 
             writeFibEntryToDs(vrfEntryId, prefix, nextHopList, label, l3vni, encapType, origin, macAddress,
                     gwMacAddress, parentVpnRd, writeConfigTxn);
-            LOG.debug("Created/Updated vrfEntry for {} nexthop {} label {}", prefix, nextHopList, label);
+            LOG.info("addOrUpdateFibEntry: Created/Updated vrfEntry for rd {} prefix {} nexthop {} label {} l3vni {}"
+                    + " origin {} encapType {}", rd, prefix, nextHopList, label, l3vni, origin, encapType);
         } catch (Exception e) {
-            LOG.error("addOrUpdateFibEntry: Prefix {} rd {} label {} error ", prefix, rd, label, e);
+            LOG.error("addOrUpdateFibEntry: rd {} prefix {} nexthop {} label {} l3vni {} origin {} encapType {}"
+                    + " error ", rd, prefix, nextHopList, label, l3vni, origin, encapType, e);
         }
     }
 
@@ -364,7 +366,8 @@ public class FibUtil {
             LOG.error("Prefix {} not associated with vpn", prefix);
             return;
         }
-        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
+        LOG.debug("removeFibEntry: Removing fib entry with destination prefix {} from vrf table for rd {}",
+                prefix, rd);
 
         InstanceIdentifier.InstanceIdentifierBuilder<VrfEntry> idBuilder =
             InstanceIdentifier.builder(FibEntries.class)
@@ -375,6 +378,7 @@ public class FibUtil {
         } else {
             MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
         }
+        LOG.info("removeFibEntry: Removed Fib Entry rd {} prefix {}",rd, prefix);
     }
 
     /**
@@ -388,7 +392,8 @@ public class FibUtil {
     public void removeOrUpdateFibEntry(String rd, String prefix, String nextHopToRemove,
             WriteTransaction writeConfigTxn) {
 
-        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {}", prefix, rd);
+        LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} nextHop {}", prefix, rd,
+                nextHopToRemove);
 
         // Looking for existing prefix in MDSAL database
         InstanceIdentifier<VrfEntry> vrfEntryId =
@@ -417,18 +422,18 @@ public class FibUtil {
                 } else {
                     MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, vrfEntryId);
                 }
-                LOG.info("Removed Fib Entry rd {} prefix {}", rd, prefix);
+                LOG.info("Removed Fib Entry rd {} prefix {} nextHop {}", rd, prefix, nextHopToRemove);
             } else {
                 InstanceIdentifier<RoutePaths> routePathsId =
                         FibHelper.buildRoutePathId(rd, prefix, routePath.getNexthopAddress());
                 // Remove route
                 MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, routePathsId);
-
                 LOG.info("Removed Route Path rd {} prefix {}, nextHop {}, label {}", rd, prefix,
                         routePath.getNexthopAddress(), routePath.getLabel());
             }
         } else {
-            LOG.warn("Could not find VrfEntry for Route-Distinguisher={} and prefix={}", rd, prefix);
+            LOG.warn("Could not find VrfEntry for Route-Distinguisher {} prefix {} nexthop {}", rd, prefix,
+                    nextHopToRemove);
         }
     }
 
