@@ -266,8 +266,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     protected void update(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update) {
         Preconditions.checkNotNull(update, "VrfEntry should not be null or empty.");
         final String rd = identifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
-        LOG.debug("UPDATE: Updating Fib Entries with rd {} prefix {} route-paths {}",
-                rd, update.getDestPrefix(), update.getRoutePaths());
+        LOG.debug("UPDATE: Updating Fib Entries to rd {} prefix {} route-paths {} origin {} old-origin {}", rd,
+                update.getDestPrefix(), update.getRoutePaths(), update.getOrigin(), original.getOrigin());
         // Handle BGP Routes first
         if (RouteOrigin.value(update.getOrigin()) == RouteOrigin.BGP) {
             bgpRouteVrfEntryHandler.updateFlows(identifier, original, update, rd);
