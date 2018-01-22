@@ -10,6 +10,8 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Iterators;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
@@ -114,6 +116,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceManager.class);
     private static final int VPN_INF_UPDATE_TIMER_TASK_DELAY = 1000;
     private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
+    private static final short DJC_MAX_RETRIES = 3;
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -362,7 +365,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     // However, if the primary VRF Entry for this VPNInterface exists, please continue bailing out !
                     List<Adjacency> adjs = VpnUtil.getAdjacenciesForVpnInterfaceFromConfig(dataBroker, interfaceName);
                     if (adjs == null) {
-                        LOG.warn("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} failed as adjacencies"
+                        LOG.error("processVpnInterfaceUp: VPN Interface {} on dpn {} for vpn {} failed as adjacencies"
                                 + " for this vpn interface could not be obtained", interfaceName, dpId,
                                 vpnName);
                         return;
@@ -374,7 +377,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         }
                     }
                     if (primaryInterfaceIp == null) {
-                        LOG.warn("processVpnInterfaceUp: VPN Interface {} addition on dpn {} for vpn {} failed"
+                        LOG.error("processVpnInterfaceUp: VPN Interface {} addition on dpn {} for vpn {} failed"
                                 + " as primary adjacency for this vpn interface could not be obtained", interfaceName,
                                 dpId, vpnName);
                         return;
@@ -388,7 +391,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     }
                     waitForVpnInterfaceOpRemoval = true;
                 } else {
-                    LOG.warn("processVpnInterfaceUp: vpn interface {} to go to configured vpn {} on dpn {},"
+                    LOG.error("processVpnInterfaceUp: vpn interface {} to go to configured vpn {} on dpn {},"
                             + " but in operational vpn {}", interfaceName, vpnName, dpId, opVpnName);
                 }
             }
@@ -1138,7 +1141,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                      + " for interface " + vpnInterface.getName() + " on vpn " + vpnName;
                 ListenableFutures.addErrorLogging(futures, LOG, errorText);
                 return Collections.singletonList(futures);
-            });
+            }, DJC_MAX_RETRIES);
         } else {
             LOG.error("remove: VPN interface {} on dpn {} for vpn {} was unavailable in operational data "
                     + "store to handle remove event", interfaceName, vpnInterface.getDpnId(), vpnName);
@@ -1168,7 +1171,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName + vpnName,
                 () -> {
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
-                    futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
+                    ListenableFuture<Void> configFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
                         futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
                             futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
                                 LOG.info("remove: - intfName {} onto vpnName {} running config-driven", interfaceName,
@@ -1195,10 +1198,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 }
                             }));
                         }));
-                    }));
-
+                    });
+                    futures.add(configFuture);
+                    Futures.addCallback(configFuture, new PostVpnInterfaceWorker(interfaceName, false));
                     return futures;
-                });
+                }, DJC_MAX_RETRIES);
         }
     }
 
@@ -1221,24 +1225,17 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                                     interfaceName, vpnName);
         if (!isInterfaceStateDown) {
             final long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            if (!vpnOpInterface.isScheduledForRemove()) {
-                VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE,
-                        null);
-                removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnName,
-                                 vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
-                if (interfaceManager.isExternalInterface(interfaceName)) {
-                    processExternalVpnInterface(interfaceName, vpnName, vpnId, dpId, lportTag, writeInvTxn,
-                            NwConstants.DEL_FLOW);
-                }
-                VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown, jobCoordinator);
-                LOG.info("processVpnInterfaceDown: Unbound vpn service from interface {} on dpn {} for vpn {}"
-                        + " successful", interfaceName, dpId, vpnName);
-            } else {
-                LOG.info("processVpnInterfaceDown: Unbinding vpn service for interface {} on dpn for vpn {}"
-                        + " has already been scheduled by a different event ", interfaceName, dpId,
-                        vpnName);
-                return;
+            VpnUtil.scheduleVpnInterfaceForRemoval(dataBroker, interfaceName, dpId, vpnName, Boolean.TRUE,
+                    null);
+            removeAdjacenciesFromVpn(dpId, lportTag, interfaceName, vpnName,
+                    vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
+            if (interfaceManager.isExternalInterface(interfaceName)) {
+                processExternalVpnInterface(interfaceName, vpnName, vpnId, dpId, lportTag, writeInvTxn,
+                        NwConstants.DEL_FLOW);
             }
+            VpnUtil.unbindService(dataBroker, interfaceName, isInterfaceStateDown, jobCoordinator);
+            LOG.info("processVpnInterfaceDown: Unbound vpn service from interface {} on dpn {} for vpn {}"
+                    + " successful", interfaceName, dpId, vpnName);
         } else {
             // Interface is retained in the DPN, but its Link Down.
             // Only withdraw the prefixes for this interface from BGP
@@ -2174,5 +2171,36 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             });
                     });
         }));
+    }
+
+    private class PostVpnInterfaceWorker implements FutureCallback<Void> {
+        String interfaceName;
+        boolean add;
+
+        public PostVpnInterfaceWorker(String interfaceName, boolean add) {
+            this.interfaceName = interfaceName;
+            this.add = add;
+        }
+
+        /**
+         * @param v This implies that all the future instances have returned success. -- TODO: Confirm this
+         */
+        @Override
+        public void onSuccess(Void v) {
+            if (add) {
+                LOG.error("addVpnInterface - Vpn Interface {} stored successfully", interfaceName);
+            } else {
+                LOG.error("removeVpnInterface - VrfEntries for {} removed successfully", interfaceName);
+            }
+        }
+
+        @Override
+        public void onFailure(Throwable throwable) {
+            if (add) {
+                LOG.error("addVpnInterface - Vpn Interface {} failed with exception: {}", interfaceName, throwable);
+            } else {
+                LOG.error("removeVpnInterface - VrfEntries for {} removal failed with exception: {}", interfaceName, throwable);
+            }
+        }
     }
 }

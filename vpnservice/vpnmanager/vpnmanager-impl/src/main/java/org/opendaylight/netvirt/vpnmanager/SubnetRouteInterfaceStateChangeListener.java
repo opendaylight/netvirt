@@ -142,6 +142,10 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 LOG.error("{} remove: Unable to retrieve dpnId for interface {} in subnet {}. "
                                                 + "Fetching from vpn interface itself due to exception {}",
                                         LOGGING_PREFIX, intrf.getName(), subnetId, e);
+                            }
+                            if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+                                LOG.debug("{} remove: dpnId is null for interface {} in subnet {}", LOGGING_PREFIX,
+                                        intrf.getName(), subnetId.getValue());
                                 InstanceIdentifier<VpnInterface> id = VpnUtil
                                         .getVpnInterfaceIdentifier(interfaceName);
                                 Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker,
@@ -190,8 +194,12 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 dpnId = InterfaceUtils.getDpIdFromInterface(update);
                             } catch (Exception e) {
                                 LOG.error("{} remove: Unable to retrieve dpnId for interface {} in subnet  {}. "
-                                        + "Fetching from vpn interface itself due to exception {}", LOGGING_PREFIX,
+                                                + "Fetching from vpn interface itself due to exception {}", LOGGING_PREFIX,
                                         update.getName(), subnetId, e);
+                            }
+                            if (dpnId == null || BigInteger.ZERO.equals(dpnId)) {
+                                LOG.error("{} update: dpnId is null for interface {} in subnet  {}", LOGGING_PREFIX,
+                                        update.getName(), subnetId.getValue());
                                 InstanceIdentifier<VpnInterface> id = VpnUtil
                                         .getVpnInterfaceIdentifier(interfaceName);
                                 Optional<VpnInterface> optVpnInterface = VpnUtil.read(dataBroker,
