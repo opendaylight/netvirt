@@ -38,6 +38,7 @@ public class InterfaceStateChangeListener
     extends AsyncDataTreeChangeListenerBase<Interface, InterfaceStateChangeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(InterfaceStateChangeListener.class);
+    private static final short DJC_MAX_RETRIES = 3;
 
     private final DataBroker dataBroker;
     private final ManagedNewTransactionRunner txRunner;
@@ -194,7 +195,7 @@ public class InterfaceStateChangeListener
                         }));
                     }));
                     return futures;
-                });
+                }, DJC_MAX_RETRIES);
             }
         } catch (Exception e) {
             LOG.error("Exception observed in handling deletion of VPN Interface {}. ", ifName, e);
@@ -232,7 +233,13 @@ public class InterfaceStateChangeListener
                                         VpnUtil.getConfiguredVpnInterface(dataBroker, ifName);
                                 if (vpnIf != null) {
                                     final int ifIndex = update.getIfIndex();
-                                    final BigInteger dpnId = InterfaceUtils.getDpIdFromInterface(update);
+                                    BigInteger dpnId = BigInteger.ZERO;
+                                    try {
+                                        dpnId = InterfaceUtils.getDpIdFromInterface(update);
+                                    } catch (Exception e) {
+                                        LOG.error("remove: Unable to retrieve dpnId for interface {}", ifName, e);
+                                        return;
+                                    }
                                     if (update.getOperStatus().equals(Interface.OperStatus.Up)) {
                                         for (VpnInstanceNames vpnInterfaceVpnInstance : vpnIf.getVpnInstanceNames()) {
                                             String vpnName = vpnInterfaceVpnInstance.getVpnName();
