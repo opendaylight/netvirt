@@ -73,7 +73,7 @@ public class ElanInterfaceStateChangeListener
             return;
         }
         InterfaceRemoveWorkerOnElan removeWorker = new InterfaceRemoveWorkerOnElan(elanInstanceName, elanInstance,
-                interfaceName, interfaceInfo, elanInterfaceManager);
+                interfaceName, interfaceInfo, true, elanInterfaceManager);
         jobCoordinator.enqueueJob(elanInstanceName, removeWorker, ElanConstants.JOB_MAX_RETRIES);
     }
 
