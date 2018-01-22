@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "ddf1cbb3_f6bc535d",
+        "filename": "vpnservice/features/odl-netvirt-coe/pom.xml",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-01-22T06:50:58Z",
+      "side": 1,
+      "message": "I don\u0027t think order here will make a difference, but be prepared to revisit order if run into issues with some bundles not coming up.",
+      "revId": "4ace3a7ae49ee6c21d543fb1341423e484438bba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
