@@ -393,7 +393,7 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
 
         @Override
         public void onFailure(Throwable throwable) {
-            log.error("{} onFailure: Job for vpnInstance: {} failed with exception: {}", LOGGING_PREFIX_ADD, vpnName,
+            log.error("{} onFailure: Job for vpnInstance: {} failed with exception:", LOGGING_PREFIX_ADD, vpnName,
                     throwable);
             vpnInterfaceManager.vpnInstanceFailed(vpnName);
         }
