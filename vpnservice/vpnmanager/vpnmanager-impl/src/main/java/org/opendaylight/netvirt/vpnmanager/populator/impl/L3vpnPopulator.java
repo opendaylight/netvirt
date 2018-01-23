@@ -212,7 +212,7 @@ public abstract class L3vpnPopulator implements VpnPopulator {
                         + " gwMac {} is not advertised to BGP", rd, prefix, nextHopList, label, gatewayMac);
             }
         } catch (Exception e) {
-            LOG.error("addPrefixToBGP: Add prefix {} with rd {} nextHop {} label {} gwMac {} failed {}", prefix, rd,
+            LOG.error("addPrefixToBGP: Add prefix {} with rd {} nextHop {} label {} gwMac {} failed", prefix, rd,
                     nextHopIp, label, gatewayMac, e);
         }
     }
