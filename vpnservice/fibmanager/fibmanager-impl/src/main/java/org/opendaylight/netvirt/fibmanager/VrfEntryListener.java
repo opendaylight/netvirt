@@ -1760,6 +1760,22 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         NwConstants.DEL_FLOW);
                                 continue;
                             }
+
+                            //Handle local flow deletion for imports
+                            if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.SELF_IMPORTED) {
+                                java.util.Optional<Long> optionalLabel = FibUtil.getLabelFromRoutePaths(vrfEntry);
+                                if (optionalLabel.isPresent()) {
+                                    List<String> nextHopList = FibHelper.getNextHopListFromRoutePaths(vrfEntry);
+                                    LabelRouteInfo lri = getLabelRouteInfo(optionalLabel.get());
+                                    if (isPrefixAndNextHopPresentInLri(vrfEntry.getDestPrefix(), nextHopList, lri)) {
+                                        if (lri.getDpnId().equals(dpnId)) {
+                                            deleteLocalFibEntry(vpnId, rd, vrfEntry);
+                                            continue;
+                                        }
+                                    }
+                                }
+                            }
+
                             // Passing null as we don't know the dpn
                             // to which prefix is attached at this point
                             List<String> usedRds = VpnExtraRouteHelper.getUsedRds(dataBroker, vpnInstance.getVpnId(),
