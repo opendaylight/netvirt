@@ -215,7 +215,7 @@ public class VpnSubnetRouteHandler {
                             } catch (Exception e) {
                                 LOG.error("{} onSubnetAddedToVpn: Unable to obtain dpnId for interface {},"
                                         + " subnetroute inclusion for this interface for subnet {} subnetIp {} vpn {}"
-                                        + " failed with exception {}", LOGGING_PREFIX, port.getValue(),
+                                        + " failed with exception", LOGGING_PREFIX, port.getValue(),
                                         subnetId.getValue(), subnetIp, vpnName, e);
                                 continue;
                             }
