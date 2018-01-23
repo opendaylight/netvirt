@@ -338,7 +338,7 @@ public class VpnManagerImpl implements IVpnManager {
             LOG.info("removePrefixFromBGP: VPN WITHDRAW: Removed Fib Entry rd {} prefix {} nexthop {}", rd, prefix,
                     nextHop);
         } catch (RuntimeException e) {
-            LOG.error("removePrefixFromBGP: Delete prefix {} rd {} nextHop {} failed", prefix);
+            LOG.error("removePrefixFromBGP: Delete prefix {} rd {} nextHop {} failed", prefix, rd, nextHop);
         }
     }
 
