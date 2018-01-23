@@ -842,6 +842,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
         String prefix = null;
         long label = 0;
+        List<Adjacency> value = new ArrayList<>();
         boolean isNextHopAddReqd = false;
         String vpnName = vpnInterface.getVpnInstanceName();
         long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
@@ -858,17 +859,14 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             List<String> nextHopList = adj.getNextHopIpList();
             // If TEP is added , update the nexthop of primary adjacency.
             // Secondary adj nexthop is already pointing to primary adj IP address.
+            if (nextHopList != null && !nextHopList.isEmpty() && nextHopList.get(0).equalsIgnoreCase(srcTepIp)) {
+                /* everything right already */
+            } else {
+                isNextHopAddReqd = true;
+            }
+
             if (adj.getAdjacencyType() == AdjacencyType.PrimaryAdjacency) {
-                if (!(nextHopList != null && !nextHopList.isEmpty()
-                        && nextHopList.get(0).equalsIgnoreCase(srcTepIp))) {
-                    isNextHopAddReqd = true;
-                    LOG.trace("updateVpnInterfaceOnTepAdd: NextHopList to be updated {} for vpnInterface {} on dpn {} "
-                            + "and adjacency {}", nhList, vpnInterface, srcDpnId, adj);
-                    InstanceIdentifier<Adjacency> adjId =
-                            VpnUtil.getAdjacencyIdentifier(vpnInterface.getName(), prefix);
-                    MDSALUtil.syncWrite(dataBroker,  LogicalDatastoreType.OPERATIONAL, adjId,
-                            new AdjacencyBuilder(adj).setNextHopIpList(nhList).build());
-                }
+                value.add(new AdjacencyBuilder(adj).setNextHopIpList(nhList).build());
             } else {
                 Optional<VrfEntry> vrfEntryOptional = FibHelper.getVrfEntry(dataBroker, primaryRd, prefix);
                 if (!vrfEntryOptional.isPresent()) {
