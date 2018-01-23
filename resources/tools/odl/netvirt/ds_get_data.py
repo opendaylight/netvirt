@@ -174,3 +174,11 @@ def get_vpninterfaces(filename=None):
     for vpninterface in vpninterfaces:
         vpninterfaces_dict[vpninterface['name']] = vpninterface
     return vpninterfaces_dict
+
+
+def get_idpools(filename=None):
+    idpools_dict = {}
+    idpools = get_ds_data('idpools')
+    for idpool in idpools:
+        idpools_dict[idpool['pool-name']] = idpool
+    return idpools_dict
