@@ -135,6 +135,12 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>vpnmanager-api</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>ch.vorburger</groupId>
+      <artifactId>xtendbeans</artifactId>
+      <version>1.3.0</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>
