@@ -19,7 +19,6 @@ operNodes = {}
 
 
 def by_ifname(ifname):
-    print ifname
     ifstate = ifstates.get(ifname)
     iface = ifaces.get(ifname)
     port = None
@@ -51,7 +50,7 @@ def analyze_interface(ifname=None):
     if not ifname:
         print_keys()
         exit(1)
-    ifname = ifname[1]
+    ifname = ifname[0]
     iface,ifstate,port,tunnel,tunState = by_ifname(ifname)
     print "InterfaceConfig: "
     utils.pretty_print(iface)
@@ -232,7 +231,7 @@ def show_link_flow_binding():
 def show_stale_flows(sort_by='table'):
     compute_map = get_dpn_host_mapping()
     nports = dsg.get_neutron_ports()
-    for flow in utils.sort(get_stale_flows(['acl']), sort_by):
+    for flow in utils.sort(get_stale_flows(['ifm', 'acl', 'elan', 'l3vpn']), sort_by):
         host = compute_map.get(flow.get('dpnid'), flow.get('dpnid'))
         ip_list = get_ips_for_iface(nports, flow.get('ifname'))
         if ip_list:
@@ -324,7 +323,7 @@ def show_all_flows():
             flow['table'], host, flow['id'],
             utils.show_optionals(flow))
         print result
-        print 'Flow:', json.dumps(parse_flow(flow['flow']))
+        #print 'Flow:', json.dumps(parse_flow(flow['flow']))
 
 
 def show_elan_flows():
@@ -336,6 +335,38 @@ def show_elan_flows():
 def show_elan_instances():
     insts = dsg.get_elan_instances()
     json.dumps(insts)
+
+
+def get_duplicate_ids():
+    duplicate_ids= {}
+    for pool in dsg.get_idpools().itervalues():
+        id_values = {}
+        for id_entry in pool.get('id-entries', []):
+            id_info = {}
+            id_value = id_entry.get('id-value')[0]
+            id_key = id_entry.get('id-key')
+            if id_values and id_values.get(id_value, None):
+                key_list = id_values.get(id_value)
+                key_list.append(id_key)
+                id_info['id-value'] = id_value
+                id_info['id-keys'] = key_list
+                id_info['pool-name'] = pool.get('pool-name')
+                id_info['parent-pool-name'] = pool.get('parent-pool-name')
+                duplicate_ids[id_value] = id_info
+            else:
+                id_values[id_value] = [id_key]
+    return duplicate_ids
+
+
+
+def show_idpools():
+    for k,v in get_duplicate_ids().iteritems():
+        result = "Id:{},Keys:{}".format(k, json.dumps(v.get('id-keys')))
+        if v.get('pool-name'):
+            result = "{},Pool:{}".format(result, v.get('pool-name'))
+        if v.get('parent-pool-name'):
+            result = "{},ParentPool:{}".format(result, v.get('parent-pool-name'))
+        print result
 
 
 def parse_flow(flow):

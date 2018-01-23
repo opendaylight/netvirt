@@ -99,7 +99,6 @@ def sort(data, field):
     return sorted(data, key=lambda x: x[field])
 
 
-
 def show_optionals(flow):
     result = ''
     lport = flow.get('lport')
@@ -119,4 +118,10 @@ def show_optionals(flow):
         result = '{},LportIp:{}'.format(result, json.dumps(ip))
     result = '{},Reason:{}'.format(result, flow.get('reason'))
     return result
+
+
+def get_optionals(m_str):
+    if str:
+        return dict(s.split('=',1) for s in m_str.split(','))
+    return None
 
