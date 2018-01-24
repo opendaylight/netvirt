@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e5118bde_1e33f526",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-01-24T17:58:58Z",
+      "side": 1,
+      "message": "final",
+      "revId": "34c6bf7ef47c46beff3fd8994cb5f6787de37f37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9205caf6_9bc6b666",
+        "filename": "vpnservice/natservice/natservice-impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalSubnetVpnInstanceListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 156,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-01-24T17:58:58Z",
+      "side": 1,
+      "message": "how many updates would be received? Do we want to log all this for each at INFO level?",
+      "revId": "34c6bf7ef47c46beff3fd8994cb5f6787de37f37",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
