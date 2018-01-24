@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fe19eb36_d61f3ed6",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 304,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-24T12:20:17Z",
+      "side": 1,
+      "message": "I\u0027m hoping to propose an update to the Metrics API adding support for \"labels\" as an alternative to this kind of \"categories by magic String\" approach; will -1 just so that you can consider using that..",
+      "revId": "466910914be0d8d5d49c2253fb0f5516765e6dc8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
