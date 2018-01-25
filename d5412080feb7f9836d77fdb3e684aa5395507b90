@@ -356,6 +356,24 @@
       "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "56bfcaf5_5a2d6d4d",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 7935
+      },
+      "writtenOn": "2018-01-25T17:48:10Z",
+      "side": 1,
+      "message": "if we do counter.increment(counterValue - counter.get()) then there is a possibility of getting negative value if counter.get() has the greater value than new counterValue.\n\nI\u0027m resetting the Counter by doing counter.decrement(counter.get()); and adding fresh counterValue by doing counter.increment(counterValue).",
+      "parentUuid": "f53fb807_b26dd00b",
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
