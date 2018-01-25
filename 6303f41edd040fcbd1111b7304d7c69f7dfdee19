@@ -1,0 +1,376 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a4054b9e_f42afd68",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DeleteLogicalSwitchJob.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "It looks like this is the same blocking read you added to elanL2GatewayUtils.getL2GwDeviceLocalMacs - we really should avoid the duplicate reads.  It doesn\u0027t seem like deleteL2GwDeviceUcastLocalMacsFromElan above is really the appropriate call as the code dealing with the passed L2GatewayDevice is essentially a no-op b/c it has no ucastLocalMacs. It seems like you can perform one read and collect the mac list (move the code you added to getL2GwDeviceLocalMacs here) and call unInstallL2GwUcastMacFromElan directly, passing the hwvtepNodeId instead of an L2GatewayDevice.",
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a4be2f2d_8b114d00",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DeleteLogicalSwitchJob.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "private",
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5dcc53dd_9874647a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/jobs/DeleteLogicalSwitchJob.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "private",
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "17303917_bb567122",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 145,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "return primitive long instead of boxed. Also make private.",
+      "range": {
+        "startLine": 145,
+        "startChar": 4,
+        "endLine": 145,
+        "endChar": 11
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06cb1c99_31b3515b",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "This is the default now so should technically be named DEFAULT_LOGICAL_SWITCH_DELETE_DELAY. Also you can just define it as 20.",
+      "range": {
+        "startLine": 147,
+        "startChar": 63,
+        "endLine": 147,
+        "endChar": 90
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1dffd919_4a51a04c",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 524,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "Change to Collection so you can return the Set directly",
+      "range": {
+        "startLine": 524,
+        "startChar": 11,
+        "endLine": 524,
+        "endChar": 15
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7518e586_d17904d4",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "Move this just prior to first use to avoid creating a useless object if return is taken on line 527.",
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f196df7_420ae60d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1039,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "We have a user-configurable switch delete delay so why not always use that, ie why have overloaded methods that allow the caller to pass the delay?",
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f66ece2d_c7e3ad3a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 1055,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "I know this wasn\u0027t added by this patch but call remove here instead of get then remove (line 1058)",
+      "range": {
+        "startLine": 1055,
+        "startChar": 76,
+        "endLine": 1055,
+        "endChar": 79
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c1a167b2_8ff11a9d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "return primitive long",
+      "range": {
+        "startLine": 96,
+        "startChar": 12,
+        "endLine": 96,
+        "endChar": 19
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fc7ec023_4191bcc9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 126,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "private",
+      "range": {
+        "startLine": 126,
+        "startChar": 4,
+        "endLine": 126,
+        "endChar": 10
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1038015_9dbca033",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 157,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "use emptyMap() - avoids unchecked warning",
+      "range": {
+        "startLine": 157,
+        "startChar": 31,
+        "endLine": 157,
+        "endChar": 40
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c7ba06f3_4c624710",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "This isn\u0027t shared by multiple threads so doesn\u0027t need to be Concurrent.",
+      "range": {
+        "startLine": 159,
+        "startChar": 72,
+        "endLine": 159,
+        "endChar": 89
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b1bc6754_1acd9100",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 178,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "Combine this with computeIfAbsent, avoids unnecessary lookup:\n\n  vlans.computeIfAbsent(...).add(...)",
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f1d87ae_0d25bd91",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 201,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "Do this async so as not to block the thread.",
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a839153_352bc83e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 212,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "emptyList",
+      "range": {
+        "startLine": 212,
+        "startChar": 31,
+        "endLine": 212,
+        "endChar": 41
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0823d988_555b6d8a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 64,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "disconnected?",
+      "range": {
+        "startLine": 64,
+        "startChar": 88,
+        "endLine": 64,
+        "endChar": 97
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8a00500b_437fb26f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/yang/elanmanager-config.yang",
+        "patchSetId": 6
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-25T17:27:34Z",
+      "side": 1,
+      "message": "after the",
+      "range": {
+        "startLine": 69,
+        "startChar": 73,
+        "endLine": 69,
+        "endChar": 77
+      },
+      "revId": "6303f41edd040fcbd1111b7304d7c69f7dfdee19",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
