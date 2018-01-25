@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "83866625_bfb5a971",
+        "filename": "docs/specs/faster-dcgw-failure-detection.rst",
+        "patchSetId": 19
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-01-25T07:54:38Z",
+      "side": 1,
+      "message": "nit: space (in case you have to respin for any review comments from others)",
+      "revId": "4cc05ebc0dcec57976f8b652729d2079b16b5300",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
