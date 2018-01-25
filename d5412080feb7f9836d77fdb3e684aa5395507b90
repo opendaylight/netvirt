@@ -338,6 +338,24 @@
       "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f53fb807_b26dd00b",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 506,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-25T17:20:18Z",
+      "side": 1,
+      "message": "Yeah. But based on https://lists.opendaylight.org/pipermail/infrautils-dev/2018-January/000568.html, I now I understand this better, I admit I had not really noticed / paid proper attention to the final line 515 with counter.increment(counterValue); so I\u0027m wondering if this shouldn\u0027t just be counter.increment(counterValue - counter.get()); kind of thing instead?",
+      "parentUuid": "5066b2e0_2575b43f",
+      "revId": "d5412080feb7f9836d77fdb3e684aa5395507b90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
