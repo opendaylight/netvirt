@@ -1,0 +1,123 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b92269c8_b401e784",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-25T13:50:01Z",
+      "side": 1,
+      "message": "If *both* of these are empty the function returns. However, if just one is empty the function will continue and both lists will be passed to handleAclChanges which will call programAclDispatcherTable which program flows. Are we sure this is the desired behavior?",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "545f7de7_5d774a11",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-25T13:50:01Z",
+      "side": 1,
+      "message": "I know that you did not name this function but now that this code is even more complex I think there may be room discuss renaming it. Per the documentation on this function all it does is program anti-spoofing rules. If this is true, the name of the function can be made much clearer, e.g., programAntiSpoofing or something like that. If not, the comment should be fixed.",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8c3f17d2_5acb56ca",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-25T13:50:01Z",
+      "side": 1,
+      "message": "2017",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "161626ab_1b265fea",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-25T13:50:01Z",
+      "side": 1,
+      "message": "I understand that the whole ingress/egress switch/vm thing. However, in this function you use both EGRESS_ACL_SERVICE_NAME and \"ingressacl\" on literally the next line. I think it would be more readable if that were consistent.\nAlso, the \"mirror image\" of EGRESS_ACL_SERVICE used in StatefulEgressAclServiceImpl is simply ACL_SERVICE. Perhaps it is worth making it more mirrored, \"INGRESS_ACL_SERVICE\". Overall, it would be better to try for consistency wrt these terms.",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "374ed4e2_91de0dee",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-25T13:50:01Z",
+      "side": 1,
+      "message": "Out of curiosity, what about these rules is \"general\" and \"fixed\"?",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3bdcd348_d6e17218",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-25T13:50:01Z",
+      "side": 1,
+      "message": "What if the ParentRefs augmentation changes? Is that something that needs to be checked for?",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dca7d62f_c4b35882",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-25T13:50:01Z",
+      "side": 1,
+      "message": "This may break upgrade but I\u0027m pretty sure it will not. If the interfaces/interface exists before the switch connects there will be no interface state. If a null value here will cause issues than this case needs to be handled. However, it seems that (a) this is in update which is unlikely to occur as part of the upgrade flow and (b) it was in the code previously and did not cause issues in my testing, probably because of (a).",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
