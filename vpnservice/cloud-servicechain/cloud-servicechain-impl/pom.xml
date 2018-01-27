@@ -59,6 +59,12 @@
     </dependency>
     <dependency>
       <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>metrics-impl-test</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
       <artifactId>jobcoordinator-impl</artifactId>
       <version>${infrautils.version}</version>
       <scope>test</scope>

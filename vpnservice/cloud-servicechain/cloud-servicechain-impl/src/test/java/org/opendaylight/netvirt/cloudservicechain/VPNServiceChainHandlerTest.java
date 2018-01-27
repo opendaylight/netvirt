@@ -45,6 +45,8 @@ import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.internal.JobCoordinatorImpl;
+import org.opendaylight.infrautils.metrics.MetricProvider;
+import org.opendaylight.infrautils.metrics.testimpl.TestMetricProviderImpl;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowEntityMatcher;
 import org.opendaylight.netvirt.cloudservicechain.matchers.FlowMatcher;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
@@ -94,7 +96,9 @@ public class VPNServiceChainHandlerTest {
     static final int LPORT_TAG = 1;
     static final String DC_GW_IP = "3.3.3.3";
 
-    private static JobCoordinatorImpl jobCoordinator = new JobCoordinatorImpl();
+    private static MetricProvider metricProvider = new TestMetricProviderImpl();
+
+    private static final JobCoordinatorImpl jobCoordinator = new JobCoordinatorImpl(metricProvider);
 
     private VPNServiceChainHandler vpnsch; // SUT
 
