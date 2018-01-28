@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "606d51ef_b0bb2a7b",
+        "filename": "vpnservice/aclservice/api/src/main/java/org/opendaylight/netvirt/aclservice/api/utils/AclInterface.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "and 2017 (and elsewhere)",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "afced747_ee8bd3f0",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "This comment does not correctly describe the code. The elanTag is used if there are *no* vpnIds. This could occur because there were no vpnIds in the AclInterface to begin with or because *all* (not \"any\") were null.",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b270b4c3_96ef3a76",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 130,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "Nit: Out of curiosity, why not String.format(\"acl.egressacl.%s\", interfaceName)?\n\nAlso, would it help with debugging if the serviceName somehow had the vpnId in it as well? That way they wouldn\u0027t be the same.",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ebca5b19_7a9c845b",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 250,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "I would hope so since the method is type void ;-)",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ed873be_e84d97ea",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractEgressAclServiceImpl.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 273,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "This method can be greatly simplified by breaking out the contents of this for loop into its own method(List\u003cMatchInfoBase\u003e, Long). That way you can drop the map and iterate through the vpnIds just once. Just keep track of whether you called the function at least once and if not then you can create the match without the vpnId and call the method with that (the if block before this for loop).",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0df474af_e32f6715",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractIngressAclServiceImpl.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "Comments in AbstractEgressAclServiceImpl apply here as well.",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28598b35_7ec85920",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 244,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "structure of this function can be simplified as per comment in AbstractEgressAclServiceImpl",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88b5bcb7_f9e40471",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "can simplify as per comment in AbstractEgressAclServiceImpl",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c809b6bb_48591536",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclServiceUtils.java",
+        "patchSetId": 105
+      },
+      "lineNbr": 803,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T09:24:58Z",
+      "side": 1,
+      "message": "Nit: this allocation can happen after the if",
+      "revId": "dae28f6c0f0bff49e888a3e7949bd1c7fab4e8d1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
