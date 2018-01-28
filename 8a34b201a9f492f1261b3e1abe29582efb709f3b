@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bfb0fa16_c9bf62d1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T13:21:28Z",
+      "side": 1,
+      "message": "Why is true returned here?",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3adde9a_23d5a140",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T13:21:28Z",
+      "side": 1,
+      "message": "Since if this is false shouldn\u0027t this check come first in the function? Maybe start with:\nif (vpnId \u003d\u003d null) {\n    return true;\n}",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9a2dd2ac_6844a076",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T13:21:28Z",
+      "side": 1,
+      "message": "Why? Nothing has been added to the transaction at this point.",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cb9f5f36_beeef817",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T13:21:28Z",
+      "side": 1,
+      "message": "Also, shouldn\u0027t this message just be \"not deleting vpninterface?\" There is no \"delayed\" delete triggered here.",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7683a8eb_7620b665",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T13:21:28Z",
+      "side": 1,
+      "message": "This call will return false if LOCK_WAIT_TIME is exceeded and the code does not check for this. The remaining code will run even if the lock is not acquired!",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
