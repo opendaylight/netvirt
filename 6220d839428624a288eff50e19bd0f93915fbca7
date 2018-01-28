@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2fb271ec_75cc42ac",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 77
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T11:11:44Z",
+      "side": 1,
+      "message": "I might be missing something but why is this checked here? odlVpnIds doesn\u0027t seem to be used in the if block. If this is intentional I think it deserves a comment.",
+      "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dde49a76_e787316a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 77
+      },
+      "lineNbr": 2619,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-28T11:11:44Z",
+      "side": 1,
+      "message": "I know this is not your code but this is wrong. The transaction would never be submitted.",
+      "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
