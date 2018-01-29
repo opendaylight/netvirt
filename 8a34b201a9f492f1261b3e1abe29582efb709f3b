@@ -84,6 +84,74 @@
       "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9cf56cd0_aa07f27e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-29T12:33:54Z",
+      "side": 1,
+      "message": "according to the check on line 1585, sn can be null.",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b8b01f2_01857d72",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 2241,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-29T12:33:54Z",
+      "side": 1,
+      "message": "The arrow anti-pattern [0] here is a little out of control in my humble opinion, 9 levels I believe. I think that this method should be refactored into smaller coherent methods. I understand that this was a problem before this code change but this patch definitely makes it worse.\n\n[0] http://wiki.c2.com/?ArrowAntiPattern",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5a92cc2d_ce09f6b0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-29T12:33:54Z",
+      "side": 1,
+      "message": "I\u0027m not quite sure on this but these look to me like unintended outcomes and should be logged at somethign more than debug. The \"already set\" one makes sense as debug but this one?",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76c8ab2a_1209b9dc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 1627,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-29T12:33:54Z",
+      "side": 1,
+      "message": "What is the \"get\" doing there?",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
