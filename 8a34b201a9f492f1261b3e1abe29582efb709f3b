@@ -152,6 +152,24 @@
       "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f4db7536_623d7262",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 1627,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-29T12:53:57Z",
+      "side": 1,
+      "message": "blocking call - should handle it async but this code base is unfortunately already littered with blocking transactions.",
+      "parentUuid": "76c8ab2a_1209b9dc",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
