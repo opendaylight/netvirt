@@ -41,7 +41,7 @@ module odl-fib {
                   }
                   enum vxlan {
                      value "1";
-                     description “VNI";
+                     description "VNI";
                   }
                }
                default "mplsgre";
