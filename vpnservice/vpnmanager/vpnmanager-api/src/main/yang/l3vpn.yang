@@ -736,7 +736,7 @@ module l3vpn {
         type enumeration {
            enum l3 {
               value "0";
-              description “L3VPN";
+              description "L3VPN";
            }
            enum l2 {
               value "1";
