@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a482c28_e460abca",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/test/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListenerTest.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-29T13:48:10Z",
+      "side": 1,
+      "message": "if this test does not use JobCoordinatorMonitor, then it may have even been possible to just mock the MetricProvider.. but this also works, so fine for me.",
+      "revId": "82da8f88368bb97de9c1e1e6f50272c0d97e3470",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
