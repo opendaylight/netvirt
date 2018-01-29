@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1b30e036_ac9494bf",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/pom.xml",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-29T13:48:10Z",
+      "side": 1,
+      "message": "this should be \u003cscope\u003etest, otherwise the test implementation is included at production run-time! FYI In genius its different because there we added it to mdsalutil-testutils, which is special. I\u0027ll just fix it up right away, to save you a cycle...",
+      "revId": "f3672895c451df0794fe9594326bbb4bd8c024f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
