@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9850c8b1_2a1ce1b8",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-01-29T11:12:13Z",
+      "side": 1,
+      "message": "this might make some of the md-sal local transactions (for default operational shard) to remote ones and can lead to more latency. It has to be thoroughly tested (or) some other ways of fixing it.",
+      "revId": "7bd00d7cdf326d61a9b5a2f403c02964a218344b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
