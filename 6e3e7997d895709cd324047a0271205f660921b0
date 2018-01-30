@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9fbdbf92_45e7db99",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cache/ElanInstanceCache.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-01-30T15:17:27Z",
+      "side": 1,
+      "message": "wouldn\u0027t it be better to add \"throws ReadFailedException\" to let this propagate? Or is it too much of a PITA to handle that accross the code?",
+      "revId": "6e3e7997d895709cd324047a0271205f660921b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
