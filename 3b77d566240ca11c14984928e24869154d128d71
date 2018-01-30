@@ -19,6 +19,23 @@
     },
     {
       "key": {
+        "uuid": "c91b5c9b_69106b43",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-01-30T08:16:26Z",
+      "side": 1,
+      "message": "I think we  should be always reprogramming the dispatcher table for the SG update. When a new SG with remote sg rule is added we need to remove the existing drop rule of the dispatcher. Now this happens only if we remove and add an SG, but not when we add an additional SG.",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "545f7de7_5d774a11",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 22
@@ -30,6 +47,23 @@
       "writtenOn": "2018-01-25T13:50:01Z",
       "side": 1,
       "message": "I know that you did not name this function but now that this code is even more complex I think there may be room discuss renaming it. Per the documentation on this function all it does is program anti-spoofing rules. If this is true, the name of the function can be made much clearer, e.g., programAntiSpoofing or something like that. If not, the comment should be fixed.",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "faa0c81d_14557db7",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceImplFactory.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-01-30T08:16:26Z",
+      "side": 1,
+      "message": "I think it will be better to name this IngressAclServiceImpl.",
       "revId": "3b77d566240ca11c14984928e24869154d128d71",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
