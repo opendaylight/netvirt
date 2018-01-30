@@ -16,6 +16,24 @@
       "revId": "6e3e7997d895709cd324047a0271205f660921b0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecf6829b_4c92bfb3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/cache/ElanInstanceCache.java",
+        "patchSetId": 5
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-01-30T15:52:37Z",
+      "side": 1,
+      "message": "yeah I considered that but there\u0027s a few dozen of caller, most DTCLs, so they\u0027d end up skipping code blocks anyway either by propagating or catching and logging.",
+      "parentUuid": "9fbdbf92_45e7db99",
+      "revId": "6e3e7997d895709cd324047a0271205f660921b0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
