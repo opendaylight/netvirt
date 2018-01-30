@@ -122,9 +122,15 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <artifactId>gson</artifactId>
     </dependency>
     <dependency>
-        <groupId>org.opendaylight.neutron</groupId>
-        <artifactId>neutron-spi</artifactId>
-        <version>${neutron.version}</version>
+      <groupId>org.opendaylight.neutron</groupId>
+      <artifactId>neutron-spi</artifactId>
+      <version>${neutron.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.opendaylight.infrautils</groupId>
+      <artifactId>metrics-impl-test</artifactId>
+      <version>${infrautils.version}</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 

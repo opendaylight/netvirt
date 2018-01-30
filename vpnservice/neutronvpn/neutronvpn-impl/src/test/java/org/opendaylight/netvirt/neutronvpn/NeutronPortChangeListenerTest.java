@@ -33,6 +33,8 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.caches.baseimpl.internal.CacheManagersRegistryImpl;
 import org.opendaylight.infrautils.caches.guava.internal.GuavaCacheProvider;
 import org.opendaylight.infrautils.jobcoordinator.internal.JobCoordinatorImpl;
+import org.opendaylight.infrautils.metrics.MetricProvider;
+import org.opendaylight.infrautils.metrics.testimpl.TestMetricProviderImpl;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Address;
@@ -84,7 +86,9 @@ public class NeutronPortChangeListenerTest {
     @Mock
     IdManagerService idManager;
 
-    private final JobCoordinatorImpl jobCoordinator = new JobCoordinatorImpl();
+    MetricProvider metricProvider = new TestMetricProviderImpl();
+
+    private final JobCoordinatorImpl jobCoordinator = new JobCoordinatorImpl(metricProvider);
 
     @Before
     public void setUp() {
