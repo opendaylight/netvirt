@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c81c3f8b_39a56754",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-01-31T09:19:31Z",
+      "side": 1,
+      "message": "Since determining which router is the default router depends solely on the order of events this is an issue for upgrade. During upgrade ODL\u0027s md-sal cache is wiped and then re-synced by some upgrade orchestrator (in our case networking-odl). In this case the entity doing the re-sync will not necessarily know (neutron doesn\u0027t know!) which router association came first which can result in a different order of creation and therefor a different default router selection. \nNote that in general this is not a great design since the order in which objects and associations are created is not a formalized part of the API specification.",
+      "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
