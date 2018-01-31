@@ -1,0 +1,61 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "71fff879_b79f9100",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-01-31T11:46:12Z",
+      "side": 1,
+      "message": "give it a title so that it shows up in index, ideally same as file name.",
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b24bf2ae_0278fcfa",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-01-31T11:46:12Z",
+      "side": 1,
+      "message": "1 means OpenStack all-in-one or refers to 1 instance of openstack with controller +1/2 computes? Would be good to explicitly specify. Last I tried doing it on my own issue was our CSIT requires 1 os-ctrl + 2 os-computes in the OpenStack setup.",
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e4417d4_4aed2a14",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 3276
+      },
+      "writtenOn": "2018-01-31T11:46:12Z",
+      "side": 1,
+      "message": "use ``\u003e`` for proper highlighting.",
+      "range": {
+        "startLine": 119,
+        "startChar": 18,
+        "endLine": 119,
+        "endChar": 21
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
