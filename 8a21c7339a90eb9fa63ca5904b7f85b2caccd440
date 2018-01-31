@@ -19,6 +19,98 @@
     },
     {
       "key": {
+        "uuid": "e616da3b_f4ee58bf",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-01-31T19:19:26Z",
+      "side": 1,
+      "message": "test",
+      "range": {
+        "startLine": 2,
+        "startChar": 26,
+        "endLine": 2,
+        "endChar": 31
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "28a12a08_f3df22da",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-01-31T19:19:26Z",
+      "side": 1,
+      "message": "via ODL\u0027s Jenkins in a public cloud provider (currently Vexxhost) and maintained by the Linux Foundation.",
+      "range": {
+        "startLine": 5,
+        "startChar": 57,
+        "endLine": 6,
+        "endChar": 25
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b5940b9f_0c9b2afd",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-01-31T19:19:26Z",
+      "side": 1,
+      "message": "https://git.opendaylight.org/gerrit/p/integration/test.git",
+      "range": {
+        "startLine": 7,
+        "startChar": 44,
+        "endLine": 8,
+        "endChar": 29
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e6c92a14_56c206ac",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-01-31T19:19:26Z",
+      "side": 1,
+      "message": "well",
+      "range": {
+        "startLine": 14,
+        "startChar": 8,
+        "endLine": 14,
+        "endChar": 12
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b24bf2ae_0278fcfa",
         "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
         "patchSetId": 1
@@ -33,6 +125,75 @@
       "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bb800ffc_aebf98ed",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-01-31T19:19:26Z",
+      "side": 1,
+      "message": "i gave the git.opendaylight link above, as that\u0027s the official one. github is just mirrored, but should always be up to date (within minutes I think). the only risk is if we ever stop mirroring for some reason",
+      "range": {
+        "startLine": 73,
+        "startChar": 17,
+        "endLine": 73,
+        "endChar": 65
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0b9a1864_ebad3b8b",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-01-31T19:19:26Z",
+      "side": 1,
+      "message": "do we need to do this?",
+      "range": {
+        "startLine": 75,
+        "startChar": 7,
+        "endLine": 75,
+        "endChar": 58
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0933563c_8ae18042",
+        "filename": "docs/developer-guide/running-netvirt-csit-locally.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-01-31T19:19:26Z",
+      "side": 1,
+      "message": "I see why you cloned netvirt above. I actually think we don\u0027t need that. maybe we don\u0027t even\nneed this WORKSPACE var? if so, it\u0027s really for the jenkins workspace where ODL is installed.\nin upstream CSIT it\u0027s just /tmp/ and then BUNDLEFOLDER is where ODL is unzipped and\nrunning.\n\ncan you try these steps without this var and without the netvirt repo?",
+      "range": {
+        "startLine": 92,
+        "startChar": 0,
+        "endLine": 92,
+        "endChar": 47
+      },
+      "revId": "8a21c7339a90eb9fa63ca5904b7f85b2caccd440",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     },
     {
       "key": {
