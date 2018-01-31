@@ -59,6 +59,16 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <type>xml</type>
       <scope>runtime</scope>
     </dependency>
+
+    <dependency>
+      <!-- This ensures we have odl-jolokia in the distribution -->
+      <groupId>org.opendaylight.controller</groupId>
+      <artifactId>features-extras</artifactId>
+      <version>1.10.0-SNAPSHOT</version>
+      <type>xml</type>
+      <classifier>features</classifier>
+      <scope>runtime</scope>
+    </dependency>
   </dependencies>
 
   <build>
