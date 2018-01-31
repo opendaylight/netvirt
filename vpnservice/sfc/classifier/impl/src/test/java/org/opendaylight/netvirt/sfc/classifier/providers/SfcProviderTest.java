@@ -15,9 +15,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.opendaylight.controller.md.sal.binding.test.ConstantSchemaAbstractDataBrokerTest;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -59,7 +57,6 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
         sfcProvider = new SfcProvider(getDataBroker());
     }
 
-    @Ignore
     @Test
     public void getRenderedServicePath() {
         RspName rspName = new RspName(RSP_NAME);
@@ -120,10 +117,11 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     }
 
     private RenderedServicePathBuilder createRsp(RspName rspName) {
-        RenderedServicePathBuilder rspBuilder = new RenderedServicePathBuilder();
-        rspBuilder.setName(rspName).setServiceChainName(SfcName.getDefaultInstance(SFC_NAME)).setPathId(PATH_ID);
-
-        return rspBuilder;
+        return new RenderedServicePathBuilder()
+                .setName(rspName)
+                .setServiceChainName(SfcName.getDefaultInstance(SFC_NAME))
+                .setPathId(PATH_ID)
+                .setReversePath(false);
     }
 
     private RenderedServicePathBuilder createRsp(RspName rspName, boolean hasHops, boolean hasSfName,
