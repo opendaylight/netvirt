@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "349337c9_3d6a7aa5",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 154
+      },
+      "lineNbr": 914,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T16:15:32Z",
+      "side": 1,
+      "message": "Should this really be error? I\u0027d think warn at the most but more likely debug.",
+      "range": {
+        "startLine": 914,
+        "startChar": 16,
+        "endLine": 914,
+        "endChar": 21
+      },
+      "revId": "78f79d09bf140755cb7e30f3eb49a7328fe86f63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dcd2fd33_a9e81334",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 154
+      },
+      "lineNbr": 1635,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T16:15:32Z",
+      "side": 1,
+      "message": "Remove tabs.",
+      "revId": "78f79d09bf140755cb7e30f3eb49a7328fe86f63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ddf8803e_cacc148d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 154
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T16:15:32Z",
+      "side": 1,
+      "message": "I understand Josh\u0027s point but we really should be careful about what we emit as error. In my experience, end users tend to get worried when they see ERRORs in the log. Also it\u0027s been discussed to get to a point   where logged ERRORs can be flagged as CSIT failure. In order to do this we need to be sure emitted log ERRORs are truly serious enough to fail CSIT.  So could primaryRd be null just due to timing and not an actual error? My gut feeling with this one is to keep it as debug unless proven otherwise.",
+      "range": {
+        "startLine": 1601,
+        "startChar": 16,
+        "endLine": 1601,
+        "endChar": 21
+      },
+      "revId": "78f79d09bf140755cb7e30f3eb49a7328fe86f63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
