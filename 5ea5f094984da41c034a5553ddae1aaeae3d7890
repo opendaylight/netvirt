@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e636c9d4_6c4bc810",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/BatchedTransaction.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 28,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:06:09Z",
+      "side": 1,
+      "message": "This is deprecated - the correct annotation is SuppressFBWarnings. \n\nHowever since the DataBroker is no longer used, why not just remove it and change the call sites?",
+      "range": {
+        "startLine": 28,
+        "startChar": 37,
+        "endLine": 28,
+        "endChar": 53
+      },
+      "revId": "5ea5f094984da41c034a5553ddae1aaeae3d7890",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
