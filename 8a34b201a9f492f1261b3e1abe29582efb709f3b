@@ -265,6 +265,24 @@
     },
     {
       "key": {
+        "uuid": "a8d83c29_70132e6d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 2241,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:26:24Z",
+      "side": 1,
+      "message": "It would be better to introduce refactored code of this function in a separate patch, because actual code works well, please, see regression tests report here (07 vpn basic suite):\n\nhttps://logs.opendaylight.org/releng/vex-yul-odl-jenkins-1/netvirt-csit-1node-openstack-ocata-upstream-stateful-oxygen/822/log_full.html.gz#s1-s7\n\nWith separate patch, it will be easy to eliminate potential regressions and bugs",
+      "parentUuid": "6b8b01f2_01857d72",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a92cc2d_ce09f6b0",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
         "patchSetId": 153
