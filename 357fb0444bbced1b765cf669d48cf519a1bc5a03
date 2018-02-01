@@ -52,6 +52,24 @@
       "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b174d09d_20792687",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-02-01T22:47:22Z",
+      "side": 1,
+      "message": "Hi Josh, my reply above proposes change on how we select  the default router. This change is to address your comment regarding the shortcoming of selecting default router based on the adding router interface events. \n\nThe new proposal, addressing your comments, would select the default router if the router interface IP address is the same as the subnet\u0027s gateway\u0027s IP address. This way the routers and their associations can be derived from the API specifications (for subnets and routers)\n\nI will modify the spec if we are fine with the new proposal.",
+      "parentUuid": "6dce51aa_32426e56",
+      "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
