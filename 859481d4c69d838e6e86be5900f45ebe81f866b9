@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4d836a5f_ba1b2799",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 314,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-01T09:49:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ba4ced9_ac9fbb81",
+      "range": {
+        "startLine": 314,
+        "startChar": 48,
+        "endLine": 314,
+        "endChar": 50
+      },
+      "revId": "859481d4c69d838e6e86be5900f45ebe81f866b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "57a0c662_8dd27a20",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
         "patchSetId": 3
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "2f74d943_02fb8f91",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/HwvtepPhysicalSwitchListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 403,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-01T09:49:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57a0c662_8dd27a20",
+      "range": {
+        "startLine": 403,
+        "startChar": 12,
+        "endLine": 403,
+        "endChar": 25
+      },
+      "revId": "859481d4c69d838e6e86be5900f45ebe81f866b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5a1db766_231b9646",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
         "patchSetId": 3
@@ -59,6 +107,24 @@
       "writtenOn": "2018-01-25T18:45:31Z",
       "side": 1,
       "message": "Passing both ElanInstance and elanName seems redundant as elanName is extracted from the ElanInstance. Plus what if someone passed an ElanInstance that doesn\u0027t match the elanName. Also it now allows a null ElanInstance in which case it just does the DeleteL2GwDeviceMacsFromElanJob. I\u0027m not sure how/why there could be a valid elanName w/o an ElanInstance.\n\nI would suggest to keep this method as is except put the DeleteL2GwDeviceMacsFromElanJob code in a separate method that takes the elanName etc, which a caller would invoke if it doesn\u0027t have an ElanInstance.",
+      "revId": "859481d4c69d838e6e86be5900f45ebe81f866b9",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a00c9e8e_a31e7154",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 460,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-01T09:49:03Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a1db766_231b9646",
       "revId": "859481d4c69d838e6e86be5900f45ebe81f866b9",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
