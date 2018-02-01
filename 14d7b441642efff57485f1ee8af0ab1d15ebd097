@@ -1,0 +1,188 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "95927967_27779fcc",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "\"a list of ListenableFutures\"",
+      "range": {
+        "startLine": 425,
+        "startChar": 15,
+        "endLine": 425,
+        "endChar": 36
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fec15c0d_69d52156",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 461,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "\"failed\"",
+      "range": {
+        "startLine": 461,
+        "startChar": 47,
+        "endLine": 461,
+        "endChar": 52
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4c3da1fc_37865658",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 493,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "The read below is done async so where is this thrown from?",
+      "range": {
+        "startLine": 493,
+        "startChar": 19,
+        "endLine": 493,
+        "endChar": 38
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "faac7894_dced60bb",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 507,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "CheckedFuture is deprecated - reference ListenableFuture",
+      "range": {
+        "startLine": 507,
+        "startChar": 8,
+        "endLine": 507,
+        "endChar": 21
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3e179c36_76cab9fa",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 949,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "\"failed\" (sic).  Should say something like \"if a read fails\"",
+      "range": {
+        "startLine": 949,
+        "startChar": 35,
+        "endLine": 949,
+        "endChar": 65
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9aad7020_06f5d058",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 979,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "Why not use Collections.singletonList?",
+      "range": {
+        "startLine": 979,
+        "startChar": 15,
+        "endLine": 979,
+        "endChar": 33
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f382a768_54a66b6a",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 1032,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "See my previous comment about using the configurable delay.",
+      "range": {
+        "startLine": 1032,
+        "startChar": 55,
+        "endLine": 1032,
+        "endChar": 60
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "25140e3d_363b42da",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/StaleVlanBindingsCleaner.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 199,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-01T13:56:17Z",
+      "side": 1,
+      "message": "It\u0027s already a ListenableFuture so use ListenableFutures.",
+      "range": {
+        "startLine": 199,
+        "startChar": 8,
+        "endLine": 199,
+        "endChar": 18
+      },
+      "revId": "14d7b441642efff57485f1ee8af0ab1d15ebd097",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
