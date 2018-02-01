@@ -404,6 +404,24 @@
       "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6a5dc765_5532f5d0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 1627,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T18:49:39Z",
+      "side": 1,
+      "message": "\"but this code base is unfortunately already littered with blocking transactions\".  \n\nThat is right, and it\u0027s also right, that  writeTxn.merge() transaction to update VpnInstanceOpDataEntry.BgpvpnType (one attribute value) never will be long. And we won\u0027t never have 10K BGPVpns instances in a one moment.\n\nHonestly, I prefer to rewrite this method and any others in NeutronvpnUtils with jobCoordinator and managedNewTransactionRunner.callWithNewWriteOnlyTransactionAndSubmit() in a separate patch in a sake of debugging any potential problems.\n\nI\u0027ve added appropriate improvement in JIRA:\n\nhttps://jira.opendaylight.org/browse/NETVIRT-1075\n\nI\u0027m not sure, that with current use-cases it can provoke a real bug.",
+      "parentUuid": "549103ea_569943b9",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
