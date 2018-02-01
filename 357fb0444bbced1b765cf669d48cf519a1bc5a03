@@ -16,6 +16,24 @@
       "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cd6722f7_989b55be",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-02-01T01:38:47Z",
+      "side": 1,
+      "message": "The router is designated as default router for a subnet if the subnet\u0027s gateway ip address is the same as router interface ip address. The default router for a subnet could be changed when another chained router is promoted to default router. The promotion can happen in one of two scenarios below:\n\n1) The subnet\u0027s gateway ip address is updated to the to-be-promoted router\u0027s interface ip address, eg\n  openstack subnet set --gateway\u003drouter-ifc-ip subnet-id\n2) The default router is now dissociated with the subnet, eg \n  openstack router remove subnet/port\n\nFor scenario 2) after promoting new default router, user need to manually update the subnet\u0027s gateway ip address to interface ip of the promoted router.\n\nPlease let me know if the above is acceptable. Thanks",
+      "parentUuid": "c81c3f8b_39a56754",
+      "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
