@@ -111,8 +111,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             LOG.error("Port cannot be null for unbinding ACL service");
             return false;
         }
-        unbindService(port);
-        updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
+        if (port.getDpId() != null) {
+            unbindService(port);
+            updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
+        }
         return true;
     }
 
