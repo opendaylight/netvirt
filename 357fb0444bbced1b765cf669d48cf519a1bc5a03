@@ -34,6 +34,24 @@
       "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6dce51aa_32426e56",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-02-01T08:28:57Z",
+      "side": 1,
+      "message": "Wait, I understood this document to imply that there can be more than a single \"candidate\" for default router and that the default is selected based on the fact that the association with the subnet happened first. Is this not the case?\n\nJust wanted to clarify my question here. Upgrade basically works like this (simplified for the sake of this conversation):\n Step 1: shutdown ODL\n Step 2: wipe ODL mdsal cache files\n Step 3: bring up new version of ODL. At this point the mdsal data stores are empty\n Step 4: resync all neutron configuration via the ODL neutron NB API. \nCurrently, step 4 is handled using networking-odl\u0027s full sync functionality which reads all the neutron objects from the database and sends them via REST to ODL. Since the router\u003c-\u003esubnet association is just a port object there is no guarantee that the port objects will be pushed to ODL in the order they were created. So, if the order of the creation of the router\u003c-\u003esubnet association matters at all, it will break during an upgrade scenario.",
+      "parentUuid": "cd6722f7_989b55be",
+      "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
