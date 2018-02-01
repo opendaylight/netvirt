@@ -69,18 +69,21 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
     private final IMdsalApiManager mdsalManager;
     private final OdlInterfaceRpcService interfaceManager;
     private final FloatingIPHandler floatingIPHandler;
+    private final SNATDefaultRouteProgrammer defaultRouteProgrammer;
     private final JobCoordinator coordinator;
 
     @Inject
     public FloatingIPListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                               final OdlInterfaceRpcService interfaceManager,
                               final FloatingIPHandler floatingIPHandler,
+                              final SNATDefaultRouteProgrammer snatDefaultRouteProgrammer,
                               final JobCoordinator coordinator) {
         super(InternalToExternalPortMap.class, FloatingIPListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.interfaceManager = interfaceManager;
         this.floatingIPHandler = floatingIPHandler;
+        this.defaultRouteProgrammer = snatDefaultRouteProgrammer;
         this.coordinator = coordinator;
     }
 
@@ -469,6 +472,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                     + "for fixed ip {}", extNwId, mapping.getInternalIp());
             return;
         }
+        //Install the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
+        boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
+        if (!isSnatEnabled) {
+            addOrDelDefaultFibRouteForDnat(dataBroker, dpnId, routerName, routerId, writeFlowInvTx, true);
+        }
         //Create the DNAT and SNAT table entries
         createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId, writeFlowInvTx);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, extNwId, writeFlowInvTx);
@@ -499,6 +507,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             LOG.error("createNATFlowEntries : Unable to create SNAT table entry for fixed ip {}", internalIp);
             return;
         }
+        //Install the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
+        boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
+        if (!isSnatEnabled) {
+            addOrDelDefaultFibRouteForDnat(dataBroker, dpnId, routerName, routerId, writeFlowInvTx, true);
+        }
         //Create the DNAT and SNAT table entries
         createDNATTblEntry(dpnId, mapping, routerId, vpnId, associatedVpnId, writeFlowInvTx);
         createSNATTblEntry(dpnId, mapping, vpnId, routerId, associatedVpnId, externalNetworkId, writeFlowInvTx);
@@ -524,6 +537,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         if (vpnId < 0) {
             LOG.error("createNATOnlyFlowEntries : Unable to create SNAT table entry for fixed ip {}", internalIp);
             return;
+        }
+        //Install the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
+        boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
+        if (!isSnatEnabled) {
+            addOrDelDefaultFibRouteForDnat(dataBroker, dpnId, routerName, routerId, null, true);
         }
         //Create the DNAT and SNAT table entries
         FlowEntity preFlowEntity = buildPreDNATFlowEntity(dpnId, mapping, routerId, associatedVpnId);
@@ -581,6 +599,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
             return;
         }
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, removeFlowInvTx);
+        //Remove the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
+        boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
+        if (!isSnatEnabled) {
+            addOrDelDefaultFibRouteForDnat(dataBroker, dpnId, routerName, routerId, removeFlowInvTx, false);
+        }
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, extNwId);
         if (provType == null) {
             LOG.error("removeNATFlowEntries : External Network Provider Type missing");
@@ -623,6 +646,11 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
         //Delete the DNAT and SNAT table entries
         removeDNATTblEntry(dpnId, internalIp, externalIp, routerId, removeFlowInvTx);
         removeSNATTblEntry(dpnId, internalIp, externalIp, routerId, vpnId, removeFlowInvTx);
+        //Remove the DNAT default FIB flow L3_FIB_TABLE (21) -> PSNAT_TABLE (26) if SNAT is disabled
+        boolean isSnatEnabled = NatUtil.isSnatEnabledForRouterId(dataBroker, routerName);
+        if (!isSnatEnabled) {
+            addOrDelDefaultFibRouteForDnat(dataBroker, dpnId, routerName, routerId, removeFlowInvTx, false);
+        }
         Uuid externalNetworkId = NatUtil.getNetworkIdFromRouterName(dataBroker,routerName);
         ProviderTypes provType = NatEvpnUtil.getExtNwProvTypeFromRouterName(dataBroker, routerName, externalNetworkId);
         if (provType == null) {
@@ -740,5 +768,45 @@ public class FloatingIPListener extends AsyncDataTreeChangeListenerBase<Internal
                 NwConstants.COOKIE_DNAT_TABLE, null, null);
 
         return flowEntity;
+    }
+
+    private void addOrDelDefaultFibRouteForDnat(DataBroker dataBroker, BigInteger dpnId,
+                                                String routerName, long routerId, WriteTransaction tx,
+                                                boolean create) {
+        Boolean wrTxPresent = true;
+        if (tx == null) {
+            wrTxPresent = false;
+            tx = dataBroker.newWriteOnlyTransaction();
+        }
+        //Check if the router to bgp-vpn association is present
+        long associatedVpnId = NatConstants.INVALID_ID;
+        Uuid associatedVpn = NatUtil.getVpnForRouter(dataBroker, routerName);
+        if (associatedVpn != null) {
+            associatedVpnId = NatUtil.getVpnId(dataBroker, associatedVpn.getValue());
+        }
+        if (create) {
+            if (associatedVpnId != NatConstants.INVALID_ID) {
+                LOG.debug("addOrDelDefaultFibRouteForDnat: Install NAT default route on DPN {} for the router {} with "
+                        + "vpn-id {}", dpnId, routerName, associatedVpnId);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, associatedVpnId, routerId, tx);
+            } else {
+                LOG.debug("addOrDelDefaultFibRouteForDnat: Install NAT default route on DPN {} for the router {} with "
+                        + "vpn-id {}", dpnId, routerName, routerId);
+                defaultRouteProgrammer.installDefNATRouteInDPN(dpnId, routerId, tx);
+            }
+        } else {
+            if (associatedVpnId != NatConstants.INVALID_ID) {
+                LOG.debug("addOrDelDefaultFibRouteForDnat: Remove NAT default route on DPN {} for the router {} "
+                        + "with vpn-id {}", dpnId, routerName, associatedVpnId);
+                defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, associatedVpnId, routerId, tx);
+            } else {
+                LOG.debug("addOrDelDefaultFibRouteForDnat: Remove NAT default route on DPN {} for the router {} "
+                        + "with vpn-id {}", dpnId, routerName, routerId);
+                defaultRouteProgrammer.removeDefNATRouteInDPN(dpnId, routerId, tx);
+            }
+        }
+        if (!wrTxPresent) {
+            tx.submit();
+        }
     }
 }
