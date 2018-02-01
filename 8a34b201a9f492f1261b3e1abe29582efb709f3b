@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5c0c42f9_d029f1dc",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 911,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:21:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "bfb0fa16_c9bf62d1",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "f3adde9a_23d5a140",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 153
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-28T13:21:28Z",
       "side": 1,
       "message": "Since if this is false shouldn\u0027t this check come first in the function? Maybe start with:\nif (vpnId \u003d\u003d null) {\n    return true;\n}",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "722ebaff_702ea99f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 922,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:21:11Z",
+      "side": 1,
+      "message": "At a glance, it seems logical. \n\nBut even if vpnId hasn\u0027t any references (so we already don\u0027t have a VPN), we should to create \"delete\" transaction for given infName and submit it. \n\nIt seems, that we can have the situation, when we already don\u0027t have a VpnInstance, but we can probably have have its interfaces in Config DataStore and we should clean them. \n\nSo at first, we check, that we really can obtain VpnInterface instance from ConfigDS for given infName, if we can\u0027t or object isn\u0027t presented we return False. And than if we don\u0027t have a corresponding VPN instance, we just create an appropriate \"delete\" transaction and submit it.\n\nIf there is VpnInstance presented, we need to withdraw removing interface and make some updates in VpnInstance.\n\nHope, it becomes more clear.",
+      "parentUuid": "f3adde9a_23d5a140",
       "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "a9065d55_923ac60d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 930,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:21:11Z",
+      "side": 1,
+      "message": "VpnHelper.removeVpnInterfaceVpnInstanceNamesFromList(vpnId, vpnList);\n\nFinally triggers an update of VpnInterface and VPNInstance objects \u003d\u003e changes in DataStore \u003d\u003e other listeners calls, so it is worthy to call wrtConfigTxn.submit(), I suppose",
+      "parentUuid": "9a2dd2ac_6844a076",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cb9f5f36_beeef817",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 153
@@ -64,6 +118,24 @@
       "writtenOn": "2018-01-28T13:21:28Z",
       "side": 1,
       "message": "Also, shouldn\u0027t this message just be \"not deleting vpninterface?\" There is no \"delayed\" delete triggered here.",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "84404a86_28cf48d8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 932,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:21:11Z",
+      "side": 1,
+      "message": "\"delayed\" delete can be triggered asynchronously by another listener class to address changes in VpnInstance (we withdraw one of interfaces) and VpnInterface, hence, changes in DataStore.\nSo we emit log message and exit with false.",
+      "parentUuid": "cb9f5f36_beeef817",
       "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -105,6 +177,24 @@
     },
     {
       "key": {
+        "uuid": "dd2ed779_f6784ff1",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 960,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:21:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7683a8eb_7620b665",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9cf56cd0_aa07f27e",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 153
@@ -116,6 +206,24 @@
       "writtenOn": "2018-01-29T12:33:54Z",
       "side": 1,
       "message": "according to the check on line 1585, sn can be null.",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6313e585_e20291cb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 1602,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:21:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9cf56cd0_aa07f27e",
       "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -150,6 +258,24 @@
       "writtenOn": "2018-01-29T12:33:54Z",
       "side": 1,
       "message": "I\u0027m not quite sure on this but these look to me like unintended outcomes and should be logged at somethign more than debug. The \"already set\" one makes sense as debug but this one?",
+      "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9e8040fc_e45ca963",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 153
+      },
+      "lineNbr": 1601,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-01T15:21:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5a92cc2d_ce09f6b0",
       "revId": "8a34b201a9f492f1261b3e1abe29582efb709f3b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
