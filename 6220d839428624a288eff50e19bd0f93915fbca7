@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "7c24ce85_8bfd937c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 77
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-02T13:12:05Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba5243dd_50f870db",
+      "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dde49a76_e787316a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 77
@@ -66,6 +84,24 @@
       "side": 1,
       "message": "you are right. \nthe submit is done in the calling functions.\nI think this code ( 2619 to 2621 ) is never accessed.\n\nEither we remove this block, or we display an error and we return.",
       "parentUuid": "dde49a76_e787316a",
+      "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a28e9a4c_141e0369",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 77
+      },
+      "lineNbr": 2619,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-02T13:12:05Z",
+      "side": 1,
+      "message": "You just need to call wrtConfigTxn.submit().get()\n\nWe always call updateVpnInterfaceWithAdjacencies with a reference to already existed wrtConfigTxn, that is why it works\n\nI\u0027ve added a JIRA issue, because it is not the last place of code, where you can see this reference check of wrtConfigTxn and transactions, which potentially will never be submitted.\n\n\nhttps://jira.opendaylight.org/browse/NETVIRT-1077",
+      "parentUuid": "22f1ff32_e8d2ea15",
       "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
