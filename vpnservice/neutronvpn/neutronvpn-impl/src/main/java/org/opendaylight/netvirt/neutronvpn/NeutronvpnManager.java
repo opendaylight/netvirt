@@ -2225,116 +2225,95 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
     }
 
+
     @Nonnull
     protected List<String> associateNetworksToVpn(Uuid vpn, List<Uuid> networks) {
         List<String> failedNwList = new ArrayList<>();
         List<Uuid> passedNwList = new ArrayList<>();
-        if (!networks.isEmpty()) {
-            VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpn.getValue());
-            if (vpnInstance == null) {
-                LOG.error("VPN %s not present when associating network to it", vpn.getValue());
-                failedNwList.add(String.format("Failed to associate network on vpn %s as vpn is not present",
-                        vpn.getValue()));
-                return failedNwList;
+        if (networks.isEmpty()) {
+           return failedNwList;
+        }
+        VpnInstance vpnInstance = VpnHelper.getVpnInstance(dataBroker, vpn.getValue());
+        if (vpnInstance == null) {
+            LOG.error("associateNetworksToVpn: L3BGP VPN %s not present when associating network to it", vpn.getValue());
+            failedNwList.add(String.format("Failed to associate network on vpn %s as vpn is not present",
+                    vpn.getValue()));
+            return failedNwList;
+        }
+        if (isVpnOfTypeL2(vpnInstance) && neutronEvpnUtils.isVpnAssociatedWithNetwork(vpnInstance)) {
+            LOG.error("associateNetworksToVpn: EVPN supports only one network to be associated");
+            failedNwList.add("EVPN supports only one network to be associated");
+            return failedNwList;
+        }
+        // process corresponding subnets for VPN
+        for (Uuid nw : networks) {
+            Network network = neutronvpnUtils.getNeutronNetwork(nw);
+            if (network == null) {
+                failedNwList.add(String.format("network %s not found", nw.getValue()));
+                continue;
             }
-            // process corresponding subnets for VPN
-            for (Uuid nw : networks) {
-                Network network = neutronvpnUtils.getNeutronNetwork(nw);
-                if (network == null) {
-                    failedNwList.add(String.format("network %s not found", nw.getValue()));
+            NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
+            if (providerExtension.getSegments() != null && providerExtension.getSegments().size() > 1) {
+                LOG.error("associateNetworksToVpn: MultiSegmented network {} not supported in VPN {}", nw.getValue(),
+                          vpn.getValue());
+                failedNwList.add(String.format("failed to associate network %s on vpn %s as it is multisegmented.",
+                                 nw.getValue(), vpn.getValue()));
+                continue;
+            }
+            try {
+                Uuid vpnId = neutronvpnUtils.getVpnForNetwork(nw);
+                if (vpnId != null) {
+                    failedNwList.add(String.format("network %s already associated to another Internet VPN %s", nw.getValue(),
+                            vpnId.getValue()));
                     continue;
                 }
-
-                NetworkProviderExtension providerExtension = network.getAugmentation(NetworkProviderExtension.class);
-                if (providerExtension.getSegments() != null && providerExtension.getSegments().size() > 1) {
-                    LOG.error("MultiSegmented networks not supported in VPN. Failed to associate network {} on vpn {}",
-                            nw.getValue(), vpn.getValue());
-                    failedNwList.add(String.format("Failed to associate network %s on vpn %s as it is multisegmented.",
-                            nw.getValue(), vpn.getValue()));
+                if (neutronvpnUtils.getIsExternal(network)) {
+                    List<String> failed = associateExternalNetToVpn(vpn, network);
                     continue;
                 }
-                try {
-                    Uuid vpnId = neutronvpnUtils.getVpnForNetwork(nw);
-                    if (vpnId != null) {
-                        failedNwList.add(String.format("network %s already associated to another VPN %s", nw.getValue(),
-                                vpnId.getValue()));
-                    } else if (isVpnOfTypeL2(vpnInstance)
-                            && neutronEvpnUtils.isVpnAssociatedWithNetwork(vpnInstance)) {
-                        LOG.error("EVPN supports only one network to be associated");
-                        failedNwList.add("EVPN supports only one network to be associated");
-                    } else {
-                        List<Uuid> networkSubnets = neutronvpnUtils.getSubnetIdsFromNetworkId(nw);
-                        LOG.debug("Adding network subnets...{}", networkSubnets);
-                        if (networkSubnets != null) {
-                            for (Uuid subnet : networkSubnets) {
-                                // check if subnet added as router interface to some router
-                                Uuid subnetVpnId = neutronvpnUtils.getVpnForSubnet(subnet);
-                                if (subnetVpnId == null) {
-                                    Subnetmap sn = neutronvpnUtils.getSubnetmap(subnet);
-                                    if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sn, vpn)) {
-                                        neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
-                                                NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
-                                    }
-                                    if (sn != null && sn.getInternetVpnId() != null) {
-                                        if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sn,
-                                                            sn.getInternetVpnId())) {
-                                            neutronvpnUtils.updateVpnInstanceWithIpFamily(sn
-                                                            .getInternetVpnId().getValue(),
-                                                   neutronvpnUtils.getIpVersionFromString(sn
-                                                            .getSubnetIp()), true);
-                                            neutronvpnUtils.updateVpnInstanceWithFallback(
-                                                          sn.getInternetVpnId().getValue(), true);
-                                        }
-                                    }
-                                    addSubnetToVpn(vpn, subnet, sn != null ? sn.getInternetVpnId() : null);
-                                    passedNwList.add(nw);
-                                } else {
-                                    failedNwList.add(
-                                            String.format("subnet %s already added as router interface bound to "
-                                                            + "internal/external VPN %s", subnet.getValue(),
-                                                    subnetVpnId.getValue()));
-                                }
-                            }
-                        }
-                        if (neutronvpnUtils.getIsExternal(network)) {
-                            VpnMap vpnMap = neutronvpnUtils.getVpnMap(vpn);
-                            if (vpnMap == null) {
-                                LOG.error("associateNetworksToVpn: external network assoc to vpnId {}"
-                                            + ", vpnMap not found", vpn.getValue());
-                                return failedNwList;
-                            }
-                            addExternalNetworkToVpn(network, vpn);
-                            neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry
-                                                    .BgpvpnType.BGPVPNInternet, vpn);
-                            List<Subnetmap> smList = neutronvpnUtils.getSubnetMapsforNetworkRoute(network);
-                            if (!smList.isEmpty()) {
-                                LOG.debug("Adding IPv6 subnetworks {}, because network is external", smList);
-                                for (Subnetmap sm : smList) {
-                                    IpVersionChoice ipVers = NeutronvpnUtils
-                                         .getIpVersionFromString(sm.getSubnetIp());
-                                    if (ipVers == IpVersionChoice.IPV6) {
-                                        updateVpnInternetForSubnet(sm, vpn, true);
-                                        if (neutronvpnUtils.shouldVpnHandleIpVersionChangeToAdd(sm, vpn)) {
-                                            neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
-                                                    neutronvpnUtils.getIpVersionFromString(sm.getSubnetIp()), true);
-                                            neutronvpnUtils.updateVpnInstanceWithFallback(vpn.getValue(),
-                                                    true);
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        if (networkSubnets == null) {
-                            passedNwList.add(nw);
+                
+                List<Uuid> subnets = neutronvpnUtils.getSubnetIdsFromNetworkId(nw);
+                if (subnets == null) {
+                    passedNwList.add(nw);
+                    continue;
+                }
+                LOG.debug("associateNetworksToVpn: Adding subnets...{}", subnets);
+                for (Uuid subnet : subnets) {
+                    // check if subnet added as router interface to some router
+                    Uuid subnetVpnId = neutronvpnUtils.getVpnForSubnet(subnet);
+                    if (subnetVpnId != null) {
+                        failedNwList.add(String.format("subnet %s already added as router interface bound to "
+                                                + "internal VPN %s", subnet.getValue(), subnetVpnId.getValue()));
+                        continue;
+                    }
+                    if (neutronvpnUtils.isVpnIpFamilyChanged(neutronvpnUtils.getSubnetmap(subnet), vpn)) {
+                        neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
+                        	NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp()), true);
+                    }
+                    // private 
+                    if (sn.getInternetVpnId() != null) {
+                	if (neutronvpnUtils.isVpnIpFamilyChanged(sn, sn.getInternetVpnId())) {
+                                neutronvpnUtils.updateVpnInstanceWithIpFamily(sn
+                                                .getInternetVpnId().getValue(),
+                                       neutronvpnUtils.getIpVersionFromString(sn
+                                                .getSubnetIp()), true);
+                                neutronvpnUtils.updateVpnInstanceWithFallback(
+                                              sn.getInternetVpnId().getValue(), true);
                         }
                     }
-                } catch (ReadFailedException e) {
-                    LOG.error("Error determining whether {} is associated", vpnInstance, e);
-                    failedNwList.add("Error determining whether VPN " + vpn.getValue() + " is associated");
+                    
+                	}
                 }
+                    addSubnetToVpn(vpn, subnet, sn != null ? sn.getInternetVpnId() : null);
+                    passedNwList.add(nw);
+                }
+
+            } catch (ReadFailedException e) {
+                LOG.error("Error determining whether {} is associated", vpnInstance, e);
+                failedNwList.add("Error determining whether VPN " + vpn.getValue() + " is associated");
             }
-            updateVpnMaps(vpn, null, null, null, passedNwList);
         }
+        updateVpnMaps(vpn, null, null, null, passedNwList);
         return failedNwList;
     }
 
@@ -2427,6 +2406,31 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return failedNwList;
     }
 
+    @Nonnull
+    protected List<String> associateProviderNetToVpn(Uuid vpn, List<Uuid> networks) {
+        addExternalNetworkToVpn(nw, vpn);
+        neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNInternet, vpn);
+        List<Subnetmap> smList = neutronvpnUtils.getSubnetMapsforNetworkRoute(nw);
+        if (!smList.isEmpty()) {
+            LOG.debug("Adding IPv6 subnetworks {}, because network is external", smList);
+            for (Subnetmap sm : smList) {
+                IpVersionChoice ipVers = NeutronvpnUtils
+                     .getIpVersionFromString(sm.getSubnetIp());
+                if (ipVers == IpVersionChoice.IPV6) {
+                    updateVpnInternetForSubnet(sm, vpn, true);
+                    if (neutronvpnUtils.isVpnIpFamilyChanged(sm, vpn)) {
+                        neutronvpnUtils.updateVpnInstanceWithIpFamily(vpn.getValue(),
+                                neutronvpnUtils.getIpVersionFromString(sm.getSubnetIp()), true);
+                        neutronvpnUtils.updateVpnInstanceWithFallback(vpn.getValue(),
+                                true);
+                    }
+                }
+            }
+        }
+    }
+    
+    
+    
     /**
      * It handles the invocations to the neutronvpn:associateNetworks RPC method.
      */
@@ -2445,6 +2449,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
             if (neutronvpnUtils.getVpnMap(vpnId) != null) {
                 List<Uuid> netIds = input.getNetworkId();
                 if (netIds != null && !netIds.isEmpty()) {
+                    for (Uuid netId: netIds) {
+                	
+                    }
                     List<String> failed = associateNetworksToVpn(vpnId, netIds);
                     if (!failed.isEmpty()) {
                         returnMsg.append(failed);
@@ -3033,10 +3040,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         return neutronEvpnManager.deleteEVPN(input);
     }
 
+    
+
     public void addExternalNetworkToVpn(Network network, Uuid vpnId) {
         Uuid extNetId = network.getUuid();
-
-        // Create and add Networks object for this External Network to the ExternalNetworks list
         InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
             .child(Networks.class, new NetworksKey(extNetId)).build();
 
@@ -3053,11 +3060,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 return;
             }
             builder.setVpnid(vpnId);
-            Networks networkss = builder.build();
+            Networks networks = builder.build();
             // Add Networks object to the ExternalNetworks list
-            LOG.trace("Setting VPN-ID for externalnetworks {}", networkss);
+            LOG.trace("Setting VPN-ID for externalnetworks {}", networks);
             SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, netsIdentifier,
-                    networkss);
+                    networks);
             LOG.trace("Wrote with VPN-ID successfully to CONFIG Datastore");
 
         } catch (TransactionCommitFailedException | ReadFailedException ex) {

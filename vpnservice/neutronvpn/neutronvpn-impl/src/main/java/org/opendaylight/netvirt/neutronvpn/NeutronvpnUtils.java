@@ -1390,36 +1390,32 @@ public class NeutronvpnUtils {
         return vpnInstanceOpDataEntryOptional.get();
     }
 
-    public boolean shouldVpnHandleIpVersionChangeToAdd(Subnetmap sm, Uuid vpnId) {
-        if (sm == null) {
-            return false;
-        }
-        IpVersionChoice ipVersion = getIpVersionFromString(sm.getSubnetIp());
-        return shouldVpnHandleIpVersionChoiceChangeToAdd(ipVersion, vpnId);
-    }
-
-    public boolean shouldVpnHandleIpVersionChoiceChangeToAdd(IpVersionChoice ipVersion, Uuid vpnId) {
+    public boolean isVpnIpFamilyChanged(Subnetmap sm, Uuid vpnId) {
+	if (sm == null) {
+	    return false;
+	}
+	IpVersionChoice ipVersion = getIpVersionFromString(sm.getSubnetIp());
         VpnInstanceOpDataEntry vpnInstanceOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(vpnId.getValue());
         if (vpnInstanceOpDataEntry == null) {
             return false;
         }
         if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
-            LOG.error("shouldVpnHandleIpVersionChangeToAdd: "
+            LOG.error("isVpnIpFamilyChanged: "
                     + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnId.getValue());
             return false;
         }
         boolean isIpv4Configured = vpnInstanceOpDataEntry.isIpv4Configured();
-        boolean isVpnInstanceIpv4Changed = false;
+        boolean isVpnIpv4Withdrawed = false;
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && isIpv4Configured == false) {
-            isVpnInstanceIpv4Changed = true;
+            isVpnIpv4Withdrawed = true;
         }
         boolean isIpv6Configured = vpnInstanceOpDataEntry.isIpv6Configured();
-        boolean isVpnInstanceIpv6Changed = false;
+        boolean isVpnIpv6Withdrawed = false;
         if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && isIpv6Configured == false) {
-            isVpnInstanceIpv6Changed = true;
+            isVpnIpv6Withdrawed = true;
         }
-        if (isVpnInstanceIpv4Changed == false && isVpnInstanceIpv6Changed == false) {
-            LOG.debug("shouldVpnHandleIpVersionChangeToAdd: VPN {} did not change with IpFamily {}",
+        if (isVpnIpv4Withdrawed == false && isVpnIpv6Withdrawed == false) {
+            LOG.debug("isVpnIpFamilyChanged: VPN {} did not change with IpFamily {}",
                   vpnId.getValue(), ipVersion.toString());
             return false;
         }
