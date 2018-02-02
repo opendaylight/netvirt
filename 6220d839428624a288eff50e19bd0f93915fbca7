@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "ba5243dd_50f870db",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 77
+      },
+      "lineNbr": 545,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-02T11:10:04Z",
+      "side": 1,
+      "message": "That means that if there is at least one old VPN programmed on this port, we proceed with the VPN  interface deletion, whatever the number of VPN attached to that port.",
+      "parentUuid": "2fb271ec_75cc42ac",
+      "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dde49a76_e787316a",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 77
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-28T11:11:44Z",
       "side": 1,
       "message": "I know this is not your code but this is wrong. The transaction would never be submitted.",
+      "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22f1ff32_e8d2ea15",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 77
+      },
+      "lineNbr": 2619,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-02T11:10:04Z",
+      "side": 1,
+      "message": "you are right. \nthe submit is done in the calling functions.\nI think this code ( 2619 to 2621 ) is never accessed.\n\nEither we remove this block, or we display an error and we return.",
+      "parentUuid": "dde49a76_e787316a",
       "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
