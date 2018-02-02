@@ -105,6 +105,24 @@
       "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "50230daa_ab72539b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 77
+      },
+      "lineNbr": 2619,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-02T17:54:56Z",
+      "side": 1,
+      "message": "https://jira.opendaylight.org/browse/NETVIRT-1077",
+      "parentUuid": "22f1ff32_e8d2ea15",
+      "revId": "6220d839428624a288eff50e19bd0f93915fbca7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
