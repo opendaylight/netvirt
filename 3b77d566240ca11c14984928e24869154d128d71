@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "bff4e769_94bba648",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 197,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "Yes, this is desired behavior. AclDispatcherTable needs to be updated in case of any addition/deletion of SGs.",
+      "parentUuid": "b92269c8_b401e784",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c91b5c9b_69106b43",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
         "patchSetId": 22
@@ -30,6 +48,24 @@
       "writtenOn": "2018-01-30T08:16:26Z",
       "side": 1,
       "message": "I think we  should be always reprogramming the dispatcher table for the SG update. When a new SG with remote sg rule is added we need to remove the existing drop rule of the dispatcher. Now this happens only if we remove and add an SG, but not when we add an additional SG.",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06a4e6d0_1ceaa882",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 209,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "It\u0027s already reprogramming the dispatcher table for SG updates. \nRegarding drop rule issue in dispatcher table, I had observed it earlier but with latest patch in part-II, I am not observing this issue. I will keep this issue under observation.",
+      "parentUuid": "c91b5c9b_69106b43",
       "revId": "3b77d566240ca11c14984928e24869154d128d71",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "e28d01d0_9b659089",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "Renamed to programAntiSpoofingRules",
+      "parentUuid": "545f7de7_5d774a11",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "faa0c81d_14557db7",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceImplFactory.java",
         "patchSetId": 22
@@ -64,6 +118,24 @@
       "writtenOn": "2018-01-30T08:16:26Z",
       "side": 1,
       "message": "I think it will be better to name this IngressAclServiceImpl.",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "18538920_a1fedde5",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AclServiceImplFactory.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "faa0c81d_14557db7",
       "revId": "3b77d566240ca11c14984928e24869154d128d71",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "95ac2aef_e3d14dae",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulEgressAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "8c3f17d2_5acb56ca",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "161626ab_1b265fea",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
         "patchSetId": 22
@@ -98,6 +188,24 @@
       "writtenOn": "2018-01-25T13:50:01Z",
       "side": 1,
       "message": "I understand that the whole ingress/egress switch/vm thing. However, in this function you use both EGRESS_ACL_SERVICE_NAME and \"ingressacl\" on literally the next line. I think it would be more readable if that were consistent.\nAlso, the \"mirror image\" of EGRESS_ACL_SERVICE used in StatefulEgressAclServiceImpl is simply ACL_SERVICE. Perhaps it is worth making it more mirrored, \"INGRESS_ACL_SERVICE\". Overall, it would be better to try for consistency wrt these terms.",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19cfbac2_e4638b0e",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 90,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "Done. Incorporated in part-II patch.",
+      "parentUuid": "161626ab_1b265fea",
       "revId": "3b77d566240ca11c14984928e24869154d128d71",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "fe209ae8_a9428ebf",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/StatefulIngressAclServiceImpl.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 129,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "These are independent on SG rules hence it was termed as general fixed rules.",
+      "parentUuid": "374ed4e2_91de0dee",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3bdcd348_d6e17218",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
         "patchSetId": 22
@@ -138,6 +264,24 @@
     },
     {
       "key": {
+        "uuid": "6c85aa9b_6ebdd1a3",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "ParentRef changes will also trigger interface state events.\nAll the corresponding events have been handled in AclInterfaceStateListener.",
+      "parentUuid": "3bdcd348_d6e17218",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dca7d62f_c4b35882",
         "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
         "patchSetId": 22
@@ -149,6 +293,24 @@
       "writtenOn": "2018-01-25T13:50:01Z",
       "side": 1,
       "message": "This may break upgrade but I\u0027m pretty sure it will not. If the interfaces/interface exists before the switch connects there will be no interface state. If a null value here will cause issues than this case needs to be handled. However, it seems that (a) this is in update which is unlikely to occur as part of the upgrade flow and (b) it was in the code previously and did not cause issues in my testing, probably because of (a).",
+      "revId": "3b77d566240ca11c14984928e24869154d128d71",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e68d7e4_21c2d6df",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 103,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-02T12:42:30Z",
+      "side": 1,
+      "message": "Null case has been handled, there should not be any issues.",
+      "parentUuid": "dca7d62f_c4b35882",
       "revId": "3b77d566240ca11c14984928e24869154d128d71",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
