@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "06c92504_358c5907",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1798308c_f0874947",
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "3fe084e1_2103b44f",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
         "patchSetId": 4
@@ -30,6 +48,30 @@
       "writtenOn": "2018-02-01T13:31:25Z",
       "side": 1,
       "message": "CheckedFuture is deprecated - reference ListenableFuture",
+      "range": {
+        "startLine": 152,
+        "startChar": 12,
+        "endLine": 152,
+        "endChar": 25
+      },
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e595109f_1d0f87ca",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/L2GatewayConnectionListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 152,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3fe084e1_2103b44f",
       "range": {
         "startLine": 152,
         "startChar": 12,
@@ -59,6 +101,24 @@
     },
     {
       "key": {
+        "uuid": "f0d18c24_72eb447f",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 445,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b970a2cf_2bceb420",
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "77a8f3c8_24235c7b",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
         "patchSetId": 4
@@ -82,6 +142,30 @@
     },
     {
       "key": {
+        "uuid": "228dddc9_59dc3b64",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 446,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "77a8f3c8_24235c7b",
+      "range": {
+        "startLine": 446,
+        "startChar": 37,
+        "endLine": 446,
+        "endChar": 43
+      },
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ba17ee46_10eb099a",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
         "patchSetId": 4
@@ -93,6 +177,30 @@
       "writtenOn": "2018-02-01T13:31:25Z",
       "side": 1,
       "message": "\"failed\" (sic).  Should say something like \"if a read fails\"",
+      "range": {
+        "startLine": 481,
+        "startChar": 47,
+        "endLine": 481,
+        "endChar": 52
+      },
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0fbba60d_05edd759",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 481,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ba17ee46_10eb099a",
       "range": {
         "startLine": 481,
         "startChar": 47,
@@ -151,6 +259,30 @@
     },
     {
       "key": {
+        "uuid": "e9cf3f50_b280c2e9",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 527,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6cf7b030_895566ea",
+      "range": {
+        "startLine": 527,
+        "startChar": 8,
+        "endLine": 527,
+        "endChar": 21
+      },
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "410ec3a1_588c6b39",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
         "patchSetId": 4
@@ -162,6 +294,24 @@
       "writtenOn": "2018-02-01T13:31:25Z",
       "side": 1,
       "message": "We always return empty now - why not make the return type void?",
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "275addd6_3fc084b3",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 985,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "410ec3a1_588c6b39",
       "revId": "730c79586297532d692ef2eae810696fd271a423",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -191,6 +341,30 @@
     },
     {
       "key": {
+        "uuid": "a425e899_7bb234ae",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1081,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "42d84cbc_3e2045a3",
+      "range": {
+        "startLine": 1081,
+        "startChar": 11,
+        "endLine": 1081,
+        "endChar": 15
+      },
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e35d2f5e_cbbd12ba",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
         "patchSetId": 4
@@ -202,6 +376,30 @@
       "writtenOn": "2018-02-01T13:31:25Z",
       "side": 1,
       "message": "Move this after the short-circuit return block so a useless object isn\u0027t created.",
+      "range": {
+        "startLine": 1082,
+        "startChar": 24,
+        "endLine": 1082,
+        "endChar": 28
+      },
+      "revId": "730c79586297532d692ef2eae810696fd271a423",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "184b8255_bdde2732",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayUtils.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 1082,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-05T07:25:06Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e35d2f5e_cbbd12ba",
       "range": {
         "startLine": 1082,
         "startChar": 24,
