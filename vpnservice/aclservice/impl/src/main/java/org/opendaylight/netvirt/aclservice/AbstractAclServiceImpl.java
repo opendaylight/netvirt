@@ -175,7 +175,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         // with SG2 (which has ACE with remote SG1). Now When we add SG3 to Interface1, the rule for Interface2 which
         // match the IP of Interface1 will not be installed (but it have to be because Interface1 has more than one SG).
         // So we need to remove all rules and install them from 0, and we cannot handle only the delta.
-        updateCustomRules(portBefore, portBefore.getSecurityGroups(), NwConstants.MOD_FLOW,
+        updateCustomRules(portBefore, portBefore.getSecurityGroups(), NwConstants.DEL_FLOW,
                 portAfter.getAllowedAddressPairs());
         updateRemoteAclFilterTable(portBefore, NwConstants.DEL_FLOW);
 
@@ -268,7 +268,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         if (!port.isPortSecurityEnabled() || port.getDpId() == null) {
             return false;
         }
-        programAceRule(port, NwConstants.MOD_FLOW, aclName, ace, null);
+        programAceRule(port, NwConstants.DEL_FLOW, aclName, ace, null);
         updateRemoteAclFilterTable(port, NwConstants.DEL_FLOW);
         return true;
     }
@@ -637,7 +637,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      */
     protected int getAclFlowPriority(String poolName, String flowName, int addOrRemove) {
         int priority;
-        if (addOrRemove == NwConstants.DEL_FLOW || addOrRemove == NwConstants.MOD_FLOW) {
+        if (addOrRemove == NwConstants.DEL_FLOW) {
             priority = aclServiceUtils.releaseAndRemoveFlowPriorityFromCache(poolName, flowName);
         } else {
             priority = aclServiceUtils.allocateAndSaveFlowPriorityInCache(poolName, flowName);
