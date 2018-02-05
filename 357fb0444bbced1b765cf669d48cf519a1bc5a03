@@ -70,6 +70,24 @@
       "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ee93311_f6ec1d55",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5357
+      },
+      "writtenOn": "2018-02-05T14:13:57Z",
+      "side": 1,
+      "message": "Yes, that sounds good. Thanks for clarifying.",
+      "parentUuid": "b174d09d_20792687",
+      "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
