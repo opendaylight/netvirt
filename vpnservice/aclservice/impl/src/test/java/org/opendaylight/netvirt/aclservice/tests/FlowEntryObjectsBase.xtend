@@ -191,7 +191,7 @@ class FlowEntryObjectsBase {
                 hardTimeOut = 0
                 idleTimeOut = 0
                 instructionInfoList = #[
-                    new InstructionGotoTable(NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE as short)
+                    new InstructionGotoTable(242 as short)
                 ]
                 matchInfoList = #[
                     new MatchEthernetDestination(new MacAddress("ff:ff:ff:ff:ff:ff")),
@@ -202,7 +202,7 @@ class FlowEntryObjectsBase {
                 priority = 61010
                 sendFlowRemFlag = false
                 strictFlag = false
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = 241 as short
             ]
         ]
     }
