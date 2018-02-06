@@ -88,6 +88,24 @@
       "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6675286f_6c4156ca",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 13
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-02-06T02:00:04Z",
+      "side": 1,
+      "message": "Thanks Josh, I pushed another patch with the update",
+      "parentUuid": "6ee93311_f6ec1d55",
+      "revId": "357fb0444bbced1b765cf669d48cf519a1bc5a03",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
