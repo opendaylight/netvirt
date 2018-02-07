@@ -553,6 +553,23 @@
     },
     {
       "key": {
+        "uuid": "f582988e_b3b52606",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-02-07T03:43:01Z",
+      "side": 1,
+      "message": "This will not work. All the VMs will be configured with the deleted router\u0027s IP as the gateway IP. If you promote a different router as \"default router\" without telling the VMs, then ARP cannot be resolved for the deleted router\u0027s IP. The entire L3forwarding will fail.",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8fc3933_13476a5a",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -600,6 +617,30 @@
     },
     {
       "key": {
+        "uuid": "e23000fd_bad2ea7e",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-02-07T03:43:01Z",
+      "side": 1,
+      "message": "There should be another config yang that is used internally. Depending on the logic used to select default router, that yang will be used by the VPN engine to store the default router info.",
+      "parentUuid": "f5cce6bf_ddc45bbc",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 1
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a9dbb5f_009f0554",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -635,6 +676,30 @@
       "side": 1,
       "message": "Sorry I am familiar with the yang incompatibility upgrade requirement. Is it ok that we don\u0027t delete these fields, they are now used in the \u0027submap-vpn-info\u0027 grouping. Therefore, from java perspective, these fields are still direct attributes for the class Subnetmap???",
       "parentUuid": "0a9dbb5f_009f0554",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 428,
+        "endChar": 13
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c8a58f97_a3747ae0",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-02-07T03:43:01Z",
+      "side": 1,
+      "message": "Ideally, it should be kept as is with deprecated key word attached. Then we know we are going to remove it in the next release.",
+      "parentUuid": "d4eb810c_4215bd68",
       "range": {
         "startLine": 405,
         "startChar": 12,
