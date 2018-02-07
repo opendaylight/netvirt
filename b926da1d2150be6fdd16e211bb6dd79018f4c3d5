@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fecf91ab_9db4e7e6",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-02-07T17:06:15Z",
+      "side": 1,
+      "message": "we also need to find someone to write CSIT for this stuff. I know it\u0027s not tested upstream and we\u0027ve come across\nbugs in the not so distant past. I think one was serious enough to trigger an unscheduled SR (iirc). I\u0027m not \nvolunteering, but if I ever can find time I\u0027ll try to add something. just a small rant :)",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 11
+      },
+      "revId": "b926da1d2150be6fdd16e211bb6dd79018f4c3d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
