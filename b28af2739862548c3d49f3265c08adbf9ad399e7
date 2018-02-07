@@ -71,6 +71,30 @@
       "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f96c6bd_1c05a75e",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-02-07T03:28:16Z",
+      "side": 1,
+      "message": "This is wrong. All the VMs will have the deleted router as the Default router. The ARP will fail and no forwarding is possible.",
+      "parentUuid": "7a1969be_574a1384",
+      "range": {
+        "startLine": 381,
+        "startChar": 2,
+        "endLine": 383,
+        "endChar": 35
+      },
+      "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
