@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "09930970_9869ed07",
+        "filename": "vpnservice/scale-in/scale-in-impl/src/main/java/org/opendaylight/netvirt/scaleinservice/rpcservice/NodeIdToDpnConverter.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-02-08T13:33:47Z",
+      "side": 1,
+      "message": "Hi , \nhere we can simply say\nreturn bridgeRefEntry.getBridgeReference().getValue().firstKeyOf(Node.class).getNodeId();\nor \nwould it be wise if we use Guava BiMap to store nodeToDpnId instead of hashMap so that we can simplify call nodeToDpnId.inverse.get(dpnId); ?",
+      "range": {
+        "startLine": 86,
+        "startChar": 19,
+        "endLine": 86,
+        "endChar": 31
+      },
+      "revId": "55ce808c50efe7a948f02b7e4961748afd6a0788",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
