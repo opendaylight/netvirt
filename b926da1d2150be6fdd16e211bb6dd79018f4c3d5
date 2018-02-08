@@ -22,6 +22,30 @@
       "revId": "b926da1d2150be6fdd16e211bb6dd79018f4c3d5",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71de520d_f9eb2223",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-08T10:13:25Z",
+      "side": 1,
+      "message": "Very, very good point — NETVIRT-1082 (assigned to myself).",
+      "parentUuid": "fecf91ab_9db4e7e6",
+      "range": {
+        "startLine": 7,
+        "startChar": 4,
+        "endLine": 7,
+        "endChar": 11
+      },
+      "revId": "b926da1d2150be6fdd16e211bb6dd79018f4c3d5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
