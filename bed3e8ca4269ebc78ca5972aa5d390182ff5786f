@@ -1,0 +1,153 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0cfc9087_6cbc3ed3",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T14:37:02Z",
+      "side": 1,
+      "message": "Is this needed?",
+      "range": {
+        "startLine": 123,
+        "startChar": 12,
+        "endLine": 123,
+        "endChar": 33
+      },
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "210019be_c1342cf7",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 503,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T14:37:02Z",
+      "side": 1,
+      "message": "you\u0027re already iterating the entrySet - no need for lookup - use entry.getValue()",
+      "range": {
+        "startLine": 503,
+        "startChar": 62,
+        "endLine": 503,
+        "endChar": 103
+      },
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc1317d7_271c214f",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 504,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T14:37:02Z",
+      "side": 1,
+      "message": "This can\u0027t be null",
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "067898d0_08e12965",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 512,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T14:37:02Z",
+      "side": 1,
+      "message": "What if addOrRemove is MOD_FLOW? Since the intent is 2 state, either add or remove, pass a boolean \"add\".",
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a6653ee_d705c891",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 525,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T14:37:02Z",
+      "side": 1,
+      "message": "same as above - use boolean",
+      "range": {
+        "startLine": 525,
+        "startChar": 95,
+        "endLine": 525,
+        "endChar": 111
+      },
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ed5ac887_0c0298b8",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 550,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T14:37:02Z",
+      "side": 1,
+      "message": "this looks unused",
+      "range": {
+        "startLine": 550,
+        "startChar": 45,
+        "endLine": 550,
+        "endChar": 48
+      },
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a3ef6122_201f2b1b",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpServiceUtils.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 204,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T14:37:02Z",
+      "side": 1,
+      "message": "boolean",
+      "range": {
+        "startLine": 204,
+        "startChar": 71,
+        "endLine": 204,
+        "endChar": 85
+      },
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
