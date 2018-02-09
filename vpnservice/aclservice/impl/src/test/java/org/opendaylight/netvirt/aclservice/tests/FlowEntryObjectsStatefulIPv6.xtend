@@ -21,6 +21,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Source
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata
+import org.opendaylight.genius.mdsalutil.NwConstants
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchRegister
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchTcpDestinationPort
@@ -51,7 +52,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                 new MatchIpv6Destination("2001:db8:1::/64")
                 ]
                 priority = 61010
-                tableId = 241 as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
            new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -68,7 +69,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                    new NxMatchCtState(33, 33)
                ]
                priority = 50
-               tableId = 213 as short
+               tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
            ],
            new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -85,7 +86,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                    new NxMatchCtState(48, 48)
                ]
                priority = 62015
-               tableId = 213 as short
+               tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
            ]
         ]
     }
@@ -115,7 +116,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId1)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -138,7 +139,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -161,7 +162,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv6Source("2001:db8:1::/64")
                 ]
                 priority = 61010
-                tableId = 211 as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -178,7 +179,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = 50
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -195,7 +196,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(48, 48)
                 ]
                 priority = 62015
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -219,7 +220,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv6Destination("2001:db8:2::/64")
                 ]
                 priority = 61010
-                tableId = 241 as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
              ],
              new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -236,7 +237,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                      new NxMatchCtState(33, 33)
                  ]
                  priority = 50
-                 tableId = 213 as short
+                 tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
              ],
              new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -253,7 +254,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                      new NxMatchCtState(48, 48)
                  ]
                  priority = 62015
-                 tableId = 213 as short
+                 tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
              ]
 
         ]
@@ -277,7 +278,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv6Source("2001:db8:2::/64")
                 ]
                 priority = 61010
-                tableId = 211 as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -294,7 +295,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = 50
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -311,7 +312,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(48, 48)
                 ]
                 priority = 62015
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -335,7 +336,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv6Destination("2001:db8:3::/64")
                 ]
                 priority = 61010
-                tableId = 241 as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -352,7 +353,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = 50
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -369,7 +370,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(48, 48)
                 ]
                 priority = 62015
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -392,7 +393,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv6Source("2001:db8:3::/64")
                 ]
                 priority = 61010
-                tableId = 211 as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -409,7 +410,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = 50
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -427,7 +428,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(48, 48)
                 ]
                 priority = 62015
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -454,7 +455,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -481,7 +482,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -510,7 +511,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -539,7 +540,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -571,7 +572,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId1)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -596,7 +597,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -625,7 +626,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -657,7 +658,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId1)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -682,7 +683,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -711,7 +712,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -740,7 +741,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -769,7 +770,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -801,7 +802,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId1)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -826,7 +827,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -855,7 +856,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -891,7 +892,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId1)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -914,7 +915,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -937,7 +938,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId3)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -960,7 +961,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId4)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -983,7 +984,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId5)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1006,7 +1007,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId6)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1029,7 +1030,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId7)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1052,7 +1053,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId8)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -1080,7 +1081,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -1108,7 +1109,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(theFlowId)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
          ]
 
@@ -1139,7 +1140,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId1)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1162,7 +1163,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = 243 as short
+                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
@@ -1192,7 +1193,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId1)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1215,7 +1216,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchCtState(33, 33)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = 213 as short
+                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
             ]
         ]
     }
