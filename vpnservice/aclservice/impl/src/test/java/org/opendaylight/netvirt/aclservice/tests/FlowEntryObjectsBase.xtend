@@ -59,7 +59,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -79,7 +79,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -98,7 +98,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -117,7 +117,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -136,7 +136,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -153,7 +153,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ]
 
             ]
@@ -176,7 +176,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 61005
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
         ]
      }
@@ -191,7 +191,7 @@ class FlowEntryObjectsBase {
                 hardTimeOut = 0
                 idleTimeOut = 0
                 instructionInfoList = #[
-                    new InstructionGotoTable(NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE as short)
+                    new InstructionGotoTable(NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE)
                 ]
                 matchInfoList = #[
                     new MatchEthernetDestination(new MacAddress("ff:ff:ff:ff:ff:ff")),
@@ -202,7 +202,7 @@ class FlowEntryObjectsBase {
                 priority = 61010
                 sendFlowRemFlag = false
                 strictFlag = false
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ]
         ]
     }
@@ -229,7 +229,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3"))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -250,7 +250,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F3"))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -267,7 +267,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -284,7 +284,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -300,7 +300,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63020
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -319,7 +319,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -338,7 +338,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -357,7 +357,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
         ] + fixedEgressArpFlowsPort1
 
@@ -383,7 +383,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
        ]
     }
@@ -408,7 +408,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -428,7 +428,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -447,7 +447,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -466,7 +466,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -485,7 +485,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -502,7 +502,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ]
         ]
     }
@@ -524,7 +524,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 61005
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
          ]
      }
@@ -550,7 +550,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4"))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -571,7 +571,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F4"))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -588,7 +588,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -605,7 +605,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -621,7 +621,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63020
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -640,7 +640,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -659,7 +659,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -678,7 +678,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
         ] + fixedEgressArpFlowsPort2
     }
@@ -703,7 +703,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
        ]
     }
@@ -728,7 +728,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -748,7 +748,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -767,7 +767,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -786,7 +786,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -805,7 +805,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -822,7 +822,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ]
         ]
     }
@@ -844,7 +844,7 @@ class FlowEntryObjectsBase {
                    new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                ]
                priority = 61005
-               tableId = NwConstants.INGRESS_ACL_TABLE as short
+               tableId = NwConstants.INGRESS_ACL_TABLE
            ]
         ]
     }
@@ -870,7 +870,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5"))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -891,7 +891,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress("0D:AA:D8:42:30:F5"))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -908,7 +908,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -925,7 +925,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -941,7 +941,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63020
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -960,7 +960,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -979,7 +979,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -998,7 +998,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1018,7 +1018,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
         ]
     }
@@ -1043,7 +1043,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1063,7 +1063,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1082,7 +1082,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1101,7 +1101,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1120,7 +1120,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1137,7 +1137,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ]
         ]
     }
@@ -1162,7 +1162,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1182,7 +1182,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1199,7 +1199,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1216,7 +1216,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1232,7 +1232,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63020
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1251,7 +1251,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1270,7 +1270,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1289,7 +1289,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1308,7 +1308,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1327,7 +1327,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
         ]
     }
@@ -1371,7 +1371,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionWriteMetadata(4bi, 16777214bi),
-                new InstructionGotoTable(NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE as short)
+                new InstructionGotoTable(NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE)
             ]
             matchInfoList = #[
                 new MatchMetadata(83886080000bi, 1099494850560bi),
@@ -1379,7 +1379,7 @@ class FlowEntryObjectsBase {
                 new MatchIpv4Destination(ip, "32")
             ]
             priority = 50
-            tableId = NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE as short
+            tableId = NwConstants.INGRESS_ACL_REMOTE_ACL_TABLE
         ]
     }
 
@@ -1391,7 +1391,7 @@ class FlowEntryObjectsBase {
             flowName = "ACL"
             instructionInfoList = #[
                 new InstructionWriteMetadata(4bi, 16777214bi),
-                new InstructionGotoTable(NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE as short)
+                new InstructionGotoTable(NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE)
             ]
             matchInfoList = #[
                 new MatchMetadata(83886080000bi, 1099494850560bi),
@@ -1399,7 +1399,7 @@ class FlowEntryObjectsBase {
                 new MatchIpv4Source(ip, "32")
             ]
             priority = 50
-            tableId = NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE as short
+            tableId = NwConstants.EGRESS_ACL_REMOTE_ACL_TABLE
         ]
     }
 
@@ -1424,7 +1424,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1444,7 +1444,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1463,7 +1463,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1482,7 +1482,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1501,7 +1501,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1518,7 +1518,7 @@ class FlowEntryObjectsBase {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 63010
-                tableId = NwConstants.EGRESS_ACL_TABLE as short
+                tableId = NwConstants.EGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1539,7 +1539,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1560,7 +1560,7 @@ class FlowEntryObjectsBase {
                     new MatchEthernetSource(new MacAddress(mac))
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1577,7 +1577,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1594,7 +1594,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1610,7 +1610,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63020
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1629,7 +1629,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1648,7 +1648,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1667,7 +1667,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -1686,7 +1686,7 @@ class FlowEntryObjectsBase {
                     new MatchMetadata(1085217976614912bi, 1152920405095219200bi)
                 ]
                 priority = 63010
-                tableId = NwConstants.INGRESS_ACL_TABLE as short
+                tableId = NwConstants.INGRESS_ACL_TABLE
             ]
         ]
     }
