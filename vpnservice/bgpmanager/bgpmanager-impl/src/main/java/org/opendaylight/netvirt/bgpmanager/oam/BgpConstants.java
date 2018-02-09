@@ -21,7 +21,7 @@ public interface BgpConstants {
     String BGP_COUNTER_NBR_PKTS_TX = "BgpNeighborPacketsSent";
     String BGP_COUNTER_RD_ROUTE_COUNT = "BgpRdRouteCount";
     String BGP_COUNTER_TOTAL_PFX = "BgpTotalPrefixes:Bgp_Total_Prefixes";
-    String BGP_DEF_LOG_LEVEL = "errors";
+    String BGP_DEF_LOG_LEVEL = "debugging";
     String BGP_DEF_LOG_FILE = "/var/log/bgp_debug.log";
     long DEFAULT_ETH_TAG = 0L;
 }
