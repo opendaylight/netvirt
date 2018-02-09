@@ -16,6 +16,24 @@
       "revId": "1afaac85772b803c268e420b34c95f6130e521c2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6b1d5fdb_193f6230",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-09T13:23:36Z",
+      "side": 1,
+      "message": "seems we need a set  method. But then it seems this really isn\u0027t a counter. Perhaps we need a new metric type.",
+      "parentUuid": "0428677f_3f5c6b3d",
+      "revId": "1afaac85772b803c268e420b34c95f6130e521c2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
