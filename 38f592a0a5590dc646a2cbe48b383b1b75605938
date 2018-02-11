@@ -113,6 +113,24 @@
     },
     {
       "key": {
+        "uuid": "376b901e_e47258d0",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 2719,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-02-11T20:10:14Z",
+      "side": 1,
+      "message": "I have removed the RPC now, and am reading the DS directly.\nThe caller needs to only know if another vpn with the same rd exists or now. If there is an excetion during read here, it would be best to not continue caller execution. Hence returning the rd on error/exception.",
+      "parentUuid": "8961295b_bf22427a",
+      "revId": "38f592a0a5590dc646a2cbe48b383b1b75605938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0ad83788_258332ae",
         "filename": "vpnservice/vpnmanager/vpnmanager-api/src/main/yang/vpn-rpc.yang",
         "patchSetId": 11
@@ -463,6 +481,24 @@
       "writtenOn": "2018-01-18T16:57:53Z",
       "side": 1,
       "message": "So this RPC is basically just a wrapper for a DS read. Why can\u0027t caller(s) just issue a  DS read directly? Still similar error checking in callers either way.",
+      "revId": "38f592a0a5590dc646a2cbe48b383b1b75605938",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7a8e2fdc_f70788be",
+        "filename": "vpnservice/vpnmanager/vpnmanager-impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnRpcServiceImpl.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 277,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-02-11T20:10:14Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "26b3d583_cfb2e41e",
       "revId": "38f592a0a5590dc646a2cbe48b383b1b75605938",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
