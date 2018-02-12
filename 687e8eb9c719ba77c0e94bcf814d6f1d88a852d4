@@ -570,6 +570,24 @@
     },
     {
       "key": {
+        "uuid": "32be0507_38d02af0",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-02-12T03:04:23Z",
+      "side": 1,
+      "message": "I think this comment is for above issue you have raised for this spec. I copied the my reply for it here:\n\n------\nIn the latest patch of this spec, the chained router will be promoted to default router if:\n\n1) The default router is dissociated with the subnet AND\n2) The subnet\u0027s gateway is updated so that the gateway IP address matches the chained router interface IP address.\n\nAfter new default router to a subnet is promoted, new VM instances will have the route table matching the new default router since the default route entry always matches the subnet\u0027s gateway IP address.\n\nFor the existing VMs that created before the default router changes, users have to manually change the default route to match the new gateway\u0027s IP address, ie\n\nsudo ip route delete default\n\nsudo ip router add default via \u003cnew gateways\u0027 IP\u003e\n\n---------------\n\nI will update the spec with the above, Thanks",
+      "parentUuid": "f582988e_b3b52606",
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "b8fc3933_13476a5a",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -641,6 +659,30 @@
     },
     {
       "key": {
+        "uuid": "b8f157f7_c30c67b6",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 393,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-02-12T03:04:23Z",
+      "side": 1,
+      "message": "In previous patch of this spec, the default router is selected based on the order of events which routers attaching to the subnet. This causes problem with upgrading scenario in which ODL\u0027s md-sal cache is wiped and then re-synced. The resync entity will not necessarily know which router association came first which can result in a different order of creation and therefor a different default router selection. \n\nIn latest patch 15, the router with interface fixed IP address matching the subnet\u0027s gateway IP address will be designated as default router. Therefore, I don\u0027t think we need internal yang entry for keeping track of default router selection.",
+      "parentUuid": "e23000fd_bad2ea7e",
+      "range": {
+        "startLine": 393,
+        "startChar": 0,
+        "endLine": 393,
+        "endChar": 1
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "0a9dbb5f_009f0554",
         "filename": "docs/specs/router-chaining-for-single-subnet.rst",
         "patchSetId": 12
@@ -700,6 +742,30 @@
       "side": 1,
       "message": "Ideally, it should be kept as is with deprecated key word attached. Then we know we are going to remove it in the next release.",
       "parentUuid": "d4eb810c_4215bd68",
+      "range": {
+        "startLine": 405,
+        "startChar": 12,
+        "endLine": 428,
+        "endChar": 13
+      },
+      "revId": "687e8eb9c719ba77c0e94bcf814d6f1d88a852d4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2e7dd24a_4120d82b",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 12
+      },
+      "lineNbr": 428,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-02-12T03:04:23Z",
+      "side": 1,
+      "message": "I cannot leave the attributes as \u0027deprecated\u0027 since they will be conflicted with newly added statement in line 430.\n\nSpecifically, Lines 405-428 will be refactor as \u0027submap-vpn-info\u0027 grouping in lines 365-391. The \u0027submap-vpn-info\u0027 grouping is data structure for the default router info (line 430) and the list of chained routers (lines 432-434).\n\nCompiling of the yang file will fail if the deprecated attribute in the container and the attribute in \u0027use\u0027 grouping (line 430) have the same name.\n\nI want to keep same names for the attributes to minimize code change. From java perspective, grouping attributes in \u0027use\u0027 are also direct attributes of the java class for the container. Therefore, there is no code change for the existing default scenario.",
+      "parentUuid": "c8a58f97_a3747ae0",
       "range": {
         "startLine": 405,
         "startChar": 12,
