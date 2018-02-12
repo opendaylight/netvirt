@@ -10,10 +10,10 @@ package org.opendaylight.netvirt.coe.utils;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableBiMap;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -151,13 +151,11 @@ public final class CoeUtils {
     }
 
     public static ElanInstance createElanInstanceForTheFirstPodInTheNetwork(String networkNS, String nodeIp,
-                                                 org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod
-                                                         .rev170611.pod_attributes.Interface podInterface,
-                                                 WriteTransaction wrtConfigTxn, DataBroker dataBroker) {
+            org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.pod_attributes.Interface
+                    podInterface, ReadWriteTransaction tx) throws ReadFailedException {
         String elanInstanceName = buildElanInstanceName(nodeIp, networkNS);
         InstanceIdentifier<ElanInstance> id = createElanInstanceIdentifier(elanInstanceName);
-        Optional<ElanInstance> existingElanInstance = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                id);
+        Optional<ElanInstance> existingElanInstance = tx.read(LogicalDatastoreType.CONFIGURATION, id).checkedGet();
         if (existingElanInstance.isPresent()) {
             return existingElanInstance.get();
         }
@@ -168,7 +166,7 @@ public final class CoeUtils {
         Boolean isExternal = false;
         ElanInstance elanInstance = CoeUtils.buildElanInstance(elanInstanceName, segmentType,
                 segmentationId, isExternal);
-        wrtConfigTxn.put(LogicalDatastoreType.CONFIGURATION, id, elanInstance);
+        tx.put(LogicalDatastoreType.CONFIGURATION, id, elanInstance);
         LOG.info("ELAN instance created for the first pod in the network {}", podInterface.getUid());
         return elanInstance;
     }

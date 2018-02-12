@@ -23,8 +23,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.coe.utils.CoeUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.coe.northbound.pod.rev170611.Coe;
@@ -41,13 +42,13 @@ public class PodListener implements DataTreeChangeListener<Pods> {
 
     private static final Logger LOG = LoggerFactory.getLogger(PodListener.class);
     private ListenerRegistration<PodListener> listenerRegistration;
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final JobCoordinator jobCoordinator;
 
     @Inject
     public PodListener(final DataBroker dataBroker, JobCoordinator jobCoordinator) {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
-        this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -73,14 +74,14 @@ public class PodListener implements DataTreeChangeListener<Pods> {
 
     @Override
     public void onDataTreeChanged(@Nonnull Collection<DataTreeModification<Pods>> collection) {
-        collection.stream().forEach(podsDataTreeModification -> {
-            podsDataTreeModification.getRootNode().getModifiedChildren().stream().filter(
-                dataObjectModification -> dataObjectModification.getDataType().equals(Interface.class))
-                    .forEach(dataObjectModification -> onPodInterfacesChanged(
-                            (DataObjectModification<Interface>) dataObjectModification,
-                            podsDataTreeModification.getRootPath().getRootIdentifier(),
-                            podsDataTreeModification.getRootNode()));
-        }
+        collection.forEach(
+            podsDataTreeModification -> podsDataTreeModification.getRootNode().getModifiedChildren().stream()
+                    .filter(
+                        dataObjectModification -> dataObjectModification.getDataType().equals(Interface.class))
+                        .forEach(dataObjectModification -> onPodInterfacesChanged(
+                                (DataObjectModification<Interface>) dataObjectModification,
+                                podsDataTreeModification.getRootPath().getRootIdentifier(),
+                                podsDataTreeModification.getRootNode()))
         );
     }
 
@@ -119,7 +120,7 @@ public class PodListener implements DataTreeChangeListener<Pods> {
         }
         // TODO use infrautils caching mechanism to add this info to cache.
 
-        jobCoordinator.enqueueJob(pods.getName(), new PodConfigAddWorker(dataBroker, pods, podInterface));
+        jobCoordinator.enqueueJob(pods.getName(), new PodConfigAddWorker(txRunner, pods, podInterface));
     }
 
     private void update(Pods podsAfter, Pods podsBefore, Interface podInterfaceBefore, Interface podInterfaceAfter) {
@@ -129,9 +130,9 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             if (podsBefore.getNetworkNS() != null || podsBefore.getHostIpAddress() != null) {
                 // Case where pod is moving from one namespace to another
                 // issue a delete of all previous configuration, and add the new one.
-                jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigRemoveWorker(dataBroker, podsBefore));
+                jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigRemoveWorker(txRunner, podsBefore));
             }
-            jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigAddWorker(dataBroker, podsAfter,
+            jobCoordinator.enqueueJob(podsAfter.getName(), new PodConfigAddWorker(txRunner, podsAfter,
                     podInterfaceAfter));
         }
         // TODO use infrautils caching mechanism to add this info to cache.
@@ -144,58 +145,58 @@ public class PodListener implements DataTreeChangeListener<Pods> {
             return;
         }
 
-        jobCoordinator.enqueueJob(pods.getName(), new PodConfigRemoveWorker(dataBroker, pods));
+        jobCoordinator.enqueueJob(pods.getName(), new PodConfigRemoveWorker(txRunner, pods));
     }
 
     private static class PodConfigAddWorker implements Callable<List<ListenableFuture<Void>>> {
         private final Pods pods;
         private final Interface podInterface;
-        private final DataBroker dataBroker;
+        private final ManagedNewTransactionRunner txRunner;
 
-        PodConfigAddWorker(DataBroker dataBroker, Pods pods, Interface podInterface) {
+        PodConfigAddWorker(ManagedNewTransactionRunner txRunner, Pods pods, Interface podInterface) {
             this.pods = pods;
             this.podInterface = podInterface;
-            this.dataBroker = dataBroker;
+            this.txRunner = txRunner;
         }
 
         @Override
         public List<ListenableFuture<Void>> call() {
             LOG.trace("Adding Pod : {}", podInterface);
             String interfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            String nodeIp = String.valueOf(pods.getHostIpAddress().getValue());
-            ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
-                    pods.getNetworkNS(), nodeIp, podInterface, wrtConfigTxn, dataBroker);
-            LOG.info("interface creation for pod {}", interfaceName);
-            String portInterfaceName = CoeUtils.createOfPortInterface(interfaceName, podInterface, wrtConfigTxn);
-            LOG.debug("Creating ELAN Interface for pod {}", interfaceName);
-            CoeUtils.createElanInterface(podInterface, portInterfaceName,
-                    elanInstance.getElanInstanceName(), wrtConfigTxn);
-            return Collections.singletonList(wrtConfigTxn.submit());
+            return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                String nodeIp = String.valueOf(pods.getHostIpAddress().getValue());
+                ElanInstance elanInstance = CoeUtils.createElanInstanceForTheFirstPodInTheNetwork(
+                        pods.getNetworkNS(), nodeIp, podInterface, tx);
+                LOG.info("interface creation for pod {}", interfaceName);
+                String portInterfaceName = CoeUtils.createOfPortInterface(interfaceName, podInterface, tx);
+                LOG.debug("Creating ELAN Interface for pod {}", interfaceName);
+                CoeUtils.createElanInterface(podInterface, portInterfaceName,
+                        elanInstance.getElanInstanceName(), tx);
+            }));
         }
     }
 
     private static class PodConfigRemoveWorker implements Callable<List<ListenableFuture<Void>>> {
         private final Pods pods;
-        private final DataBroker dataBroker;
+        private final ManagedNewTransactionRunner txRunner;
 
-        PodConfigRemoveWorker(DataBroker dataBroker, Pods pods) {
+        PodConfigRemoveWorker(ManagedNewTransactionRunner txRunner, Pods pods) {
             this.pods = pods;
-            this.dataBroker = dataBroker;
+            this.txRunner = txRunner;
         }
 
         @Override
         public List<ListenableFuture<Void>> call() {
             String podInterfaceName = CoeUtils.buildInterfaceName(pods.getNetworkNS(), pods.getName());
             LOG.trace("Deleting Pod : {}", podInterfaceName);
-            WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
-            LOG.debug("Deleting ELAN Interface for pod {}", podInterfaceName);
-            CoeUtils.deleteElanInterface(podInterfaceName, wrtConfigTxn);
-            LOG.info("interface deletion for pod {}", podInterfaceName);
-            CoeUtils.deleteOfPortInterface(podInterfaceName, wrtConfigTxn);
-            // TODO delete elan-instance if this is the last pod in the network
-            // TODO use infrautils cache to maintain this mapping and to decide on elan-instance deletion
-            return Collections.singletonList(wrtConfigTxn.submit());
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                LOG.debug("Deleting ELAN Interface for pod {}", podInterfaceName);
+                CoeUtils.deleteElanInterface(podInterfaceName, tx);
+                LOG.info("interface deletion for pod {}", podInterfaceName);
+                CoeUtils.deleteOfPortInterface(podInterfaceName, tx);
+                // TODO delete elan-instance if this is the last pod in the network
+                // TODO use infrautils cache to maintain this mapping and to decide on elan-instance deletion
+            }));
         }
     }
 }
