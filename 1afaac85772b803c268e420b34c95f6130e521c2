@@ -34,6 +34,24 @@
       "revId": "1afaac85772b803c268e420b34c95f6130e521c2",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "596dc343_3ca60eae",
+        "filename": "vpnservice/bgpmanager/bgpmanager-impl/src/main/java/org/opendaylight/netvirt/bgpmanager/oam/BgpCounters.java",
+        "patchSetId": 11
+      },
+      "lineNbr": 470,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-02-12T14:31:30Z",
+      "side": 1,
+      "message": "Yeah.. this is a bit weird.. I\u0027ll try to look into that some time (not sure when), or welcome anyone\u0027s contributions to the metrics API for this.  PS, FYI I think https://git.opendaylight.org/gerrit/#/c/67148/ was an attempt to do something in this direction (but it\u0027s wrong).",
+      "parentUuid": "6b1d5fdb_193f6230",
+      "revId": "1afaac85772b803c268e420b34c95f6130e521c2",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
