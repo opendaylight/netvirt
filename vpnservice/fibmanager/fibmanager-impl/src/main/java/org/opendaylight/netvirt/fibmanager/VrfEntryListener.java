@@ -331,7 +331,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
         //Handle all other routes only on a cluster reboot
         if (original.equals(update)) {
-            //Reboot use-case)
+            //Reboot use-case
             createFibEntries(identifier, update);
             LOG.info("UPDATE: Updated Non-static Fib Entry with rd {} prefix {} route-paths {}",
                     rd, update.getDestPrefix(), update.getRoutePaths());
