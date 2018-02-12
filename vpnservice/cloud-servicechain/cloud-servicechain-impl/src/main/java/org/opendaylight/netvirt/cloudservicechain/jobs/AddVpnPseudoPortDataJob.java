@@ -39,22 +39,19 @@ public class AddVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         LOG.debug("Adding VpnToPseudoPortMap: vpnRd={}  vpnPseudoLportTag={}  scfTag={}  scfTable={}",
                   super.vpnRd, vpnPseudoLportTag, scfTag, scfTableIdToGo);
 
-        WriteTransaction writeTxn = super.dataBroker.newWriteOnlyTransaction();
-        if (writeTxn == null) {
-            throw new Exception("Could not create a proper WriteTransaction");
-        }
         VpnToPseudoPortData newValue =
             new VpnToPseudoPortDataBuilder().setKey(new VpnToPseudoPortDataKey(super.vpnRd)).setVrfId(super.vpnRd)
                                             .setScfTableId(scfTableIdToGo).setScfTag(scfTag)
                                             .setVpnLportTag(vpnPseudoLportTag).build();
         LOG.trace("Adding lportTag={} to VpnToLportTag map for VPN with rd={}", vpnPseudoLportTag, vpnRd);
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
-        writeTxn.put(LogicalDatastoreType.CONFIGURATION, path, newValue, WriteTransaction.CREATE_MISSING_PARENTS);
 
-        return Collections.singletonList(writeTxn.submit());
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.put(LogicalDatastoreType.CONFIGURATION, path, newValue,
+                    WriteTransaction.CREATE_MISSING_PARENTS)));
     }
 }
