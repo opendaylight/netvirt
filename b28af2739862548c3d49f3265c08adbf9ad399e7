@@ -95,6 +95,30 @@
       "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8cbef21_a3f2a646",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-02-12T03:04:23Z",
+      "side": 1,
+      "message": "In the latest patch of this spec, the chained router will be promoted to default router if:\n\n1) The default router is dissociated with the subnet AND\n2) The subnet\u0027s gateway is updated so that the gateway IP address matches the chained router interface IP address.\n\nAfter new default router to a subnet is promoted, new VM instances will have the route table matching the new default router since the default route entry always matches the subnet\u0027s gateway IP address.\n\nFor the existing VMs that created before the default router changes, users have to manually change the default route to match the new gateway\u0027s IP address, ie\n\n\u003e sudo ip route delete default\n\n\u003e sudo ip router add default via \u003cnew gateways\u0027 IP\u003e",
+      "parentUuid": "0f96c6bd_1c05a75e",
+      "range": {
+        "startLine": 381,
+        "startChar": 2,
+        "endLine": 383,
+        "endChar": 35
+      },
+      "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
