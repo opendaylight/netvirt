@@ -8,7 +8,13 @@
 
 package org.opendaylight.netvirt.bgpmanager.thrift.server;
 
+import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadFactory;
+
 import java.util.concurrent.TimeoutException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
@@ -35,7 +41,11 @@ public class BgpThriftService {
     private final int ourPort;
     private final IBgpManager bgpManager;
     private final BgpConfigurationManager bgpConfigManager;
-    private TServer server;
+    private volatile TServer server;
+    private static ThreadFactory thriftServerThreadFactory = new ThreadFactoryBuilder()
+            .setNameFormat("bgp-thrift-server-%d").build();
+    private static ExecutorService threadPool = Executors.newFixedThreadPool(1, thriftServerThreadFactory);
+    private volatile Future ft;
 
     public BgpThriftService(int ourPort, IBgpManager bm, BgpConfigurationManager bgpConfigManager) {
         this.ourPort = ourPort;
@@ -199,13 +209,17 @@ public class BgpThriftService {
         }
     }
 
-    public void start() {
-        new Thread(new BgpUpdateServer()).start();
+    public synchronized void start() {
+        ft = threadPool.submit(new BgpUpdateServer());
     }
 
-    public void stop() {
+    public synchronized void stop() {
         if (server != null) {
             server.stop();
+            server = null;
+        }
+        if (ft != null && !ft.isDone()) {
+            ft.cancel(true);
         }
     }
 }
