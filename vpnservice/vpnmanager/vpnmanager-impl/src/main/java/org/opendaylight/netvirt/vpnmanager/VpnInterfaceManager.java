@@ -413,12 +413,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, primaryRd, interfaceName,
                         null/*ipAddressSourceValuePair*/,
                         true /* add */);
+                processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
+                        vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                 if (!isBgpVpnInternetVpn) {
                     VpnUtil.bindService(vpnName, interfaceName, dataBroker, false /*isTunnelInterface*/,
                             jobCoordinator);
                 }
-                processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
-                        vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
                 LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {}", interfaceName,
                         dpId, vpnName);
                 if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -463,11 +463,11 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             vpnFootprintService.updateVpnToDpnMapping(dpId, vpnName, primaryRd, interfaceName,
                     null/*ipAddressSourceValuePair*/,
                     true /* add */);
+            processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
+                    vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
             if (!isBgpVpnInternetVpn) {
                 VpnUtil.bindService(vpnName, interfaceName, dataBroker, false/*isTunnelInterface*/, jobCoordinator);
             }
-            processVpnInterfaceAdjacencies(dpId, lportTag, vpnName, primaryRd, interfaceName,
-                    vpnId, writeConfigTxn, writeOperTxn, writeInvTxn, interfaceState);
             LOG.info("processVpnInterfaceUp: Plumbed vpn interface {} onto dpn {} for vpn {} after waiting for"
                     + " FIB to clean up", interfaceName, dpId, vpnName);
             if (interfaceManager.isExternalInterface(interfaceName)) {
@@ -775,6 +775,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     LOG.warn("processVpnInterfaceAdjacencies: Gateway IP for subnet ID {} could not be obtained, "
                         + "cannot create ARP responder flow for interface name {}, vpnName {}",
                         subnetId, interfaceName, vpnName);
+                    gwMac = InterfaceUtils.getMacAddressFromInterfaceState(interfaceState);
                 }
                 LOG.info("processVpnInterfaceAdjacencies: Added prefix {} to interface {} with nextHops {} on dpn {}"
                         + " for vpn {}", prefix, interfaceName, nhList, dpnId, vpnName);
@@ -824,8 +825,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         }
 
         AdjacenciesOp aug = VpnUtil.getVpnInterfaceOpDataEntryAugmentation(value);
-        addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, aug, lportTag, vpnInterfaceSubnetGwMacAddress,
-                writeOperTxn);
+        addVpnInterfaceToOperational(vpnName, interfaceName, dpnId, aug, lportTag,
+                gwMac.isPresent() ? gwMac.get() : null, writeOperTxn);
 
         L3vpnInput input = new L3vpnInput().setNextHopIp(nextHopIp).setL3vni(l3vni).setPrimaryRd(primaryRd)
                 .setGatewayMac(gwMac.isPresent() ? gwMac.get() : null).setInterfaceName(interfaceName)
@@ -1341,6 +1342,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                     writeConfigTxn);
                         }
                     } else {
+                        LOG.error("removeAdjacenciesFromVpn: nextHop empty for ip {} rd {} adjacencyType {}"
+                                        + " interface {}", nextHop.getIpAddress(), rd,
+                                nextHop.getAdjacencyType().toString(), interfaceName);
+                        bgpManager.withdrawPrefix(rd, nextHop.getIpAddress());
                         fibManager.removeFibEntry(dataBroker, primaryRd, nextHop.getIpAddress(), writeConfigTxn);
                     }
                 }
