@@ -909,13 +909,6 @@ public class VpnSubnetRouteHandler {
         boolean isAlternateDpnSelected = false;
         long l3vni = 0;
         long label = 0;
-        if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
-            l3vni = subOpBuilder.getL3vni();
-        } else {
-            label = getLabel(rd, subnetIp);
-            subOpBuilder.setLabel(label);
-        }
-
         String networkName = networkId != null ? networkId.getValue() : null;
 
         LOG.info("{} electNewDpnForSubnetRoute: Handling subnet {} subnetIp {} vpn {} rd {} TaskState {}"
@@ -925,6 +918,12 @@ public class VpnSubnetRouteHandler {
             // Non-BGPVPN as it stands here represents use-case of External Subnets of VLAN-Provider-Network
             //  TODO(Tomer):  Pulling in both external and internal VLAN-Provider-Network need to be
             // blended more better into this design.
+            if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
+                l3vni = subOpBuilder.getL3vni();
+            } else {
+                label = getLabel(rd, subnetIp);
+                subOpBuilder.setLabel(label);
+            }
             isRouteAdvertised = addSubnetRouteToFib(rd, subnetIp, null /* nhDpnId */, null /* nhTepIp */,
                     vpnName, elanTag, label, l3vni, subnetId, isBgpVpn, networkName);
             if (isRouteAdvertised) {
@@ -986,6 +985,12 @@ public class VpnSubnetRouteHandler {
         } else {
             //If alternate Dpn is selected as nextHopDpn, use that for subnetroute.
             subOpBuilder.setNhDpnId(nhDpnId);
+            if (VpnUtil.isL3VpnOverVxLan(subOpBuilder.getL3vni())) {
+                l3vni = subOpBuilder.getL3vni();
+            } else {
+                label = getLabel(rd, subnetIp);
+                subOpBuilder.setLabel(label);
+            }
             //update the VRF entry for the subnetroute.
             isRouteAdvertised = addSubnetRouteToFib(rd, subnetIp, nhDpnId, nhTepIp,
                     vpnName, elanTag, label, l3vni, subnetId, isBgpVpn, networkName);
