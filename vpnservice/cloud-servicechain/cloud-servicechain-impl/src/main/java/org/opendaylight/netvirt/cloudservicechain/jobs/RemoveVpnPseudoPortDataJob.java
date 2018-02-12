@@ -11,7 +11,6 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.cloudservicechain.utils.VpnServiceChainUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortData;
@@ -28,19 +27,12 @@ public class RemoveVpnPseudoPortDataJob extends VpnPseudoPortDataBaseJob {
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
-
-        LOG.debug("Removing VpnToPseudoPortMap for vpn with Rd={}", super.vpnRd);
+    public List<ListenableFuture<Void>> call() {
+        LOG.debug("Removing VpnToPseudoPortMap for VPN with Rd={}", super.vpnRd);
 
         InstanceIdentifier<VpnToPseudoPortData> path = VpnServiceChainUtils.getVpnToPseudoPortTagIid(vpnRd);
 
-        WriteTransaction writeTxn = dataBroker.newWriteOnlyTransaction();
-        if (writeTxn == null) {
-            throw new Exception("Could not create a proper WriteTransaction");
-        }
-
-        LOG.trace("Removing VpnToLportTag entry for VPN with rd={}", super.vpnRd);
-        writeTxn.delete(LogicalDatastoreType.CONFIGURATION, path);
-        return Collections.singletonList(writeTxn.submit());
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, path)));
     }
 }

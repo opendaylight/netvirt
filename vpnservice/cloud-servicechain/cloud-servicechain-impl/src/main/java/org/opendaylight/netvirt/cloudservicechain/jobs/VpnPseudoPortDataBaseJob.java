@@ -11,6 +11,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 
 /**
  * Modifies VpnPseudoPort stateful data. Objects of this class are intended to
@@ -18,11 +20,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
  */
 public abstract class VpnPseudoPortDataBaseJob implements Callable<List<ListenableFuture<Void>>> {
 
-    protected final DataBroker dataBroker;
+    final ManagedNewTransactionRunner txRunner;
     protected final String vpnRd;
 
     public VpnPseudoPortDataBaseJob(DataBroker dataBroker, String vpnRd) {
-        this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.vpnRd = vpnRd;
     }
 
