@@ -18,9 +18,10 @@ import javax.inject.Inject;
 import javax.inject.Named;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -51,6 +52,7 @@ public class DhcpNeutronPortListener
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final IElanService elanService;
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final DhcpserviceConfig config;
     private final IInterfaceManager interfaceManager;
     private final JobCoordinator jobCoordinator;
@@ -65,6 +67,7 @@ public class DhcpNeutronPortListener
         this.elanService = ielanService;
         this.interfaceManager = interfaceManager;
         this.broker = db;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.config = config;
         this.jobCoordinator = jobCoordinator;
         this.dhcpManager = dhcpManager;
@@ -93,17 +96,19 @@ public class DhcpNeutronPortListener
     protected void remove(InstanceIdentifier<Port> identifier, Port del) {
         LOG.trace("Port removed: {}", del);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(del)) {
-            jobCoordinator.enqueueJob(getJobKey(del), () -> {
-                WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
-                DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> wrtConfigTxn
-                        .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
-                processArpResponderForElanDpns(del, arpInput -> {
-                    LOG.trace("Removing ARP RESPONDER Flows  for dhcp port {} with ipaddress {} with mac {} on dpn {}",
-                            arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(), arpInput.getDpId());
-                    elanService.removeArpResponderFlow(arpInput);
-                });
-                return Collections.singletonList(wrtConfigTxn.submit());
-            });
+            jobCoordinator.enqueueJob(getJobKey(del),
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    DhcpServiceUtils.removeSubnetDhcpPortData(del, subnetDhcpPortIdfr -> tx
+                            .delete(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr));
+                    processArpResponderForElanDpns(del, arpInput -> {
+                        LOG.trace(
+                                "Removing ARP RESPONDER Flows  for dhcp port {} with ipaddress {} with mac {} on dpn "
+                                        + "{}",
+                                arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(),
+                                arpInput.getDpId());
+                        elanService.removeArpResponderFlow(arpInput);
+                    });
+                })));
         }
         if (isVnicTypeDirectOrMacVtap(del)) {
             removePort(del);
@@ -129,24 +134,20 @@ public class DhcpNeutronPortListener
                 return;
             }
             // Binding the DHCP service for an existing port because of subnet change.
-            jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), () -> {
-                WriteTransaction bindServiceTx = broker.newWriteOnlyTransaction();
-                if (LOG.isDebugEnabled()) {
+            jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName),
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     LOG.debug("Binding DHCP service for interface {}", interfaceName);
-                }
-                DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
-                return Collections.singletonList(bindServiceTx.submit());
-            }, DhcpMConstants.RETRY_COUNT);
+                    DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx);
+                })), DhcpMConstants.RETRY_COUNT);
             jobCoordinator.enqueueJob(DhcpServiceUtils.getJobKey(interfaceName), () -> {
                 BigInteger dpnId = interfaceManager.getDpnForInterface(interfaceName);
                 if (dpnId == null || dpnId.equals(DhcpMConstants.INVALID_DPID)) {
                     LOG.trace("Unable to install the DHCP flow since dpn is not available");
-                    return Collections.EMPTY_LIST;
+                    return Collections.emptyList();
                 }
                 String vmMacAddress = DhcpServiceUtils.getAndUpdateVmMacAddress(broker, interfaceName, dhcpManager);
-                WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-                dhcpManager.installDhcpEntries(dpnId, vmMacAddress, flowTx);
-                return Collections.singletonList(flowTx.submit());
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> dhcpManager.installDhcpEntries(dpnId, vmMacAddress, tx)));
             }, DhcpMConstants.RETRY_COUNT);
         }
         if (!isVnicTypeDirectOrMacVtap(update)) {
@@ -180,20 +181,21 @@ public class DhcpNeutronPortListener
     protected void add(InstanceIdentifier<Port> identifier, Port add) {
         LOG.trace("Port added {}", add);
         if (NeutronConstants.IS_ODL_DHCP_PORT.test(add)) {
-            jobCoordinator.enqueueJob(getJobKey(add), () -> {
-                WriteTransaction wrtConfigTxn = broker.newWriteOnlyTransaction();
-                DhcpServiceUtils.createSubnetDhcpPortData(add, (subnetDhcpPortIdfr, subnetToDhcpport) -> wrtConfigTxn
-                        .put(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr, subnetToDhcpport));
-                processArpResponderForElanDpns(add, arpInput -> {
-                    LOG.trace("Installing ARP RESPONDER Flows  for dhcp port {} ipaddress {} with mac {} on dpn {}",
-                            arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(), arpInput.getDpId());
-                    ArpReponderInputBuilder builder = new ArpReponderInputBuilder(arpInput);
-                    builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager,
-                            arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha()));
-                    elanService.addArpResponderFlow(builder.buildForInstallFlow());
-                });
-                return Collections.singletonList(wrtConfigTxn.submit());
-            });
+            jobCoordinator.enqueueJob(getJobKey(add),
+                () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    DhcpServiceUtils.createSubnetDhcpPortData(add, (subnetDhcpPortIdfr, subnetToDhcpport) -> tx
+                            .put(LogicalDatastoreType.CONFIGURATION, subnetDhcpPortIdfr, subnetToDhcpport));
+                    processArpResponderForElanDpns(add, arpInput -> {
+                        LOG.trace(
+                                "Installing ARP RESPONDER Flows  for dhcp port {} ipaddress {} with mac {} on dpn {}",
+                                arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(),
+                                arpInput.getDpId());
+                        ArpReponderInputBuilder builder = new ArpReponderInputBuilder(arpInput);
+                        builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager,
+                                arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha()));
+                        elanService.addArpResponderFlow(builder.buildForInstallFlow());
+                    });
+                })));
         }
         if (!isVnicTypeDirectOrMacVtap(add)) {
             return;

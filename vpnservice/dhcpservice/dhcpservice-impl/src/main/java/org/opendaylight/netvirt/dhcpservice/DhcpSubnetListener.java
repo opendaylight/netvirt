@@ -19,11 +19,13 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -47,6 +49,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
     private static final Logger LOG = LoggerFactory.getLogger(DhcpSubnetListener.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DhcpserviceConfig config;
@@ -57,6 +60,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
         super(Subnet.class, DhcpSubnetListener.class);
         this.dhcpManager = dhcpManager;
         this.dataBroker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.config = config;
     }
@@ -127,13 +131,13 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             //check whether any changes have happened
             LOG.trace("DhcpSubnetListener installNeutronPortEntries dpId: {} vmMacAddress : {}", dpId, vmMacAddress);
             //Bind the dhcp service when enabled
-            WriteTransaction bindTx = dataBroker.newWriteOnlyTransaction();
-            DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindTx);
-            DhcpServiceUtils.submitTransaction(bindTx);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)), LOG,
+                "Error writing to the datastore");
             //install the entries
-            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-            dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx);
-            DhcpServiceUtils.submitTransaction(tx);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx)), LOG,
+                "Error writing to the datastore");
         }
     }
 
@@ -149,13 +153,14 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             LOG.trace("DhcpSubnetListener uninstallNeutronPortEntries dpId: {} vmMacAddress : {}",
                     dpId, vmMacAddress);
             //Unbind the dhcp service when disabled
-            WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
-            DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
-            DhcpServiceUtils.submitTransaction(unbindTx);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)), LOG,
+                "Error writing to the datastore");
+
             //uninstall the entries
-            WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-            dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx);
-            DhcpServiceUtils.submitTransaction(tx);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx)), LOG,
+                "Error writing to the datastore");
         }
     }
 

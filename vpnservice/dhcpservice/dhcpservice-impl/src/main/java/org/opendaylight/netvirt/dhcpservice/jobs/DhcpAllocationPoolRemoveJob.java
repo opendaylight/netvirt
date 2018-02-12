@@ -11,28 +11,26 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 
 public class DhcpAllocationPoolRemoveJob implements Callable<List<ListenableFuture<Void>>> {
 
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final String interfaceName;
 
-    public DhcpAllocationPoolRemoveJob(DataBroker dataBroker, String interfaceName) {
-        this.dataBroker = dataBroker;
+    public DhcpAllocationPoolRemoveJob(ManagedNewTransactionRunner txRunner, String interfaceName) {
+        this.txRunner = txRunner;
         this.interfaceName = interfaceName;
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         return unInstallDhcpEntries();
     }
 
     private List<ListenableFuture<Void>> unInstallDhcpEntries() {
-        WriteTransaction unbindServiceTx = dataBroker.newWriteOnlyTransaction();
-        DhcpServiceUtils.unbindDhcpService(interfaceName, unbindServiceTx);
-        return Collections.singletonList(unbindServiceTx.submit());
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)));
     }
 }

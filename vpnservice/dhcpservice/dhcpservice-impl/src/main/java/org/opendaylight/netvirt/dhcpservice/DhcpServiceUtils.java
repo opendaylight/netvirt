@@ -9,23 +9,24 @@
 package org.opendaylight.netvirt.dhcpservice;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.FutureCallback;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import javax.annotation.Nonnull;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
@@ -63,7 +64,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.ser
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServices;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.servicebinding.rev160406.service.bindings.services.info.BoundServicesKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
@@ -189,25 +189,24 @@ public final class DhcpServiceUtils {
         return matches;
     }
 
+    @Nonnull
     public static List<BigInteger> getListOfDpns(DataBroker broker) {
-        List<BigInteger> dpnsList = new LinkedList<>();
-        InstanceIdentifier<Nodes> nodesInstanceIdentifier = InstanceIdentifier.builder(Nodes.class).build();
-        Optional<Nodes> nodesOptional =
-                MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, nodesInstanceIdentifier);
-        if (!nodesOptional.isPresent()) {
-            return dpnsList;
-        }
-        Nodes nodes = nodesOptional.get();
-        List<Node> nodeList = nodes.getNode();
-        for (Node node : nodeList) {
-            NodeId nodeId = node.getId();
-            if (nodeId == null) {
-                continue;
-            }
-            BigInteger dpnId = MDSALUtil.getDpnIdFromNodeName(nodeId);
-            dpnsList.add(dpnId);
-        }
-        return dpnsList;
+        return extractDpnsFromNodes(MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.builder(Nodes.class).build()));
+    }
+
+    @Nonnull
+    public static List<BigInteger> getListOfDpns(ReadTransaction tx) throws ReadFailedException {
+        return extractDpnsFromNodes(tx.read(LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.builder(Nodes.class).build()).checkedGet());
+    }
+
+    @Nonnull
+    private static List<BigInteger> extractDpnsFromNodes(Optional<Nodes> optionalNodes) {
+        return optionalNodes.toJavaUtil().map(
+            nodes -> nodes.getNode().stream().map(Node::getId).filter(Objects::nonNull).map(
+                    MDSALUtil::getDpnIdFromNodeName).collect(
+                    Collectors.toList())).orElse(Collections.emptyList());
     }
 
     @Nonnull
@@ -271,15 +270,6 @@ public final class DhcpServiceUtils {
 
     public static String getJobKey(String interfaceName) {
         return new StringBuilder().append(DhcpMConstants.DHCP_JOB_KEY_PREFIX).append(interfaceName).toString();
-    }
-
-    public static void submitTransaction(WriteTransaction tx) {
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore tx {} error {}", tx, e.getMessage());
-        }
     }
 
     public static void bindDhcpService(String interfaceName, short tableId, WriteTransaction tx) {

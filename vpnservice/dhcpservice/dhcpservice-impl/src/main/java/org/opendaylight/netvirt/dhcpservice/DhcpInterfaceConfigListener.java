@@ -10,9 +10,10 @@ package org.opendaylight.netvirt.dhcpservice;
 
 import java.util.Collections;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
@@ -33,7 +34,7 @@ public class DhcpInterfaceConfigListener
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpInterfaceConfigListener.class);
 
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DhcpManager dhcpManager;
     private final JobCoordinator jobCoordinator;
@@ -42,7 +43,7 @@ public class DhcpInterfaceConfigListener
             DhcpExternalTunnelManager dhcpExternalTunnelManager, DhcpManager dhcpManager,
             JobCoordinator jobCoordinator) {
         super(Interface.class, DhcpInterfaceConfigListener.class);
-        this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dhcpManager = dhcpManager;
         this.jobCoordinator = jobCoordinator;
@@ -74,9 +75,8 @@ public class DhcpInterfaceConfigListener
                 }
             }
             if (vlanInterface != null) {
-                WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
-                DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
-                return Collections.singletonList(unbindTx.submit());
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)));
             }
             return Collections.emptyList();
         }, DhcpMConstants.RETRY_COUNT);
@@ -98,12 +98,10 @@ public class DhcpInterfaceConfigListener
             Port port = dhcpManager.getNeutronPort(interfaceName);
             Subnet subnet = dhcpManager.getNeutronSubnet(port);
             if (null != subnet && subnet.isEnableDhcp()) {
-                WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
-                if (LOG.isDebugEnabled()) {
+                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
                     LOG.debug("Binding DHCP service for interface {}", interfaceName);
-                }
-                DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
-                return Collections.singletonList(bindServiceTx.submit());
+                    DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx);
+                }));
             }
             return Collections.emptyList();
         }, DhcpMConstants.RETRY_COUNT);
