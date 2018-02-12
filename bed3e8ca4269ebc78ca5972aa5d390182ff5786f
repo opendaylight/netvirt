@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "04aaea8a_3cf222ba",
+        "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
+        "patchSetId": 25
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 6321
+      },
+      "writtenOn": "2018-02-12T04:10:07Z",
+      "side": 1,
+      "message": "Removing this seems to be causing a blueprint related error , so reverting this back.",
+      "parentUuid": "0cfc9087_6cbc3ed3",
+      "range": {
+        "startLine": 123,
+        "startChar": 12,
+        "endLine": 123,
+        "endChar": 33
+      },
+      "revId": "bed3e8ca4269ebc78ca5972aa5d390182ff5786f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "210019be_c1342cf7",
         "filename": "vpnservice/dhcpservice/dhcpservice-impl/src/main/java/org/opendaylight/netvirt/dhcpservice/DhcpExternalTunnelManager.java",
         "patchSetId": 25
