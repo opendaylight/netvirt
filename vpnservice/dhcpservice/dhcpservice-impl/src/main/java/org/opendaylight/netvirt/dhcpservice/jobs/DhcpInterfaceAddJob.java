@@ -14,7 +14,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
@@ -40,6 +41,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final Interface interfaceAdd;
     private final BigInteger dpnId;
     private final IInterfaceManager interfaceManager;
@@ -51,6 +53,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceAdd = interfaceAdd;
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
@@ -58,7 +61,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         String interfaceName = interfaceAdd.getName();
         LOG.trace("Received add DCN for interface {}, dpid {}", interfaceName, dpnId);
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
@@ -83,9 +86,8 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
             }
             List<ListenableFuture<Void>> futures = new ArrayList<>();
             // Support for VM migration use cases.
-            WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
-            DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
-            futures.add(bindServiceTx.submit());
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)));
             LOG.info("DhcpInterfaceEventListener add isEnableDhcp:{}", subnet.isEnableDhcp());
             futures.addAll(installDhcpEntries(interfaceAdd.getName(), dpnId));
             LOG.trace("Checking ElanDpnInterface {} for dpn {} ", interfaceName, dpnId);
@@ -110,8 +112,7 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
 
     private List<ListenableFuture<Void>> installDhcpEntries(String interfaceName, BigInteger dpId) {
         String vmMacAddress = DhcpServiceUtils.getAndUpdateVmMacAddress(dataBroker, interfaceName, dhcpManager);
-        WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
-        dhcpManager.installDhcpEntries(dpId, vmMacAddress, flowTx);
-        return Collections.singletonList(flowTx.submit());
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx)));
     }
 }

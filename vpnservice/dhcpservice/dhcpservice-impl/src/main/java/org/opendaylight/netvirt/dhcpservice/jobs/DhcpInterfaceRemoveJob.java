@@ -16,8 +16,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -57,6 +58,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     private final DhcpManager dhcpManager;
     private final DhcpExternalTunnelManager dhcpExternalTunnelManager;
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final Interface interfaceDel;
     private final BigInteger dpnId;
     private final IInterfaceManager interfaceManager;
@@ -69,6 +71,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         this.dhcpManager = dhcpManager;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceDel = interfaceDel;
         this.dpnId = dpnId;
         this.interfaceManager = interfaceManager;
@@ -76,7 +79,7 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         String interfaceName = interfaceDel.getName();
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
@@ -93,9 +96,8 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
         }
         List<ListenableFuture<Void>> futures = new ArrayList<>();
         // Support for VM migration use cases.
-        WriteTransaction unbindTx = dataBroker.newWriteOnlyTransaction();
-        DhcpServiceUtils.unbindDhcpService(interfaceName, unbindTx);
-        futures.add(unbindTx.submit());
+        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> DhcpServiceUtils.unbindDhcpService(interfaceName, tx)));
         Port port = dhcpManager.getNeutronPort(interfaceName);
         java.util.Optional<String> subnetId = DhcpServiceUtils.getNeutronSubnetId(port);
         if (subnetId.isPresent()) {
@@ -115,9 +117,8 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
 
     private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, BigInteger dpId) {
         String vmMacAddress = getAndRemoveVmMacAddress(interfaceName);
-        WriteTransaction flowTx = dataBroker.newWriteOnlyTransaction();
-        dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, flowTx);
-        return Collections.singletonList(flowTx.submit());
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx)));
     }
 
     private String getAndRemoveVmMacAddress(String interfaceName) {

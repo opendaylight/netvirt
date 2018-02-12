@@ -11,18 +11,17 @@ import com.google.common.util.concurrent.ListenableFuture;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
-import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
 
 public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<Void>>> {
 
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final String interfaceName;
 
-    public DhcpAllocationPoolAddJob(DataBroker dataBroker, String interfaceName) {
-        this.dataBroker = dataBroker;
+    public DhcpAllocationPoolAddJob(ManagedNewTransactionRunner txRunner, String interfaceName) {
+        this.txRunner = txRunner;
         this.interfaceName = interfaceName;
     }
 
@@ -32,9 +31,8 @@ public class DhcpAllocationPoolAddJob implements Callable<List<ListenableFuture<
     }
 
     private List<ListenableFuture<Void>> installDhcpEntries() {
-        WriteTransaction bindServiceTx = dataBroker.newWriteOnlyTransaction();
-        DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, bindServiceTx);
-        return Collections.singletonList(bindServiceTx.submit());
+        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> DhcpServiceUtils.bindDhcpService(interfaceName, NwConstants.DHCP_TABLE, tx)));
     }
 
 }
