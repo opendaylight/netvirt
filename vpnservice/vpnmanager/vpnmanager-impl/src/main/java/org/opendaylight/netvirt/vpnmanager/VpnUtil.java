@@ -54,6 +54,7 @@ import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetDestination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.utils.ServiceIndex;
+import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
@@ -1421,8 +1422,10 @@ public final class VpnUtil {
             if (ipVersionBase.equals(IpVersionV4.class)) {
                 LOG.trace("getVpnSubnetGatewayIp: Obtained subnet {} for vpn interface",
                         subnet.get().getUuid().getValue());
-                gwIpAddress = Optional.of(subnet.get().getGatewayIp().getIpv4Address().getValue());
-                return gwIpAddress;
+                IpAddress gwIp = subnet.get().getGatewayIp();
+                if (gwIp != null && gwIp.getIpv4Address() != null) {
+                    gwIpAddress = Optional.of(gwIp.getIpv4Address().getValue());
+                }
             }
         }
         return gwIpAddress;
@@ -1582,7 +1585,7 @@ public final class VpnUtil {
                         ServiceIndex.getIndex(NwConstants.L3VPN_SERVICE_NAME, NwConstants.L3VPN_SERVICE_INDEX)),
                         serviceInfo, WriteTransaction.CREATE_MISSING_PARENTS);
                 return Collections.singletonList(writeTxn.submit());
-            });
+            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
     static BoundServices getBoundServicesForVpnInterface(DataBroker broker, String vpnName, String interfaceName) {
@@ -1631,7 +1634,7 @@ public final class VpnUtil {
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(writeTxn.submit());
                     return futures;
-                });
+                }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
         }
     }
 

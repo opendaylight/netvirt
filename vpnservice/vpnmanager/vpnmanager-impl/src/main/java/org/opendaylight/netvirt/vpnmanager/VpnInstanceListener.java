@@ -154,8 +154,8 @@ public class VpnInstanceListener extends AsyncDataTreeChangeListenerBase<VpnInst
     protected void add(final InstanceIdentifier<VpnInstance> identifier, final VpnInstance value) {
         LOG.trace("{} add: Add VPN event key: {}, value: {}", LOGGING_PREFIX_ADD, identifier, value);
         final String vpnName = value.getVpnInstanceName();
-        jobCoordinator.enqueueJob("VPN-" + vpnName,
-            new AddVpnInstanceWorker(idManager, dataBroker, value));
+        jobCoordinator.enqueueJob("VPN-" + vpnName, new AddVpnInstanceWorker(idManager, dataBroker, value),
+                SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
     }
 
     private class AddVpnInstanceWorker implements Callable<List<ListenableFuture<Void>>> {
