@@ -50,6 +50,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetInterfaceFromIfIndexOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.dhcp_allocation_pool.rev161214.dhcp_allocation_pool.network.AllocationPool;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
@@ -81,6 +84,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private final DhcpserviceConfig config;
     private final DhcpAllocationPoolManager dhcpAllocationPoolMgr;
     private final DataBroker broker;
+    private final ItmRpcService itmRpcService;
 
     @Inject
     public DhcpPktHandler(final DhcpManager dhcpManager,
@@ -90,7 +94,8 @@ public class DhcpPktHandler implements PacketProcessingListener {
                           final IInterfaceManager interfaceManager,
                           final DhcpserviceConfig config,
                           final DhcpAllocationPoolManager dhcpAllocationPoolMgr,
-                          final DataBroker dataBroker) {
+                          final DataBroker dataBroker,
+                          final ItmRpcService itmRpcService) {
         this.interfaceManagerRpc = interfaceManagerRpc;
         this.pktService = pktService;
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
@@ -99,6 +104,7 @@ public class DhcpPktHandler implements PacketProcessingListener {
         this.config = config;
         this.dhcpAllocationPoolMgr = dhcpAllocationPoolMgr;
         this.broker = dataBroker;
+        this.itmRpcService = itmRpcService;
     }
 
     //TODO: Handle this in a separate thread
@@ -703,19 +709,35 @@ public class DhcpPktHandler implements PacketProcessingListener {
     private List<Action> getEgressAction(String interfaceName, BigInteger tunnelId) {
         List<Action> actions = null;
         try {
-            GetEgressActionsForInterfaceInputBuilder egressAction =
-                    new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName);
             if (tunnelId != null) {
-                egressAction.setTunnelKey(tunnelId.longValue());
-            }
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
-                    interfaceManagerRpc.getEgressActionsForInterface(egressAction.build());
-            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
-                        interfaceName, rpcResult.getErrors());
+                GetEgressActionsForTunnelInputBuilder egressAction =
+                        new GetEgressActionsForTunnelInputBuilder().setIntfName(interfaceName);
+                if (tunnelId != null) {
+                    egressAction.setTunnelKey(tunnelId.longValue());
+                }
+                RpcResult<GetEgressActionsForTunnelOutput> rpcResult =
+                        itmRpcService.getEgressActionsForTunnel(egressAction.build()).get();
+                if (!rpcResult.isSuccessful()) {
+                    LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                            interfaceName, rpcResult.getErrors());
+                } else {
+                    actions = rpcResult.getResult().getAction();
+                }
             } else {
-                actions = rpcResult.getResult().getAction();
+                GetEgressActionsForInterfaceInputBuilder egressAction =
+                        new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName);
+                if (tunnelId != null) {
+                    egressAction.setTunnelKey(tunnelId.longValue());
+                }
+                Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
+                        interfaceManagerRpc.getEgressActionsForInterface(egressAction.build());
+                RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+                if (!rpcResult.isSuccessful()) {
+                    LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
+                            interfaceName, rpcResult.getErrors());
+                } else {
+                    actions = rpcResult.getResult().getAction();
+                }
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", interfaceName, e);

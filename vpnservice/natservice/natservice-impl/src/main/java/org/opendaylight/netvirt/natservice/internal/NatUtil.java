@@ -81,13 +81,14 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetDpidFromInterfaceOutput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.DpnEndpoints;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
@@ -1264,16 +1265,16 @@ public final class NatUtil {
     }
 
     @Nonnull
-    public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService interfaceManager, String ifName,
+    public static List<ActionInfo> getEgressActionsForInterface(ItmRpcService itmRpcService, String ifName,
                                                                 Long tunnelKey) {
-        return getEgressActionsForInterface(interfaceManager, ifName, tunnelKey, 0);
+        return getEgressActionsForInterface(itmRpcService, ifName, tunnelKey, 0);
     }
 
     @Nonnull
-    public static List<ActionInfo> getEgressActionsForInterface(OdlInterfaceRpcService interfaceManager, String ifName,
+    public static List<ActionInfo> getEgressActionsForInterface(ItmRpcService itmRpcService, String ifName,
                                                                 Long tunnelKey, int pos) {
         LOG.debug("getEgressActionsForInterface : called for interface {}", ifName);
-        GetEgressActionsForInterfaceInputBuilder egressActionsBuilder = new GetEgressActionsForInterfaceInputBuilder()
+        GetEgressActionsForTunnelInputBuilder egressActionsBuilder = new GetEgressActionsForTunnelInputBuilder()
             .setIntfName(ifName);
         if (tunnelKey != null) {
             egressActionsBuilder.setTunnelKey(tunnelKey);
@@ -1281,9 +1282,8 @@ public final class NatUtil {
 
         List<ActionInfo> listActionInfo = new ArrayList<>();
         try {
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result = interfaceManager
-                .getEgressActionsForInterface(egressActionsBuilder.build());
-            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
+            RpcResult<GetEgressActionsForTunnelOutput> rpcResult = itmRpcService.getEgressActionsForTunnel
+                    (egressActionsBuilder.build()).get();
             if (!rpcResult.isSuccessful()) {
                 LOG.error("getEgressActionsForInterface : RPC Call to Get egress actions for interface {} "
                         + "returned with Errors {}", ifName, rpcResult.getErrors());

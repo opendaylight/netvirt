@@ -76,6 +76,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.ta
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.tables.table.FlowKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.instruction.list.Instruction;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.*;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -129,6 +130,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
     private final FibUtil fibUtil;
     private final InterVpnLinkCache interVpnLinkCache;
     private final List<AutoCloseable> closeables = new CopyOnWriteArrayList<>();
+    private final ItmRpcService itmRpcService;
 
     @Inject
     public VrfEntryListener(final DataBroker dataBroker, final IMdsalApiManager mdsalApiManager,
@@ -139,7 +141,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             final RouterInterfaceVrfEntryHandler routerInterfaceVrfEntryHandler,
                             final JobCoordinator jobCoordinator,
                             final FibUtil fibUtil,
-                            final InterVpnLinkCache interVpnLinkCache) {
+                            final InterVpnLinkCache interVpnLinkCache,
+                            final ItmRpcService itmRpcService) {
         super(VrfEntry.class, VrfEntryListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -152,6 +155,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
         this.jobCoordinator = jobCoordinator;
         this.fibUtil = fibUtil;
         this.interVpnLinkCache = interVpnLinkCache;
+        this.itmRpcService = itmRpcService;
     }
 
     @Override

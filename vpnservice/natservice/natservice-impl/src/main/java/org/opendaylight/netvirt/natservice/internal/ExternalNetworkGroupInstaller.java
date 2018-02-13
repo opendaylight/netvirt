@@ -29,6 +29,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.slf4j.Logger;
@@ -42,16 +43,19 @@ public class ExternalNetworkGroupInstaller {
     private final IElanService elanService;
     private final IdManagerService idManager;
     private final OdlInterfaceRpcService interfaceManager;
+    private final ItmRpcService itmRpcService;
 
     @Inject
     public ExternalNetworkGroupInstaller(final DataBroker broker, final IMdsalApiManager mdsalManager,
-                                     final IElanService elanService, final IdManagerService idManager,
-                                     final OdlInterfaceRpcService interfaceManager) {
+                                         final IElanService elanService, final IdManagerService idManager,
+                                         final OdlInterfaceRpcService interfaceManager,
+                                         final ItmRpcService itmRpcService) {
         this.broker = broker;
         this.mdsalManager = mdsalManager;
         this.elanService = elanService;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
+        this.itmRpcService = itmRpcService;
     }
 
     public void installExtNetGroupEntries(Subnetmap subnetMap) {
@@ -201,7 +205,7 @@ public class ExternalNetworkGroupInstaller {
         final int setFieldEthDestActionPos = 0;
         List<ActionInfo> egressActionList = new ArrayList<>();
         if (extInterface != null) {
-            egressActionList = NatUtil.getEgressActionsForInterface(interfaceManager, extInterface, null,
+            egressActionList = NatUtil.getEgressActionsForInterface(itmRpcService, extInterface, null,
                 setFieldEthDestActionPos + 1);
         }
         if (Strings.isNullOrEmpty(macAddress) || egressActionList.isEmpty()) {
