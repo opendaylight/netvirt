@@ -379,17 +379,17 @@ public class NeutronvpnNatManager implements AutoCloseable {
             optionalNets = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                                             LogicalDatastoreType.CONFIGURATION, netsIdentifier);
         } catch (ReadFailedException ex) {
-            LOG.error("Removing externalnetwork {} from router {} failed", origExtNetId.getValue(),
-                    routerId.getValue(), ex);
+            LOG.error("removeExternalNetworkFromRouter: Failed to remove provider network {} from router {}",
+                      origExtNetId.getValue(), routerId.getValue(), ex);
             return;
         }
         if (!optionalNets.isPresent()) {
-            LOG.error("External Network {} not present in the NVPN datamodel", origExtNetId.getValue());
+            LOG.error("removeExternalNetworkFromRouter: Provider Network {} not present in the NVPN datamodel",
+                      origExtNetId.getValue());
             return;
         }
         Networks nets = optionalNets.get();
         try {
-            LOG.trace("Removing a router from External Networks node: {}", origExtNetId.getValue());
             NetworksBuilder builder = new NetworksBuilder(nets);
             List<Uuid> rtrList = builder.getRouterIds();
             if (rtrList != null) {
@@ -398,28 +398,31 @@ public class NeutronvpnNatManager implements AutoCloseable {
                 Networks networkss = builder.build();
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                         netsIdentifier, networkss);
-                LOG.trace("Removed router {} from externalnetworks {}", routerId, origExtNetId.getValue());
+                LOG.trace("removeExternalNetworkFromRouter: Remove router {} from External Networks node {}",
+                          routerId, origExtNetId.getValue());
             }
         } catch (TransactionCommitFailedException ex) {
-            LOG.error("Removing externalnetwork {} from router {} failed", origExtNetId.getValue(),
-                    routerId.getValue(), ex);
+            LOG.error("removeExternalNetworkFromRouter: Failed to remove provider network {} from router {}",
+                      origExtNetId.getValue(), routerId.getValue(), ex);
         }
 
         // Remove the vpnInternetId fromSubnetmap
-        LOG.trace("Removing a vpnInternetId to SubnetMaps about External Networks node: {}",
-                origExtNetId.getValue());
         Network net = neutronvpnUtils.getNeutronNetwork(nets.getId());
-        List<Subnetmap> submapList = neutronvpnUtils.getSubnetMapsforNetworkRoute(net);
-        for (Subnetmap sn : submapList) {
-            if (sn.getInternetVpnId() == null) {
+        List<Uuid> submapIds = neutronvpnUtils.getPrivateSubnetsToExport(net);
+        for (Uuid snId : submapIds) {
+            Subnetmap subnetMap = neutronvpnUtils.getSubnetmap(snId);
+            if ((subnetMap == null) || (subnetMap.getInternetVpnId() == null)) {
+                LOG.error("removeExternalNetworkFromRouter: Can not find Subnetmap for SubnetId {} in ConfigDS",
+                          snId.getValue());
                 continue;
             }
-            LOG.trace("Removing a vpnInternetId {} to SubnetMap {}", sn.getInternetVpnId(), sn.getId());
-            IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(sn.getSubnetIp());
+            LOG.trace("removeExternalNetworkFromRouter: Remove Internet VPN Id {} from SubnetMap {}",
+                      subnetMap.getInternetVpnId(), subnetMap.getId());
+            IpVersionChoice ipVers = NeutronvpnUtils.getIpVersionFromString(subnetMap.getSubnetIp());
             if (ipVers == IpVersionChoice.IPV6) {
-                LOG.debug("removeExternalNetworkFromRouter : clear vpnInternet IPv6 for vpnExternal {} "
-                        + "subnetmap {}", sn.getInternetVpnId(), sn);
-                nvpnManager.updateVpnInternetForSubnet(sn, sn.getInternetVpnId(), false);
+                nvpnManager.updateVpnInternetForSubnet(subnetMap, subnetMap.getInternetVpnId(), false);
+                LOG.debug("removeExternalNetworkFromRouter: Withdraw IPv6 routes from VPN {}",
+                          subnetMap.getInternetVpnId());
             }
         }
     }

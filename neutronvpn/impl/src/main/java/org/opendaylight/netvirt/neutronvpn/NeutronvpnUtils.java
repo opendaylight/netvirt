@@ -114,6 +114,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.ext.rev150712.Ne
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.Router;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.RouterKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l3.rev150712.routers.attributes.routers.router.ExternalGatewayInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeFlat;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.NetworkTypeGre;
@@ -1112,7 +1113,6 @@ public class NeutronvpnUtils {
         return Optional.absent();
     }
 
-
     public Set<RouterDpnList> getAllRouterDpnList(BigInteger dpid) {
         Set<RouterDpnList> ret = new HashSet<>();
         InstanceIdentifier<NeutronRouterDpns> routerDpnId =
@@ -1553,53 +1553,30 @@ public class NeutronvpnUtils {
     }
 
     /**
-     * Get all subnetmap associate to the belonging router of network.
-     * @param network the network which have router bound
-     * @return a list of Subnetmap of the router (which the network is associated)
+     * Get a list of Private Subnetmap Ids from router to export then its prefixes in Internet VPN.
+     * @param extNet Provider Network, which has a port attached as external network gateway to router
+     * @return a list of Private Subnetmap Ids of the router with external network gateway
      */
-    public @Nonnull List<Subnetmap> getSubnetMapsforNetworkRoute(@Nonnull Network network) {
-        List<Subnetmap> subList = new ArrayList<>();
-        LOG.debug("getSubnetMapsforNetworkRoute for network {}", network.getUuid());
-        Uuid vpnUuid = getVpnForNetwork(network.getUuid());
-        InstanceIdentifier<Subnetmaps> subnetmapsid = InstanceIdentifier.builder(Subnetmaps.class).build();
-        Optional<Subnetmaps> optionalSubnetmaps = read(LogicalDatastoreType.CONFIGURATION,
-                       subnetmapsid);
-        if (!optionalSubnetmaps.isPresent()) {
-            LOG.debug("getSubnetMapsforNetworkRoute: no subnetmaps");
-            return Collections.emptyList();
+    public @Nonnull List<Uuid> getPrivateSubnetsToExport(@Nonnull Network extNet) {
+        List<Uuid> subList = new ArrayList<>();
+        Uuid extNetVpnId = getVpnForNetwork(extNet.getUuid());
+        if (extNetVpnId == null) {
+            return subList;
         }
-        List<Subnetmap> subnetmapList = optionalSubnetmaps.get().getSubnetmap();
-        if (vpnUuid != null) {
-            for (Subnetmap subnetmap : subnetmapList) {
-                if ((subnetmap.getInternetVpnId() != null)
-                     && subnetmap.getInternetVpnId().getValue().equals(vpnUuid.getValue())) {
-                    subList.add(subnetmap);
-                }
-            }
-        } else {
-            Uuid routerId = null;
-            for (Subnetmap subnetmap : subnetmapList) {
-                if (subnetmap.getRouterId() != null) {
-                    Uuid externalNetworkUuid = getExternalNetworkUuidAttachedFromRouterUuid(subnetmap.getRouterId());
-                    if (externalNetworkUuid != null && externalNetworkUuid.getValue()
-                         .equals(network.getUuid().getValue())) {
-                        routerId = subnetmap.getRouterId();
-                        break;
-                    }
-                }
-            }
-            if (routerId == null) {
-                LOG.debug("getSubnetMapsforNetworkRoute: no subnet in routers using {}", network.getUuid());
-                return Collections.emptyList();
-            }
-            for (Subnetmap subnetmap : subnetmapList) {
-                if (subnetmap.getRouterId() != null
-                        && subnetmap.getRouterId().getValue().matches(routerId.getValue())) {
-                    subList.add(subnetmap);
-                }
-            }
+        Router router = getNeutronRouter(getRouterforVpn(extNetVpnId));
+        ExternalGatewayInfo info = router.getExternalGatewayInfo();
+        if (info == null) {
+            LOG.error("getPrivateSubnetsToExport: can not get info about external gateway for router {}",
+                      router.getUuid().getValue());
+            return subList;
         }
-        return subList;
+        // check that router really has given provider network as its external gateway port
+        if (!extNet.getUuid().equals(info.getExternalNetworkId())) {
+            LOG.error("getPrivateSubnetsToExport: router {} is not attached to given provider network {}",
+                      router.getUuid().getValue(), extNet.getUuid().getValue());
+            return subList;
+        }
+        return getSubnetsforVpn(router.getUuid());
     }
 
     public void updateVpnInstanceWithFallback(String vpnName, boolean add) {
