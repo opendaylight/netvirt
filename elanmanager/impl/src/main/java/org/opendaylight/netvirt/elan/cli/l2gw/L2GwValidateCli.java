@@ -26,7 +26,7 @@ import java.util.Set;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
@@ -122,40 +122,41 @@ public class L2GwValidateCli extends OsgiCommandSupport {
     }
 
     private void readNodes() throws ReadFailedException {
-        ReadWriteTransaction tx = dataBroker.newReadWriteTransaction();
-        InstanceIdentifier<Topology> topoId = HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier();
+        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            InstanceIdentifier<Topology> topoId = HwvtepSouthboundUtils.createHwvtepTopologyInstanceIdentifier();
 
-        Optional<Topology> operationalTopoOptional = tx.read(LogicalDatastoreType.OPERATIONAL, topoId).checkedGet();
-        Optional<Topology> configTopoOptional = tx.read(LogicalDatastoreType.CONFIGURATION, topoId).checkedGet();
+            Optional<Topology> operationalTopoOptional = tx.read(LogicalDatastoreType.OPERATIONAL, topoId).checkedGet();
+            Optional<Topology> configTopoOptional = tx.read(LogicalDatastoreType.CONFIGURATION, topoId).checkedGet();
 
-        if (operationalTopoOptional.isPresent()) {
-            for (Node node : operationalTopoOptional.get().getNode()) {
-                InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.getKey());
-                operationalNodes.put(nodeIid, node);
+            if (operationalTopoOptional.isPresent()) {
+                for (Node node : operationalTopoOptional.get().getNode()) {
+                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.getKey());
+                    operationalNodes.put(nodeIid, node);
+                }
             }
-        }
-        if (configTopoOptional.isPresent()) {
-            for (Node node : configTopoOptional.get().getNode()) {
-                InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.getKey());
-                configNodes.put(nodeIid, node);
+            if (configTopoOptional.isPresent()) {
+                for (Node node : configTopoOptional.get().getNode()) {
+                    InstanceIdentifier<Node> nodeIid = topoId.child(Node.class, node.getKey());
+                    configNodes.put(nodeIid, node);
+                }
             }
-        }
 
-        fillNodesData(operationalNodes, operationalNodesData);
-        fillNodesData(configNodes, configNodesData);
+            fillNodesData(operationalNodes, operationalNodesData);
+            fillNodesData(configNodes, configNodesData);
 
-        Optional<ElanInstances> elanInstancesOptional = tx.read(LogicalDatastoreType.CONFIGURATION,
-                InstanceIdentifier.builder(ElanInstances.class).build()).checkedGet();
+            Optional<ElanInstances> elanInstancesOptional = tx.read(LogicalDatastoreType.CONFIGURATION,
+                    InstanceIdentifier.builder(ElanInstances.class).build()).checkedGet();
 
-        if (elanInstancesOptional.isPresent() && elanInstancesOptional.get().getElanInstance() != null) {
-            for (ElanInstance elanInstance : elanInstancesOptional.get().getElanInstance()) {
-                elanInstanceMap.put(elanInstance.getElanInstanceName(), elanInstance);
+            if (elanInstancesOptional.isPresent() && elanInstancesOptional.get().getElanInstance() != null) {
+                for (ElanInstance elanInstance : elanInstancesOptional.get().getElanInstance()) {
+                    elanInstanceMap.put(elanInstance.getElanInstanceName(), elanInstance);
+                }
             }
-        }
-        l2gatewayConnections = L2GatewayConnectionUtils.getAllL2gatewayConnections(dataBroker);
-        l2gateways = L2GatewayConnectionUtils.getL2gatewayList(dataBroker);
-        for (L2gateway l2gateway : l2gateways) {
-            uuidToL2Gateway.put(l2gateway.getUuid(), l2gateway);
+            l2gatewayConnections = L2GatewayConnectionUtils.getAllL2gatewayConnections(dataBroker);
+            l2gateways = L2GatewayConnectionUtils.getL2gatewayList(dataBroker);
+            for (L2gateway l2gateway : l2gateways) {
+                uuidToL2Gateway.put(l2gateway.getUuid(), l2gateway);
+            }
         }
     }
 

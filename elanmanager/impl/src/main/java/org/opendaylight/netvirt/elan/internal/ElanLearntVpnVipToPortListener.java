@@ -16,10 +16,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -35,16 +35,15 @@ public class ElanLearntVpnVipToPortListener extends
         AsyncDataTreeChangeListenerBase<LearntVpnVipToPort, ElanLearntVpnVipToPortListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanLearntVpnVipToPortListener.class);
     private final DataBroker broker;
-    private final IInterfaceManager interfaceManager;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
 
     @Inject
-    public ElanLearntVpnVipToPortListener(DataBroker broker, IInterfaceManager interfaceManager, ElanUtils elanUtils,
-            JobCoordinator jobCoordinator) {
+    public ElanLearntVpnVipToPortListener(DataBroker broker, ElanUtils elanUtils, JobCoordinator jobCoordinator) {
         super(LearntVpnVipToPort.class, ElanLearntVpnVipToPortListener.class);
         this.broker = broker;
-        this.interfaceManager = interfaceManager;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
     }
@@ -98,19 +97,18 @@ public class ElanLearntVpnVipToPortListener extends
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
+        public List<ListenableFuture<Void>> call() {
             ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
             if (elanInterface == null) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
                 return Collections.emptyList();
             }
-            WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
-            WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            elanUtils.addMacEntryToDsAndSetupFlows(interfaceName, macAddress,
-                    elanInterface.getElanInstanceName(), interfaceTx, flowTx, ElanConstants.STATIC_MAC_TIMEOUT);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(interfaceTx.submit());
-            futures.add(flowTx.submit());
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> futures.add(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        flowTx -> elanUtils.addMacEntryToDsAndSetupFlows(interfaceName, macAddress,
+                                elanInterface.getElanInstanceName(), interfaceTx, flowTx,
+                                ElanConstants.STATIC_MAC_TIMEOUT)))));
             return futures;
         }
     }
@@ -125,19 +123,17 @@ public class ElanLearntVpnVipToPortListener extends
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
+        public List<ListenableFuture<Void>> call() {
             ElanInterface elanInterface = ElanUtils.getElanInterfaceByElanInterfaceName(broker, interfaceName);
             if (elanInterface == null) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for delete event", interfaceName);
                 return Collections.emptyList();
             }
-            WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
-            WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            elanUtils.deleteMacEntryFromDsAndRemoveFlows(interfaceName, macAddress,
-                    elanInterface.getElanInstanceName(), interfaceTx, flowTx);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(interfaceTx.submit());
-            futures.add(flowTx.submit());
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> futures.add(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        flowTx -> elanUtils.deleteMacEntryFromDsAndRemoveFlows(interfaceName, macAddress,
+                                elanInterface.getElanInstanceName(), interfaceTx, flowTx)))));
             return futures;
         }
     }
