@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12bd36b3_60ddc8a9",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-02-13T09:23:45Z",
+      "side": 1,
+      "message": "actually integration/distribution/karaf/pom.xml already had the required \u003cscope\u003etest, so all good there",
+      "revId": "364875cc9be5acc2d9d8d890f1e9fa5aba325e5a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
