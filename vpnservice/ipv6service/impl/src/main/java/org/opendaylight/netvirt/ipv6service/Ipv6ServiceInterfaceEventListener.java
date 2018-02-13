@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.ipv6service;
 
 import java.math.BigInteger;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -16,6 +17,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
+import org.opendaylight.genius.utils.SystemPropertyReader;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6Constants;
 import org.opendaylight.netvirt.ipv6service.utils.Ipv6ServiceUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
@@ -34,17 +38,20 @@ public class Ipv6ServiceInterfaceEventListener
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
     private final Ipv6ServiceUtils ipv6ServiceUtils;
+    private final JobCoordinator jobCoordinator;
 
     /**
      * Intialize the member variables.
      * @param broker the data broker instance.
      */
     @Inject
-    public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr, Ipv6ServiceUtils ipv6ServiceUtils) {
+    public Ipv6ServiceInterfaceEventListener(DataBroker broker, IfMgr ifMgr, Ipv6ServiceUtils ipv6ServiceUtils,
+                                             final JobCoordinator jobCoordinator) {
         super(Interface.class, Ipv6ServiceInterfaceEventListener.class);
         this.dataBroker = broker;
         this.ifMgr = ifMgr;
         this.ipv6ServiceUtils = ipv6ServiceUtils;
+        this.jobCoordinator = jobCoordinator;
     }
 
     @PostConstruct
@@ -61,6 +68,31 @@ public class Ipv6ServiceInterfaceEventListener
     @Override
     protected void remove(InstanceIdentifier<Interface> key, Interface del) {
         LOG.debug("Port removed {}, {}", key, del);
+        if (!L2vlan.class.equals(del.getType())) {
+            return;
+        }
+
+        // In ipv6service, we are only interested in the notification for NeutronPort, so we skip other notifications
+        List<String> ofportIds = del.getLowerLayerIf();
+        if (ofportIds == null || ofportIds.isEmpty() || !isNeutronPort(del.getName())) {
+            return;
+        }
+
+        Uuid portId = new Uuid(del.getName());
+        VirtualPort port = ifMgr.obtainV6Interface(portId);
+        if (port == null) {
+            LOG.info("Port {} does not include IPv6Address, skipping.", portId);
+            return;
+        }
+
+        if (port.getServiceBindingStatus()) {
+            jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+                // Unbind Service
+                ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
+                port.setServiceBindingStatus(false);
+                return Collections.emptyList();
+            }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+        }
     }
 
     @Override
@@ -119,6 +151,16 @@ public class Ipv6ServiceInterfaceEventListener
                 }
                 // Check and program icmpv6 punt flows on the dpnID if its the first VM on the host.
                 ifMgr.programIcmpv6PuntFlowsIfNecessary(portId, dpId, routerPort);
+
+                if (!port.getServiceBindingStatus()) {
+                    jobCoordinator.enqueueJob("IPv6-" + String.valueOf(portId), () -> {
+                        // Bind Service
+                        Long elanTag = ifMgr.getNetworkElanTag(routerPort.getNetworkID());
+                        ipv6ServiceUtils.bindIpv6Service(portId.getValue(), elanTag, NwConstants.IPV6_TABLE);
+                        port.setServiceBindingStatus(true);
+                        return Collections.emptyList();
+                    }, SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
+                }
             }
         }
     }

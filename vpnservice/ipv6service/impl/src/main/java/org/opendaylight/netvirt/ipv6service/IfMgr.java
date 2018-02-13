@@ -422,7 +422,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
         } else {
             LOG.info("In updateHostIntf, removing service binding for portId {}", portId);
             ipv6ServiceUtils.unbindIpv6Service(portId.getValue());
-            intf.setServiceBindingStatus(true);
+            intf.setServiceBindingStatus(false);
         }
     }
 
