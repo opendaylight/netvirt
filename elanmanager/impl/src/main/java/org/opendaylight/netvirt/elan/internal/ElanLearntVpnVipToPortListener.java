@@ -21,6 +21,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -46,6 +48,7 @@ public class ElanLearntVpnVipToPortListener extends
         AsyncDataTreeChangeListenerBase<LearntVpnVipToPort, ElanLearntVpnVipToPortListener> {
     private static final Logger LOG = LoggerFactory.getLogger(ElanLearntVpnVipToPortListener.class);
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final JobCoordinator jobCoordinator;
@@ -57,6 +60,7 @@ public class ElanLearntVpnVipToPortListener extends
             JobCoordinator jobCoordinator, ElanInstanceCache elanInstanceCache, ElanInterfaceCache elanInterfaceCache) {
         super(LearntVpnVipToPort.class, ElanLearntVpnVipToPortListener.class);
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.jobCoordinator = jobCoordinator;
@@ -119,13 +123,11 @@ public class ElanLearntVpnVipToPortListener extends
                 LOG.debug("ElanInterface Not present for interfaceName {} for add event", interfaceName);
                 return Collections.emptyList();
             }
-            WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
-            WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            addMacEntryToDsAndSetupFlows(elanInterface.get().getElanInstanceName(), interfaceTx, flowTx,
-                    ElanConstants.STATIC_MAC_TIMEOUT);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(interfaceTx.submit());
-            futures.add(flowTx.submit());
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> futures.add(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        flowTx -> addMacEntryToDsAndSetupFlows(elanInterface.get().getElanInstanceName(),
+                                interfaceTx, flowTx, ElanConstants.STATIC_MAC_TIMEOUT)))));
             return futures;
         }
 
@@ -160,18 +162,17 @@ public class ElanLearntVpnVipToPortListener extends
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
+        public List<ListenableFuture<Void>> call() {
             Optional<ElanInterface> elanInterface = elanInterfaceCache.get(interfaceName);
             if (!elanInterface.isPresent()) {
                 LOG.debug("ElanInterface Not present for interfaceName {} for delete event", interfaceName);
                 return Collections.emptyList();
             }
-            WriteTransaction interfaceTx = broker.newWriteOnlyTransaction();
-            WriteTransaction flowTx = broker.newWriteOnlyTransaction();
-            deleteMacEntryFromDsAndRemoveFlows(elanInterface.get().getElanInstanceName(), interfaceTx, flowTx);
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            futures.add(interfaceTx.submit());
-            futures.add(flowTx.submit());
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> futures.add(
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        flowTx -> deleteMacEntryFromDsAndRemoveFlows(elanInterface.get().getElanInstanceName(),
+                                interfaceTx, flowTx)))));
             return futures;
         }
 
