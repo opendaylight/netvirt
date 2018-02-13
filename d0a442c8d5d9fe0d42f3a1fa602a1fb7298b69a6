@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6b48c11f_d6bff63e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-02-13T08:28:08Z",
+      "side": 0,
+      "message": "same here.",
+      "revId": "d0a442c8d5d9fe0d42f3a1fa602a1fb7298b69a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdc0b9c2_73631e73",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-02-13T08:28:08Z",
+      "side": 0,
+      "message": "why it is removed from here ?",
+      "revId": "d0a442c8d5d9fe0d42f3a1fa602a1fb7298b69a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
