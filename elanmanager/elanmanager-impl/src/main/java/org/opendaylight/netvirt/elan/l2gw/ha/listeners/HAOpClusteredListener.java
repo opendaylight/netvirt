@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -171,24 +172,22 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
             return Collections.emptySet();
         }
         return candidateds.stream()
-                .filter((iid) -> connectedNodes.contains(iid))
+                .filter(connectedNodes::contains)
                 .collect(Collectors.toSet());
     }
 
     public synchronized void runAfterNodeIsConnected(InstanceIdentifier<Node> iid, Consumer<Optional<Node>> consumer) {
         if (connectedNodes.contains(iid)) {
-            ReadWriteTransaction tx = getDataBroker().newReadWriteTransaction();
             HAJobScheduler.getInstance().submitJob(() -> {
-                try {
+                try (ReadOnlyTransaction tx = getDataBroker().newReadOnlyTransaction()) {
                     consumer.accept(tx.read(LogicalDatastoreType.OPERATIONAL, iid).checkedGet());
                 } catch (ReadFailedException e) {
                     LOG.error("Failed to read oper ds {}", iid);
                 }
             });
-            return;
+        } else {
+            waitingJobs.computeIfAbsent(iid, key -> Sets.newConcurrentHashSet()).add(consumer);
         }
-        waitingJobs.putIfAbsent(iid, Sets.newConcurrentHashSet());
-        waitingJobs.get(iid).add(consumer);
     }
 }
 
