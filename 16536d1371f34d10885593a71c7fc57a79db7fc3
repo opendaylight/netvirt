@@ -16,6 +16,24 @@
       "revId": "16536d1371f34d10885593a71c7fc57a79db7fc3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "63eaf4df_6d986b1e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-02-13T09:30:12Z",
+      "side": 1,
+      "message": "group programming and l2gw macs programming are taken out from here.",
+      "parentUuid": "684804c2_03df5b76",
+      "revId": "16536d1371f34d10885593a71c7fc57a79db7fc3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

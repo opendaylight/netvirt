@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "00ad1cc3_c602c62e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 687,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-02-13T09:30:12Z",
+      "side": 0,
+      "message": "As mentioned in the comment section , only group programming is moved to the leader node.\nThis group programming does not incur any extra read costs as pointed in the earlier patch comment.\nWhat other problem do you see here ?",
+      "parentUuid": "6b48c11f_d6bff63e",
+      "revId": "d0a442c8d5d9fe0d42f3a1fa602a1fb7298b69a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "cdc0b9c2_73631e73",
         "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
         "patchSetId": 4
@@ -30,6 +48,24 @@
       "writtenOn": "2018-02-13T08:28:08Z",
       "side": 0,
       "message": "why it is removed from here ?",
+      "revId": "d0a442c8d5d9fe0d42f3a1fa602a1fb7298b69a6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "67f2b8bb_da89c988",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 822,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-02-13T09:30:12Z",
+      "side": 0,
+      "message": "This is tagged along with group programming which is moved to eos leader node, since these flows point to groups.",
+      "parentUuid": "cdc0b9c2_73631e73",
       "revId": "d0a442c8d5d9fe0d42f3a1fa602a1fb7298b69a6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
