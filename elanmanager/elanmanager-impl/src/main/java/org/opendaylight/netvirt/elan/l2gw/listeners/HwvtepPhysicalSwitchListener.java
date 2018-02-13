@@ -21,7 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -310,11 +310,12 @@ public class HwvtepPhysicalSwitchListener
         });
     }
 
-    boolean updateHACacheIfHANode(DataBroker broker, InstanceIdentifier<Node> globalNodeId)
+    boolean updateHACacheIfHANode(InstanceIdentifier<Node> globalNodeId)
             throws ExecutionException, InterruptedException {
-        ReadWriteTransaction transaction = broker.newReadWriteTransaction();
-        Node node = transaction.read(LogicalDatastoreType.OPERATIONAL, globalNodeId).get().get();
-        HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node);
+        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            tx.read(LogicalDatastoreType.OPERATIONAL, globalNodeId).get().toJavaUtil().ifPresent(
+                node -> HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node));
+        }
         return hwvtepHACache.isHAEnabledDevice(globalNodeId);
     }
 
