@@ -19,6 +19,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -61,6 +63,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     private static final int LEARN_MATCH_REG4_VALUE = 1;
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IMdsalApiManager mdsalManager;
     private final IdManagerService idManagerService;
     private final int tempSmacLearnTimeout;
@@ -71,6 +74,7 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     public ElanNodeListener(DataBroker dataBroker, IMdsalApiManager mdsalManager, ElanConfig elanConfig,
             IdManagerService idManagerService, JobCoordinator jobCoordinator) {
         this.broker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.mdsalManager = mdsalManager;
         this.tempSmacLearnTimeout = elanConfig.getTempSmacLearnTimeout();
         this.puntLldpToController = elanConfig.isPuntLldpToController();
@@ -112,13 +116,12 @@ public class ElanNodeListener extends AsyncDataTreeChangeListenerBase<Node, Elan
     }
 
     private void createArpDefaultFlowsForArpCheckTable(BigInteger dpId) {
-        jobCoordinator.enqueueJob("ARP_CHECK_TABLE-" + dpId.toString(), () -> {
-            WriteTransaction writeFlowTx = broker.newWriteOnlyTransaction();
-            LOG.debug("Received notification to install Arp Check Default entries for dpn {} ", dpId);
-            createArpRequestMatchFlows(dpId, writeFlowTx);
-            createArpResponseMatchFlows(dpId, writeFlowTx);
-            return Arrays.asList(writeFlowTx.submit());
-        });
+        jobCoordinator.enqueueJob("ARP_CHECK_TABLE-" + dpId.toString(),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                LOG.debug("Received notification to install Arp Check Default entries for dpn {} ", dpId);
+                createArpRequestMatchFlows(dpId, tx);
+                createArpResponseMatchFlows(dpId, tx);
+            })));
     }
 
     public void createTableMissEntry(BigInteger dpnId) {

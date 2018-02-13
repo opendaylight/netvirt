@@ -24,13 +24,13 @@ import java.util.stream.Collectors;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
-import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elan.utils.Scheduler;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -54,24 +54,20 @@ public class StaleVlanBindingsCleaner {
     private static final Logger LOG = LoggerFactory.getLogger(StaleVlanBindingsCleaner.class);
     private static final int DEFAULT_STALE_CLEANUP_DELAY_SECS = 900;
 
-    private static Function<VlanBindings, String> LOGICAL_SWITCH_FROM_BINDING = (binding) -> {
-        InstanceIdentifier<LogicalSwitches> lsRef = (InstanceIdentifier<LogicalSwitches>)
-                binding.getLogicalSwitchRef().getValue();
-        return lsRef.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
-    };
+    private static Function<VlanBindings, String> LOGICAL_SWITCH_FROM_BINDING =
+        (binding) -> binding.getLogicalSwitchRef().getValue().firstKeyOf(
+                LogicalSwitches.class).getHwvtepNodeName().getValue();
 
-    private static BiPredicate<List<String>, String> IS_STALE_LOGICAL_SWITCH = (validNetworks, logicalSwitch) -> {
-        return !validNetworks.contains(logicalSwitch);
-    };
+    private static BiPredicate<List<String>, String> IS_STALE_LOGICAL_SWITCH =
+        (validNetworks, logicalSwitch) -> !validNetworks.contains(logicalSwitch);
 
-    private static Predicate<TerminationPoint> CONTAINS_VLANBINDINGS = (port) -> {
-        return port.getAugmentation(HwvtepPhysicalPortAugmentation.class) != null
-                && port.getAugmentation(HwvtepPhysicalPortAugmentation.class).getVlanBindings() != null;
-    };
+    private static Predicate<TerminationPoint> CONTAINS_VLANBINDINGS = (port) ->
+            port.getAugmentation(HwvtepPhysicalPortAugmentation.class) != null
+                    && port.getAugmentation(HwvtepPhysicalPortAugmentation.class).getVlanBindings() != null;
 
 
     private final DataBroker broker;
-    private final ElanUtils elanUtils;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final Scheduler scheduler;
     private final ElanConfig elanConfig;
@@ -81,14 +77,13 @@ public class StaleVlanBindingsCleaner {
 
     @Inject
     public StaleVlanBindingsCleaner(final DataBroker broker,
-                                    final ElanUtils elanUtils,
                                     final ElanL2GatewayUtils elanL2GatewayUtils,
                                     final Scheduler scheduler,
                                     final ElanConfig elanConfig,
                                     final L2GatewayCache l2GatewayCache,
                                     final ElanInstanceCache elanInstanceCache) {
         this.broker = broker;
-        this.elanUtils = elanUtils;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.scheduler = scheduler;
         this.elanConfig = elanConfig;
@@ -193,13 +188,14 @@ public class StaleVlanBindingsCleaner {
                                       final String staleLogicalSwitch) {
 
         LOG.trace("CleanupStaleBindings for logical switch {}", staleLogicalSwitch);
-        ReadWriteTransaction tx = broker.newReadWriteTransaction();
-        if (vlans.containsKey(staleLogicalSwitch)) {
-            vlans.get(staleLogicalSwitch)
-                    .forEach((vlanIid) -> tx.delete(LogicalDatastoreType.CONFIGURATION, vlanIid));
-        }
-        ListenableFutures.addErrorLogging(tx.submit(), LOG,
-                "Failed to delete stale vlan bindings from node {}", globalNodeId);
+        ListenableFutures.addErrorLogging(
+            txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                if (vlans.containsKey(staleLogicalSwitch)) {
+                    vlans.get(staleLogicalSwitch)
+                            .forEach((vlanIid) -> tx.delete(LogicalDatastoreType.CONFIGURATION, vlanIid));
+                }
+            }),
+            LOG, "Failed to delete stale vlan bindings from node {}", globalNodeId);
         elanL2GatewayUtils.scheduleDeleteLogicalSwitch(new NodeId(globalNodeId), staleLogicalSwitch, true);
     }
 
