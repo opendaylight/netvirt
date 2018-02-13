@@ -1176,8 +1176,10 @@ public class ElanUtils {
      *            the elan interfaces
      * @param tx
      *            transaction
+     *
+     * @return the updated ELAN instance.
      */
-    public static void updateOperationalDataStore(DataBroker broker, IdManagerService idManager,
+    public static ElanInstance updateOperationalDataStore(DataBroker broker, IdManagerService idManager,
             ElanInstance elanInstanceAdded, List<String> elanInterfaces, WriteTransaction tx) {
         String elanInstanceName = elanInstanceAdded.getElanInstanceName();
         Long elanTag = elanInstanceAdded.getElanTag();
@@ -1228,7 +1230,8 @@ public class ElanUtils {
         }
         ElanInstance elanInstanceWithTag = elanInstanceBuilder.build();
         tx.merge(LogicalDatastoreType.CONFIGURATION, ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName),
-                elanInstanceWithTag, true);
+                elanInstanceWithTag, WriteTransaction.CREATE_MISSING_PARENTS);
+        return elanInstanceWithTag;
     }
 
     private static void addTheLeafTagAsElanTag(DataBroker broker, String elanInstanceName, long etreeLeafTag,
