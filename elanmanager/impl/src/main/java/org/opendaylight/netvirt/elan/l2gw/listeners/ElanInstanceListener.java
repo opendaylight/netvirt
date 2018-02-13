@@ -7,15 +7,18 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
+import com.google.common.util.concurrent.ListenableFuture;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
@@ -33,12 +36,14 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceListener.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanClusterUtils elanClusterUtils;
 
     @Inject
     public ElanInstanceListener(final DataBroker db, final ElanClusterUtils elanClusterUtils) {
         super(ElanInstance.class, ElanInstanceListener.class);
         broker = db;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
         this.elanClusterUtils = elanClusterUtils;
     }
 
@@ -56,21 +61,21 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
                 List<L2gatewayConnection> connections =
                         L2GatewayConnectionUtils.getL2GwConnectionsByElanName(
                                 this.broker, del.getElanInstanceName());
-                if (connections == null || connections.isEmpty()) {
-                    return null;
+                if (connections.isEmpty()) {
+                    return Collections.emptyList();
                 }
-                try {
-                    ReadWriteTransaction tx = this.broker.newReadWriteTransaction();
+                ListenableFuture<Void> future = txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
                     for (L2gatewayConnection connection : connections) {
-                        InstanceIdentifier<L2gatewayConnection> iid = InstanceIdentifier.create(Neutron.class)
-                            .child(L2gatewayConnections.class).child(L2gatewayConnection.class, connection.getKey());
+                        InstanceIdentifier<L2gatewayConnection> iid =
+                                InstanceIdentifier.create(Neutron.class).child(
+                                        L2gatewayConnections.class).child(
+                                        L2gatewayConnection.class, connection.getKey());
                         tx.delete(LogicalDatastoreType.CONFIGURATION, iid);
                     }
-                    tx.submit().checkedGet();
-                } catch (TransactionCommitFailedException e) {
-                    LOG.error("Failed to delete associated l2gwconnection while deleting network", e);
-                }
-                return null;
+                });
+                ListenableFutures.addErrorLogging(future, LOG,
+                        "Failed to delete associate L2 gateway connection while deleting network");
+                return Collections.singletonList(future);
             });
     }
 

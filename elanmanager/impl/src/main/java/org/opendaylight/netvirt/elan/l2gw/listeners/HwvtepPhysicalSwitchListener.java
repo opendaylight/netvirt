@@ -22,9 +22,11 @@ import javax.inject.Singleton;
 
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepAbstractDataTreeChangeListener;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -88,6 +90,7 @@ public class HwvtepPhysicalSwitchListener
 
     /** The data broker. */
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
 
     /** The itm rpc service. */
     private final ItmRpcService itmRpcService;
@@ -150,6 +153,7 @@ public class HwvtepPhysicalSwitchListener
             StaleVlanBindingsCleaner staleVlanBindingsCleaner) {
         super(PhysicalSwitchAugmentation.class, HwvtepPhysicalSwitchListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.itmRpcService = itmRpcService;
         this.elanClusterUtils = elanClusterUtils;
         this.l2gwServiceProvider = l2gwServiceProvider;
@@ -323,11 +327,12 @@ public class HwvtepPhysicalSwitchListener
         });
     }
 
-    boolean updateHACacheIfHANode(DataBroker broker, InstanceIdentifier<Node> globalNodeId)
+    boolean updateHACacheIfHANode(InstanceIdentifier<Node> globalNodeId)
             throws ExecutionException, InterruptedException {
-        ReadWriteTransaction transaction = broker.newReadWriteTransaction();
-        Node node = transaction.read(LogicalDatastoreType.OPERATIONAL, globalNodeId).get().get();
-        HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node);
+        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            tx.read(LogicalDatastoreType.OPERATIONAL, globalNodeId).get().toJavaUtil().ifPresent(
+                node -> HAOpClusteredListener.addToCacheIfHAChildNode(globalNodeId, node));
+        }
         return hwvtepHACache.isHAEnabledDevice(globalNodeId);
     }
 
@@ -400,13 +405,14 @@ public class HwvtepPhysicalSwitchListener
     private void updateConfigTunnelIp(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
                                       PhysicalSwitchAugmentation phySwitchAdded) {
         if (phySwitchAdded.getTunnelIps() != null) {
-            ReadWriteTransaction tx = dataBroker.newReadWriteTransaction();
-            PhysicalSwitchAugmentationBuilder psBuilder = new PhysicalSwitchAugmentationBuilder();
-            psBuilder.setTunnelIps(phySwitchAdded.getTunnelIps());
-            tx.merge(LogicalDatastoreType.CONFIGURATION, identifier, psBuilder.build());
-            LOG.trace("Updating config tunnel ips {}", identifier);
-            ListenableFutures.addErrorLogging(tx.submit(), LOG,
-                    "Failed to update config tunnel ip for iid {}", identifier);
+            ListenableFutures.addErrorLogging(
+                txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                    PhysicalSwitchAugmentationBuilder psBuilder = new PhysicalSwitchAugmentationBuilder();
+                    psBuilder.setTunnelIps(phySwitchAdded.getTunnelIps());
+                    tx.merge(LogicalDatastoreType.CONFIGURATION, identifier, psBuilder.build());
+                    LOG.trace("Updating config tunnel ips {}", identifier);
+                }),
+                LOG, "Failed to update config tunnel ip for iid {}", identifier);
         }
     }
 }
