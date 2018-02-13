@@ -34,6 +34,7 @@ public class Ipv6PeriodicTrQueue implements AutoCloseable {
 
     public Ipv6PeriodicTrQueue(Consumer<Uuid> onMessage) {
         this.onMessage = onMessage;
+        init();
     }
 
     public void init() {
