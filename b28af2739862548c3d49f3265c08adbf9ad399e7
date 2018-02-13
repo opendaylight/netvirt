@@ -119,6 +119,30 @@
       "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c72d509c_aa3b58b1",
+        "filename": "docs/specs/router-chaining-for-single-router.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 383,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-02-13T02:35:11Z",
+      "side": 1,
+      "message": "If I understand this correctly, what you are suggesting is to log in to EVERY VM and manually add a new default gw. This would be an unexpected manual intervention.  \n\nIMHO, we should not be supporting this use case at all. We should have hooks to prevent default router deletion when there are subnets still attached to the default router.",
+      "parentUuid": "c8cbef21_a3f2a646",
+      "range": {
+        "startLine": 381,
+        "startChar": 2,
+        "endLine": 383,
+        "endChar": 35
+      },
+      "revId": "b28af2739862548c3d49f3265c08adbf9ad399e7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
