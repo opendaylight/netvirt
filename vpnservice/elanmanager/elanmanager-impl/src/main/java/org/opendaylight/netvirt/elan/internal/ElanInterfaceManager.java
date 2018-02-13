@@ -549,10 +549,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
             WriteTransaction tx = broker.newWriteOnlyTransaction();
             List<String> elanInterfaces = new ArrayList<>();
             elanInterfaces.add(interfaceName);
-            ElanUtils.updateOperationalDataStore(broker, idManager,
+            elanInstance = ElanUtils.updateOperationalDataStore(broker, idManager,
                     elanInstance, elanInterfaces, tx);
-            ElanUtils.waitForTransactionToComplete(tx);
-            elanInstance = ElanUtils.getElanInstanceByName(broker, elanInstanceName);
+            tx.submit();
         }
 
         Long elanTag = elanInstance.getElanTag();
