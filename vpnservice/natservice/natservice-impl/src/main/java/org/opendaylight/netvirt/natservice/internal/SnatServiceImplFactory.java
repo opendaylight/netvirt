@@ -77,8 +77,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
     public AbstractSnatService createFlatVlanSnatServiceImpl() {
 
         if (natMode == NatMode.Conntrack) {
-            return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
-                    idManager, naptSwitchSelector);
+            return new FlatVlanConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, idManager,
+                    naptSwitchSelector);
         }
         return null;
     }
@@ -88,8 +88,8 @@ public class SnatServiceImplFactory extends AbstractLifecycle {
         if (natMode == NatMode.Conntrack) {
             NatOverVxlanUtil.validateAndCreateVxlanVniPool(dataBroker, nvpnManager, idManager,
                     NatConstants.ODL_VNI_POOL_NAME);
-            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, interfaceManager,
-                    idManager, naptSwitchSelector, externalRouterListener, elanManager);
+            return new VxlanGreConntrackBasedSnatService(dataBroker, mdsalManager, itmManager, idManager,
+                    naptSwitchSelector, externalRouterListener, elanManager);
         }
         return null;
     }

@@ -730,7 +730,7 @@ public class NaptSwitchHA {
             LOG.debug("handleGroupInNeighborSwitches : TunnelInterface {} between ordinary switch {} and naptSwitch {}",
                 ifNamePrimary, dpnId, naptSwitch);
             List<ActionInfo> listActionInfoPrimary =
-                NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+                NatUtil.getEgressActionsForInterface(itmManager, ifNamePrimary, routerId);
             BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
             listBucketInfo.add(bucketPrimary);
         } else {

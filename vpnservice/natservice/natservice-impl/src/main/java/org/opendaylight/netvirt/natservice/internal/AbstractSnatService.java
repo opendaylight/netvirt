@@ -43,7 +43,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeGre;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
@@ -66,17 +65,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final IdManagerService idManager;
     protected final NAPTSwitchSelector naptSwitchSelector;
     protected final ItmRpcService itmManager;
-    protected final OdlInterfaceRpcService interfaceManager;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
-            final ItmRpcService itmManager,
-            final OdlInterfaceRpcService interfaceManager,
-            final IdManagerService idManager,
-            final NAPTSwitchSelector naptSwitchSelector) {
+                                  final ItmRpcService itmManager, final IdManagerService idManager,
+                                  final NAPTSwitchSelector naptSwitchSelector) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
-        this.interfaceManager = interfaceManager;
         this.idManager = idManager;
         this.naptSwitchSelector = naptSwitchSelector;
     }
@@ -212,7 +207,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(itmManager, ifNamePrimary, routerId);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);

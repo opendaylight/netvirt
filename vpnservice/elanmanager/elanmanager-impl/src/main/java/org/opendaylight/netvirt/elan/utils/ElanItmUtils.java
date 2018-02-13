@@ -23,10 +23,10 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.acti
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.IfTunnel;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeVxlan;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInput;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
@@ -201,13 +201,13 @@ public class ElanItmUtils {
     public List<Action> buildItmEgressActions(String interfaceName, Long tunnelKey) {
         List<Action> result = Collections.emptyList();
         try {
-            GetEgressActionsForInterfaceInput getEgressActInput = new GetEgressActionsForInterfaceInputBuilder()
+            GetEgressActionsForTunnelInput getEgressActInput = new GetEgressActionsForTunnelInputBuilder()
                     .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
 
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture = interfaceManagerRpcService
-                    .getEgressActionsForInterface(getEgressActInput);
+            Future<RpcResult<GetEgressActionsForTunnelOutput>> egressActionsOutputFuture =
+                    itmRpcService.getEgressActionsForTunnel(getEgressActInput);
             if (egressActionsOutputFuture.get().isSuccessful()) {
-                GetEgressActionsForInterfaceOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
+                GetEgressActionsForTunnelOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
                 result = egressActionsOutput.getAction();
             }
         } catch (Exception e) {
