@@ -75,7 +75,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>org.opendaylight.aaa</groupId>
       <artifactId>aaa-cli-jar</artifactId>
       <version>0.7.0-SNAPSHOT</version>
-      <scope>runtime</scope>
+      <!-- Use scope test (and not more!) just so we have the dependency for the maven-dependency-plugin below -->
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
