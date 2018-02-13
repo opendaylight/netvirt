@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlan;
 
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
@@ -25,6 +24,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
@@ -81,6 +82,7 @@ public class ElanL2GatewayMulticastUtils {
 
     /** The broker. */
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
 
     private final ElanItmUtils elanItmUtils;
     private final JobCoordinator jobCoordinator;
@@ -92,6 +94,7 @@ public class ElanL2GatewayMulticastUtils {
     public ElanL2GatewayMulticastUtils(DataBroker broker, ElanItmUtils elanItmUtils, JobCoordinator jobCoordinator,
             ElanUtils elanUtils, IMdsalApiManager mdsalManager, IInterfaceManager interfaceManager) {
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanItmUtils = elanItmUtils;
         this.jobCoordinator = jobCoordinator;
         this.elanUtils = elanUtils;
@@ -124,16 +127,11 @@ public class ElanL2GatewayMulticastUtils {
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     public ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevices(String elanName) {
-        try {
-            WriteTransaction transaction = broker.newWriteOnlyTransaction();
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
             for (L2GatewayDevice device : ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).values()) {
-                prepareRemoteMcastMacUpdateOnDevice(transaction, elanName, device);
+                prepareRemoteMcastMacUpdateOnDevice(tx, elanName, device);
             }
-            return transaction.submit();
-        } catch (RuntimeException e) {
-            LOG.error("Failed to configure mcast mac on elan " + elanName, e);
-            return Futures.immediateFailedCheckedFuture(e);
-        }
+        });
     }
 
     public void scheduleMcastMacUpdateJob(String elanName, L2GatewayDevice device) {
@@ -151,9 +149,8 @@ public class ElanL2GatewayMulticastUtils {
      * @return the listenable future
      */
     public ListenableFuture<Void> updateRemoteMcastMacOnElanL2GwDevice(String elanName, L2GatewayDevice device) {
-        WriteTransaction transaction = broker.newWriteOnlyTransaction();
-        prepareRemoteMcastMacUpdateOnDevice(transaction, elanName, device);
-        return transaction.submit();
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> prepareRemoteMcastMacUpdateOnDevice(tx, elanName, device));
     }
 
     public void prepareRemoteMcastMacUpdateOnDevice(WriteTransaction transaction,String elanName,
@@ -201,19 +198,19 @@ public class ElanL2GatewayMulticastUtils {
         // return ft;
         // }
 
-        WriteTransaction transaction = broker.newWriteOnlyTransaction();
-        if (updateThisDevice) {
-            preapareRemoteMcastMacEntry(transaction, elanName, device, dpnsTepIps, l2GwDevicesTepIps);
-        }
-
-        // TODO: Need to revisit below logic as logical switches might not be
-        // present to configure RemoteMcastMac entry
-        for (L2GatewayDevice otherDevice : devices.values()) {
-            if (!otherDevice.getDeviceName().equals(device.getDeviceName())) {
-                preapareRemoteMcastMacEntry(transaction, elanName, otherDevice, dpnsTepIps, l2GwDevicesTepIps);
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            if (updateThisDevice) {
+                preapareRemoteMcastMacEntry(tx, elanName, device, dpnsTepIps, l2GwDevicesTepIps);
             }
-        }
-        return transaction.submit();
+
+            // TODO: Need to revisit below logic as logical switches might not be
+            // present to configure RemoteMcastMac entry
+            for (L2GatewayDevice otherDevice : devices.values()) {
+                if (!otherDevice.getDeviceName().equals(device.getDeviceName())) {
+                    preapareRemoteMcastMacEntry(tx, elanName, otherDevice, dpnsTepIps, l2GwDevicesTepIps);
+                }
+            }
+        });
 
     }
 

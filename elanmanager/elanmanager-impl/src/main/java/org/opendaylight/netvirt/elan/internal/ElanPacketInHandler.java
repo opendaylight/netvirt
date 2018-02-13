@@ -15,6 +15,8 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -22,6 +24,7 @@ import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.Ethernet;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.evpn.utils.EvpnUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -50,6 +53,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     private static final Logger LOG = LoggerFactory.getLogger(ElanPacketInHandler.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
@@ -60,6 +64,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
     public ElanPacketInHandler(DataBroker dataBroker, final IInterfaceManager interfaceManager, ElanUtils elanUtils,
             EvpnUtils evpnUtils, ElanL2GatewayUtils elanL2GatewayUtils, JobCoordinator jobCoordinator) {
         broker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
@@ -152,39 +157,36 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                                                String elanName, PhysAddress physAddress,
                                                MacEntry oldMacEntry, MacEntry newMacEntry,
                                                final boolean isVlanOrFlatProviderIface) {
-        jobCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress), () -> {
-            WriteTransaction writeTx = broker.newWriteOnlyTransaction();
-            if (oldMacEntry != null && oldMacEntry.getInterface().equals(interfaceName)) {
-                // This should never occur because of ovs temporary mac learning
-                ElanManagerCounters.unknown_smac_pktin_forwarding_entries_removed.inc();
-            } else if (oldMacEntry != null && !isVlanOrFlatProviderIface) {
-                long macTimeStamp = oldMacEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
-                if (System.currentTimeMillis() > macTimeStamp + 1000) {
-                    InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                            .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName,
-                                    physAddress);
-                    writeTx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
-                } else {
-                    // New FEs flood their packets on all interfaces. This
-                    // can lead
-                    // to many contradicting packet_ins. Ignore all packets
-                    // received
-                    // within 1s after the first packet_in
-                    ElanManagerCounters.unknown_smac_pktin_mac_migration_ignored_due_to_protection.inc();
+        jobCoordinator.enqueueJob(ElanUtils.getElanMacKey(elanTag, macAddress),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                if (oldMacEntry != null && oldMacEntry.getInterface().equals(interfaceName)) {
+                    // This should never occur because of ovs temporary mac learning
+                    ElanManagerCounters.unknown_smac_pktin_forwarding_entries_removed.inc();
+                } else if (oldMacEntry != null && !isVlanOrFlatProviderIface) {
+                    long macTimeStamp = oldMacEntry.getControllerLearnedForwardingEntryTimestamp().longValue();
+                    if (System.currentTimeMillis() > macTimeStamp + 1000) {
+                        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                                .getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName,
+                                        physAddress);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
+                    } else {
+                        // New FEs flood their packets on all interfaces. This can lead
+                        // to many contradicting packet_ins. Ignore all packets received
+                        // within 1s after the first packet_in
+                        ElanManagerCounters.unknown_smac_pktin_mac_migration_ignored_due_to_protection.inc();
+                    }
+                } else if (oldMacEntry != null) {
+                    ElanManagerCounters.unknown_smac_pktin_removed_for_relearned.inc();
                 }
-            } else if (oldMacEntry != null) {
-                ElanManagerCounters.unknown_smac_pktin_removed_for_relearned.inc();
-            }
-            // This check is required only to update elan-forwarding-tables when mac is learned
-            // in ports (example: VM interfaces) other than on vlan provider port.
-            if (!isVlanOrFlatProviderIface && oldMacEntry == null) {
-                InstanceIdentifier<MacEntry> elanMacEntryId =
-                        ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
-                writeTx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, newMacEntry,
-                        WriteTransaction.CREATE_MISSING_PARENTS);
-            }
-            return Collections.singletonList(writeTx.submit());
-        });
+                // This check is required only to update elan-forwarding-tables when mac is learned
+                // in ports (example: VM interfaces) other than on vlan provider port.
+                if (!isVlanOrFlatProviderIface && oldMacEntry == null) {
+                    InstanceIdentifier<MacEntry> elanMacEntryId =
+                            ElanUtils.getMacEntryOperationalDataPath(elanName, physAddress);
+                    tx.put(LogicalDatastoreType.OPERATIONAL, elanMacEntryId, newMacEntry,
+                            WriteTransaction.CREATE_MISSING_PARENTS);
+                }
+            })));
     }
 
     private void enqueueJobForDPNSpecificTasks(final String macAddress, final long elanTag, String interfaceName,
@@ -197,14 +199,14 @@ public class ElanPacketInHandler implements PacketProcessingListener {
             elanL2GatewayUtils.scheduleAddDpnMacInExtDevices(elanInstance.getElanInstanceName(), dpId,
                     Collections.singletonList(physAddress));
             ElanManagerCounters.unknown_smac_pktin_learned.inc();
-            WriteTransaction flowWritetx = broker.newWriteOnlyTransaction();
-            elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
-                    macAddress, !isVlanOrFlatProviderIface, flowWritetx);
-            InstanceIdentifier<MacEntry> macEntryId =
-                    ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
-            flowWritetx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry,
-                    WriteTransaction.CREATE_MISSING_PARENTS);
-            return Collections.singletonList(flowWritetx.submit());
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                elanUtils.setupMacFlows(elanInstance, interfaceInfo, elanInstance.getMacTimeout(),
+                        macAddress, !isVlanOrFlatProviderIface, tx);
+                InstanceIdentifier<MacEntry> macEntryId =
+                        ElanUtils.getInterfaceMacEntriesIdentifierOperationalDataPath(interfaceName, physAddress);
+                tx.put(LogicalDatastoreType.OPERATIONAL, macEntryId, newMacEntry,
+                        WriteTransaction.CREATE_MISSING_PARENTS);
+            }));
         });
     }
 
@@ -237,9 +239,9 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                     macEntry.getMacAddress(), macEntry.getInterface());
             return;
         }
-        WriteTransaction flowDeletetx = broker.newWriteOnlyTransaction();
-        elanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, flowDeletetx);
-        flowDeletetx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> elanUtils.deleteMacFlows(elanInfo, oldInterfaceLport, macEntry, tx)), LOG,
+            "Error deleting invalid MAC entry");
         elanL2GatewayUtils.removeMacsFromElanExternalDevices(elanInfo,
                 Collections.singletonList(macEntry.getMacAddress()));
     }
