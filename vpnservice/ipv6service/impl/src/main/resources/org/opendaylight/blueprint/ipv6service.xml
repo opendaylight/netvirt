@@ -12,6 +12,8 @@
              interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
   <reference id="entityOwnershipService"
              interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
+  <reference id="jobCoordinator"
+             interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
 
   <odl:rpc-service id="odlInterfaceRpcService"
                    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
