@@ -39,10 +39,11 @@ import javax.inject.Singleton;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
@@ -113,6 +114,7 @@ public class ElanL2GatewayUtils {
     private static final int DEFAULT_LOGICAL_SWITCH_DELETE_DELAY_SECS = 20;
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanDmacUtils elanDmacUtils;
     private final ElanItmUtils elanItmUtils;
     private final ElanClusterUtils elanClusterUtils;
@@ -132,6 +134,7 @@ public class ElanL2GatewayUtils {
             JobCoordinator jobCoordinator, ElanUtils elanUtils,
             Scheduler scheduler, ElanConfig elanConfig) {
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanDmacUtils = elanDmacUtils;
         this.elanItmUtils = elanItmUtils;
         this.elanClusterUtils = elanClusterUtils;
@@ -218,9 +221,7 @@ public class ElanL2GatewayUtils {
                 .createLogicalSwitchesInstanceIdentifier(nodeId, new HwvtepNodeName(logicalSwitchName));
         RemoteMcastMacsKey remoteMcastMacsKey = new RemoteMcastMacsKey(new HwvtepLogicalSwitchRef(logicalSwitch),
                 new MacAddress(ElanConstants.UNKNOWN_DMAC));
-        RemoteMcastMacs remoteMcastMac = HwvtepUtils.getRemoteMcastMac(broker, datastoreType, nodeId,
-                remoteMcastMacsKey);
-        return remoteMcastMac;
+        return HwvtepUtils.getRemoteMcastMac(broker, datastoreType, nodeId, remoteMcastMacsKey);
     }
 
     /**
@@ -265,14 +266,9 @@ public class ElanL2GatewayUtils {
                 (InstanceIdentifier<LogicalSwitches>) localUcastMac.getLogicalSwitchRef().getValue());
         if (lsOpc.isPresent()) {
             LogicalSwitches ls = lsOpc.get();
-            if (ls != null) {
-                // Logical switch name is Elan name
-                String elanName = getElanFromLogicalSwitch(ls.getHwvtepNodeName().getValue());
-                return ElanUtils.getElanInstanceByName(broker, elanName);
-            } else {
-                String macAddress = localUcastMac.getMacEntryKey().getValue();
-                LOG.error("Could not find logical_switch for {} being added/deleted", macAddress);
-            }
+            // Logical switch name is Elan name
+            String elanName = getElanFromLogicalSwitch(ls.getHwvtepNodeName().getValue());
+            return ElanUtils.getElanInstanceByName(broker, elanName);
         }
         return null;
     }
@@ -787,30 +783,29 @@ public class ElanL2GatewayUtils {
             return Futures.immediateFailedFuture(new RuntimeException(errMsg));
         }
 
-        WriteTransaction transaction = broker.newWriteOnlyTransaction();
-        for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
-                 .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
-            //Removed the check for checking terminationPoint present in OP or not
-            //for coniguring vlan bindings
-            //As we are not any more dependent on it , plugin takes care of this
-            // with port reconcilation.
-            List<VlanBindings> vlanBindings = new ArrayList<>();
-            if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
-                for (Integer vlanId : deviceInterface.getSegmentationIds()) {
-                    vlanBindings.add(HwvtepSouthboundUtils.createVlanBinding(nodeId, vlanId, logicalSwitchName));
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
+                    .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
+                //Removed the check for checking terminationPoint present in OP or not
+                //for coniguring vlan bindings
+                //As we are not any more dependent on it , plugin takes care of this
+                // with port reconcilation.
+                List<VlanBindings> vlanBindings = new ArrayList<>();
+                if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
+                    for (Integer vlanId : deviceInterface.getSegmentationIds()) {
+                        vlanBindings.add(HwvtepSouthboundUtils.createVlanBinding(nodeId, vlanId, logicalSwitchName));
+                    }
+                } else {
+                    // Use defaultVlanId (specified in L2GatewayConnection) if Vlan
+                    // ID not specified at interface level.
+                    vlanBindings.add(HwvtepSouthboundUtils.createVlanBinding(nodeId, defaultVlanId, logicalSwitchName));
                 }
-            } else {
-                // Use defaultVlanId (specified in L2GatewayConnection) if Vlan
-                // ID not specified at interface level.
-                vlanBindings.add(HwvtepSouthboundUtils.createVlanBinding(nodeId, defaultVlanId, logicalSwitchName));
+                HwvtepUtils.mergeVlanBindings(tx, nodeId, hwVtepDevice.getDeviceName(),
+                        deviceInterface.getInterfaceName(), vlanBindings);
             }
-            HwvtepUtils.mergeVlanBindings(transaction, nodeId, hwVtepDevice.getDeviceName(),
-                    deviceInterface.getInterfaceName(), vlanBindings);
-        }
-        ListenableFuture<Void> future = transaction.submit();
-        LOG.info("Updated Hwvtep VlanBindings in config DS. NodeID: {}, LogicalSwitch: {}", nodeId.getValue(),
-                logicalSwitchName);
-        return future;
+            LOG.info("Updated Hwvtep VlanBindings in config DS. NodeID: {}, LogicalSwitch: {}", nodeId.getValue(),
+                    logicalSwitchName);
+        });
     }
 
     /**
@@ -828,11 +823,10 @@ public class ElanL2GatewayUtils {
      */
     public ListenableFuture<Void> updateVlanBindingsInL2GatewayDevice(NodeId nodeId, String psName,
             String interfaceName, List<VlanBindings> vlanBindings) {
-        WriteTransaction transaction = broker.newWriteOnlyTransaction();
-        HwvtepUtils.mergeVlanBindings(transaction, nodeId, psName, interfaceName, vlanBindings);
-        ListenableFuture<Void> future = transaction.submit();
-        LOG.info("Updated Hwvtep VlanBindings in config DS. NodeID: {}", nodeId.getValue());
-        return future;
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            HwvtepUtils.mergeVlanBindings(tx, nodeId, psName, interfaceName, vlanBindings);
+            LOG.info("Updated Hwvtep VlanBindings in config DS. NodeID: {}", nodeId.getValue());
+        });
     }
 
     /**
@@ -855,25 +849,23 @@ public class ElanL2GatewayUtils {
         }
         NodeId physicalSwitchNodeId = HwvtepSouthboundUtils.createManagedNodeId(nodeId, hwVtepDevice.getDeviceName());
 
-        WriteTransaction transaction = broker.newWriteOnlyTransaction();
-        for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
-                 .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
-            String phyPortName = deviceInterface.getInterfaceName();
-            if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
-                for (Integer vlanId : deviceInterface.getSegmentationIds()) {
-                    HwvtepUtils.deleteVlanBinding(transaction, physicalSwitchNodeId, phyPortName, vlanId);
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            for (org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.l2gateways.rev150712
+                    .l2gateway.attributes.devices.Interfaces deviceInterface : hwVtepDevice.getInterfaces()) {
+                String phyPortName = deviceInterface.getInterfaceName();
+                if (deviceInterface.getSegmentationIds() != null && !deviceInterface.getSegmentationIds().isEmpty()) {
+                    for (Integer vlanId : deviceInterface.getSegmentationIds()) {
+                        HwvtepUtils.deleteVlanBinding(tx, physicalSwitchNodeId, phyPortName, vlanId);
+                    }
+                } else {
+                    // Use defaultVlanId (specified in L2GatewayConnection) if Vlan
+                    // ID not specified at interface level.
+                    HwvtepUtils.deleteVlanBinding(tx, physicalSwitchNodeId, phyPortName, defaultVlanId);
                 }
-            } else {
-                // Use defaultVlanId (specified in L2GatewayConnection) if Vlan
-                // ID not specified at interface level.
-                HwvtepUtils.deleteVlanBinding(transaction, physicalSwitchNodeId, phyPortName, defaultVlanId);
             }
-        }
-        ListenableFuture<Void> future = transaction.submit();
-
-        LOG.info("Deleted Hwvtep VlanBindings from config DS. NodeID: {}, hwVtepDevice: {}, defaultVlanId: {} ",
-                nodeId.getValue(), hwVtepDevice, defaultVlanId);
-        return future;
+            LOG.info("Deleted Hwvtep VlanBindings from config DS. NodeID: {}, hwVtepDevice: {}, defaultVlanId: {} ",
+                    nodeId.getValue(), hwVtepDevice, defaultVlanId);
+        });
     }
 
     /**

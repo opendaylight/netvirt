@@ -8,12 +8,18 @@
 package org.opendaylight.netvirt.elan.utils;
 
 import com.google.common.base.Optional;
+import com.google.common.util.concurrent.ListenableFuture;
+import java.util.ArrayList;
+import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.PhysAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.elan._interface.StaticMacEntries;
@@ -30,11 +36,13 @@ public class ElanForwardingEntriesHandler {
     private static final Logger LOG = LoggerFactory.getLogger(ElanForwardingEntriesHandler.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanUtils elanUtils;
 
     @Inject
     public ElanForwardingEntriesHandler(DataBroker dataBroker, ElanUtils elanUtils) {
         this.broker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanUtils = elanUtils;
     }
 
@@ -119,14 +127,20 @@ public class ElanForwardingEntriesHandler {
     }
 
     public void deleteElanInterfaceForwardingEntries(ElanInstance elanInfo, InterfaceInfo interfaceInfo,
-            MacEntry macEntry, WriteTransaction tx) {
-        InstanceIdentifier<MacEntry> macEntryId = ElanUtils
-                .getMacEntryOperationalDataPath(elanInfo.getElanInstanceName(), macEntry.getMacAddress());
-        tx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
-        deleteElanInterfaceForwardingTablesList(interfaceInfo.getInterfaceName(), macEntry, tx);
-        WriteTransaction deleteFlowtx = broker.newWriteOnlyTransaction();
-        elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, deleteFlowtx);
-        deleteFlowtx.submit();
+            MacEntry macEntry) {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(interfaceTx -> {
+            InstanceIdentifier<MacEntry> macEntryId = ElanUtils
+                    .getMacEntryOperationalDataPath(elanInfo.getElanInstanceName(), macEntry.getMacAddress());
+            interfaceTx.delete(LogicalDatastoreType.OPERATIONAL, macEntryId);
+            deleteElanInterfaceForwardingTablesList(interfaceInfo.getInterfaceName(), macEntry, interfaceTx);
+            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(flowTx -> {
+                elanUtils.deleteMacFlows(elanInfo, interfaceInfo, macEntry, flowTx);
+            }));
+        }));
+        for (ListenableFuture<Void> future : futures) {
+            ListenableFutures.addErrorLogging(future, LOG, "Error deleting ELAN interface forwarding entries");
+        }
     }
 
     public void deleteElanInterfaceMacForwardingEntries(String interfaceName, PhysAddress physAddress,

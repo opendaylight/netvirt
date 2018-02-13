@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,6 +16,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -24,13 +24,14 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpClusteredListener;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -53,19 +54,17 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
     public static final String NODE_CHECK = "physical";
 
-    private static final Predicate<InstanceIdentifier<Node>> IS_PS_NODE_IID = (iid) -> {
-        return iid.firstKeyOf(Node.class).getNodeId().getValue().contains(NODE_CHECK);
-    };
+    private static final Predicate<InstanceIdentifier<Node>> IS_PS_NODE_IID =
+        (iid) -> iid.firstKeyOf(Node.class).getNodeId().getValue().contains(NODE_CHECK);
 
-    private static final Predicate<InstanceIdentifier<Node>> IS_NOT_HA_CHILD = (iid) -> {
-        return !HwvtepHACache.getInstance().isHAEnabledDevice(iid)
+    private static final Predicate<InstanceIdentifier<Node>> IS_NOT_HA_CHILD =
+        (iid) -> !HwvtepHACache.getInstance().isHAEnabledDevice(iid)
                 && !iid.firstKeyOf(Node.class).getNodeId().getValue().contains(HwvtepHAUtil.PHYSICALSWITCH);
-    };
 
-    private static final Predicate<InstanceIdentifier<Node>> IS_HA_CHILD = (iid) -> {
-        return HwvtepHACache.getInstance().isHAEnabledDevice(iid);
-    };
+    private static final Predicate<InstanceIdentifier<Node>> IS_HA_CHILD =
+        (iid) -> HwvtepHACache.getInstance().isHAEnabledDevice(iid);
 
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final HAOpClusteredListener haOpClusteredListener;
     private final JobCoordinator jobCoordinator;
@@ -78,6 +77,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                                  final ElanClusterUtils elanClusterUtils,
                                  final JobCoordinator jobCoordinator) {
         super(dataBroker, false);
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.haOpClusteredListener = haOpClusteredListener;
         this.elanClusterUtils = elanClusterUtils;
@@ -97,8 +97,7 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     }
 
     protected String getElanName(final LocalUcastMacs mac) {
-        return ((InstanceIdentifier<LogicalSwitches>) mac.getLogicalSwitchRef().getValue())
-                .firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
+        return mac.getLogicalSwitchRef().getValue().firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
     }
 
     @Override
@@ -110,16 +109,8 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     @Override
     protected void onUpdate(final Map<String, Map<InstanceIdentifier, LocalUcastMacs>> updatedMacsGrouped,
                             final Map<String, Map<InstanceIdentifier, LocalUcastMacs>> deletedMacsGrouped) {
-        updatedMacsGrouped.entrySet().forEach((entry) -> {
-            entry.getValue().entrySet().forEach((entry2) -> {
-                added(entry2.getKey(), entry2.getValue());
-            });
-        });
-        deletedMacsGrouped.entrySet().forEach((entry) -> {
-            entry.getValue().entrySet().forEach((entry2) -> {
-                removed(entry2.getKey(), entry2.getValue());
-            });
-        });
+        updatedMacsGrouped.forEach((key, value) -> value.forEach(this::added));
+        deletedMacsGrouped.forEach((key, value) -> value.forEach(this::removed));
     }
 
     public void removed(final InstanceIdentifier<LocalUcastMacs> identifier, final LocalUcastMacs macRemoved) {
@@ -217,20 +208,18 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
         if (IS_PS_NODE_IID.test(nodeIid)) {
             return;
         }
-        ReadWriteTransaction tx = dataBroker.newReadWriteTransaction();
-        haOpClusteredListener.onGlobalNodeAdd(nodeIid, modification.getRootNode().getDataAfter(), tx);
-        tx.submit();
-        if (IS_HA_CHILD.test(nodeIid)) {
-            return;
-        }
-
-        LOG.trace("On parent add {}", nodeIid);
-        Node operNode = modification.getRootNode().getDataAfter();
-        Optional<Node> configNode = MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, nodeIid);
-        Set<LocalUcastMacs> configMacs = getMacs(configNode);
-        Set<LocalUcastMacs> operMacs = getMacs(Optional.of(operNode));
-        Set<LocalUcastMacs> staleMacs = Sets.difference(configMacs, operMacs);
-        staleMacs.forEach(staleMac -> removed(getMacIid(nodeIid, staleMac), staleMac));
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            haOpClusteredListener.onGlobalNodeAdd(nodeIid, modification.getRootNode().getDataAfter(), tx);
+            if (!IS_HA_CHILD.test(nodeIid)) {
+                LOG.trace("On parent add {}", nodeIid);
+                Node operNode = modification.getRootNode().getDataAfter();
+                Set<LocalUcastMacs> configMacs =
+                        getMacs(tx.read(LogicalDatastoreType.CONFIGURATION, nodeIid).checkedGet().orNull());
+                Set<LocalUcastMacs> operMacs = getMacs(operNode);
+                Set<LocalUcastMacs> staleMacs = Sets.difference(configMacs, operMacs);
+                staleMacs.forEach(staleMac -> removed(getMacIid(nodeIid, staleMac), staleMac));
+            }
+        }), LOG, "Error processing added parent");
     }
 
     InstanceIdentifier<LocalUcastMacs> getMacIid(InstanceIdentifier<Node> nodeIid, LocalUcastMacs mac) {
@@ -238,9 +227,9 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
                 .child(LocalUcastMacs.class, mac.getKey());
     }
 
-    Set<LocalUcastMacs> getMacs(Optional<Node> node) {
-        if (node.isPresent()) {
-            HwvtepGlobalAugmentation augmentation = node.get().getAugmentation(HwvtepGlobalAugmentation.class);
+    private Set<LocalUcastMacs> getMacs(@Nullable Node node) {
+        if (node != null) {
+            HwvtepGlobalAugmentation augmentation = node.getAugmentation(HwvtepGlobalAugmentation.class);
             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
                 return new HashSet<>(augmentation.getLocalUcastMacs());
             }

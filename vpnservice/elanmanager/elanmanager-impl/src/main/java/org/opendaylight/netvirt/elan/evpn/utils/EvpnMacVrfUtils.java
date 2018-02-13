@@ -15,7 +15,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -78,22 +78,23 @@ public class EvpnMacVrfUtils {
     }
 
     public String getElanNameByMacvrfiid(InstanceIdentifier<MacVrfEntry> instanceIdentifier) {
-        ReadWriteTransaction tx = dataBroker.newReadWriteTransaction();
-        String rd = instanceIdentifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
-        String elanName = null;
-        InstanceIdentifier<EvpnRdToNetwork> iidEvpnRdToNet =
-                InstanceIdentifier.builder(EvpnRdToNetworks.class).child(EvpnRdToNetwork.class,
-                        new EvpnRdToNetworkKey(rd)).build();
-        try {
-            Optional<EvpnRdToNetwork> evpnRdToNetwork =
-                    tx.read(LogicalDatastoreType.CONFIGURATION, iidEvpnRdToNet).checkedGet();
-            if (evpnRdToNetwork.isPresent()) {
-                elanName = evpnRdToNetwork.get().getNetworkId();
+        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            String rd = instanceIdentifier.firstKeyOf(VrfTables.class).getRouteDistinguisher();
+            String elanName = null;
+            InstanceIdentifier<EvpnRdToNetwork> iidEvpnRdToNet =
+                    InstanceIdentifier.builder(EvpnRdToNetworks.class).child(EvpnRdToNetwork.class,
+                            new EvpnRdToNetworkKey(rd)).build();
+            try {
+                Optional<EvpnRdToNetwork> evpnRdToNetwork =
+                        tx.read(LogicalDatastoreType.CONFIGURATION, iidEvpnRdToNet).checkedGet();
+                if (evpnRdToNetwork.isPresent()) {
+                    elanName = evpnRdToNetwork.get().getNetworkId();
+                }
+            } catch (ReadFailedException e) {
+                LOG.error("getElanName: unable to read elanName, exception ", e);
             }
-        } catch (ReadFailedException e) {
-            LOG.error("getElanName: unable to read elanName, exception ", e);
+            return elanName;
         }
-        return elanName;
     }
 
     public InstanceIdentifier<MacVrfEntry> getMacVrfEntryIid(String rd, MacVrfEntry macVrfEntry) {

@@ -24,10 +24,12 @@ import java.util.function.Predicate;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
@@ -42,6 +44,7 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
@@ -80,6 +83,7 @@ public class EvpnUtils {
     private final Predicate<MacEntry> isIpv4PrefixAvailable = (macEntry) -> (macEntry != null
         && macEntry.getIpPrefix() != null && macEntry.getIpPrefix().getIpv4Address() != null);
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final IInterfaceManager interfaceManager;
     private final ElanUtils elanUtils;
     private final ItmRpcService itmRpcService;
@@ -92,6 +96,7 @@ public class EvpnUtils {
             ItmRpcService itmRpcService, IVpnManager vpnManager, IBgpManager bgpManager,
             JobCoordinator jobCoordinator) {
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.interfaceManager = interfaceManager;
         this.elanUtils = elanUtils;
         this.itmRpcService = itmRpcService;
@@ -356,36 +361,35 @@ public class EvpnUtils {
     }
 
     public void bindElanServiceToExternalTunnel(String elanName, String interfaceName) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        int instructionKey = 0;
-        LOG.trace("Binding external interface {} elan {}", interfaceName, elanName);
-        List<Instruction> instructions = new ArrayList<>();
-        instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(
-                NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, ++instructionKey));
-        short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
-        BoundServices serviceInfo = ElanUtils.getBoundServices(
-                ElanUtils.getElanServiceName(elanName, interfaceName), elanServiceIndex,
-                NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
-        InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
-        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                bindServiceId);
-        if (!existingElanService.isPresent()) {
-            tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo, true);
-            tx.submit();
-        }
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            int instructionKey = 0;
+            LOG.trace("Binding external interface {} elan {}", interfaceName, elanName);
+            List<Instruction> instructions = new ArrayList<>();
+            instructions.add(MDSALUtil.buildAndGetGotoTableInstruction(
+                    NwConstants.L2VNI_EXTERNAL_TUNNEL_DEMUX_TABLE, ++instructionKey));
+            short elanServiceIndex =
+                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
+            BoundServices serviceInfo = ElanUtils.getBoundServices(
+                    ElanUtils.getElanServiceName(elanName, interfaceName), elanServiceIndex,
+                    NwConstants.ELAN_SERVICE_INDEX, NwConstants.COOKIE_ELAN_INGRESS_TABLE, instructions);
+            InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
+            if (!tx.read(LogicalDatastoreType.CONFIGURATION, bindServiceId).checkedGet().isPresent()) {
+                tx.put(LogicalDatastoreType.CONFIGURATION, bindServiceId, serviceInfo,
+                        WriteTransaction.CREATE_MISSING_PARENTS);
+            }
+        }), LOG, "Error binding an ELAN service to an external tunnel");
     }
 
     public void unbindElanServiceFromExternalTunnel(String elanName, String interfaceName) {
-        WriteTransaction tx = broker.newWriteOnlyTransaction();
-        LOG.trace("UnBinding external interface {} elan {}", interfaceManager, elanName);
-        short elanServiceIndex = ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
-        InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
-        Optional<BoundServices> existingElanService = elanUtils.read(broker, LogicalDatastoreType.CONFIGURATION,
-                bindServiceId);
-        if (!existingElanService.isPresent()) {
-            tx.delete(LogicalDatastoreType.CONFIGURATION, bindServiceId);
-            tx.submit();
-        }
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+            LOG.trace("UnBinding external interface {} elan {}", interfaceManager, elanName);
+            short elanServiceIndex =
+                    ServiceIndex.getIndex(NwConstants.ELAN_SERVICE_NAME, NwConstants.ELAN_SERVICE_INDEX);
+            InstanceIdentifier<BoundServices> bindServiceId = ElanUtils.buildServiceId(interfaceName, elanServiceIndex);
+            if (tx.read(LogicalDatastoreType.CONFIGURATION, bindServiceId).checkedGet().isPresent()) {
+                tx.delete(LogicalDatastoreType.CONFIGURATION, bindServiceId);
+            }
+        }), LOG, "Error binding an ELAN service to an external tunnel");
     }
 
     private List<InstructionInfo> getInstructionsForExtTunnelTable(Long elanTag) {
@@ -445,17 +449,18 @@ public class EvpnUtils {
             SettableFuture<Optional<T>> settableFuture = SettableFuture.create();
             List futures = Collections.singletonList(settableFuture);
 
-            ReadWriteTransaction tx = broker.newReadWriteTransaction();
+            try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
+                Futures.addCallback(tx.read(datastoreType, iid),
+                        new SettableFutureCallback<Optional<T>>(settableFuture) {
+                            @Override
+                            public void onSuccess(Optional<T> data) {
+                                function.apply(data);
+                                super.onSuccess(data);
+                            }
+                        }, MoreExecutors.directExecutor());
 
-            Futures.addCallback(tx.read(datastoreType, iid), new SettableFutureCallback<Optional<T>>(settableFuture) {
-                @Override
-                public void onSuccess(Optional<T> data) {
-                    function.apply(data);
-                    super.onSuccess(data);
-                }
-            }, MoreExecutors.directExecutor());
-
-            return futures;
+                return futures;
+            }
         }, ElanConstants.JOB_MAX_RETRIES);
     }
 }

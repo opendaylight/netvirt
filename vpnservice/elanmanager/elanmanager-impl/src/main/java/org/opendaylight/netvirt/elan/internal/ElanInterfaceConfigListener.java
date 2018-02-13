@@ -12,9 +12,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
@@ -33,6 +34,7 @@ public class ElanInterfaceConfigListener
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceConfigListener.class);
 
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanInterfaceManager elanInterfaceManager;
     private final JobCoordinator jobCoordinator;
 
@@ -41,6 +43,7 @@ public class ElanInterfaceConfigListener
             JobCoordinator jobCoordinator) {
         super(Interface.class, ElanInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.elanInterfaceManager = elanInterfaceManager;
         this.jobCoordinator = jobCoordinator;
     }
@@ -73,12 +76,11 @@ public class ElanInterfaceConfigListener
             LOG.debug("There is no ELAN service for interface {}. Ignoring it", interfaceName);
             return;
         }
-        jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {
-            WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
-            LOG.debug("unbinding elan service on interface {} for its config removal", interfaceName);
-            elanInterfaceManager.unbindService(interfaceName, writeConfigTxn);
-            return Collections.singletonList(writeConfigTxn.submit());
-        }, ElanConstants.JOB_MAX_RETRIES);
+        jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName),
+            () -> Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
+                LOG.debug("unbinding elan service on interface {} for its config removal", interfaceName);
+                elanInterfaceManager.unbindService(interfaceName, tx);
+            })), ElanConstants.JOB_MAX_RETRIES);
     }
 
     @Override

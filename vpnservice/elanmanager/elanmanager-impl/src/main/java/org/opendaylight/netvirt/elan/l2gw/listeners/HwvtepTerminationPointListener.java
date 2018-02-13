@@ -7,29 +7,22 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.listeners;
 
-import com.google.common.base.Optional;
-import com.google.common.util.concurrent.FutureCallback;
-import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.ListenableFuture;
-import com.google.common.util.concurrent.MoreExecutors;
-import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.L2GatewayConnectionUtils;
-import org.opendaylight.netvirt.elan.l2gw.utils.SettableFutureCallback;
 import org.opendaylight.netvirt.elan.utils.ElanClusterUtils;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache;
 import org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayDevice;
@@ -61,6 +54,7 @@ public class HwvtepTerminationPointListener
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepTerminationPointListener.class);
 
     private final DataBroker broker;
+    private final ManagedNewTransactionRunner txRunner;
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final ElanClusterUtils elanClusterUtils;
     private final L2GatewayCache l2GatewayCache;
@@ -71,6 +65,7 @@ public class HwvtepTerminationPointListener
         super(TerminationPoint.class, HwvtepTerminationPointListener.class);
 
         this.broker = broker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(broker);
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanClusterUtils = elanClusterUtils;
         this.l2GatewayCache = l2GatewayCache;
@@ -85,11 +80,9 @@ public class HwvtepTerminationPointListener
         final HwvtepPhysicalPortAugmentation portAugmentation =
                 del.getAugmentation(HwvtepPhysicalPortAugmentation.class);
         if (portAugmentation != null) {
-            final NodeId nodeId = identifier.firstIdentifierOf(Node.class).firstKeyOf(Node.class).getNodeId();
             elanClusterUtils.runOnlyInOwnerNode(HwvtepSouthboundConstants.ELAN_ENTITY_NAME,
                 "Handling Physical port delete",
-                () -> handlePortDeleted(identifier, portAugmentation, del, nodeId));
-            return;
+                () -> handlePortDeleted(identifier));
         }
     }
 
@@ -151,33 +144,11 @@ public class HwvtepTerminationPointListener
         return Collections.emptyList();
     }
 
-    private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier,
-                                                           HwvtepPhysicalPortAugmentation portAugmentation,
-                                                           TerminationPoint portDeleted,
-                                                           NodeId psNodeId) throws ReadFailedException {
+    private List<ListenableFuture<Void>> handlePortDeleted(InstanceIdentifier<TerminationPoint> identifier) {
         InstanceIdentifier<Node> psNodeIid = identifier.firstIdentifierOf(Node.class);
-        final ReadWriteTransaction tx = broker.newReadWriteTransaction();
-        final SettableFuture<Void> settableFuture = SettableFuture.create();
-        List<ListenableFuture<Void>> futures = Collections.singletonList(settableFuture);
-        Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid),
-            new FutureCallback<Optional<Node>>() {
-                @Override
-                public void onSuccess(@Nonnull Optional<Node> nodeOptional) {
-                    if (nodeOptional.isPresent()) {
-                        //case of port deleted
-                        tx.delete(LogicalDatastoreType.CONFIGURATION, identifier);
-                        Futures.addCallback(tx.submit(), new SettableFutureCallback<>(settableFuture),
-                                MoreExecutors.directExecutor());
-                    }
-                }
-
-                @Override
-                public void onFailure(Throwable failure) {
-                    LOG.error("Read of {} failed", psNodeIid, failure);
-                    tx.cancel();
-                }
-            }, MoreExecutors.directExecutor());
-        return futures;
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
+            tx -> tx.read(LogicalDatastoreType.CONFIGURATION, psNodeIid).checkedGet().toJavaUtil().ifPresent(
+                node -> tx.delete(LogicalDatastoreType.CONFIGURATION, identifier))));
     }
 
     private List<VlanBindings> getVlanBindings(List<L2gatewayConnection> l2GwConns, NodeId hwvtepNodeId, String psName,
