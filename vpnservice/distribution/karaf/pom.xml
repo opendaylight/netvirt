@@ -75,7 +75,9 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       <groupId>org.opendaylight.aaa</groupId>
       <artifactId>aaa-cli-jar</artifactId>
       <version>0.7.0-SNAPSHOT</version>
-      <scope>runtime</scope>
+      <!-- We MUST use scope test here, because without it this (non-OSGi!) JAR goes into Karaf's system/
+           and is part of the featuresBoot and that causes all hell to break loose (boot error and Karaf deadlock on start up) -->
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
