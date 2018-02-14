@@ -20,7 +20,7 @@
 
     <groupId>org.opendaylight.netvirt</groupId>
     <artifactId>vpnservice-features</artifactId>
-    <version>0.5.2-SNAPSHOT</version>
+    <version>0.5.2</version>
     <packaging>feature</packaging>
 
     <dependencies>
