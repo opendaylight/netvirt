@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e5f57f8c_265cdb1b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2445,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-14T09:00:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "138170c7_cb726c8d",
+      "range": {
+        "startLine": 2445,
+        "startChar": 16,
+        "endLine": 2445,
+        "endChar": 78
+      },
+      "revId": "19874ddf420c1d72f78ff3d6757e0307bd1cba24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "10afe7f3_8238975c",
         "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-14T07:58:25Z",
       "side": 1,
       "message": "as it never returns null, I assume this is correct to call it that way.",
+      "range": {
+        "startLine": 2452,
+        "startChar": 25,
+        "endLine": 2452,
+        "endChar": 74
+      },
+      "revId": "19874ddf420c1d72f78ff3d6757e0307bd1cba24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab98cf01_3ee0a03b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2452,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-02-14T09:00:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "10afe7f3_8238975c",
       "range": {
         "startLine": 2452,
         "startChar": 25,
