@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "025ac622_1c123f6d",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInterfaceManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 1473,
+      "author": {
+        "id": 5278
+      },
+      "writtenOn": "2018-02-14T08:15:56Z",
+      "side": 1,
+      "message": "it uses elanName as the jobkey which is different from the one used in dpn listener.",
+      "revId": "782b4ef9e8659f2d89ee4ffd28bbfd23fbda886e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
