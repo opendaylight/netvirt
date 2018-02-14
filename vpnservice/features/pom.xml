@@ -22,7 +22,7 @@
     <name>ODL :: netvirt :: ${project.artifactId}</name>
 
     <modules>
-        <module>vpnservice-features</module>
+        <module>netvirt-features</module>
         <module>odl-netvirt-api</module>
         <module>odl-netvirt-coe</module>
         <module>odl-netvirt-impl</module>
@@ -37,7 +37,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>vpnservice-sfc-features</module>
+                <module>netvirt-sfc-features</module>
                 <module>odl-netvirt-sfc</module>
             </modules>
         </profile>

@@ -38,7 +38,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <!--<module>policyservice</module>-->
     <module>distribution/karaf</module>
     <module>features</module>
-    <module>vpnservice-artifacts</module>
     <module>statemanager</module>
     <module>statistics</module>
     <!--<module>ovsdb-ui</module>-->
@@ -53,7 +52,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
       </activation>
       <modules>
         <module>sfc</module>
-        <module>vpnservice-sfc-artifacts</module>
+        <module>sfc-artifacts</module>
       </modules>
     </profile>
     <profile>
