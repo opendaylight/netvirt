@@ -1,0 +1,293 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2430078f_eccfd830",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2254,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "Given that the returned list’s contents isn’t obvious from the method description, this needs some Javadoc. Does it really make sense to return detailed error messages?",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "daa56deb_fbeea93f",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2258,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "It might be worth logging the VPN id here, as done below.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0f5126ad_08fdf6e4",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2259,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "This won’t work, String.format doesn’t use “{}”. Please just use \"Failed to associate networks with VPN \" + vpnId.getValue() + \" as given networks list is empty\", or perhaps even don’t return an error message in the results... (String::format is very expensive.) See https://docs.oracle.com/javase/8/docs/api/java/util/Formatter.html#syntax for details of the String formatter syntax.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "263865a6_4138f09c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2266,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf177a1a_8dfa2893",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2274,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bf748b04_6d17db2b",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2282,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6acba8c6_fbac80a8",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2290,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "edeb489d_a32b1016",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2298,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "de1d6083_4e0ec3ad",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2309,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ddd3c4d0_c9aacf9a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2324,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22c2ad48_fe75be46",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2339,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "The exception is lost here...",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c78a4451_6f92bd8d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2341,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80bad971_9aab276e",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2386,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd261850_f6de4abe",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2394,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "91dcb777_e471114a",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2401,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c25dc539_a70610ee",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2408,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f077106f_05dc9894",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 2420,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-14T09:39:55Z",
+      "side": 1,
+      "message": "See above.",
+      "revId": "49d3da3ea973fae024b8f68dff386bc78e00aec1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
