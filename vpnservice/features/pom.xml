@@ -22,6 +22,7 @@
     <name>ODL :: netvirt :: ${project.artifactId}</name>
 
     <modules>
+        <module>netvirt-features</module>
         <module>vpnservice-features</module>
         <module>odl-netvirt-api</module>
         <module>odl-netvirt-coe</module>
