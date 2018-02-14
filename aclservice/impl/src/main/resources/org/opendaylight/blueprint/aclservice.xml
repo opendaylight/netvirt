@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns:cm="http://aries.apache.org/blueprint/xmlns/blueprint-cm/v1.1.0"
+           odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+    interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
+  <reference id="iMdsalApiManager"
+    interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="entityOwnershipService"
+             interface="org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService" />
+  <reference id="iInterfaceManager"
+             interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+  <reference id="jobCoordinator"
+             interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
+
+  <odl:rpc-service id="idManagerService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+  <odl:rpc-service id="opendaylightDirectStatisticsService"
+    interface="org.opendaylight.yang.gen.v1.urn.opendaylight.direct.statistics.rev160511.OpendaylightDirectStatisticsService" />
+
+  <odl:clustered-app-config id="aclserviceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.aclservice.config.rev160806.AclserviceConfig"
+                            default-config-file-name="netvirt-aclservice-config.xml"
+                            update-strategy="none">
+  </odl:clustered-app-config>
+
+  <odl:rpc-implementation ref="aclLiveStatisticsRpcServiceImpl" />
+
+  <service ref="aclServiceUtilFacade"
+        interface="org.opendaylight.netvirt.aclservice.api.utils.IAclServiceUtil" />
+
+  <service ref="aclDataUtil"
+           interface="org.opendaylight.netvirt.aclservice.api.utils.AclDataCache" />
+
+  <service ref="aclInterfaceCacheImpl"
+           interface="org.opendaylight.netvirt.aclservice.api.AclInterfaceCache" />
+
+  <odl:notification-listener ref="aclVpnChangeListener" />
+</blueprint>

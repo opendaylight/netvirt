@@ -1,0 +1,3 @@
+<aclservice-config xmlns="urn:opendaylight:netvirt:aclservice-config">
+  <default-behavior>deny</default-behavior>
+</aclservice-config>

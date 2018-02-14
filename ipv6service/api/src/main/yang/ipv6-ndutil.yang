@@ -1,0 +1,49 @@
+module ipv6-ndutil {
+    yang-version 1;
+    namespace "urn:opendaylight:netvirt:ipv6service:ipv6util";
+    prefix "ipv6-ndutil";
+
+    import ietf-interfaces {
+        prefix if;
+    }
+
+    import ietf-inet-types {
+        prefix inet; revision-date 2013-07-15;
+    }
+
+    import ietf-yang-types {
+        prefix yang;
+    }
+
+    revision "2017-02-10" {
+        description "IPv6 Neighbor Discovery Util module";
+    }
+
+
+    grouping interfaces {
+        list interface-address {
+           key interface;
+           leaf interface {
+                type leafref {
+                    path "/if:interfaces/if:interface/if:name";
+                }
+           }
+           leaf src-ip-address {
+                type inet:ipv6-address;
+           }
+           leaf src-mac-address {
+                type yang:phys-address;
+            }
+        }
+    }
+
+
+    rpc send-neighbor-solicitation {
+          input {
+              leaf target-ip-address {
+                  type inet:ipv6-address;
+              }
+              uses interfaces;
+          }
+    }
+}

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0">
+  <!-- The bundle uses blueprint annotations but we still need an empty file here so the plugin
+       puts the generated xml file under org/opendaylight/blueprint.
+   -->
+</blueprint>

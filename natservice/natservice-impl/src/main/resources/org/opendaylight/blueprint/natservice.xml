@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           xmlns:ext="http://aries.apache.org/blueprint/xmlns/blueprint-ext/v1.0.0"
+           odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+             interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+             odl:type="default" />
+  <reference id="iBgpManager"
+             interface="org.opendaylight.netvirt.bgpmanager.api.IBgpManager" />
+  <reference id="iElanService"
+             interface="org.opendaylight.netvirt.elanmanager.api.IElanService" />
+  <reference id="iFibManager"
+             interface="org.opendaylight.netvirt.fibmanager.api.IFibManager" />
+  <reference id="iInterfaceManager"
+             interface="org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager" />
+  <reference id="iMdsalApiManager"
+             interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager" />
+  <reference id="iNeutronVpnManager"
+             interface="org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager" />
+  <reference id="iVpnManager"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnManager" />
+  <reference id="iVpnFootprintService"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService"
+             availability="optional"/>
+  <reference id="jobCoordinator"
+             interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
+  <reference id="upgradeState"
+             interface="org.opendaylight.genius.mdsalutil.UpgradeState"/>
+  <reference id="dataTreeEventCallbackRegistrar"
+             interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
+
+  <odl:rpc-service id="idManagerService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService" />
+  <odl:rpc-service id="odlInterfaceRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
+  <odl:rpc-service id="itmRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService" />
+  <odl:rpc-service id="packetProcessingService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.packet.service.rev130709.PacketProcessingService" />
+  <odl:rpc-service id="neutronvpnService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronvpnService" />
+  <odl:rpc-service id="vpnRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.vpn.rpc.rev160201.VpnRpcService" />
+  <odl:rpc-service id="fibRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService" />
+  <odl:rpc-service id="odlArputilService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.arputil.rev160406.OdlArputilService" />
+  <odl:rpc-service id="salFlowService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.flow.service.rev130819.SalFlowService" />
+  <odl:rpc-implementation ref="natRpcServiceImpl"/>
+
+  <odl:notification-listener ref="naptPacketInHandler" />
+  <odl:notification-listener ref="naptFlowRemovedEventHandler" />
+  <odl:notification-listener ref="routerToVpnListener" />
+
+  <service ref="vpnFloatingIpHandler"
+           interface="org.opendaylight.netvirt.natservice.internal.FloatingIPHandler" />
+
+  <odl:clustered-app-config id="natserviceConfig"
+                            binding-class="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.config.rev170206.NatserviceConfig"
+                            default-config-file-name="netvirt-natservice-config.xml"
+                            update-strategy="none">
+  </odl:clustered-app-config>
+
+  <service ref="natRpcServiceImpl"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rpc.rev170209.OdlNatRpcService"/>
+
+</blueprint>

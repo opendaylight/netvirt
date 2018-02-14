@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+           xmlns:odl="http://opendaylight.org/xmlns/blueprint/v1.0.0"
+           odl:use-default-for-reference-types="true">
+
+  <reference id="dataBroker"
+             interface="org.opendaylight.controller.md.sal.binding.api.DataBroker"
+             odl:type="default"/>
+  <reference id="iMdsalApiManager"
+             interface="org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager"/>
+  <reference id="iElanService"
+             interface="org.opendaylight.netvirt.elanmanager.api.IElanService"/>
+  <reference id="iVpnFootprintService"
+             interface="org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService"
+             availability="optional"/>
+  <reference id="jobCoordinator"
+             interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator"/>
+  <reference id="interVpnLinkCache"
+             interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache"
+             availability="optional"/>
+
+  <odl:rpc-service id="idManagerService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService"/>
+  <odl:rpc-service id="itmRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService"/>
+  <odl:rpc-service id="odlInterfaceRpcService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService"/>
+  <odl:rpc-service id="salGroupService"
+                   interface="org.opendaylight.yang.gen.v1.urn.opendaylight.group.service.rev130918.SalGroupService" />
+
+  <odl:rpc-implementation ref="fibRpcServiceImpl"/>
+
+  <service ref="fibManagerImpl"
+           interface="org.opendaylight.netvirt.fibmanager.api.IFibManager"/>
+  <service ref="fibRpcServiceImpl"
+           interface="org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fib.rpc.rev160121.FibRpcService"/>
+
+</blueprint>
