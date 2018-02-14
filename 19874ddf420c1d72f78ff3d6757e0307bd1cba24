@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "138170c7_cb726c8d",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2445,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-14T07:58:25Z",
+      "side": 1,
+      "message": "good improvement.",
+      "range": {
+        "startLine": 2445,
+        "startChar": 16,
+        "endLine": 2445,
+        "endChar": 78
+      },
+      "revId": "19874ddf420c1d72f78ff3d6757e0307bd1cba24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "10afe7f3_8238975c",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2452,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-14T07:58:25Z",
+      "side": 1,
+      "message": "as it never returns null, I assume this is correct to call it that way.",
+      "range": {
+        "startLine": 2452,
+        "startChar": 25,
+        "endLine": 2452,
+        "endChar": 74
+      },
+      "revId": "19874ddf420c1d72f78ff3d6757e0307bd1cba24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cc841e85_ff6110bb",
+        "filename": "vpnservice/neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1557,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-14T07:58:25Z",
+      "side": 1,
+      "message": "good simplification of the function, since now, the algorithm is unique.",
+      "range": {
+        "startLine": 1557,
+        "startChar": 31,
+        "endLine": 1557,
+        "endChar": 56
+      },
+      "revId": "19874ddf420c1d72f78ff3d6757e0307bd1cba24",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
