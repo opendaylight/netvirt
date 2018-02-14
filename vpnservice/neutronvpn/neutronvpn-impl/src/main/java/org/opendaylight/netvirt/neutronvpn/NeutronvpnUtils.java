@@ -1608,9 +1608,9 @@ public class NeutronvpnUtils {
             // BGPVPN context not found
             return;
         }
-        String routerIdUuid = getRouterIdfromVpnInstance(dataBroker, vpnInstanceOpDataEntry.getVrfId());
+        String routerIdUuid = getRouterIdfromVpnInstance(vpnInstanceOpDataEntry.getVrfId());
         if (routerIdUuid != null) {
-            List<BigInteger> dpnIds = getDpnsForRouter(dataBroker, routerIdUuid);
+            List<BigInteger> dpnIds = getDpnsForRouter(routerIdUuid);
             if (!dpnIds.isEmpty()) {
                 Long vpnId = vpnInstanceOpDataEntry.getVpnId();
                 VpnInstanceOpDataEntry vpnOpDataEntry = getVpnInstanceOpDataEntryFromVpnId(routerIdUuid);
@@ -1666,7 +1666,7 @@ public class NeutronvpnUtils {
     }
 
     @Nonnull
-    public List<BigInteger> getDpnsForRouter(DataBroker dataBroker, String routerUuid) {
+    public List<BigInteger> getDpnsForRouter(String routerUuid) {
         InstanceIdentifier id = InstanceIdentifier.builder(NeutronRouterDpns.class)
             .child(RouterDpnList.class, new RouterDpnListKey(routerUuid)).build();
         Optional<RouterDpnList> routerDpnListData =
@@ -1682,13 +1682,13 @@ public class NeutronvpnUtils {
         return dpns;
     }
 
-    public String getRouterIdfromVpnInstance(DataBroker broker, String vpnName) {
+    public String getRouterIdfromVpnInstance(String vpnName) {
         // returns only router, attached to IPv4 networks
         InstanceIdentifier<VpnMap> vpnMapIdentifier = InstanceIdentifier.builder(VpnMaps.class)
             .child(VpnMap.class, new VpnMapKey(new Uuid(vpnName))).build();
         Optional<VpnMap> optionalVpnMap = SingleTransactionDataBroker
-                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker, LogicalDatastoreType.CONFIGURATION,
-                        vpnMapIdentifier);
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
+                        LogicalDatastoreType.CONFIGURATION, vpnMapIdentifier);
         if (!optionalVpnMap.isPresent()) {
             LOG.error("getRouterIdfromVpnInstance : Router not found for vpn : {}", vpnName);
             return null;
