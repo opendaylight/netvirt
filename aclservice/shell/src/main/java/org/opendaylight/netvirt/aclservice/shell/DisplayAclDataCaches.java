@@ -365,6 +365,3 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 }
-
-
-
