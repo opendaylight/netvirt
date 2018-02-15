@@ -1,5 +1,5 @@
 /*
- * Copyright © 2016, 2017 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright © 2016, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -89,7 +89,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         if (tableId == NwConstants.L3_SUBNET_ROUTE_TABLE) {
             LOG.trace("{} onPacketReceived: Some packet received as {}", LOGGING_PREFIX, notification);
             try {
-                res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+                res.deserialize(data, 0, data.length * NetUtils.NUM_BITS_IN_A_BYTE);
             } catch (PacketException e) {
                 LOG.error("{} onPacketReceived: Failed to decode Packet ", LOGGING_PREFIX, e);
                 VpnManagerCounters.subnet_route_packet_failed.inc();

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -73,7 +73,7 @@ public class NaptPacketInHandler implements PacketProcessingListener {
             Ethernet ethPkt = new Ethernet();
             if (inPayload != null) {
                 try {
-                    ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NumBitsInAByte);
+                    ethPkt.deserialize(inPayload, 0, inPayload.length * NetUtils.NUM_BITS_IN_A_BYTE);
                 } catch (Exception e) {
                     LOG.warn("onPacketReceived: Failed to decode Packet", e);
                     return;

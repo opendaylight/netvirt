@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
+ * Copyright (c) 2016, 2018 Ericsson India Global Services Pvt Ltd. and others.  All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v1.0 which accompanies this distribution,
@@ -77,7 +77,7 @@ public class ElanPacketInHandler implements PacketProcessingListener {
                 byte[] data = notification.getPayload();
                 Ethernet res = new Ethernet();
 
-                res.deserialize(data, 0, data.length * NetUtils.NumBitsInAByte);
+                res.deserialize(data, 0, data.length * NetUtils.NUM_BITS_IN_A_BYTE);
 
                 byte[] srcMac = res.getSourceMACAddress();
                 final String macAddress = NWUtil.toStringMacAddress(srcMac);
