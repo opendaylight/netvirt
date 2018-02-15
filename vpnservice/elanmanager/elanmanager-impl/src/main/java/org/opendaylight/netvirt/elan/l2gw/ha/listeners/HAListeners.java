@@ -66,7 +66,7 @@ public class HAListeners implements AutoCloseable {
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         for (HwvtepNodeDataListener listener : listeners) {
             listener.close();
         }
@@ -84,7 +84,7 @@ public class HAListeners implements AutoCloseable {
             & ChildOf<HwvtepGlobalAttributes>> extends HwvtepNodeDataListener<T> {
 
         GlobalAugmentationListener(DataBroker broker, Class<T> clazz, Class<HwvtepNodeDataListener<T>> eventClazz,
-                                   MergeCommand mergeCommand,
+                                   MergeCommand<T, ?, ?> mergeCommand,
                                    ResourceBatchingManager.ShardResource datastoreType) {
             super(broker, clazz, eventClazz, mergeCommand, datastoreType);
         }
@@ -99,13 +99,13 @@ public class HAListeners implements AutoCloseable {
 
     private static class PhysicalLocatorListener extends HwvtepNodeDataListener<TerminationPoint> {
 
-        PhysicalLocatorListener(DataBroker broker,
-                                MergeCommand mergeCommand, ResourceBatchingManager.ShardResource datastoreType) {
+        PhysicalLocatorListener(DataBroker broker, MergeCommand<TerminationPoint, ?, ?> mergeCommand,
+                ResourceBatchingManager.ShardResource datastoreType) {
             super(broker, TerminationPoint.class, (Class)PhysicalLocatorListener.class, mergeCommand, datastoreType);
         }
 
         @Override
-        protected InstanceIdentifier getWildCardPath() {
+        protected InstanceIdentifier<TerminationPoint> getWildCardPath() {
             return PHYSICAL_PORT_IID;
         }
 
