@@ -39,7 +39,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>statemanager</module>
     <module>statistics</module>
     <!--<module>ovsdb-ui</module>-->
-    <module>alarm</module>
   </modules>
 
   <profiles>
