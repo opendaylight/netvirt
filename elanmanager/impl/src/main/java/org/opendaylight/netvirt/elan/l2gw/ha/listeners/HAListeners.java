@@ -13,7 +13,7 @@ import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalMcastCmd;
 import org.opendaylight.netvirt.elan.l2gw.ha.commands.LocalUcastCmd;
@@ -59,33 +59,33 @@ public class HAListeners implements AutoCloseable {
 
         PhysicalLocatorCmd physicalLocatorCmd = new PhysicalLocatorCmd();
         listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
-                ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY));
+                LogicalDatastoreType.CONFIGURATION));
         listeners.add(new PhysicalLocatorListener(broker, physicalLocatorCmd,
-                ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
+                LogicalDatastoreType.OPERATIONAL));
     }
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         for (HwvtepNodeDataListener listener : listeners) {
             listener.close();
         }
     }
 
     private <T extends ChildOf<HwvtepGlobalAttributes>> void registerListener(Class<T> clazz,
-                                                                              MergeCommand mergeCommand) {
+                                                                              MergeCommand<T, ?, ?> mergeCommand) {
         listeners.add(new GlobalAugmentationListener(broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
-                ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY));
+                LogicalDatastoreType.CONFIGURATION));
         listeners.add(new GlobalAugmentationListener(broker, clazz, HwvtepNodeDataListener.class, mergeCommand,
-                ResourceBatchingManager.ShardResource.OPERATIONAL_TOPOLOGY));
+                LogicalDatastoreType.OPERATIONAL));
     }
 
     private static class GlobalAugmentationListener<T extends DataObject
             & ChildOf<HwvtepGlobalAttributes>> extends HwvtepNodeDataListener<T> {
 
         GlobalAugmentationListener(DataBroker broker, Class<T> clazz, Class<HwvtepNodeDataListener<T>> eventClazz,
-                                   MergeCommand mergeCommand,
-                                   ResourceBatchingManager.ShardResource datastoreType) {
+                                   MergeCommand<T, ?, ?> mergeCommand,
+                                   LogicalDatastoreType datastoreType) {
             super(broker, clazz, eventClazz, mergeCommand, datastoreType);
         }
 
@@ -99,13 +99,13 @@ public class HAListeners implements AutoCloseable {
 
     private static class PhysicalLocatorListener extends HwvtepNodeDataListener<TerminationPoint> {
 
-        PhysicalLocatorListener(DataBroker broker,
-                                MergeCommand mergeCommand, ResourceBatchingManager.ShardResource datastoreType) {
+        PhysicalLocatorListener(DataBroker broker, MergeCommand<TerminationPoint, ?, ?> mergeCommand,
+                LogicalDatastoreType datastoreType) {
             super(broker, TerminationPoint.class, (Class)PhysicalLocatorListener.class, mergeCommand, datastoreType);
         }
 
         @Override
-        protected InstanceIdentifier getWildCardPath() {
+        protected InstanceIdentifier<TerminationPoint> getWildCardPath() {
             return PHYSICAL_PORT_IID;
         }
 
