@@ -8,13 +8,11 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import com.google.common.base.Optional;
-import com.google.common.util.concurrent.ListenableFuture;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -39,20 +37,18 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeDataListener.class);
 
     private final DataBroker broker;
-    private final MergeCommand mergeCommand;
+    private final MergeCommand<T, ?, ?> mergeCommand;
     private final ResourceBatchingManager.ShardResource datastoreType;
-    private final String dataTypeName;
 
     public HwvtepNodeDataListener(DataBroker broker,
                                   Class<T> clazz,
                                   Class<HwvtepNodeDataListener<T>> eventClazz,
-                                  MergeCommand mergeCommand,
+                                  MergeCommand<T, ?, ?> mergeCommand,
                                   ResourceBatchingManager.ShardResource datastoreType) {
         super(clazz, eventClazz);
         this.broker = broker;
         this.mergeCommand = mergeCommand;
         this.datastoreType = datastoreType;
-        this.dataTypeName = getClassTypeName();
         registerListener(this.datastoreType.getDatastoreType() , broker);
     }
 
@@ -62,16 +58,14 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
     @Override
     protected void add(InstanceIdentifier<T> identifier, T dataAdded) {
         HAJobScheduler.getInstance().submitJob(() -> {
-            try {
-                boolean create = true;
-                ReadWriteTransaction tx = broker.newReadWriteTransaction();
+            try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
                 if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
-                    copyToParent(identifier, dataAdded, create, tx);
+                    copyToParent(identifier, dataAdded, tx);
                 } else {
-                    copyToChild(identifier, dataAdded, create, tx);
+                    copyToChildren(identifier, dataAdded, tx);
                 }
             } catch (ReadFailedException e) {
-                LOG.error("Exception caught while writing ", e.getMessage());
+                LOG.error("Error processing added HWVTEP node", e);
             }
         });
     }
@@ -90,92 +84,100 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
     @Override
     protected void remove(InstanceIdentifier<T> identifier, T dataRemoved) {
         HAJobScheduler.getInstance().submitJob(() -> {
-            try {
-                boolean create = false;
-                ReadWriteTransaction tx = broker.newReadWriteTransaction();
+            try (ReadOnlyTransaction tx = broker.newReadOnlyTransaction()) {
                 if (LogicalDatastoreType.OPERATIONAL == datastoreType.getDatastoreType()) {
                     if (isNodeConnected(identifier, tx)) {
                         //Do not process the remove from disconnected child node
-                        copyToParent(identifier, dataRemoved, create, tx);
+                        deleteFromParent(identifier, dataRemoved, tx);
                     }
                 } else {
-                    copyToChild(identifier, dataRemoved, create, tx);
+                    deleteFromChildren(identifier, dataRemoved, tx);
                 }
             } catch (ReadFailedException e) {
-                LOG.error("Exception caught while writing ", e.getMessage());
+                LOG.error("Error processing removed HWVTEP node", e);
             }
         });
     }
 
-    protected boolean isNodeConnected(InstanceIdentifier<T> identifier, ReadWriteTransaction tx)
+    private boolean isNodeConnected(InstanceIdentifier<T> identifier, ReadTransaction tx)
             throws ReadFailedException {
         return tx.read(LogicalDatastoreType.OPERATIONAL, identifier.firstIdentifierOf(Node.class))
                 .checkedGet().isPresent();
     }
 
-    <T extends DataObject> boolean isDataUpdated(Optional<T> existingDataOptional, T newData) {
+    private static <T extends DataObject> boolean isDataUpdated(Optional<T> existingDataOptional, T newData) {
         return !existingDataOptional.isPresent() || !Objects.equals(existingDataOptional.get(), newData);
     }
 
-    void copyToParent(InstanceIdentifier<T> identifier, T data, boolean create,
-                      ReadWriteTransaction tx) throws ReadFailedException {
-        InstanceIdentifier<Node> parent = getHAParent(identifier);
-        if (parent == null) {
-            tx.cancel();
-            return;
-        }
+    private void copyToParent(InstanceIdentifier<T> identifier, T data, ReadTransaction tx)
+            throws ReadFailedException {
         if (clazz == RemoteUcastMacs.class) {
             LOG.trace("Skipping remote ucast macs to parent");
-            tx.cancel();
             return;
         }
-        LOG.trace("Copy child op data {} to parent {} create:{}", mergeCommand.getDescription(),
-                getNodeId(parent), create);
-        data = (T) mergeCommand.transform(parent, data);
-        identifier = mergeCommand.generateId(parent, data);
-        writeToMdsal(create, tx, data, identifier, false);
-        tx.submit();
+        InstanceIdentifier<Node> parent = getHAParent(identifier);
+        if (parent != null) {
+            LOG.trace("Copy child op data {} to parent {}", mergeCommand.getDescription(), getNodeId(parent));
+            data = mergeCommand.transform(parent, data);
+            identifier = mergeCommand.generateId(parent, data);
+            writeToMdsal(tx, data, identifier);
+        }
     }
 
-    Map<InstanceIdentifier<T>, ListenableFuture<Boolean>> inprogressOps = new ConcurrentHashMap<>();
-
-    void copyToChild(final InstanceIdentifier<T> parentIdentifier,final T parentData,
-                     final boolean create,final ReadWriteTransaction tx)
+    private void deleteFromParent(InstanceIdentifier<T> identifier, T data, ReadTransaction tx)
             throws ReadFailedException {
-        Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
-        if (children == null) {
-            tx.cancel();
+        if (clazz == RemoteUcastMacs.class) {
+            LOG.trace("Skipping remote ucast macs to parent");
             return;
         }
-        for (InstanceIdentifier<Node> child : children) {
-            LOG.trace("Copy parent config data {} to child {} create:{} ", mergeCommand.getDescription(),
-                    getNodeId(child), create);
-            final T childData = (T) mergeCommand.transform(child, parentData);
-            final InstanceIdentifier<T> identifier = mergeCommand.generateId(child, childData);
-            writeToMdsal(create, tx, childData, identifier, true);
+        InstanceIdentifier<Node> parent = getHAParent(identifier);
+        if (parent != null) {
+            LOG.trace("Copy child op data {} to parent {} create:{}", mergeCommand.getDescription(),
+                    getNodeId(parent), false);
+            data = mergeCommand.transform(parent, data);
+            identifier = mergeCommand.generateId(parent, data);
+            deleteFromMdsal(tx, identifier);
         }
-        tx.submit();
     }
 
-    private void writeToMdsal(final boolean create,
-                              final ReadWriteTransaction tx,
-                              final T data,
-                              final InstanceIdentifier<T> identifier,
-                              final boolean copyToChild) throws ReadFailedException {
-        Optional<T> existingDataOptional = tx.read(datastoreType.getDatastoreType(), identifier).checkedGet();
-        if (create) {
-            if (isDataUpdated(existingDataOptional, data)) {
-                ResourceBatchingManager.getInstance().put(datastoreType, identifier, data);
-            }
-        } else {
-            if (existingDataOptional.isPresent()) {
-                ResourceBatchingManager.getInstance().delete(datastoreType, identifier);
+    private void copyToChildren(final InstanceIdentifier<T> parentIdentifier, final T parentData,
+            final ReadTransaction tx) throws ReadFailedException {
+        Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
+        if (children != null) {
+            for (InstanceIdentifier<Node> child : children) {
+                LOG.trace("Copy parent config data {} to child {}", mergeCommand.getDescription(), getNodeId(child));
+                final T childData = mergeCommand.transform(child, parentData);
+                final InstanceIdentifier<T> identifier = mergeCommand.generateId(child, childData);
+                writeToMdsal(tx, childData, identifier);
             }
         }
     }
 
-    public String getClassTypeName() {
-        return clazz.getSimpleName();
+    private void deleteFromChildren(final InstanceIdentifier<T> parentIdentifier, final T parentData,
+            final ReadTransaction tx) throws ReadFailedException {
+        Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
+        if (children != null) {
+            for (InstanceIdentifier<Node> child : children) {
+                LOG.trace("Delete parent config data {} to child {}", mergeCommand.getDescription(), getNodeId(child));
+                final T childData = mergeCommand.transform(child, parentData);
+                final InstanceIdentifier<T> identifier = mergeCommand.generateId(child, childData);
+                deleteFromMdsal(tx, identifier);
+            }
+        }
+    }
+
+    private void writeToMdsal(final ReadTransaction tx, final T data, final InstanceIdentifier<T> identifier)
+            throws ReadFailedException {
+        if (isDataUpdated(tx.read(datastoreType.getDatastoreType(), identifier).checkedGet(), data)) {
+            ResourceBatchingManager.getInstance().put(datastoreType, identifier, data);
+        }
+    }
+
+    private void deleteFromMdsal(final ReadTransaction tx,
+            final InstanceIdentifier<T> identifier) throws ReadFailedException {
+        if (tx.read(datastoreType.getDatastoreType(), identifier).checkedGet().isPresent()) {
+            ResourceBatchingManager.getInstance().delete(datastoreType, identifier);
+        }
     }
 
     private String getNodeId(InstanceIdentifier<Node> iid) {
