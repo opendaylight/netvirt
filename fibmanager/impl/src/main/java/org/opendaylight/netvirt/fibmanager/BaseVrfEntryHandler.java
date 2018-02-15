@@ -128,7 +128,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
 
     protected void deleteLocalAdjacency(final BigInteger dpId, final long vpnId, final String ipAddress,
                               final String ipPrefixAddress) {
-        LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, ipAddress {}", dpId, vpnId, ipAddress);
+        LOG.trace("deleteLocalAdjacency called with dpid {}, vpnId{}, primaryIpAddress {} currIpPrefix {}",
+                dpId, vpnId, ipAddress, ipPrefixAddress);
         try {
             nextHopManager.removeLocalNextHop(dpId, vpnId, ipAddress, ipPrefixAddress);
         } catch (NullPointerException e) {
