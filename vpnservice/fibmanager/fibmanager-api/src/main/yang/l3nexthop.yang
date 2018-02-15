@@ -16,7 +16,10 @@ module l3nexthop {
                 leaf IpAddress {type string;}
                 leaf egressPointer {type uint32;}
                 leaf dpnId {type uint64;}
-                leaf flowrefCount {type uint16; }
+                list ip-adjacencies {
+                    key  "ip-adjacency";
+                    leaf ip-adjacency {type string;}
+                }
             }
         }
         list tunnelNexthops{
