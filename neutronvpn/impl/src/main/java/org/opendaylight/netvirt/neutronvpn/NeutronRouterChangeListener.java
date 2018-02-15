@@ -116,11 +116,24 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         if (!oldRoutes.equals(newRoutes)) {
             newRoutes.removeIf(oldRoutes::remove);
 
-            handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
-
             if (!oldRoutes.isEmpty()) {
                 handleChangedRoutes(vpnId, oldRoutes, NwConstants.DEL_FLOW);
             }
+
+            //After initial extra-route configuration using cmd-"neutron router-update RouterA destination=IP-A,
+            // nexthop=prefix-A",if another update is done using command - "neutron router-update RouterA
+            // destination=IP-A,nexthop=prefix-B",neutron router listener calls update on prefix-A as well as prefix-B.
+            // On prefix-A , secondary adj (IP-A) is removed ,where as its added on prefix-B. This back-to-back update
+            // creates race-condition in Vrf Engine ,leading inconsistencies in l3nexthop, VpnExtraRoute,
+            // VpnInterfaceOp DS. Hence a temporary fix of 2sec delay is introduced in neutron.
+            // A better fix/design need to be thought to avoid race condition
+            try {
+                Thread.sleep(2000); // sleep for 2sec
+            } catch (java.lang.InterruptedException e) {
+                LOG.error("Exception while sleeping", e);
+            }
+
+            handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
         }
 
         nvpnNatManager.handleExternalNetworkForRouter(original, update);
