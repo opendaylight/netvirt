@@ -904,7 +904,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             List<String> nextHopList = adj.getNextHopIpList();
             // If TEP is added , update the nexthop of primary adjacency.
             // Secondary adj nexthop is already pointing to primary adj IP address.
-            if (nextHopList != null && !nextHopList.isEmpty() && nextHopList.get(0).equalsIgnoreCase(srcTepIp)) {
+            if (nextHopList != null && !nextHopList.isEmpty()) {
                 /* everything right already */
             } else {
                 isNextHopAddReqd = true;
