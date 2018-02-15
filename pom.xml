@@ -6,101 +6,104 @@ This program and the accompanying materials are made available under the
 terms of the Eclipse Public License v1.0 which accompanies this distribution,
 and is available at http://www.eclipse.org/legal/epl-v10.html
 -->
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
 
-  <parent>
-    <groupId>org.opendaylight.odlparent</groupId>
-    <artifactId>odlparent-lite</artifactId>
-    <version>3.0.2</version>
-    <relativePath/>
-  </parent>
+    <parent>
+        <groupId>org.opendaylight.odlparent</groupId>
+        <artifactId>odlparent-lite</artifactId>
+        <version>3.0.2</version>
+        <relativePath/>
+    </parent>
 
-  <groupId>org.opendaylight.netvirt</groupId>
-  <artifactId>netvirt</artifactId>
-  <version>1.6.0-SNAPSHOT</version>
-  <name>${project.artifactId}</name> <!-- Used by Sonar to set project name -->
-  <packaging>pom</packaging>
-  <description>The OVSDB Plugin integration project is a project for OpenDaylight that will implement the Open vSwitch Database RFC 7047 management protocol allowing the Southbound configuration of vSwitches and a network virtualization implementation.</description>
-  <licenses>
-    <license>
-      <name>Eclipse Public License v1.0</name>
-      <url>http://www.eclipse.org/legal/epl-v10.html</url>
-    </license>
-  </licenses>
-  <developers>
-    <developer>
-      <name>Sam Hague</name>
-      <email>shague@gmail.com</email>
-      <url>https://github.com/shague</url>
-    </developer>
-  </developers>
-  <scm>
-    <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
-    <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
-    <tag>HEAD</tag>
-    <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
-  </scm>
+    <groupId>org.opendaylight.netvirt</groupId>
+    <artifactId>netvirt-aggregator</artifactId>
+    <version>0.6.0-SNAPSHOT</version>
+    <name>ODL :: netvirt :: ${project.artifactId}</name>
+    <packaging>pom</packaging>
+    <modelVersion>4.0.0</modelVersion>
 
-  <modules>
-    <module>vpnservice</module>
-    <module>artifacts</module>
-  </modules>
+    <description>The NetVirt project is a project for OpenDaylight that implements a network virtualization
+        implementation.
+    </description>
+    <licenses>
+        <license>
+            <name>Eclipse Public License v1.0</name>
+            <url>http://www.eclipse.org/legal/epl-v10.html</url>
+        </license>
+    </licenses>
+    <developers>
+        <developer>
+            <name>Sam Hague</name>
+            <email>shague@gmail.com</email>
+            <url>https://github.com/shague</url>
+        </developer>
+    </developers>
+    <scm>
+        <connection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</connection>
+        <developerConnection>scm:git:ssh://git.opendaylight.org:29418/netvirt.git</developerConnection>
+        <tag>HEAD</tag>
+        <url>https://wiki.opendaylight.org/view/OVSDB_Integration:Main</url>
+    </scm>
 
-  <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
-  <build>
-    <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-install-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
-      </plugin>
-    </plugins>
-  </build>
+    <modules>
+        <module>aclservice</module>
+        <module>alarm</module>
+        <module>artifacts</module>
+        <module>bgpmanager</module>
+        <module>cache</module>
+        <module>cloud-servicechain</module>
+        <module>coe</module>
+        <module>commons</module>
+        <module>dhcpservice</module>
+        <module>elanmanager</module>
+        <module>features</module>
+        <module>fibmanager</module>
+        <module>ipv6service</module>
+        <module>karaf</module>
+        <module>model-bgp</module>
+        <module>natservice</module>
+        <module>neutronvpn</module>
+        <module>qosservice</module>
+        <module>statemanager</module>
+        <module>statistics</module>
+        <module>vpnmanager</module>
+    </modules>
 
-  <profiles>
-    <profile>
-      <!--
-          This profile is to ensure we only build javadocs reports
-          when we plan to deploy Maven site for our project.
-      -->
-      <id>maven-site</id>
-      <activation>
-        <file>
-          <exists>${user.dir}/deploy-site.xml</exists>
-        </file>
-      </activation>
+    <profiles>
+        <profile>
+            <id>sfc</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>sfc</module>
+                <module>sfc-artifacts</module>
+            </modules>
+        </profile>
+        <profile>
+            <!-- When enabled, this empty profile disables the “sfc” profile above -->
+            <id>no-sfc</id>
+        </profile>
+    </profiles>
 
-      <build>
+    <!-- DO NOT install or deploy the repo root pom as it's only needed to initiate a build -->
+    <build>
         <plugins>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <inherited>false</inherited>
-            <executions>
-              <execution>
-                <id>aggregate</id>
-                <goals>
-                  <goal>aggregate</goal>
-                </goals>
-                <phase>package</phase>
-              </execution>
-            </executions>
-          </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
         </plugins>
-      </build>
-    </profile>
-  </profiles>
-
+    </build>
 </project>
