@@ -16,6 +16,24 @@
       "revId": "77f6761d6a17a37995c6c1544f27a8711716f079",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c1589a0_13e4b36e",
+        "filename": "vpnservice/elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 125,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-15T11:03:49Z",
+      "side": 1,
+      "message": "See the commit message ;-). I wanted to keep this patch very focused since it fixes potential bugs.",
+      "parentUuid": "ee11cb3d_1d087554",
+      "revId": "77f6761d6a17a37995c6c1544f27a8711716f079",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
