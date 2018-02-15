@@ -46,6 +46,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
 
   <modules>
     <module>vpnservice</module>
+    <module>commons</module>
     <module>artifacts</module>
   </modules>
 

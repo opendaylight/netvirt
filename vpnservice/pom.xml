@@ -22,7 +22,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
   <modules>
     <module>cache</module>
     <module>coe</module>
-    <module>commons</module>
     <module>model-bgp</module>
     <module>vpnmanager</module>
     <module>elanmanager</module>
