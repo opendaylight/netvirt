@@ -116,11 +116,17 @@ public class NeutronRouterChangeListener extends AsyncDataTreeChangeListenerBase
         if (!oldRoutes.equals(newRoutes)) {
             newRoutes.removeIf(oldRoutes::remove);
 
-            handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
-
             if (!oldRoutes.isEmpty()) {
                 handleChangedRoutes(vpnId, oldRoutes, NwConstants.DEL_FLOW);
             }
+
+            try {
+                Thread.sleep(2000); // sleep for 2sec
+            } catch (java.lang.InterruptedException e) {
+                LOG.error("Exception while sleeping", e);
+            }
+
+            handleChangedRoutes(vpnId, newRoutes, NwConstants.ADD_FLOW);
         }
 
         nvpnNatManager.handleExternalNetworkForRouter(original, update);
