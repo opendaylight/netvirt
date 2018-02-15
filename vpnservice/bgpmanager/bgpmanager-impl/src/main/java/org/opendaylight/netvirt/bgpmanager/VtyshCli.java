@@ -80,6 +80,7 @@ public class VtyshCli extends OsgiCommandSupport {
         switch (firstArg) {
             case "ip":
             case "bgp":
+              
                 handlerModule = BGPD;
                 break;
             case "running-config":
@@ -130,6 +131,7 @@ public class VtyshCli extends OsgiCommandSupport {
         try {
             socket = new Socket(serverName, SERVER_PORT);
 
+
         } catch (UnknownHostException ioe) {
             session.getConsole().println("No host exists: " + ioe.getMessage());
             return;
@@ -175,6 +177,7 @@ public class VtyshCli extends OsgiCommandSupport {
         while (true) {
             try {
                 ip = inFromSocket.read();
+
             } catch (SocketTimeoutException ste) {
                 session.getConsole().println(sb.toString());
                 session.getConsole().println("Read from Socket timed Out while verifying the password.");
@@ -196,6 +199,7 @@ public class VtyshCli extends OsgiCommandSupport {
             } else {
                 ch = (char) ip;
                 sb.append(ch);
+
             }
         }
 
@@ -206,6 +210,7 @@ public class VtyshCli extends OsgiCommandSupport {
         while (true) {
             try {
                 ip = inFromSocket.read();
+
             } catch (SocketTimeoutException ste) {
                 session.getConsole().println(sb.toString());
                 session.getConsole().println("Read from Socket timed Out while sending the term len command..");
@@ -249,18 +254,22 @@ public class VtyshCli extends OsgiCommandSupport {
 
             if (temp2.toString().contains(inputCmd)) {
 
-                String replacedStr = temp2.toString().replaceAll(inputCmd, "");
+                String replacedStr = temp2.toString().replaceAll(inputCmd,"");
                 temp.append(replacedStr);
                 temp2.setLength(0);
 
             } else {
                 temp.append(opBuf);
+
                 temp2.setLength(0);
 
             }
 
-            String outputStr = temp.toString().replaceAll("^\\s+|\\s+$", "");
+           String outputStr = temp.toString().replaceAll("^\\s","");
+
             output.append(outputStr);
+
+
             if (output.toString().trim().endsWith(prompt)) {
                 int index = output.toString().lastIndexOf(prompt);
                 String newString = output.toString().substring(0, index);
@@ -270,7 +279,7 @@ public class VtyshCli extends OsgiCommandSupport {
             }
             temp.setLength(0);
         }
-        session.getConsole().println(output.toString().trim());
+       session.getConsole().println(output.toString().trim());
         if (errorMsg.length() > 0) {
             session.getConsole().println(errorMsg);
         }
