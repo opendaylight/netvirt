@@ -24,7 +24,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
     <module>coe</module>
     <module>model-bgp</module>
     <module>vpnmanager</module>
-    <module>elanmanager</module>
     <module>fibmanager</module>
     <module>bgpmanager</module>
     <module>neutronvpn</module>

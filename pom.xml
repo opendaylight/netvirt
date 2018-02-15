@@ -49,6 +49,7 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
     <module>aclservice</module>
     <module>alarm</module>
     <module>commons</module>
+    <module>elanmanager</module>
     <module>artifacts</module>
   </modules>
 
