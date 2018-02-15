@@ -47,6 +47,12 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.DPNTEPsInfoKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn.endpoints.dpn.teps.info.TunnelEndPoints;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.LockManagerService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TimeUnits;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.BucketId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.group.Buckets;
@@ -810,5 +816,41 @@ public class FibUtil {
         int network = address & netmask;
         int broadcast = network | ~netmask;
         return InetAddresses.toAddrString(InetAddresses.fromInteger(broadcast));
+    }
+
+    public static boolean lockCluster(LockManagerService lockManager, String lockName, long tryLockPeriod) {
+        TryLockInput input = new TryLockInputBuilder().setLockName(lockName).setTime(tryLockPeriod)
+                .setTimeUnit(TimeUnits.Milliseconds).build();
+        Future<RpcResult<Void>> result = lockManager.tryLock(input);
+        boolean lockAcquired;
+        try {
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("lockCluster: Acquired lock for {}", lockName);
+                lockAcquired = true;
+            } else {
+                LOG.error("lockCluster: Unable to getLock for {} due to Error {}", lockName, result.get().getErrors());
+                lockAcquired = false;
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("lockCluster: Exception while trying to getLock for {}", lockName, e);
+            lockAcquired = false;
+        }
+
+        return lockAcquired;
+    }
+
+    public static void unlockCluster(LockManagerService lockManager, String lockName) {
+        UnlockInput input = new UnlockInputBuilder().setLockName(lockName).build();
+        Future<RpcResult<Void>> result = lockManager.unlock(input);
+        try {
+            if ((result != null) && (result.get().isSuccessful())) {
+                LOG.debug("unlockCluster: Unlocked {}", lockName);
+            } else {
+                LOG.error("unlockCluster: Unable to release lock for {} due to Error {}",
+                        lockName, result.get().getErrors());
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("unlockCluster: Unable to unlock {}", lockName, e);
+        }
     }
 }
