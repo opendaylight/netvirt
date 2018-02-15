@@ -727,7 +727,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     localNextHopSeen = true;
                     BigInteger dpnId =
                             checkCreateLocalFibEntry(localNextHopInfoLocal, localNextHopInfoLocal.getIpAddress(),
-                                    vpnId, rd, vrfEntry, vpnId, vpnExtraRoute, vpnExtraRoutes);
+                                    vpnId, rd, vrfEntry, vpnExtraRoute, vpnExtraRoutes);
                     returnLocalDpnId.add(dpnId);
                 }
             }
@@ -756,14 +756,12 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                                         label, localNextHopInfo.getVpnInterfaceName(), lri.getDpnId());
                                 if (vpnExtraRoutes.isEmpty()) {
                                     BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
-                                            vpnId, rd, vrfEntry, lri.getParentVpnid(), null, vpnExtraRoutes);
+                                            vpnId, rd, vrfEntry, null, vpnExtraRoutes);
                                     returnLocalDpnId.add(dpnId);
                                 } else {
                                     for (Routes extraRoutes : vpnExtraRoutes) {
-                                        BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo,
-                                                localNextHopIP,
-                                                vpnId, rd, vrfEntry, lri.getParentVpnid(),
-                                                extraRoutes, vpnExtraRoutes);
+                                        BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP,
+                                                vpnId, rd, vrfEntry, extraRoutes, vpnExtraRoutes);
                                         returnLocalDpnId.add(dpnId);
                                     }
                                 }
@@ -777,7 +775,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             }
         } else {
             BigInteger dpnId = checkCreateLocalFibEntry(localNextHopInfo, localNextHopIP, vpnId,
-                    rd, vrfEntry, vpnId, /*routes*/ null, /*vpnExtraRoutes*/ null);
+                    rd, vrfEntry, /*routes*/ null, /*vpnExtraRoutes*/ null);
             if (dpnId != null) {
                 returnLocalDpnId.add(dpnId);
             }
@@ -787,7 +785,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private BigInteger checkCreateLocalFibEntry(Prefixes localNextHopInfo, String localNextHopIP,
                                                 final Long vpnId, final String rd,
-                                                final VrfEntry vrfEntry, Long parentVpnId,
+                                                final VrfEntry vrfEntry,
                                                 Routes routes, List<Routes> vpnExtraRoutes) {
         String vpnName = fibUtil.getVpnNameFromId(vpnId);
         if (localNextHopInfo != null) {
@@ -817,19 +815,19 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                     localNextHopIP = routes.getNexthopIpList().get(0) + NwConstants.IPV6PREFIX;
                 }
                 if (vpnExtraRoutes.size() > 1) {
-                    groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
+                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes,
                             vpnExtraRoutes);
-                    localGroupId = nextHopManager.getLocalNextHopGroup(parentVpnId, localNextHopIP);
+                    localGroupId = nextHopManager.getLocalNextHopGroup(vpnId, localNextHopIP);
                 } else if (routes.getNexthopIpList().size() > 1) {
-                    groupId = nextHopManager.createNextHopGroups(parentVpnId, rd, dpnId, vrfEntry, routes,
+                    groupId = nextHopManager.createNextHopGroups(vpnId, rd, dpnId, vrfEntry, routes,
                             vpnExtraRoutes);
                     localGroupId = groupId;
                 } else {
-                    groupId = nextHopManager.getLocalNextHopGroup(parentVpnId, localNextHopIP);
+                    groupId = nextHopManager.getLocalNextHopGroup(vpnId, localNextHopIP);
                     localGroupId = groupId;
                 }
             } else {
-                groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId, interfaceName, localNextHopIP, prefix,
+                groupId = nextHopManager.createLocalNextHop(vpnId, dpnId, interfaceName, localNextHopIP, prefix,
                         gwMacAddress, jobKey);
                 localGroupId = groupId;
             }
@@ -1021,7 +1019,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                 if (localNextHopInfo != null) {
                     String localNextHopIP = localNextHopInfo.getIpAddress();
                     BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                            vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
+                            vpnId, rd, vrfEntry, isExtraroute);
                     if (!dpnId.equals(BigInteger.ZERO)) {
                         LOG.trace("Deleting ECMP group for prefix {}, dpn {}", vrfEntry.getDestPrefix(), dpnId);
                         nextHopManager.setupLoadBalancingNextHop(vpnId, dpnId,
@@ -1046,7 +1044,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                         PrefixesBuilder prefixBuilder = new PrefixesBuilder();
                         prefixBuilder.setDpnId(lri.getDpnId());
                         BigInteger dpnId = checkDeleteLocalFibEntry(prefixBuilder.build(), nextHopAddressList.get(0),
-                                vpnId, rd, vrfEntry, isExtraroute, lri.getParentVpnid());
+                                vpnId, rd, vrfEntry, isExtraroute);
                         if (!dpnId.equals(BigInteger.ZERO)) {
                             returnLocalDpnId.add(dpnId);
                         }
@@ -1058,7 +1056,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             LOG.debug("Obtained prefix to interface for rd {} prefix {}", rd, vrfEntry.getDestPrefix());
             String localNextHopIP = localNextHopInfo.getIpAddress();
             BigInteger dpnId = checkDeleteLocalFibEntry(localNextHopInfo, localNextHopIP,
-                vpnId, rd, vrfEntry, isExtraroute, vpnId /*parentVpnId*/);
+                vpnId, rd, vrfEntry, isExtraroute);
             if (!dpnId.equals(BigInteger.ZERO)) {
                 returnLocalDpnId.add(dpnId);
             }
@@ -1069,7 +1067,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
 
     private BigInteger checkDeleteLocalFibEntry(Prefixes localNextHopInfo, final String localNextHopIP,
                                                 final Long vpnId, final String rd, final VrfEntry vrfEntry,
-                                                boolean isExtraroute, final Long parentVpnId) {
+                                                boolean isExtraroute) {
         if (localNextHopInfo != null) {
             final BigInteger dpnId = localNextHopInfo.getDpnId();
             if (Prefixes.PrefixCue.Nat.equals(localNextHopInfo.getPrefixCue())) {
@@ -1105,7 +1103,7 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             //TODO: verify below adjacency call need to be optimized (?)
             //In case of the removal of the extra route, the loadbalancing group is updated
             if (!isExtraroute) {
-                baseVrfEntryHandler.deleteLocalAdjacency(dpnId, parentVpnId, localNextHopIP, vrfEntry.getDestPrefix());
+                baseVrfEntryHandler.deleteLocalAdjacency(dpnId, vpnId, localNextHopIP, vrfEntry.getDestPrefix());
             }
             return dpnId;
         }
