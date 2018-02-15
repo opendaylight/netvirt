@@ -35,6 +35,7 @@ public class AclServiceManagerImpl implements AclServiceManager {
         addAclServiceListner(factory.createEgressAclServiceImpl());
 
         LOG.info("ACL Service Initiated");
+        LOG.info("This is a test");
     }
 
     @Override
