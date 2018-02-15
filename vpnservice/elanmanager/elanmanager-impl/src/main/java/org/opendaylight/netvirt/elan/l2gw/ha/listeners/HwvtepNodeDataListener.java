@@ -121,10 +121,13 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
                       ReadWriteTransaction tx) throws ReadFailedException {
         InstanceIdentifier<Node> parent = getHAParent(identifier);
         if (parent == null) {
+            tx.cancel();
             return;
         }
         if (clazz == RemoteUcastMacs.class) {
             LOG.trace("Skipping remote ucast macs to parent");
+            tx.cancel();
+            return;
         }
         LOG.trace("Copy child op data {} to parent {} create:{}", mergeCommand.getDescription(),
                 getNodeId(parent), create);
@@ -141,6 +144,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
             throws ReadFailedException {
         Set<InstanceIdentifier<Node>> children = getChildrenForHANode(parentIdentifier);
         if (children == null) {
+            tx.cancel();
             return;
         }
         for (InstanceIdentifier<Node> child : children) {
