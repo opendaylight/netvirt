@@ -8,10 +8,10 @@
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import java.util.concurrent.ExecutionException;
+
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.PSAugmentationMerger;
@@ -33,6 +33,7 @@ public class ConfigNodeUpdatedHandler {
      * @param haUpdated HA node updated
      * @param haOriginal HA node original
      * @param haChildNodeId HA child node which needs to be updated
+     * @param mod the data object modification
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
      * @throws ExecutionException  Exception thrown if Execution fail
@@ -41,16 +42,12 @@ public class ConfigNodeUpdatedHandler {
     public void copyHAGlobalUpdateToChild(Node haUpdated,
                                           Node haOriginal,
                                           InstanceIdentifier<Node> haChildNodeId,
+                                          DataObjectModification<Node> mod,
                                           ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
-
-        Node existingNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
-        HwvtepGlobalAugmentation updatedGlobal = HwvtepHAUtil.getGlobalAugmentationOfNode(haUpdated);
-        HwvtepGlobalAugmentation origGlobal = HwvtepHAUtil.getGlobalAugmentationOfNode(haOriginal);
-        HwvtepGlobalAugmentation existingData = HwvtepHAUtil.getGlobalAugmentationOfNode(existingNode);
-
-        globalAugmentationMerger.mergeConfigUpdate(existingData, updatedGlobal, origGlobal, haChildNodeId, tx);
-        globalNodeMerger.mergeConfigUpdate(existingNode, haUpdated, haOriginal, haChildNodeId, tx);
+        globalAugmentationMerger.mergeConfigUpdate(haChildNodeId,
+                mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);
+        globalNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx);
     }
 
     /**
@@ -59,6 +56,7 @@ public class ConfigNodeUpdatedHandler {
      * @param haUpdated HA node updated
      * @param haOriginal HA node original
      * @param haChildNodeId HA child node which needs to be updated
+     * @param mod the data object modification
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
      * @throws ExecutionException  Exception thrown if Execution fail
@@ -67,17 +65,13 @@ public class ConfigNodeUpdatedHandler {
     public void copyHAPSUpdateToChild(Node haUpdated,
                                       Node haOriginal,
                                       InstanceIdentifier<Node> haChildNodeId,
+                                      DataObjectModification<Node> mod,
                                       ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
 
-        Node existingNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.CONFIGURATION, haChildNodeId);
-
-        PhysicalSwitchAugmentation updated = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(haUpdated);
-        PhysicalSwitchAugmentation orig = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(haOriginal);
-        PhysicalSwitchAugmentation existingData = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(existingNode);
-
-        psAugmentationMerger.mergeConfigUpdate(existingData, updated, orig, haChildNodeId, tx);
-        psNodeMerger.mergeConfigUpdate(existingNode, haUpdated, haOriginal, haChildNodeId, tx);
+        psAugmentationMerger.mergeConfigUpdate(haChildNodeId,
+                mod.getModifiedAugmentation(PhysicalSwitchAugmentation.class), tx);
+        psNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx);
     }
 
 }

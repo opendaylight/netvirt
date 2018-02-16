@@ -12,7 +12,7 @@ import org.opendaylight.netvirt.elan.l2gw.ha.commands.TerminationPointCmd;
 public class PSNodeMerger extends MergeCommandsAggregator {
 
     public PSNodeMerger() {
-        commands.add(new TerminationPointCmd());
+        addCommand(new TerminationPointCmd());
     }
 
     static PSNodeMerger instance = new PSNodeMerger();

@@ -7,8 +7,8 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -27,38 +27,27 @@ public class OpNodeUpdatedHandler {
     GlobalNodeMerger globalNodeMerger         = GlobalNodeMerger.getInstance();
     PSNodeMerger psNodeMerger             = PSNodeMerger.getInstance();
 
-    public void handle(Node updatedSrcNode, Node origSrcNode, InstanceIdentifier<Node> haPath, ReadWriteTransaction tx)
-            throws ReadFailedException {
-        if (updatedSrcNode.getAugmentation(HwvtepGlobalAugmentation.class) != null) {
-            copyChildGlobalOpUpdateToHAParent(updatedSrcNode, origSrcNode, haPath, tx);
-        } else {
-            copyChildPsOpUpdateToHAParent(updatedSrcNode, origSrcNode, haPath, tx);
-        }
-    }
-
     /**
      * Copy HA ps node update to HA child ps node of operational data tree.
      *
      * @param updatedSrcPSNode Updated HA child ps node
      * @param origSrcPSNode Original HA ps node
      * @param haPath HA node path
+     * @param mod the data object modification
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
      */
     public void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
                                               Node origSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
+                                              DataObjectModification<Node> mod,
                                               ReadWriteTransaction tx) throws ReadFailedException {
 
         InstanceIdentifier<Node> haPSPath = HwvtepHAUtil.convertPsPath(updatedSrcPSNode, haPath);
-        Node existingHAPSNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPSPath);
 
-        PhysicalSwitchAugmentation updatedSrc   = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(updatedSrcPSNode);
-        PhysicalSwitchAugmentation origSrc      = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(origSrcPSNode);
-        PhysicalSwitchAugmentation existingData = HwvtepHAUtil.getPhysicalSwitchAugmentationOfNode(existingHAPSNode);
-
-        psAugmentationMerger.mergeOpUpdate(existingData, updatedSrc, origSrc, haPSPath, tx);
-        psNodeMerger.mergeOpUpdate(existingHAPSNode, updatedSrcPSNode, origSrcPSNode, haPSPath, tx);
+        psAugmentationMerger.mergeOpUpdate(haPSPath,
+                mod.getModifiedAugmentation(PhysicalSwitchAugmentation.class), tx);
+        psNodeMerger.mergeOpUpdate(haPSPath, mod, tx);
     }
 
     /**
@@ -67,25 +56,19 @@ public class OpNodeUpdatedHandler {
      * @param updatedSrcNode Updated HA child node
      * @param origSrcNode Original HA node
      * @param haPath HA node path
+     * @param mod the data object modification
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
      */
     public void copyChildGlobalOpUpdateToHAParent(Node updatedSrcNode,
                                                   Node origSrcNode,
                                                   InstanceIdentifier<Node> haPath,
+                                                  DataObjectModification<Node> mod,
                                                   ReadWriteTransaction tx) throws ReadFailedException {
 
-        Node existingDstNode = HwvtepHAUtil.readNode(tx, LogicalDatastoreType.OPERATIONAL, haPath);
-        if (existingDstNode == null) {
-            //No dst present nothing to copy
-            return;
-        }
-        HwvtepGlobalAugmentation existingData    = HwvtepHAUtil.getGlobalAugmentationOfNode(existingDstNode);
-        HwvtepGlobalAugmentation updatedSrc = HwvtepHAUtil.getGlobalAugmentationOfNode(updatedSrcNode);
-        HwvtepGlobalAugmentation origSrc    = HwvtepHAUtil.getGlobalAugmentationOfNode(origSrcNode);
-
-        globalAugmentationMerger.mergeOpUpdate(existingData, updatedSrc, origSrc, haPath, tx);
-        globalNodeMerger.mergeOpUpdate(existingDstNode, updatedSrcNode, origSrcNode, haPath, tx);
+        globalAugmentationMerger.mergeOpUpdate(haPath,
+                mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);
+        globalNodeMerger.mergeOpUpdate(haPath, mod, tx);
     }
 
 }

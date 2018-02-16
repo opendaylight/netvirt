@@ -86,9 +86,9 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
             Node original = HwvtepHAUtil.getOriginal(mod);
             if (updated != null && original != null) {
                 if (!nodeId.contains(HwvtepHAUtil.PHYSICALSWITCH)) {
-                    onGlobalNodeUpdate(key, updated, original, tx);
+                    onGlobalNodeUpdate(key, updated, original, mod, tx);
                 } else {
-                    onPsNodeUpdate(key, updated, original, tx);
+                    onPsNodeUpdate(key, updated, original, mod, tx);
                 }
             }
         }
@@ -175,12 +175,14 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     }
 
-    void onGlobalNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original, ReadWriteTransaction tx)
+    void onGlobalNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original,
+                            DataObjectModification<Node> mod, ReadWriteTransaction tx)
             throws ReadFailedException, InterruptedException, ExecutionException {
 
     }
 
-    void onPsNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original, ReadWriteTransaction tx)
+    void onPsNodeUpdate(InstanceIdentifier<Node> key, Node updated, Node original,
+                        DataObjectModification<Node> mod, ReadWriteTransaction tx)
             throws ReadFailedException, InterruptedException, ExecutionException {
 
     }

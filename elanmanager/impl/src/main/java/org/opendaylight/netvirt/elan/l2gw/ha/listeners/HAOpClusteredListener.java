@@ -21,6 +21,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -102,6 +103,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
     void onGlobalNodeUpdate(InstanceIdentifier<Node> childPath,
                             Node updatedChildNode,
                             Node beforeChildNode,
+                            DataObjectModification<Node> mod,
                             ReadWriteTransaction tx) {
         boolean wasHAChild = hwvtepHACache.isHAEnabledDevice(childPath);
         addToHACacheIfBecameHAChild(childPath, updatedChildNode, beforeChildNode, tx);

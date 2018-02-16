@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutionException;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
@@ -61,46 +62,50 @@ public class HAEventHandler implements IHAEventHandler {
     public void copyChildGlobalOpUpdateToHAParent(Node updatedSrcNode,
                                                   Node origSrcNode,
                                                   InstanceIdentifier<Node> haPath,
+                                                  DataObjectModification<Node> mod,
                                                   ReadWriteTransaction tx) throws ReadFailedException {
         if (haPath == null) {
             return;
         }
-        opNodeUpdatedHandler.copyChildGlobalOpUpdateToHAParent(updatedSrcNode, origSrcNode, haPath, tx);
+        opNodeUpdatedHandler.copyChildGlobalOpUpdateToHAParent(updatedSrcNode, origSrcNode, haPath, mod, tx);
     }
 
     @Override
     public void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
                                               Node origSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
+                                              DataObjectModification<Node> mod,
                                               ReadWriteTransaction tx) throws ReadFailedException {
         if (haPath == null) {
             return;
         }
-        opNodeUpdatedHandler.copyChildPsOpUpdateToHAParent(updatedSrcPSNode, origSrcPSNode, haPath, tx);
+        opNodeUpdatedHandler.copyChildPsOpUpdateToHAParent(updatedSrcPSNode, origSrcPSNode, haPath, mod, tx);
     }
 
     @Override
     public void copyHAPSUpdateToChild(Node haUpdated,
                                       Node haOriginal,
                                       InstanceIdentifier<Node> haChildNodeId,
+                                      DataObjectModification<Node> mod,
                                       ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
         if (haChildNodeId == null) {
             return;
         }
-        configNodeUpdatedHandler.copyHAPSUpdateToChild(haUpdated, haOriginal, haChildNodeId, tx);
+        configNodeUpdatedHandler.copyHAPSUpdateToChild(haUpdated, haOriginal, haChildNodeId, mod, tx);
     }
 
     @Override
     public void copyHAGlobalUpdateToChild(Node haUpdated,
                                           Node haOriginal,
                                           InstanceIdentifier<Node> haChildNodeId,
+                                          DataObjectModification<Node> mod,
                                           ReadWriteTransaction tx)
             throws InterruptedException, ExecutionException, ReadFailedException {
         if (haChildNodeId == null) {
             return;
         }
-        configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haUpdated, haOriginal, haChildNodeId, tx);
+        configNodeUpdatedHandler.copyHAGlobalUpdateToChild(haUpdated, haOriginal, haChildNodeId, mod, tx);
     }
 
 }
