@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "46b4eab3_62532703",
+        "filename": "neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2257,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-16T07:57:48Z",
+      "side": 1,
+      "message": "see below:\nhttps://logs.opendaylight.org/releng/vex-yul-odl-jenkins-1/netvirt-maven-javadoc-verify-oxygen/2164/console.log.gz",
+      "range": {
+        "startLine": 2257,
+        "startChar": 27,
+        "endLine": 2257,
+        "endChar": 34
+      },
+      "revId": "9b705d6ca68c406bad0f6936693dc3dca1ae9b17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "df9fa86e_605844a7",
+        "filename": "neutronvpn/neutronvpn-impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2391,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-16T07:57:48Z",
+      "side": 1,
+      "message": "error: unknown tag: Uuid\n\u003e String",
+      "range": {
+        "startLine": 2391,
+        "startChar": 27,
+        "endLine": 2391,
+        "endChar": 32
+      },
+      "revId": "9b705d6ca68c406bad0f6936693dc3dca1ae9b17",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
