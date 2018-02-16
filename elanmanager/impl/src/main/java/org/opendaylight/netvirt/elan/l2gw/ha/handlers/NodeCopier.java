@@ -33,6 +33,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hw
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.HwvtepGlobalRef;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentation;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.PhysicalSwitchAugmentationBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.params.xml.ns.yang.ovsdb.hwvtep.rev150901.hwvtep.global.attributes.Managers;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.NodeBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
@@ -120,10 +121,22 @@ public class NodeCopier implements INodeCopier {
         if (OPERATIONAL == logicalDatastoreType) {
             haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(srcGlobalNodeOptional.get(),
                     existingDstGlobalNodeOptional));
+            //Also update the manager section in config which helps in cluster reboot scenarios
+            haBuilder.getManagers().stream().forEach((manager) -> {
+                InstanceIdentifier<Managers> managerIid = dstPath.augmentation(HwvtepGlobalAugmentation.class)
+                        .child(Managers.class, manager.getKey());
+                tx.put(CONFIGURATION, managerIid, manager, true);
+            });
+
         }
+        haBuilder.setDbVersion(srcGlobalAugmentation.getDbVersion());
         haNodeBuilder.addAugmentation(HwvtepGlobalAugmentation.class, haBuilder.build());
         Node haNode = haNodeBuilder.build();
-        tx.merge(logicalDatastoreType, dstPath, haNode, true);
+        if (OPERATIONAL == logicalDatastoreType) {
+            tx.merge(logicalDatastoreType, dstPath, haNode, true);
+        } else {
+            tx.put(logicalDatastoreType, dstPath, haNode, true);
+        }
     }
 
     public void copyPSNode(Optional<Node> srcPsNodeOptional,
@@ -182,15 +195,20 @@ public class NodeCopier implements INodeCopier {
         dstPsNodeBuilder.addAugmentation(PhysicalSwitchAugmentation.class, dstPsAugmentationBuilder.build());
         Node dstPsNode = dstPsNodeBuilder.build();
         tx.merge(logicalDatastoreType, dstPsPath, dstPsNode, true);
+        LOG.debug("Copied {} physical switch node from {} to {}", logicalDatastoreType, srcPsPath, dstPsPath);
     }
 
     public void mergeOpManagedByAttributes(PhysicalSwitchAugmentation psAugmentation,
                                            PhysicalSwitchAugmentationBuilder builder,
                                            InstanceIdentifier<Node> haNodePath) {
         builder.setManagedBy(new HwvtepGlobalRef(haNodePath));
-        builder.setHwvtepNodeName(psAugmentation.getHwvtepNodeName());
-        builder.setHwvtepNodeDescription(psAugmentation.getHwvtepNodeDescription());
-        builder.setTunnelIps(psAugmentation.getTunnelIps());
-        builder.setPhysicalSwitchUuid(HwvtepHAUtil.getUUid(psAugmentation.getHwvtepNodeName().getValue()));
+        if (psAugmentation != null) {
+            builder.setHwvtepNodeName(psAugmentation.getHwvtepNodeName());
+            builder.setHwvtepNodeDescription(psAugmentation.getHwvtepNodeDescription());
+            builder.setTunnelIps(psAugmentation.getTunnelIps());
+            if (psAugmentation.getHwvtepNodeName() != null) {
+                builder.setPhysicalSwitchUuid(HwvtepHAUtil.getUUid(psAugmentation.getHwvtepNodeName().getValue()));
+            }
+        }
     }
 }
