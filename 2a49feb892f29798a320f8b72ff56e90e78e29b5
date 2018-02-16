@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "387a29f3_4a78b4e2",
+        "filename": "elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-02-16T02:37:57Z",
+      "side": 1,
+      "message": "Let us use BatchedTransaction here so that the following reads also will use batch manager along with writes.",
+      "range": {
+        "startLine": 61,
+        "startChar": 42,
+        "endLine": 61,
+        "endChar": 48
+      },
+      "revId": "2a49feb892f29798a320f8b72ff56e90e78e29b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "482bad07_ea0a97ad",
+        "filename": "elanmanager/elanmanager-impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeDataListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 7785
+      },
+      "writtenOn": "2018-02-16T02:37:57Z",
+      "side": 1,
+      "message": "Same here",
+      "range": {
+        "startLine": 87,
+        "startChar": 75,
+        "endLine": 87,
+        "endChar": 76
+      },
+      "revId": "2a49feb892f29798a320f8b72ff56e90e78e29b5",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
