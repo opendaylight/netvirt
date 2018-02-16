@@ -14,4 +14,8 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
                interface="org.opendaylight.controller.md.sal.binding.api.DataBroker" />
     <reference id="jobCoordinator"
                interface="org.opendaylight.infrautils.jobcoordinator.JobCoordinator" />
+    <reference id="dataTreeEventCallbackRegistrar"
+               interface="org.opendaylight.genius.datastoreutils.listeners.DataTreeEventCallbackRegistrar"/>
+    <reference id="cacheProvider"
+               interface="org.opendaylight.infrautils.caches.CacheProvider"/>
 </blueprint>
