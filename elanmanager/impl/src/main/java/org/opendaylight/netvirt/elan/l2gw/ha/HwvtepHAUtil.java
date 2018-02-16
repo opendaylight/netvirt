@@ -284,22 +284,41 @@ public final class HwvtepHAUtil {
         return null;
     }
 
-    public static InstanceIdentifier<Node> getGlobalNodePathFromPSNode(Node psNode) {
-        if (psNode == null
-                || psNode.getAugmentation(PhysicalSwitchAugmentation.class) == null
-                || psNode.getAugmentation(PhysicalSwitchAugmentation.class).getManagedBy() == null) {
-            return null;
+    public static String getPsName(Node psNode) {
+        String psNodeId = psNode.getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
         }
-        return (InstanceIdentifier<Node>)psNode
-                .getAugmentation(PhysicalSwitchAugmentation.class).getManagedBy().getValue();
+        return null;
+    }
+
+    public static String getPsName(InstanceIdentifier<Node> psNodeIid) {
+        String psNodeId = psNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) +  PHYSICALSWITCH.length());
+        }
+        return null;
+    }
+
+    public static InstanceIdentifier<Node> getGlobalNodePathFromPSNode(Node psNode) {
+        String psNodeId = psNode.getNodeId().getValue();
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            return convertToInstanceIdentifier(psNodeId.substring(0, psNodeId.indexOf(PHYSICALSWITCH)));
+        }
+        return convertToInstanceIdentifier(psNodeId);
     }
 
     public static InstanceIdentifier<Node> convertPsPath(Node psNode, InstanceIdentifier<Node> nodePath) {
         String psNodeId = psNode.getNodeId().getValue();
-        String psName = psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
-        String haPsNodeIdVal = nodePath.firstKeyOf(Node.class).getNodeId().getValue() + PHYSICALSWITCH + psName;
-        InstanceIdentifier<Node> haPsPath = convertToInstanceIdentifier(haPsNodeIdVal);
-        return haPsPath;
+        if (psNodeId.contains(PHYSICALSWITCH)) {
+            String psName = psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) + PHYSICALSWITCH.length());
+            String haPsNodeIdVal = nodePath.firstKeyOf(Node.class).getNodeId().getValue() + PHYSICALSWITCH + psName;
+            InstanceIdentifier<Node> haPsPath = convertToInstanceIdentifier(haPsNodeIdVal);
+            return haPsPath;
+        } else {
+            LOG.error("Failed to find ps path from node {}", psNode);
+            return null;
+        }
     }
 
     public static NodeBuilder getNodeBuilderForPath(InstanceIdentifier<Node> haPath) {
@@ -610,13 +629,5 @@ public final class HwvtepHAUtil {
             }
         }
         return true;
-    }
-
-    public static String getPsName(InstanceIdentifier<Node> psNodeIid) {
-        String psNodeId = psNodeIid.firstKeyOf(Node.class).getNodeId().getValue();
-        if (psNodeId.contains(PHYSICALSWITCH)) {
-            return psNodeId.substring(psNodeId.indexOf(PHYSICALSWITCH) +  PHYSICALSWITCH.length());
-        }
-        return null;
     }
 }

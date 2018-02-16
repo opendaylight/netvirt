@@ -53,7 +53,7 @@ public abstract class HwvtepNodeDataListener<T extends DataObject>
         this.mergeCommand = mergeCommand;
         this.datastoreType = datastoreType;
         this.dataTypeName = getClassTypeName();
-        registerListener(this.datastoreType.getDatastoreType() , broker);
+        //registerListener(this.datastoreType.getDatastoreType() , broker);
     }
 
     @Override

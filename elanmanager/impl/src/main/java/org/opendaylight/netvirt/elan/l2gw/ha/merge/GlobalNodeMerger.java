@@ -12,7 +12,7 @@ import org.opendaylight.netvirt.elan.l2gw.ha.commands.PhysicalLocatorCmd;
 public class GlobalNodeMerger extends MergeCommandsAggregator {
 
     public GlobalNodeMerger() {
-        commands.add(new PhysicalLocatorCmd());
+        addCommand(new PhysicalLocatorCmd());
     }
 
     static GlobalNodeMerger instance = new GlobalNodeMerger();
