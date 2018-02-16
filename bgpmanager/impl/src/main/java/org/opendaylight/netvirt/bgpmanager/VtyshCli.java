@@ -261,7 +261,7 @@ public class VtyshCli extends OsgiCommandSupport {
 
             }
 
-            String outputStr = temp.toString().replaceAll("^\\s+|\\s+$", "");
+            String outputStr = temp.toString().replaceAll("^\\s", "");
             output.append(outputStr);
             if (output.toString().trim().endsWith(prompt)) {
                 int index = output.toString().lastIndexOf(prompt);
