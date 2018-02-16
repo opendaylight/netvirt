@@ -36,6 +36,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -45,6 +46,7 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.cache.DataObjectCache;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -111,7 +113,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.slf4j.Logger;
@@ -739,8 +740,9 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         List<Adjacency> value = new ArrayList<>();
         for (Adjacency nextHop : nextHops) {
             String rd = primaryRd;
-            Subnetmap sn = VpnUtil.getSubnetmapFromItsUuid(dataBroker, nextHop.getSubnetId());
-            if (!VpnUtil.isSubnetPartOfVpn(sn, vpnName)) {
+            String nexthopIpValue = nextHop.getIpAddress().split("/")[0];
+            if (vpnInstanceOpData.getBgpvpnType() == VpnInstanceOpDataEntry.BgpvpnType.BGPVPNInternet
+                    && NWUtil.isIpv4Address(nexthopIpValue)) {
                 String prefix = nextHop.getIpAddress() == null ?  "null" :
                       VpnUtil.getIpPrefix(nextHop.getIpAddress());
                 LOG.debug("processVpnInterfaceAdjacencies: Not Adding prefix {} to interface {}"
@@ -760,16 +762,24 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                     VpnUtil.getPrefixToInterface(dpnId, interfaceName, prefix, nextHop.getSubnetId(),
                             prefixCue), true);
                 final Uuid subnetId = nextHop.getSubnetId();
-                final Optional<String> gatewayIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
-                if (gatewayIp.isPresent()) {
-                    gwMac = getMacAddressForSubnetIp(vpnName, interfaceName, gatewayIp.get());
+
+                String gatewayIp = nextHop.getSubnetGatewayIp();
+                if (gatewayIp == null) {
+                    Optional<String> gatewayIpOptional = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetId);
+                    if (gatewayIpOptional.isPresent()) {
+                        gatewayIp = gatewayIpOptional.get();
+                    }
+                }
+
+                if (gatewayIp != null) {
+                    gwMac = getMacAddressForSubnetIp(vpnName, interfaceName, gatewayIp);
                     if (gwMac.isPresent()) {
                         // A valid mac-address is available for this subnet-gateway-ip
                         // Use this for programming ARP_RESPONDER table here.  And save this
                         // info into vpnInterface operational, so it can used in VrfEntryProcessor
                         // to populate L3_GW_MAC_TABLE there.
                         arpResponderHandler.addArpResponderFlow(dpnId, lportTag, interfaceName,
-                                gatewayIp.get(), gwMac.get());
+                                gatewayIp, gwMac.get());
                         vpnInterfaceSubnetGwMacAddress = gwMac.get();
                     } else {
                         // A valid mac-address is not available for this subnet-gateway-ip
@@ -781,12 +791,12 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
                                     vpnId, writeInvTxn, NwConstants.ADD_FLOW, gwMac.get());
                             arpResponderHandler.addArpResponderFlow(dpnId, lportTag, interfaceName,
-                                    gatewayIp.get(), gwMac.get());
+                                    gatewayIp, gwMac.get());
                         } else {
                             LOG.error("processVpnInterfaceAdjacencies: Gateway MAC for subnet ID {} could not be "
                                 + "obtained, cannot create ARP responder flow for interface name {}, vpnName {}, "
                                 + "gwIp {}",
-                                interfaceName, vpnName, gatewayIp.get());
+                                interfaceName, vpnName, gatewayIp);
                         }
                     }
                 } else {
@@ -1430,7 +1440,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
             VpnUtil.setupGwMacIfExternalVpn(dataBroker, mdsalManager, dpnId, interfaceName,
                     vpnId, writeInvTxn, NwConstants.DEL_FLOW, gwMac);
         }
-        arpResponderHandler.removeArpResponderFlow(dpnId, lportTag, interfaceName, subnetId);
+        arpResponderHandler.removeArpResponderFlow(dpnId, lportTag, interfaceName, nextHop.getSubnetGatewayIp(),
+                subnetId);
     }
 
     private List<String> getNextHopForNonPrimaryAdjacency(Adjacency nextHop, String vpnName, BigInteger dpnId,
