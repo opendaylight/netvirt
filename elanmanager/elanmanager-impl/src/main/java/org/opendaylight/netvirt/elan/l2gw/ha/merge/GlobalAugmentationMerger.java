@@ -18,12 +18,12 @@ public final class GlobalAugmentationMerger
         extends MergeCommandsAggregator {
 
     private GlobalAugmentationMerger() {
-        commands.add(new RemoteMcastCmd());
-        commands.add(new RemoteUcastCmd());
-        commands.add(new LocalUcastCmd());
-        commands.add(new LocalMcastCmd());
-        commands.add(new LogicalSwitchesCmd());
-        commands.add(new SwitchesCmd());
+        addCommand(new RemoteMcastCmd());
+        addCommand(new RemoteUcastCmd());
+        addCommand(new LocalUcastCmd());
+        addCommand(new LocalMcastCmd());
+        addCommand(new LogicalSwitchesCmd());
+        addCommand(new SwitchesCmd());
     }
 
     static GlobalAugmentationMerger instance = new GlobalAugmentationMerger();
