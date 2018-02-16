@@ -115,12 +115,17 @@ public class ArpResponderHandler {
      * @param subnetUuid
      *            subnet Id of the interface
      */
-    public void removeArpResponderFlow(BigInteger dpId, int lportTag, String ifName, String vpnName, long vpnId,
+    public void removeArpResponderFlow(BigInteger dpId, int lportTag, String ifName, String gatewayIp,
             Uuid subnetUuid) {
-        Optional<String> gwIp = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetUuid);
-        if (gwIp.isPresent()) {
+        if (gatewayIp == null) {
+            Optional<String> gwIpOptional = VpnUtil.getVpnSubnetGatewayIp(dataBroker, subnetUuid);
+            if (gwIpOptional.isPresent()) {
+                gatewayIp = gwIpOptional.get();
+            }
+        }
+        if (gatewayIp != null) {
             ArpReponderInputBuilder builder = new ArpReponderInputBuilder();
-            builder.setDpId(dpId).setInterfaceName(ifName).setSpa(gwIp.get()).setLportTag(lportTag);
+            builder.setDpId(dpId).setInterfaceName(ifName).setSpa(gatewayIp).setLportTag(lportTag);
             elanService.removeArpResponderFlow(builder.buildForRemoveFlow());
         }
     }
