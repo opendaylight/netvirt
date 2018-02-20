@@ -24,9 +24,12 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
@@ -38,6 +41,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -57,6 +61,7 @@ import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.genius.utils.SystemPropertyReader;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
+import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.netvirt.neutronvpn.api.enums.IpVersionChoice;
@@ -105,7 +110,18 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev16041
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.TryLockInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.lockmanager.rev160413.UnlockInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanTagNameMap;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.SegmentTypeVlan;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.elan.dpn.interfaces.list.DpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterfaceKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagName;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.tag.name.map.ElanTagNameKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.FibEntries;
@@ -175,6 +191,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev16011
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitch;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.napt.switches.RouterToNaptSwitchKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkMaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NeutronVpnPortipPortData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.RouterInterfacesMap;
@@ -1936,6 +1953,250 @@ public final class VpnUtil {
                 .setScheduledForRemove(false);
         MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
                 VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(), DEFAULT_CALLBACK);
+    }
+
+    public static void addRouterPortToElanForVlanNetwork(String vpnName, BigInteger dpnId , String primaryRd,
+            DataBroker dataBroker) {
+        InstanceIdentifier<VpnToDpnList> id = VpnUtil.getVpnToDpnListIdentifier(primaryRd, dpnId);
+        Optional<VpnToDpnList> dpnInVpn = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, id);
+        if (!dpnInVpn.isPresent() || dpnInVpn.get().getVpnInterfaces() == null) {
+            Map<String,String> elanInstanceRouterPortMap = VpnUtil
+                    .getElanInstanceRouterPortMap(dataBroker, vpnName);
+            for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap.entrySet()) {
+                VpnUtil.addRouterPortToElanDpn(elanInstanceRouterEntry.getKey(), elanInstanceRouterEntry.getValue(),
+                        vpnName, dpnId, dataBroker);
+            }
+
+        }
+    }
+
+    public static void addRouterPortToElanDpnList(String elanInstanceName, String routerInterfacePortId,
+            String vpnName, DataBroker dataBroker) {
+        Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(dataBroker, vpnName);
+        Set<BigInteger> dpnList = getDpnInElan(dataBroker, elanInstanceRouterPortMap);
+        for (BigInteger dpnId : dpnList) {
+            for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap.entrySet()) {
+                addRouterPortToElanDpn(elanInstanceRouterEntry.getKey(), elanInstanceRouterEntry.getValue(),
+                        vpnName, dpnId, dataBroker);
+            }
+        }
+
+    }
+
+    public static Set<BigInteger> getDpnInElan(DataBroker dataBroker,  Map<String,String> elanInstanceRouterPortMap) {
+        Set<BigInteger> dpnIdSet = new HashSet<BigInteger>();
+        for (String elanInstanceName : elanInstanceRouterPortMap.keySet()) {
+            InstanceIdentifier<ElanDpnInterfacesList> elanDpnInterfaceId = getElanDpnOperationalDataPath(
+                    elanInstanceName);
+            Optional<ElanDpnInterfacesList> dpnInElanInterfaces = VpnUtil.read(dataBroker,
+                    LogicalDatastoreType.OPERATIONAL, elanDpnInterfaceId);
+            if (dpnInElanInterfaces.isPresent()) {
+                List<DpnInterfaces> dpnInterfaces = dpnInElanInterfaces.get().getDpnInterfaces();
+                for (DpnInterfaces dpnInterface : dpnInterfaces) {
+                    dpnIdSet.add(dpnInterface.getDpId());
+                }
+            }
+        }
+        return dpnIdSet;
+    }
+
+    public static void addRouterPortToElanDpn(String elanInstanceName, String routerInterfacePortId, String vpnName,
+            BigInteger dpnId, DataBroker dataBroker) {
+        InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
+                elanInstanceName,dpnId);
+        Optional<DpnInterfaces> dpnInElanInterfaces = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                elanDpnInterfaceId);
+        List<String> elanInterfaceList;
+        DpnInterfaces dpnInterface;
+        if (!dpnInElanInterfaces.isPresent()) {
+            elanInterfaceList = new ArrayList<>();
+        } else {
+            dpnInterface = dpnInElanInterfaces.get();
+            elanInterfaceList = dpnInterface.getInterfaces();
+        }
+        if (!elanInterfaceList.contains(routerInterfacePortId)) {
+            elanInterfaceList.add(routerInterfacePortId);
+            dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
+                    .setKey(new DpnInterfacesKey(dpnId)).build();
+            VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                    elanDpnInterfaceId, dpnInterface);
+        }
+
+    }
+
+    public static void removeRouterPortFromElanDpnList(String elanInstanceName, String routerInterfacePortId,
+            String vpnName, DataBroker dataBroker) {
+        Map<String,String> elanInstanceRouterPortMap = getElanInstanceRouterPortMap(dataBroker, vpnName);
+        Set<BigInteger> dpnList = getDpnInElan(dataBroker, elanInstanceRouterPortMap);
+        for (BigInteger dpnId : dpnList) {
+            for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap.entrySet()) {
+                removeRouterPortFromElanDpn(elanInstanceRouterEntry.getKey(), elanInstanceRouterEntry.getValue(),
+                        vpnName, dpnId, dataBroker);
+            }
+        }
+
+    }
+
+    public static void removeRouterPortFromElanDpn(String elanInstanceName, String routerInterfacePortId,
+            String vpnName, BigInteger dpnId, DataBroker dataBroker) {
+        InstanceIdentifier<DpnInterfaces> elanDpnInterfaceId = getElanDpnInterfaceOperationalDataPath(
+                elanInstanceName,dpnId);
+        Optional<DpnInterfaces> dpnInElanInterfaces = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                elanDpnInterfaceId);
+        List<String> elanInterfaceList;
+        DpnInterfaces dpnInterface;
+        if (!dpnInElanInterfaces.isPresent()) {
+            LOG.info("No interface in any dpn for {}", vpnName);
+            return;
+        } else {
+            dpnInterface = dpnInElanInterfaces.get();
+            elanInterfaceList = dpnInterface.getInterfaces();
+        }
+        if (!elanInterfaceList.contains(routerInterfacePortId)) {
+            LOG.info("Router port not present in DPN {} for VPN {}", dpnId, vpnName);
+            return;
+        }
+        elanInterfaceList.remove(routerInterfacePortId);
+        dpnInterface = new DpnInterfacesBuilder().setDpId(dpnId).setInterfaces(elanInterfaceList)
+                .setKey(new DpnInterfacesKey(dpnId)).build();
+        VpnUtil.syncWrite(dataBroker, LogicalDatastoreType.OPERATIONAL,
+                elanDpnInterfaceId, dpnInterface);
+
+    }
+
+    public static ElanInterface getElanInterfaceByElanInterfaceName(DataBroker broker, String elanInterfaceName) {
+        InstanceIdentifier<ElanInterface> elanInterfaceId = getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanInterfaceId).orNull();
+    }
+
+    public static InstanceIdentifier<ElanInterface> getElanInterfaceConfigurationDataPathId(String interfaceName) {
+        return InstanceIdentifier.builder(ElanInterfaces.class)
+                .child(ElanInterface.class, new ElanInterfaceKey(interfaceName)).build();
+    }
+
+    public static Optional<Interface> getInterface(DataBroker broker, String interfaceName) {
+        return read(broker, LogicalDatastoreType.CONFIGURATION, getInterfaceIdentifier(interfaceName));
+    }
+
+    public static DpnInterfaces getElanInterfaceInfoByElanDpn(DataBroker broker, String elanInstanceName,
+            BigInteger dpId) {
+        InstanceIdentifier<DpnInterfaces> elanDpnInterfacesId = getElanDpnInterfaceOperationalDataPath(elanInstanceName,
+                dpId);
+        return read(broker, LogicalDatastoreType.OPERATIONAL, elanDpnInterfacesId).orNull();
+    }
+
+    public static String getExternalElanInterface(DataBroker broker, String elanInstanceName, BigInteger dpnId,
+            IInterfaceManager interfaceManager) {
+        DpnInterfaces dpnInterfaces = getElanInterfaceInfoByElanDpn(broker, elanInstanceName, dpnId);
+        if (dpnInterfaces == null || dpnInterfaces.getInterfaces() == null) {
+            LOG.info("Elan {} does not have interfaces in DPN {}", elanInstanceName, dpnId);
+            return null;
+        }
+
+        for (String dpnInterface : dpnInterfaces.getInterfaces()) {
+            if (interfaceManager.isExternalInterface(dpnInterface)) {
+                return dpnInterface;
+            }
+        }
+        return null;
+    }
+
+    public static boolean isVlan(ElanInstance elanInstance) {
+        return elanInstance != null && elanInstance.getSegmentType() != null
+                && elanInstance.getSegmentType().isAssignableFrom(SegmentTypeVlan.class)
+                && elanInstance.getSegmentationId() != null && elanInstance.getSegmentationId() != 0;
+    }
+
+    public static ElanInstance getElanInstanceByName(DataBroker broker, String elanInstanceName) {
+        InstanceIdentifier<ElanInstance> elanIdentifierId =
+                ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName);
+        return read(broker, LogicalDatastoreType.CONFIGURATION, elanIdentifierId).orNull();
+    }
+
+    public static String getVpnNameFromElanIntanceName(DataBroker dataBroker, String elanInstanceName) {
+        Optional<Subnetmaps> subnetMapsData =
+                read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
+        if (subnetMapsData.isPresent()) {
+            List<Subnetmap> subnetMapList = subnetMapsData.get().getSubnetmap();
+            if (subnetMapList != null && !subnetMapList.isEmpty()) {
+                for (Subnetmap subnet : subnetMapList) {
+                    if (subnet.getNetworkId().getValue().equals(elanInstanceName)) {
+                        if (subnet.getVpnId() != null) {
+                            return subnet.getVpnId().getValue();
+                        }
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    public static Map<String, String> getElanInstanceRouterPortMap(DataBroker dataBroker, String vpnName) {
+        Map<String, String> elanInstanceRouterPortMap = new HashMap<String, String>();
+        Optional<Subnetmaps> subnetMapsData =
+                read(dataBroker, LogicalDatastoreType.CONFIGURATION, buildSubnetMapsWildCardPath());
+        if (subnetMapsData.isPresent()) {
+            List<Subnetmap> subnetMapList = subnetMapsData.get().getSubnetmap();
+            if (subnetMapList != null && !subnetMapList.isEmpty()) {
+                for (Subnetmap subnet : subnetMapList) {
+                    if (subnet.getVpnId() != null && subnet.getVpnId().getValue().equals(vpnName)
+                            && subnet.getNetworkType().equals(NetworkType.VLAN)) {
+                        if (subnet.getRouterInterfacePortId() == null || subnet.getNetworkId() == null) {
+                            LOG.warn("The RouterInterfacePortId or NetworkId is null");
+                            continue;
+                        }
+                        String routerInterfacePortUuid = subnet.getRouterInterfacePortId().getValue();
+                        if (routerInterfacePortUuid != null && !routerInterfacePortUuid.isEmpty()) {
+                            elanInstanceRouterPortMap.put(subnet.getNetworkId().getValue(),routerInterfacePortUuid);
+                        }
+                    }
+                }
+            }
+        }
+        return elanInstanceRouterPortMap;
+    }
+
+    public static boolean shouldPopulateFibForVlan(DataBroker dataBroker, String vpnName, String elanInstanceName,
+            BigInteger dpnId, IInterfaceManager interfaceManager) {
+        Map<String,String> elanInstanceRouterPortMap = VpnUtil
+                .getElanInstanceRouterPortMap(dataBroker, vpnName);
+        boolean shouldPopulateFibForVlan = false;
+        if (!elanInstanceRouterPortMap.isEmpty()) {
+            shouldPopulateFibForVlan = true;
+        }
+        for (Entry<String, String> elanInstanceRouterEntry : elanInstanceRouterPortMap
+                .entrySet()) {
+            String currentElanInstance = elanInstanceRouterEntry.getKey();
+            if (elanInstanceName != null && elanInstanceName.equals(currentElanInstance)) {
+                continue;
+            }
+            String externalinterface = VpnUtil.getExternalElanInterface(dataBroker,
+                    currentElanInstance ,dpnId,
+                    interfaceManager);
+            if (externalinterface == null) {
+                shouldPopulateFibForVlan = false;
+                break;
+            }
+        }
+        return shouldPopulateFibForVlan;
+    }
+
+    public static InstanceIdentifier<DpnInterfaces> getElanDpnInterfaceOperationalDataPath(String elanInstanceName,
+            BigInteger dpId) {
+        return InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
+                .child(DpnInterfaces.class, new DpnInterfacesKey(dpId)).build();
+    }
+
+    public static InstanceIdentifier<ElanDpnInterfacesList> getElanDpnOperationalDataPath(String elanInstanceName) {
+        return InstanceIdentifier.builder(ElanDpnInterfaces.class)
+                .child(ElanDpnInterfacesList.class, new ElanDpnInterfacesListKey(elanInstanceName))
+                .build();
+    }
+
+    public static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataEntryIdentifier(String rd) {
+        return InstanceIdentifier.builder(VpnInstanceOpData.class)
+            .child(VpnInstanceOpDataEntry.class, new VpnInstanceOpDataEntryKey(rd)).build();
     }
 
 }
