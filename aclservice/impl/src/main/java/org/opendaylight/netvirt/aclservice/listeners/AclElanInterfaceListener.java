@@ -89,13 +89,11 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
             return;
         }
 
-        if (aclClusterUtil.isEntityOwner()) {
-            // Notify ADD flows, if InterfaceStateListener has processed
-            // before ELanID getting populated
-            if (aclInterface.getDpId() != null) {
-                LOG.debug("On add event, notify ACL service manager to ADD ACL for interface: {}", aclInterface);
-                aclServiceManager.notify(aclInterface, null, Action.ADD);
-            }
+        if (aclInterface.getDpId() != null && aclClusterUtil.isEntityOwner()) {
+            // Notify ADD flows, if InterfaceStateListener has processed before ELAN-ID getting populated
+            LOG.debug("On add event, notify ACL service manager to BIND/ADD ACL for interface: {}", aclInterface);
+            aclServiceManager.notify(aclInterface, null, Action.BIND);
+            aclServiceManager.notify(aclInterface, null, Action.ADD);
         }
     }
 
