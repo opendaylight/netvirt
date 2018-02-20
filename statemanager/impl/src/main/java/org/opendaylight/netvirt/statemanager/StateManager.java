@@ -8,19 +8,14 @@
 
 package org.opendaylight.netvirt.statemanager;
 
-import com.google.common.util.concurrent.CheckedFuture;
+import java.util.concurrent.ExecutionException;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
-import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
-import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.fibmanager.api.IFibManager;
-import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
-import org.opendaylight.netvirt.vpnmanager.api.IVpnManager;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.TopologyId;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -34,13 +29,11 @@ import org.slf4j.LoggerFactory;
 public class StateManager implements IStateManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(StateManager.class);
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
-    public StateManager(final DataBroker databroker, final IBgpManager bgpManager, final IElanService elanService,
-                        final IFibManager fibManager, final INeutronVpnManager neutronVpnManager,
-                        final IVpnManager vpnManager) {
-        this.dataBroker = databroker;
+    public StateManager(final DataBroker dataBroker) {
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     /**
@@ -51,37 +44,17 @@ public class StateManager implements IStateManager {
         setReady(true);
     }
 
-    /**
-     * Executes put as a blocking transaction.
-     *
-     * @param logicalDatastoreType {@link LogicalDatastoreType} which should be modified
-     * @param path {@link InstanceIdentifier} for path to read
-     * @param <D> the data object type
-     * @return the result of the request
-     */
-    public <D extends org.opendaylight.yangtools.yang.binding.DataObject> boolean put(
-            final LogicalDatastoreType logicalDatastoreType, final InstanceIdentifier<D> path, D data)  {
-        boolean result = false;
-        final WriteTransaction transaction = dataBroker.newWriteOnlyTransaction();
-        transaction.put(logicalDatastoreType, path, data, WriteTransaction.CREATE_MISSING_PARENTS);
-        CheckedFuture<Void, TransactionCommitFailedException> future = transaction.submit();
-        try {
-            future.checkedGet();
-            result = true;
-        } catch (TransactionCommitFailedException e) {
-            LOG.warn("StateManager failed to put {} ", path, e);
-        }
-        return result;
-    }
-
     private void initializeNetvirtTopology() {
         final TopologyId topologyId = new TopologyId("netvirt:1");
         InstanceIdentifier<Topology> path =
                 InstanceIdentifier.create(NetworkTopology.class).child(Topology.class, new TopologyKey(topologyId));
         TopologyBuilder tpb = new TopologyBuilder();
         tpb.setTopologyId(topologyId);
-        if (!put(LogicalDatastoreType.OPERATIONAL, path, tpb.build())) {
-            LOG.error("StateManager error initializing netvirt topology");
+        try {
+            txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> tx.put(LogicalDatastoreType.OPERATIONAL, path, tpb.build())).get();
+        } catch (InterruptedException | ExecutionException e) {
+            LOG.error("StateManager error initializing netvirt topology", e);
         }
     }
 
