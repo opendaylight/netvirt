@@ -71,9 +71,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
 
     @Override
     protected InstanceIdentifier<Interface> getWildCardPath() {
-        return InstanceIdentifier
-                .create(Interfaces.class)
-                .child(Interface.class);
+        return InstanceIdentifier.create(Interfaces.class).child(Interface.class);
     }
 
     @Override
@@ -83,8 +81,11 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         AclInterface aclInterface = aclInterfaceCache.remove(interfaceId);
         if (AclServiceUtils.isOfInterest(aclInterface)) {
             if (aclClusterUtil.isEntityOwner()) {
-                LOG.debug("On remove event, notify ACL service manager to unbind ACL from interface: {}", port);
+                LOG.debug("On remove event, notify ACL unbind/remove for interface: {}", interfaceId);
                 aclServiceManager.notify(aclInterface, null, Action.UNBIND);
+                if (aclInterface.getDpId() != null) {
+                    aclServiceManager.notify(aclInterface, null, Action.REMOVE);
+                }
                 AclServiceUtils.deleteSubnetIpPrefixes(dataBroker, interfaceId);
             }
         }
@@ -122,19 +123,21 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
                 // Handle bind/unbind service irrespective of interface state (up/down)
                 boolean isPortSecurityEnable = aclInterfaceAfter.isPortSecurityEnabled();
                 boolean isPortSecurityEnableBefore = aclInterfaceBefore.isPortSecurityEnabled();
-                // if port security enable is changed, bind/unbind ACL service
-                if (isPortSecurityEnableBefore != isPortSecurityEnable) {
-                    LOG.debug("Notify bind/unbind ACL service for interface={}, isPortSecurityEnable={}", interfaceId,
+                // if port security enable is changed and is disabled, unbind ACL service
+                if (isPortSecurityEnableBefore != isPortSecurityEnable && !isPortSecurityEnable) {
+                    LOG.debug("Notify unbind ACL service for interface={}, isPortSecurityEnable={}", interfaceId,
                             isPortSecurityEnable);
-                    if (isPortSecurityEnable) {
-                        aclServiceManager.notify(aclInterfaceAfter, null, Action.BIND);
-                    } else {
-                        aclServiceManager.notify(aclInterfaceAfter, null, Action.UNBIND);
-                    }
+                    aclServiceManager.notify(aclInterfaceAfter, null, Action.UNBIND);
                 }
                 if (interfaceState != null && interfaceState.getOperStatus().equals(
                         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
                             .state.Interface.OperStatus.Up)) {
+                    // if port security enable is changed and is enabled, bind ACL service
+                    if (isPortSecurityEnableBefore != isPortSecurityEnable && isPortSecurityEnable) {
+                        LOG.debug("Notify bind ACL service for interface={}, isPortSecurityEnable={}", interfaceId,
+                                isPortSecurityEnable);
+                        aclServiceManager.notify(aclInterfaceAfter, null, Action.BIND);
+                    }
                     LOG.debug("On update event, notify ACL service manager to update ACL for interface: {}",
                             interfaceId);
                     // handle add for AclPortsLookup before processing update
@@ -233,9 +236,11 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
             String interfaceId = port.getName();
             AclInterface aclInterface = addOrUpdateAclInterfaceCache(interfaceId, aclInPort);
 
-            if (aclClusterUtil.isEntityOwner()) {
-                LOG.debug("On add event, notify ACL service manager to bind ACL for interface: {}", port);
+            // if interface state event comes first followed by interface config event.
+            if (aclInterface.getDpId() != null && aclInterface.getElanId() != null && aclClusterUtil.isEntityOwner()) {
+                LOG.debug("On add event, notify ACL bind/add for interface: {}", interfaceId);
                 aclServiceManager.notify(aclInterface, null, Action.BIND);
+                aclServiceManager.notify(aclInterface, null, Action.ADD);
             }
         }
     }

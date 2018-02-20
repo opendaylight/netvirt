@@ -454,9 +454,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
 
     @Override
     public boolean removeAcl(AclInterface port) {
-        BigInteger dpId = port.getDpId();
-        if (dpId == null) {
-            LOG.error("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
+        if (port.getDpId() == null) {
+            LOG.warn("Unable to find DP Id from ACL interface with id {}", port.getInterfaceId());
             return false;
         }
         programAcl(port, Action.REMOVE, NwConstants.DEL_FLOW);
