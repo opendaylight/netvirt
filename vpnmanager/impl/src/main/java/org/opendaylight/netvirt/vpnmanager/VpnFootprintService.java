@@ -24,8 +24,10 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.NotificationPublishService;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
@@ -64,14 +66,17 @@ public class VpnFootprintService implements IVpnFootprintService {
     private final IFibManager fibManager;
     private final VpnOpDataSyncer vpnOpDataSyncer;
     private final NotificationPublishService notificationPublishService;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
     public VpnFootprintService(final DataBroker dataBroker, final IFibManager fibManager,
-            final NotificationPublishService notificationPublishService, final VpnOpDataSyncer vpnOpDataSyncer) {
+            final NotificationPublishService notificationPublishService, final VpnOpDataSyncer vpnOpDataSyncer,
+            final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.fibManager = fibManager;
         this.vpnOpDataSyncer = vpnOpDataSyncer;
         this.notificationPublishService = notificationPublishService;
+        this.interfaceManager = interfaceManager;
     }
 
     @Override
@@ -164,6 +169,11 @@ public class VpnFootprintService implements IVpnFootprintService {
          * Informing the FIB only after writeTxn is submitted successfully.
          */
         if (newDpnOnVpn) {
+            if (L2vlan.class.equals(VpnUtil.getInterface(dataBroker, intfName).get().getType())) {
+                if (!VpnUtil.shouldPopulateFibForVlan(dataBroker, vpnName, null, dpnId, interfaceManager)) {
+                    return;
+                }
+            }
             fibManager.populateFibOnNewDpn(dpnId, vpnId, primaryRd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, primaryRd, true /* entered */));
             LOG.info("createOrUpdateVpnToDpnList: Sent populateFib event for new dpn {} in VPN {} for interface {}",
