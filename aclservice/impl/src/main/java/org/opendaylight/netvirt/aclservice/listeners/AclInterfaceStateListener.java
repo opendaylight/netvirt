@@ -17,7 +17,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -93,8 +92,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 aclServiceManger.notify(aclInterface, null, Action.REMOVE);
 
                 if (aclList != null) {
-                    AclServiceUtils.updateAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs(),
-                            NwConstants.DEL_FLOW, this.dataBroker);
+                    aclServiceUtils.deleteAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs());
                 }
             }
             if (aclList != null) {
@@ -169,8 +167,7 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
                 LOG.debug("On add event, notify ACL service manager to add ACL for interface: {}", aclInterface);
                 aclServiceManger.notify(aclInterface, null, Action.BIND);
                 if (aclList != null) {
-                    AclServiceUtils.updateAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs(),
-                            NwConstants.ADD_FLOW, this.dataBroker);
+                    aclServiceUtils.addAclPortsLookup(aclInterface, aclList, aclInterface.getAllowedAddressPairs());
                 }
                 aclServiceManger.notify(aclInterface, null, Action.ADD);
             }

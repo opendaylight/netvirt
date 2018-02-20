@@ -14,9 +14,10 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -45,6 +46,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
     private final IMdsalApiManager mdsalManager;
     private final AclserviceConfig config;
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final AclServiceUtils aclServiceUtils;
     private final JobCoordinator jobCoordinator;
 
@@ -57,6 +59,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
 
         this.mdsalManager = mdsalManager;
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.config = config;
         this.aclServiceUtils = aclServiceUtils;
         this.jobCoordinator = jobCoordinator;
@@ -107,13 +110,12 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
                     dpId);
             return;
         }
-        jobCoordinator.enqueueJob(String.valueOf(dpId), () -> {
-            WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-            new AclNodeDefaultFlowsTxBuilder(dpId, mdsalManager, config, tx).build();
+        jobCoordinator.enqueueJob(String.valueOf(dpId),
+            () -> Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                new AclNodeDefaultFlowsTxBuilder(dpId, mdsalManager, config, tx).build();
 
-            LOG.info("Adding default ACL flows for dpId={}", dpId);
-            return Collections.singletonList(tx.submit());
-        }, AclConstants.JOB_MAX_RETRIES);
+                LOG.info("Adding default ACL flows for dpId={}", dpId);
+            })), AclConstants.JOB_MAX_RETRIES);
 
         LOG.trace("FlowCapableNode (dpid: {}) add event is processed.", dpId);
     }
