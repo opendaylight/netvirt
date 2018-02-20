@@ -21,6 +21,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -92,6 +93,10 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
                         + "subnetmapListener add for subnet {}", elanInstanceName, subnetId.getValue());
                 return;
             }
+            if (subnetmap.getNetworkType().equals(NetworkType.VLAN)) {
+                VpnUtil.addRouterPortToElanDpnList(elanInstanceName, subnetmap.getRouterInterfacePortId().getValue(),
+                        vpnId.getValue(), dataBroker);
+            }
             // subnet added to VPN case upon config DS replay after reboot
             // ports added to subnet upon config DS replay after reboot are handled implicitly by subnetAddedToVpn
             // in SubnetRouteHandler
@@ -116,6 +121,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
         LOG.trace("remove:SubnetmapListener remove subnetmap method - key: {}, value: {}", identifier, subnetmap);
+        if (subnetmap.getNetworkType().equals(NetworkType.VLAN)) {
+            Uuid vpnId = subnetmap.getVpnId();
+            if (subnetmap.getVpnId() != null) {
+                String elanInstanceName = subnetmap.getNetworkId().getValue();
+                VpnUtil.removeRouterPortFromElanDpnList(elanInstanceName, subnetmap
+                        .getRouterInterfacePortId().getValue(), vpnId.getValue(), dataBroker);
+            }
+        }
     }
 
     @Override
@@ -159,9 +172,9 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         Uuid vpnIdInternetNew = subnetmapUpdate.getInternetVpnId();
         Uuid vpnIdInternetOld = subnetmapOriginal.getInternetVpnId();
         boolean returnValue1 = updateSubnetmapOpDataEntry(vpnIdInternetOld, vpnIdInternetNew,
-                           subnetmapUpdate, subnetmapOriginal, elanTag, updateCapableForCreation);
+                           subnetmapUpdate, subnetmapOriginal, elanTag, null, updateCapableForCreation);
         boolean returnValue2 = updateSubnetmapOpDataEntry(vpnIdOld, vpnIdNew,
-                      subnetmapUpdate, subnetmapOriginal, elanTag, updateCapableForCreation);
+                      subnetmapUpdate, subnetmapOriginal, elanTag, elanInstanceName, updateCapableForCreation);
         if (!returnValue2 || !returnValue1) {
             return;
         }
@@ -191,9 +204,14 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     }
 
     private boolean updateSubnetmapOpDataEntry(Uuid vpnIdOld, Uuid vpnIdNew, Subnetmap subnetmapUpdate,
-                                    Subnetmap subnetmapOriginal, Long elanTag, boolean updateCapableForCreation) {
+                                    Subnetmap subnetmapOriginal, Long elanTag, String  elanInstanceName,
+                                    boolean updateCapableForCreation) {
         // subnet added to VPN case
         if (vpnIdNew != null && vpnIdOld == null && updateCapableForCreation) {
+            if (elanInstanceName != null && subnetmapUpdate.getNetworkType().equals(NetworkType.VLAN)) {
+                VpnUtil.addRouterPortToElanDpnList(elanInstanceName, subnetmapUpdate.getRouterInterfacePortId()
+                        .getValue(), vpnIdNew.getValue(), dataBroker);
+            }
             boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
             if (!isBgpVpn) {
                 return false;
@@ -203,6 +221,10 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         }
         // subnet removed from VPN case
         if (vpnIdOld != null && vpnIdNew == null) {
+            if (subnetmapOriginal.getNetworkType().equals(NetworkType.VLAN)) {
+                VpnUtil.removeRouterPortFromElanDpnList(elanInstanceName, subnetmapOriginal
+                        .getRouterInterfacePortId().getValue(), vpnIdOld.getValue(), dataBroker);
+            }
             boolean isBgpVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
             if (!isBgpVpn) {
                 return false;
