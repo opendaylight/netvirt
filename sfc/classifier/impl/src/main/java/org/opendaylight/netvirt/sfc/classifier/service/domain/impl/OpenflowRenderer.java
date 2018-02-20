@@ -12,7 +12,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
-import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.sfc.classifier.providers.GeniusProvider;
 import org.opendaylight.netvirt.sfc.classifier.providers.OpenFlow13Provider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierEntryRenderer;
@@ -29,13 +31,13 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
 
     private final OpenFlow13Provider openFlow13Provider;
     private final GeniusProvider geniusProvider;
-    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
 
     public OpenflowRenderer(OpenFlow13Provider openFlow13Provider, GeniusProvider geniusProvider,
         DataBroker dataBroker) {
         this.openFlow13Provider = openFlow13Provider;
         this.geniusProvider = geniusProvider;
-        this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     @Override
@@ -61,9 +63,9 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow(nodeId));
         flows.add(this.openFlow13Provider.createEgressClassifierNextHopNoC1C2Flow(nodeId));
 
-        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        flows.forEach(flow -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
-        tx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> flows.forEach(flow -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx))), LOG,
+            "Error rendering node");
     }
 
     @Override
@@ -89,9 +91,9 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         }
         short egressNsi = (short) (nsi - nsl);
         flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp, egressNsi));
-        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        flows.forEach(flow -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx));
-        tx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> flows.forEach(flow -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx))), LOG,
+            "Error rendering a path");
     }
 
     @Override
@@ -100,9 +102,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
                 nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, nsp, nsi);
 
-        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx);
-        tx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> this.openFlow13Provider.appendFlowForCreate(nodeId, flow, tx)), LOG, "Error rendering a match");
     }
 
     @Override
@@ -130,9 +131,9 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         flows.add(this.openFlow13Provider.createEgressClassifierNextHopC1C2Flow(nodeId));
         flows.add(this.openFlow13Provider.createEgressClassifierNextHopNoC1C2Flow(nodeId));
 
-        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        flows.forEach(flow -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
-        tx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> flows.forEach(flow -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx))), LOG,
+            "Error deleting a node");
     }
 
     @Override
@@ -157,9 +158,9 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         }
         short egressNsi = (short) (nsi - nsl);
         flows.add(openFlow13Provider.createIngressClassifierFilterChainEgressFlow(nodeId, nsp, egressNsi));
-        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        flows.forEach(flow -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx));
-        tx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> flows.forEach(flow -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx))), LOG,
+            "Error deleting a path");
     }
 
     @Override
@@ -168,9 +169,8 @@ public class OpenflowRenderer implements ClassifierEntryRenderer {
         Flow flow = this.openFlow13Provider.createIngressClassifierAclFlow(
                 nodeId, this.openFlow13Provider.getMatchBuilderFromAceMatches(matches), port, nsp, nsi);
 
-        WriteTransaction tx = this.dataBroker.newWriteOnlyTransaction();
-        this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx);
-        tx.submit();
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> this.openFlow13Provider.appendFlowForDelete(nodeId, flow, tx)), LOG, "Error deleting a match");
     }
 
     @Override
