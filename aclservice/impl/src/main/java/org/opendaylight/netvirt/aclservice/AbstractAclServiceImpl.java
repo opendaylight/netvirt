@@ -713,8 +713,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             if (!AclServiceUtils.isNotIpAllNetwork(aap)) {
                 continue;
             }
-            if (AclServiceUtils.skipDeleteInCaseOfOverlappingIP(portId, acl, aap.getIpAddress(),
-                    this.dataBroker, addOrRemove)) {
+            if (aclServiceUtils.skipDeleteInCaseOfOverlappingIP(portId, acl, aap.getIpAddress(),
+                    addOrRemove)) {
                 LOG.debug("Skipping delete of IP={} in remote ACL table for remoteAclId={}, portId={}",
                         aap.getIpAddress(), portId, acl.getValue());
                 continue;

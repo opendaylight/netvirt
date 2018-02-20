@@ -11,7 +11,7 @@ package org.opendaylight.netvirt.aclservice.utils;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
-import com.google.common.util.concurrent.CheckedFuture;
+import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,6 +27,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -36,6 +37,8 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceServiceUtil;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -148,12 +151,17 @@ public final class AclServiceUtils {
     public static final AclserviceConfig.DefaultBehavior DEFAULT_DENY = AclserviceConfig.DefaultBehavior.Deny;
     public static final AclserviceConfig.DefaultBehavior DEFAULT_ALLOW = AclserviceConfig.DefaultBehavior.Allow;
 
+    private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final AclDataUtil aclDataUtil;
     private final AclserviceConfig config;
     private final IdManagerService idManager;
 
     @Inject
-    public AclServiceUtils(AclDataUtil aclDataUtil, AclserviceConfig config, IdManagerService idManager) {
+    public AclServiceUtils(DataBroker dataBroker, AclDataUtil aclDataUtil, AclserviceConfig config,
+            IdManagerService idManager) {
+        this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.aclDataUtil = aclDataUtil;
         this.config = config;
         this.idManager = idManager;
@@ -1192,18 +1200,16 @@ public final class AclServiceUtils {
      * @param portId the port id
      * @param remoteAclId the remote Acl Id
      * @param ipPrefix the ip prefix
-     * @param broker the broker
      * @param addOrRemove the add or remove
      * @return true, if successful
      */
-    public static boolean skipDeleteInCaseOfOverlappingIP(String portId, Uuid remoteAclId, IpPrefixOrAddress ipPrefix,
-            DataBroker broker, int addOrRemove) {
+    public boolean skipDeleteInCaseOfOverlappingIP(String portId, Uuid remoteAclId, IpPrefixOrAddress ipPrefix,
+            int addOrRemove) {
         boolean skipDelete = false;
         if (addOrRemove != NwConstants.DEL_FLOW) {
             return skipDelete;
         }
-        AclIpPrefixes aclIpPrefixes =
-                AclServiceUtils.getAclIpPrefixesFromOperDs(broker, remoteAclId.getValue(), ipPrefix);
+        AclIpPrefixes aclIpPrefixes = getAclIpPrefixesFromOperDs(remoteAclId.getValue(), ipPrefix);
         if (aclIpPrefixes != null && aclIpPrefixes.getPortIds() != null) {
             List<String> ignorePorts = Lists.newArrayList(portId);
             List<PortIds> portIds = new ArrayList<>(aclIpPrefixes.getPortIds());
@@ -1223,9 +1229,8 @@ public final class AclServiceUtils {
     }
 
     public static InstanceIdentifier<AclPortsByIp> aclPortsByIpPath(String aclName) {
-        InstanceIdentifier<AclPortsByIp> path = InstanceIdentifier.builder(AclPortsLookup.class)
+        return InstanceIdentifier.builder(AclPortsLookup.class)
                 .child(AclPortsByIp.class, new AclPortsByIpKey(aclName)).build();
-        return path;
     }
 
     public static InstanceIdentifier<AclIpPrefixes> getAclIpPrefixesPath(String aclName, IpPrefixOrAddress ipPrefix) {
@@ -1240,78 +1245,103 @@ public final class AclServiceUtils {
                 .build();
     }
 
-    public static void updateAclPortsLookupForInterfaceUpdate(AclInterface portBefore, AclInterface portAfter,
-            DataBroker broker, int addOrRemove) {
-        LOG.debug("Processing interface update for port {}, addOrRemove={}", portAfter.getInterfaceId(), addOrRemove);
-        if (addOrRemove == NwConstants.ADD_FLOW) {
-            List<AllowedAddressPairs> addedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
-                    portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
-            if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
-                updateAclPortsLookup(portAfter, portAfter.getSecurityGroups(), addedAllowedAddressPairs,
-                        NwConstants.ADD_FLOW, broker);
-            }
-
-            List<Uuid> addedAcls = getUpdatedAclList(portAfter.getSecurityGroups(), portBefore.getSecurityGroups());
-            if (addedAcls != null && !addedAcls.isEmpty()) {
-                updateAclPortsLookup(portAfter, addedAcls, portAfter.getAllowedAddressPairs(), NwConstants.ADD_FLOW,
-                        broker);
-            }
-        } else {
-            List<AllowedAddressPairs> deletedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
-                    portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
-            if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
-                updateAclPortsLookup(portAfter, portAfter.getSecurityGroups(), deletedAllowedAddressPairs,
-                        NwConstants.DEL_FLOW, broker);
-            }
-
-            List<Uuid> deletedAcls = getUpdatedAclList(portBefore.getSecurityGroups(), portAfter.getSecurityGroups());
-            if (deletedAcls != null && !deletedAcls.isEmpty()) {
-                updateAclPortsLookup(portAfter, deletedAcls, portAfter.getAllowedAddressPairs(), NwConstants.DEL_FLOW,
-                        broker);
-            }
+    public List<ListenableFuture<Void>> addAclPortsLookupForInterfaceUpdate(AclInterface portBefore,
+            AclInterface portAfter) {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        LOG.debug("Processing interface additions for port {}", portAfter.getInterfaceId());
+        List<AllowedAddressPairs> addedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
+                portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
+        if (addedAllowedAddressPairs != null && !addedAllowedAddressPairs.isEmpty()) {
+            futures.addAll(addAclPortsLookup(portAfter, portAfter.getSecurityGroups(), addedAllowedAddressPairs));
         }
+
+        List<Uuid> addedAcls = getUpdatedAclList(portAfter.getSecurityGroups(), portBefore.getSecurityGroups());
+        if (addedAcls != null && !addedAcls.isEmpty()) {
+            futures.addAll(addAclPortsLookup(portAfter, addedAcls, portAfter.getAllowedAddressPairs()));
+        }
+        return futures;
     }
 
-    public static void updateAclPortsLookup(AclInterface port, List<Uuid> aclList,
-            List<AllowedAddressPairs> allowedAddresses, int addOrRemove, DataBroker broker) {
+    public List<ListenableFuture<Void>> deleteAclPortsLookupForInterfaceUpdate(AclInterface portBefore,
+            AclInterface portAfter) {
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        LOG.debug("Processing interface removals for port {}", portAfter.getInterfaceId());
+        List<AllowedAddressPairs> deletedAllowedAddressPairs = getUpdatedAllowedAddressPairs(
+                portBefore.getAllowedAddressPairs(), portAfter.getAllowedAddressPairs());
+        if (deletedAllowedAddressPairs != null && !deletedAllowedAddressPairs.isEmpty()) {
+            futures.addAll(deleteAclPortsLookup(portAfter, portAfter.getSecurityGroups(), deletedAllowedAddressPairs));
+        }
+
+        List<Uuid> deletedAcls = getUpdatedAclList(portBefore.getSecurityGroups(), portAfter.getSecurityGroups());
+        if (deletedAcls != null && !deletedAcls.isEmpty()) {
+            futures.addAll(deleteAclPortsLookup(portAfter, deletedAcls, portAfter.getAllowedAddressPairs()));
+        }
+        return futures;
+    }
+
+    public List<ListenableFuture<Void>> addAclPortsLookup(AclInterface port, List<Uuid> aclList,
+            List<AllowedAddressPairs> allowedAddresses) {
         String portId = port.getInterfaceId();
-        LOG.trace("Updating AclPortsLookup for port={}, acls={}, AAPs={}, addOrRemove={}", portId, aclList,
-                allowedAddresses, addOrRemove);
+        LOG.trace("Adding AclPortsLookup for port={}, acls={}, AAPs={}", portId, aclList, allowedAddresses);
 
         if (aclList == null || allowedAddresses == null || allowedAddresses.isEmpty()) {
-            LOG.warn("aclList or allowedAddresses is null. port={}, acls={}, AAPs={}, addOrRemove={}", portId, aclList,
-                    allowedAddresses, addOrRemove);
-            return;
+            LOG.warn("aclList or allowedAddresses is null. port={}, acls={}, AAPs={}", portId, aclList,
+                    allowedAddresses);
+            return Collections.emptyList();
         }
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
         for (Uuid aclId : aclList) {
             String aclName = aclId.getValue();
             synchronized (aclName.intern()) {
-                WriteTransaction tx = broker.newWriteOnlyTransaction();
-                for (AllowedAddressPairs aap : allowedAddresses) {
-                    PortIds portIdObj = new PortIdsBuilder().setKey(new PortIdsKey(portId)).setPortId(portId).build();
-                    InstanceIdentifier<PortIds> path =
-                            AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
-                    if (addOrRemove == NwConstants.ADD_FLOW) {
-                        tx.put(LogicalDatastoreType.OPERATIONAL, path, portIdObj, true);
-                    } else {
-                        tx.delete(LogicalDatastoreType.OPERATIONAL, path);
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    for (AllowedAddressPairs aap : allowedAddresses) {
+                        PortIds portIdObj =
+                                new PortIdsBuilder().setKey(new PortIdsKey(portId)).setPortId(portId).build();
+                        InstanceIdentifier<PortIds> path =
+                                AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
+                        tx.put(LogicalDatastoreType.OPERATIONAL, path, portIdObj,
+                                WriteTransaction.CREATE_MISSING_PARENTS);
                     }
-                }
-                AclServiceUtils.waitForTransactionToComplete(tx);
-
-                if (addOrRemove == NwConstants.DEL_FLOW) {
-                    cleanUpStaleEntriesInAclPortsLookup(aclName, broker);
-                }
+                }));
             }
         }
+        return futures;
     }
 
-    public static void cleanUpStaleEntriesInAclPortsLookup(String aclName, DataBroker broker) {
-        AclPortsByIp aclPortsByIp = AclServiceUtils.getAclPortsByIpFromOperDs(broker, aclName);
+    public List<ListenableFuture<Void>> deleteAclPortsLookup(AclInterface port, List<Uuid> aclList,
+            List<AllowedAddressPairs> allowedAddresses) {
+        String portId = port.getInterfaceId();
+        LOG.trace("Deleting AclPortsLookup for port={}, acls={}, AAPs={}", portId, aclList, allowedAddresses);
+
+        if (aclList == null || allowedAddresses == null || allowedAddresses.isEmpty()) {
+            LOG.warn("aclList or allowedAddresses is null. port={}, acls={}, AAPs={}", portId, aclList,
+                    allowedAddresses);
+            return Collections.emptyList();
+        }
+        List<ListenableFuture<Void>> futures = new ArrayList<>();
+        for (Uuid aclId : aclList) {
+            String aclName = aclId.getValue();
+            synchronized (aclName.intern()) {
+                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                    for (AllowedAddressPairs aap : allowedAddresses) {
+                        InstanceIdentifier<PortIds> path =
+                                AclServiceUtils.getPortIdsPathInAclPortsLookup(aclName, aap.getIpAddress(), portId);
+                        tx.delete(LogicalDatastoreType.OPERATIONAL, path);
+                    }
+
+                    cleanUpStaleEntriesInAclPortsLookup(aclName, tx);
+                }));
+            }
+        }
+        return futures;
+    }
+
+    private void cleanUpStaleEntriesInAclPortsLookup(String aclName, WriteTransaction tx) {
+        AclPortsByIp aclPortsByIp = getAclPortsByIpFromOperDs(aclName);
         if (aclPortsByIp == null) {
             return;
         }
-        boolean deleteEntireAcl = false;
+        boolean deleteEntireAcl;
         List<AclIpPrefixes> ipPrefixes = aclPortsByIp.getAclIpPrefixes();
         if (ipPrefixes == null || ipPrefixes.isEmpty()) {
             deleteEntireAcl = true;
@@ -1325,58 +1355,39 @@ public final class AclServiceUtils {
             }
             deleteEntireAcl = deleteMap;
         }
-        WriteTransaction txDeleteMap = broker.newWriteOnlyTransaction();
-        boolean wrTxPresent = false;
         if (deleteEntireAcl) {
-            txDeleteMap.delete(LogicalDatastoreType.OPERATIONAL, AclServiceUtils.aclPortsByIpPath(aclName));
-            wrTxPresent = true;
+            tx.delete(LogicalDatastoreType.OPERATIONAL, AclServiceUtils.aclPortsByIpPath(aclName));
         } else {
             for (AclIpPrefixes ipPrefix : ipPrefixes) {
                 if (ipPrefix.getPortIds() == null || ipPrefix.getPortIds().isEmpty()) {
                     InstanceIdentifier<AclIpPrefixes> delPath =
                             AclServiceUtils.getAclIpPrefixesPath(aclName, ipPrefix.getIpPrefix());
-                    txDeleteMap.delete(LogicalDatastoreType.OPERATIONAL, delPath);
-                    wrTxPresent = true;
+                    tx.delete(LogicalDatastoreType.OPERATIONAL, delPath);
                 }
             }
         }
-        if (wrTxPresent) {
-            AclServiceUtils.waitForTransactionToComplete(txDeleteMap);
-        } else {
-            txDeleteMap.cancel();
-        }
-        LOG.trace("Clean up of stale entries in AclPortsLookup is done for Acl={}, deleteEntireAcl={}", aclName,
-                deleteEntireAcl);
     }
 
-    public static AclPortsByIp getAclPortsByIpFromOperDs(DataBroker broker, String aclName) {
+    @Nullable
+    private AclPortsByIp getAclPortsByIpFromOperDs(String aclName) {
         InstanceIdentifier<AclPortsByIp> path = aclPortsByIpPath(aclName);
-        Optional<AclPortsByIp> optAclPortsByIp = read(broker, LogicalDatastoreType.OPERATIONAL, path);
-        if (optAclPortsByIp.isPresent()) {
-            return optAclPortsByIp.get();
+        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            return tx.read(LogicalDatastoreType.OPERATIONAL, path).checkedGet().orNull();
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read ACL ports {}", path, e);
+            return null;
         }
-        return null;
     }
 
-    public static AclIpPrefixes getAclIpPrefixesFromOperDs(DataBroker broker, String aclName,
-            IpPrefixOrAddress ipPrefix) {
+    @Nullable
+    private AclIpPrefixes getAclIpPrefixesFromOperDs(String aclName, IpPrefixOrAddress ipPrefix) {
         InstanceIdentifier<AclIpPrefixes> path = getAclIpPrefixesPath(aclName, ipPrefix);
-        Optional<AclIpPrefixes> optAclPortsByIp = read(broker, LogicalDatastoreType.OPERATIONAL, path);
-        if (optAclPortsByIp.isPresent()) {
-            return optAclPortsByIp.get();
+        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            return tx.read(LogicalDatastoreType.OPERATIONAL, path).checkedGet().orNull();
+        } catch (ReadFailedException e) {
+            LOG.error("Failed to read ACL IP prefixes {}", path, e);
+            return null;
         }
-        return null;
-    }
-
-    public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
-            WriteTransaction tx) {
-        CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
-        try {
-            futures.get();
-        } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error writing to datastore", e);
-        }
-        return futures;
     }
 
     /**
