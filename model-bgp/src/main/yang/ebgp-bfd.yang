@@ -1,0 +1,78 @@
+module bfd {
+
+  yang-version "1";
+
+  // namespace
+  namespace "urn:opendaylight:netvirt:bfd";
+
+  // import some basic inet types
+  import ietf-inet-types { prefix inet; revision-date "2013-07-15"; }
+
+  // meta
+  organization
+    "Ericsson Bangalore";
+
+  contact
+    "Ericsson Bangalore";
+
+  description
+    "BFD configuration model for monitoring DC-Gwy control path,
+     Ericsson's implementation of Opendaylight inter-DC communication";
+
+  revision "2019-02-19" {
+    description "YANG model describes methods for monitoring bfd session.";
+  }
+
+ container monitoring {
+    config        "true";
+
+    leaf detect-mult {
+      type        uint32;
+      description "The number of packets that have to be missed 
+                   in a row to declare the session to be down."
+    }
+
+    leaf min-rx {
+      type        uint32;
+      default     500;
+      description "The shortest interval, in milli-seconds, at
+                   which this BFD session offers to receive
+                   BFD control messages. Defaults to 500";
+    }
+    leaf min-tx {
+      type        uint32;
+      default     6000;
+      description "The shortest interval, in milli-seconds,
+                   at which this BFD session is willing to
+                   transmit BFD control messages. Defaults
+                   to 6000";
+    }
+
+    leaf failure-threshold {
+      type         uint32;
+      description  "Number milli-seconds to wait before declaring
+                    session down"
+    }
+
+    leaf success-threshold {
+      type        uint32;
+      description  "Number milli-seconds to wait before declaring
+                    session up"
+    }
+  }
+
+  leaf cbit {
+    type        boolean;
+    default     true;
+    description "Value of True indicates control bit SET";
+    config      "true";
+  }
+
+  leaf multihop {
+    type        boolean;
+    default     true;
+    description "Value of True indicates suppport for BFD multihop";
+    config      "true";
+  }
+}
+
