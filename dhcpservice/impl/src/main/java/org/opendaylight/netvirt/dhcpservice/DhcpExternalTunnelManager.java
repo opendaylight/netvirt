@@ -117,6 +117,22 @@ public class DhcpExternalTunnelManager {
     private final ConcurrentMap<Pair<IpAddress, String>, Set<String>> availableVMCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<BigInteger, String>, Port> vniMacAddressToPortCache = new ConcurrentHashMap<>();
 
+    public ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> getDesignatedDpnsToTunnelIpElanNameCache() {
+        return designatedDpnsToTunnelIpElanNameCache;
+    }
+
+    public ConcurrentMap<Pair<IpAddress, String>, Set<String>> getTunnelIpElanNameToVmMacCache() {
+        return tunnelIpElanNameToVmMacCache;
+    }
+
+    public ConcurrentMap<Pair<IpAddress, String>, Set<String>> getAvailableVMCache() {
+        return availableVMCache;
+    }
+
+    public ConcurrentMap<Pair<BigInteger, String>, Port> getVniMacAddressToPortCache() {
+        return vniMacAddressToPortCache;
+    }
+
     @Inject
     public DhcpExternalTunnelManager(final DataBroker broker,
             final IMdsalApiManager mdsalUtil, final ItmRpcService itmRpcService,
