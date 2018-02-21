@@ -49,6 +49,7 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipService;
 import org.opendaylight.netvirt.dhcpservice.api.DhcpMConstants;
+import org.opendaylight.netvirt.dhcpservice.api.IDhcpExternalTunnelManager;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderInput;
 import org.opendaylight.netvirt.elan.arp.responder.ArpResponderUtil;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
@@ -95,7 +96,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class DhcpExternalTunnelManager {
+public class DhcpExternalTunnelManager implements IDhcpExternalTunnelManager {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpExternalTunnelManager.class);
     public static final String UNKNOWN_DMAC = "00:00:00:00:00:00";
@@ -116,6 +117,26 @@ public class DhcpExternalTunnelManager {
             new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<IpAddress, String>, Set<String>> availableVMCache = new ConcurrentHashMap<>();
     private final ConcurrentMap<Pair<BigInteger, String>, Port> vniMacAddressToPortCache = new ConcurrentHashMap<>();
+
+    @Override
+    public ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> getDesignatedDpnsToTunnelIpElanNameCache() {
+        return designatedDpnsToTunnelIpElanNameCache;
+    }
+
+    @Override
+    public ConcurrentMap<Pair<IpAddress, String>, Set<String>> getTunnelIpElanNameToVmMacCache() {
+        return tunnelIpElanNameToVmMacCache;
+    }
+
+    @Override
+    public ConcurrentMap<Pair<IpAddress, String>, Set<String>> getAvailableVMCache() {
+        return availableVMCache;
+    }
+
+    @Override
+    public ConcurrentMap<Pair<BigInteger, String>, Port> getVniMacAddressToPortCache() {
+        return vniMacAddressToPortCache;
+    }
 
     @Inject
     public DhcpExternalTunnelManager(final DataBroker broker,
