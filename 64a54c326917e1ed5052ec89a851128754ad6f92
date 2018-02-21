@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7f8d4aea_790683b6",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 1646,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-02-21T06:00:46Z",
+      "side": 1,
+      "message": "A boolean argument would have been better to decide whether to remove or not?",
+      "revId": "64a54c326917e1ed5052ec89a851128754ad6f92",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
