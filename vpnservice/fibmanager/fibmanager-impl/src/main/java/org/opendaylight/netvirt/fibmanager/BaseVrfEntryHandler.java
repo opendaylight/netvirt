@@ -512,7 +512,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         if (addOrRemove == NwConstants.ADD_FLOW) {
             mdsalManager.syncInstallFlow(flowEntity, 1);
         } else {
-            mdsalManager.syncInstallFlow(flowEntity, 1);
+            mdsalManager.syncRemoveFlow(flowEntity, 1);
         }
     }
 }
