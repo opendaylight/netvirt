@@ -1,0 +1,71 @@
+module bfd {
+
+  yang-version "1";
+
+  // namespace
+  namespace "urn:opendaylight:netvirt:bfd";
+  
+  // import some basic inet types
+  import ietf-inet-types { prefix inet; revision-date "2013-07-15"; }
+
+  // meta
+  organization
+    "Ericsson Bangalore";
+
+  contact
+    "Ericsson Bangalore";
+
+  description
+    "BFD configuration model for monitoring DC-Gwy control path, Ericsson's implementation of Opendaylight inter-DC communication";
+
+  revision "2019-02-19" {
+    description "YANG model describes methods for monitoring bfd session.";
+  }
+
+ container monitoring {
+    
+	config        "true";
+	
+	leaf monitor-interval { 
+	  type        uint32; 
+	  description "Monitoring interval in microseconds"
+	}
+	
+    leaf min-rx {
+      type        uint32;
+	  default     500000;
+      description "The shortest interval, in microseconds, at which this BFD session offers to receive BFD control messages. Defaults to 500000";
+    }
+
+	leaf min-tx {
+      type        uint32;
+	  default     6000000;
+      description "The shortest interval, in microseconds, at which this BFD session is willing to transmit BFD control messages. Defaults to 6000000";
+    }
+		
+	leaf failure-threshold { 
+	  type         uint32; 
+	  description  "Number N of missing messages in window to detect failure ("N out of M")"
+	} 
+	
+	leaf success-threshold { 
+	  type        uint32;
+	  description "Number N of messages in window to detect sucess("N out of M")"
+	}   
+  }
+	
+  leaf cbit {
+	type        boolean;
+	default     true;
+	description "Value of True indicates control bit SET";
+    config      "true";
+  }
+
+  leaf multihop {
+	type        boolean;
+	default     true;
+	description "Value of True indicates suppport for BFD multihop";
+    config      "true";
+  }
+}
+
