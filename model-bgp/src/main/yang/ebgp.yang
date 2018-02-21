@@ -84,6 +84,16 @@ module ebgp {
     leaf announce-fbit {
       type boolean;
     }
+    leaf keepalive {
+      type         uint32;
+      description  "BGP keepalive timer value";
+      default      60;
+    }
+    leaf holdtime {
+      type         uint32;
+      description  "BGP hold time value";
+      default      180;
+    }
   }
 
   container graceful-restart {
@@ -392,7 +402,24 @@ module ebgp {
        leaf maxpaths {
          type uint16;
        }
-    } //vrfMaxpaths
+  } //vrfMaxpaths
 
+  leaf bfd-enabled {
+    description  "is BFD enabled";
+    type         boolean;
+  }
+
+  list tep-dcgw {
+    key          "dc-gw-ip";
+    description  "mapping: DC-Gwy ip <> TEP ip";
+
+    leaf dc-gw-ip {
+      type string;
+    }
+
+    leaf tep-ip {
+      type string;
+    }
+  }
  } // bgp
 }
