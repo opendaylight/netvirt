@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d5dbce90_50e2cb6d",
+        "filename": "model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 6310
+      },
+      "writtenOn": "2018-02-21T08:49:41Z",
+      "side": 1,
+      "message": "better to put this under as-id container so that we can enable it or disable it when user configure as-id",
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
