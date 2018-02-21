@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "324f66ba_7933fe4f",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-02-21T12:52:34Z",
+      "side": 1,
+      "message": "Though in most of the cases interface state events comes after config event, do we have chance we will miss the bind if it comes other way? was that the reason we had it in both the places? But we are not doing it for acl ADD action.",
+      "revId": "3d2a8b207cf806d71b011203fbb5a0119c82090d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
