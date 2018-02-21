@@ -255,10 +255,11 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 SubnetmapBuilder subnetmapBuilder = new SubnetmapBuilder().setKey(new SubnetmapKey(subnetId))
                         .setId(subnetId).setSubnetIp(subnetIp).setTenantId(tenantId).setNetworkId(networkId)
                         .setNetworkType(networkType).setSegmentationId(segmentationId);
-                LOG.debug("createSubnetmapNode: Adding a new subnet node in Subnetmaps DS for subnet {}",
-                    subnetId.getValue());
+                Subnetmap SM = subnetmapBuilder.build();
+                LOG.debug("createSubnetmapNode: Adding a new subnet node in Subnetmaps DS for subnet {}, {}",
+                    subnetId.getValue(), SM.toString());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                        subnetMapIdentifier, subnetmapBuilder.build());
+                        subnetMapIdentifier, SM);
             }
         } catch (TransactionCommitFailedException | ReadFailedException e) {
             LOG.error("createSubnetmapNode: Creating subnetmap node failed for subnet {}", subnetId.getValue());
@@ -298,8 +299,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     builder.setVpnId(vpnId);
                 }
                 builder.setInternetVpnId(internetvpnId);
-
                 subnetmap = builder.build();
+                LOG.info("updateSubnetNode: BUILDER: {}", subnetmap.toString());
                 LOG.debug("Creating/Updating subnetMap node: {} ", subnetId.getValue());
                 SingleTransactionDataBroker.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, id, subnetmap);
             }

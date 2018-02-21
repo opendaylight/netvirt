@@ -125,6 +125,8 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
             subnetmapUpdate) {
         LOG.trace("update:SubnetmapListener update subnetmap method - key {}, original {}, update {}", identifier,
                 subnetmapOriginal, subnetmapUpdate);
+        LOG.trace("update:SubnetmapListener: ORIG {}, UPDATE {}", subnetmapOriginal.toString(),
+                subnetmapUpdate.toString());
         Uuid vpnIdNew = subnetmapUpdate.getVpnId();
         Uuid vpnIdOld = subnetmapOriginal.getVpnId();
         Uuid subnetId = subnetmapUpdate.getId();

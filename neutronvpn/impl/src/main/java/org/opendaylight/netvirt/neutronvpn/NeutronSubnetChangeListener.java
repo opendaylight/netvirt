@@ -71,9 +71,10 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.trace("Adding Subnet : key: {}, value={}", identifier, input);
+        LOG.trace("Adding Subnet : key: {}, value={}", identifier, input.toString());
         Uuid networkId = input.getNetworkId();
         Uuid subnetId = input.getUuid();
+        LOG.trace("Network ID {}", networkId.getValue());
         Network network = neutronvpnUtils.getNeutronNetwork(networkId);
         if (network == null || !NeutronvpnUtils.isNetworkTypeSupported(network)) {
             LOG.warn("neutron vpn received a subnet add() for a network without a provider extension augmentation "
@@ -114,6 +115,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
         Uuid subnetId = subnet.getUuid();
         ProviderTypes providerType = NeutronvpnUtils.getProviderNetworkType(network);
         String segmentationId = NeutronvpnUtils.getSegmentationIdFromNeutronNetwork(network);
+        LOG.trace("neutronvpn-impl: handleNeutronSubnetCreated createSubnetmapNode");
         nvpnManager.createSubnetmapNode(subnetId, String.valueOf(subnet.getCidr().getValue()),
                 subnet.getTenantId(), networkId,
                 providerType != null ? NetworkAttributes.NetworkType.valueOf(providerType.getName()) : null,
