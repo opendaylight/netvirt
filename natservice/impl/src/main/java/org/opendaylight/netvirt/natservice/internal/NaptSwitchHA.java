@@ -26,6 +26,7 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -94,7 +95,7 @@ public class NaptSwitchHA {
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final ItmRpcService itmManager;
-    private final OdlInterfaceRpcService interfaceManager;
+    private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final IdManagerService idManager;
     private final NAPTSwitchSelector naptSwitchSelector;
     private final ExternalRoutersListener externalRouterListener;
@@ -104,6 +105,7 @@ public class NaptSwitchHA {
     private final EvpnNaptSwitchHA evpnNaptSwitchHA;
     private final SnatServiceManager natServiceManager;
     private final NatMode natMode;
+    private final IInterfaceManager interfaceManager;
 
     private volatile Collection<String> externalIpsCache;
 
@@ -111,7 +113,7 @@ public class NaptSwitchHA {
     public NaptSwitchHA(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                         final ExternalRoutersListener externalRouterListener,
                         final ItmRpcService itmManager,
-                        final OdlInterfaceRpcService interfaceManager,
+                        final OdlInterfaceRpcService odlInterfaceRpcService,
                         final IdManagerService idManager,
                         final NAPTSwitchSelector naptSwitchSelector,
                         final IBgpManager bgpManager,
@@ -122,12 +124,13 @@ public class NaptSwitchHA {
                         final IElanService elanManager,
                         final SnatServiceManager natServiceManager,
                         final NatserviceConfig config,
-                        final NaptEventHandler naptEventHandler) {
+                        final NaptEventHandler naptEventHandler,
+                        final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.externalRouterListener = externalRouterListener;
         this.itmManager = itmManager;
-        this.interfaceManager = interfaceManager;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.idManager = idManager;
         this.naptSwitchSelector = naptSwitchSelector;
         this.naptEventHandler = naptEventHandler;
@@ -135,6 +138,7 @@ public class NaptSwitchHA {
         this.evpnNaptSwitchHA = evpnNaptSwitchHA;
         this.elanManager = elanManager;
         this.natServiceManager = natServiceManager;
+        this.interfaceManager = interfaceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
         } else {
@@ -730,7 +734,8 @@ public class NaptSwitchHA {
             LOG.debug("handleGroupInNeighborSwitches : TunnelInterface {} between ordinary switch {} and naptSwitch {}",
                 ifNamePrimary, dpnId, naptSwitch);
             List<ActionInfo> listActionInfoPrimary =
-                NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+                NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager, interfaceManager,
+                        ifNamePrimary, routerId);
             BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
             listBucketInfo.add(bucketPrimary);
         } else {

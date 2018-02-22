@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.IpAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -27,6 +28,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpc
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.GetEgressActionsForInterfaceOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInput;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetExternalTunnelInterfaceNameOutput;
@@ -46,13 +50,15 @@ public class ElanItmUtils {
     private final DataBroker broker;
     private final ItmRpcService itmRpcService;
     private final OdlInterfaceRpcService interfaceManagerRpcService;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
-    public ElanItmUtils(DataBroker broker, ItmRpcService itmRpcService,
-            OdlInterfaceRpcService interfaceManagerRpcService) {
+    public ElanItmUtils(final DataBroker broker, final ItmRpcService itmRpcService,
+            final OdlInterfaceRpcService interfaceManagerRpcService, final IInterfaceManager interfaceManager) {
         this.broker = broker;
         this.itmRpcService = itmRpcService;
         this.interfaceManagerRpcService = interfaceManagerRpcService;
+        this.interfaceManager = interfaceManager;
     }
 
     /**
@@ -206,9 +212,16 @@ public class ElanItmUtils {
 
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> egressActionsOutputFuture = interfaceManagerRpcService
                     .getEgressActionsForInterface(getEgressActInput);
-            if (egressActionsOutputFuture.get().isSuccessful()) {
-                GetEgressActionsForInterfaceOutput egressActionsOutput = egressActionsOutputFuture.get().getResult();
-                result = egressActionsOutput.getAction();
+
+            GetEgressActionsForTunnelInput getEgressActInputItm = new GetEgressActionsForTunnelInputBuilder()
+                    .setIntfName(interfaceName).setTunnelKey(tunnelKey).build();
+
+            Future<RpcResult<GetEgressActionsForTunnelOutput>> egressActionsOutputItm =
+                    itmRpcService.getEgressActionsForTunnel(getEgressActInputItm);
+            if (egressActionsOutputFuture.get().isSuccessful() && !interfaceManager.isItmDirectTunnelsEnabled()) {
+                result = egressActionsOutputFuture.get().getResult().getAction();
+            } else if (egressActionsOutputItm.get().isSuccessful() && interfaceManager.isItmDirectTunnelsEnabled()) {
+                result = egressActionsOutputItm.get().getResult().getAction();
             }
         } catch (Exception e) {
             LOG.error("Error in RPC call getEgressActionsForInterface {}", e);

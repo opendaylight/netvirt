@@ -33,6 +33,7 @@ import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.neutronvpn.api.utils.NeutronConstants;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.binding.rev150712.PortBindingExtension;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.port.attributes.FixedIps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
@@ -57,11 +58,14 @@ public class DhcpNeutronPortListener
     private final IInterfaceManager interfaceManager;
     private final JobCoordinator jobCoordinator;
     private final DhcpManager dhcpManager;
+    private final ItmRpcService itmRpcService;
 
     @Inject
     public DhcpNeutronPortListener(DataBroker db, DhcpExternalTunnelManager dhcpExternalTunnelManager,
             @Named("elanService") IElanService ielanService, IInterfaceManager interfaceManager,
-            DhcpserviceConfig config, final JobCoordinator jobCoordinator, DhcpManager dhcpManager) {
+            DhcpserviceConfig config, final JobCoordinator jobCoordinator, DhcpManager dhcpManager,
+            ItmRpcService itmRpcService) {
+
         super(Port.class, DhcpNeutronPortListener.class);
         this.dhcpExternalTunnelManager = dhcpExternalTunnelManager;
         this.elanService = ielanService;
@@ -71,6 +75,7 @@ public class DhcpNeutronPortListener
         this.config = config;
         this.jobCoordinator = jobCoordinator;
         this.dhcpManager = dhcpManager;
+        this.itmRpcService = itmRpcService;
     }
 
     @PostConstruct
@@ -195,7 +200,7 @@ public class DhcpNeutronPortListener
                                 arpInput.getDpId());
                         ArpReponderInputBuilder builder = new ArpReponderInputBuilder(arpInput);
                         builder.setInstructions(ArpResponderUtil.getInterfaceInstructions(interfaceManager,
-                                arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha()));
+                                arpInput.getInterfaceName(), arpInput.getSpa(), arpInput.getSha(), itmRpcService));
                         elanService.addArpResponderFlow(builder.buildForInstallFlow());
                     });
                 })));
