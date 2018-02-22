@@ -63,7 +63,7 @@ public class Vrf extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         AddressFamily af = null;
         if (addrf.compareToIgnoreCase("IPV_4") == 0) {
             af = AddressFamily.IPV4;

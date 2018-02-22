@@ -83,18 +83,18 @@ public class Cache extends OsgiCommandSupport {
         return null;
     }
 
-    public Object show(CommandSession session) throws Exception {
+    public Object show(CommandSession session) {
         this.session = session;
         return doExecute();
     }
 
-    public Object show() throws Exception {
+    public Object show() {
         return doExecute();
     }
 
     @SuppressWarnings("resource")
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         boolean listVrfs = false;
         boolean listNets = false;
         PrintStream ps = session.getConsole();

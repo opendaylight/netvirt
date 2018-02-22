@@ -26,8 +26,7 @@ public interface IBgpManager {
      * @param addressFamily  is used to pass the nature of the VPN context : IPv4, IPv6, or EVPN.
      * @throws Exception an exception could be raise (see the implementation method).
      */
-    void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts, AddressFamily addressFamily)
-            throws Exception;
+    void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts, AddressFamily addressFamily);
 
     /** Delete onv VPN table.
      * VPN contexts apply to MPLS or VXLAN overlays.
@@ -46,14 +45,14 @@ public interface IBgpManager {
      */
     void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
-                          RouteOrigin origin) throws Exception;
+                          RouteOrigin origin);
 
     /**
      * Adds a route in a BGP neighbour. It persists the VrfEntry in Datastore and sends the BGP message.
      */
     void addPrefix(String rd, String macAddress, String prefix, String nextHop,
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni, String gatewayMac,
-                          RouteOrigin origin) throws Exception;
+                          RouteOrigin origin);
 
     void deletePrefix(String rd, String prefix);
 

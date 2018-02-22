@@ -58,7 +58,7 @@ public class Multipath extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         af_afi afi = af_afi.findByValue(1);
         af_safi safi = af_safi.findByValue(5);
 

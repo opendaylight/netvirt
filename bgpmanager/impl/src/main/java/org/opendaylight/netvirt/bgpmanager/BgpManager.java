@@ -17,7 +17,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import org.apache.thrift.TException;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
@@ -53,7 +52,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
@@ -61,38 +60,38 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         return bcm;
     }
 
-    public void configureGR(int stalepathTime) throws TException {
+    public void configureGR(int stalepathTime) {
         bcm.addGracefulRestart(stalepathTime);
     }
 
-    public void delGracefulRestart() throws Exception {
+    public void delGracefulRestart() {
         bcm.delGracefulRestart();
     }
 
     public void addNeighbor(String ipAddress, long asNum,
-            @Nullable final TcpMd5SignaturePasswordType md5Password) throws TException {
+            @Nullable final TcpMd5SignaturePasswordType md5Password) {
         bcm.addNeighbor(ipAddress, asNum, md5Password);
     }
 
-    public void addEbgpMultihop(String ipAddress, int nhops) throws TException {
+    public void addEbgpMultihop(String ipAddress, int nhops) {
         bcm.addEbgpMultihop(ipAddress, nhops);
     }
 
-    public void addUpdateSource(String ipAddress, String srcIp) throws TException {
+    public void addUpdateSource(String ipAddress, String srcIp) {
         bcm.addUpdateSource(ipAddress, srcIp);
     }
 
-    public void addAddressFamily(String ipAddress, af_afi afi, af_safi safi) throws TException {
+    public void addAddressFamily(String ipAddress, af_afi afi, af_safi safi) {
         bcm.addAddressFamily(ipAddress, afi.getValue(), safi.getValue());
     }
 
-    public void deleteNeighbor(String ipAddress) throws TException {
+    public void deleteNeighbor(String ipAddress) {
         bcm.delNeighbor(ipAddress);
     }
 
     @Override
     public void addVrf(String rd, Collection<String> importRts, Collection<String> exportRts,
-            AddressFamily addressFamily) throws Exception {
+            AddressFamily addressFamily) {
         bcm.addVrf(rd, new ArrayList<>(importRts), new ArrayList<>(exportRts),  addressFamily);
     }
 
@@ -112,8 +111,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                           VrfEntry.EncapType encapType, int vpnLabel, long l3vni,
-                          String gatewayMac, RouteOrigin origin)
-            throws Exception {
+                          String gatewayMac, RouteOrigin origin) {
         fibDSWriter.addFibEntryToDS(rd, macAddress, prefix, nextHopList,
                 encapType, vpnLabel, l3vni, gatewayMac, origin);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
@@ -122,7 +120,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void addPrefix(String rd, String macAddress, String prefix, String nextHop, VrfEntry.EncapType encapType,
-                          int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin) throws Exception {
+                          int vpnLabel, long l3vni, String gatewayMac, RouteOrigin origin) {
         addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType, vpnLabel, l3vni,
                 gatewayMac, origin);
     }
@@ -136,7 +134,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, List<String> nextHopList,
                                 VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
-                                String gatewayMac) throws Exception {
+                                String gatewayMac) {
         LOG.info("Advertise Prefix: Adding Prefix rd {} prefix {} label {} l3vni {} l2vni {}",
                 rd, prefix, vpnLabel, l3vni, l2vni);
         bcm.addPrefix(rd, macAddress, prefix, nextHopList,
@@ -148,7 +146,7 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     @Override
     public void advertisePrefix(String rd, String macAddress, String prefix, String nextHop,
                                 VrfEntry.EncapType encapType, long vpnLabel, long l3vni, long l2vni,
-                                String gatewayMac) throws Exception {
+                                String gatewayMac) {
         LOG.info("ADVERTISE: Adding Prefix rd {} prefix {} nexthop {} label {} l3vni {} l2vni {}",
                 rd, prefix, nextHop, vpnLabel, l3vni, l2vni);
         bcm.addPrefix(rd, macAddress, prefix, Collections.singletonList(nextHop), encapType,

@@ -79,7 +79,7 @@ public class Network extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         switch (action) {
             case "add":
                 int label = qbgpConstants.LBL_EXPLICIT_NULL;
