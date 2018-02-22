@@ -370,7 +370,7 @@ public class NatTunnelInterfaceStateListener
     }
 
     private boolean hndlTepAddForAllRtrs(BigInteger srcDpnId, String tunnelType, String tunnelName, String srcTepIp,
-                                         String destTepIp, WriteTransaction writeFlowInvTx) throws Exception {
+                                         String destTepIp, WriteTransaction writeFlowInvTx) {
         LOG.trace("hndlTepAddForAllRtrs: TEP ADD ----- for EXTERNAL/HWVTEP ITM Tunnel, TYPE {} ,State is UP b/w SRC IP"
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
 
@@ -421,7 +421,7 @@ public class NatTunnelInterfaceStateListener
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
     private boolean handleTepDelForAllRtrs(BigInteger srcDpnId, String tunnelType, String tunnelName, String srcTepIp,
-                                           String destTepIp, WriteTransaction writeFlowInvTx) throws Exception {
+                                           String destTepIp, WriteTransaction writeFlowInvTx) {
 
         LOG.trace("handleTepDelForAllRtrs : TEP DEL ----- for EXTERNAL/HWVTEP ITM Tunnel,TYPE {},State is UP b/w SRC IP"
             + " : {} and DEST IP: {}", fibManager.getTransportTypeStr(tunnelType), srcTepIp, destTepIp);
