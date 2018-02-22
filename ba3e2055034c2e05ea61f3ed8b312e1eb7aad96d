@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "69d77013_24c0c38d",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-02-22T04:48:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d3b26961_c16abcb0",
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "14dea12e_345bd25a",
         "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
         "patchSetId": 5
@@ -30,6 +48,24 @@
       "writtenOn": "2018-02-22T04:26:37Z",
       "side": 1,
       "message": "remove lines between here and namespace",
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f449723e_e3a7a1b2",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-02-22T04:48:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "14dea12e_345bd25a",
       "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -59,6 +95,30 @@
     },
     {
       "key": {
+        "uuid": "54a4006d_104e5455",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-02-22T04:48:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "16b6e908_62afac64",
+      "range": {
+        "startLine": 5,
+        "startChar": 2,
+        "endLine": 5,
+        "endChar": 14
+      },
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5dbce90_50e2cb6d",
         "filename": "model-bgp/src/main/yang/ebgp.yang",
         "patchSetId": 5
@@ -70,6 +130,24 @@
       "writtenOn": "2018-02-21T08:49:41Z",
       "side": 1,
       "message": "better to put this under as-id container so that we can enable it or disable it when user configure as-id",
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a6c1fed_d9108095",
+        "filename": "model-bgp/src/main/yang/ebgp.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 407,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-02-22T04:48:56Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "d5dbce90_50e2cb6d",
       "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
