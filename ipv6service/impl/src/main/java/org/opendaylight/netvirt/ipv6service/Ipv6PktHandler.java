@@ -387,7 +387,7 @@ public class Ipv6PktHandler implements AutoCloseable, PacketProcessingListener {
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         packetProcessor.shutdown();
     }
 }
