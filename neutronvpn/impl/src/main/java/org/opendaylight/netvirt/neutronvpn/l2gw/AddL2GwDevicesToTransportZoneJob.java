@@ -59,7 +59,7 @@ public class AddL2GwDevicesToTransportZoneJob implements Callable<List<Listenabl
      */
     @Override
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         LOG.debug("Running AddL2GwDevicesToTransportZone job for {}", this.transportZone.getZoneName());
         try {
             // When vxlan transport zone is added, add all l2gw devices to that
