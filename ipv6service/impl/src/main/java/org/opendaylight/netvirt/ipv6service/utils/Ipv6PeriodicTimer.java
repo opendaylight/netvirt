@@ -22,7 +22,7 @@ public class Ipv6PeriodicTimer implements TimerTask {
     }
 
     @Override
-    public void run(Timeout timeout) throws Exception {
+    public void run(Timeout timeout) {
         ipv6Queue.addMessage(portId);
     }
 }

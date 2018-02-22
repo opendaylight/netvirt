@@ -42,7 +42,7 @@ public class ShowIpv6Command extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         TablePrinter tp = new TablePrinter();
 
         if (listResource != null) {
