@@ -33,7 +33,7 @@ public class QosAlertEnableCLI extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Setting poll enable in qos alert manager:{}", value);
         qosAlertManager.setEnable(Boolean.parseBoolean(value));
         return null;
