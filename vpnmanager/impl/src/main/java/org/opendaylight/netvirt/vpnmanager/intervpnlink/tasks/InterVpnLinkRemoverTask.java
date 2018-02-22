@@ -33,7 +33,7 @@ public class InterVpnLinkRemoverTask implements Callable<List<ListenableFuture<V
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         LOG.debug("Removing InterVpnLink {} from storage", interVpnLinkName);
         WriteTransaction removeTx = dataBroker.newWriteOnlyTransaction();
         removeTx.delete(LogicalDatastoreType.CONFIGURATION, this.interVpnLinkIid);

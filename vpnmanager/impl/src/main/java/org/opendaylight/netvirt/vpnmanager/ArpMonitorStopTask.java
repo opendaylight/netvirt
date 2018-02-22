@@ -41,7 +41,7 @@ public class ArpMonitorStopTask implements Callable<List<ListenableFuture<Void>>
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         final List<ListenableFuture<Void>> futures = new ArrayList<>();
         java.util.Optional<Long> monitorIdOptional = AlivenessMonitorUtils.getMonitorIdFromInterface(macEntry);
         monitorIdOptional.ifPresent(monitorId -> {

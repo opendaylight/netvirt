@@ -274,7 +274,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
 
     private void handlePacketFromTunnelToExternalNetwork(String vpnIdVpnInstanceName, String tunnelInterfaceName,
                         String srcIpStr, byte[] dstIp, long elanTag)
-                                throws InterruptedException, ExecutionException, UnknownHostException {
+                                throws UnknownHostException {
         String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);
         if (null == routerId) {
             LOG.debug("The ip is not associated with any external router", srcIpStr);

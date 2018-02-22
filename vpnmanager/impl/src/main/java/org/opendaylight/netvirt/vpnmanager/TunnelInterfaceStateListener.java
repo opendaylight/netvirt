@@ -505,7 +505,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
         }
 
         @Override
-        public List<ListenableFuture<Void>> call() throws Exception {
+        public List<ListenableFuture<Void>> call() {
             WriteTransaction writeConfigTxn = dataBroker.newWriteOnlyTransaction();
             WriteTransaction writeOperTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
