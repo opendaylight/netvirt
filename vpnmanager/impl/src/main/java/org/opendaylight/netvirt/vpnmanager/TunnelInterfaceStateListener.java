@@ -326,7 +326,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
             String intfName = null;
             List<Uuid> subnetList = new ArrayList<>();
             Map<Long, String> vpnIdRdMap = new HashMap<>();
-            Set<String> listVpnName = new HashSet<String>();
+            Set<String> listVpnName = new HashSet<>();
 
             while (interfacelistIter.hasNext()) {
                 interfaces = interfacelistIter.next();

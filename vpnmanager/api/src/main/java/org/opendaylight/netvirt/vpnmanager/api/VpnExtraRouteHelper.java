@@ -51,7 +51,7 @@ public final class VpnExtraRouteHelper {
     public static  List<Routes> getVpnExtraroutes(DataBroker broker, String vpnName, String vpnRd) {
         InstanceIdentifier<ExtraRoutes> vpnExtraRoutesId = getVpnToExtrarouteIdentifier(vpnName, vpnRd);
         Optional<ExtraRoutes> vpnOpc = MDSALUtil.read(broker, LogicalDatastoreType.OPERATIONAL, vpnExtraRoutesId);
-        return vpnOpc.isPresent() ? vpnOpc.get().getRoutes() : new ArrayList<Routes>();
+        return vpnOpc.isPresent() ? vpnOpc.get().getRoutes() : new ArrayList<>();
     }
 
     public static Optional<Routes> getVpnExtraroutes(DataBroker broker, String vpnName,
