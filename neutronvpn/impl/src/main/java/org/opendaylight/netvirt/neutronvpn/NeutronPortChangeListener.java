@@ -699,7 +699,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 final List<Uuid> updateSnMapsIds = portupdateIps.stream().map(FixedIps::getSubnetId)
                         .collect(Collectors.toList());
                 Set<Uuid> originalRouterIds = new HashSet<>();
-                Set<Uuid> oldVpnIds = new HashSet<Uuid>();
+                Set<Uuid> oldVpnIds = new HashSet<>();
                 Uuid oldRouterId = null;
                 for (Uuid snId: originalSnMapsIds) {
                     if (!updateSnMapsIds.remove(snId)) {

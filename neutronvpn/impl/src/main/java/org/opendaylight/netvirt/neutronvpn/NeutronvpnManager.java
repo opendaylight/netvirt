@@ -1532,7 +1532,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                                 vpnIface);
                         if (vpnIface == null) {
                             LOG.trace("addSubnetToVpn: create new VpnInterface for Port {}", vpnInfName);
-                            Set<Uuid> listVpn = new HashSet<Uuid>();
+                            Set<Uuid> listVpn = new HashSet<>();
                             if (vpnId != null) {
                                 listVpn.add(vpnId);
                             }
