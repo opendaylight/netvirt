@@ -2011,17 +2011,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 nbNextHops++;
                 nextHopList.add(new String(routeTmp.getNexthop().getValue()));
             }
-            final List<String> rdList = new ArrayList();
+            final List<String> rdList = new ArrayList<>();
             if (vpnInstance.getIpv4Family() != null
                     && vpnInstance.getIpv4Family().getRouteDistinguisher() != null) {
-                vpnInstance.getIpv4Family().getRouteDistinguisher().stream().forEach(rd -> {
+                vpnInstance.getIpv4Family().getRouteDistinguisher().forEach(rd -> {
                     if (rd != null) {
                         rdList.add(rd);
                     }
                 });
             }
             if (vpnInstance.getIpv6Family() != null && vpnInstance.getIpv6Family().getRouteDistinguisher() != null) {
-                vpnInstance.getIpv6Family().getRouteDistinguisher().stream().forEach(rd -> {
+                vpnInstance.getIpv6Family().getRouteDistinguisher().forEach(rd -> {
                     if (rd != null && !rdList.contains(rd)) {
                         rdList.add(rd);
                     }

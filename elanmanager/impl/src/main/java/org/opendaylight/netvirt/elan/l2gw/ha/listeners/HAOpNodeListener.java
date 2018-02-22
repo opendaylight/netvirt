@@ -215,7 +215,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
             haOpClusteredListener.getConnectedNodes()
                     .stream()
                     .filter((connectedIid) -> IS_PS_CHILD_TO_GLOBAL_NODE.test(childGlobalNodeId, connectedIid))
-                    .forEach((connectedIid) -> childPsIids.add(connectedIid));
+                    .forEach(childPsIids::add);
         } else {
             hwvtepGlobalAugmentation.getSwitches().forEach(
                 (switches) -> childPsIids.add(switches.getSwitchRef().getValue()));

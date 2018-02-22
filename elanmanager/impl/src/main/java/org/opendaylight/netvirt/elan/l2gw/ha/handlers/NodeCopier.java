@@ -123,7 +123,7 @@ public class NodeCopier implements INodeCopier {
             haBuilder.setManagers(HwvtepHAUtil.buildManagersForHANode(srcGlobalNodeOptional.get(),
                     existingDstGlobalNodeOptional));
             //Also update the manager section in config which helps in cluster reboot scenarios
-            haBuilder.getManagers().stream().forEach((manager) -> {
+            haBuilder.getManagers().forEach((manager) -> {
                 InstanceIdentifier<Managers> managerIid = dstPath.augmentation(HwvtepGlobalAugmentation.class)
                         .child(Managers.class, manager.getKey());
                 tx.put(CONFIGURATION, managerIid, manager, true);

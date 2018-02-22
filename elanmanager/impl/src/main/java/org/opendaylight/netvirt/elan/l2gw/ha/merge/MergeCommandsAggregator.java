@@ -38,10 +38,9 @@ public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugT
 
     protected Map<Class<?>, MergeCommand> commands = new HashMap<>();
 
-    private final BiPredicate<LogicalDatastoreType, Class> skipCopy = (dsType, cmdType) -> {
-        return (dsType == CONFIGURATION ? commands.get(cmdType) instanceof LocalUcastCmd :
-                commands.get(cmdType) instanceof RemoteUcastCmd);
-    };
+    private final BiPredicate<LogicalDatastoreType, Class> skipCopy =
+        (dsType, cmdType) -> (dsType == CONFIGURATION ? commands.get(cmdType) instanceof LocalUcastCmd
+                : commands.get(cmdType) instanceof RemoteUcastCmd);
 
     protected MergeCommandsAggregator() {
     }

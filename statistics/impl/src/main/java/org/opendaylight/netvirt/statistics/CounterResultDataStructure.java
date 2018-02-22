@@ -82,11 +82,7 @@ public class CounterResultDataStructure {
             return;
         }
 
-        if (results.get(id).get(groupName) == null) {
-            results.get(id).put(groupName, new HashMap<>());
-        }
-
-        results.get(id).get(groupName).put(counterName, counterValue);
+        results.get(id).computeIfAbsent(groupName, k -> new HashMap<>()).put(counterName, counterValue);
     }
 
     public Set<String> getGroupCounterNames(String groupName) {

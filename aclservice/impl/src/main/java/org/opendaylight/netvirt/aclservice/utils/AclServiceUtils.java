@@ -1216,7 +1216,7 @@ public final class AclServiceUtils {
             List<PortIds> portIds = new ArrayList<>(aclIpPrefixes.getPortIds());
             // Checking if there are any other ports excluding ignorePorts
             long noOfRemotePorts =
-                    portIds.stream().map(x -> x.getPortId()).filter(y -> !ignorePorts.contains(y)).count();
+                    portIds.stream().map(PortIds::getPortId).filter(y -> !ignorePorts.contains(y)).count();
             if (noOfRemotePorts > 0) {
                 skipDelete = true;
             }

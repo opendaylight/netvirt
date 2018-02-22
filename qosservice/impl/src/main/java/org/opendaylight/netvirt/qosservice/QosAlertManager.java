@@ -376,7 +376,7 @@ public final class QosAlertManager implements Runnable {
 
     private void initPortStatsData() {
         qosAlertDpnPortNumberMap.values().forEach(portDataMap -> portDataMap.values()
-                .forEach(portData -> portData.initPortData()));
+                .forEach(QosAlertPortData::initPortData));
     }
 
     private static class AlertThresholdSupplier implements Supplier<BigInteger> {

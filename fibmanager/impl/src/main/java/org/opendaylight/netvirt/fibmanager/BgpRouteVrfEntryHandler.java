@@ -250,7 +250,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         // ECMP Use case, point to LB group. Move the mpls label accordingly.
         List<String> tunnelList =
                 adjacencyResults.stream()
-                        .map(adjacencyResult -> adjacencyResult.getNextHopIp())
+                        .map(NexthopManager.AdjacencyResult::getNextHopIp)
                         .sorted().collect(toList());
         String lbGroupKey = FibUtil.getGreLbGroupKey(tunnelList);
         long groupId = nexthopManager.createNextHopPointer(lbGroupKey);

@@ -82,7 +82,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
     private final DataBroker dataBroker;
     private final Ipv6ServiceEosHandler ipv6ServiceEosHandler;
     private final PacketProcessingService packetService;
-    private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(portId -> transmitUnsolicitedRA(portId));
+    private final Ipv6PeriodicTrQueue ipv6Queue = new Ipv6PeriodicTrQueue(this::transmitUnsolicitedRA);
     private final Ipv6TimerWheel timer = new Ipv6TimerWheel();
 
     @Inject

@@ -157,11 +157,9 @@ public class StaleVlanBindingsCleaner {
         Map<String, List<InstanceIdentifier<VlanBindings>>> vlans = new HashMap<>();
         ports.stream()
                 .filter(CONTAINS_VLANBINDINGS)
-                .forEach((port) -> {
-                    port.getAugmentation(HwvtepPhysicalPortAugmentation.class)
-                            .getVlanBindings()
-                            .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding));
-                });
+                .forEach((port) -> port.getAugmentation(HwvtepPhysicalPortAugmentation.class)
+                        .getVlanBindings()
+                        .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding)));
         return vlans;
     }
 

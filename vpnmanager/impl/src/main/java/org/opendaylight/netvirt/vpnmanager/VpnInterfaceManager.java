@@ -1211,56 +1211,53 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
             () -> {
                 List<ListenableFuture<Void>> futures = new ArrayList<>(3);
-                ListenableFuture<Void> configFuture = txRunner
-                        .callWithNewWriteOnlyTransactionAndSubmit(writeConfigTxn -> {
-                            futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeOperTxn -> {
-                                futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
-                                    LOG.info("remove: - intfName {} onto vpnName {} running config-driven",
-                                            interfaceName, vpnName);
-                                    BigInteger dpId = BigInteger.ZERO;
-                                    int ifIndex = 0;
-                                    String gwMacAddress = null;
-                                    InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
-                                            VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
-                                    final Optional<VpnInterfaceOpDataEntry> optVpnInterface =
-                                            VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId);
-                                    if (interfaceState != null) {
-                                        try {
-                                            dpId = InterfaceUtils.getDpIdFromInterface(interfaceState);
-                                        } catch (NumberFormatException | IllegalStateException e) {
-                                            LOG.error("remove: Unable to retrieve dpnId from interface operational"
-                                                    + " data store for interface {} on dpn {} for vpn {} Fetching"
-                                                            + " from vpn interface op data store. ", interfaceName,
-                                                    vpnInterface.getDpnId(), vpnName, e);
-                                            dpId = BigInteger.ZERO;
-                                        }
-                                        ifIndex = interfaceState.getIfIndex();
-                                        gwMacAddress = interfaceState.getPhysAddress().getValue();
-                                    } else {
-                                        LOG.info("remove: Interface state not available for {}. Trying to fetch data"
-                                                + " from vpn interface op.", interfaceName);
-                                        if (optVpnInterface.isPresent()) {
-                                            VpnInterfaceOpDataEntry vpnOpInterface = optVpnInterface.get();
-                                            dpId = vpnOpInterface.getDpnId();
-                                            ifIndex = vpnOpInterface.getLportTag().intValue();
-                                            gwMacAddress = vpnOpInterface.getGatewayMacAddress();
-                                        } else {
-                                            LOG.error("remove: Handling removal of VPN interface {} for vpn {} skipped"
-                                                            + " as interfaceState and vpn interface op is not"
-                                                    + " available", interfaceName, vpnName);
-                                            return;
-                                        }
-                                    }
-                                    processVpnInterfaceDown(dpId, interfaceName, ifIndex, gwMacAddress,
-                                            optVpnInterface.isPresent() ? optVpnInterface.get() : null, false,
-                                            writeConfigTxn, writeOperTxn, writeInvTxn);
-                                    LOG.info(
-                                            "remove: Removal of vpn interface {} on dpn {} for vpn {} processed "
-                                                    + "successfully",
-                                            interfaceName, vpnInterface.getDpnId(), vpnName);
-                                }));
-                            }));
-                        });
+                ListenableFuture<Void> configFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    writeConfigTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                        writeOperTxn -> futures.add(txRunner.callWithNewWriteOnlyTransactionAndSubmit(writeInvTxn -> {
+                            LOG.info("remove: - intfName {} onto vpnName {} running config-driven",
+                                    interfaceName, vpnName);
+                            BigInteger dpId = BigInteger.ZERO;
+                            int ifIndex = 0;
+                            String gwMacAddress = null;
+                            InstanceIdentifier<VpnInterfaceOpDataEntry> interfaceId =
+                                    VpnUtil.getVpnInterfaceOpDataEntryIdentifier(interfaceName, vpnName);
+                            final Optional<VpnInterfaceOpDataEntry> optVpnInterface =
+                                    VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, interfaceId);
+                            if (interfaceState != null) {
+                                try {
+                                    dpId = InterfaceUtils.getDpIdFromInterface(interfaceState);
+                                } catch (NumberFormatException | IllegalStateException e) {
+                                    LOG.error("remove: Unable to retrieve dpnId from interface operational"
+                                            + " data store for interface {} on dpn {} for vpn {} Fetching"
+                                                    + " from vpn interface op data store. ", interfaceName,
+                                            vpnInterface.getDpnId(), vpnName, e);
+                                    dpId = BigInteger.ZERO;
+                                }
+                                ifIndex = interfaceState.getIfIndex();
+                                gwMacAddress = interfaceState.getPhysAddress().getValue();
+                            } else {
+                                LOG.info("remove: Interface state not available for {}. Trying to fetch data"
+                                        + " from vpn interface op.", interfaceName);
+                                if (optVpnInterface.isPresent()) {
+                                    VpnInterfaceOpDataEntry vpnOpInterface = optVpnInterface.get();
+                                    dpId = vpnOpInterface.getDpnId();
+                                    ifIndex = vpnOpInterface.getLportTag().intValue();
+                                    gwMacAddress = vpnOpInterface.getGatewayMacAddress();
+                                } else {
+                                    LOG.error("remove: Handling removal of VPN interface {} for vpn {} skipped"
+                                                    + " as interfaceState and vpn interface op is not"
+                                            + " available", interfaceName, vpnName);
+                                    return;
+                                }
+                            }
+                            processVpnInterfaceDown(dpId, interfaceName, ifIndex, gwMacAddress,
+                                    optVpnInterface.isPresent() ? optVpnInterface.get() : null, false,
+                                    writeConfigTxn, writeOperTxn, writeInvTxn);
+                            LOG.info(
+                                    "remove: Removal of vpn interface {} on dpn {} for vpn {} processed "
+                                            + "successfully",
+                                    interfaceName, vpnInterface.getDpnId(), vpnName);
+                        })))));
                 futures.add(configFuture);
                 Futures.addCallback(configFuture, new PostVpnInterfaceWorker(interfaceName, false, "Config"));
                 return futures;

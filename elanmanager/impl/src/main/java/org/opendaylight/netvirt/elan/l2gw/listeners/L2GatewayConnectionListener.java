@@ -55,21 +55,16 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
     private static final Logger LOG = LoggerFactory.getLogger(L2GatewayConnectionListener.class);
     private static final int MAX_READ_TRIALS = 120;
 
-    private static final Function<Node, InstanceIdentifier<Node>> TO_GLOBAL_PATH = (psNode) -> {
-        return HwvtepHAUtil.getGlobalNodePathFromPSNode(psNode);
-    };
+    private static final Function<Node, InstanceIdentifier<Node>> TO_GLOBAL_PATH =
+            HwvtepHAUtil::getGlobalNodePathFromPSNode;
 
-    private static final Function<Node, InstanceIdentifier<Node>> TO_NODE_PATH = (node) -> {
-        return HwvtepSouthboundUtils.createInstanceIdentifier(node.getNodeId());
-    };
+    private static final Function<Node, InstanceIdentifier<Node>> TO_NODE_PATH =
+        (node) -> HwvtepSouthboundUtils.createInstanceIdentifier(node.getNodeId());
 
-    private static final Function<InstanceIdentifier<Node>, String> GET_DEVICE_NAME = (psIid) -> {
-        return HwvtepHAUtil.getPsName(psIid);
-    };
+    private static final Function<InstanceIdentifier<Node>, String> GET_DEVICE_NAME = HwvtepHAUtil::getPsName;
 
-    private static final Predicate<InstanceIdentifier<Node>> IS_PS_NODE = (psIid) -> {
-        return HwvtepHAUtil.getPsName(psIid) != null;
-    };
+    private static final Predicate<InstanceIdentifier<Node>> IS_PS_NODE = (psIid) ->
+            HwvtepHAUtil.getPsName(psIid) != null;
 
     private static final Predicate<Node> IS_HA_PARENT_NODE = (node) -> {
         HwvtepGlobalAugmentation augmentation = node.getAugmentation(HwvtepGlobalAugmentation.class);
@@ -80,9 +75,8 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
         return false;
     };
 
-    private static final BiPredicate<InstanceIdentifier<Node>, Node> PS_NODE_OF_PARENT_NODE = (psIid, node) -> {
-        return psIid.firstKeyOf(Node.class).getNodeId().getValue().contains(node.getNodeId().getValue());
-    };
+    private static final BiPredicate<InstanceIdentifier<Node>, Node> PS_NODE_OF_PARENT_NODE =
+        (psIid, node) -> psIid.firstKeyOf(Node.class).getNodeId().getValue().contains(node.getNodeId().getValue());
 
     private final DataBroker broker;
     private final L2GatewayConnectionUtils l2GatewayConnectionUtils;
@@ -186,14 +180,10 @@ public class L2GatewayConnectionListener extends AsyncClusteredDataTreeChangeLis
         //Process HA nodes
         allNodes.values().stream()
                 .filter(IS_HA_PARENT_NODE)
-                .forEach(parentNode -> {
-                    allIids.stream()
-                            .filter(IS_PS_NODE)
-                            .filter(psIid -> PS_NODE_OF_PARENT_NODE.test(psIid, parentNode))
-                            .forEach(psIid -> {
-                                addL2DeviceToCache(psIid, parentNode, allNodes.get(psIid));
-                            });
-                });
+                .forEach(parentNode -> allIids.stream()
+                        .filter(IS_PS_NODE)
+                        .filter(psIid -> PS_NODE_OF_PARENT_NODE.test(psIid, parentNode))
+                        .forEach(psIid -> addL2DeviceToCache(psIid, parentNode, allNodes.get(psIid))));
 
         //Process non HA nodes there will be only one ps node iid for each device for non ha nodes
         psNodesByDeviceName.values().stream()

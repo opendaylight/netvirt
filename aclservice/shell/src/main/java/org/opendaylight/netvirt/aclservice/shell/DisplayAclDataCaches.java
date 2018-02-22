@@ -42,7 +42,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
     private static final String REM_ID_TAB_FOR = KEY_TAB + REM_ID_TAB;
     private static final String REM_ID_HEAD = String.format(REM_ID_TAB_FOR, "Remote-ACL-ID", "ACL-ID")
             + "\n   -------------------------------------------------------------------------";
-    private static final String ACL_DATA_TAB_FOR = "   %-8s %-8s  ";
+    private static final String ACL_DATA_TAB_FOR = "   %-8s %-8s  %n";
     private static final String ACL_DATA_HEAD = String.format(ACL_DATA_TAB_FOR, "ACL-ID", "ACL-TAG")
             + "\n   -------------------------------------------------------------------------";
     private static final String ACL_HEAD = String.format(ACL_DATA_TAB_FOR, "ACL-ID", "ACL")
@@ -280,7 +280,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 session.getConsole().println("No data found");
                 return;
             }
-            session.getConsole().println(ACL_DATA_HEAD);
+            session.getConsole().print(ACL_DATA_HEAD);
             session.getConsole().println(String.format(ACL_DATA_TAB_FOR, key, val));
         } else if (key == null) {
             if (!validateAll()) {
@@ -291,7 +291,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
-                session.getConsole().println(ACL_DATA_HEAD);
+                session.getConsole().print(ACL_DATA_HEAD);
                 map.entrySet().stream().sorted(Map.Entry.comparingByValue()).forEach(entry -> session.getConsole()
                         .println(String.format(ACL_DATA_TAB_FOR, entry.getKey(), entry.getValue())));
             }
@@ -347,8 +347,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
                 session.getConsole().println("No data found");
                 return;
             }
-            session.getConsole().println(ACL_HEAD);
-            session.getConsole().println(String.format(ACL_DATA_TAB_FOR, key, acl));
+            session.getConsole().print(ACL_HEAD);
+            session.getConsole().printf(ACL_DATA_TAB_FOR, key, acl);
         } else if (key == null) {
             if (!validateAll()) {
                 printAclMapHelp();
@@ -358,9 +358,8 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
             if (map.isEmpty()) {
                 session.getConsole().println("No data found");
             } else {
-                session.getConsole().println(ACL_HEAD);
-                map.entrySet().stream().forEach(entry -> session.getConsole()
-                        .println(String.format(ACL_DATA_TAB_FOR, entry.getKey(), entry.getValue())));
+                session.getConsole().print(ACL_HEAD);
+                map.forEach((string, acl) -> session.getConsole().printf(ACL_DATA_TAB_FOR, string, acl));
             }
         }
     }

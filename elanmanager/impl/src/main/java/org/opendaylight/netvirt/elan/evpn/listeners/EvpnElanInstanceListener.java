@@ -73,13 +73,13 @@ public class EvpnElanInstanceListener extends AsyncDataTreeChangeListenerBase<El
             evpnMacVrfUtils.updateEvpnDmacFlows(original, false);
             evpnUtils.programEvpnL2vniDemuxTable(elanName,
                 (elan, interfaceName) -> evpnUtils.bindElanServiceToExternalTunnel(elanName, interfaceName),
-                (dpnId, flowEntity) -> mdsalManager.installFlow(dpnId, flowEntity));
+                    mdsalManager::installFlow);
         } else if (evpnUtils.isAdvertiseEvpnRT2Routes(original, update)) {
             evpnUtils.advertiseEvpnRT2Routes(update.getAugmentation(EvpnAugmentation.class), elanName);
             evpnMacVrfUtils.updateEvpnDmacFlows(update, true);
             evpnUtils.programEvpnL2vniDemuxTable(elanName,
                 (elan, interfaceName) -> evpnUtils.unbindElanServiceFromExternalTunnel(elanName, interfaceName),
-                (dpnId, flowEntity) -> mdsalManager.removeFlow(dpnId, flowEntity));
+                    mdsalManager::removeFlow);
         }
     }
 

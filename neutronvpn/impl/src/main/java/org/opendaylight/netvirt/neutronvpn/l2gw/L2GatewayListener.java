@@ -130,8 +130,7 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
             return;
         }
         if (original.getDevices() == null) {
-            connections.forEach(
-                (connection) -> l2gwService.addL2GatewayConnection(connection));
+            connections.forEach(l2gwService::addL2GatewayConnection);
             return;
         }
         jobCoordinator.enqueueJob("l2gw.update", () -> {
@@ -150,23 +149,21 @@ public class L2GatewayListener extends AsyncClusteredDataTreeChangeListenerBase<
                                 .stream()
                                 .filter((intf) -> !updatedDeviceInterfaces.containsInterface(
                                         deviceName, intf.getInterfaceName()))
-                                .forEach((intf) -> {
-                                    connections.forEach((connection) -> {
-                                        Integer vlanId = connection.getSegmentId();
-                                        if (intf.getSegmentationIds() != null
-                                                && !intf.getSegmentationIds().isEmpty()) {
-                                            for (Integer vlan : intf.getSegmentationIds()) {
-                                                HwvtepUtils.deleteVlanBinding(transaction,
-                                                        physicalSwitchNodeId, intf.getInterfaceName(), vlan);
-                                            }
-                                        } else {
-                                            LOG.debug("Deleting vlan binding {} {} {}",
-                                                    physicalSwitchNodeId, intf.getInterfaceName(), vlanId);
-                                            HwvtepUtils.deleteVlanBinding(transaction, physicalSwitchNodeId,
-                                                    intf.getInterfaceName(), vlanId);
+                                .forEach((intf) -> connections.forEach((connection) -> {
+                                    Integer vlanId = connection.getSegmentId();
+                                    if (intf.getSegmentationIds() != null
+                                            && !intf.getSegmentationIds().isEmpty()) {
+                                        for (Integer vlan : intf.getSegmentationIds()) {
+                                            HwvtepUtils.deleteVlanBinding(transaction,
+                                                    physicalSwitchNodeId, intf.getInterfaceName(), vlan);
                                         }
-                                    });
-                                });
+                                    } else {
+                                        LOG.debug("Deleting vlan binding {} {} {}",
+                                                physicalSwitchNodeId, intf.getInterfaceName(), vlanId);
+                                        HwvtepUtils.deleteVlanBinding(transaction, physicalSwitchNodeId,
+                                                intf.getInterfaceName(), vlanId);
+                                    }
+                                }));
                     });
             fts.add(transaction.submit());
             Futures.addCallback(fts.get(0), new FutureCallback<Void>() {
