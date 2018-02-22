@@ -10,7 +10,6 @@ package org.opendaylight.netvirt.elan.cli.l2gw;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
@@ -23,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -312,8 +312,8 @@ public class L2GwValidateCli extends OsgiCommandSupport {
                 data2 = cmd.transform(nodeIid1, data2);
             }
             Function<DataObject, DataObject> withoutUuidTransformer = cmd::withoutUuid;
-            data1 = Lists.transform(data1, withoutUuidTransformer);
-            data2 = Lists.transform(data2, withoutUuidTransformer);
+            data1 = data1.stream().map(withoutUuidTransformer).collect(Collectors.toList());
+            data2 = data2.stream().map(withoutUuidTransformer).collect(Collectors.toList());
 
             Map<Identifier<?>, DataObject> map1 = new HashMap<>();
             Map<Identifier<?>, DataObject> map2 = new HashMap<>();

@@ -439,9 +439,7 @@ public class EvpnUtils {
             return;
         }
 
-        tunnelInterfaceNameList.forEach(tunnelInterfaceName -> {
-            serviceHandler.accept(elanName, tunnelInterfaceName);
-        });
+        tunnelInterfaceNameList.forEach(tunnelInterfaceName -> serviceHandler.accept(elanName, tunnelInterfaceName));
         programEvpnL2vniFlow(elanInfo, flowHandler);
     }
 

@@ -1524,7 +1524,7 @@ public final class VpnUtil {
         java.util.Optional<String> allocatedRd = VpnExtraRouteHelper
                 .getRdAllocatedForExtraRoute(dataBroker, vpnId, prefix, nextHop);
         if (allocatedRd.isPresent()) {
-            return java.util.Optional.of(allocatedRd.get());
+            return allocatedRd;
         }
 
         //Check if rd is already allocated for this extraroute behind the same CSS. If yes, reuse it

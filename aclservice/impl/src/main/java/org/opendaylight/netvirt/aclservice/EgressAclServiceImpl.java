@@ -346,7 +346,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpId = port.getDpId();
         int lportTag = port.getLPortTag();
         List<AllowedAddressPairs> allowedAddresses = port.getAllowedAddressPairs();
-        Set<MacAddress> macs = allowedAddresses.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
+        Set<MacAddress> macs =
+                allowedAddresses.stream().map(AllowedAddressPairs::getMacAddress).collect(Collectors.toSet());
         for (MacAddress mac : macs) {
             List<MatchInfoBase> matches = new ArrayList<>();
             matches.add(new MatchEthernetSource(mac));

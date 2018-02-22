@@ -382,9 +382,7 @@ public class L2GatewayConnectionUtils implements AutoCloseable {
                                         return;
                                     }
                                     localUcastMacs.stream()
-                                            .filter((mac) -> {
-                                                return macBelongsToLogicalSwitch(mac, elanName);
-                                            })
+                                            .filter((mac) -> macBelongsToLogicalSwitch(mac, elanName))
                                             .forEach((mac) -> {
                                                 InstanceIdentifier<LocalUcastMacs> macIid = getMacIid(nodeIid, mac);
                                                 localUcastMacListener.added(macIid, mac);
