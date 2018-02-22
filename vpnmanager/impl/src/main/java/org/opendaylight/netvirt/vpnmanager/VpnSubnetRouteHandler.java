@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -940,9 +939,7 @@ public class VpnSubnetRouteHandler {
 
         String nhTepIp = null;
         BigInteger nhDpnId = null;
-        Iterator<SubnetToDpn> subnetDpnIter = subDpnList.iterator();
-        while (subnetDpnIter.hasNext()) {
-            SubnetToDpn subnetToDpn = subnetDpnIter.next();
+        for (SubnetToDpn subnetToDpn : subDpnList) {
             if (subnetToDpn.getDpnId().equals(oldDpnId)) {
                 // Is this same is as input dpnId, then ignore it
                 continue;
@@ -960,7 +957,6 @@ public class VpnSubnetRouteHandler {
                 } catch (Exception e) {
                     LOG.warn("{} electNewDpnForSubnetRoute: Unable to find TepIp for rd {} subnetroute subnetip {}"
                             + " for dpnid {}, attempt next", LOGGING_PREFIX, rd, subnetIp, nhDpnId.toString(), e);
-                    continue;
                 }
             }
         }

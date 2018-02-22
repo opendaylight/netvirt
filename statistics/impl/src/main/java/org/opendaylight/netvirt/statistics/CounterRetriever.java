@@ -105,8 +105,7 @@ public class CounterRetriever {
         try {
             CompletableFuture<Void> allOf = CompletableFuture.allOf(futureList.toArray(new CompletableFuture[0]));
             allOf.get(nodeResultTimeout, TimeUnit.SECONDS);
-            for (int i = 0; i < futureList.size(); i++) {
-                CompletableFuture<NodeConnectorStatisticsSupplierOutput> completableCurrentResult = futureList.get(i);
+            for (CompletableFuture<NodeConnectorStatisticsSupplierOutput> completableCurrentResult : futureList) {
                 if (completableCurrentResult == null) {
                     LOG.warn("Unable to retrieve node counters");
                     counters.failedGettingNodeCounters.inc();

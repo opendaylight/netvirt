@@ -101,7 +101,7 @@ public class BgpUtil implements AutoCloseable {
     public static int getAFItranslatedfromPrefix(String argPrefix) {
         int retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
         String prefixOnly;
-        if (argPrefix.indexOf("/") == -1) {
+        if (!argPrefix.contains("/")) {
             prefixOnly = argPrefix;
         } else {
             prefixOnly = argPrefix.substring(0, argPrefix.indexOf("/"));

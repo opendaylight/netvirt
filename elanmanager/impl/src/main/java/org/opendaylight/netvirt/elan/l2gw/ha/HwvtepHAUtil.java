@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -431,14 +432,7 @@ public final class HwvtepHAUtil {
 
         builder1.setKey(new ManagersKey(new Uri(MANAGER_KEY)));
         List<ManagerOtherConfigs> otherConfigses = new ArrayList<>();
-        StringBuffer stringBuffer = new StringBuffer();
-        for (NodeId nodeId : nodeIds) {
-            stringBuffer.append(nodeId.getValue());
-            stringBuffer.append(",");
-        }
-
-        String children = stringBuffer.substring(0, stringBuffer.toString().length() - 1);
-
+        String children = nodeIds.stream().map(NodeId::getValue).collect(Collectors.joining(","));
         otherConfigses.add(getOtherConfigBuilder(HA_CHILDREN, children).build());
         builder1.setManagerOtherConfigs(otherConfigses);
         List<Managers> managers = new ArrayList<>();
