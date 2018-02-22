@@ -27,6 +27,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.itm.globals.ITMConstants;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
@@ -80,6 +81,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.Tun
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TunnelsState;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.tunnels_state.StateTunnelListKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetInternalOrExternalInterfaceNameOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetTunnelInterfaceNameInputBuilder;
@@ -137,7 +139,7 @@ public class NexthopManager implements AutoCloseable {
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalApiManager;
-    private final OdlInterfaceRpcService interfaceManager;
+    private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final ItmRpcService itmManager;
     private final IdManagerService idManager;
     private final IElanService elanService;
@@ -145,6 +147,7 @@ public class NexthopManager implements AutoCloseable {
     private final SalGroupService salGroupService;
     private final JobCoordinator jobCoordinator;
     private final FibUtil fibUtil;
+    private final IInterfaceManager interfaceManager;
     private volatile L3VPNTransportTypes configuredTransportTypeL3VPN = L3VPNTransportTypes.Invalid;
 
     /**
@@ -154,30 +157,32 @@ public class NexthopManager implements AutoCloseable {
      * @param dataBroker       - dataBroker reference
      * @param mdsalApiManager  - mdsalApiManager reference
      * @param idManager        - idManager reference
-     * @param interfaceManager - interfaceManager reference
+     * @param odlInterfaceRpcService - odlInterfaceRpcService reference
      * @param itmManager       - itmManager reference
      */
     @Inject
     public NexthopManager(final DataBroker dataBroker,
                           final IMdsalApiManager mdsalApiManager,
                           final IdManagerService idManager,
-                          final OdlInterfaceRpcService interfaceManager,
+                          final OdlInterfaceRpcService odlInterfaceRpcService,
                           final ItmRpcService itmManager,
                           final LockManagerService lockManager,
                           final IElanService elanService,
                           final SalGroupService salGroupService,
                           final JobCoordinator jobCoordinator,
-                          final FibUtil fibUtil) {
+                          final FibUtil fibUtil,
+                          final IInterfaceManager interfaceManager) {
         this.dataBroker = dataBroker;
         this.mdsalApiManager = mdsalApiManager;
         this.idManager = idManager;
-        this.interfaceManager = interfaceManager;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.itmManager = itmManager;
         this.elanService = elanService;
         this.salGroupService = salGroupService;
         this.jobCoordinator = jobCoordinator;
         this.fibUtil = fibUtil;
         this.lockManager = lockManager;
+        this.interfaceManager = interfaceManager;
         createIdPool();
     }
 
@@ -202,7 +207,7 @@ public class NexthopManager implements AutoCloseable {
     }
 
     public OdlInterfaceRpcService getInterfaceManager() {
-        return interfaceManager;
+        return odlInterfaceRpcService;
     }
 
     protected long createNextHopPointer(String nexthopKey) {
@@ -236,46 +241,65 @@ public class NexthopManager implements AutoCloseable {
         }
     }
 
-    protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey) {
+    protected List<ActionInfo> getEgressActionsForInterface(final String ifName, int actionKey,
+                                                            boolean isTunnelInterface) {
         List<ActionInfo> listActionInfo = new ArrayList<>();
+        RpcResult rpcResult;
+        List<Action> actions;
         try {
-            Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
-                interfaceManager.getEgressActionsForInterface(
-                    new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).build());
-            RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
-            if (!rpcResult.isSuccessful()) {
-                LOG.error("RPC Call to Get egress actions for interface {} returned with Errors {}",
-                    ifName, rpcResult.getErrors());
+            if (isTunnelInterface && interfaceManager.isItmDirectTunnelsEnabled()) {
+                rpcResult = itmManager.getEgressActionsForTunnel(
+                        new GetEgressActionsForTunnelInputBuilder().setIntfName(ifName).build()).get();
+                if (!rpcResult.isSuccessful()) {
+                    LOG.error("RPC Call to Get egress tunnel actions for interface {} returned with Errors {}",
+                            ifName, rpcResult.getErrors());
+                    return listActionInfo;
+                } else {
+                    GetEgressActionsForInterfaceOutput output =
+                            (GetEgressActionsForInterfaceOutput)rpcResult.getResult();
+                    actions = output.getAction();
+                }
             } else {
-                List<org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.list.Action> actions =
-                    rpcResult.getResult().getAction();
-                for (Action action : actions) {
-                    actionKey = action.getKey().getOrder() + actionKey;
-                    org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
-                        actionClass = action.getAction();
-                    if (actionClass instanceof OutputActionCase) {
-                        listActionInfo.add(new ActionOutput(actionKey,
-                            ((OutputActionCase) actionClass).getOutputAction().getOutputNodeConnector()));
-                    } else if (actionClass instanceof PushVlanActionCase) {
-                        listActionInfo.add(new ActionPushVlan(actionKey));
-                    } else if (actionClass instanceof SetFieldCase) {
-                        if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
-                            int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch()
-                                .getVlanId().getVlanId().getValue();
-                            listActionInfo.add(new ActionSetFieldVlanVid(actionKey, vlanVid));
-                        }
-                    } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
-                        Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
-                        listActionInfo.add(new ActionNxResubmit(actionKey, tableId));
-                    } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
-                        NxRegLoad nxRegLoad =
-                            ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase) actionClass).getNxRegLoad();
-                        listActionInfo.add(new ActionRegLoad(actionKey, NxmNxReg6.class,
-                            nxRegLoad.getDst().getStart(), nxRegLoad.getDst().getEnd(),
-                            nxRegLoad.getValue().longValue()));
-                    }
+                rpcResult = odlInterfaceRpcService.getEgressActionsForInterface(
+                        new GetEgressActionsForInterfaceInputBuilder().setIntfName(ifName).build()).get();
+                if (!rpcResult.isSuccessful()) {
+                    LOG.error("RPC Call to Get egress vm actions for interface {} returned with Errors {}",
+                            ifName, rpcResult.getErrors());
+                    return listActionInfo;
+                } else {
+                    GetEgressActionsForInterfaceOutput output =
+                            (GetEgressActionsForInterfaceOutput)rpcResult.getResult();
+                    actions = output.getAction();
                 }
             }
+
+            for (Action action : actions) {
+                actionKey = action.getKey().getOrder() + actionKey;
+                org.opendaylight.yang.gen.v1.urn.opendaylight.action.types.rev131112.action.Action
+                    actionClass = action.getAction();
+                if (actionClass instanceof OutputActionCase) {
+                    listActionInfo.add(new ActionOutput(actionKey,
+                        ((OutputActionCase) actionClass).getOutputAction().getOutputNodeConnector()));
+                } else if (actionClass instanceof PushVlanActionCase) {
+                    listActionInfo.add(new ActionPushVlan(actionKey));
+                } else if (actionClass instanceof SetFieldCase) {
+                    if (((SetFieldCase) actionClass).getSetField().getVlanMatch() != null) {
+                        int vlanVid = ((SetFieldCase) actionClass).getSetField().getVlanMatch()
+                            .getVlanId().getVlanId().getValue();
+                        listActionInfo.add(new ActionSetFieldVlanVid(actionKey, vlanVid));
+                    }
+                } else if (actionClass instanceof NxActionResubmitRpcAddGroupCase) {
+                    Short tableId = ((NxActionResubmitRpcAddGroupCase) actionClass).getNxResubmit().getTable();
+                    listActionInfo.add(new ActionNxResubmit(actionKey, tableId));
+                } else if (actionClass instanceof NxActionRegLoadNodesNodeTableFlowApplyActionsCase) {
+                    NxRegLoad nxRegLoad =
+                        ((NxActionRegLoadNodesNodeTableFlowApplyActionsCase) actionClass).getNxRegLoad();
+                    listActionInfo.add(new ActionRegLoad(actionKey, NxmNxReg6.class,
+                        nxRegLoad.getDst().getStart(), nxRegLoad.getDst().getEnd(),
+                        nxRegLoad.getValue().longValue()));
+                }
+            }
+
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when egress actions for interface {}", ifName, e);
         }
@@ -378,7 +402,7 @@ public class NexthopManager implements AutoCloseable {
                             // FIXME: Log message here.
                             LOG.debug("mac address for new local nexthop is null");
                         }
-                        listActionInfo.addAll(getEgressActionsForInterface(ifName, actionKey));
+                        listActionInfo.addAll(getEgressActionsForInterface(ifName, actionKey, false));
                         BucketInfo bucket = new BucketInfo(listActionInfo);
 
                         listBucketInfo.add(bucket);
@@ -410,6 +434,32 @@ public class NexthopManager implements AutoCloseable {
                                     ipPrefixesBuilder.build());
                         }
                     }
+                    listActionInfo.addAll(getEgressActionsForInterface(ifName, actionKey, false));
+                    BucketInfo bucket = new BucketInfo(listActionInfo);
+
+                    listBucketInfo.add(bucket);
+                    GroupEntity groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, ipAddress, GroupTypes.GroupAll,
+                            listBucketInfo);
+                    LOG.trace("Install LNH Group: id {}, mac address {}, interface {} for prefix {}", groupId,
+                            encMacAddress, ifName, ipAddress);
+                    //Try to install group directly on the DPN bypassing the FRM, in order to avoid waiting for the
+                    // group to get installed before programming the flows
+                    installGroupOnDpn(groupId, dpnId, ipAddress, listBucketInfo, getNextHopKey(vpnId, ipAddress),
+                            GroupTypes.GroupAll);
+                    // install Group
+                    mdsalApiManager.syncInstallGroup(groupEntity);
+                    // update MD-SAL DS
+                    addVpnNexthopToDS(dpnId, vpnId, ipAddress, groupId);
+
+                } else {
+                    // nexthop exists already; a new flow is going to point to
+                    // it, increment the flowrefCount by 1
+                    int flowrefCnt = nexthop.getFlowrefCount() + 1;
+                    VpnNexthop nh = new VpnNexthopBuilder().setKey(new VpnNexthopKey(ipAddress))
+                            .setFlowrefCount(flowrefCnt).build();
+                    LOG.trace("Updating vpnnextHop {} for refCount {} to Operational DS", nh, flowrefCnt);
+                    MDSALUtil.syncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, getVpnNextHopIdentifier(vpnId,
+                            ipAddress), nh);
                 }
             } finally {
                 FibUtil.unlockCluster(lockManager, nextHopLockStr);
@@ -882,7 +932,7 @@ public class NexthopManager implements AutoCloseable {
                 return;
             }
             Class<? extends TunnelTypeBase> tunnelType = VpnExtraRouteHelper
-                    .getTunnelType(interfaceManager,
+                    .getTunnelType(odlInterfaceRpcService,
                             egressInterface);
             Interface ifState = fibUtil.getInterfaceStateFromOperDS(egressInterface);
             if (ifState == null || ifState.getOperStatus() != OperStatus.Up) {
@@ -921,7 +971,7 @@ public class NexthopManager implements AutoCloseable {
             if (egressActionMap.containsKey(egressInterface)) {
                 egressActions = egressActionMap.get(egressInterface);
             } else {
-                egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size());
+                egressActions = getEgressActionsForInterface(egressInterface, actionInfos.size(), true);
                 egressActionMap.put(egressInterface, egressActions);
             }
             if (egressActions.isEmpty()) {
@@ -984,7 +1034,7 @@ public class NexthopManager implements AutoCloseable {
             GetEgressActionsForInterfaceInputBuilder egressAction =
                     new GetEgressActionsForInterfaceInputBuilder().setIntfName(interfaceName).setActionKey(actionKey);
             Future<RpcResult<GetEgressActionsForInterfaceOutput>> result =
-                    interfaceManager.getEgressActionsForInterface(egressAction.build());
+                    odlInterfaceRpcService.getEgressActionsForInterface(egressAction.build());
             RpcResult<GetEgressActionsForInterfaceOutput> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
                 LOG.warn("RPC Call to Get egress actions for interface {} returned with Errors {}",
