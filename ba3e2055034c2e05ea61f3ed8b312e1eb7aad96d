@@ -2,6 +2,63 @@
   "comments": [
     {
       "key": {
+        "uuid": "d3b26961_c16abcb0",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-02-22T04:26:37Z",
+      "side": 1,
+      "message": "indent with four spaces",
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14dea12e_345bd25a",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-02-22T04:26:37Z",
+      "side": 1,
+      "message": "remove lines between here and namespace",
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "16b6e908_62afac64",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 5
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-02-22T04:26:37Z",
+      "side": 1,
+      "message": "remove these redundant comments",
+      "range": {
+        "startLine": 5,
+        "startChar": 2,
+        "endLine": 5,
+        "endChar": 14
+      },
+      "revId": "ba3e2055034c2e05ea61f3ed8b312e1eb7aad96d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d5dbce90_50e2cb6d",
         "filename": "model-bgp/src/main/yang/ebgp.yang",
         "patchSetId": 5
