@@ -530,10 +530,9 @@ public class VpnManagerImpl implements IVpnManager {
             }
 
             final String extIfcFinal = extIfc;
-            ListenableFuture<Void> listenableFuture = txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
-                doAddArpResponderFlowsToExternalNetworkIps(
-                        id, fixedIps, macAddress, dpnId, extNetworkId, tx, extIfcFinal);
-            });
+            ListenableFuture<Void> listenableFuture =
+                txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> doAddArpResponderFlowsToExternalNetworkIps(
+                    id, fixedIps, macAddress, dpnId, extNetworkId, tx, extIfcFinal));
             ListenableFutures.addErrorLogging(listenableFuture, LOG,
                     "Error while configuring arp responder for ext. interface");
 

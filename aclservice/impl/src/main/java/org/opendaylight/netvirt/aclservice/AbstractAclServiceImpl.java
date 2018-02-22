@@ -612,7 +612,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 programAclDispatcherTable(port, NwConstants.ADD_FLOW);
             }
         }
-        Set<BigInteger> dpns = interfaceList.stream().map(port -> port.getDpId()).collect(Collectors.toSet());
+        Set<BigInteger> dpns = interfaceList.stream().map(AclInterface::getDpId).collect(Collectors.toSet());
 
         programRemoteAclTable(aclName, remoteAclsDeleted, dpns, NwConstants.DEL_FLOW);
         programRemoteAclTable(aclName, remoteAclsAdded, dpns, NwConstants.ADD_FLOW);
@@ -625,8 +625,8 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                 continue;
             }
             Set<AllowedAddressPairs> aaps =
-                    remoteAclInterfaces.stream().map(port -> port.getAllowedAddressPairs()).flatMap(List::stream)
-                            .filter(aap -> AclServiceUtils.isNotIpAllNetwork(aap)).collect(Collectors.toSet());
+                    remoteAclInterfaces.stream().map(AclInterface::getAllowedAddressPairs).flatMap(List::stream)
+                            .filter(AclServiceUtils::isNotIpAllNetwork).collect(Collectors.toSet());
 
             Integer aclTag = aclServiceUtils.getAclTag(remoteAclId);
             if (addOrRemove == NwConstants.ADD_FLOW) {
