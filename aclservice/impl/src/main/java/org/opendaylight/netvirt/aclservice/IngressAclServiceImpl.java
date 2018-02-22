@@ -119,7 +119,7 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void programAntiSpoofingRules(AclInterface port, String dhcpMacAddress,
+    protected void programAntiSpoofingRules(AclInterface port,
             List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove) {
         LOG.info("{} programAntiSpoofingRules for port {}, AAPs={}, action={}, addOrRemove={}", this.directionString,
                 port.getInterfaceId(), allowedAddresses, action, addOrRemove);
@@ -127,10 +127,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
         if (action == Action.ADD || action == Action.REMOVE) {
-            ingressAclDhcpAllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
-                    AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
-            ingressAclDhcpv6AllowServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove,
-                    AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
+            ingressAclDhcpAllowServerTraffic(dpid, lportTag, addOrRemove, AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
+            ingressAclDhcpv6AllowServerTraffic(dpid, lportTag, addOrRemove, AclConstants.PROTO_PREFIX_MATCH_PRIORITY);
             ingressAclIcmpv6AllowedTraffic(dpid, lportTag, addOrRemove);
 
             programArpRule(dpid, lportTag, addOrRemove);
@@ -161,13 +159,6 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag, List<AllowedAddressPairs> deletedAAP,
-            List<AllowedAddressPairs> addedAAP) {
-        // Nothing to do for port update as ingress ARP flow is based only on lportTag
-
-    }
-
-    @Override
     protected void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
             int addOrRemove) {
         List<MatchInfoBase> flowMatches = new ArrayList<>();
@@ -185,18 +176,17 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * allowed.
      *
      * @param dpId the dpid
-     * @param dhcpMacAddress the DHCP server mac address
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
-            int addOrRemove, int protoPortMatchPriority) {
+    protected void ingressAclDhcpAllowServerTraffic(BigInteger dpId, int lportTag, int addOrRemove,
+            int protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
-        String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Permit_";
+        String flowName = "Ingress_DHCP_Server_v4" + dpId + "_" + lportTag + "_Permit_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }
@@ -206,19 +196,17 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
      * allowed.
      *
      * @param dpId the dpid
-     * @param dhcpMacAddress the DHCP server mac address
      * @param lportTag the lport tag
      * @param addOrRemove is write or delete
      * @param protoPortMatchPriority the priority
      */
-    protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
-            int addOrRemove, Integer protoPortMatchPriority) {
+    protected void ingressAclDhcpv6AllowServerTraffic(BigInteger dpId, int lportTag, int addOrRemove,
+            Integer protoPortMatchPriority) {
         final List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
 
-        String flowName =
-                "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + "_" + dhcpMacAddress + "_Permit_";
+        String flowName = "Ingress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_Permit_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_SERVER_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
     }

@@ -112,35 +112,25 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     @Override
-    protected void programAntiSpoofingRules(AclInterface port, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove) {
+    protected void programAntiSpoofingRules(AclInterface port, List<AllowedAddressPairs> allowedAddresses,
+            Action action, int addOrRemove) {
         LOG.info("{} programAntiSpoofingRules for port {}, AAPs={}, action={}, addOrRemove={}", this.directionString,
                 port.getInterfaceId(), allowedAddresses, action, addOrRemove);
 
         BigInteger dpid = port.getDpId();
         int lportTag = port.getLPortTag();
-        if (action == Action.ADD || action == Action.REMOVE) {
-            Set<MacAddress> aapMacs =
-                allowedAddresses.stream().map(aap -> aap.getMacAddress()).collect(Collectors.toSet());
-            egressAclDhcpAllowClientTraffic(dpid, aapMacs, lportTag, addOrRemove);
-            egressAclDhcpv6AllowClientTraffic(dpid, aapMacs, lportTag, addOrRemove);
-            egressAclDhcpDropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
-            egressAclDhcpv6DropServerTraffic(dpid, dhcpMacAddress, lportTag, addOrRemove);
+        if (action != Action.UPDATE) {
+            egressAclDhcpDropServerTraffic(dpid, lportTag, addOrRemove);
+            egressAclDhcpv6DropServerTraffic(dpid, lportTag, addOrRemove);
             egressAclIcmpv6DropRouterAdvts(dpid, lportTag, addOrRemove);
             egressAclIcmpv6AllowedList(dpid, lportTag, addOrRemove);
-
-            programArpRule(dpid, allowedAddresses, lportTag, addOrRemove);
             programL2BroadcastAllowRule(port, addOrRemove);
         }
-    }
+        List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(allowedAddresses);
 
-    @Override
-    protected void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag, List<AllowedAddressPairs> deletedAAP,
-            List<AllowedAddressPairs> addedAAP) {
-        // Remove common allowedAddrPairIPs to avoid delete and add of ARP flows having same MAC and IP
-        deletedAAP.removeAll(addedAAP);
-        programArpRule(dpId, deletedAAP, lportTag, NwConstants.DEL_FLOW);
-        programArpRule(dpId, addedAAP, lportTag, NwConstants.ADD_FLOW);
+        egressAclDhcpAllowClientTraffic(dpid, filteredAAPs, lportTag, addOrRemove);
+        egressAclDhcpv6AllowClientTraffic(dpid, filteredAAPs, lportTag, addOrRemove);
+        programArpRule(dpid, filteredAAPs, lportTag, addOrRemove);
     }
 
     @Override
@@ -159,7 +149,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     @Override
     protected void programGotoClassifierTableRules(BigInteger dpId, List<AllowedAddressPairs> aaps, int lportTag,
             int addOrRemove) {
-        for (AllowedAddressPairs aap : aaps) {
+        List<AllowedAddressPairs> filteredAAPs = AclServiceUtils.excludeMulticastAAPs(aaps);
+        for (AllowedAddressPairs aap : filteredAAPs) {
             IpPrefixOrAddress attachIp = aap.getIpAddress();
             MacAddress mac = aap.getMacAddress();
 
@@ -182,16 +173,14 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * Anti-spoofing rule to block the Ipv4 DHCP server traffic from the port.
      *
      * @param dpId the dpId
-     * @param dhcpMacAddress the Dhcp mac address
      * @param lportTag the lport tag
      * @param addOrRemove add/remove the flow.
      */
-    protected void egressAclDhcpDropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
-            int addOrRemove) {
+    protected void egressAclDhcpDropServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_SERVER_PORT_IPV4,
                 AclConstants.DHCP_CLIENT_PORT_IPV4, lportTag, serviceMode);
 
-        String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
+        String flowName = "Egress_DHCP_Server_v4" + dpId + "_" + lportTag + "_Drop_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
                 "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
     }
@@ -200,16 +189,14 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * Anti-spoofing rule to block the Ipv6 DHCP server traffic from the port.
      *
      * @param dpId the dpId
-     * @param dhcpMacAddress the Dhcp mac address
      * @param lportTag the lport tag
      * @param addOrRemove add/remove the flow.
      */
-    protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, String dhcpMacAddress, int lportTag,
-            int addOrRemove) {
+    protected void egressAclDhcpv6DropServerTraffic(BigInteger dpId, int lportTag, int addOrRemove) {
         List<MatchInfoBase> matches = AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_SERVER_PORT_IPV6,
                 AclConstants.DHCP_CLIENT_PORT_IPV6, lportTag, serviceMode);
 
-        String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_" + dhcpMacAddress + "_Drop_";
+        String flowName = "Egress_DHCP_Server_v6" + "_" + dpId + "_" + lportTag + "_Drop_";
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
                 "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, Collections.emptyList(), addOrRemove);
     }
@@ -249,24 +236,27 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
     }
 
     /**
-     * Add rule to ensure only DHCP server traffic from the specified mac is
-     * allowed.
+     * Add rule to ensure only DHCP server traffic from the specified mac is allowed.
      *
      * @param dpId the dpid
-     * @param aapMacs the AAP mac addresses
+     * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    private void egressAclDhcpAllowClientTraffic(BigInteger dpId, Set<MacAddress> aapMacs, int lportTag,
-            int addOrRemove) {
+    private void egressAclDhcpAllowClientTraffic(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+            int lportTag, int addOrRemove) {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-        for (MacAddress aapMac : aapMacs) {
+        for (AllowedAddressPairs aap : allowedAddresses) {
+            if (!AclServiceUtils.isIPv4Address(aap)) {
+                continue;
+            }
             List<MatchInfoBase> matches = new ArrayList<>();
             matches.addAll(AclServiceUtils.buildDhcpMatches(AclConstants.DHCP_CLIENT_PORT_IPV4,
                 AclConstants.DHCP_SERVER_PORT_IPV4, lportTag, serviceMode));
-            matches.add(new MatchEthernetSource(aapMac));
+            matches.add(new MatchEthernetSource(aap.getMacAddress()));
 
-            String flowName = "Egress_DHCP_Client_v4" + dpId + "_" + lportTag + "_" + aapMac.getValue() + "_Permit_";
+            String flowName =
+                    "Egress_DHCP_Client_v4" + dpId + "_" + lportTag + "_" + aap.getMacAddress().getValue() + "_Permit_";
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
                     "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }
@@ -277,21 +267,24 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
      * allowed.
      *
      * @param dpId the dpid
-     * @param aapMacs the AAP mac addresses
+     * @param allowedAddresses the allowed addresses
      * @param lportTag the lport tag
      * @param addOrRemove whether to add or remove the flow
      */
-    private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, Set<MacAddress> aapMacs, int lportTag,
-            int addOrRemove) {
+    private void egressAclDhcpv6AllowClientTraffic(BigInteger dpId, List<AllowedAddressPairs> allowedAddresses,
+            int lportTag, int addOrRemove) {
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-        for (MacAddress aapMac : aapMacs) {
+        for (AllowedAddressPairs aap : allowedAddresses) {
+            if (AclServiceUtils.isIPv4Address(aap)) {
+                continue;
+            }
             List<MatchInfoBase> matches = new ArrayList<>();
             matches.addAll(AclServiceUtils.buildDhcpV6Matches(AclConstants.DHCP_CLIENT_PORT_IPV6,
                 AclConstants.DHCP_SERVER_PORT_IPV6, lportTag, serviceMode));
-            matches.add(new MatchEthernetSource(aapMac));
+            matches.add(new MatchEthernetSource(aap.getMacAddress()));
 
-            String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + lportTag + "_" + aapMac.getValue()
-                                    + "_Permit_";
+            String flowName = "Egress_DHCP_Client_v6" + "_" + dpId + "_" + lportTag + "_"
+                    + aap.getMacAddress().getValue() + "_Permit_";
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_DHCP_CLIENT_TRAFFIC_MATCH_PRIORITY,
                     "ACL", 0, 0, AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);
         }

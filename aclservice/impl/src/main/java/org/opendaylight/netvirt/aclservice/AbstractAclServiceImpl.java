@@ -185,7 +185,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
     }
 
     private void processInterfaceUpdate(AclInterface portBefore, AclInterface portAfter) {
-        BigInteger dpId = portAfter.getDpId();
         List<AllowedAddressPairs> addedAaps = AclServiceUtils
                 .getUpdatedAllowedAddressPairs(portAfter.getAllowedAddressPairs(), portBefore.getAllowedAddressPairs());
         List<AllowedAddressPairs> deletedAaps = AclServiceUtils
@@ -198,7 +197,6 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
             programAclWithAllowedAddress(portAfter, addedAaps, Action.UPDATE, NwConstants.ADD_FLOW);
             updateRemoteAclFilterTable(portAfter, portAfter.getSecurityGroups(), addedAaps, NwConstants.ADD_FLOW);
         }
-        updateArpForAllowedAddressPairs(dpId, portAfter.getLPortTag(), deletedAaps, portAfter.getAllowedAddressPairs());
         if (portAfter.getSubnetIpPrefixes() != null && portBefore.getSubnetIpPrefixes() == null) {
             programBroadcastRules(portAfter, NwConstants.ADD_FLOW);
         }
@@ -299,7 +297,7 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         int lportTag = port.getLPortTag();
         LOG.debug("Applying ACL Allowed Address on DpId {}, lportTag {}, Action {}", dpId, lportTag, action);
         String portId = port.getInterfaceId();
-        programAntiSpoofingRules(port, "", allowedAddresses, action, addOrRemove);
+        programAntiSpoofingRules(port, allowedAddresses, action, addOrRemove);
         programAclPortSpecificFixedRules(dpId, allowedAddresses, lportTag, portId, action, addOrRemove);
         if (action == Action.ADD || action == Action.REMOVE) {
             programAclRules(port, port.getSecurityGroups(), addOrRemove);
@@ -505,24 +503,12 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
      * Programs the anti-spoofing rules.
      *
      * @param port the acl interface
-     * @param dhcpMacAddress the dhcp mac address.
      * @param allowedAddresses the allowed addresses
      * @param action add/modify/remove action
      * @param addOrRemove addorRemove
      */
-    protected abstract void programAntiSpoofingRules(AclInterface port, String dhcpMacAddress,
-            List<AllowedAddressPairs> allowedAddresses, Action action, int addOrRemove);
-
-    /**
-     * Update arp for allowed address pairs.
-     *
-     * @param dpId the dp id
-     * @param lportTag the lport tag
-     * @param deletedAAP the deleted allowed address pairs
-     * @param addedAAP the added allowed address pairs
-     */
-    protected abstract void updateArpForAllowedAddressPairs(BigInteger dpId, int lportTag,
-            List<AllowedAddressPairs> deletedAAP, List<AllowedAddressPairs> addedAAP);
+    protected abstract void programAntiSpoofingRules(AclInterface port, List<AllowedAddressPairs> allowedAddresses,
+            Action action, int addOrRemove);
 
     /**
      * Programs broadcast rules.
