@@ -533,7 +533,7 @@ public class ElanL2GatewayUtils {
                             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
                                 macs.addAll(augmentation.getLocalUcastMacs().stream()
                                         .filter(mac -> getLogicalSwitchName(mac).equals(elanName))
-                                        .map(mac -> mac.getMacEntryKey())
+                                        .map(HwvtepMacTableGenericAttributes::getMacEntryKey)
                                         .collect(Collectors.toSet()));
                             }
                             function.apply(macs);
@@ -1028,16 +1028,15 @@ public class ElanL2GatewayUtils {
 
     public void scheduleDeleteLogicalSwitch(final NodeId hwvtepNodeId, final String lsName, final boolean clearUcast) {
         final Pair<NodeId, String> nodeIdLogicalSwitchNamePair = new ImmutablePair<>(hwvtepNodeId, lsName);
-        logicalSwitchDeletedTasks.computeIfAbsent(nodeIdLogicalSwitchNamePair, (key) -> {
-            return scheduler.getScheduledExecutorService().schedule(() -> {
+        logicalSwitchDeletedTasks.computeIfAbsent(nodeIdLogicalSwitchNamePair,
+            (key) -> scheduler.getScheduledExecutorService().schedule(() -> {
                 DeleteLogicalSwitchJob deleteLsJob = new DeleteLogicalSwitchJob(broker,
                         ElanL2GatewayUtils.this, hwvtepNodeId, lsName, clearUcast);
                 jobCoordinator.enqueueJob(deleteLsJob.getJobKey(), deleteLsJob,
                         SystemPropertyReader.getDataStoreJobCoordinatorMaxRetries());
                 deleteJobs.put(nodeIdLogicalSwitchNamePair, deleteLsJob);
                 logicalSwitchDeletedTasks.remove(nodeIdLogicalSwitchNamePair);
-            }, getLogicalSwitchDeleteDelaySecs(), TimeUnit.SECONDS);
-        });
+            }, getLogicalSwitchDeleteDelaySecs(), TimeUnit.SECONDS));
     }
 
     public void cancelDeleteLogicalSwitch(final NodeId hwvtepNodeId, final String lsName) {
@@ -1089,7 +1088,7 @@ public class ElanL2GatewayUtils {
             if (augmentation != null && augmentation.getLocalUcastMacs() != null) {
                 macs.addAll(augmentation.getLocalUcastMacs().stream()
                         .filter(mac -> getLogicalSwitchName(mac).equals(elanName))
-                        .map(mac -> mac.getMacEntryKey())
+                        .map(HwvtepMacTableGenericAttributes::getMacEntryKey)
                         .collect(Collectors.toSet()));
             }
         }
