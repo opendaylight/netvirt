@@ -233,8 +233,7 @@ public class BgpConfigurationManager {
             final IVpnLinkService vpnLinkSrvce,
             final BundleContext bundleContext,
             final BgpUtil bgpUtil,
-            final MetricProvider metricProvider)
-            throws InterruptedException, ExecutionException, TimeoutException {
+            final MetricProvider metricProvider) {
         this.dataBroker = dataBroker;
         this.fibDSWriter = fibDSWriter;
         this.vpnLinkService = vpnLinkSrvce;
@@ -1692,11 +1691,11 @@ public class BgpConfigurationManager {
         }
     }
 
-    private void doRouteSync() throws InterruptedException, TimeoutException, ExecutionException {
+    private void doRouteSync() {
         LOG.error("Starting BGP route sync");
         try {
             bgpRouter.initRibSync(bgpSyncHandle);
-        } catch (TException | BgpRouterException e) {
+        } catch (BgpRouterException e) {
             LOG.error("Route sync aborted, exception when initializing", e);
             return;
         }
@@ -1745,7 +1744,7 @@ public class BgpConfigurationManager {
         try {
             LOG.error("Ending BGP route-sync");
             bgpRouter.endRibSync(bgpSyncHandle);
-        } catch (TException | BgpRouterException e) {
+        } catch (BgpRouterException e) {
             // Ignored?
         }
     }
@@ -1781,8 +1780,7 @@ public class BgpConfigurationManager {
      */
 
     public void onUpdatePushRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
-            int ethtag, String esi, String macaddress, int label, int l2label, String routermac, af_afi afi)
-            throws InterruptedException, ExecutionException, TimeoutException {
+            int ethtag, String esi, String macaddress, int label, int l2label, String routermac, af_afi afi) {
         boolean addroute = false;
         boolean macupdate = false;
         long l3vni = 0L;
@@ -1852,7 +1850,7 @@ public class BgpConfigurationManager {
     }
 
     public void onUpdateWithdrawRoute(protocol_type protocolType, String rd, String prefix, int plen, String nextHop,
-            String macaddress) throws InterruptedException, ExecutionException, TimeoutException {
+            String macaddress) {
         long vni = 0L;
         boolean macupdate = false;
         if (protocolType.equals(protocol_type.PROTOCOL_EVPN)) {
