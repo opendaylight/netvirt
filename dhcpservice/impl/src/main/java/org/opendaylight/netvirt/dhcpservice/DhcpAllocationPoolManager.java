@@ -83,7 +83,7 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} close", getClass().getSimpleName());
         if (dhcpAllocationPoolListener != null) {
             dhcpAllocationPoolListener.close();
