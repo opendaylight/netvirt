@@ -542,7 +542,7 @@ public final class HwvtepHAUtil {
     public static void deletePSNodesOfNode(InstanceIdentifier<Node> key,
                                            Node haNode,
                                            ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws ReadFailedException {
         //read from switches attribute and clean up them
         HwvtepGlobalAugmentation globalAugmentation = haNode.getAugmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation == null) {
@@ -593,7 +593,7 @@ public final class HwvtepHAUtil {
      */
     public static void deleteSwitchesManagedByNode(InstanceIdentifier<Node> haPath,
                                                    ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws ReadFailedException {
 
         Optional<Node> nodeOptional = tx.read(OPERATIONAL, haPath).checkedGet();
         if (!nodeOptional.isPresent()) {

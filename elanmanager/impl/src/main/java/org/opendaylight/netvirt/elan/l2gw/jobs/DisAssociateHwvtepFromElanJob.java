@@ -61,7 +61,7 @@ public class DisAssociateHwvtepFromElanJob implements Callable<List<ListenableFu
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         String strHwvtepNodeId = hwvtepNodeId.getValue();
         LOG.info("running disassosiate l2gw connection job for {} {}", elanName, strHwvtepNodeId);
 

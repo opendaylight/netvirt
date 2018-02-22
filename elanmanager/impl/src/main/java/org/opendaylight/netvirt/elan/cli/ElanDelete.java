@@ -28,7 +28,7 @@ public class ElanDelete extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing the Deletion of ElanInstance command" + "\t" + elanName + "\t");
         boolean isSuccess = elanProvider.deleteElanInstance(elanName);
         if (isSuccess) {

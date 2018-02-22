@@ -43,8 +43,7 @@ public class ConfigNodeUpdatedHandler {
                                           Node haOriginal,
                                           InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
-                                          ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                          ReadWriteTransaction tx) {
         globalAugmentationMerger.mergeConfigUpdate(haChildNodeId,
                 mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);
         globalNodeMerger.mergeConfigUpdate(haChildNodeId, mod, tx);
@@ -66,8 +65,7 @@ public class ConfigNodeUpdatedHandler {
                                       Node haOriginal,
                                       InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
-                                      ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                      ReadWriteTransaction tx) {
 
         psAugmentationMerger.mergeConfigUpdate(haChildNodeId,
                 mod.getModifiedAugmentation(PhysicalSwitchAugmentation.class), tx);

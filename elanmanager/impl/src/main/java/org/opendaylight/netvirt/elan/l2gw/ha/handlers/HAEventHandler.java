@@ -63,7 +63,7 @@ public class HAEventHandler implements IHAEventHandler {
                                                   Node origSrcNode,
                                                   InstanceIdentifier<Node> haPath,
                                                   DataObjectModification<Node> mod,
-                                                  ReadWriteTransaction tx) throws ReadFailedException {
+                                                  ReadWriteTransaction tx) {
         if (haPath == null) {
             return;
         }
@@ -75,7 +75,7 @@ public class HAEventHandler implements IHAEventHandler {
                                               Node origSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
                                               DataObjectModification<Node> mod,
-                                              ReadWriteTransaction tx) throws ReadFailedException {
+                                              ReadWriteTransaction tx) {
         if (haPath == null) {
             return;
         }
@@ -87,8 +87,7 @@ public class HAEventHandler implements IHAEventHandler {
                                       Node haOriginal,
                                       InstanceIdentifier<Node> haChildNodeId,
                                       DataObjectModification<Node> mod,
-                                      ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                      ReadWriteTransaction tx) {
         if (haChildNodeId == null) {
             return;
         }
@@ -100,8 +99,7 @@ public class HAEventHandler implements IHAEventHandler {
                                           Node haOriginal,
                                           InstanceIdentifier<Node> haChildNodeId,
                                           DataObjectModification<Node> mod,
-                                          ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                          ReadWriteTransaction tx) {
         if (haChildNodeId == null) {
             return;
         }

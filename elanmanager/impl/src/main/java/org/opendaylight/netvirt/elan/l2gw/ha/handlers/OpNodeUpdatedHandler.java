@@ -41,7 +41,7 @@ public class OpNodeUpdatedHandler {
                                               Node origSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
                                               DataObjectModification<Node> mod,
-                                              ReadWriteTransaction tx) throws ReadFailedException {
+                                              ReadWriteTransaction tx) {
 
         InstanceIdentifier<Node> haPSPath = HwvtepHAUtil.convertPsPath(updatedSrcPSNode, haPath);
 
@@ -64,7 +64,7 @@ public class OpNodeUpdatedHandler {
                                                   Node origSrcNode,
                                                   InstanceIdentifier<Node> haPath,
                                                   DataObjectModification<Node> mod,
-                                                  ReadWriteTransaction tx) throws ReadFailedException {
+                                                  ReadWriteTransaction tx) {
 
         globalAugmentationMerger.mergeOpUpdate(haPath,
                 mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);

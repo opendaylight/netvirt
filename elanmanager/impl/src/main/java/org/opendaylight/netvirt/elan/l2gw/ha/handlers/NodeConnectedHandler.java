@@ -98,8 +98,7 @@ public class NodeConnectedHandler {
                         ReadWriteTransaction tx1 = db.newReadWriteTransaction();
                         copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx1);
                         tx1.submit().checkedGet();
-                    } catch (InterruptedException | ExecutionException | ReadFailedException
-                            | TransactionCommitFailedException e) {
+                    } catch (TransactionCommitFailedException e) {
                         LOG.error("Failed to process ", e);
                     }
                 });
@@ -143,7 +142,7 @@ public class NodeConnectedHandler {
     void readAndCopyChildPSOpToHAPS(Node childGlobalNode,
                                     InstanceIdentifier<Node> haNodePath,
                                     ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
 
         if (childGlobalNode == null || childGlobalNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
@@ -174,8 +173,7 @@ public class NodeConnectedHandler {
      */
     private void copyHANodeConfigToChild(Node srcNode,
                                          InstanceIdentifier<Node> childPath,
-                                         ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+                                         ReadWriteTransaction tx) {
         if (srcNode == null) {
             return;
         }
@@ -206,7 +204,7 @@ public class NodeConnectedHandler {
     private void copyChildOpToHA(Node childNode,
                                  InstanceIdentifier<Node> haNodePath,
                                  ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
         if (childNode == null) {
             return;
         }
@@ -261,8 +259,7 @@ public class NodeConnectedHandler {
      */
     public void copyHAPSConfigToChildPS(Node haPsNode,
                                         InstanceIdentifier<Node> childPath,
-                                        ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                        ReadWriteTransaction tx) {
         InstanceIdentifier<Node> childPsPath = HwvtepHAUtil.convertPsPath(haPsNode, childPath);
 
         NodeBuilder childPsBuilder = HwvtepHAUtil.getNodeBuilderForPath(childPsPath);
@@ -292,7 +289,7 @@ public class NodeConnectedHandler {
                                     InstanceIdentifier<Node> haPath,
                                     InstanceIdentifier<Node> haPspath,
                                     ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws ReadFailedException {
 
         NodeBuilder haPSNodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(haPspath);
         PhysicalSwitchAugmentationBuilder dstBuilder = new PhysicalSwitchAugmentationBuilder();

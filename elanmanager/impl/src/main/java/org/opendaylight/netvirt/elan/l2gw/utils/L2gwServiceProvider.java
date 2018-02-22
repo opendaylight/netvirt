@@ -90,12 +90,12 @@ public class L2gwServiceProvider extends AbstractLifecycle implements IL2gwServi
     }
 
     @Override
-    protected void start() throws Exception {
+    protected void start() {
         LOG.info("Starting L2gwServiceProvider");
     }
 
     @Override
-    protected void stop() throws Exception {
+    protected void stop() {
 
     }
 }

@@ -42,7 +42,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     @Override
     void onPsNodeAdd(InstanceIdentifier<Node> haPsPath,
                      Node haPSNode,
-                     ReadWriteTransaction tx) throws InterruptedException, ExecutionException, ReadFailedException {
+                     ReadWriteTransaction tx) throws ReadFailedException {
         //copy the ps node data to children
         String psId = haPSNode.getNodeId().getValue();
         Set<InstanceIdentifier<Node>> childSwitchIds = HwvtepHAUtil.getPSChildrenIdsForHAPSNode(psId);
@@ -103,7 +103,7 @@ public class HAConfigNodeListener extends HwvtepNodeBaseListener {
     void onGlobalNodeDelete(InstanceIdentifier<Node> key,
                             Node haNode,
                             ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
         //delete child nodes
         Set<InstanceIdentifier<Node>> children = hwvtepHACache.getChildrenForHANode(key);
         for (InstanceIdentifier<Node> childId : children) {
