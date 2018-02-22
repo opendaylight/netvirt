@@ -444,7 +444,7 @@ public class TransportZoneNotificationUtil {
         SubnetsBuilder subnetsBuilder = new SubnetsBuilder().setDeviceVteps(new ArrayList<>())
                 .setGatewayIp(new IpAddress(ALL_SUBNETS_GW.toCharArray()))
                 .setKey(new SubnetsKey(new IpPrefix(subnetIp.toCharArray()))).setVlanId(0)
-                .setVteps(new ArrayList<Vteps>());
+                .setVteps(new ArrayList<>());
         return subnetsBuilder.build();
     }
 

@@ -78,7 +78,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
                     .withError(RpcError.ErrorType.APPLICATION, errMsg);
             return Futures.immediateFuture(rpcResultBuilder.build());
         }
-        List<RouterNat> natRouterList = new ArrayList<RouterNat>();
+        List<RouterNat> natRouterList = new ArrayList<>();
         for (Uuid routerUuid : routerUuidList) {
             long routerId = NatUtil.getVpnId(dataBroker, routerUuid.getValue());
             if (routerId == NatConstants.INVALID_ID) {
@@ -222,7 +222,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         } else {
 
             // Capturing SNAT information
-            List<SnatIpMapping> snatIpMapping = new ArrayList<SnatIpMapping>();
+            List<SnatIpMapping> snatIpMapping = new ArrayList<>();
 
             for (IntextIpProtocolType protocolType : ipPortMapping.getIntextIpProtocolType()) {
                 for (IpPortMap ipPortMap : protocolType.getIpPortMap()) {
@@ -239,7 +239,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
         }
 
         // Capturing DNAT information
-        List<DnatIpMapping> dnatIpMapping = new ArrayList<DnatIpMapping>();
+        List<DnatIpMapping> dnatIpMapping = new ArrayList<>();
         List<Ports> fipPorts = NatUtil.getFloatingIpPortsForRouter(dataBroker, routerUuid);
         if (fipPorts.isEmpty()) {
             LOG.warn("constructNatInformation : No DNAT IP Mapping found for router-uuid {}", routerUuid.getValue());
@@ -255,7 +255,7 @@ public class NatRpcServiceImpl implements OdlNatRpcService {
             natRouterBuilder.setDnatIpMapping(dnatIpMapping);
         }
 
-        List<RouterNat> natRouterList = new ArrayList<RouterNat>();
+        List<RouterNat> natRouterList = new ArrayList<>();
         natRouterList.add(natRouterBuilder.build());
         return natRouterList;
     }
