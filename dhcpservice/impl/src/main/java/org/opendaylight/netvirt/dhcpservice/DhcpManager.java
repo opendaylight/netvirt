@@ -91,7 +91,7 @@ public class DhcpManager {
     }
 
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         if (dhcpInterfaceEventListener != null) {
             dhcpInterfaceEventListener.close();
         }

@@ -45,7 +45,7 @@ public class DhcpInterfaceUpdateJob implements Callable<List<ListenableFuture<Vo
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface iface =
                 interfaceManager.getInterfaceInfoFromConfigDataStore(interfaceName);
         if (iface == null) {
