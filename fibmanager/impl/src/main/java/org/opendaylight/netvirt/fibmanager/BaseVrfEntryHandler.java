@@ -161,17 +161,15 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                     prefixIpList = Collections.singletonList(vrfEntry.getDestPrefix());
                 } else {
                     List<String> prefixIpListLocal = new ArrayList<>();
-                    vpnExtraRoutes.stream().forEach(route -> {
-                        route.getNexthopIpList().stream().forEach(extraRouteIp -> {
-                            String ipPrefix;
-                            if (isIpv4Address(extraRouteIp)) {
-                                ipPrefix = extraRouteIp + NwConstants.IPV4PREFIX;
-                            } else {
-                                ipPrefix = extraRouteIp + NwConstants.IPV6PREFIX;
-                            }
-                            prefixIpListLocal.add(ipPrefix);
-                        });
-                    });
+                    vpnExtraRoutes.forEach(route -> route.getNexthopIpList().forEach(extraRouteIp -> {
+                        String ipPrefix;
+                        if (isIpv4Address(extraRouteIp)) {
+                            ipPrefix = extraRouteIp + NwConstants.IPV4PREFIX;
+                        } else {
+                            ipPrefix = extraRouteIp + NwConstants.IPV6PREFIX;
+                        }
+                        prefixIpListLocal.add(ipPrefix);
+                    }));
                     prefixIpList = prefixIpListLocal;
                 }
             } else {

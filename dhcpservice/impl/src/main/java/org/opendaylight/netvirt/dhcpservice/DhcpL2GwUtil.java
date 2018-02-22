@@ -30,13 +30,13 @@ public class DhcpL2GwUtil {
 
     private static final Predicate<List<?>> EMPTY_LIST = (list) -> list == null || list.isEmpty();
 
-    private static final Predicate<Optional<Node>> CONTAINS_GLOBAL_AUGMENTATION = (optionalNode) -> {
-        return optionalNode.isPresent() && optionalNode.get().getAugmentation(HwvtepGlobalAugmentation.class) != null;
-    };
+    private static final Predicate<Optional<Node>> CONTAINS_GLOBAL_AUGMENTATION =
+        (optionalNode) -> optionalNode.isPresent()
+                && optionalNode.get().getAugmentation(HwvtepGlobalAugmentation.class) != null;
 
-    private static final Predicate<Optional<Node>> CONTAINS_SWITCH_AUGMENTATION = (optionalNode) -> {
-        return optionalNode.isPresent() && optionalNode.get().getAugmentation(PhysicalSwitchAugmentation.class) != null;
-    };
+    private static final Predicate<Optional<Node>> CONTAINS_SWITCH_AUGMENTATION =
+        (optionalNode) -> optionalNode.isPresent()
+                && optionalNode.get().getAugmentation(PhysicalSwitchAugmentation.class) != null;
 
     private final DataBroker dataBroker;
     private final L2GatewayCache l2GatewayCache;
