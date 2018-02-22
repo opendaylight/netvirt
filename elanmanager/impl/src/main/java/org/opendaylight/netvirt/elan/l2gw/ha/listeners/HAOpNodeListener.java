@@ -15,7 +15,6 @@ import com.google.common.base.Strings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -115,7 +114,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     @Override
     void onGlobalNodeDelete(InstanceIdentifier<Node> childGlobalPath,
                             Node childNode,
-                            ReadWriteTransaction tx) throws InterruptedException, ExecutionException,
+                            ReadWriteTransaction tx) throws
             ReadFailedException {
         haOpClusteredListener.onGlobalNodeDelete(childGlobalPath, childNode, tx);
         if (IS_NOT_HA_CHILD.test(childGlobalPath)) {
@@ -139,7 +138,7 @@ public class HAOpNodeListener extends HwvtepNodeBaseListener {
     @Override
     void onPsNodeAdd(InstanceIdentifier<Node> childPsPath,
                      Node childPsNode,
-                     ReadWriteTransaction tx) throws ReadFailedException {
+                     ReadWriteTransaction tx) {
         //copy child ps oper node to ha ps oper node
         //copy ha ps config node to child ps config
         haOpClusteredListener.onPsNodeAdd(childPsPath, childPsNode, tx);

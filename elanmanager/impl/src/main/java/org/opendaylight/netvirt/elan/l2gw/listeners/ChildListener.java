@@ -113,7 +113,7 @@ public abstract class ChildListener<P extends DataObject, C extends DataObject, 
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         if (registration != null) {
             registration.close();
         }

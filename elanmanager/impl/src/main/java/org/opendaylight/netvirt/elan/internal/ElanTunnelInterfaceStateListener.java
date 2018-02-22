@@ -16,7 +16,6 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
-import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.TepTypeInternal;
@@ -86,14 +85,9 @@ public class ElanTunnelInterfaceStateListener extends AsyncDataTreeChangeListene
         jobCoordinator.enqueueJob(add.getTunnelInterfaceName(), () -> {
             BigInteger srcDpId = new BigInteger(add.getSrcInfo().getTepDeviceId());
             BigInteger dstDpId = new BigInteger(add.getDstInfo().getTepDeviceId());
-            try {
-                LOG.info("Handling tunnel state event for srcDpId {} and dstDpId {} ",
-                        srcDpId, dstDpId);
-                elanInterfaceManager.handleInternalTunnelStateEvent(srcDpId, dstDpId);
-            } catch (ElanException e) {
-                LOG.error("Failed handle tunnel state event between srcDpId {} and dstDpId {} ",
-                        srcDpId, dstDpId, e);
-            }
+            LOG.info("Handling tunnel state event for srcDpId {} and dstDpId {} ",
+                    srcDpId, dstDpId);
+            elanInterfaceManager.handleInternalTunnelStateEvent(srcDpId, dstDpId);
             return Collections.emptyList();
         }, ElanConstants.JOB_MAX_RETRIES);
     }

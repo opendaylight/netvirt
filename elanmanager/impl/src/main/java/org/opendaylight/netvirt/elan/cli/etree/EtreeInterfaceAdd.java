@@ -41,7 +41,7 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         EtreeInterfaceType inputType = null;
         for (EtreeInterfaceType type : EtreeInterfaceType.values()) {
             if (interfaceType.equals(type.getName())) {

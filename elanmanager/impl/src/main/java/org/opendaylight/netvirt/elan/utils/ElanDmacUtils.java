@@ -76,11 +76,10 @@ public class ElanDmacUtils {
      * @param displayName
      *            the display name
      * @return the flow
-     * @throws ElanException in case of issues creating the flow objects
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildDmacFlowForExternalRemoteMac(BigInteger dpId, String extDeviceNodeId, long elanTag,
-            Long vni, String dstMacAddress, String displayName) throws ElanException {
+            Long vni, String dstMacAddress, String displayName) {
         List<MatchInfo> mkMatches =
                 ElanUtils.buildMatchesForElanTagShFlagAndDstMac(elanTag, /* shFlag */ false, dstMacAddress);
         List<Instruction> mkInstructions = new ArrayList<>();
@@ -250,7 +249,7 @@ public class ElanDmacUtils {
     private ListenableFuture<Void> buildEtreeDmacFlowForExternalRemoteMac(
             BigInteger dpnId, String extDeviceNodeId, Long vni,
             String macAddress, String displayName, String interfaceName,
-            EtreeLeafTagName etreeLeafTag) throws ElanException {
+            EtreeLeafTagName etreeLeafTag) {
         boolean isRoot;
         if (interfaceName == null) {
             isRoot = true;
@@ -310,7 +309,7 @@ public class ElanDmacUtils {
 
     private ListenableFuture<Void> buildEtreeDmacFlowForExternalRemoteMacWithBatch(
             BigInteger dpnId, String extDeviceNodeId, Long vni, String macAddress, String displayName,
-            String interfaceName, EtreeLeafTagName etreeLeafTag)throws ElanException {
+            String interfaceName, EtreeLeafTagName etreeLeafTag) {
 
         boolean isRoot;
         if (interfaceName == null) {

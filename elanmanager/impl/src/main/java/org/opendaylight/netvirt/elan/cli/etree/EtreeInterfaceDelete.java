@@ -31,7 +31,7 @@ public class EtreeInterfaceDelete extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Deleting EtreeInterface command" + "\t" + etreeName + "\t" + interfaceName + "\t");
         ElanInterface existingInterface =
                 elanProvider.getElanInterfaceByElanInterfaceName(interfaceName);

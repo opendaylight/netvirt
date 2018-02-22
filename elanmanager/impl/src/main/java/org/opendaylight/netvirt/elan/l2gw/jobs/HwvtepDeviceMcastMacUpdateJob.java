@@ -35,7 +35,7 @@ public class HwvtepDeviceMcastMacUpdateJob implements Callable<List<ListenableFu
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         LOG.info("running update mcast mac entry job for {} {}",
                 elanName, l2GatewayDevice.getHwvtepNodeId());
         return Collections.singletonList(

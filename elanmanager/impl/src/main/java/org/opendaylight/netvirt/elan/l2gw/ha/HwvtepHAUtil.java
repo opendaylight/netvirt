@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -536,13 +535,11 @@ public final class HwvtepHAUtil {
      * @param haNode Ha Node from which to be deleted
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     public static void deletePSNodesOfNode(InstanceIdentifier<Node> key,
                                            Node haNode,
                                            ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws ReadFailedException {
         //read from switches attribute and clean up them
         HwvtepGlobalAugmentation globalAugmentation = haNode.getAugmentation(HwvtepGlobalAugmentation.class);
         if (globalAugmentation == null) {
@@ -588,12 +585,10 @@ public final class HwvtepHAUtil {
      * @param haPath HA node path from whih switches will be deleted
      * @param tx  Transaction object
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     public static void deleteSwitchesManagedByNode(InstanceIdentifier<Node> haPath,
                                                    ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws ReadFailedException {
 
         Optional<Node> nodeOptional = tx.read(OPERATIONAL, haPath).checkedGet();
         if (!nodeOptional.isPresent()) {

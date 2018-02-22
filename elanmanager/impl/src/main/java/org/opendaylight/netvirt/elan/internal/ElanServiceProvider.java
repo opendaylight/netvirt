@@ -49,7 +49,6 @@ import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.netvirt.elanmanager.api.ElanHelper;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
-import org.opendaylight.netvirt.elanmanager.exceptions.MacNotFoundException;
 import org.opendaylight.ovsdb.utils.southbound.utils.SouthboundUtils;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.Interfaces;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.Interface;
@@ -360,8 +359,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
     }
 
     @Override
-    public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress)
-            throws MacNotFoundException {
+    public void deleteStaticMacAddress(String elanInstanceName, String interfaceName, String macAddress) {
         Optional<ElanInterface> existingElanInterface = elanInterfaceCache.get(interfaceName);
         if (existingElanInterface.isPresent()) {
             InstanceIdentifier<StaticMacEntries> staticMacEntriesIdentifier =
@@ -406,11 +404,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
             if (elanInterfaceMac.getMacEntry() != null && elanInterfaceMac.getMacEntry().size() > 0) {
                 List<MacEntry> macEntries = elanInterfaceMac.getMacEntry();
                 for (MacEntry macEntry : macEntries) {
-                    try {
-                        deleteStaticMacAddress(elanInstanceName, elanInterface, macEntry.getMacAddress().getValue());
-                    } catch (MacNotFoundException e) {
-                        LOG.error("Mac Not Found Exception {}", e);
-                    }
+                    deleteStaticMacAddress(elanInstanceName, elanInterface, macEntry.getMacAddress().getValue());
                 }
             }
         }

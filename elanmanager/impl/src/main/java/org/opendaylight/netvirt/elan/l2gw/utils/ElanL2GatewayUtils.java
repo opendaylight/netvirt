@@ -478,10 +478,8 @@ public class ElanL2GatewayUtils {
      *            the elan name
      * @param dpnId
      *            the dpn id
-     * @throws ReadFailedException if a read fails throws ReadFailedException
      */
-    public void deleteElanL2GwDevicesUcastLocalMacsFromDpn(final String elanName, final BigInteger dpnId)
-            throws ReadFailedException {
+    public void deleteElanL2GwDevicesUcastLocalMacsFromDpn(final String elanName, final BigInteger dpnId) {
         ConcurrentMap<String, L2GatewayDevice> elanL2GwDevices = ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName);
         if (elanL2GwDevices == null || elanL2GwDevices.isEmpty()) {
             LOG.trace("No L2 gateway devices in Elan [{}] cache.", elanName);
@@ -959,10 +957,9 @@ public class ElanL2GatewayUtils {
      *            from elan
      * @param elanName
      *            the elan name
-     * @throws ReadFailedException if a read fails
      */
     public void deleteL2GwDeviceUcastLocalMacsFromElan(L2GatewayDevice l2GatewayDevice,
-            String elanName) throws ReadFailedException {
+            String elanName) {
         LOG.info("Deleting L2GatewayDevice [{}] UcastLocalMacs from elan [{}]", l2GatewayDevice.getHwvtepNodeId(),
                 elanName);
 

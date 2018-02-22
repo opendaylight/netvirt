@@ -12,7 +12,6 @@ import static org.opendaylight.controller.md.sal.common.api.data.LogicalDatastor
 
 import com.google.common.base.Optional;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
@@ -67,8 +66,6 @@ public class NodeConnectedHandler {
      * @param haPSCfg Ha Physical Config Node
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     public void handleNodeConnected(Node childNode,
                                     InstanceIdentifier<Node> childNodePath,
@@ -76,7 +73,7 @@ public class NodeConnectedHandler {
                                     Optional<Node> haGlobalCfg,
                                     Optional<Node> haPSCfg,
                                     ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
         HwvtepHAUtil.buildGlobalConfigForHANode(tx, childNode, haNodePath, haGlobalCfg);
         copyChildOpToHA(childNode, haNodePath, tx);
         readAndCopyChildPSOpToHAPS(childNode, haNodePath, tx);
@@ -98,8 +95,7 @@ public class NodeConnectedHandler {
                         ReadWriteTransaction tx1 = db.newReadWriteTransaction();
                         copyHAPSConfigToChildPS(haPSCfg.get(), childNodePath, tx1);
                         tx1.submit().checkedGet();
-                    } catch (InterruptedException | ExecutionException | ReadFailedException
-                            | TransactionCommitFailedException e) {
+                    } catch (TransactionCommitFailedException e) {
                         LOG.error("Failed to process ", e);
                     }
                 });
@@ -137,13 +133,11 @@ public class NodeConnectedHandler {
      * @param haNodePath Ha node path
      * @param tx  Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     void readAndCopyChildPSOpToHAPS(Node childGlobalNode,
                                     InstanceIdentifier<Node> haNodePath,
                                     ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
 
         if (childGlobalNode == null || childGlobalNode.getAugmentation(HwvtepGlobalAugmentation.class) == null) {
             return;
@@ -168,14 +162,10 @@ public class NodeConnectedHandler {
      * @param srcNode Node which to be transformed
      * @param childPath Path to which source node will be transformed
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     private void copyHANodeConfigToChild(Node srcNode,
                                          InstanceIdentifier<Node> childPath,
-                                         ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+                                         ReadWriteTransaction tx) {
         if (srcNode == null) {
             return;
         }
@@ -200,13 +190,11 @@ public class NodeConnectedHandler {
      * @param haNodePath HA node path
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     private void copyChildOpToHA(Node childNode,
                                  InstanceIdentifier<Node> haNodePath,
                                  ReadWriteTransaction tx)
-            throws ReadFailedException, ExecutionException, InterruptedException {
+            throws ReadFailedException {
         if (childNode == null) {
             return;
         }
@@ -255,14 +243,10 @@ public class NodeConnectedHandler {
      * @param haPsNode HA physical Switch Node
      * @param childPath HA Child Node path
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     public void copyHAPSConfigToChildPS(Node haPsNode,
                                         InstanceIdentifier<Node> childPath,
-                                        ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+                                        ReadWriteTransaction tx) {
         InstanceIdentifier<Node> childPsPath = HwvtepHAUtil.convertPsPath(haPsNode, childPath);
 
         NodeBuilder childPsBuilder = HwvtepHAUtil.getNodeBuilderForPath(childPsPath);
@@ -285,14 +269,12 @@ public class NodeConnectedHandler {
      * @param haPspath Ha Physical Switch Node path
      * @param tx Transaction
      * @throws ReadFailedException  Exception thrown if read fails
-     * @throws ExecutionException  Exception thrown if Execution fail
-     * @throws InterruptedException Thread interrupted Exception
      */
     public void copyChildPSOpToHAPS(Node childPsNode,
                                     InstanceIdentifier<Node> haPath,
                                     InstanceIdentifier<Node> haPspath,
                                     ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException {
+            throws ReadFailedException {
 
         NodeBuilder haPSNodeBuilder = HwvtepHAUtil.getNodeBuilderForPath(haPspath);
         PhysicalSwitchAugmentationBuilder dstBuilder = new PhysicalSwitchAugmentationBuilder();

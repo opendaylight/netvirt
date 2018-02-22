@@ -90,7 +90,7 @@ public class NetworkL2gwDeviceInfoCli extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         List<Node> nodes = new ArrayList<>();
         Set<String> networks = new HashSet<>();
         if (nodeId == null) {

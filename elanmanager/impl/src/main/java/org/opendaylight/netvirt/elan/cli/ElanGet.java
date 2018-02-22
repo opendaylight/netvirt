@@ -31,7 +31,7 @@ public class ElanGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing Get ElanInstance command" + "\t" + elanName +  "\t");
         if (elanName != null) {
             ElanInstance elanInstance = elanProvider.getElanInstance(elanName);
