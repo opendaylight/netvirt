@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 public class DhcpPortCache {
 
     private static final Logger LOG = LoggerFactory.getLogger(DhcpPortCache.class);
-    private final ConcurrentHashMap<String, Port> portMap = new ConcurrentHashMap<String, Port>();
+    private final ConcurrentHashMap<String, Port> portMap = new ConcurrentHashMap<>();
 
     @PostConstruct
     public void init() {
