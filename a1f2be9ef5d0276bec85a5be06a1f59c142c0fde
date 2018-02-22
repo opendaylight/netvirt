@@ -46,6 +46,30 @@
       "revId": "a1f2be9ef5d0276bec85a5be06a1f59c142c0fde",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "27dea721_521a6dea",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpUtil.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 649
+      },
+      "writtenOn": "2018-02-22T18:40:10Z",
+      "side": 1,
+      "message": "Fair enough -- must be my infra muscle memory. Every cycle counts :)",
+      "parentUuid": "6b08667e_8c88a071",
+      "range": {
+        "startLine": 104,
+        "startChar": 8,
+        "endLine": 104,
+        "endChar": 39
+      },
+      "revId": "a1f2be9ef5d0276bec85a5be06a1f59c142c0fde",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
