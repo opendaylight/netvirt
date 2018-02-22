@@ -32,7 +32,7 @@ public class NvpnNbrControlPathAlarm extends NotificationBroadcasterSupport impl
 
     private AtomicInteger sequenceNumber = new AtomicInteger(0);
 
-    private ConcurrentMap<String, List<String>> raiseAlarmObjectMap = new ConcurrentHashMap<String, List<String>>();
+    private ConcurrentMap<String, List<String>> raiseAlarmObjectMap = new ConcurrentHashMap<>();
 
     @Override
     public void raiseAlarm(String alarmName, String additionalText, String source, String detailsInfo) {
