@@ -8,6 +8,7 @@
 package org.opendaylight.netvirt.ipv6service.shell;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
@@ -33,12 +34,7 @@ public class ShowIpv6Command extends OsgiCommandSupport {
 
     private String getPortIpv6Addresses(IVirtualPort vport) {
         List<Ipv6Address> ipv6Addresses = vport.getIpv6Addresses();
-        StringBuffer str = new StringBuffer();
-        for (Ipv6Address ipaddr: ipv6Addresses) {
-            str.append(ipaddr.getValue());
-            str.append("  ");
-        }
-        return str.toString();
+        return ipv6Addresses.stream().map(Ipv6Address::getValue).collect(Collectors.joining("  "));
     }
 
     @Override
