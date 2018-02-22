@@ -201,10 +201,8 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
             return;
         }
         int oldRdsCount = originalRds.size();
-        Iterator<String> originalRdsInter = originalRds.iterator();
 
-        while (originalRdsInter.hasNext()) {
-            String rd = originalRdsInter.next();
+        for (String rd : originalRds) {
             //If the existing rd is not present in the updateRds list, not allow to process the updateRDs.
             if (!updateRDs.contains(rd)) {
                 LOG.error("The existing RD {} not present in the updatedRDsList:{}", rd, updateRDs);

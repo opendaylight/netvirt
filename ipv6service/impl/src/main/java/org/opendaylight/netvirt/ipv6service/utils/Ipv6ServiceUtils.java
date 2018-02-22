@@ -163,7 +163,7 @@ public class Ipv6ServiceUtils {
         if (bytes == null) {
             return "null";
         }
-        StringBuffer buf = new StringBuffer();
+        StringBuilder buf = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {
             if (i > 0) {
                 buf.append(":");
@@ -302,7 +302,7 @@ public class Ipv6ServiceUtils {
            3. Use the prefix "FE80::/10" along with the above 64 bit Interface
               identifier to generate the IPv6 LLA. */
 
-        StringBuffer interfaceID = new StringBuffer();
+        StringBuilder interfaceID = new StringBuilder();
         short u8byte = (short) (octets[0] & 0xff);
         u8byte ^= 1 << 1;
         interfaceID.append(Integer.toHexString(0xFF & u8byte));
@@ -361,14 +361,13 @@ public class Ipv6ServiceUtils {
             return null;
         }
 
-        StringBuffer macAddress = new StringBuffer();
-        macAddress.append("33:33:");
-        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[12]), 2, "0") + ":");
-        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":");
-        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0") + ":");
-        macAddress.append(StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0"));
+        String macAddress = "33:33:"
+                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[12]), 2, "0") + ":"
+                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[13]), 2, "0") + ":"
+                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[14]), 2, "0") + ":"
+                + StringUtils.leftPad(Integer.toHexString(0xFF & octets[15]), 2, "0");
 
-        return new MacAddress(macAddress.toString());
+        return new MacAddress(macAddress);
     }
 
     private static List<MatchInfo> getIcmpv6RSMatch(Long elanTag) {

@@ -1179,7 +1179,7 @@ public class NeutronvpnUtils {
            3. Use the prefix "FE80::/10" along with the above 64 bit Interface
               identifier to generate the IPv6 LLA. */
 
-        StringBuffer interfaceID = new StringBuffer();
+        StringBuilder interfaceID = new StringBuilder();
         short u8byte = (short) (octets[0] & 0xff);
         u8byte ^= 1 << 1;
         interfaceID.append(Integer.toHexString(0xFF & u8byte));
@@ -1346,7 +1346,7 @@ public class NeutronvpnUtils {
      */
     public static IpVersionChoice getIpVersionFromString(String ipAddress) {
         IpVersionChoice ipchoice = IpVersionChoice.UNDEFINED;
-        if (ipAddress.indexOf("/") >= 0) {
+        if (ipAddress.contains("/")) {
             ipAddress = ipAddress.substring(0, ipAddress.indexOf("/"));
         }
         try {

@@ -219,9 +219,8 @@ public final class FibHelper {
      * @return true if the param subnet contained the prefixToTest false otherwise
      */
     public static boolean doesPrefixBelongToSubnet(String prefixToTest, String subnet, boolean exactMatch) {
-        boolean rep = false;
         if (prefixToTest == null || prefixToTest.length() < 7 || subnet == null || subnet.length() < 7) {
-            return rep;
+            return false;
         }
         if (isIpv4Prefix(prefixToTest) && isIpv4Prefix(subnet)
                 || isIpv6Prefix(prefixToTest) && isIpv6Prefix(subnet)) {
@@ -234,8 +233,8 @@ public final class FibHelper {
             String ipPref = getIpFromPrefix(prefixToTest);
             String ipSub = getIpFromPrefix(subnet);
             String maskSubString = subnet.substring(subnet.indexOf("/") + 1);
-            String maskPrefString = null;
-            if (prefixToTest.indexOf("/") > -1) {
+            String maskPrefString;
+            if (prefixToTest.contains("/")) {
                 maskPrefString = prefixToTest.substring(prefixToTest.indexOf("/") + 1);
             } else if (ipVersion == 4) {
                 maskPrefString = "32";
@@ -243,31 +242,25 @@ public final class FibHelper {
                 maskPrefString = "128";
             }
 
-            int maskPref = -1;
-            int maskSub = -1;
             try {
-                maskPref = Integer.parseInt(maskPrefString);
-                maskSub = Integer.parseInt(maskSubString);
+                int maskPref = Integer.parseInt(maskPrefString);
+                int maskSub = Integer.parseInt(maskSubString);
                 if (exactMatch && maskPref != maskSub) {
                  /*because the mask must be exactly the same between them, the return type is false. This behavior could
                   * be changed to ignored it in including a boolean options to force or not the same mask control*/
-                    rep = false;
-                    return rep;
+                    return false;
                 }
                 BigInteger maskSubBig = getMaskNetwork(ipVersion, maskSub);
                 byte[] byteIpSub = InetAddress.getByName(ipSub).getAddress();
                 byte[] byteIpPref = InetAddress.getByName(ipPref).getAddress();
                 BigInteger netFromIpSub = packBigInteger(byteIpSub).and(maskSubBig);
                 BigInteger netFromIpPref = packBigInteger(byteIpPref).and(maskSubBig);
-                if (netFromIpSub.compareTo(netFromIpPref) == 0) {
-                    rep = true;
-                }
+                return netFromIpSub.compareTo(netFromIpPref) == 0;
             } catch (NumberFormatException | UnknownHostException e) {
-                return rep;
+                return false;
             }
-            return rep;
         }
-        return rep;
+        return false;
     }
 
     /**This method converts a byte[] to a BigInteger value.
