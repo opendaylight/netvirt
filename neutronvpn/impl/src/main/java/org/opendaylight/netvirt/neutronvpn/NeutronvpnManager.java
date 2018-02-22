@@ -217,7 +217,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
