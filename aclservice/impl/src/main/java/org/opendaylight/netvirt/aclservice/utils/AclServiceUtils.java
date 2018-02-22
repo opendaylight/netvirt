@@ -13,6 +13,8 @@ import com.google.common.collect.Lists;
 import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -1457,4 +1459,39 @@ public final class AclServiceUtils {
         return instructions;
     }
 
+    public static List<AllowedAddressPairs> excludeMulticastAAPs(List<AllowedAddressPairs> allowedAddresses) {
+        List<AllowedAddressPairs> filteredAAPs = new ArrayList<>();
+        for (AllowedAddressPairs allowedAddress : allowedAddresses) {
+            InetAddress inetAddr = getInetAddress(allowedAddress.getIpAddress());
+            if (inetAddr != null && !inetAddr.isMulticastAddress()) {
+                filteredAAPs.add(allowedAddress);
+            }
+        }
+        return filteredAAPs;
+    }
+
+    private static InetAddress getInetAddress(IpPrefixOrAddress ipPrefixOrAddress) {
+        InetAddress inetAddress = null;
+        String addr = null;
+
+        IpPrefix ipPrefix = ipPrefixOrAddress.getIpPrefix();
+        if (ipPrefix != null) {
+            addr = String.valueOf(ipPrefix.getValue()).split("/")[0];
+        } else {
+            IpAddress ipAddress = ipPrefixOrAddress.getIpAddress();
+            if (ipAddress == null) {
+                LOG.error("Invalid address : {}", ipPrefixOrAddress);
+                return null;
+            } else {
+                addr = String.valueOf(ipAddress.getValue());
+            }
+        }
+        try {
+            inetAddress = InetAddress.getByName(addr);
+        } catch (UnknownHostException e) {
+            LOG.error("Invalid address : {}", addr, e.getMessage());
+            return null;
+        }
+        return inetAddress;
+    }
 }
