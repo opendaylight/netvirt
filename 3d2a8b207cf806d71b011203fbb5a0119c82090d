@@ -16,6 +16,24 @@
       "revId": "3d2a8b207cf806d71b011203fbb5a0119c82090d",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cf3a0c78_2049fdea",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/listeners/AclInterfaceListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 128,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-02-22T06:26:18Z",
+      "side": 1,
+      "message": "Yes, the order of events are not guaranteed, hence handled it now in all ACL listeners.",
+      "parentUuid": "324f66ba_7933fe4f",
+      "revId": "3d2a8b207cf806d71b011203fbb5a0119c82090d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
