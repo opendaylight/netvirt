@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
@@ -59,10 +60,12 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
     private final IElanService elanManager;
 
     public VxlanGreConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager,
-            ItmRpcService itmManager, OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
-            NAPTSwitchSelector naptSwitchSelector,
-            ExternalRoutersListener externalRouterListener, IElanService elanManager) {
-        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector);
+                                             ItmRpcService itmManager, OdlInterfaceRpcService odlInterfaceRpcService,
+                                             IdManagerService idManager, NAPTSwitchSelector naptSwitchSelector,
+                                             ExternalRoutersListener externalRouterListener, IElanService elanManager,
+                                             IInterfaceManager interfaceManager) {
+        super(dataBroker, mdsalManager, itmManager, idManager, naptSwitchSelector, odlInterfaceRpcService,
+                interfaceManager);
         this.externalRouterListener = externalRouterListener;
         this.elanManager = elanManager;
     }
@@ -300,7 +303,8 @@ public class VxlanGreConntrackBasedSnatService extends ConntrackBasedSnatService
         List<BucketInfo> listBucketInfo = new ArrayList<>();
         if (ifNamePrimary != null) {
             LOG.debug("installSnatMissEntry : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
+                    interfaceManager, ifNamePrimary, routerId);
         }
         BucketInfo bucketPrimary = new BucketInfo(listActionInfoPrimary);
         listBucketInfo.add(0, bucketPrimary);

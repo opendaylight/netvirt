@@ -38,6 +38,7 @@ import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
@@ -149,7 +150,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalManager;
     private final ItmRpcService itmManager;
-    private final OdlInterfaceRpcService interfaceManager;
+    private final OdlInterfaceRpcService odlInterfaceRpcService;
     private final IdManagerService idManager;
     private final NaptManager naptManager;
     private final NAPTSwitchSelector naptSwitchSelector;
@@ -168,11 +169,12 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
     private final IElanService elanManager;
     private final JobCoordinator coordinator;
     private final UpgradeState upgradeState;
+    private final IInterfaceManager interfaceManager;
 
     @Inject
     public ExternalRoutersListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                    final ItmRpcService itmManager,
-                                   final OdlInterfaceRpcService interfaceManager,
+                                   final OdlInterfaceRpcService odlInterfaceRpcService,
                                    final IdManagerService idManager,
                                    final NaptManager naptManager,
                                    final NAPTSwitchSelector naptSwitchSelector,
@@ -190,12 +192,13 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                    final NatserviceConfig config,
                                    final IElanService elanManager,
                                    final JobCoordinator coordinator,
-                                   final UpgradeState upgradeState) {
+                                   final UpgradeState upgradeState,
+                                   final IInterfaceManager interfaceManager) {
         super(Routers.class, ExternalRoutersListener.class);
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
-        this.interfaceManager = interfaceManager;
+        this.odlInterfaceRpcService = odlInterfaceRpcService;
         this.idManager = idManager;
         this.naptManager = naptManager;
         this.naptSwitchSelector = naptSwitchSelector;
@@ -213,6 +216,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         this.centralizedSwitchScheduler = centralizedSwitchScheduler;
         this.coordinator = coordinator;
         this.upgradeState = upgradeState;
+        this.interfaceManager = interfaceManager;
         if (config != null) {
             this.natMode = config.getNatMode();
         } else {
@@ -840,7 +844,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
 
         if (ifNamePrimary != null) {
             LOG.debug("handleSwitches : On Non- Napt switch , Primary Tunnel interface is {}", ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
+                    interfaceManager, ifNamePrimary, routerId);
             if (listActionInfoPrimary.isEmpty()) {
                 LOG.error("handleSwitches : Unable to retrieve output actions on Non-NAPT switch {} for router {}"
                         + " towards Napt-switch {} via tunnel interface {}", dpnId, routerName, primarySwitchId,
@@ -865,7 +870,8 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         if (ifNamePrimary != null) {
             LOG.debug("getBucketInfoForNonNaptSwitches : On Non- Napt switch , Primary Tunnel interface is {}",
                     ifNamePrimary);
-            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(interfaceManager, ifNamePrimary, routerId);
+            listActionInfoPrimary = NatUtil.getEgressActionsForInterface(odlInterfaceRpcService, itmManager,
+                    interfaceManager, ifNamePrimary, routerId);
             if (listActionInfoPrimary.isEmpty()) {
                 LOG.error("getBucketInfoForNonNaptSwitches : Unable to retrieve output actions on Non-NAPT switch {} "
                         + "for router {} towards Napt-switch {} via tunnel interface {}",
