@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5eb516e4_563ae2bf",
+        "filename": "vpnmanager/api/src/main/yang/odl-l3vpn.yang",
+        "patchSetId": 17
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-02-22T10:14:43Z",
+      "side": 1,
+      "message": "can you reuse the subnet-gateway-mac-address attribute?",
+      "range": {
+        "startLine": 55,
+        "startChar": 12,
+        "endLine": 55,
+        "endChar": 44
+      },
+      "revId": "680f5ddff66cd4c25c55c8802053c04ffc20565a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
