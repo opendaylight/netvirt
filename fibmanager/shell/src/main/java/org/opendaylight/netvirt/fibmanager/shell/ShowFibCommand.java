@@ -73,7 +73,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
         if (prefixOrSubnetOption != null && prefixOrSubnetOption.length() > 0) {
             prefixOrSubnet = prefixOrSubnetOption.replace("[", "");
             prefixOrSubnet = prefixOrSubnet.replace("]", "");
-            if (prefixOrSubnet.indexOf("/") < 0) {
+            if (!prefixOrSubnet.contains("/")) {
                 String maskFull = null;
                 try {
                     Inet4Address tempAdd = (Inet4Address) InetAddress.getByName(prefixOrSubnet);
