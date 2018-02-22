@@ -954,8 +954,7 @@ public class ElanUtils {
 
     private void setupEtreeRemoteDmacFlow(BigInteger srcDpId, BigInteger destDpId, long lportTagOrVni, long elanTag,
                                           String macAddress, String displayName, String interfaceName,
-                                          WriteTransaction writeFlowGroupTx, ElanInstance elanInstance)
-                                          throws ElanException {
+                                          WriteTransaction writeFlowGroupTx, ElanInstance elanInstance) {
         Flow flowEntity;
         EtreeInterface etreeInterface = elanInterfaceCache.getEtreeInterface(interfaceName).orNull();
         if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
@@ -992,11 +991,10 @@ public class ElanUtils {
      * @param elanInstance
      *            elanInstance
      * @return the flow remote Dmac
-     * @throws ElanException in case of issues creating the flow objects
      */
     @SuppressWarnings("checkstyle:IllegalCatch")
     public Flow buildRemoteDmacFlowEntry(BigInteger srcDpId, BigInteger destDpId, long lportTagOrVni, long elanTag,
-            String macAddress, String displayName, ElanInstance elanInstance) throws ElanException {
+            String macAddress, String displayName, ElanInstance elanInstance) {
         List<MatchInfo> mkMatches = new ArrayList<>();
         mkMatches.add(new MatchMetadata(ElanHelper.getElanMetadataLabel(elanTag), MetaDataUtil.METADATA_MASK_SERVICE));
         mkMatches.add(new MatchEthernetDestination(new MacAddress(macAddress)));

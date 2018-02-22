@@ -33,7 +33,7 @@ public class ElanMacTableGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing updating ElanInterface command" + "\t");
         Collection<MacEntry> macTables = elanProvider.getElanMacTable(elanName);
         if (!macTables.isEmpty()) {

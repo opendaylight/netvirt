@@ -32,7 +32,7 @@ public class EtreeAdd extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         if (macTimeOut == -1) {
             macTimeOut = 30;
         }

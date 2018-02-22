@@ -36,7 +36,7 @@ public class ElanInterfaceAdd extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
                 + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
         elanProvider.addElanInterface(elanName, interfaceName, staticMacAddresses, elanInterfaceDescr);

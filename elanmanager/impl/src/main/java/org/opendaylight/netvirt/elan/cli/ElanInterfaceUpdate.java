@@ -36,7 +36,7 @@ public class ElanInterfaceUpdate extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing updating ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
                 + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
         elanProvider.updateElanInterface(elanName, interfaceName, staticMacAddresses, elanInterfaceDescr);

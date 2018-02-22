@@ -38,25 +38,25 @@ public interface IHAEventHandler {
                                            Node origSrcNode,
                                            InstanceIdentifier<Node> haPath,
                                            DataObjectModification<Node> mod,
-                                           ReadWriteTransaction tx) throws ReadFailedException;
+                                           ReadWriteTransaction tx);
 
     void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
                                        Node origSrcPSNode,
                                        InstanceIdentifier<Node> haPath,
                                        DataObjectModification<Node> mod,
-                                       ReadWriteTransaction tx) throws ReadFailedException;
+                                       ReadWriteTransaction tx);
 
     void copyHAPSUpdateToChild(Node haUpdated,
                                Node haOriginal,
                                InstanceIdentifier<Node> haChildPath,
                                DataObjectModification<Node> mod,
                                ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException;
+            ;
 
     void copyHAGlobalUpdateToChild(Node haUpdated,
                                    Node haOriginal,
                                    InstanceIdentifier<Node> haChildPath,
                                    DataObjectModification<Node> mod,
                                    ReadWriteTransaction tx)
-            throws InterruptedException, ExecutionException, ReadFailedException;
+            ;
 }

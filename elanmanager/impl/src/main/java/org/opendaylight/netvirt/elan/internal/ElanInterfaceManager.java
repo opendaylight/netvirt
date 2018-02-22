@@ -1508,7 +1508,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
     }
 
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void handleInternalTunnelStateEvent(BigInteger srcDpId, BigInteger dstDpId) throws ElanException {
+    public void handleInternalTunnelStateEvent(BigInteger srcDpId, BigInteger dstDpId) {
         ElanDpnInterfaces dpnInterfaceLists = elanUtils.getElanDpnInterfacesList();
         LOG.trace("processing tunnel state event for srcDpId {} dstDpId {}"
                 + " and dpnInterfaceList {}", srcDpId, dstDpId, dpnInterfaceLists);

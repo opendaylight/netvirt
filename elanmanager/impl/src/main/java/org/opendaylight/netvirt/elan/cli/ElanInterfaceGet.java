@@ -38,7 +38,7 @@ public class ElanInterfaceGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing Get ElanInterface command for the corresponding Elan Instance"
                 + "\t" + elanName + "\t");
         if (elanName != null) {

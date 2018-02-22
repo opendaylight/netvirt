@@ -69,7 +69,7 @@ public class AssociateHwvtepToElanJob implements Callable<List<ListenableFuture<
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         String hwvtepNodeId = l2GatewayDevice.getHwvtepNodeId();
         String elanInstanceName = elanInstance.getElanInstanceName();
         LOG.debug("running assosiate l2gw connection job for {} {} ", elanInstanceName, hwvtepNodeId);

@@ -9,7 +9,6 @@ package org.opendaylight.netvirt.elan.l2gw.ha.handlers;
 
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalNodeMerger;
@@ -35,13 +34,12 @@ public class OpNodeUpdatedHandler {
      * @param haPath HA node path
      * @param mod the data object modification
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
      */
     public void copyChildPsOpUpdateToHAParent(Node updatedSrcPSNode,
                                               Node origSrcPSNode,
                                               InstanceIdentifier<Node> haPath,
                                               DataObjectModification<Node> mod,
-                                              ReadWriteTransaction tx) throws ReadFailedException {
+                                              ReadWriteTransaction tx) {
 
         InstanceIdentifier<Node> haPSPath = HwvtepHAUtil.convertPsPath(updatedSrcPSNode, haPath);
 
@@ -58,13 +56,12 @@ public class OpNodeUpdatedHandler {
      * @param haPath HA node path
      * @param mod the data object modification
      * @param tx Transaction
-     * @throws ReadFailedException  Exception thrown if read fails
      */
     public void copyChildGlobalOpUpdateToHAParent(Node updatedSrcNode,
                                                   Node origSrcNode,
                                                   InstanceIdentifier<Node> haPath,
                                                   DataObjectModification<Node> mod,
-                                                  ReadWriteTransaction tx) throws ReadFailedException {
+                                                  ReadWriteTransaction tx) {
 
         globalAugmentationMerger.mergeOpUpdate(haPath,
                 mod.getModifiedAugmentation(HwvtepGlobalAugmentation.class), tx);

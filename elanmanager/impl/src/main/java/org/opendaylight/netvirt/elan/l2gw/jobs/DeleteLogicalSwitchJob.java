@@ -66,7 +66,7 @@ public class DeleteLogicalSwitchJob implements Callable<List<ListenableFuture<Vo
     }
 
     @Override
-    public List<ListenableFuture<Void>> call() throws Exception {
+    public List<ListenableFuture<Void>> call() {
         if (cancelled) {
             LOG.info("Delete logical switch job cancelled ");
             return Collections.emptyList();

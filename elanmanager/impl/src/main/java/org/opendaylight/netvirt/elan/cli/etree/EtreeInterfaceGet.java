@@ -40,7 +40,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance" + "\t" + etreeName
                 + "\t");
         if (etreeName != null) {

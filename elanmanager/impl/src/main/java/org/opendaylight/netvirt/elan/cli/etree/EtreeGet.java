@@ -32,7 +32,7 @@ public class EtreeGet extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("Executing Get EtreeInstance command" + "\t" + etreeName + "\t");
         if (etreeName != null) {
             ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
