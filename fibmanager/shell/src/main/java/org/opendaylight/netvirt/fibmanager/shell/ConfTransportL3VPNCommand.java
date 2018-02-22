@@ -31,7 +31,7 @@ public class ConfTransportL3VPNCommand extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
 
         if (service == null || service.isEmpty() || !"L3VPN".equalsIgnoreCase(service)) {
             session.getConsole().println("Please provide valid input for service ");

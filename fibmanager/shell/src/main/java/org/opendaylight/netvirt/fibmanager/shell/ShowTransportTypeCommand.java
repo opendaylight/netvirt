@@ -20,7 +20,7 @@ public class ShowTransportTypeCommand extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         String displayFormat = "%-16s %-16s";
         String cacheVal = fibManager.getReqTransType();
         session.getConsole().println(String.format(displayFormat, "Service Name", "Transport Type"));

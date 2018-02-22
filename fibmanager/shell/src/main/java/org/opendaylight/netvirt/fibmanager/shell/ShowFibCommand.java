@@ -68,7 +68,7 @@ public class ShowFibCommand extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         PrintStream console = session.getConsole();
         if (prefixOrSubnetOption != null && prefixOrSubnetOption.length() > 0) {
             prefixOrSubnet = prefixOrSubnetOption.replace("[", "");
