@@ -71,7 +71,7 @@ public class Misc extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         if (spt == null && file == null && level == null) {
             return usage();
         }

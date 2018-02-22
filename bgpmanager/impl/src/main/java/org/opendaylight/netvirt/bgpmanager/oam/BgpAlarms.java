@@ -8,7 +8,6 @@
 
 package org.opendaylight.netvirt.bgpmanager.oam;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,37 +53,33 @@ public class BgpAlarms implements Runnable, AutoCloseable {
     @Override
     public void run() {
         List<Neighbors> nbrList = null;
-        try {
-            LOG.debug("Fetching neighbor status' from BGP");
-            BgpCounters.resetFile(BgpCounters.BGP_VPNV4_SUMMARY_FILE);
-            BgpCounters.resetFile(BgpCounters.BGP_VPNV6_SUMMARY_FILE);
-            BgpCounters.resetFile(BgpCounters.BGP_EVPN_SUMMARY_FILE);
-            Map<String, String> neighborStatusMap = new HashMap<>();
+        LOG.debug("Fetching neighbor status' from BGP");
+        BgpCounters.resetFile(BgpCounters.BGP_VPNV4_SUMMARY_FILE);
+        BgpCounters.resetFile(BgpCounters.BGP_VPNV6_SUMMARY_FILE);
+        BgpCounters.resetFile(BgpCounters.BGP_EVPN_SUMMARY_FILE);
+        Map<String, String> neighborStatusMap = new HashMap<>();
 
-            if (bgpMgr.getBgpCounters() != null) {
-                bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV4_SUMMARY_FILE,
-                        "show ip bgp vpnv4 all summary");
-                if (bgpMgr.getConfig() != null) {
-                    nbrList = bgpMgr.getConfig().getNeighbors();
-                }
-                BgpCounters.parseIpBgpVpnv4AllSummary(neighborStatusMap);
-
-                bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV6_SUMMARY_FILE,
-                        "show ip bgp vpnv6 all summary");
-
-                BgpCounters.parseIpBgpVpnv6AllSummary(neighborStatusMap);
-
-                bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_EVPN_SUMMARY_FILE,
-                        "show bgp l2vpn evpn all summary");
-
-                BgpCounters.parseBgpL2vpnEvpnAllSummary(neighborStatusMap);
-
-                processNeighborStatusMap(neighborStatusMap, nbrList);
+        if (bgpMgr.getBgpCounters() != null) {
+            bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV4_SUMMARY_FILE,
+                    "show ip bgp vpnv4 all summary");
+            if (bgpMgr.getConfig() != null) {
+                nbrList = bgpMgr.getConfig().getNeighbors();
             }
-            LOG.debug("Finished getting the status of BGP neighbors");
-        } catch (IOException e) {
-            LOG.error("Failed to publish bgp counters ", e);
+            BgpCounters.parseIpBgpVpnv4AllSummary(neighborStatusMap);
+
+            bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_VPNV6_SUMMARY_FILE,
+                    "show ip bgp vpnv6 all summary");
+
+            BgpCounters.parseIpBgpVpnv6AllSummary(neighborStatusMap);
+
+            bgpMgr.getBgpCounters().fetchCmdOutputs(BgpCounters.BGP_EVPN_SUMMARY_FILE,
+                    "show bgp l2vpn evpn all summary");
+
+            BgpCounters.parseBgpL2vpnEvpnAllSummary(neighborStatusMap);
+
+            processNeighborStatusMap(neighborStatusMap, nbrList);
         }
+        LOG.debug("Finished getting the status of BGP neighbors");
     }
 
     private void processNeighborStatusMap(Map<String, String> nbrStatusMap, List<Neighbors> nbrs) {

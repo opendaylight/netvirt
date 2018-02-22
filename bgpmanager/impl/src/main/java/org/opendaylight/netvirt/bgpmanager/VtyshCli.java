@@ -61,7 +61,7 @@ public class VtyshCli extends OsgiCommandSupport {
     };
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         int handlerModule = 0;
         cmd = cmd.trim();
         if (cmd.equals("") || cmd.equals("help") || cmd.equals("-help") || cmd.equals("--help")) {

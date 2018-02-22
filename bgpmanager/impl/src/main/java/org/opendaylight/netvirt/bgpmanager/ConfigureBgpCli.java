@@ -14,7 +14,6 @@ import java.util.List;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.apache.thrift.TException;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.protocol_type;
@@ -115,48 +114,44 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() throws Exception {
-        try {
-            if (op == null) {
-                session.getConsole().println("Please provide valid operation");
+        if (op == null) {
+            session.getConsole().println("Please provide valid operation");
+            usage();
+            session.getConsole().println(
+                    "exec configure-bgp -op [start-bgp-server | stop-bgp-server | add-neighbor | delete-neighbor|"
+                            + " add-route | delete-route | graceful-restart| enable-log ]");
+        }
+        switch (op) {
+            case "start-bgp-server":
+                startBgp();
+                break;
+            case "stop-bgp-server":
+                stopBgp();
+                break;
+            case "add-neighbor":
+                addNeighbor();
+                break;
+            case "delete-neighbor":
+                deleteNeighbor();
+                break;
+            case "add-route":
+                addRoute();
+                break;
+            case "delete-route":
+                deleteRoute();
+                break;
+            case "graceful-restart":
+                configureGR();
+                break;
+            case "enable-log":
+                enableBgpLogLevel();
+                break;
+            default:
+                session.getConsole().println("invalid operation");
                 usage();
                 session.getConsole().println(
-                        "exec configure-bgp -op [start-bgp-server | stop-bgp-server | add-neighbor | delete-neighbor|"
-                                + " add-route | delete-route | graceful-restart| enable-log ]");
-            }
-            switch (op) {
-                case "start-bgp-server":
-                    startBgp();
-                    break;
-                case "stop-bgp-server":
-                    stopBgp();
-                    break;
-                case "add-neighbor":
-                    addNeighbor();
-                    break;
-                case "delete-neighbor":
-                    deleteNeighbor();
-                    break;
-                case "add-route":
-                    addRoute();
-                    break;
-                case "delete-route":
-                    deleteRoute();
-                    break;
-                case "graceful-restart":
-                    configureGR();
-                    break;
-                case "enable-log":
-                    enableBgpLogLevel();
-                    break;
-                default:
-                    session.getConsole().println("invalid operation");
-                    usage();
-                    session.getConsole().println(
-                            "exec configure-bgp -op [start-bgp-server | stop-bgp-server | add-neighbor | "
-                                    + "delete-neighbor| graceful-restart| enable-log ]");
-            }
-        } catch (TException e) {
-            log.error("failed to handle the command", e);
+                        "exec configure-bgp -op [start-bgp-server | stop-bgp-server | add-neighbor | "
+                                + "delete-neighbor| graceful-restart| enable-log ]");
         }
         return null;
     }
@@ -177,7 +172,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         return true;
     }
 
-    private void configureGR() throws TException {
+    private void configureGR() {
         boolean validStalepathTime = validateStalepathTime();
         if (!validStalepathTime) {
             return;
@@ -185,7 +180,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         bgpManager.configureGR(Integer.parseInt(stalePathTime));
     }
 
-    private void deleteNeighbor() throws TException {
+    private void deleteNeighbor() {
         if (ip == null || !validateIp(ip)) {
             session.getConsole().println("invalid neighbor ip");
             printDeleteNeighborHelp();
@@ -295,7 +290,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 stalePathTime == null ? 0 : Integer.parseInt(stalePathTime), false);
     }
 
-    protected void addNeighbor() throws TException {
+    protected void addNeighbor() {
         if (!validateAsNumber(asNumber)) {
             printAddNeighborHelp();
             return;
@@ -370,12 +365,12 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         }
     }
 
-    protected void addRoute() throws Exception {
+    protected void addRoute() {
         bgpConfigurationManager.onUpdatePushRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
                 0, nexthop, 0, null, mac, l3vni, l2vni, null, null);
     }
 
-    protected void deleteRoute() throws Exception {
+    protected void deleteRoute() {
         bgpConfigurationManager.onUpdateWithdrawRoute(protocol_type.PROTOCOL_EVPN, rd, prefix,
                 0, nexthop, mac);
     }
