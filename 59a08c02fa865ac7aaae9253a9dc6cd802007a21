@@ -1,0 +1,187 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "37899490_38f0ee41",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "Avoid instantiating this on the success path.",
+      "range": {
+        "startLine": 825,
+        "startChar": 15,
+        "endLine": 825,
+        "endChar": 21
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ae860072_fd5d6312",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "Should log the RpcResult error(s).",
+      "range": {
+        "startLine": 830,
+        "startChar": 20,
+        "endLine": 830,
+        "endChar": 25
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9dbdf8cb_0326e605",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "Don\u0027t throw uncheck ex - propagate the checked exceptions or return a result boolean.",
+      "range": {
+        "startLine": 835,
+        "startChar": 22,
+        "endLine": 835,
+        "endChar": 38
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "559e596d_875dc923",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "Again propagate checked exceptions or return a boolean.",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "01731a40_e2afb292",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "Why 7 sec? seems like a long time.",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9fec81f9_bc7b2537",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "Why are catching NPE? should never need to catch this.",
+      "range": {
+        "startLine": 415,
+        "startChar": 21,
+        "endLine": 415,
+        "endChar": 41
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b27b4a1a_a85d8cec",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "again shouldn\u0027t catch NullPointerException",
+      "range": {
+        "startLine": 581,
+        "startChar": 17,
+        "endLine": 581,
+        "endChar": 37
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "88812a45_8caf8ae0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronRouterChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "Why an arbitrary 2 sec sleep? looks like a hack...",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ed75207_9110a35f",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/pom.xml",
+        "patchSetId": 15
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-22T18:41:41Z",
+      "side": 1,
+      "message": "This file shouldn\u0027t be checked in - it was already deleted.",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
