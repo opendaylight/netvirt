@@ -1991,6 +1991,12 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                     vpnId, routeList);
             return;
         }
+        String primaryRd = neutronvpnUtils.getVpnRd(vpnId.getValue());
+        if (primaryRd == null || primaryRd.equals(vpnId.getValue())) {
+            LOG.debug("checkAlarmExtraRoutes. vpn {} is not a BGPVPN. cancel checkExtraRoute",
+                    vpnId);
+            return;
+        }
         List<Routes> routesError = new ArrayList();
         for (Routes route : routeList) {
             // count  the number of nexthops for each same route.getDestingation().getValue()
