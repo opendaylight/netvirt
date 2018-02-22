@@ -24,7 +24,7 @@ public class Ipv6PeriodicTrQueue implements AutoCloseable {
 
     private final Consumer<Uuid> onMessage;
     private final ConcurrentLinkedQueue<Uuid> ipv6PeriodicQueue = new ConcurrentLinkedQueue<>();
-    private final Thread transmitterThread = new Thread(() -> threadRunLoop());
+    private final Thread transmitterThread = new Thread(this::threadRunLoop);
     private final ReentrantLock queueLock = new ReentrantLock();
     private final Condition queueCondition = queueLock.newCondition();
     private volatile boolean closed;

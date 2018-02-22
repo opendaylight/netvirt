@@ -72,11 +72,9 @@ public class HwvtepPhysicalSwitchListener
     private static final Logger LOG = LoggerFactory.getLogger(HwvtepPhysicalSwitchListener.class);
 
     private static final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> DEVICE_NOT_CACHED_OR_PARENT_CONNECTED =
-        (l2GatewayDevice, globalIid) -> {
-            return l2GatewayDevice == null || l2GatewayDevice.getHwvtepNodeId() == null
-                    || !Objects.equals(l2GatewayDevice.getHwvtepNodeId(),
-                            globalIid.firstKeyOf(Node.class).getNodeId().getValue());
-        };
+        (l2GatewayDevice, globalIid) -> l2GatewayDevice == null || l2GatewayDevice.getHwvtepNodeId() == null
+                || !Objects.equals(l2GatewayDevice.getHwvtepNodeId(),
+                        globalIid.firstKeyOf(Node.class).getNodeId().getValue());
 
     private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_AVAILABLE =
         phySwitch -> !HwvtepHAUtil.isEmpty(phySwitch.getTunnelIps());
@@ -84,11 +82,9 @@ public class HwvtepPhysicalSwitchListener
     private static final Predicate<PhysicalSwitchAugmentation> TUNNEL_IP_NOT_AVAILABLE = TUNNEL_IP_AVAILABLE.negate();
 
     private static final BiPredicate<PhysicalSwitchAugmentation, L2GatewayDevice> TUNNEL_IP_CHANGED =
-        (phySwitchAfter, existingDevice) -> {
-            return TUNNEL_IP_AVAILABLE.test(phySwitchAfter)
-                    && !Objects.equals(
-                            existingDevice.getTunnelIp(),  phySwitchAfter.getTunnelIps().get(0).getTunnelIpsKey());
-        };
+        (phySwitchAfter, existingDevice) -> TUNNEL_IP_AVAILABLE.test(phySwitchAfter)
+                && !Objects.equals(
+                        existingDevice.getTunnelIp(),  phySwitchAfter.getTunnelIps().get(0).getTunnelIpsKey());
 
     /** The data broker. */
     private final DataBroker dataBroker;
@@ -113,9 +109,7 @@ public class HwvtepPhysicalSwitchListener
         };
 
     private final Predicate<L2GatewayDevice> alreadyHasL2Gwids =
-        (l2GwDevice) -> {
-            return l2GwDevice != null && HwvtepHAUtil.isEmpty(l2GwDevice.getL2GatewayIds());
-        };
+        (l2GwDevice) -> l2GwDevice != null && HwvtepHAUtil.isEmpty(l2GwDevice.getL2GatewayIds());
 
     private final BiPredicate<L2GatewayDevice, InstanceIdentifier<Node>> parentConnectedAfterChild =
         (l2GwDevice, globalIid) -> {
@@ -322,14 +316,8 @@ public class HwvtepPhysicalSwitchListener
             }
 
             handleAdd(l2GwDevice);
-            elanClusterUtils.runOnlyInOwnerNode("Update config tunnels IP ", () -> {
-                try {
-                    updateConfigTunnelIp(identifier, phySwitchAdded);
-                } catch (ReadFailedException e) {
-                    LOG.error("Failed to update tunnel ips {}", identifier);
-                }
-            });
-            return;
+            elanClusterUtils.runOnlyInOwnerNode("Update config tunnels IP ",
+                () -> updateConfigTunnelIp(identifier, phySwitchAdded));
         });
     }
 
@@ -409,7 +397,7 @@ public class HwvtepPhysicalSwitchListener
     }
 
     private void updateConfigTunnelIp(InstanceIdentifier<PhysicalSwitchAugmentation> identifier,
-                                      PhysicalSwitchAugmentation phySwitchAdded) throws ReadFailedException {
+                                      PhysicalSwitchAugmentation phySwitchAdded) {
         if (phySwitchAdded.getTunnelIps() != null) {
             ListenableFutures.addErrorLogging(
                 txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
