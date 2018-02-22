@@ -470,7 +470,7 @@ public final class BgpRouter {
         dispatch(bop);
     }
 
-    public int initRibSync(BgpSyncHandle handle) throws TException, BgpRouterException {
+    public int initRibSync(BgpSyncHandle handle) throws BgpRouterException {
         if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
         }
@@ -481,7 +481,7 @@ public final class BgpRouter {
         return 0;
     }
 
-    public int endRibSync(BgpSyncHandle handle) throws TException, BgpRouterException {
+    public int endRibSync(BgpSyncHandle handle) throws BgpRouterException {
         if (bgpClient == null) {
             throw new BgpRouterException(BgpRouterException.BGP_ERR_NOT_INITED);
         }

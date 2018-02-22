@@ -69,25 +69,21 @@ public class BgpCounters implements Runnable, AutoCloseable {
 
     @Override
     public void run() {
-        try {
-            LOG.debug("Fetching counters from BGP");
-            resetCounters();
-            fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
-            fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
-            fetchCmdOutputs(BGP_VPNV4_FILE, "show ip bgp vpnv4 all");
-            fetchCmdOutputs(BGP_VPNV6_FILE, "show ip bgp vpnv6 all");
-            fetchCmdOutputs(BGP_EVPN_FILE, "show bgp l2vpn evpn all");
-            parseIpBgpSummary();
-            parseIpBgpVpnv4All();
-            parseIpBgpVpnv6All();
-            parseBgpL2vpnEvpnAll();
-            LOG.debug("Finished updating the counters from BGP");
-        } catch (IOException e) {
-            LOG.error("Failed to publish bgp counters ", e);
-        }
+        LOG.debug("Fetching counters from BGP");
+        resetCounters();
+        fetchCmdOutputs("cmd_ip_bgp_summary.txt", "show ip bgp summary");
+        fetchCmdOutputs("cmd_bgp_ipv4_unicast_statistics.txt", "show bgp ipv4 unicast statistics");
+        fetchCmdOutputs(BGP_VPNV4_FILE, "show ip bgp vpnv4 all");
+        fetchCmdOutputs(BGP_VPNV6_FILE, "show ip bgp vpnv6 all");
+        fetchCmdOutputs(BGP_EVPN_FILE, "show bgp l2vpn evpn all");
+        parseIpBgpSummary();
+        parseIpBgpVpnv4All();
+        parseIpBgpVpnv6All();
+        parseBgpL2vpnEvpnAll();
+        LOG.debug("Finished updating the counters from BGP");
     }
 
-    void fetchCmdOutputs(String filename, String cmdName) throws IOException {
+    void fetchCmdOutputs(String filename, String cmdName) {
         try (Socket socket = new Socket(bgpSdncMip, 2605);
              PrintWriter toRouter = new PrintWriter(socket.getOutputStream(), true);
              BufferedReader fromRouter = new BufferedReader(new InputStreamReader(socket.getInputStream()));

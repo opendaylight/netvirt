@@ -9,13 +9,10 @@
 package org.opendaylight.netvirt.bgpmanager.thrift.server;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.ThreadFactory;
-
-import java.util.concurrent.TimeoutException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.server.ServerContext;
@@ -146,23 +143,19 @@ public class BgpThriftService {
             LOG.debug("Update on push route : rd {} prefix {} plen {}", rd, prefix, plen);
 
             // l2label is ignored even in case of RT5. only l3label considered
-            try {
-                bgpConfigManager.onUpdatePushRoute(
-                        protocolType,
-                        rd,
-                        prefix,
-                        plen,
-                        nexthop,
-                        ethtag,
-                        esi,
-                        macaddress,
-                        l3label,
-                        l2label,
-                        routermac,
-                        afi);
-            } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                LOG.error("failed to handle update route ", e);
-            }
+            bgpConfigManager.onUpdatePushRoute(
+                    protocolType,
+                    rd,
+                    prefix,
+                    plen,
+                    nexthop,
+                    ethtag,
+                    esi,
+                    macaddress,
+                    l3label,
+                    l2label,
+                    routermac,
+                    afi);
         }
 
         @Override
@@ -177,22 +170,14 @@ public class BgpThriftService {
                                           int l3label,
                                           int l2label,
                                           af_afi afi) {
-            try {
-                LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
-                bgpConfigManager.onUpdateWithdrawRoute(
-                        protocolType,
-                        rd,
-                        prefix,
-                        plen,
-                        nexthop,
-                        macaddress);
-            } catch (InterruptedException e1) {
-                LOG.error("Interrupted exception for withdraw route", e1);
-            } catch (ExecutionException e2) {
-                LOG.error("Execution exception for withdraw route", e2);
-            } catch (TimeoutException e3) {
-                LOG.error("Timeout exception for withdraw route", e3);
-            }
+            LOG.debug("Route del ** {} ** {}/{} ", rd, prefix, plen);
+            bgpConfigManager.onUpdateWithdrawRoute(
+                    protocolType,
+                    rd,
+                    prefix,
+                    plen,
+                    nexthop,
+                    macaddress);
         }
 
         @Override

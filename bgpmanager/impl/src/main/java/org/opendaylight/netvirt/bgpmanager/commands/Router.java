@@ -63,7 +63,7 @@ public class Router extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         switch (action) {
             case "add":
                 // check: rtr already running?
