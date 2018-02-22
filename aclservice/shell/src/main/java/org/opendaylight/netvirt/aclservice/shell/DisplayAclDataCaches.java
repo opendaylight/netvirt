@@ -78,7 +78,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         if (aclDataCache == null) {
             session.getConsole().println("Failed to handle the command, AclData reference is null at this point");
             return null;
@@ -159,7 +159,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         return "show".equalsIgnoreCase(all);
     }
 
-    protected void getAclInterfaceMap() throws Exception {
+    protected void getAclInterfaceMap() {
         if (all == null && uuidStr == null) {
             printAclInterfaceMapHelp();
         } else if (all == null) {
@@ -210,7 +210,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 
-    protected void getRemoteAclIdMap(Class<? extends DirectionBase> direction) throws Exception {
+    protected void getRemoteAclIdMap(Class<? extends DirectionBase> direction) {
         if (all == null && uuidStr == null) {
             printRemoteAclIdMapHelp();
         } else if (all == null) {
@@ -271,7 +271,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 
-    protected void getAclTagMap() throws Exception {
+    protected void getAclTagMap() {
         if (all == null && key == null) {
             printAclTagMapHelp();
         } else if (all == null) {
@@ -298,7 +298,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 
-    protected void getAclInterfaceCache() throws Exception {
+    protected void getAclInterfaceCache() {
         if (all == null && key == null) {
             printAclInterfaceCacheHelp();
             return;
@@ -338,7 +338,7 @@ public class DisplayAclDataCaches extends OsgiCommandSupport {
         }
     }
 
-    protected void getAclMap() throws Exception {
+    protected void getAclMap() {
         if (all == null && key == null) {
             printAclMapHelp();
         } else if (all == null) {
