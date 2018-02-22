@@ -52,18 +52,15 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
     public static final String NODE_CHECK = "physical";
 
-    private static final Predicate<InstanceIdentifier<Node>> IS_PS_NODE_IID = (iid) -> {
-        return iid.firstKeyOf(Node.class).getNodeId().getValue().contains(NODE_CHECK);
-    };
+    private static final Predicate<InstanceIdentifier<Node>> IS_PS_NODE_IID =
+        (iid) -> iid.firstKeyOf(Node.class).getNodeId().getValue().contains(NODE_CHECK);
 
-    private static final Predicate<InstanceIdentifier<Node>> IS_NOT_HA_CHILD = (iid) -> {
-        return !HwvtepHACache.getInstance().isHAEnabledDevice(iid)
-                && !iid.firstKeyOf(Node.class).getNodeId().getValue().contains(HwvtepHAUtil.PHYSICALSWITCH);
-    };
+    private static final Predicate<InstanceIdentifier<Node>> IS_NOT_HA_CHILD =
+        (iid) -> !HwvtepHACache.getInstance().isHAEnabledDevice(iid) && !iid.firstKeyOf(
+                Node.class).getNodeId().getValue().contains(HwvtepHAUtil.PHYSICALSWITCH);
 
-    private static final Predicate<InstanceIdentifier<Node>> IS_HA_CHILD = (iid) -> {
-        return HwvtepHACache.getInstance().isHAEnabledDevice(iid);
-    };
+    private static final Predicate<InstanceIdentifier<Node>> IS_HA_CHILD =
+        (iid) -> HwvtepHACache.getInstance().isHAEnabledDevice(iid);
 
     private final ElanL2GatewayUtils elanL2GatewayUtils;
     private final HAOpClusteredListener haOpClusteredListener;
@@ -109,16 +106,8 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     @Override
     protected void onUpdate(final Map<String, Map<InstanceIdentifier, LocalUcastMacs>> updatedMacsGrouped,
                             final Map<String, Map<InstanceIdentifier, LocalUcastMacs>> deletedMacsGrouped) {
-        updatedMacsGrouped.entrySet().forEach((entry) -> {
-            entry.getValue().entrySet().forEach((entry2) -> {
-                added(entry2.getKey(), entry2.getValue());
-            });
-        });
-        deletedMacsGrouped.entrySet().forEach((entry) -> {
-            entry.getValue().entrySet().forEach((entry2) -> {
-                removed(entry2.getKey(), entry2.getValue());
-            });
-        });
+        updatedMacsGrouped.forEach((key1, value1) -> value1.forEach((key, value) -> added(key, value)));
+        deletedMacsGrouped.forEach((key1, value1) -> value1.forEach((key, value) -> removed(key, value)));
     }
 
     public void removed(final InstanceIdentifier<LocalUcastMacs> identifier, final LocalUcastMacs macRemoved) {

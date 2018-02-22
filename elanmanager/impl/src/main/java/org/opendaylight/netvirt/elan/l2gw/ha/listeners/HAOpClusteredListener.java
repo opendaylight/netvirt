@@ -173,7 +173,7 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
             return Collections.emptySet();
         }
         return candidateds.stream()
-                .filter((iid) -> connectedNodes.contains(iid))
+                .filter(connectedNodes::contains)
                 .collect(Collectors.toSet());
     }
 

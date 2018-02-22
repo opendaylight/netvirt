@@ -60,14 +60,12 @@ public class StaleVlanBindingsCleaner {
         return lsRef.firstKeyOf(LogicalSwitches.class).getHwvtepNodeName().getValue();
     };
 
-    private static BiPredicate<List<String>, String> IS_STALE_LOGICAL_SWITCH = (validNetworks, logicalSwitch) -> {
-        return !validNetworks.contains(logicalSwitch);
-    };
+    private static BiPredicate<List<String>, String> IS_STALE_LOGICAL_SWITCH =
+        (validNetworks, logicalSwitch) -> !validNetworks.contains(logicalSwitch);
 
-    private static Predicate<TerminationPoint> CONTAINS_VLANBINDINGS = (port) -> {
-        return port.getAugmentation(HwvtepPhysicalPortAugmentation.class) != null
-                && port.getAugmentation(HwvtepPhysicalPortAugmentation.class).getVlanBindings() != null;
-    };
+    private static Predicate<TerminationPoint> CONTAINS_VLANBINDINGS = (port) ->
+            port.getAugmentation(HwvtepPhysicalPortAugmentation.class) != null
+                    && port.getAugmentation(HwvtepPhysicalPortAugmentation.class).getVlanBindings() != null;
 
 
     private final DataBroker broker;
@@ -162,11 +160,9 @@ public class StaleVlanBindingsCleaner {
         Map<String, List<InstanceIdentifier<VlanBindings>>> vlans = new HashMap<>();
         ports.stream()
                 .filter(CONTAINS_VLANBINDINGS)
-                .forEach((port) -> {
-                    port.getAugmentation(HwvtepPhysicalPortAugmentation.class)
-                            .getVlanBindings()
-                            .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding));
-                });
+                .forEach((port) -> port.getAugmentation(HwvtepPhysicalPortAugmentation.class)
+                        .getVlanBindings()
+                        .forEach((binding) -> putVlanBindingVsLogicalSwitch(configPsNode, vlans, port, binding)));
         return vlans;
     }
 

@@ -106,17 +106,17 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
         }
-        elanInterfaceCache.getInterfaceNames(elanName).forEach(elanInterfaceName -> {
-            jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName), () -> {
-                WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
-                LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
-                ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                        ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
-                elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
-                LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
-                return Collections.singletonList(writeConfigTxn.submit());
-            }, ElanConstants.JOB_MAX_RETRIES);
-        });
+        elanInterfaceCache.getInterfaceNames(elanName).forEach(
+            elanInterfaceName -> jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(elanInterfaceName),
+                () -> {
+                    WriteTransaction writeConfigTxn = broker.newWriteOnlyTransaction();
+                    LOG.info("Deleting the elanInterface present under ConfigDS:{}", elanInterfaceName);
+                    ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
+                            ElanUtils.getElanInterfaceConfigurationDataPathId(elanInterfaceName));
+                    elanInterfaceManager.unbindService(elanInterfaceName, writeConfigTxn);
+                    LOG.info("unbind the Interface:{} service bounded to Elan:{}", elanInterfaceName, elanName);
+                    return Collections.singletonList(writeConfigTxn.submit());
+                }, ElanConstants.JOB_MAX_RETRIES));
         // Release tag
         ElanUtils.releaseId(idManager, ElanConstants.ELAN_ID_POOL_NAME, elanName);
         if (deletedElan.getAugmentation(EtreeInstance.class) != null) {
