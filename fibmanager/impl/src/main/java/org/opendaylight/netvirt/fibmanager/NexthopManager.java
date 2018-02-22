@@ -658,7 +658,7 @@ public class NexthopManager implements AutoCloseable {
 
     @Override
     @PreDestroy
-    public void close() throws Exception {
+    public void close() {
         LOG.info("{} close", getClass().getSimpleName());
     }
 
