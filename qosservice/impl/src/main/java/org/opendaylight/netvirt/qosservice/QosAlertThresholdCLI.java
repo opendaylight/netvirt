@@ -31,7 +31,7 @@ public class QosAlertThresholdCLI extends OsgiCommandSupport {
     }
 
     @Override
-    protected Object doExecute() throws Exception {
+    protected Object doExecute() {
         LOG.debug("setting threshold in qos alert manager:{}", threshold);
         qosAlertManager.setThreshold(Short.parseShort(threshold));
         return null;
