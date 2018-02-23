@@ -22,6 +22,30 @@
       "revId": "5710c9b7218f1b49e6d47bb04f216f5442722568",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "868b3f91_0907c736",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 5401
+      },
+      "writtenOn": "2018-02-23T13:33:07Z",
+      "side": 1,
+      "message": "as of now, I am not looking for range of values. Once we have confidence on what we can support, then will update yang with range. Till then I prefer to leave it like this.",
+      "parentUuid": "69cdfea1_35a5d0a5",
+      "range": {
+        "startLine": 16,
+        "startChar": 14,
+        "endLine": 16,
+        "endChar": 26
+      },
+      "revId": "5710c9b7218f1b49e6d47bb04f216f5442722568",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
