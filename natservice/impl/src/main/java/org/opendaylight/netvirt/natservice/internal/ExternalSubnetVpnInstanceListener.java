@@ -26,6 +26,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInstanceToVpnId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.VpnToDpnList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id.VpnInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
@@ -114,14 +115,14 @@ public class ExternalSubnetVpnInstanceListener extends AsyncDataTreeChangeListen
             return;
         }
         ElanInstance elanInstance = elanService.getElanInstance(subnetMap.getNetworkId().getValue());
-        vpnManager.onSubnetAddedToVpn(subnetMap, false, elanInstance.getElanTag());
+        vpnManager.onSubnetAddedToVpn(subnetMap, false, elanInstance.getElanTag(), BgpvpnType.BGPVPNInternet);
 
     }
 
     private void invokeSubnetDeletedFromVpn(String externalSubnetId) {
         Uuid externalSubnetUuid = new Uuid(externalSubnetId);
         Subnetmap subnetMap = NatUtil.getSubnetMap(dataBroker, externalSubnetUuid);
-        vpnManager.onSubnetDeletedFromVpn(subnetMap, false);
+        vpnManager.onSubnetDeletedFromVpn(subnetMap, false, BgpvpnType.BGPVPNInternet);
     }
 
     private void addOrDelDefaultFibRouteToSNATFlow(VpnInstance vpnInstance, Subnets subnet, int flowAction) {
