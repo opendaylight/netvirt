@@ -48,6 +48,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.sub
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.SubnetOpDataEntryKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.subnet.op.data.subnet.op.data.entry.SubnetToDpn;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalNetworks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.networks.NetworksKey;
@@ -88,7 +89,7 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag) {
+    public void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag, BgpvpnType bgpVpnType) {
         Uuid subnetId = subnetmap.getId();
         String subnetIp = subnetmap.getSubnetIp();
         Subnetmap subMap = null;
@@ -102,25 +103,29 @@ public class VpnSubnetRouteHandler {
                 LOGGING_PREFIX + " onSubnetAddedToVpn: SubnetPrefix cannot be null or empty!");
         Preconditions.checkNotNull(elanTag, LOGGING_PREFIX + " onSubnetAddedToVpn: ElanTag cannot be null or empty!");
 
-        String vpnName;
-        if (subnetmap.getVpnId() != null) {
-            vpnName = subnetmap.getVpnId().getValue();
-            long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-            if (vpnId == VpnConstants.INVALID_ID) {
-                vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
-                        VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
-                vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
-                if (vpnId == VpnConstants.INVALID_ID) {
-                    LOG.error("{} onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} "
-                              + "processing subnet {} with IP {}, bailing out now.", LOGGING_PREFIX, vpnName, subnetId,
-                            subnetIp);
-                    return;
-                }
-            }
+        Uuid vpn;
+        if ((bgpVpnType == BgpvpnType.BGPVPNInternet)) {
+            vpn = subnetmap.getInternetVpnId();
         } else {
+            vpn = subnetmap.getVpnId();
+        }
+        if (vpn == null) {
             LOG.error("onSubnetAddedToVpn: VpnId {} for subnet {} not found, bailing out", subnetmap.getVpnId(),
                       subnetId);
             return;
+        }
+        String vpnName = vpn.getValue();
+        long vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+        if (vpnId == VpnConstants.INVALID_ID) {
+            vpnOpDataSyncer.waitForVpnDataReady(VpnOpDataType.vpnInstanceToId, vpnName,
+                    VpnConstants.PER_VPN_INSTANCE_MAX_WAIT_TIME_IN_MILLISECONDS);
+            vpnId = VpnUtil.getVpnId(dataBroker, vpnName);
+            if (vpnId == VpnConstants.INVALID_ID) {
+                LOG.error("{} onSubnetAddedToVpn: VpnInstance to VPNId mapping not yet available for VpnName {} "
+                          + "processing subnet {} with IP {}, bailing out now.", LOGGING_PREFIX, vpnName, subnetId,
+                        subnetIp);
+                return;
+            }
         }
         LOG.info("{} onSubnetAddedToVpn: Subnet {} with IP {} being added to vpn {}", LOGGING_PREFIX,
                 subnetId.getValue(), subnetIp, vpnName);
@@ -140,6 +145,7 @@ public class VpnSubnetRouteHandler {
                     return;
                 }
                 subMap = sm.get();
+                LOG.info("onSubnetAddedToVpn:  SUBNET MAP From Config DS {}", subMap.toString());
 
                 if (isBgpVpn) {
                     InstanceIdentifier<Networks> netsIdentifier = InstanceIdentifier.builder(ExternalNetworks.class)
@@ -267,10 +273,17 @@ public class VpnSubnetRouteHandler {
 
     // TODO Clean up the exception handling
     @SuppressWarnings("checkstyle:IllegalCatch")
-    public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn) {
+    public void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn, BgpvpnType bgpVpnType) {
         Uuid subnetId = subnetmap.getId();
+        Uuid vpnId;
+        if (bgpVpnType == BgpvpnType.BGPVPNInternet) {
+            vpnId = subnetmap.getInternetVpnId();
+        } else {
+            vpnId = subnetmap.getVpnId();
+        }
         LOG.info("{} onSubnetDeletedFromVpn: Subnet {} with ip {} being removed from vpnId {}", LOGGING_PREFIX,
-                subnetId, subnetmap.getSubnetIp(), subnetmap.getVpnId());
+                subnetId, subnetmap.getSubnetIp(), vpnId.getValue());
+        LOG.info("{} onSubnetDeletedFromVpn: SUBNETMAP {} {}", LOGGING_PREFIX, subnetmap.toString());
         //TODO(vivek): Change this to use more granularized lock at subnetId level
         try {
             VpnUtil.lockSubnet(lockManager, subnetId.getValue());
@@ -284,7 +297,7 @@ public class VpnSubnetRouteHandler {
                 if (!optionalSubs.isPresent()) {
                     LOG.error("{} onSubnetDeletedFromVpn: SubnetOpDataEntry for subnet {} subnetIp {} vpn {}"
                             + " not available in datastore", LOGGING_PREFIX, subnetId.getValue(),
-                            subnetId.getValue(), subnetmap.getVpnId());
+                            subnetId.getValue(), optionalSubs.get().getVpnName());
                     return;
                 }
                 LOG.trace("{} onSubnetDeletedFromVpn: Removing the SubnetOpDataEntry node for subnet {} subnetIp {}"
@@ -300,6 +313,7 @@ public class VpnSubnetRouteHandler {
                     InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
                         new SubnetmapKey(subnetId)).build();
                 Optional<Subnetmap> sm = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapid);
+                LOG.info("onSubnetDeletedFromVpn: SUBNET MAP {} before", sm.toString());
                 if (!sm.isPresent()) {
                     LOG.error("{} onSubnetDeletedFromVpn: Stale ports removal: Unable to retrieve subnetmap entry"
                             + " for subnet {} subnetIp {} vpnName {}", LOGGING_PREFIX, subnetId.getValue(),
@@ -333,24 +347,35 @@ public class VpnSubnetRouteHandler {
                 LOG.info("{} onSubnetDeletedFromVpn: Removed subnetopdataentry successfully from Datastore"
                         + " for subnet {} subnetIp {} vpnName {} rd {}", LOGGING_PREFIX, subnetId.getValue(), subnetIp,
                         vpnName, rd);
+                
+                InstanceIdentifier<Subnetmap> subMapidAfter =
+                        InstanceIdentifier.builder(Subnetmaps.class).child(Subnetmap.class,
+                            new SubnetmapKey(subnetId)).build();
+                Optional<Subnetmap> smAfter = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, subMapidAfter);
+                LOG.info("onSubnetDeletedFromVpn: SUBNET MAP {} after", smAfter.toString());
             } catch (RuntimeException ex) {
                 LOG.error("{} onSubnetDeletedFromVpn: Removal of SubnetOpDataEntry for subnet {} subnetIp {}"
                         + " vpnId {} failed {}", LOGGING_PREFIX, subnetId.getValue(), subnetmap.getSubnetIp(),
-                        subnetmap.getVpnId(), ex);
+                        vpnId.getValue(), ex);
             } finally {
                 VpnUtil.unlockSubnet(lockManager, subnetId.getValue());
             }
         } catch (RuntimeException e) {
             LOG.error("{} onSubnetDeletedFromVpn: Unable to handle subnet {} with Ip {} removed from vpn {} {}",
-                    LOGGING_PREFIX, subnetId.getValue(), subnetmap.getSubnetIp(), subnetmap.getVpnId(), e);
+                    LOGGING_PREFIX, subnetId.getValue(), subnetmap.getSubnetIp(), vpnId.getValue(), e);
         }
     }
 
-    public void onSubnetUpdatedInVpn(Subnetmap subnetmap, Long elanTag) {
+    public void onSubnetUpdatedInVpn(Subnetmap subnetmap, Long elanTag, BgpvpnType bgpVpnType) {
         Uuid subnetId = subnetmap.getId();
-        String vpnName = subnetmap.getVpnId().getValue();
+        Uuid vpnId;
+        if (bgpVpnType == BgpvpnType.BGPVPNInternet) {
+            vpnId = subnetmap.getInternetVpnId();
+        } else {
+            vpnId = subnetmap.getVpnId();
+        }
+        String vpnName = vpnId.getValue();
         String subnetIp = subnetmap.getSubnetIp();
-
         Preconditions.checkNotNull(subnetId,
                 LOGGING_PREFIX + " onSubnetUpdatedInVpn: SubnetId cannot be null or empty!");
         Preconditions.checkNotNull(subnetIp,
@@ -364,9 +389,9 @@ public class VpnSubnetRouteHandler {
         Optional<SubnetOpDataEntry> optionalSubs =
             VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, subOpIdentifier);
         if (optionalSubs.isPresent()) {
-            onSubnetDeletedFromVpn(subnetmap, true);
+            onSubnetDeletedFromVpn(subnetmap, true, bgpVpnType);
         } else {
-            onSubnetAddedToVpn(subnetmap, true, elanTag);
+            onSubnetAddedToVpn(subnetmap, true, elanTag, bgpVpnType);
         }
         LOG.info("{} onSubnetUpdatedInVpn: subnet {} with Ip {} updated successfully for vpn {}", LOGGING_PREFIX,
                 subnetId.getValue(), subnetIp, vpnName);
@@ -460,6 +485,7 @@ public class VpnSubnetRouteHandler {
                         + " subnetIp {} vpnName {} rd {} TaskState {} lastTaskState {}", LOGGING_PREFIX,
                         portId.getValue(), subnetId.getValue(), subOpEntry.getSubnetCidr(), subOpEntry.getVpnName(),
                         subOpBuilder.getVrfId(), subOpEntry.getRouteAdvState(), subOpEntry.getLastAdvState());
+                LOG.info("onPortAddedToSubnet: SUBNETMAP {}", subnetmap.toString());
             } catch (Exception ex) {
                 LOG.error("{} onPortAddedToSubnet: Updation of subnetOpEntry for port {} subnet {} falied {}",
                         LOGGING_PREFIX, portId.getValue(), subnetId.getValue(), ex);
