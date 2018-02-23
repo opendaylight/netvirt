@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "69cdfea1_35a5d0a5",
+        "filename": "model-bgp/src/main/yang/ebgp-bfd.yang",
+        "patchSetId": 8
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-02-23T07:08:45Z",
+      "side": 1,
+      "message": "do you plan to introduce range so that the value entered will be controlled ?",
+      "range": {
+        "startLine": 16,
+        "startChar": 14,
+        "endLine": 16,
+        "endChar": 26
+      },
+      "revId": "5710c9b7218f1b49e6d47bb04f216f5442722568",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
