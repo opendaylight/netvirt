@@ -19,6 +19,7 @@ import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev14081
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.neutron.vpn.portip.port.data.VpnPortipToPort;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 
@@ -82,9 +83,9 @@ public interface IVpnManager {
     void removeArpResponderFlowsToExternalNetworkIps(String id, Collection<String> fixedIps,
             BigInteger dpnId, String extInterfaceName, int lportTag);
 
-    void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag);
+    void onSubnetAddedToVpn(Subnetmap subnetmap, boolean isBgpVpn, Long elanTag, BgpvpnType bgpVpnType);
 
-    void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn);
+    void onSubnetDeletedFromVpn(Subnetmap subnetmap, boolean isBgpVpn, BgpvpnType bgpVpnType);
 
     List<MatchInfoBase> getEgressMatchesForVpn(String vpnName);
 
