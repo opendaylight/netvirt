@@ -71,7 +71,7 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
 
     @Override
     protected void add(InstanceIdentifier<Subnet> identifier, Subnet input) {
-        LOG.trace("Adding Subnet : key: {}, value={}", identifier, input);
+        LOG.trace("Adding Subnet : key: {}, value={}", identifier, input.toString());
         Uuid networkId = input.getNetworkId();
         Uuid subnetId = input.getUuid();
         Network network = neutronvpnUtils.getNeutronNetwork(networkId);
