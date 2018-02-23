@@ -11,6 +11,7 @@ package org.opendaylight.netvirt.vpnmanager;
 import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -21,7 +22,7 @@ import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstance;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.instances.ElanInstanceKey;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.NetworkAttributes.NetworkType;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry.BgpvpnType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.Subnetmaps;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.subnetmaps.Subnetmap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
@@ -66,60 +67,49 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
 
     @Override
     protected void add(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("add:SubnetmapChangeListener add subnetmap method - key: {}, value: {}", identifier, subnetmap);
+        LOG.debug("SubnetmapChangeListener add subnetmap method - key: {}, value: {}", identifier, subnetmap);
         Uuid subnetId = subnetmap.getId();
-        Uuid vpnId = subnetmap.getVpnId();
-
+        Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId());
+        if (network == null) {
+            LOG.error("SubnetMapChangeListener:add: network was not found for subnetId {}", subnetId.getValue());
+            return;
+        }
+        if (VpnUtil.getIsExternal(network)) {
+            LOG.debug("SubnetmapListener:add: provider subnetwork {} is handled in "
+                      + "ExternalSubnetVpnInstanceListener", subnetId.getValue());
+            return;
+        }
+        String elanInstanceName = subnetmap.getNetworkId().getValue();
+        long elanTag = getElanTag(elanInstanceName);
+        if (elanTag == 0L) {
+            LOG.error("SubnetMapChangeListener:add: unable to fetch elantag from ElanInstance {} for subnet {}",
+                      elanInstanceName, subnetId.getValue());
+            return;
+        }
         if (subnetmap.getVpnId() != null) {
-            // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
-            // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
-            Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmap.getNetworkId());
-            if (network == null) {
-                LOG.info("update: vpnId {}, networkId: {}, subnetId: {}: network was not found",
-                    vpnId, subnetmap.getNetworkId(), subnetId);
-                return;
-            }
-            boolean isExtNetwork = VpnUtil.getIsExternal(VpnUtil.getNeutronNetwork(dataBroker,
-                                           subnetmap.getNetworkId()));
-            // SubnetRoute for ExternalNetwork is not impacting for internetvpn
-            if (isExtNetwork) {
-                return;
-            }
-            boolean isBgpVpn = !vpnId.equals(subnetmap.getRouterId());
-            String elanInstanceName = subnetmap.getNetworkId().getValue();
-            Long elanTag = getElanTag(elanInstanceName);
-            if (elanTag.equals(0L)) {
-                LOG.error("add:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
-                        + "subnetmapListener add for subnet {}", elanInstanceName, subnetId.getValue());
-                return;
-            }
-            if (subnetmap.getNetworkType().equals(NetworkType.VLAN)) {
-                VpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(vpnId.getValue(), dataBroker);
-            }
+            boolean isBgpVpn = !subnetmap.getVpnId().equals(subnetmap.getRouterId());
+            BgpvpnType vpnType = isBgpVpn ? BgpvpnType.BGPVPNExternal : BgpvpnType.VPN;
             // subnet added to VPN case upon config DS replay after reboot
             // ports added to subnet upon config DS replay after reboot are handled implicitly by subnetAddedToVpn
             // in SubnetRouteHandler
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag);
+            LOG.info("SubnetMapChangeListener:add: subnetmap {} with elanTag {} to {}",
+                     subnetmap.toString(), elanTag, vpnType.toString());
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag, vpnType);
         }
         if (subnetmap.getInternetVpnId() != null) {
             boolean isBgpVpn = !subnetmap.getInternetVpnId().equals(subnetmap.getRouterId());
-            String elanInstanceName = subnetmap.getNetworkId().getValue();
-            Long elanTag = getElanTag(elanInstanceName);
-            if (elanTag.equals(0L)) {
-                LOG.error("add:Unable to fetch elantag from ElanInstance {} and hence not proceeding with "
-                        + "subnetmapListener add for subnet {}", elanInstanceName, subnetId);
-                return;
-            }
             // subnet added to VPN case upon config DS replay after reboot
             // ports added to subnet upon config DS replay after reboot are handled implicitly by subnetAddedToVpn
             // in SubnetRouteHandler
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag);
+            LOG.info("SubnetMapChangeListener:add: subnetmap {} with elanTag {} to {}", subnetmap.toString(),
+                     elanTag, BgpvpnType.BGPVPNInternet.toString());
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmap, isBgpVpn , elanTag, BgpvpnType.BGPVPNInternet);
         }
     }
 
     @Override
     protected void remove(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmap) {
-        LOG.trace("remove:SubnetmapListener remove subnetmap method - key: {}, value: {}", identifier, subnetmap);
+        LOG.trace("SubnetmapListener:remove: subnetmap method - key: {}, value: {}", identifier, subnetmap);
     }
 
     @Override
@@ -127,47 +117,42 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
     @SuppressWarnings("checkstyle:IllegalCatch")
     protected void update(InstanceIdentifier<Subnetmap> identifier, Subnetmap subnetmapOriginal, Subnetmap
             subnetmapUpdate) {
-        LOG.trace("update:SubnetmapListener update subnetmap method - key {}, original {}, update {}", identifier,
-                subnetmapOriginal, subnetmapUpdate);
-        Uuid vpnIdNew = subnetmapUpdate.getVpnId();
-        Uuid vpnIdOld = subnetmapOriginal.getVpnId();
+        LOG.debug("SubnetMapChangeListener update method - key {}, original {}, update {}", identifier,
+                  subnetmapOriginal, subnetmapUpdate);
         Uuid subnetId = subnetmapUpdate.getId();
-        if ((subnetmapUpdate.getNetworkId() == null)
-            && subnetmapOriginal.getNetworkId() == null) {
-            // transition: subnetmap is removed with syncwrite.
-            // wait next write to do the update
-            LOG.error("subnetmap has no network for subnetmap {}", subnetmapUpdate);
+        Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
+        if (network == null) {
+            LOG.error("SubnetMapChangeListener:update: network was not found for subnetId {}", subnetId.getValue());
             return;
         }
-        boolean updateCapableForCreation = false;
-        String elanInstanceName = null;
-        Long elanTag = Long.valueOf(0L);
-        if (subnetmapUpdate.getNetworkId() != null) {
-            updateCapableForCreation = true;
-            elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
-            elanTag = getElanTag(elanInstanceName);
-            if (elanTag.equals(0L)) {
-                LOG.error("update:Unable to fetch elantag from ElanInstance {} and "
-                    + "hence not proceeding with "
-                    + "subnetmapListener update for subnet {}", elanInstanceName, subnetId.getValue());
-                return;
-            }
-
+        if (VpnUtil.getIsExternal(network)) {
             // SubnetRoute for ExternalSubnets is handled in ExternalSubnetVpnInstanceListener.
             // Here we must handle only InternalVpnSubnetRoute and BGPVPNBasedSubnetRoute
-            Network network = VpnUtil.getNeutronNetwork(dataBroker, subnetmapUpdate.getNetworkId());
-            if (VpnUtil.getIsExternal(network)) {
-                return;
-            }
-        }
-        Uuid vpnIdInternetNew = subnetmapUpdate.getInternetVpnId();
-        Uuid vpnIdInternetOld = subnetmapOriginal.getInternetVpnId();
-        boolean returnValue1 = updateSubnetmapOpDataEntry(vpnIdInternetOld, vpnIdInternetNew,
-                           subnetmapUpdate, subnetmapOriginal, elanTag, null, updateCapableForCreation);
-        boolean returnValue2 = updateSubnetmapOpDataEntry(vpnIdOld, vpnIdNew,
-                      subnetmapUpdate, subnetmapOriginal, elanTag, elanInstanceName, updateCapableForCreation);
-        if (!returnValue2 || !returnValue1) {
+            LOG.debug("SubnetMapChangeListener:update: provider subnetwork {} is handled in "
+                      + "ExternalSubnetVpnInstanceListener", subnetId.getValue());
             return;
+        }
+        String elanInstanceName = subnetmapUpdate.getNetworkId().getValue();
+        long elanTag = getElanTag(elanInstanceName);
+        if (elanTag == 0L) {
+            LOG.error("SubnetMapChangeListener:update: unable to fetch elantag from ElanInstance {} for subnetId {}",
+                      elanInstanceName, subnetId);
+            return;
+        }
+
+        // update on BGP VPN change
+        LOG.info("SubnetMapChangeListener:update: update subnetOpDataEntry for subnet {} imported in BGPVPN",
+                 subnetmapUpdate.getId().getValue());
+        updateSubnetmapOpDataEntry(subnetmapOriginal.getVpnId(), subnetmapUpdate.getVpnId(), subnetmapUpdate,
+                                   subnetmapOriginal, elanTag, BgpvpnType.BGPVPNExternal);
+        // update on Internet VPN Id change as well
+        Uuid inetVpnIdOld = subnetmapOriginal.getInternetVpnId();
+        Uuid inetVpnIdNew = subnetmapUpdate.getInternetVpnId();
+        if (!Objects.equals(inetVpnIdOld, inetVpnIdNew)) {
+            LOG.info("SubnetMapChangeListener:update: update subnetOpDataEntry for subnet {} imported in InternetVPN",
+                     subnetmapUpdate.getId().getValue());
+            updateSubnetmapOpDataEntry(inetVpnIdOld, inetVpnIdNew, subnetmapUpdate, subnetmapOriginal, elanTag,
+                    BgpvpnType.BGPVPNInternet);
         }
         // port added/removed to/from subnet case
         List<Uuid> oldPortList;
@@ -177,6 +162,7 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         if (newPortList.size() == oldPortList.size()) {
             return;
         }
+        LOG.debug("SubnetMapChangeListener:update: update port list for subnet {}", subnetmapUpdate.getId().getValue());
         if (newPortList.size() > oldPortList.size()) {
             for (Uuid portId : newPortList) {
                 if (! oldPortList.contains(portId)) {
@@ -194,40 +180,27 @@ public class SubnetmapChangeListener extends AsyncDataTreeChangeListenerBase<Sub
         }
     }
 
-    private boolean updateSubnetmapOpDataEntry(Uuid vpnIdOld, Uuid vpnIdNew, Subnetmap subnetmapUpdate,
-                                    Subnetmap subnetmapOriginal, Long elanTag, String  elanInstanceName,
-                                    boolean updateCapableForCreation) {
+    private void updateSubnetmapOpDataEntry(Uuid vpnIdOld, Uuid vpnIdNew, Subnetmap subnetmapUpdate,
+                                    Subnetmap subnetmapOriginal, Long elanTag, BgpvpnType bgpVpnType) {
+
         // subnet added to VPN case
-        if (vpnIdNew != null && vpnIdOld == null && updateCapableForCreation) {
-            if (elanInstanceName != null && subnetmapUpdate.getNetworkType().equals(NetworkType.VLAN)) {
-                VpnUtil.addRouterPortToElanDpnListForVlaninAllDpn(vpnIdNew.getValue(), dataBroker);
+        if (vpnIdNew != null && vpnIdOld == null) {
+            if (vpnIdNew.equals(subnetmapUpdate.getRouterId())) {
+                return;
             }
-            boolean isBgpVpn = !vpnIdNew.equals(subnetmapUpdate.getRouterId());
-            if (!isBgpVpn) {
-                return false;
-            }
-            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag);
-            return true;
+            vpnSubnetRouteHandler.onSubnetAddedToVpn(subnetmapUpdate, true, elanTag, bgpVpnType);
         }
         // subnet removed from VPN case
         if (vpnIdOld != null && vpnIdNew == null) {
-            if (subnetmapOriginal.getNetworkType().equals(NetworkType.VLAN)) {
-                VpnUtil.removeRouterPortFromElanDpnListForVlanInAllDpn(elanInstanceName, subnetmapOriginal
-                        .getRouterInterfacePortId().getValue(), vpnIdOld.getValue(), dataBroker);
+            if (vpnIdOld.equals(subnetmapOriginal.getRouterId())) {
+                return;
             }
-            boolean isBgpVpn = vpnIdOld.equals(subnetmapOriginal.getRouterId()) ? false : true;
-            if (!isBgpVpn) {
-                return false;
-            }
-            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true);
-            return true;
+            vpnSubnetRouteHandler.onSubnetDeletedFromVpn(subnetmapOriginal, true, bgpVpnType);
         }
         // subnet updated in VPN case
         if (vpnIdOld != null && vpnIdNew != null && (!vpnIdNew.equals(vpnIdOld))) {
-            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag);
-            return true;
+            vpnSubnetRouteHandler.onSubnetUpdatedInVpn(subnetmapUpdate, elanTag, bgpVpnType);
         }
-        return false;
     }
 
     @Override
