@@ -1,0 +1,140 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b1ff7da5_edf29daa",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "Will this feature continue to allow PNF discoveries on both the routing domains.\n\nWe ask this because PNF uses subnet-routing feature to discover Physical Network Function IP Addresses by assuming that a given subnet is available only on one router.\n\nPlease look at the PNF spec for the flow rules and we need to evaluate how to retain that feature\u0027s working set.",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "65fc013c_79c99bbe",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 98,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "Would a VM interface available on Subnet 1 will be bound to both the routing domains?",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8ab90ae1_54c22aa2",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "The new flow entries should not be installed unless an explicit routing-table-entry via extra routes is configured by the user to allow traffic to go from Router 1 subnet to the Router 3 subnet.",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdf6fe2f_d43185cc",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 187,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "there is already a feature InterVpnLinks which actually links two VPNs in an orchestrated way within the VpnManager.  Can you please check once if you will be able to use that feature at all , would enable you to avoid doing all this from scratch.",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdbcc898_dc1f9930",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 214,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "is there a need to have nw_src in the match here?",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4a2318a1_4598086a",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 216,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "there is a Openstack VNI Enforcement feature that was done in Carbon.  Please make sure that when you do the router transition here, the packets get out of this hypervisor with the Openstack VNI of the destination network which holds Subnet2.\n\nThere is also \u0027VNI Forwarding\u0027 spec which you can take a look for this.",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3b3104d_ffb3e676",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 565,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "what is the key for this list?",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "40fbbbec_de45d7be",
+        "filename": "docs/specs/router-chaining-for-single-subnet.rst",
+        "patchSetId": 16
+      },
+      "lineNbr": 694,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-26T16:00:26Z",
+      "side": 1,
+      "message": "The extra-routes configuration on both ROUTER1 and ROUTER3 to enable the routing from Subnet1a to Subnet2 need to be added here..",
+      "revId": "7256ed04c89969572b591c5f96ee508212c0db2f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
