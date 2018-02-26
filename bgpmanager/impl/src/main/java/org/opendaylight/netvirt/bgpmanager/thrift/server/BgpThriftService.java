@@ -196,6 +196,11 @@ public class BgpThriftService {
         ft = threadPool.submit(new BgpUpdateServer());
     }
 
+    public synchronized boolean isUpdateServerStarted() {
+        return server != null && server.isServing();
+    }
+
+
     public synchronized void stop() {
         if (server != null) {
             server.stop();
