@@ -28,6 +28,8 @@
              interface="org.opendaylight.netvirt.neutronvpn.api.l2gw.L2GatewayCache"/>
   <reference id="cacheProvider"
              interface="org.opendaylight.infrautils.caches.CacheProvider"/>
+  <reference id="serviceRecoveryRegistry"
+             interface="org.opendaylight.genius.srm.ServiceRecoveryRegistry"/>
 
   <odl:rpc-service id="odlInterfaceRpcService"
     interface="org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService" />
