@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "fd4081a1_1f5f4601",
+        "filename": "docs/user-guide/support.rst",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-02-27T20:35:06Z",
+      "side": 1,
+      "message": "don\u0027t we want this for our \u0027S\u0027ync combos:\n\ncarbon/ocata\nnitrogen/pike\noxygen/queens\nflourine/rocky\n\nActually, what you have is close. I think it\u0027s just nitro/pike needs the \u0027s\u0027 instead of nitro/queens",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 28
+      },
+      "revId": "8ad0434fa7f8b2f22d89425931a3d76bfb92bcba",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
