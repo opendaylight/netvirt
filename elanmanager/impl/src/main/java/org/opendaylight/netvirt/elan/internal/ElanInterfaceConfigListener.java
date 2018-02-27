@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class ElanInterfaceConfigListener
-    extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceConfigListener> {
+        extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceConfigListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceConfigListener.class);
 
@@ -89,7 +89,7 @@ public class ElanInterfaceConfigListener
 
     @Override
     protected void update(InstanceIdentifier<Interface> key, Interface dataObjectModificationBefore,
-            Interface dataObjectModificationAfter) {
+                          Interface dataObjectModificationAfter) {
         // Not required to handle this event
     }
 
