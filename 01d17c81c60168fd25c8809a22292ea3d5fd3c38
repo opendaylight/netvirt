@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "398329a2_63b0adb0",
+        "filename": "coe/api/src/main/yang/pod-meta.yang",
+        "patchSetId": 22
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-02-27T19:49:51Z",
+      "side": 1,
+      "message": "I had discussed this over email before, we have pod-uuid as the key when things come from northbound, and it is not feasible to change the yang model right now.. and hence we need to keep this reverse look up so that when port is added, we need to look up the pod uuid based on interface external-id.. Later on, we can do the optimisation to change our yang model so that pod is keyed on \"namespace:pod-name\" and make watcher populate the same in the format.. Then we can remove this additional yang",
+      "parentUuid": "94368cb1_e8cd2016",
+      "range": {
+        "startLine": 17,
+        "startChar": 7,
+        "endLine": 27,
+        "endChar": 9
+      },
+      "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1f28f1a2_9b6591fa",
         "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
         "patchSetId": 22
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "7409e415_9bd8c4bc",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-02-27T19:49:51Z",
+      "side": 1,
+      "message": "Added this check, as we had discussed sometime back that pods come with default namespace first, and they can be moved to other namespaces afterwards.. Hence handling updates only for that case.. even now, there were certain timings where namespace initially comes as null in add() and then gets populated in update()",
+      "parentUuid": "1f28f1a2_9b6591fa",
+      "range": {
+        "startLine": 133,
+        "startChar": 28,
+        "endLine": 133,
+        "endChar": 79
+      },
+      "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4eef2e77_6eb61654",
         "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
         "patchSetId": 22
@@ -59,6 +107,30 @@
       "writtenOn": "2018-02-27T19:35:24Z",
       "side": 1,
       "message": "the \"attached-mac\" also exist in the interface table external-Ids. U can skip this loop",
+      "range": {
+        "startLine": 278,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 13
+      },
+      "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0fae5e03_f2bd177e",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-02-27T19:49:51Z",
+      "side": 1,
+      "message": "Tries with interface external-ids first, did not work and then did the change, was it added to cni plugin later on?",
+      "parentUuid": "4eef2e77_6eb61654",
       "range": {
         "startLine": 278,
         "startChar": 0,
