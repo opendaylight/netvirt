@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1fa72402_2be71eea",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2294,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-02-27T18:25:33Z",
+      "side": 1,
+      "message": "Understand that ResourceBatchingManager usage has problems, but the code was previously like what you have written now, and ResourceBatchingManager was introduced to address the scale problems, without that, the scale numbers were too poor. So if transaction chains is the solution for that, why not do that directly?",
+      "revId": "7ad4ef3ecbb7219da306d33a13a15f62e1f9ec48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
