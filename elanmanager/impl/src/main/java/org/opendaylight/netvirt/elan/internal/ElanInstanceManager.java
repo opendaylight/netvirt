@@ -105,7 +105,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     ElanUtils.getElanDpnOperationDataPath(elanName));
             if (elanDpnInterfaceList.isPresent()) {
                 ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    getElanDpnOperationDataPath(elanName));
+                        getElanDpnOperationDataPath(elanName));
             }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
@@ -133,7 +133,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getElanInfoEntriesOperationalDataPath(
-                deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
+                        deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
     }
 
     @Override
