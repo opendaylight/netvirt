@@ -20,6 +20,24 @@
     },
     {
       "key": {
+        "uuid": "fb1b902d_56174b86",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 580,
+      "author": {
+        "id": 7374
+      },
+      "writtenOn": "2018-02-27T09:26:12Z",
+      "side": 1,
+      "message": "so we will change it to Port {} is not a NORMAL and DIRECT with Switchdev VNIC Type port. \nThis is the logic because in the if we do \nnot(Normal or direct with switchdev) which is basically saying the same",
+      "parentUuid": "15f872cb_f7159e63",
+      "revId": "23efdb5daae1d780dd741f24e20b720bbd70826a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "300c79c6_6a18b617",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
         "patchSetId": 3
@@ -32,6 +50,24 @@
       "side": 1,
       "message": "I think it is correct, we need the condition to be true if Vnic type is direct and is not switchdev.",
       "parentUuid": "1b8b9cf1_de9a2967",
+      "revId": "23efdb5daae1d780dd741f24e20b720bbd70826a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6cac67d7_3274d3d0",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronPortChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 633,
+      "author": {
+        "id": 7374
+      },
+      "writtenOn": "2018-02-27T09:26:12Z",
+      "side": 1,
+      "message": "just to cleary we don\u0027t want to enter block if when the \nport in normal or port is direct with switchdev. \nso doing not(normal  or direct with switchdev) has the same meaning. \n\nanother option is to write it has not(NeutronUtils.isPortVnicTypeNormal(port)) and not (isPortTypeSwitchdev(port))",
+      "parentUuid": "300c79c6_6a18b617",
       "revId": "23efdb5daae1d780dd741f24e20b720bbd70826a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
