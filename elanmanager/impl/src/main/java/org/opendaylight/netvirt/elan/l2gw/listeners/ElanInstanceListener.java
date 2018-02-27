@@ -57,7 +57,7 @@ public class ElanInstanceListener extends AsyncClusteredDataTreeChangeListenerBa
                           final ElanInstance del) {
         elanClusterUtils.runOnlyInOwnerNode(del.getElanInstanceName(), "delete Elan instance",
             () -> {
-                LOG.info("Elan instance {} deleted from Configuration tree ", del);
+               LOG.info("Elan instance {} deleted from Configuration tree ", del);
                 List<L2gatewayConnection> connections =
                         L2GatewayConnectionUtils.getL2GwConnectionsByElanName(
                                 this.broker, del.getElanInstanceName());
