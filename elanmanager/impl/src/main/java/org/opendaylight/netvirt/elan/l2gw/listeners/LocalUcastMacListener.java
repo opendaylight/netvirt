@@ -24,10 +24,10 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeModification;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -86,7 +86,6 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     @Override
     @PostConstruct
     public void init() throws Exception {
-        ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.dataBroker);
         super.init();
     }
 
@@ -117,8 +116,9 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
 
         LOG.trace("LocalUcastMacs {} removed from {}", macAddress, hwvtepNodeId);
 
-        ResourceBatchingManager.getInstance().delete(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
-                identifier);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, identifier)), LOG,
+            "Error processing removed unicast MAC");
 
         String elanName = getElanName(macRemoved);
 
@@ -143,8 +143,9 @@ public class LocalUcastMacListener extends ChildListener<Node, LocalUcastMacs, S
     }
 
     public void added(final InstanceIdentifier<LocalUcastMacs> identifier, final LocalUcastMacs macAdded) {
-        ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
-                identifier, macAdded);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.put(LogicalDatastoreType.CONFIGURATION, identifier, macAdded,
+                    WriteTransaction.CREATE_MISSING_PARENTS)), LOG, "Error processing added unicast MAC");
 
         String hwvtepNodeId = identifier.firstKeyOf(Node.class).getNodeId().getValue();
         String macAddress = macAdded.getMacEntryKey().getValue().toLowerCase(Locale.getDefault());

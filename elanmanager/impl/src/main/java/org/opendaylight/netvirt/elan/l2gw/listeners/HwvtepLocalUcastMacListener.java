@@ -12,7 +12,6 @@ import java.util.Locale;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.hwvtep.HwvtepClusteredDataTreeChangeListener;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
@@ -52,7 +51,6 @@ public class HwvtepLocalUcastMacListener extends
         this.broker = broker;
         this.elanL2GatewayUtils = elanL2GatewayUtils;
         this.elanInstanceCache = elanInstanceCache;
-        ResourceBatchingManager.getInstance().registerDefaultBatchHandlers(this.broker);
     }
 
     public void init() {

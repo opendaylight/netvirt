@@ -16,15 +16,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.NwConstants;
@@ -36,11 +35,7 @@ import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestinati
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldMplsLabel;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
-import org.opendaylight.genius.utils.batching.ActionableResource;
-import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
-import org.opendaylight.genius.utils.batching.ResourceHandler;
-import org.opendaylight.genius.utils.batching.SubTransaction;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.vpnmanager.api.VpnExtraRouteHelper;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rev160406.TunnelTypeBase;
@@ -60,16 +55,12 @@ import org.slf4j.LoggerFactory;
 
 
 @Singleton
-public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
-        implements ResourceHandler, IVrfEntryHandler {
+public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntryHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(BgpRouteVrfEntryHandler.class);
-    private static final int BATCH_INTERVAL = 500;
-    private static final int BATCH_SIZE = 1000;
 
     private final DataBroker dataBroker;
-    private final BlockingQueue<ActionableResource> vrfEntryBufferQ = new LinkedBlockingQueue<>();
-    private final ResourceBatchingManager resourceBatchingManager;
+    private final ManagedNewTransactionRunner txRunner;
     private final NexthopManager nexthopManager;
 
     @Inject
@@ -78,10 +69,8 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                    final FibUtil fibUtil) {
         super(dataBroker, nexthopManager, null, fibUtil);
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.nexthopManager = nexthopManager;
-
-        resourceBatchingManager = ResourceBatchingManager.getInstance();
-        resourceBatchingManager.registerBatchableResource("FIB-VRFENTRY", vrfEntryBufferQ, this);
     }
 
     @PostConstruct
@@ -95,84 +84,25 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     @Override
-    public DataBroker getResourceBroker() {
-        return dataBroker;
-    }
-
-    @Override
-    public int getBatchSize() {
-        return BATCH_SIZE;
-    }
-
-    @Override
-    public int getBatchInterval() {
-        return BATCH_INTERVAL;
-    }
-
-    @Override
-    public LogicalDatastoreType getDatastoreType() {
-        return LogicalDatastoreType.CONFIGURATION;
-    }
-
-    @Override
-    public void update(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier,
-                       Object original, Object update, List<SubTransaction> subTxns) {
-        if (original instanceof VrfEntry && update instanceof VrfEntry) {
-            createFibEntries(tx, identifier, (VrfEntry) update, subTxns);
-        }
-    }
-
-    @Override
-    public void create(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier,
-                       Object vrfEntry, List<SubTransaction> subTxns) {
-        if (vrfEntry instanceof VrfEntry) {
-            createFibEntries(tx, identifier, (VrfEntry) vrfEntry, subTxns);
-        }
-    }
-
-    @Override
-    public void delete(WriteTransaction tx, LogicalDatastoreType datastoreType, InstanceIdentifier identifier,
-                       Object vrfEntry, List<SubTransaction> subTxns) {
-        if (vrfEntry instanceof VrfEntry) {
-            deleteFibEntries(tx, identifier, (VrfEntry) vrfEntry, subTxns);
-        }
-    }
-
-    @Override
     public void createFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
-        actResource.setAction(ActionableResource.CREATE);
-        actResource.setInstanceIdentifier(identifier);
-        actResource.setInstance(vrfEntry);
-        vrfEntryBufferQ.add(actResource);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> createFibEntries(
+                tx, identifier, vrfEntry)), LOG, "Error creating flows");
     }
 
     @Override
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
-        ActionableResource actResource = new ActionableResourceImpl(rd + vrfEntry.getDestPrefix());
-        actResource.setAction(ActionableResource.DELETE);
-        actResource.setInstanceIdentifier(identifier);
-        actResource.setInstance(vrfEntry);
-        vrfEntryBufferQ.add(actResource);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> deleteFibEntries(
+                tx, identifier, vrfEntry)), LOG, "Error removing flows");
     }
 
     @Override
     public void updateFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry original, VrfEntry update, String rd) {
-        ActionableResource actResource = new ActionableResourceImpl(rd + update.getDestPrefix());
-        actResource.setAction(ActionableResource.UPDATE);
-        actResource.setInstanceIdentifier(identifier);
-        actResource.setInstance(update);
-        actResource.setOldInstance(original);
-        vrfEntryBufferQ.add(actResource);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> createFibEntries(
+                tx, identifier, update)), LOG, "Error updating flows");
     }
 
-    /*
-      Please note that the following createFibEntries will be invoked only for BGP Imported Routes.
-      The invocation of the following method is via create() callback from the MDSAL Batching Infrastructure
-      provided by ResourceBatchingManager
-     */
     private void createFibEntries(WriteTransaction writeTx, final InstanceIdentifier<VrfEntry> vrfEntryIid,
-                                  final VrfEntry vrfEntry, List<SubTransaction> subTxns) {
+            final VrfEntry vrfEntry) {
         final VrfTablesKey vrfTableKey = vrfEntryIid.firstKeyOf(VrfTables.class);
 
         final VpnInstanceOpDataEntry vpnInstance =
@@ -186,19 +116,14 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             for (VpnToDpnList vpnDpn : vpnToDpnList) {
                 if (vpnDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                     createRemoteFibEntry(vpnDpn.getDpnId(), vpnInstance.getVpnId(), vrfTableKey.getRouteDistinguisher(),
-                            vrfEntry, writeTx, subTxns);
+                            vrfEntry, writeTx);
                 }
             }
         }
     }
 
-    /*
-      Please note that the following deleteFibEntries will be invoked only for BGP Imported Routes.
-      The invocation of the following method is via delete() callback from the MDSAL Batching Infrastructure
-      provided by ResourceBatchingManager
-     */
     private void deleteFibEntries(WriteTransaction writeTx, final InstanceIdentifier<VrfEntry> identifier,
-                                  final VrfEntry vrfEntry, List<SubTransaction> subTxns) {
+            final VrfEntry vrfEntry) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         String rd = vrfTableKey.getRouteDistinguisher();
         final VpnInstanceOpDataEntry vpnInstance =
@@ -228,7 +153,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             for (VpnToDpnList curDpn : vpnToDpnList) {
                 if (curDpn.getDpnState() == VpnToDpnList.DpnState.Active) {
                     deleteRemoteRoute(BigInteger.ZERO, curDpn.getDpnId(), vpnInstance.getVpnId(),
-                            vrfTableKey, vrfEntry, extraRouteOptional, writeTx, subTxns);
+                            vrfTableKey, vrfEntry, extraRouteOptional, writeTx);
                 }
             }
         }
@@ -239,12 +164,11 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                                              final VrfEntry vrfEntry,
                                              WriteTransaction tx,
                                              String rd,
-                                             List<NexthopManager.AdjacencyResult> adjacencyResults,
-                                             List<SubTransaction> subTxns) {
+                                             List<NexthopManager.AdjacencyResult> adjacencyResults) {
         Preconditions.checkArgument(vrfEntry.getRoutePaths().size() <= 2);
 
         if (adjacencyResults.size() == 1) {
-            programRemoteFib(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults, subTxns);
+            programRemoteFib(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults);
             return;
         }
         // ECMP Use case, point to LB group. Move the mpls label accordingly.
@@ -271,15 +195,14 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
         List<InstructionInfo> instructions = new ArrayList<>();
         actionInfos.add(new ActionGroup(index, groupId));
         instructions.add(new InstructionApplyActions(actionInfos));
-        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
+        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
     }
 
     public void createRemoteFibEntry(final BigInteger remoteDpnId,
                                      final long vpnId,
                                      final String rd,
                                      final VrfEntry vrfEntry,
-                                     WriteTransaction tx,
-                                     List<SubTransaction> subTxns) {
+                                     WriteTransaction tx) {
         Boolean wrTxPresent = true;
         if (tx == null) {
             wrTxPresent = false;
@@ -297,7 +220,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             return;
         }
 
-        programRemoteFibForBgpRoutes(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults, subTxns);
+        programRemoteFibForBgpRoutes(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults);
 
         if (!wrTxPresent) {
             tx.submit();
@@ -306,19 +229,19 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     }
 
     private void deleteFibEntryForBgpRoutes(BigInteger remoteDpnId, long vpnId, VrfEntry vrfEntry,
-                                             String rd, WriteTransaction tx, List<SubTransaction> subTxns) {
+                                            String rd, WriteTransaction tx) {
         // When the tunnel is removed the fib entries should be reprogrammed/deleted depending on
         // the adjacencyResults.
         List<NexthopManager.AdjacencyResult> adjacencyResults = resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
         if (!adjacencyResults.isEmpty()) {
-            programRemoteFibForBgpRoutes(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults, subTxns);
+            programRemoteFibForBgpRoutes(remoteDpnId, vpnId, vrfEntry, tx, rd, adjacencyResults);
         }
     }
 
     public void deleteRemoteRoute(final BigInteger localDpnId, final BigInteger remoteDpnId,
                                   final long vpnId, final VrfTablesKey vrfTableKey,
                                   final VrfEntry vrfEntry, Optional<Routes> extraRouteOptional,
-                                  WriteTransaction tx, List<SubTransaction> subTxns) {
+                                  WriteTransaction tx) {
 
         Boolean wrTxPresent = true;
         if (tx == null) {
@@ -336,7 +259,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                 nexthopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
                         Collections.emptyList() /*listBucketInfo*/ , false);
             }
-            deleteFibEntryForBgpRoutes(remoteDpnId, vpnId, vrfEntry, rd, tx, subTxns);
+            deleteFibEntryForBgpRoutes(remoteDpnId, vpnId, vrfEntry, rd, tx);
             return;
         }
 
@@ -346,7 +269,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
             nexthopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
                     Collections.emptyList()  /*listBucketInfo*/ , false);
         } else {
-            checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, subTxns);
+            checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx);
         }
         if (!wrTxPresent) {
             tx.submit();
@@ -356,7 +279,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
     public Consumer<? super VrfEntry> getConsumerForCreatingRemoteFib(
             final BigInteger dpnId, final long vpnId, final String rd,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
-            WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
+            WriteTransaction writeCfgTxn) {
         return vrfEntry -> vrfEntry.getRoutePaths().stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
@@ -365,14 +288,14 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                     LOG.trace("creating remote FIB entry for prefix {} rd {} on Dpn {}",
                             vrfEntry.getDestPrefix(), rd, dpnId);
                     createRemoteFibEntry(dpnId, vpnId, vrfTable.get().getRouteDistinguisher(),
-                            vrfEntry, writeCfgTxn, subTxns);
+                            vrfEntry, writeCfgTxn);
                 });
     }
 
     public Consumer<? super VrfEntry> getConsumerForDeletingRemoteFib(
             final BigInteger dpnId, final long vpnId,
             final String remoteNextHopIp, final Optional<VrfTables> vrfTable,
-            WriteTransaction writeCfgTxn, List<SubTransaction> subTxns) {
+            WriteTransaction writeCfgTxn) {
         return vrfEntry -> vrfEntry.getRoutePaths().stream()
                 .filter(routes -> !routes.getNexthopAddress().isEmpty()
                         && remoteNextHopIp.trim().equals(routes.getNexthopAddress().trim()))
@@ -380,7 +303,7 @@ public class BgpRouteVrfEntryHandler extends BaseVrfEntryHandler
                 .ifPresent(routes -> {
                     LOG.trace(" deleting remote FIB entry {}", vrfEntry);
                     deleteRemoteRoute(null, dpnId, vpnId, vrfTable.get().getKey(), vrfEntry,
-                            Optional.absent(), writeCfgTxn, subTxns);
+                            Optional.absent(), writeCfgTxn);
                 });
     }
 

@@ -48,14 +48,18 @@ import org.apache.thrift.transport.TTransport;
 import org.opendaylight.controller.config.api.osgi.WaitingServiceTracker;
 import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeListener;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.utils.clustering.EntityOwnershipUtils;
 import org.opendaylight.infrautils.metrics.MetricProvider;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.mdsal.eos.binding.api.Entity;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipCandidateRegistration;
 import org.opendaylight.mdsal.eos.binding.api.EntityOwnershipListenerRegistration;
@@ -126,7 +130,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev15033
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.macvrfentries.MacVrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier.InstanceIdentifierBuilder;
 import org.osgi.framework.BundleContext;
@@ -171,6 +174,7 @@ public class BgpConfigurationManager {
 
     private IBgpManager bgpManager;
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
     private final FibDSWriter fibDSWriter;
     private final IVpnLinkService vpnLinkService;
     private final BundleContext bundleContext;
@@ -235,6 +239,7 @@ public class BgpConfigurationManager {
             final BgpUtil bgpUtil,
             final MetricProvider metricProvider) {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
         this.fibDSWriter = fibDSWriter;
         this.vpnLinkService = vpnLinkSrvce;
         this.bundleContext = bundleContext;
@@ -2279,14 +2284,6 @@ public class BgpConfigurationManager {
         return replaySucceded && replayDone;
     }
 
-    private <T extends DataObject> void update(InstanceIdentifier<T> iid, T dto) {
-        bgpUtil.update(iid, dto);
-    }
-
-    private <T extends DataObject> void delete(InstanceIdentifier<T> iid) {
-        bgpUtil.delete(iid);
-    }
-
     public void startConfig(String bgpHost, int thriftPort) {
         InstanceIdentifier.InstanceIdentifierBuilder<ConfigServer> iib =
                 InstanceIdentifier.builder(Bgp.class).child(ConfigServer.class);
@@ -2294,7 +2291,9 @@ public class BgpConfigurationManager {
         Ipv4Address ipAddr = new Ipv4Address(bgpHost);
         ConfigServer dto = new ConfigServerBuilder().setHost(ipAddr)
                 .setPort((long) thriftPort).build();
-        update(iid, dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error starting configuration");
     }
 
     public void startBgp(long as, String routerId, int spt, boolean fbit) {
@@ -2307,7 +2306,9 @@ public class BgpConfigurationManager {
                 .setRouterId(rid)
                 .setStalepathTime(staleTime)
                 .setAnnounceFbit(fbit).build();
-        update(iid, dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error starting BGP");
     }
 
     public void addLogging(String fileName, String logLevel) {
@@ -2316,7 +2317,9 @@ public class BgpConfigurationManager {
         InstanceIdentifier<Logging> iid = iib.build();
         Logging dto = new LoggingBuilder().setFile(fileName)
                 .setLevel(logLevel).build();
-        update(iid, dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error adding logging");
     }
 
     public void addGracefulRestart(int staleTime) {
@@ -2325,7 +2328,9 @@ public class BgpConfigurationManager {
         InstanceIdentifier<GracefulRestart> iid = iib.build();
         GracefulRestart dto = new GracefulRestartBuilder()
                 .setStalepathTime((long) staleTime).build();
-        update(iid, dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error adding graceful restart");
     }
 
     public void addNeighbor(
@@ -2341,8 +2346,10 @@ public class BgpConfigurationManager {
         } // else let tcpSecOption be null
         Neighbors dto = new NeighborsBuilder().setAddress(nbrAddr)
                 .setRemoteAs(remoteAs).setTcpSecurityOption(tcpSecOption).build();
-        update(iid, dto);
-    } // public addNeighbor(nbrIp, remoteAs, md5Secret)
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error adding neighbor");
+    }
 
     public void addUpdateSource(String nbrIp, String srcIp) {
         Ipv4Address nbrAddr = new Ipv4Address(nbrIp);
@@ -2354,7 +2361,9 @@ public class BgpConfigurationManager {
         InstanceIdentifier<UpdateSource> iid = iib.build();
         UpdateSource dto = new UpdateSourceBuilder().setPeerIp(nbrAddr)
                 .setSourceIp(srcAddr).build();
-        update(iid, dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error updating source");
     }
 
     public void addEbgpMultihop(String nbrIp, int hops) {
@@ -2366,7 +2375,9 @@ public class BgpConfigurationManager {
         InstanceIdentifier<EbgpMultihop> iid = iib.build();
         EbgpMultihop dto = new EbgpMultihopBuilder().setPeerIp(nbrAddr)
                 .setNhops((long) hops).build();
-        update(iid, dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error adding EBGP multi-hop");
     }
 
     public void addAddressFamily(String nbrIp, int afi, int safi) {
@@ -2378,21 +2389,26 @@ public class BgpConfigurationManager {
         InstanceIdentifier<AddressFamilies> iid = iib.build();
         AddressFamilies dto = new AddressFamiliesBuilder().setPeerIp(nbrAddr)
                 .setAfi((long) afi).setSafi((long) safi).build();
-        update(iid, dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iid, dto, WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error adding address family");
     }
 
     public void addPrefix(String rd, String macAddress, String pfx, List<String> nhList,
               VrfEntry.EncapType encapType, long lbl, long l3vni, long l2vni, String gatewayMac) {
-        for (String nh : nhList) {
-            Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
-            Long label = lbl;
-            InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
-                    .child(Networks.class, new NetworksKey(pfx, rd)).build();
-            NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
-                                                .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
-            buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, l2vni, macAddress, gatewayMac);
-            update(iid, networksBuilder.build());
-        }
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+            for (String nh : nhList) {
+                Ipv4Address nexthop = nh != null ? new Ipv4Address(nh) : null;
+                Long label = lbl;
+                InstanceIdentifier<Networks> iid = InstanceIdentifier.builder(Bgp.class)
+                        .child(Networks.class, new NetworksKey(pfx, rd)).build();
+                NetworksBuilder networksBuilder = new NetworksBuilder().setRd(rd).setPrefixLen(pfx).setNexthop(nexthop)
+                        .setLabel(label).setEthtag(BgpConstants.DEFAULT_ETH_TAG);
+                buildVpnEncapSpecificInfo(networksBuilder, encapType, label, l3vni, l2vni, macAddress, gatewayMac);
+                tx.merge(LogicalDatastoreType.CONFIGURATION, iid, networksBuilder.build(),
+                        WriteTransaction.CREATE_MISSING_PARENTS);
+            }
+        }), LOG, "Error adding prefix");
     }
 
     private static void buildVpnEncapSpecificInfo(NetworksBuilder builder, VrfEntry.EncapType encapType, long label,
@@ -2451,21 +2467,27 @@ public class BgpConfigurationManager {
         InstanceIdentifier.InstanceIdentifierBuilder<ConfigServer> iib =
                 InstanceIdentifier.builder(Bgp.class).child(ConfigServer.class);
         InstanceIdentifier<ConfigServer> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error stopping configuration");
     }
 
     public void stopBgp() {
         InstanceIdentifier.InstanceIdentifierBuilder<AsId> iib =
                 InstanceIdentifier.builder(Bgp.class).child(AsId.class);
         InstanceIdentifier<AsId> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error stopping BGP");
     }
 
     public void delLogging() {
         InstanceIdentifier.InstanceIdentifierBuilder<Logging> iib =
                 InstanceIdentifier.builder(Bgp.class).child(Logging.class);
         InstanceIdentifier<Logging> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error deleting logging");
     }
 
     public void delGracefulRestart() {
@@ -2473,7 +2495,9 @@ public class BgpConfigurationManager {
                 InstanceIdentifier.builder(Bgp.class)
                         .child(GracefulRestart.class);
         InstanceIdentifier<GracefulRestart> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error deleting graceful restart");
     }
 
     public void delNeighbor(String nbrIp) {
@@ -2482,7 +2506,9 @@ public class BgpConfigurationManager {
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Neighbors.class, new NeighborsKey(nbrAddr));
         InstanceIdentifier<Neighbors> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error deleting neighbor");
     }
 
     public void delUpdateSource(String nbrIp) {
@@ -2492,7 +2518,9 @@ public class BgpConfigurationManager {
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(UpdateSource.class);
         InstanceIdentifier<UpdateSource> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error deleting update source");
     }
 
     public void delEbgpMultihop(String nbrIp) {
@@ -2502,7 +2530,9 @@ public class BgpConfigurationManager {
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(EbgpMultihop.class);
         InstanceIdentifier<EbgpMultihop> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error deleting EBGP multi-hop");
     }
 
     public void delAddressFamily(String nbrIp, int afi, int safi) {
@@ -2512,7 +2542,9 @@ public class BgpConfigurationManager {
                         .child(Neighbors.class, new NeighborsKey(nbrAddr))
                         .child(AddressFamilies.class, new AddressFamiliesKey((long) afi, (long) safi));
         InstanceIdentifier<AddressFamilies> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error deleting address family");
     }
 
     public void delPrefix(String rd, String pfx) {
@@ -2520,7 +2552,9 @@ public class BgpConfigurationManager {
                 InstanceIdentifier.builder(Bgp.class)
                         .child(Networks.class, new NetworksKey(pfx, rd));
         InstanceIdentifier<Networks> iid = iib.build();
-        delete(iid);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iid)),
+            LOG, "Error deleting prefix");
     }
 
     public boolean delVrf(String rd, AddressFamily addressFamily) {
@@ -2565,7 +2599,6 @@ public class BgpConfigurationManager {
         adfListOriginal.forEach(adf -> {
             if (adf.equals(adfToDel)) {
                 adfListToRemoveFromOriginal.add(adfToDel);
-                return;
             }
         });
         for (AddressFamiliesVrf adfToRemove : adfListToRemoveFromOriginal) {
@@ -2579,7 +2612,9 @@ public class BgpConfigurationManager {
             }
         }
         if (adfListOriginal.isEmpty()) {
-            delete(iidFinal);
+            ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, iidFinal)),
+                LOG, "Error deleting VRF");
             return true;
         }
         // not all is removed
@@ -2591,13 +2626,13 @@ public class BgpConfigurationManager {
         long lsafi = safi.getValue();
 
         InstanceIdentifier.InstanceIdentifierBuilder<Multipath> iib =
-                InstanceIdentifier
-                        .builder(Bgp.class)
-                        .child(Multipath.class,
-                                new MultipathKey(Long.valueOf(afi.getValue()), Long.valueOf(safi.getValue())));
+                InstanceIdentifier.builder(Bgp.class).child(Multipath.class, new MultipathKey(lafi, lsafi));
 
         Multipath dto = new MultipathBuilder().setAfi(lafi).setSafi(lsafi).setMultipathEnabled(enable).build();
-        update(iib.build(), dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iib.build(), dto,
+                    WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error adding address family");
     }
 
     public void multipaths(String rd, int maxpath) {
@@ -2607,7 +2642,10 @@ public class BgpConfigurationManager {
                         .child(VrfMaxpath.class, new VrfMaxpathKey(rd));
 
         VrfMaxpath dto = new VrfMaxpathBuilder().setRd(rd).setMaxpaths(maxpath).build();
-        update(iib.build(), dto);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, iib.build(), dto,
+                    WriteTransaction.CREATE_MISSING_PARENTS)),
+            LOG, "Error setting up multipaths");
     }
 
     /*

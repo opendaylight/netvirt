@@ -19,6 +19,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.AddressFamily;
@@ -42,12 +45,14 @@ import org.slf4j.LoggerFactory;
 public class FibDSWriter {
     private static final Logger LOG = LoggerFactory.getLogger(FibDSWriter.class);
     private final SingleTransactionDataBroker singleTxDB;
+    private final ManagedNewTransactionRunner txRunner;
     private final BgpUtil bgpUtil;
 
     @Inject
     public FibDSWriter(final DataBroker dataBroker, final BgpUtil bgpUtil) {
         this.bgpUtil = bgpUtil;
         this.singleTxDB = new SingleTransactionDataBroker(dataBroker);
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     public synchronized void addFibEntryToDS(String rd, String prefix, List<String> nextHopList,
@@ -76,7 +81,9 @@ public class FibDSWriter {
         VrfEntryBuilder vrfEntryBuilder = new VrfEntryBuilder().setDestPrefix(prefix).setOrigin(origin.getValue());
         buildVpnEncapSpecificInfo(vrfEntryBuilder, encapType, label, l3vni,
                 gatewayMacAddress, nextHopList);
-        bgpUtil.update(vrfEntryId, vrfEntryBuilder.build());
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, vrfEntryId, vrfEntryBuilder.build())),
+            LOG, "Error adding FIB entry to DS");
     }
 
     public void addMacEntryToDS(String rd, String macAddress, String prefix,
@@ -104,7 +111,9 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class)
                         .child(VrfTables.class, new VrfTablesKey(rd))
                         .child(MacVrfEntry.class, new MacVrfEntryKey(macAddress)).build();
-        bgpUtil.update(macEntryId, macEntryBuilder.build());
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, macEntryId, macEntryBuilder.build())),
+            LOG, "Error adding MAC entry to DS");
     }
 
     private static void buildVpnEncapSpecificInfo(VrfEntryBuilder builder,
@@ -146,8 +155,9 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
                         VrfEntry.class, new VrfEntryKey(prefix));
         InstanceIdentifier<VrfEntry> vrfEntryId = idBuilder.build();
-        bgpUtil.delete(vrfEntryId);
-
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId)),
+            LOG, "Error removing FIB entry from DS");
     }
 
     public void removeMacEntryFromDS(String rd, String macAddress) {
@@ -162,8 +172,9 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd)).child(
                         MacVrfEntry.class, new MacVrfEntryKey(macAddress));
         InstanceIdentifier<MacVrfEntry> macEntryId = idBuilder.build();
-        bgpUtil.delete(macEntryId);
-
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, macEntryId)),
+            LOG, "Error removing MAC entry from DS");
     }
 
     public synchronized void removeOrUpdateFibEntryFromDS(String rd, String prefix, String nextHop) {
@@ -174,18 +185,18 @@ public class FibDSWriter {
         }
         LOG.debug("Removing fib entry with destination prefix {} from vrf table for rd {} and nextHop {}",
                 prefix, rd, nextHop);
-        try {
+        ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
             InstanceIdentifier<VrfEntry> vrfEntryId =
                     InstanceIdentifier.builder(FibEntries.class)
                     .child(VrfTables.class, new VrfTablesKey(rd))
                     .child(VrfEntry.class, new VrfEntryKey(prefix)).build();
             Optional<VrfEntry> existingVrfEntry =
-                    singleTxDB.syncReadOptional(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
+                    tx.read(LogicalDatastoreType.CONFIGURATION, vrfEntryId).checkedGet();
             List<RoutePaths> routePaths =
                     existingVrfEntry.toJavaUtil().map(VrfEntry::getRoutePaths).orElse(Collections.emptyList());
             if (routePaths.size() == 1) {
                 if (routePaths.get(0).getNexthopAddress().equals(nextHop)) {
-                    bgpUtil.delete(vrfEntryId);
+                    tx.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId);
                 }
             } else {
                 routePaths.stream()
@@ -195,13 +206,10 @@ public class FibDSWriter {
                     .ifPresent(nh -> {
                         InstanceIdentifier<RoutePaths> routePathId =
                                 FibHelper.buildRoutePathId(rd, prefix, nextHop);
-                        bgpUtil.delete(routePathId);
+                        tx.delete(LogicalDatastoreType.CONFIGURATION, routePathId);
                     });
             }
-        } catch (ReadFailedException e) {
-            LOG.error("Error while reading vrfEntry for rd {}, prefix {}", rd, prefix);
-            return;
-        }
+        }), LOG, "Error removing or updating FIB entries from DS");
     }
 
 
@@ -260,7 +268,8 @@ public class FibDSWriter {
                 InstanceIdentifier.builder(FibEntries.class).child(VrfTables.class, new VrfTablesKey(rd));
         InstanceIdentifier<VrfTables> vrfTableId = idBuilder.build();
 
-        bgpUtil.delete(vrfTableId);
-
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, vrfTableId)),
+            LOG, "Error removing VRF from DS");
     }
 }

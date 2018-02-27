@@ -15,10 +15,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
 
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager.ShardResource;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
 import org.opendaylight.netvirt.elanmanager.utils.ElanL2GwCacheUtils;
@@ -49,6 +48,9 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
     /** The mac addresses. */
     private final Collection<MacAddress> macAddresses;
 
+    /** Transaction runner. */
+    private final ManagedNewTransactionRunner txRunner;
+
     /**
      * Instantiates a new delete l2 gw device macs from elan job.
      *
@@ -60,10 +62,11 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
      *            the mac addresses
      */
     public DeleteL2GwDeviceMacsFromElanJob(String elanName, L2GatewayDevice l2GwDevice,
-                                           Collection<MacAddress> macAddresses) {
+                                           Collection<MacAddress> macAddresses, ManagedNewTransactionRunner txRunner) {
         this.elanName = elanName;
         this.l2GwDevice = l2GwDevice;
         this.macAddresses = macAddresses;
+        this.txRunner = txRunner;
     }
 
     /**
@@ -114,14 +117,16 @@ public class DeleteL2GwDeviceMacsFromElanJob implements Callable<List<Listenable
      * @param lstMac list of macs to be deleted
      * @return list of futures
      */
-    public static List<ListenableFuture<Void>> deleteRemoteUcastMacs(final NodeId nodeId,
-                                             String logicalSwitchName, final List<MacAddress> lstMac) {
+    private List<ListenableFuture<Void>> deleteRemoteUcastMacs(final NodeId nodeId,
+            String logicalSwitchName, final List<MacAddress> lstMac) {
         if (lstMac != null) {
-            return lstMac.stream()
-                .map(mac -> HwvtepSouthboundUtils.createRemoteUcastMacsInstanceIdentifier(
-                        nodeId, logicalSwitchName, mac))
-                .map(iid -> ResourceBatchingManager.getInstance().delete(ShardResource.CONFIG_TOPOLOGY, iid))
-                .collect(Collectors.toList());
+            return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                for (MacAddress macAddress : lstMac) {
+                    tx.delete(LogicalDatastoreType.CONFIGURATION,
+                            HwvtepSouthboundUtils.createRemoteUcastMacsInstanceIdentifier(
+                                    nodeId, logicalSwitchName, macAddress));
+                }
+            }));
         }
         return Collections.emptyList();
     }

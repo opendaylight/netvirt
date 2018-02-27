@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.ha.listeners;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutionException;
+import javax.annotation.Nonnull;
 import javax.annotation.PreDestroy;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataObjectModification;
@@ -19,9 +20,11 @@ import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.TaskRetryLooper;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundConstants;
-import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.NetworkTopology;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.Topology;
@@ -42,9 +45,11 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
 
     private final ListenerRegistration<HwvtepNodeBaseListener> registration;
     private final DataBroker dataBroker;
+    private final ManagedNewTransactionRunner txRunner;
 
     public HwvtepNodeBaseListener(LogicalDatastoreType datastoreType, DataBroker dataBroker) throws Exception {
         this.dataBroker = dataBroker;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
 
         final DataTreeIdentifier<Node> treeId = new DataTreeIdentifier<>(datastoreType, getWildcardPath());
         TaskRetryLooper looper = new TaskRetryLooper(STARTUP_LOOP_TICK, STARTUP_LOOP_MAX_RETRIES);
@@ -57,22 +62,13 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
     }
 
     @Override
-    public void onDataTreeChanged(final Collection<DataTreeModification<Node>> changes) {
-        HAJobScheduler.getInstance().submitJob(() -> {
-            ReadWriteTransaction tx = getTx();
-            try {
+    public void onDataTreeChanged(@Nonnull final Collection<DataTreeModification<Node>> changes) {
+        HAJobScheduler.getInstance().submitJob(
+            () -> ListenableFutures.addErrorLogging(txRunner.callWithNewReadWriteTransactionAndSubmit(tx -> {
                 processConnectedNodes(changes, tx);
                 processUpdatedNodes(changes, tx);
                 processDisconnectedNodes(changes, tx);
-                tx.submit().get();
-            } catch (InterruptedException e1) {
-                LOG.error("InterruptedException " + e1.getMessage());
-            } catch (ExecutionException e2) {
-                LOG.error("ExecutionException" + e2.getMessage());
-            } catch (ReadFailedException e3) {
-                LOG.error("ReadFailedException" + e3.getMessage());
-            }
-        });
+            }), LOG, "Error processing a data tree change"));
     }
 
     private void processUpdatedNodes(Collection<DataTreeModification<Node>> changes,
@@ -149,10 +145,6 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
         if (registration != null) {
             registration.close();
         }
-    }
-
-    ReadWriteTransaction getTx() {
-        return new BatchedTransaction();
     }
 
     //default methods

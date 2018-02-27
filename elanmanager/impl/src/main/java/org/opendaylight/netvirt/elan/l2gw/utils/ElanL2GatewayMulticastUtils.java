@@ -22,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
@@ -31,11 +32,11 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.genius.utils.hwvtep.HwvtepSouthboundUtils;
 import org.opendaylight.genius.utils.hwvtep.HwvtepUtils;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.jobs.HwvtepDeviceMcastMacUpdateJob;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanItmUtils;
@@ -452,8 +453,9 @@ public class ElanL2GatewayMulticastUtils {
                 TerminationPoint terminationPoint = new TerminationPointBuilder()
                                 .setKey(HwvtepSouthboundUtils.getTerminationPointKey(phyLocatorAug))
                                 .addAugmentation(HwvtepPhysicalLocatorAugmentation.class, phyLocatorAug).build();
-                ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
-                        iid, terminationPoint);
+                ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+                    tx -> tx.put(LogicalDatastoreType.CONFIGURATION, iid, terminationPoint,
+                            WriteTransaction.CREATE_MISSING_PARENTS)), LOG, "Error adding termination point");
                 LOG.info("Adding PhysicalLocator for node: {} with Dhcp designated switch Tep Ip {} "
                         + "as physical locator, elan {}", device.getHwvtepNodeId(),
                         String.valueOf(dhcpDesignatedSwitchTepIp.getValue()), elanName);
@@ -481,8 +483,7 @@ public class ElanL2GatewayMulticastUtils {
      * @param tepIps
      *            the tep ips
      */
-    private static void putRemoteMcastMac(NodeId nodeId, String logicalSwitchName,
-            ArrayList<IpAddress> tepIps) {
+    private void putRemoteMcastMac(NodeId nodeId, String logicalSwitchName, ArrayList<IpAddress> tepIps) {
         List<LocatorSet> locators = new ArrayList<>();
         for (IpAddress tepIp : tepIps) {
             HwvtepPhysicalLocatorAugmentation phyLocatorAug = HwvtepSouthboundUtils
@@ -499,9 +500,9 @@ public class ElanL2GatewayMulticastUtils {
                 .setLocatorSet(locators).build();
         InstanceIdentifier<RemoteMcastMacs> iid = HwvtepSouthboundUtils.createRemoteMcastMacsInstanceIdentifier(nodeId,
                 remoteMcastMac.getKey());
-        ResourceBatchingManager.getInstance().put(ResourceBatchingManager.ShardResource.CONFIG_TOPOLOGY,
-                iid, remoteMcastMac);
-
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.put(LogicalDatastoreType.CONFIGURATION, iid, remoteMcastMac,
+                    WriteTransaction.CREATE_MISSING_PARENTS)), LOG, "Error adding remote multi-cast MAC");
     }
 
     /**

@@ -50,8 +50,6 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpProtocol;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchIpv6Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
-import org.opendaylight.genius.utils.batching.SubTransaction;
-import org.opendaylight.genius.utils.batching.SubTransactionImpl;
 import org.opendaylight.netvirt.fibmanager.NexthopManager.AdjacencyResult;
 import org.opendaylight.netvirt.fibmanager.api.FibHelper;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -204,8 +202,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     protected void makeConnectedRoute(BigInteger dpId, long vpnId, VrfEntry vrfEntry, String rd,
-                            List<InstructionInfo> instructions, int addOrRemove, WriteTransaction tx,
-                            List<SubTransaction> subTxns) {
+                                      List<InstructionInfo> instructions, int addOrRemove, WriteTransaction tx) {
         Boolean wrTxPresent = true;
         if (tx == null) {
             wrTxPresent = false;
@@ -259,19 +256,6 @@ public class BaseVrfEntryHandler implements AutoCloseable {
         InstanceIdentifier<Flow> flowInstanceId = InstanceIdentifier.builder(Nodes.class)
                 .child(Node.class, nodeDpn.getKey()).augmentation(FlowCapableNode.class)
                 .child(Table.class, new TableKey(flow.getTableId())).child(Flow.class, flowKey).build();
-
-        if (RouteOrigin.value(vrfEntry.getOrigin()) == RouteOrigin.BGP) {
-            SubTransaction subTransaction = new SubTransactionImpl();
-            if (addOrRemove == NwConstants.ADD_FLOW) {
-                subTransaction.setInstanceIdentifier(flowInstanceId);
-                subTransaction.setInstance(flow);
-                subTransaction.setAction(SubTransaction.CREATE);
-            } else {
-                subTransaction.setInstanceIdentifier(flowInstanceId);
-                subTransaction.setAction(SubTransaction.DELETE);
-            }
-            subTxns.add(subTransaction);
-        }
 
         if (addOrRemove == NwConstants.ADD_FLOW) {
             tx.put(LogicalDatastoreType.CONFIGURATION, flowInstanceId, flow, true);
@@ -375,9 +359,8 @@ public class BaseVrfEntryHandler implements AutoCloseable {
     }
 
     public void programRemoteFib(final BigInteger remoteDpnId, final long vpnId,
-                                  final VrfEntry vrfEntry, WriteTransaction tx, String rd,
-                                  List<AdjacencyResult> adjacencyResults,
-                                  List<SubTransaction> subTxns) {
+                                 final VrfEntry vrfEntry, WriteTransaction tx, String rd,
+                                 List<AdjacencyResult> adjacencyResults) {
         List<InstructionInfo> instructions = new ArrayList<>();
         for (AdjacencyResult adjacencyResult : adjacencyResults) {
             List<ActionInfo> actionInfos = new ArrayList<>();
@@ -399,18 +382,18 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             actionInfos.addAll(egressActions);
             instructions.add(new InstructionApplyActions(actionInfos));
         }
-        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
+        makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
     }
 
     public boolean checkDpnDeleteFibEntry(VpnNexthop localNextHopInfo, BigInteger remoteDpnId, long vpnId,
-                                           VrfEntry vrfEntry, String rd,
-                                           WriteTransaction tx, List<SubTransaction> subTxns) {
+                                          VrfEntry vrfEntry, String rd,
+                                          WriteTransaction tx) {
         boolean isRemoteRoute = true;
         if (localNextHopInfo != null) {
             isRemoteRoute = !remoteDpnId.equals(localNextHopInfo.getDpnId());
         }
         if (isRemoteRoute) {
-            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, subTxns);
+            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
             LOG.debug("Successfully delete FIB entry: vrfEntry={}, vpnId={}", vrfEntry.getDestPrefix(), vpnId);
             return true;
         } else {
@@ -441,7 +424,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
                 nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
                         Collections.emptyList() /*listBucketInfo*/ , false);
             }
-            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
+            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
             LOG.debug("Successfully delete FIB entry: vrfEntry={}, vpnId={}", vrfEntry.getDestPrefix(), vpnId);
             return;
         }
@@ -452,7 +435,7 @@ public class BaseVrfEntryHandler implements AutoCloseable {
             nextHopManager.setupLoadBalancingNextHop(vpnId, remoteDpnId, vrfEntry.getDestPrefix(),
                     Collections.emptyList() /*listBucketInfo*/ , false);
         } else {
-            checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx, null);
+            checkDpnDeleteFibEntry(localNextHopInfo, remoteDpnId, vpnId, vrfEntry, rd, tx);
         }
         if (!wrTxPresent) {
             tx.submit();

@@ -23,7 +23,6 @@ import org.opendaylight.genius.mdsalutil.actions.ActionGroup;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldTunnelId;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
-import org.opendaylight.genius.utils.batching.SubTransaction;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.netvirt.fibmanager.api.RouteOrigin;
@@ -116,7 +115,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     public void removeFlows(InstanceIdentifier<VrfEntry> identifier, VrfEntry vrfEntry, String rd) {
         final VrfTablesKey vrfTableKey = identifier.firstKeyOf(VrfTables.class);
         final VpnInstanceOpDataEntry vpnInstance = getFibUtil().getVpnInstanceOpData(
-                vrfTableKey.getRouteDistinguisher()).get();
+                vrfTableKey.getRouteDistinguisher()).orNull();
         if (vpnInstance == null) {
             LOG.error("VPN Instance for rd {} is not available from VPN Op Instance Datastore", rd);
             return;
@@ -182,7 +181,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                 + "-" + vrfEntry.getDestPrefix(),
             () -> {
                 WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, null);
+                makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
                 List<ListenableFuture<Void>> futures = new ArrayList<>();
                 futures.add(tx.submit());
                 return futures;
@@ -218,7 +217,6 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                                       final VrfEntry vrfEntry, boolean isNatPrefix, WriteTransaction tx) {
 
         String rd = vrfTableKey.getRouteDistinguisher();
-        List<SubTransaction> subTxns =  new ArrayList<>();
         LOG.debug("createremotefibentry: adding route {} for rd {} with transaction {}",
                 vrfEntry.getDestPrefix(), rd, tx);
         List<NexthopManager.AdjacencyResult> tunnelInterfaceList = resolveAdjacency(remoteDpnId, vpnId, vrfEntry, rd);
@@ -268,7 +266,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             actionInfos.addAll(egressActions);
             List<InstructionInfo> instructions = new ArrayList<>();
             instructions.add(new InstructionApplyActions(actionInfos));
-            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx, subTxns);
+            makeConnectedRoute(remoteDpnId, vpnId, vrfEntry, rd, instructions, NwConstants.ADD_FLOW, tx);
         }
         LOG.debug("Successfully added FIB entry for prefix {} in rd {}", vrfEntry.getDestPrefix(), rd);
     }
@@ -276,7 +274,6 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
     private void deleteRemoteEvpnFlows(String rd, VrfEntry vrfEntry, VpnInstanceOpDataEntry vpnInstance,
                                        VrfTablesKey vrfTableKey, List<BigInteger> localDpnIdList) {
         List<VpnToDpnList> vpnToDpnList = vpnInstance.getVpnToDpnList();
-        List<SubTransaction> subTxns =  new ArrayList<>();
         if (vpnToDpnList != null) {
             jobCoordinator.enqueueJob("FIB" + rd + vrfEntry.getDestPrefix(),
                 () -> {
@@ -288,7 +285,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                                 if (curDpn1.getDpnState() == VpnToDpnList.DpnState.Active) {
                                     bgpRouteVrfEntryHandler.deleteRemoteRoute(BigInteger.ZERO, curDpn1.getDpnId(),
                                         vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
-                                        extraRouteOptional, tx, subTxns);
+                                        extraRouteOptional, tx);
                                 }
                             } else {
                                 deleteRemoteRoute(BigInteger.ZERO, curDpn1.getDpnId(),
@@ -304,7 +301,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
                                         if (curDpn2.getDpnState() == VpnToDpnList.DpnState.Active) {
                                             bgpRouteVrfEntryHandler.deleteRemoteRoute(localDpnId, curDpn2.getDpnId(),
                                                 vpnInstance.getVpnId(), vrfTableKey, vrfEntry,
-                                                extraRouteOptional, tx, subTxns);
+                                                extraRouteOptional, tx);
                                         }
                                     } else {
                                         deleteRemoteRoute(localDpnId, curDpn2.getDpnId(),
@@ -332,7 +329,7 @@ public class EvpnVrfEntryHandler extends BaseVrfEntryHandler implements IVrfEntr
             jobCoordinator.enqueueJob("FIB-" + rd + "-" + vrfEntry.getDestPrefix(),
                 () -> {
                     WriteTransaction tx = dataBroker.newWriteOnlyTransaction();
-                    makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx, null);
+                    makeConnectedRoute(dpnId, vpnId, vrfEntry, rd, null, NwConstants.DEL_FLOW, tx);
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
                     futures.add(tx.submit());
                     return futures;

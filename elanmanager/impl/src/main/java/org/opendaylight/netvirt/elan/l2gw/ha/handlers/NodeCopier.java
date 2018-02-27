@@ -20,8 +20,9 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.utils.hwvtep.HwvtepHACache;
-import org.opendaylight.netvirt.elan.l2gw.ha.BatchedTransaction;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.l2gw.ha.HwvtepHAUtil;
 import org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAJobScheduler;
 import org.opendaylight.netvirt.elan.l2gw.ha.merge.GlobalAugmentationMerger;
@@ -43,18 +44,17 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class NodeCopier implements INodeCopier {
 
-    static Logger LOG = LoggerFactory.getLogger(NodeCopier.class);
+    private static Logger LOG = LoggerFactory.getLogger(NodeCopier.class);
 
-    GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
-    PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
-    GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
-    PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
-    DataBroker db;
-    HwvtepHACache hwvtepHACache = HwvtepHACache.getInstance();
+    private final GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
+    private final PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
+    private final GlobalNodeMerger globalNodeMerger = GlobalNodeMerger.getInstance();
+    private final PSNodeMerger psNodeMerger = PSNodeMerger.getInstance();
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public NodeCopier(DataBroker db) {
-        this.db = db;
+        this.txRunner = new ManagedNewTransactionRunnerImpl(db);
     }
 
     public void copyGlobalNode(Optional<Node> srcGlobalNodeOptional,
@@ -66,25 +66,22 @@ public class NodeCopier implements INodeCopier {
             Futures.addCallback(tx.read(logicalDatastoreType, srcPath), new FutureCallback<Optional<Node>>() {
                 @Override
                 public void onSuccess(Optional<Node> nodeOptional) {
-                    HAJobScheduler.getInstance().submitJob(() -> {
-                        try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction();
-                            if (nodeOptional.isPresent()) {
-                                copyGlobalNode(nodeOptional, srcPath, dstPath, logicalDatastoreType, tx1);
-                            } else {
-                                /**
-                                 * In case the Parent HA Global Node is not present and Child HA node is present
-                                 * It means that both the child are disconnected/removed hence the parent is deleted.
-                                 * @see org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener
-                                 * OnGLobalNode() delete function
-                                 * So we should delete the existing config child node as cleanup
-                                 */
-                                HwvtepHAUtil.deleteNodeIfPresent(tx1, logicalDatastoreType, dstPath);
-                            }
-                        } catch (ReadFailedException e) {
-                            LOG.error("Failed to read source node {}",srcPath);
-                        }
-                    });
+                    HAJobScheduler.getInstance().submitJob(() -> ListenableFutures.addErrorLogging(
+                            txRunner.callWithNewReadWriteTransactionAndSubmit(rwTx -> {
+                                if (nodeOptional.isPresent()) {
+                                    copyGlobalNode(nodeOptional, srcPath, dstPath, logicalDatastoreType, rwTx);
+                                } else {
+                                    /*
+                                     * In case the Parent HA Global Node is not present and Child HA node is present
+                                     * It means that both the child are disconnected/removed hence the parent is
+                                     * deleted.
+                                     * @see org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener
+                                     * OnGLobalNode() delete function
+                                     * So we should delete the existing config child node as cleanup
+                                     */
+                                    HwvtepHAUtil.deleteNodeIfPresent(rwTx, logicalDatastoreType, dstPath);
+                                }
+                            }), LOG, "Failed to read source node {}", srcPath));
                 }
 
                 @Override
@@ -96,7 +93,7 @@ public class NodeCopier implements INodeCopier {
         HwvtepGlobalAugmentation srcGlobalAugmentation =
                 srcGlobalNodeOptional.get().getAugmentation(HwvtepGlobalAugmentation.class);
         if (srcGlobalAugmentation == null) {
-            /**
+            /*
              * If Source HA Global Node is not present
              * It means that both the child are disconnected/removed hence the parent is deleted.
              * @see org.opendaylight.netvirt.elan.l2gw.ha.listeners.HAOpNodeListener OnGLobalNode() delete function
@@ -149,22 +146,16 @@ public class NodeCopier implements INodeCopier {
             Futures.addCallback(tx.read(logicalDatastoreType, srcPsPath), new FutureCallback<Optional<Node>>() {
                 @Override
                 public void onSuccess(Optional<Node> nodeOptional) {
-                    HAJobScheduler.getInstance().submitJob(() -> {
-                        try {
-                            ReadWriteTransaction tx1 = new BatchedTransaction();
-                            if (nodeOptional.isPresent()) {
-                                copyPSNode(nodeOptional,
-                                        srcPsPath, dstPsPath, dstGlobalPath, logicalDatastoreType, tx1);
-                            } else {
-                                /**
-                                 * Deleting node please refer @see #copyGlobalNode for explanation
-                                 */
-                                HwvtepHAUtil.deleteNodeIfPresent(tx1, logicalDatastoreType, dstPsPath);
-                            }
-                        } catch (ReadFailedException e) {
-                            LOG.error("Failed to read src node {}", srcPsNodeOptional.get());
-                        }
-                    });
+                    HAJobScheduler.getInstance().submitJob(() -> ListenableFutures.addErrorLogging(
+                            txRunner.callWithNewReadWriteTransactionAndSubmit(rwTx -> {
+                                if (nodeOptional.isPresent()) {
+                                    copyPSNode(nodeOptional,
+                                            srcPsPath, dstPsPath, dstGlobalPath, logicalDatastoreType, rwTx);
+                                } else {
+                                    // Deleting node please refer @see #copyGlobalNode for explanation
+                                    HwvtepHAUtil.deleteNodeIfPresent(rwTx, logicalDatastoreType, dstPsPath);
+                                }
+                            }), LOG, "Failed to read source node {}", srcPsNodeOptional.get()));
                 }
 
                 @Override
@@ -198,9 +189,9 @@ public class NodeCopier implements INodeCopier {
         LOG.debug("Copied {} physical switch node from {} to {}", logicalDatastoreType, srcPsPath, dstPsPath);
     }
 
-    public void mergeOpManagedByAttributes(PhysicalSwitchAugmentation psAugmentation,
-                                           PhysicalSwitchAugmentationBuilder builder,
-                                           InstanceIdentifier<Node> haNodePath) {
+    private void mergeOpManagedByAttributes(PhysicalSwitchAugmentation psAugmentation,
+            PhysicalSwitchAugmentationBuilder builder,
+            InstanceIdentifier<Node> haNodePath) {
         builder.setManagedBy(new HwvtepGlobalRef(haNodePath));
         if (psAugmentation != null) {
             builder.setHwvtepNodeName(psAugmentation.getHwvtepNodeName());

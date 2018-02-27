@@ -11,19 +11,14 @@ import com.google.common.base.Optional;
 import java.net.Inet4Address;
 import java.net.Inet6Address;
 import java.net.InetAddress;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
-import org.opendaylight.genius.utils.batching.ActionableResource;
-import org.opendaylight.genius.utils.batching.ActionableResourceImpl;
-import org.opendaylight.genius.utils.batching.DefaultBatchHandler;
-import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
+import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.encap_type;
@@ -53,43 +48,22 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evp
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.evpn.rd.to.networks.EvpnRdToNetworkKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.VpnInstanceOpDataEntryKey;
-import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.opendaylight.yangtools.yang.binding.KeyedInstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class BgpUtil implements AutoCloseable {
+public class BgpUtil {
     private static final Logger LOG = LoggerFactory.getLogger(BgpUtil.class);
-    private static final String RESOURCE_TYPE = "BGP-RESOURCES";
-    private static final int DEFAULT_BATCH_SIZE = 1000;
-    private static final int DEFAULT_BATCH_INTERVAL = 500;
 
     private final DataBroker dataBroker;
-
-    private final BlockingQueue<ActionableResource> bgpResourcesBufferQ = new LinkedBlockingQueue<>();
+    private final ManagedNewTransactionRunner txRunner;
 
     @Inject
     public BgpUtil(DataBroker dataBroker) {
         this.dataBroker = dataBroker;
-    }
-
-    @PostConstruct
-    public void init() {
-        ResourceBatchingManager resBatchingManager = ResourceBatchingManager.getInstance();
-
-        Integer batchSize = Integer.getInteger("batch.size", DEFAULT_BATCH_SIZE);
-        Integer batchInterval = Integer.getInteger("batch.wait.time", DEFAULT_BATCH_INTERVAL);
-
-        resBatchingManager.registerBatchableResource(RESOURCE_TYPE, bgpResourcesBufferQ,
-                new DefaultBatchHandler(dataBroker, LogicalDatastoreType.CONFIGURATION, batchSize, batchInterval));
-    }
-
-    @Override
-    @PreDestroy
-    public void close() {
-        ResourceBatchingManager.getInstance().deregisterBatchableResource(RESOURCE_TYPE);
+        this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
     }
 
     /**
@@ -119,30 +93,6 @@ public class BgpUtil implements AutoCloseable {
             retValue = af_afi.AFI_IP.getValue();//default afiValue is 1 (= ipv4)
         }
         return retValue;
-    }
-
-    public <T extends DataObject> void update(final InstanceIdentifier<T> path, final T data) {
-        ActionableResource actResource = new ActionableResourceImpl(path.toString());
-        actResource.setAction(ActionableResource.UPDATE);
-        actResource.setInstanceIdentifier(path);
-        actResource.setInstance(data);
-        bgpResourcesBufferQ.add(actResource);
-    }
-
-    public <T extends DataObject> void write(final InstanceIdentifier<T> path, final T data) {
-        ActionableResource actResource = new ActionableResourceImpl(path.toString());
-        actResource.setAction(ActionableResource.CREATE);
-        actResource.setInstanceIdentifier(path);
-        actResource.setInstance(data);
-        bgpResourcesBufferQ.add(actResource);
-    }
-
-    public <T extends DataObject> void delete(final InstanceIdentifier<T> path) {
-        ActionableResource actResource = new ActionableResourceImpl(path.toString());
-        actResource.setAction(ActionableResource.DELETE);
-        actResource.setInstanceIdentifier(path);
-        actResource.setInstance(null);
-        bgpResourcesBufferQ.add(actResource);
     }
 
     // Convert ProtocolType to thrift protocol_type
@@ -222,7 +172,9 @@ public class BgpUtil implements AutoCloseable {
         ExternalTepsKey externalTepsKey = externalTepsId.firstKeyOf(ExternalTeps.class);
         externalTepsBuilder.setKey(externalTepsKey);
         externalTepsBuilder.setTepIp(externalTepsKey.getTepIp());
-        update(externalTepsId, externalTepsBuilder.build());
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.merge(LogicalDatastoreType.CONFIGURATION, externalTepsId, externalTepsBuilder.build())),
+            LOG, "Error adding TEP to ELAN instance");
     }
 
     public void deleteTepFromElanInstance(String rd, String tepIp) {
@@ -237,7 +189,9 @@ public class BgpUtil implements AutoCloseable {
         }
         LOG.debug("Deleting tepIp {} from elan {}", tepIp, elanName);
         InstanceIdentifier<ExternalTeps> externalTepsId = getExternalTepsIdentifier(elanName, tepIp);
-        delete(externalTepsId);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, externalTepsId)),
+            LOG, "Error TEP from ELAN instance");
     }
 
     private static InstanceIdentifier<ExternalTeps> getExternalTepsIdentifier(String elanInstanceName, String tepIp) {
@@ -287,6 +241,8 @@ public class BgpUtil implements AutoCloseable {
                    InstanceIdentifier.builder(FibEntries.class)
                    .child(VrfTables.class, new VrfTablesKey(rd))
                    .child(VrfEntry.class, new VrfEntryKey(vrfEntry.getDestPrefix())).build();
-        delete(vrfEntryId);
+        ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
+            tx -> tx.delete(LogicalDatastoreType.CONFIGURATION, vrfEntryId)),
+            LOG, "Error removing VRF entry");
     }
 }

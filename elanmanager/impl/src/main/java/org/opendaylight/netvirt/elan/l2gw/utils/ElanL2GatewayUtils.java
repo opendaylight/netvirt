@@ -437,7 +437,7 @@ public class ElanL2GatewayUtils {
         }
 
         DeleteL2GwDeviceMacsFromElanJob job = new DeleteL2GwDeviceMacsFromElanJob(elanName, l2GwDevice,
-                macAddresses);
+                macAddresses, txRunner);
         elanClusterUtils.runOnlyInOwnerNode(job.getJobKey(), "delete remote ucast macs in l2gw devices", job);
     }
 
