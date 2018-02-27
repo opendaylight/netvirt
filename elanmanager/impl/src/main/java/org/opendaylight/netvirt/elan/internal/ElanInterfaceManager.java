@@ -58,6 +58,8 @@ import org.opendaylight.genius.mdsalutil.instructions.InstructionWriteMetadata;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.genius.utils.ServiceIndex;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -66,6 +68,7 @@ import org.opendaylight.netvirt.elan.cache.ElanInstanceCache;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayMulticastUtils;
 import org.opendaylight.netvirt.elan.l2gw.utils.ElanL2GatewayUtils;
+import org.opendaylight.netvirt.elan.recovery.impl.ElanServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanEtreeUtils;
 import org.opendaylight.netvirt.elan.utils.ElanForwardingEntriesHandler;
@@ -131,7 +134,8 @@ import org.slf4j.LoggerFactory;
  * @see org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.interfaces.ElanInterface
  */
 @Singleton
-public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager> {
+public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanInterface, ElanInterfaceManager>
+        implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceManager.class);
     private static final long WAIT_TIME_FOR_SYNC_INSTALL = Long.getLong("wait.time.sync.install", 300L);
     private static final boolean SH_FLAG_SET = true;
@@ -165,7 +169,9 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                                 final ElanUtils elanUtils, final JobCoordinator jobCoordinator,
                                 final ElanL2GatewayMulticastUtils elanL2GatewayMulticastUtils,
                                 final ElanInstanceCache elanInstanceCache,
-                                final ElanInterfaceCache elanInterfaceCache) {
+                                final ElanInterfaceCache elanInterfaceCache,
+                                final ElanServiceRecoveryHandler elanServiceRecoveryHandler,
+                                final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(ElanInterface.class, ElanInterfaceManager.class);
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -182,11 +188,17 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         this.elanL2GatewayMulticastUtils = elanL2GatewayMulticastUtils;
         this.elanInstanceCache = elanInstanceCache;
         this.elanInterfaceCache = elanInterfaceCache;
+        serviceRecoveryRegistry.addRecoverableListener(elanServiceRecoveryHandler.buildServiceRegistryKey(), this);
     }
 
     @Override
     @PostConstruct
     public void init() {
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
