@@ -29,12 +29,22 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
+            <artifactId>interfacemanager-api</artifactId>
+            <version>${genius.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
+            <artifactId>itm-api</artifactId>
+            <version>${genius.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.opendaylight.genius</groupId>
             <artifactId>mdsalutil-api</artifactId>
             <version>${genius.version}</version>
         </dependency>
         <dependency>
             <groupId>org.opendaylight.genius</groupId>
-            <artifactId>interfacemanager-api</artifactId>
+            <artifactId>srm-api</artifactId>
             <version>${genius.version}</version>
         </dependency>
         <dependency>
@@ -46,11 +56,6 @@ this distribution, and is available at http://www.eclipse.org/legal/epl-v10.html
             <groupId>org.ops4j.pax.cdi</groupId>
             <artifactId>pax-cdi-api</artifactId>
             <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.opendaylight.genius</groupId>
-            <artifactId>itm-api</artifactId>
-            <version>${genius.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
