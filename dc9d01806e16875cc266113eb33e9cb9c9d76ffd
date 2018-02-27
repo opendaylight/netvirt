@@ -16,6 +16,24 @@
       "revId": "dc9d01806e16875cc266113eb33e9cb9c9d76ffd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "69570044_9474179f",
+        "filename": "aclservice/impl/src/test/java/org/opendaylight/netvirt/aclservice/tests/AclServiceTestBase.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 148,
+      "author": {
+        "id": 7802
+      },
+      "writtenOn": "2018-02-27T08:16:21Z",
+      "side": 1,
+      "message": "Accepted Done.\nYes, same check is present in specific class.",
+      "parentUuid": "9553cd3f_4c7d2d44",
+      "revId": "dc9d01806e16875cc266113eb33e9cb9c9d76ffd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
