@@ -8,10 +8,6 @@
 package org.opendaylight.netvirt.elan.internal;
 
 import com.google.common.base.Optional;
-import java.util.Collections;
-import javax.annotation.PostConstruct;
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -29,6 +25,13 @@ import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.PostConstruct;
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import java.util.Collections;
+
+//import org.opendaylight.netvirt.elan.utils.ElanConstants;
+
 @Singleton
 public class ElanInterfaceConfigListener
     extends AsyncDataTreeChangeListenerBase<Interface, ElanInterfaceConfigListener> {
@@ -43,7 +46,7 @@ public class ElanInterfaceConfigListener
 
     @Inject
     public ElanInterfaceConfigListener(DataBroker dataBroker, ElanInterfaceManager elanInterfaceManager,
-            JobCoordinator jobCoordinator, ElanInterfaceCache elanInterfaceCache) {
+                                       JobCoordinator jobCoordinator, ElanInterfaceCache elanInterfaceCache) {
         super(Interface.class, ElanInterfaceConfigListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
