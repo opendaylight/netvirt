@@ -5,15 +5,15 @@ Support
 
 Verified Combinations
 ----------------------
-This section describes which versions of OpenStack and Open vSwitch are
-expected to work with with OpenDaylight. Using combinations outside this list
-may work but have not been verified.
+This section describes different combinations of OpenStack and Open vSwitch
+versions that are expected to work with with different OpenDaylight versions.
+Using combinations outside this list may work but have not been verified.
 
 .. note::
-   Verified is defined as combinations that are actively tested and maintained.
-   OpenDaylight, OpenStack and Open vSwitch are very active and quickly adding
-   new features that makes it difficult to verify all the different release
-   combinations. Different combinations are likely to work but support will be
+   A verified combination is defined as a combinations that is actively tested
+   and maintained. OpenDaylight, OpenStack and Open vSwitch are very active and
+   quickly adding new features that makes it difficult to verify all the different
+   release combinations. Different combinations are likely to work but support will be
    limited.
 
 The following table details the expected supported combinations.
@@ -22,15 +22,17 @@ The following table details the expected supported combinations.
    :header: OpenDaylight, OpenStack, Open vSwitch, Sync, Notes
    :widths: 12, 12, 12, 5, 40
 
-   Boron, Newton, 2.6, S,
    Carbon, Ocata, 2.7,, "Combination drops when Pike releases"
-   Carbon, Pike, 2.7, S,
+   Carbon, Pike, 2.8, S,
    Nitrogen, Ocata, 2.7,, "Combination drops when Pike releases"
-   Nitrogen, Pike, 2.7,,"Combination drops when Queens releases"
-   Nitrogen, Queens, 2.8/2.9, S,
-   Oxygen, Pike, 2.7,,"Combination drops when Queens releases"
-   Oxygen, Queens, 2.8/2.9,, "Combination drops when OpenStack R releases"
-   Oxygen, R, 2.9, S,
+   Nitrogen, Pike, 2.8,,"Combination drops when Queens releases"
+   Nitrogen, Queens, 2.9, S,
+   Oxygen, Pike, 2.8,,"Combination drops when Queens releases"
+   Oxygen, Queens, 2.9,, "Combination drops when Rocky releases"
+   Oxygen, Rocky, 2.10, S,
+   Flourine, Queens, 2.9,, "Combination drops when Rocky releases"
+   Flourine, Rocky, 2.10,, "Combination drops when OpenStack S releases"
+   Flourine, Rocky, 2.10, S,
 
 * (S): in the Sync column indicates the final supported combination for that
   OpenDaylight release.
