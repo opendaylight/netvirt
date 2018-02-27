@@ -25,10 +25,13 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
 import org.opendaylight.netvirt.elan.ElanException;
 import org.opendaylight.netvirt.elan.cache.ElanInterfaceCache;
+import org.opendaylight.netvirt.elan.recovery.impl.ElanServiceRecoveryHandler;
 import org.opendaylight.netvirt.elan.utils.ElanConstants;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
@@ -45,7 +48,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager> {
+public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanInstance, ElanInstanceManager>
+        implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInstanceManager.class);
 
@@ -61,7 +65,9 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
     public ElanInstanceManager(final DataBroker dataBroker, final IdManagerService managerService,
                                final ElanInterfaceManager elanInterfaceManager,
                                final IInterfaceManager interfaceManager, final JobCoordinator jobCoordinator,
-                               final ElanInterfaceCache elanInterfaceCache) {
+                               final ElanInterfaceCache elanInterfaceCache,
+                               final ElanServiceRecoveryHandler elanServiceRecoveryHandler,
+                               final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(ElanInstance.class, ElanInstanceManager.class);
         this.broker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -70,11 +76,17 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         this.interfaceManager = interfaceManager;
         this.jobCoordinator = jobCoordinator;
         this.elanInterfaceCache = elanInterfaceCache;
+        serviceRecoveryRegistry.addRecoverableListener(elanServiceRecoveryHandler.buildServiceRegistryKey(), this);
     }
 
     @Override
     @PostConstruct
     public void init() {
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
         registerListener(LogicalDatastoreType.CONFIGURATION, broker);
     }
 
@@ -105,7 +117,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     ElanUtils.getElanDpnOperationDataPath(elanName));
             if (elanDpnInterfaceList.isPresent()) {
                 ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
-                    getElanDpnOperationDataPath(elanName));
+                        getElanDpnOperationDataPath(elanName));
             }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInfoEntriesOperationalDataPath(elanTag));
@@ -133,7 +145,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
 
         ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                 ElanUtils.getElanInfoEntriesOperationalDataPath(
-                deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
+                        deletedElan.getAugmentation(EtreeInstance.class).getEtreeLeafTagVal().getValue()));
     }
 
     @Override
