@@ -685,8 +685,11 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         syncRemoteAclTable(portId, aclId, aclTag, aaps, addOrRemove);
                     }
                 }
-                syncRemoteAclTableFromOtherDpns(port, aclId, aclTag, addOrRemove);
             }
+        }
+        Set<Uuid> remoteAclIds = aclServiceUtils.getRemoteAclIdsByDirection(aclList, direction);
+        for (Uuid remoteAclId : remoteAclIds) {
+            syncRemoteAclTableFromOtherDpns(port, remoteAclId, addOrRemove);
         }
     }
 
@@ -710,33 +713,42 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
         }
     }
 
-    private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid acl, Integer aclTag, int addOrRemove) {
-        Collection<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(acl);
-        BigInteger dpId = port.getDpId();
-        boolean isFirstPortInDpn = true;
-        if (aclInterfaces != null) {
+    private void syncRemoteAclTableFromOtherDpns(AclInterface port, Uuid remoteAclId, int addOrRemove) {
+        Collection<AclInterface> aclInterfaces = aclDataUtil.getInterfaceList(remoteAclId);
+
+        if (aclInterfaces != null && !aclInterfaces.isEmpty() && isFirstPortInDpnWithRemoteAclId(port, remoteAclId)) {
+            Integer aclTag = aclServiceUtils.getAclTag(remoteAclId);
             for (AclInterface aclInterface : aclInterfaces) {
                 if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
                     continue;
                 }
-                if (dpId.equals(aclInterface.getDpId())) {
-                    isFirstPortInDpn = false;
-                    break;
-                }
-            }
-            if (isFirstPortInDpn) {
-                for (AclInterface aclInterface : aclInterfaces) {
-                    if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
-                        continue;
-                    }
-                    for (AllowedAddressPairs aap : aclInterface.getAllowedAddressPairs()) {
-                        if (AclServiceUtils.isNotIpAllNetwork(aap)) {
-                            programRemoteAclTableFlow(port.getDpId(), aclTag, aap, addOrRemove);
-                        }
+                for (AllowedAddressPairs aap : aclInterface.getAllowedAddressPairs()) {
+                    if (AclServiceUtils.isNotIpAllNetwork(aap)) {
+                        programRemoteAclTableFlow(port.getDpId(), aclTag, aap, addOrRemove);
                     }
                 }
             }
         }
+    }
+
+    private boolean isFirstPortInDpnWithRemoteAclId(AclInterface port, Uuid remoteAclId) {
+        String portId = port.getInterfaceId();
+        BigInteger dpId = port.getDpId();
+        Map<String, Set<AclInterface>> remoteAclInterfacesMap =
+                aclDataUtil.getRemoteAclInterfaces(remoteAclId, direction);
+        if (remoteAclInterfacesMap != null) {
+            for (Set<AclInterface> interfaceSet : remoteAclInterfacesMap.values()) {
+                for (AclInterface aclInterface : interfaceSet) {
+                    if (portId.equals(aclInterface.getInterfaceId())) {
+                        continue;
+                    }
+                    if (dpId.equals(aclInterface.getDpId())) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     protected abstract void programRemoteAclTableFlow(BigInteger dpId, Integer aclTag, AllowedAddressPairs aap,
