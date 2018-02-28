@@ -16,6 +16,24 @@
       "revId": "7ad4ef3ecbb7219da306d33a13a15f62e1f9ec48",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "28045bee_b458efc6",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpConfigurationManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 2294,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-02-28T10:00:34Z",
+      "side": 1,
+      "message": "I mentioned transaction chains as a possible replacement for sub-transactions, not as a general solution. I need to rethink things a little to deal with the scale requirements...",
+      "parentUuid": "1fa72402_2be71eea",
+      "revId": "7ad4ef3ecbb7219da306d33a13a15f62e1f9ec48",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
