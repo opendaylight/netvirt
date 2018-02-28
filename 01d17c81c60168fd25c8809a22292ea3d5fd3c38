@@ -96,6 +96,30 @@
     },
     {
       "key": {
+        "uuid": "a59f8990_b7e77780",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/listeners/PodListener.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 133,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-02-28T10:18:01Z",
+      "side": 1,
+      "message": "Fixed...",
+      "parentUuid": "7409e415_9bd8c4bc",
+      "range": {
+        "startLine": 133,
+        "startChar": 28,
+        "endLine": 133,
+        "endChar": 79
+      },
+      "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "4eef2e77_6eb61654",
         "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
         "patchSetId": 22
@@ -143,6 +167,30 @@
     },
     {
       "key": {
+        "uuid": "af8f053f_d30c3dc3",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 288,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-02-28T10:18:01Z",
+      "side": 1,
+      "message": "Fixed",
+      "parentUuid": "0fae5e03_f2bd177e",
+      "range": {
+        "startLine": 278,
+        "startChar": 0,
+        "endLine": 288,
+        "endChar": 13
+      },
+      "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "51157130_25ae83ff",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
         "patchSetId": 22
@@ -154,6 +202,24 @@
       "writtenOn": "2018-02-28T07:16:02Z",
       "side": 1,
       "message": "as we see IPv4 Address in InternetVpn which is unsupported case.",
+      "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d290635_8d8f382b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-02-28T10:18:01Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51157130_25ae83ff",
       "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
