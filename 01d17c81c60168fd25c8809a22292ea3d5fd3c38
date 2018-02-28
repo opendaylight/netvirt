@@ -140,6 +140,23 @@
       "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "51157130_25ae83ff",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 22
+      },
+      "lineNbr": 749,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-02-28T07:16:02Z",
+      "side": 1,
+      "message": "as we see IPv4 Address in InternetVpn which is unsupported case.",
+      "revId": "01d17c81c60168fd25c8809a22292ea3d5fd3c38",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
