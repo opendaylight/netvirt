@@ -1,0 +1,142 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "54aaeae0_f3f51c2c",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-28T21:48:15Z",
+      "side": 1,
+      "message": "No need for toString - also avoids NPE if null",
+      "range": {
+        "startLine": 74,
+        "startChar": 72,
+        "endLine": 74,
+        "endChar": 83
+      },
+      "revId": "3c1d434eb1ad5f0b3b561047ba7ad1f4bd3d8e72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2e7f8440_309aac1e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-28T21:48:15Z",
+      "side": 1,
+      "message": "No need for toString",
+      "range": {
+        "startLine": 71,
+        "startChar": 27,
+        "endLine": 71,
+        "endChar": 38
+      },
+      "revId": "3c1d434eb1ad5f0b3b561047ba7ad1f4bd3d8e72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f231734b_33bd76dc",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 73,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-28T21:48:15Z",
+      "side": 1,
+      "message": "Can this be null? The update checks for null...",
+      "range": {
+        "startLine": 73,
+        "startChar": 74,
+        "endLine": 73,
+        "endChar": 86
+      },
+      "revId": "3c1d434eb1ad5f0b3b561047ba7ad1f4bd3d8e72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0562214f_1d440005",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 75,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-28T21:48:15Z",
+      "side": 1,
+      "message": "Is this really severe enough to warrant error?",
+      "range": {
+        "startLine": 75,
+        "startChar": 16,
+        "endLine": 75,
+        "endChar": 21
+      },
+      "revId": "3c1d434eb1ad5f0b3b561047ba7ad1f4bd3d8e72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "db85443c_210848cb",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-28T21:48:15Z",
+      "side": 1,
+      "message": "getElanTag returns a long - no need to coerce to Long",
+      "range": {
+        "startLine": 84,
+        "startChar": 8,
+        "endLine": 84,
+        "endChar": 12
+      },
+      "revId": "3c1d434eb1ad5f0b3b561047ba7ad1f4bd3d8e72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "76836109_1aecfdc1",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-02-28T21:48:15Z",
+      "side": 1,
+      "message": "getElanTag returns a long",
+      "range": {
+        "startLine": 138,
+        "startChar": 8,
+        "endLine": 138,
+        "endChar": 12
+      },
+      "revId": "3c1d434eb1ad5f0b3b561047ba7ad1f4bd3d8e72",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
