@@ -496,6 +496,18 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         updateRemoteAclTableForPort(aclInterface, acl, addOrRemove, ip, aclId, port.getDpId());
                     }
                 }
+                Map<String, Set<AclInterface>> mapAclWithPortSet = aclDataUtil.getRemoteAclInterfaces(acl);
+                mapAclWithPortSet.forEach((remoteAclId,aclIntefaceSet) -> {
+                    for (AclInterface aclInterface : aclIntefaceSet) {
+                        if (port.getInterfaceId().equals(aclInterface.getInterfaceId())) {
+                            continue;
+                        }
+                        for (AllowedAddressPairs ip : aclInterface.getAllowedAddressPairs()) {
+                            updateRemoteAclTableForPort(aclInterface, acl, addOrRemove, ip,
+                                BigInteger.valueOf(aclServiceUtils.allocateAclId(remoteAclId)), port.getDpId());
+                        }
+                    }
+                });
             }
         }
     }
