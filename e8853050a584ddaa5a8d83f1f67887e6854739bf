@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6d335167_eb73fa84",
+        "filename": "elanmanager/impl/src/test/java/org/opendaylight/netvirt/elanmanager/tests/ElanServiceTest.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-03-01T10:17:52Z",
+      "side": 1,
+      "message": "I hadn\u0027t noticed this @Ignore in the previous review.. it\u0027s curious that you are fixing up things in this ignored test?",
+      "revId": "e8853050a584ddaa5a8d83f1f67887e6854739bf",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
