@@ -462,6 +462,10 @@ public abstract class AbstractAclServiceImpl implements AclServiceListener {
                         updateRemoteAclTableForPort(port, acl, addOrRemove, ip, aclId, dpId);
                     }
                 }
+                for (Uuid remoteAcl : aclDataUtil.getRemoteAcl(acl)) {
+                    syncRemoteAclTableFromOtherDpns(port, remoteAcl, aclServiceUtils.buildAclId(remoteAcl),
+                        addOrRemove);
+                }
                 syncRemoteAclTableFromOtherDpns(port, acl, aclId, addOrRemove);
             } else {
                 LOG.debug("Port {} with more than one SG ({}). Don't change ACL filter table", port.getInterfaceId(),
