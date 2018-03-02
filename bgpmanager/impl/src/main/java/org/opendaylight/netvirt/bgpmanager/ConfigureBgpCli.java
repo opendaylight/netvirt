@@ -104,11 +104,9 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         emergencies, alerts, critical, errors, warnings, notifications, informational, debugging
     }
 
-    private final BgpManager bgpManager;
     private final BgpConfigurationManager bgpConfigurationManager;
 
-    public ConfigureBgpCli(BgpManager bgpManager, BgpConfigurationManager bgpConfigurationManager) {
-        this.bgpManager = bgpManager;
+    public ConfigureBgpCli(BgpConfigurationManager bgpConfigurationManager) {
         this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
@@ -177,7 +175,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
         if (!validStalepathTime) {
             return;
         }
-        bgpManager.configureGR(Integer.parseInt(stalePathTime));
+        bgpConfigurationManager.addGracefulRestart(Integer.parseInt(stalePathTime));
     }
 
     private void deleteNeighbor() {
@@ -192,11 +190,11 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
             printDeleteNeighborHelp();
             return;
         }
-        bgpManager.deleteNeighbor(ip);
+        bgpConfigurationManager.delNeighbor(ip);
     }
 
     public long getAsNumber(String nbrIp) {
-        Bgp conf = bgpManager.getConfig();
+        Bgp conf = bgpConfigurationManager.getConfig();
         if (conf == null) {
             return -1;
         }
@@ -213,7 +211,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     }
 
     private void stopBgp() {
-        Bgp conf = bgpManager.getConfig();
+        Bgp conf = bgpConfigurationManager.getConfig();
         if (conf == null) {
             return;
         }
@@ -223,7 +221,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                     "error: all BGP congiguration must be deleted before stopping the router instance");
             return;
         }
-        bgpManager.stopBgp();
+        bgpConfigurationManager.stopBgp();
     }
 
     private void usage() {
@@ -265,7 +263,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
     private void startBgp() {
         boolean validRouterId = false;
 
-        if (bgpManager.getConfig() != null && bgpManager.getConfig().getAsId() != null) {
+        if (bgpConfigurationManager.getConfig() != null && bgpConfigurationManager.getConfig().getAsId() != null) {
             session.getConsole().println("bgp is already started please use stop-bgp-server and start again");
             return;
         }
@@ -286,7 +284,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 return;
             }
         }
-        bgpManager.startBgp(Integer.parseInt(asNumber), routerId,
+        bgpConfigurationManager.startBgp(Integer.parseInt(asNumber), routerId,
                 stalePathTime == null ? 0 : Integer.parseInt(stalePathTime), false);
     }
 
@@ -346,43 +344,43 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                 return;
             }
 
-            af_afi afi ;
-            af_safi safi ;
+            int afi ;
+            int safi ;
             if (addressFamily.equals("vpnv6")) {
-                afi = af_afi.findByValue(2);
-                safi = af_safi.findByValue(5);
+                afi = 2;
+                safi = 5;
             } else if (addressFamily.equals("evpn")) {
-                afi = af_afi.findByValue(3);
-                safi = af_safi.findByValue(6);
+                afi = 3;
+                safi = 6;
             } else if (addressFamily.equals("lu")) {
-                afi = af_afi.findByValue(1);
-                safi = af_safi.findByValue(4);
+                afi = 1;
+                safi = 4;
             } else if  (addressFamily.equals("vpnv4")) {
-                afi = af_afi.findByValue(1);
-                safi = af_safi.findByValue(5);
+                afi = 1;
+                safi = 5;
             } else {
                 session.getConsole().println(
                         "invalid addressFamily valid values SAFI_IPV4_LABELED_UNICAST | SAFI_MPLS_VPN");
                 printAddNeighborHelp();
-                return ;
+                return;
             }
-            bgpManager.addAddressFamily(ip, afi, safi);
+            bgpConfigurationManager.addAddressFamily(ip, afi, safi);
 
         }
         if (getAsNumber(ip) != -1) {
             session.getConsole().println("neighbor with ip " + ip + " already exists");
             return;
         }
-        bgpManager.addNeighbor(ip, Long.parseLong(asNumber), md5secret);
+        bgpConfigurationManager.addNeighbor(ip, Long.parseLong(asNumber), md5secret);
         if (addressFamily != null) {
-            bgpManager.addAddressFamily(ip, af_afi.AFI_IP,
-                    af_safi.valueOf(addressFamily));
+            bgpConfigurationManager.addAddressFamily(ip, af_afi.AFI_IP.getValue(),
+                    af_safi.valueOf(addressFamily).getValue());
         }
         if (ebgpMultihops != null) {
-            bgpManager.addEbgpMultihop(ip, Integer.parseInt(ebgpMultihops));
+            bgpConfigurationManager.addEbgpMultihop(ip, Integer.parseInt(ebgpMultihops));
         }
         if (sourceIp != null) {
-            bgpManager.addUpdateSource(ip, sourceIp);
+            bgpConfigurationManager.addUpdateSource(ip, sourceIp);
         }
     }
 
@@ -450,7 +448,7 @@ public class ConfigureBgpCli extends OsgiCommandSupport {
                     "exec configure-bgp -op enable-log --log-file-path <logfile> --log-level <level>");
             return;
         }
-        bgpManager.setQbgpLog(logFile, logLevel);
+        bgpConfigurationManager.addLogging(logFile, logLevel);
     }
 
     private boolean validateAsNumber(String strAsnum) {

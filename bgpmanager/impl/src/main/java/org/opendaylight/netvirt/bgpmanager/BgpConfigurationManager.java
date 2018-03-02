@@ -2875,7 +2875,7 @@ public class BgpConfigurationManager {
                     TimeUnit.MILLISECONDS);
             LOG.info("Bgp Counters task scheduled for every two minutes.");
 
-            bgpManager.setQbgpLog(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
+            addLogging(BgpConstants.BGP_DEF_LOG_FILE, BgpConstants.BGP_DEF_LOG_LEVEL);
         }
     }
 
