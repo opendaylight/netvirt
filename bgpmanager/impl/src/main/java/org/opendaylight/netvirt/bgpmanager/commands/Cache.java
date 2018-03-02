@@ -17,7 +17,7 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.AsId;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.GracefulRestart;
@@ -72,10 +72,10 @@ public class Cache extends OsgiCommandSupport {
     private static final String RDSTR = "RD";
     private static final String MPSTR = "Maxpath";
 
-    private final BgpManager bgpManager;
+    private final BgpConfigurationManager bgpConfigurationManager;
 
-    public Cache(BgpManager bgpManager) {
-        this.bgpManager = bgpManager;
+    public Cache(BgpConfigurationManager bgpConfigurationManager) {
+        this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
     private Object usage() {
@@ -135,11 +135,11 @@ public class Cache extends OsgiCommandSupport {
         // legacy behaviour forces to check for a connection
         // that's initiated by default at startup without
         // writing to config.
-        String configHost = bgpManager.getConfigHost();
-        int configPort = bgpManager.getConfigPort();
+        String configHost = bgpConfigurationManager.getConfigHost();
+        int configPort = bgpConfigurationManager.getConfigPort();
         ps.printf("%nConfiguration Server%n\t%s  %s%n\t%s  %d%n",
                 HTSTR, configHost, PTSTR, configPort);
-        Bgp config = bgpManager.getConfig();
+        Bgp config = bgpConfigurationManager.getConfig();
         if (config == null) {
             if (fileStream != null) {
                 fileStream.close();

@@ -55,8 +55,6 @@ public interface IBgpManager {
 
     void deletePrefix(String rd, String prefix);
 
-    void setQbgpLog(String fileName, String logLevel);
-
     /**
      * Advertises a Prefix to a BGP neighbour, using several nexthops. Only sends the BGP messages, no writing to
      * MD-SAL.

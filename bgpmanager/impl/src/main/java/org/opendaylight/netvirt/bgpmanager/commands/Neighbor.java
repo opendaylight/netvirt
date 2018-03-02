@@ -12,7 +12,7 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
@@ -70,10 +70,10 @@ public class Neighbor extends OsgiCommandSupport {
             required = false, multiValued = false)
     String addrFamily = null;
 
-    private final BgpManager bgpManager;
+    private final BgpConfigurationManager bgpConfigurationManager;
 
-    public Neighbor(BgpManager bgpManager) {
-        this.bgpManager = bgpManager;
+    public Neighbor(BgpConfigurationManager bgpConfigurationManager) {
+        this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
     private Object usage() {
@@ -89,7 +89,7 @@ public class Neighbor extends OsgiCommandSupport {
                     session.getConsole().println("error: " + IP + " needed");
                     return null;
                 }
-                if (bgpManager.getConfig() == null) {
+                if (bgpConfigurationManager.getConfig() == null) {
                     session.getConsole().println("error: Bgp config is not present");
                     return null;
                 }
@@ -115,7 +115,7 @@ public class Neighbor extends OsgiCommandSupport {
                         return null;
                     }
                 }
-                bgpManager.addNeighbor(nbrIp, asn, md5Secret);
+                bgpConfigurationManager.addNeighbor(nbrIp, asn, md5Secret);
 
                 if (multiHops != null) {
                     if (!Commands.isValid(session.getConsole(), multiHops, Commands.Validators.INT, MH)) {
@@ -123,13 +123,13 @@ public class Neighbor extends OsgiCommandSupport {
                     } else {
                         hops = Integer.parseInt(multiHops);
                     }
-                    bgpManager.addEbgpMultihop(nbrIp, hops);
+                    bgpConfigurationManager.addEbgpMultihop(nbrIp, hops);
                 }
                 if (srcIp != null) {
                     if (!Commands.isValid(session.getConsole(), srcIp, Commands.Validators.IPADDR, US)) {
                         return null;
                     }
-                    bgpManager.addUpdateSource(nbrIp, srcIp);
+                    bgpConfigurationManager.addUpdateSource(nbrIp, srcIp);
                 }
                 if (addrFamily != null) {
                     if (!addrFamily.equals("lu") && !addrFamily.equals("vpnv4")
@@ -140,20 +140,27 @@ public class Neighbor extends OsgiCommandSupport {
                     }
                     af_afi afi;
                     af_safi safi;
-                    if (addrFamily.equals("vpnv6")) {
-                        afi = af_afi.findByValue(2);
-                        safi = af_safi.findByValue(5);
-                    } else if (addrFamily.equals("evpn")) {
-                        afi = af_afi.findByValue(3);
-                        safi = af_safi.findByValue(6);
-                    } else if (addrFamily.equals("lu")) {
-                        afi = af_afi.findByValue(1);
-                        safi = af_safi.findByValue(4);
-                    } else { // vpnv4
-                        afi = af_afi.findByValue(1);
-                        safi = af_safi.findByValue(5);
+                    switch (addrFamily) {
+                        case "vpnv6":
+                            afi = af_afi.findByValue(2);
+                            safi = af_safi.findByValue(5);
+                            break;
+                        case "evpn":
+                            afi = af_afi.findByValue(3);
+                            safi = af_safi.findByValue(6);
+                            break;
+                        case "lu":
+                            afi = af_afi.findByValue(1);
+                            safi = af_safi.findByValue(4);
+                            break;
+                        default:  // vpnv4
+                            afi = af_afi.findByValue(1);
+                            safi = af_safi.findByValue(5);
+                            break;
                     }
-                    bgpManager.addAddressFamily(nbrIp, afi, safi);
+                    if (afi != null && safi != null) {
+                        bgpConfigurationManager.addAddressFamily(nbrIp, afi.getValue(), safi.getValue());
+                    }
                 }
                 break;
             case "del":
@@ -168,7 +175,7 @@ public class Neighbor extends OsgiCommandSupport {
                         || addrFamily != null) {
                     session.getConsole().println("note: some option(s) not needed; ignored");
                 }
-                bgpManager.deleteNeighbor(nbrIp);
+                bgpConfigurationManager.delNeighbor(nbrIp);
                 break;
             default:
                 return usage();
