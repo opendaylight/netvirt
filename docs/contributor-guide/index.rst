@@ -5,3 +5,4 @@ NetVirt Contributor Guide
    :maxdepth: 2
 
    ../specs/index
+   ../csit/index
