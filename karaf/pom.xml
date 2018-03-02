@@ -126,6 +126,26 @@ and is available at http://www.eclipse.org/legal/epl-v10.html INTERNAL
                     <skip>false</skip>
                 </configuration>
             </plugin>
+            <!-- NETVIRT-1126: Heavy-handed workaround to remove mysql dependencies from system -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-antrun-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+                        <configuration>
+                            <tasks>
+                                <delete includeemptydirs="true">
+                                    <fileset dir="${project.build.directory}/assembly/system/mysql"/>
+                                </delete>
+                            </tasks>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 </project>
