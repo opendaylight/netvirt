@@ -78,7 +78,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
             </activation>
             <modules>
                 <module>sfc</module>
-                <module>sfc-artifacts</module>
             </modules>
         </profile>
         <profile>
