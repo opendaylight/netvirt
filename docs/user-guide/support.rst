@@ -25,8 +25,7 @@ The following table details the expected supported combinations.
    Carbon, Ocata, 2.7,, "Combination drops when Pike releases"
    Carbon, Pike, 2.8, S,
    Nitrogen, Ocata, 2.7,, "Combination drops when Pike releases"
-   Nitrogen, Pike, 2.8,,"Combination drops when Queens releases"
-   Nitrogen, Queens, 2.9, S,
+   Nitrogen, Pike, 2.9, S,
    Oxygen, Pike, 2.8,,"Combination drops when Queens releases"
    Oxygen, Queens, 2.9, S,
    Flourine, Queens, 2.9,, "Combination drops when Rocky releases"
