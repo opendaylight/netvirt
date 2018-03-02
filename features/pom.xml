@@ -38,7 +38,6 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>netvirt-sfc-features</module>
                 <module>odl-netvirt-sfc</module>
             </modules>
         </profile>
