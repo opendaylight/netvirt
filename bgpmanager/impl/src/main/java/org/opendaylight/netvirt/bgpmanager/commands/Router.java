@@ -13,7 +13,7 @@ import org.apache.karaf.shell.commands.Argument;
 import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
 
@@ -49,10 +49,10 @@ public class Router extends OsgiCommandSupport {
             required = false, multiValued = false)
     private final String fbit = null;
 
-    private final BgpManager bgpManager;
+    private final BgpConfigurationManager bgpConfigurationManager;
 
-    public Router(BgpManager bgpManager) {
-        this.bgpManager = bgpManager;
+    public Router(BgpConfigurationManager bgpConfigurationManager) {
+        this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
     private Object usage() {
@@ -101,14 +101,14 @@ public class Router extends OsgiCommandSupport {
                             return null;
                     }
                 }
-                bgpManager.startBgp(asn, rid, stalePath, fb);
+                bgpConfigurationManager.startBgp(asn, rid, stalePath, fb);
                 break;
             case "del":
                 // check: nothing to stop?
                 if (asNum != null || rid != null || spt != null || fbit != null) {
                     session.getConsole().println("note: option(s) not needed; ignored");
                 }
-                Bgp conf = bgpManager.getConfig();
+                Bgp conf = bgpConfigurationManager.getConfig();
                 if (conf == null) {
                     session.getConsole().println("error : no BGP configs present");
                     break;
@@ -119,7 +119,7 @@ public class Router extends OsgiCommandSupport {
                             + "before stopping the router instance");
                     break;
                 }
-                bgpManager.stopBgp();
+                bgpConfigurationManager.stopBgp();
                 break;
             default:
                 return usage();
