@@ -13,7 +13,7 @@ import org.apache.karaf.shell.commands.Command;
 import org.apache.karaf.shell.commands.Option;
 import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.omg.CORBA.Object;
-import org.opendaylight.netvirt.bgpmanager.BgpManager;
+import org.opendaylight.netvirt.bgpmanager.BgpConfigurationManager;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_afi;
 import org.opendaylight.netvirt.bgpmanager.thrift.gen.af_safi;
 
@@ -51,10 +51,10 @@ public class Multipath extends OsgiCommandSupport {
 
     String multipathEnable;
 
-    private final BgpManager bgpManager;
+    private final BgpConfigurationManager bgpConfigurationManager;
 
-    public Multipath(BgpManager bgpManager) {
-        this.bgpManager = bgpManager;
+    public Multipath(BgpConfigurationManager bgpConfigurationManager) {
+        this.bgpConfigurationManager = bgpConfigurationManager;
     }
 
     @Override
@@ -95,14 +95,14 @@ public class Multipath extends OsgiCommandSupport {
 
             switch (multipathEnable) {
                 case "enable":
-                    bgpManager.enableMultipath(afi, safi);
+                    bgpConfigurationManager.setMultipathStatus(afi, safi, true);
                     break;
                 case "disable":
-                    bgpManager.disableMultipath(afi, safi);
+                    bgpConfigurationManager.setMultipathStatus(afi, safi, false);
                     break;
                 case "setmaxpath":
                     if (rd != null && maxpath != null) {
-                        bgpManager.multipaths(rd, Integer.parseInt(maxpath));
+                        bgpConfigurationManager.multipaths(rd, Integer.parseInt(maxpath));
                     }
                     break;
 
