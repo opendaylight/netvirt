@@ -22,6 +22,8 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.utils.AclInterface;
@@ -43,7 +45,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEventListener> implements
-        ClusteredDataTreeChangeListener<Acl> {
+        ClusteredDataTreeChangeListener<Acl>, RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclEventListener.class);
 
@@ -56,7 +58,8 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
 
     @Inject
     public AclEventListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil, DataBroker dataBroker,
-            AclDataUtil aclDataUtil, AclServiceUtils aclServicUtils, AclInterfaceCache aclInterfaceCache) {
+            AclDataUtil aclDataUtil, AclServiceUtils aclServicUtils, AclInterfaceCache aclInterfaceCache,
+            ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(Acl.class, AclEventListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
@@ -64,12 +67,18 @@ public class AclEventListener extends AsyncDataTreeChangeListenerBase<Acl, AclEv
         this.aclDataUtil = aclDataUtil;
         this.aclServiceUtils = aclServicUtils;
         this.aclInterfaceCache = aclInterfaceCache;
+        serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
     @Override
     @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
