@@ -16,6 +16,24 @@
       "revId": "e32aeeec37ab769f778e4f469833210b2769a0dd",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f5e6997c_38f514a4",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2092,
+      "author": {
+        "id": 4269
+      },
+      "writtenOn": "2018-03-05T14:07:26Z",
+      "side": 1,
+      "message": "Manu,\n\nYou mean to say  the node will start receiving  the broadcast traffic? Since the patch port for the vlan will be  created it  will be added to the elan dpnlist as well along with pseudo port, the dpn should start receiving broadcast.  But yes there will be no one interested in broadcast traffic in the new dpn. But for L3 to work we require the patch port.",
+      "parentUuid": "40ecd776_f9d991cd",
+      "revId": "e32aeeec37ab769f778e4f469833210b2769a0dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
