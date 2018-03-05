@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5fb469d0_330bb09a",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-05T10:44:07Z",
+      "side": 1,
+      "message": "why is registerListener called at multiple places.. Line no 54 and 60",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b5476434_bac2d589",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-05T10:44:07Z",
+      "side": 1,
+      "message": "I dont think this is the class which you want to register.\nElanInstanceManager should be the one.",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "32d925ae_9869e8bf",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-05T10:44:07Z",
+      "side": 1,
+      "message": "where is the class injected? We need to add it in blueprint, right?",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d6b98f26_138bd151",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-05T10:44:07Z",
+      "side": 1,
+      "message": "Why singletonList is created?\nAlso do we need jobCordinator? Only a delete operation executed here.",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c8b6eb96_f9000bdc",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-05T10:44:07Z",
+      "side": 1,
+      "message": "same comment as above",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
