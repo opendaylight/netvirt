@@ -18,46 +18,32 @@ module bfd {
 
         leaf detect-mult {
             type        uint32;
+            default     3;
             description "The number of packets that have to be missed 
                          in a row to declare the session to be down.";
         }
         leaf min-rx {
-            type        uint32;
+            type        uint32 {
+                            range "50..50000";
+            }
             default     500;
             description "The shortest interval, in milli-seconds, at
                          which this BFD session offers to receive
                          BFD control messages. Defaults to 500";
         }
         leaf min-tx {
-            type        uint32;
+            type        uint32 {
+                            range "1000 .. 60000";
+            }
             default     6000;
             description "The shortest interval, in milli-seconds,
                          at which this BFD session is willing to
                          transmit BFD control messages. Defaults
                          to 6000";
         }
-
-        leaf failure-threshold {
-            type         uint32;
-            description  "Number milli-seconds to wait before declaring
-                          session down";
-        }
-
-        leaf success-threshold {
-            type         uint32;
-            description  "Number milli-seconds to wait before declaring
-                          session up";
-        }
     }
 
     container config {
-        leaf cbit {
-            type        boolean;
-            default     true;
-            description "Value of True indicates control bit SET";
-            config      "true";
-        }
-
         leaf multihop {
             type        boolean;
             default     true;

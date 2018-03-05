@@ -418,7 +418,7 @@ module ebgp {
       leaf dc-gw-ip {
            type string;
       }
-      leaf tep-ip {
+      leaf-list tep-ip {
           type string;
       }
   }
