@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "40ecd776_f9d991cd",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnUtil.java",
+        "patchSetId": 9
+      },
+      "lineNbr": 2092,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-05T12:15:10Z",
+      "side": 1,
+      "message": "Adding new dpn to elandpninterfaces list will update the remote BC group on the next elaninterface/tunnel event.\nIs it intended for this change?",
+      "revId": "e32aeeec37ab769f778e4f469833210b2769a0dd",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
