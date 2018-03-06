@@ -36,6 +36,24 @@
     },
     {
       "key": {
+        "uuid": "d7f43296_32998f94",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/listeners/ElanInstanceListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2018-03-06T05:40:50Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b5476434_bac2d589",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "32d925ae_9869e8bf",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
         "patchSetId": 7
@@ -53,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "bef292ec_bc4f45b2",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2018-03-06T05:40:50Z",
+      "side": 1,
+      "message": "It\u0027s just an interface that is being implemented and not a bean or rpc.",
+      "parentUuid": "32d925ae_9869e8bf",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d6b98f26_138bd151",
         "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
         "patchSetId": 7
@@ -64,6 +100,24 @@
       "writtenOn": "2018-03-05T10:44:07Z",
       "side": 1,
       "message": "Why singletonList is created?\nAlso do we need jobCordinator? Only a delete operation executed here.",
+      "revId": "085efcf2960c35b7055847649645b8a9450525f1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a40db9c_fb201f01",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 6791
+      },
+      "writtenOn": "2018-03-06T05:40:50Z",
+      "side": 1,
+      "message": "Please check the new changes.",
+      "parentUuid": "d6b98f26_138bd151",
       "revId": "085efcf2960c35b7055847649645b8a9450525f1",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
