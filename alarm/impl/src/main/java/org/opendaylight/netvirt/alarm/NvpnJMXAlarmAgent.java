@@ -39,7 +39,7 @@ public class NvpnJMXAlarmAgent {
         try {
             alarmName = new ObjectName(BEANNAME);
         } catch (MalformedObjectNameException e) {
-            LOG.error("ObjectName instance creation failed for BEANAME {}, error: {}", BEANNAME, e);
+            LOG.error("ObjectName instance creation failed for BEANAME {}", BEANNAME, e);
         }
     }
 
@@ -71,7 +71,7 @@ public class NvpnJMXAlarmAgent {
             }
         } catch (javax.management.InstanceAlreadyExistsException | javax.management.MBeanRegistrationException
                 | javax.management.NotCompliantMBeanException e) {
-            LOG.info("Registeration failed for Mbean " + alarmName + " : " + e);
+            LOG.info("Registeration failed for Mbean {}", alarmName, e);
         }
         try {
             mbs.addNotificationListener(alarmName, alarmBean, null, null);
