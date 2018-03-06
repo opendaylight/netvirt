@@ -220,8 +220,7 @@ public class FibDSWriter {
             if (vrfTable != null) {
                 List<VrfEntry> vrfEntries = vrfTable.getVrfEntry();
                 if (vrfEntries == null) {
-                    String errMsg = "removeVrfSubFamilyFromDS : VrfEntry not found for rd " + rd;
-                    LOG.error(errMsg);
+                    LOG.error("removeVrfSubFamilyFromDS : VrfEntry not found for rd {}", rd);
                     return;
                 }
                 for (VrfEntry vrfEntry : vrfEntries) {
@@ -247,8 +246,7 @@ public class FibDSWriter {
                 }
             }
         } catch (ReadFailedException rfe) {
-            String errMsg = "removeVrfSubFamilyFromDS : Internal Error rd " + rd;
-            LOG.error(errMsg, rfe);
+            LOG.error("removeVrfSubFamilyFromDS : Internal Error rd {}", rd, rfe);
         }
         return;
     }

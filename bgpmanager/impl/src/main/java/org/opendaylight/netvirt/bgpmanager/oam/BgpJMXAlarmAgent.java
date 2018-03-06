@@ -36,7 +36,7 @@ public class BgpJMXAlarmAgent {
         try {
             alarmName = new ObjectName(BEANNAME);
         } catch (MalformedObjectNameException e) {
-            LOG.error("ObjectName instance creation failed for BEANAME {} : {}", BEANNAME, e);
+            LOG.error("ObjectName instance creation failed for BEANAME {}", BEANNAME, e);
         }
     }
 
@@ -49,7 +49,7 @@ public class BgpJMXAlarmAgent {
                 LOG.debug("Registered Mbean {} successfully", alarmName);
             }
         } catch (InstanceAlreadyExistsException | MBeanRegistrationException | NotCompliantMBeanException e) {
-            LOG.error("Registeration failed for Mbean {} :{}", alarmName, e);
+            LOG.error("Registeration failed for Mbean {}", alarmName, e);
         }
     }
 
@@ -60,7 +60,7 @@ public class BgpJMXAlarmAgent {
                 LOG.debug("Unregistered Mbean {} successfully", alarmName);
             }
         } catch (InstanceNotFoundException | MBeanRegistrationException e) {
-            LOG.error("UnRegisteration failed for Mbean {} :{}", alarmName, e);
+            LOG.error("UnRegisteration failed for Mbean {}", alarmName, e);
         }
     }
 
@@ -70,7 +70,7 @@ public class BgpJMXAlarmAgent {
                     new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
             LOG.trace("Invoked raiseAlarm function for Mbean {} with source {}", BEANNAME, src);
         } catch (InstanceNotFoundException | MBeanException | ReflectionException e) {
-            LOG.error("Invoking raiseAlarm method failed for Mbean {} :{}", alarmName, e);
+            LOG.error("Invoking raiseAlarm method failed for Mbean {}", alarmName, e);
         }
     }
 
@@ -80,7 +80,7 @@ public class BgpJMXAlarmAgent {
                     new String[] {String.class.getName(), String.class.getName(), String.class.getName()});
             LOG.trace("Invoked clearAlarm function for Mbean {} with source {}", BEANNAME, src);
         } catch (InstanceNotFoundException | MBeanException | ReflectionException e) {
-            LOG.error("Invoking clearAlarm method failed for Mbean {} :{}", alarmName, e);
+            LOG.error("Invoking clearAlarm method failed for Mbean {}", alarmName, e);
         }
     }
 }

@@ -202,7 +202,7 @@ public final class BgpRouter {
         }
 
         bgpClient = new BgpConfigurator.Client(new TBinaryProtocol(transport));
-        LOG.info("Connected to " + msgPiece);
+        LOG.info("Connected to {}", msgPiece);
         return true;
     }
 
@@ -417,7 +417,7 @@ public final class BgpRouter {
         bop.strs[0] = rd;
         bop.afi = af_afi.findByValue((int)afi);
         bop.safi = af_safi.findByValue((int)safi);
-        LOG.debug("Deleting BGP VRF rd: {} " + rd);
+        LOG.debug("Deleting BGP VRF rd: {}", rd);
         dispatch(bop);
     }
 
@@ -528,7 +528,7 @@ public final class BgpRouter {
         bop.type = Optype.LOG;
         bop.strs[0] = fileName;
         bop.strs[1] = debugLevel;
-        LOG.debug("Setting Log file to BGP VRF rd: {} ", fileName, debugLevel);
+        LOG.debug("Setting Log file to BGP VRF rd: {}, {}", fileName, debugLevel);
         dispatch(bop);
     }
 
@@ -611,7 +611,7 @@ public final class BgpRouter {
     public synchronized void enableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException {
         bop.type = Optype.MP;
         bop.add = true;
-        LOG.debug("Enabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
+        LOG.debug("Enabling multipath for afi {}, safi {}", afi.getValue(), safi.getValue());
         bop.ints[0] = afi.getValue();
         bop.ints[1] = safi.getValue();
         dispatch(bop);
@@ -620,7 +620,7 @@ public final class BgpRouter {
     public synchronized void disableMultipath(af_afi afi, af_safi safi) throws TException, BgpRouterException {
         bop.type = Optype.MP;
         bop.add = false;
-        LOG.debug("Disabling multipath for afi: " + afi.getValue() + " safi: " + safi.getValue());
+        LOG.debug("Disabling multipath for afi {}, safi {}", afi.getValue(), safi.getValue());
         bop.ints[0] = afi.getValue();
         bop.ints[1] = safi.getValue();
         dispatch(bop);

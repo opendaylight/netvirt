@@ -67,6 +67,6 @@ public class BgpAlarmBroadcaster extends NotificationBroadcasterSupport
         arrayList.add("BGF");
         sendNotification(new AttributeChangeNotification(this, sequenceNumber.incrementAndGet(),
             System.currentTimeMillis(), "raise Alarm Object notified", "raiseAlarmObject", "ArrayList", "", arrayList));
-        LOG.info("BGP: Alarm :" + userAlarm.getAlarmType() + " has been posted.");
+        LOG.info("BGP: Alarm {} has been posted.", userAlarm.getAlarmType());
     }
 }

@@ -243,8 +243,7 @@ public class BgpConfigurationManager {
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         portStartup = getProperty(CONFIG_PORT, DEF_CPORT);
-        LOG.info("UpdateServer at localhost:" + updatePort + " ConfigServer at "
-                + hostStartup + ":" + portStartup);
+        LOG.info("UpdateServer at localhost:{}, ConfigServer at {}:{}", updatePort, hostStartup, portStartup);
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
         bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
@@ -498,7 +497,7 @@ public class BgpConfigurationManager {
             synchronized (BgpConfigurationManager.this) {
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for asNum {}; {}", YANG_OBJ, val.getLocalAs(),
+                    LOG.debug("{} Unable to process add for asNum {}; {} {}", YANG_OBJ, val.getLocalAs(),
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -529,7 +528,7 @@ public class BgpConfigurationManager {
                 long asNum = val.getLocalAs();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process remove for asNum {}; {}", YANG_OBJ, asNum,
+                    LOG.debug("{} Unable to process remove for asNum {}; {} {}", YANG_OBJ, asNum,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -589,7 +588,7 @@ public class BgpConfigurationManager {
                 int stalePathTime = val.getStalepathTime().intValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to add stale-path time {}; {}", YANG_OBJ, stalePathTime,
+                    LOG.error("{} Unable to add stale-path time {}; {} {}", YANG_OBJ, stalePathTime,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -620,7 +619,7 @@ public class BgpConfigurationManager {
             synchronized (BgpConfigurationManager.this) {
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to delete stale-path time; {}", YANG_OBJ,
+                    LOG.error("{} Unable to delete stale-path time; {} {}", YANG_OBJ,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -643,7 +642,7 @@ public class BgpConfigurationManager {
                 int stalePathTime = newval.getStalepathTime().intValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to update stale-path time to {}; {}", YANG_OBJ, stalePathTime,
+                    LOG.error("{} Unable to update stale-path time to {}; {} {}", YANG_OBJ, stalePathTime,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -674,7 +673,7 @@ public class BgpConfigurationManager {
             synchronized (BgpConfigurationManager.this) {
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to add logging for qbgp; {}", YANG_OBJ,
+                    LOG.error("{} Unable to add logging for qbgp; {} {}", YANG_OBJ,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -705,7 +704,7 @@ public class BgpConfigurationManager {
             synchronized (BgpConfigurationManager.this) {
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to remove logging for qbgp; {}", YANG_OBJ,
+                    LOG.error("{} Unable to remove logging for qbgp; {} {}", YANG_OBJ,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -726,7 +725,7 @@ public class BgpConfigurationManager {
             synchronized (BgpConfigurationManager.this) {
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.error("{} Unable to update logging for qbgp; {}", YANG_OBJ,
+                    LOG.error("{} Unable to update logging for qbgp; {} {}", YANG_OBJ,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -761,7 +760,7 @@ public class BgpConfigurationManager {
                 final String md5Secret = extractMd5Secret(val);
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for peer {} as {}; {}", YANG_OBJ, peerIp, as,
+                    LOG.debug("{} Unable to process add for peer {} as {}; {} {}", YANG_OBJ, peerIp, as,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -795,7 +794,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getAddress().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.debug("{} Unable to process remove for peer {}; {} {}", YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -843,7 +842,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.debug("{} Unable to process add for peer {}; {} {}", YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -875,7 +874,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.debug("{} Unable to process remove for peer {}; {} {}", YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -917,7 +916,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.debug("{} Unable to process add for peer {}; {} {}", YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -949,7 +948,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.debug("{} Unable to process remove for peer {}; {} {}", YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -991,7 +990,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.debug("{} Unable to process add for peer {}; {} {}", YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -1025,7 +1024,7 @@ public class BgpConfigurationManager {
                 String peerIp = val.getPeerIp().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process remove for peer {}; {}", YANG_OBJ, peerIp,
+                    LOG.debug("{} Unable to process remove for peer {}; {} {}", YANG_OBJ, peerIp,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -1076,8 +1075,8 @@ public class BgpConfigurationManager {
                 String nh = val.getNexthop().getValue();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for rd {} prefix {} nexthop {}; {}", YANG_OBJ, rd, pfxlen, nh,
-                            BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
+                    LOG.debug("{} Unable to process add for rd {} prefix {} nexthop {}; {} {}", YANG_OBJ, rd, pfxlen,
+                            nh, BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
                 Long label = val.getLabel();
@@ -1120,7 +1119,7 @@ public class BgpConfigurationManager {
                 String pfxlen = val.getPrefixLen();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process remove for rd {} prefix {}; {}", YANG_OBJ, rd, pfxlen,
+                    LOG.debug("{} Unable to process remove for rd {} prefix {}; {} {}", YANG_OBJ, rd, pfxlen,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -1199,7 +1198,7 @@ public class BgpConfigurationManager {
                 String rd = vrfs.getRd();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for rd {}; {}", YANG_OBJ, rd,
+                    LOG.debug("{} Unable to process add for rd {}; {} {}", YANG_OBJ, rd,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -1233,7 +1232,7 @@ public class BgpConfigurationManager {
                         }
                     }
                 } catch (TException | BgpRouterException e) {
-                    LOG.error("{} get {}, Add received exception; {}", YANG_OBJ, ADD_WARN, e);
+                    LOG.error("{} get {}, Add received exception", YANG_OBJ, ADD_WARN, e);
                 }
             }
         }
@@ -1258,7 +1257,7 @@ public class BgpConfigurationManager {
                 String rd = val.getRd();
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process remove for rd {}; {}", YANG_OBJ, rd,
+                    LOG.debug("{} Unable to process remove for rd {}; {} {}", YANG_OBJ, rd,
                             BgpRouterException.BGP_ERR_NOT_INITED, DEL_WARN);
                     return;
                 }
@@ -1320,7 +1319,7 @@ public class BgpConfigurationManager {
             if (rd != null) {
                 BgpRouter br = getClient(YANG_OBJ);
                 if (br == null) {
-                    LOG.debug("{} Unable to process add for rd {}; {}", YANG_OBJ, rd,
+                    LOG.debug("{} Unable to process add for rd {}; {} {}", YANG_OBJ, rd,
                             BgpRouterException.BGP_ERR_NOT_INITED, ADD_WARN);
                     return;
                 }
@@ -1482,7 +1481,7 @@ public class BgpConfigurationManager {
                                     br.disableMultipath(afi, safi);
                                 }
                             } catch (TException | BgpRouterException e) {
-                                LOG.error(YANG_OBJ + " received exception: \"" + e + "\"");
+                                LOG.error("{} received exception", YANG_OBJ, e);
                             }
                         }
                     }
@@ -1535,11 +1534,10 @@ public class BgpConfigurationManager {
                         if (br != null) {
                             try {
                                 br.multipaths(vrfMaxpathVal.getRd(), vrfMaxpathVal.getMaxpaths());
-                                LOG.debug("Maxpath for vrf: " + vrfMaxpathVal.getRd() + " : is "
-                                        + vrfMaxpathVal.getMaxpaths());
+                                LOG.debug("Maxpath for vrf {} is {}", vrfMaxpathVal.getRd(),
+                                        vrfMaxpathVal.getMaxpaths());
                             } catch (TException | BgpRouterException e) {
-                                LOG.error(YANG_OBJ
-                                        + " received exception: \"" + e + "\"");
+                                LOG.error("{} received exception", YANG_OBJ, e);
                             }
                         }
                     }
@@ -1856,10 +1854,10 @@ public class BgpConfigurationManager {
             if (vpnInstanceOpDataEntry != null) {
                 vni = vpnInstanceOpDataEntry.getL3vni();
                 if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
-                    LOG.debug("Got RT2 withdraw for RD %s from tep %s with mac %s remote RD %s",
+                    LOG.debug("Got RT2 withdraw for RD {} {} from tep {} with mac {} remote RD {}",
                             vpnInstanceOpDataEntry.getVpnInstanceName(), vni, nextHop, macaddress, rd);
                     deleteTepfromElanDS(rd, nextHop, macaddress);
-                    LOG.debug("For rd %s. skipping fib update", rd);
+                    LOG.debug("For rd {}. skipping fib update", rd);
                     macupdate = true;
                 }
             } else {
@@ -2064,11 +2062,8 @@ public class BgpConfigurationManager {
         LOG.error("connecting  to bgp host {} ", host);
         boolean res = bgpRouter.connect(host, port);
         if (!res) {
-            String msg = "Cannot connect to BGP config server at " + host + ":" + port;
-            if (config != null) {
-                msg += "; Configuration Replay aborted";
-            }
-            LOG.error(msg);
+            LOG.error("Cannot connect to BGP config server at {}:{}{}", host, port,
+                    config != null ? "; Configuration Replay aborted" : "");
             return replaySucceded;
         }
         config = getConfig();
@@ -2244,7 +2239,7 @@ public class BgpConfigurationManager {
                             br.disableMultipath(afi, safi);
                         }
                     } catch (TException | BgpRouterException e) {
-                        LOG.info("Replay:multipaths() received exception: \"" + e + "\"");
+                        LOG.info("Replay:multipaths() received exception", e);
                     }
                 }
             }
@@ -2255,7 +2250,7 @@ public class BgpConfigurationManager {
                 try {
                     br.multipaths(vrfMaxpath.getRd(), vrfMaxpath.getMaxpaths());
                 } catch (TException | BgpRouterException e) {
-                    LOG.info("Replay:vrfMaxPath() received exception: \"" + e + "\"");
+                    LOG.info("Replay:vrfMaxPath() received exception", e);
                 }
             }
         }
@@ -2751,7 +2746,7 @@ public class BgpConfigurationManager {
                 rt2TepMap.get(rd).get(tepIp).put(mac, l2vni);
             } else {
                 LOG.debug("RT2 with mac {} l2vni {} from existing rd {} and new tep-ip {}",
-                        mac, rd, tepIp);
+                        mac, l2vni, rd, tepIp);
                 isFirstMacUpdateFromTep = true;
                 Map<String, Long> macList = new HashMap<>();
                 macList.put(mac, l2vni);
