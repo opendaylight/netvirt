@@ -306,7 +306,7 @@ public final class AclServiceUtils {
         }
         InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
         if (aclInPort == null) {
-            LOG.error("getSecurityGroupInPortList: no security group associated}",
+            LOG.error("getSecurityGroupInPortList: no security group associated with port {}",
                 port.getName());
             return null;
         }
@@ -1403,7 +1403,7 @@ public final class AclServiceUtils {
             // To handle overlapping rules, aclTag is added to priority
             priority += aclTag;
         } else {
-            LOG.warn("aclTag=[] is null or invalid for aclName={}", aclTag, aclName);
+            LOG.warn("aclTag={} is null or invalid for aclName={}", aclTag, aclName);
         }
         return priority;
     }
@@ -1487,7 +1487,7 @@ public final class AclServiceUtils {
         try {
             inetAddress = InetAddress.getByName(addr);
         } catch (UnknownHostException e) {
-            LOG.error("Invalid address : {}", addr, e.getMessage());
+            LOG.error("Invalid address : {}", addr, e);
             return null;
         }
         return inetAddress;

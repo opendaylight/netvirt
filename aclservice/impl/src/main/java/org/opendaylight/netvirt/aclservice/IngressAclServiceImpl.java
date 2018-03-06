@@ -254,8 +254,8 @@ public class IngressAclServiceImpl extends AbstractAclServiceImpl {
         matches.add(MatchEthernetType.ARP);
         matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
         List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-        LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "ARP Rule on DPID {}, "
-                + "lportTag {}", dpId, lportTag);
+        LOG.debug("{} ARP Rule on DPID {}, lportTag {}", addOrRemove == NwConstants.DEL_FLOW ? "Deleting" : "Adding",
+                dpId, lportTag);
         String flowName = "Ingress_ARP_" + dpId + "_" + lportTag;
         syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0, 0,
                 AclConstants.COOKIE_ACL_BASE, matches, instructions, addOrRemove);

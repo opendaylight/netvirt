@@ -316,8 +316,8 @@ public class EgressAclServiceImpl extends AbstractAclServiceImpl {
             matches.add(AclServiceUtils.buildLPortTagMatch(lportTag, serviceMode));
 
             List<InstructionInfo> instructions = getDispatcherTableResubmitInstructions();
-            LOG.debug(addOrRemove == NwConstants.DEL_FLOW ? "Deleting " : "Adding " + "ARP Rule on DPID {}, "
-                    + "lportTag {}", dpId, lportTag);
+            LOG.debug("{} ARP Rule on DPID {}, lportTag {}",
+                    addOrRemove == NwConstants.DEL_FLOW ? "Deleting" : "Adding", dpId, lportTag);
             String flowName = "Egress_ARP_" + dpId + "_" + lportTag + "_" + allowedAddress.getMacAddress().getValue()
                     + String.valueOf(allowedAddressIp.getValue());
             syncFlow(dpId, getAclAntiSpoofingTable(), flowName, AclConstants.PROTO_ARP_TRAFFIC_MATCH_PRIORITY, "ACL", 0,
