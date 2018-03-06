@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 public class CloudScVpnInterfaceListener
         extends AsyncDataTreeChangeListenerBase<VpnInterface, CloudScVpnInterfaceListener> {
 
-    static final Logger LOG = LoggerFactory.getLogger(CloudScVpnInterfaceListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CloudScVpnInterfaceListener.class);
     private final DataBroker dataBroker;
     private final VPNServiceChainHandler vpnScHandler;
 
