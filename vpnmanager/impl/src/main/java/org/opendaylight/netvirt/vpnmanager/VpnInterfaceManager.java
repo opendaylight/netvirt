@@ -1916,7 +1916,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 List<Adjacency> adjacencies = optAdjacencies.get().getAdjacency();
 
                 if (!adjacencies.isEmpty()) {
-                    LOG.trace("delAdjFromVpnInterface: Adjacencies are " + adjacencies);
+                    LOG.trace("delAdjFromVpnInterface: Adjacencies are {}", adjacencies);
                     Iterator<Adjacency> adjIt = adjacencies.iterator();
                     while (adjIt.hasNext()) {
                         Adjacency adjElem = adjIt.next();
@@ -2358,11 +2358,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         @Override
         public void onFailure(Throwable throwable) {
             if (add) {
-                LOG.error("VpnInterfaceManager: VrfEntries for {} failed to store into destination {}"
-                        + " with exception: {}", interfaceName, txnDestination, throwable);
+                LOG.error("VpnInterfaceManager: VrfEntries for {} failed to store into destination {}",
+                        interfaceName, txnDestination, throwable);
             } else {
-                LOG.error("VpnInterfaceManager: VrfEntries for {} removal failed with exception: {}", interfaceName,
-                        throwable);
+                LOG.error("VpnInterfaceManager: VrfEntries for {} removal failed", interfaceName, throwable);
                 VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
             }
         }

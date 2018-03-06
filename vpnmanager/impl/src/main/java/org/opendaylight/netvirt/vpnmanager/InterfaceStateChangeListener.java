@@ -326,11 +326,10 @@ public class InterfaceStateChangeListener
         @Override
         public void onFailure(Throwable throwable) {
             if (add) {
-                LOG.error("InterfaceStateChangeListener: VrfEntries for {} failed to store into destination {}"
-                        + " with exception: {}", interfaceName, txnDestination, throwable);
+                LOG.error("InterfaceStateChangeListener: VrfEntries for {} failed to store into destination {}",
+                        interfaceName, txnDestination, throwable);
             } else {
-                LOG.error("InterfaceStateChangeListener: VrfEntries for {} removal failed with exception: {}",
-                        interfaceName, throwable);
+                LOG.error("InterfaceStateChangeListener: VrfEntries for {} removal failed", interfaceName, throwable);
                 VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
             }
         }
