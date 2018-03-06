@@ -17,7 +17,7 @@ public class RetryOnException {
     public static final int DEFAULT_RETRIES = Integer.MAX_VALUE;
     public static final long TIME_IN_MILLI = 1000;
     public static final int MAX_DELAY_FACTOR = 15;
-    private static final Logger LOG = LoggerFactory.getLogger(BgpConfigurationManager.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RetryOnException.class);
 
     private int numberOfTriesLeft;
     private int delayFactor;

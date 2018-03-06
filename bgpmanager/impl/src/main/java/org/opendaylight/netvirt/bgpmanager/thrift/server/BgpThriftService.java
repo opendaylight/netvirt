@@ -122,7 +122,7 @@ public class BgpThriftService {
                 });
                 server.serve();
             } catch (TTransportException e) {
-                LOG.error("Exception in BGP Updater server" + e);
+                LOG.error("Exception in BGP Updater server", e);
             }
         }
 

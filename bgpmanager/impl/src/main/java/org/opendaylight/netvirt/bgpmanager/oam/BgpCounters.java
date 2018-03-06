@@ -417,7 +417,7 @@ public class BgpCounters implements Runnable, AutoCloseable {
                     String[] result = str.split("\\s+");
                     if (result.length > 9) {
                         String strIp = result[0].trim();
-                        LOG.trace("strIp " + strIp);
+                        LOG.trace("strIp {}", strIp);
 
                         if (!validate(strIp, afi)) {
                             break;

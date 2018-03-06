@@ -157,9 +157,9 @@ public class BgpManager implements AutoCloseable, IBgpManager {
 
     @Override
     public void withdrawPrefix(String rd, String prefix) {
-        LOG.info("WITHDRAW: Removing Prefix rd {} prefix {} afi {}", rd, prefix);
+        LOG.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
         bcm.delPrefix(rd, prefix);
-        LOG.info("WITHDRAW: Removed Prefix rd {} prefix {} afi {}", rd, prefix);
+        LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
     }
 
     @Override
