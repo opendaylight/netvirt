@@ -89,7 +89,8 @@ public class ConfigurationClassifierImpl implements ClassifierState {
     }
 
     private Set<ClassifierRenderableEntry> getEntriesForAce(Ace ace) {
-        LOG.info("Generating classifier entries for Ace: {}", ace.getRuleName());
+        String ruleName = ace.getRuleName();
+        LOG.debug("Generating classifier entries for Ace: {}", ruleName);
         LOG.trace("Ace details: {}", ace);
 
         Optional<NetvirtsfcAclActions> sfcActions = Optional.ofNullable(ace.getActions())
@@ -98,23 +99,23 @@ public class ConfigurationClassifierImpl implements ClassifierState {
         String sfpName = sfcActions.map(NetvirtsfcAclActions::getSfpName).map(Strings::emptyToNull).orElse(null);
 
         if (rspName == null && sfpName == null) {
-            LOG.debug("Ace has no valid SFC redirect action, ignoring");
+            LOG.debug("Ace {} ignored: no valid SFC redirect action", ruleName);
             return Collections.emptySet();
         }
         if (rspName != null && sfpName != null) {
-            LOG.error("Ace has both a SFP and a RSP as redirect actions, ignoring as not supported");
+            LOG.warn("Ace {} ignored: both SFP and a RSP as redirect actions not supported", ruleName);
             return Collections.emptySet();
         }
 
         Matches matches = ace.getMatches();
         if (matches == null) {
-            LOG.warn("Ace has no matches, ignoring");
+            LOG.warn("Ace {} ignored: no matches", ruleName);
             return Collections.emptySet();
         }
 
         NeutronNetwork network = matches.getAugmentation(NeutronNetwork.class);
         if (sfpName != null && network != null) {
-            LOG.error("Ace has a SFP redirect action with a neutron network match, ignoring as not supported");
+            LOG.warn("Ace {} ignored: SFP redirect action with neutron network match not supported", ruleName);
             return Collections.emptySet();
         }
 
@@ -128,13 +129,14 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .orElse(null);
 
         if (rspName != null) {
-            return getEntriesForRspRedirect(sourcePort, destinationPort, network, rspName, matches);
+            return getEntriesForRspRedirect(ruleName, sourcePort, destinationPort, network, rspName, matches);
         }
 
-        return getEntriesForSfpRedirect(sourcePort, destinationPort, sfpName, matches);
+        return getEntriesForSfpRedirect(ruleName, sourcePort, destinationPort, sfpName, matches);
     }
 
     private Set<ClassifierRenderableEntry> getEntriesForRspRedirect(
+            String ruleName,
             String sourcePort,
             String destinationPort,
             NeutronNetwork neutronNetwork,
@@ -148,97 +150,115 @@ public class ConfigurationClassifierImpl implements ClassifierState {
 
         RenderedServicePath rsp = sfcProvider.getRenderedServicePath(rspName).orElse(null);
         if (rsp == null) {
-            LOG.error("RSP {} could not be read from database", rspName);
+            LOG.debug("Ace {} ignored: RSP {} not yet available", ruleName, rspName);
             return Collections.emptySet();
         }
 
         if (rsp.isReversePath()) {
             interfaces.add(destinationPort);
             if (sourcePort != null) {
-                LOG.warn("Source port ignored with redirect to reverse RSP");
+                LOG.warn("Ace {}: source port {} ignored, RSP is a reverse path", sourcePort, ruleName);
             }
         } else {
             if (destinationPort != null) {
-                LOG.warn("Destination port ignored with redirect to forward RSP");
+                LOG.warn("Ace {}: destination port {} ignored, RSP is a forward path", destinationPort, ruleName);
             }
             interfaces.add(sourcePort);
         }
 
         if (interfaces.isEmpty()) {
-            LOG.warn("Ace has no interfaces to match against");
+            LOG.debug("Ace {} ignored: no interfaces to match against", ruleName);
             return Collections.emptySet();
         }
 
-        return this.buildEntries(interfaces, matches, rsp);
+        return this.buildEntries(ruleName, interfaces, matches, rsp);
     }
 
     private Set<ClassifierRenderableEntry> getEntriesForSfpRedirect(
-            String sourcePort,
-            String destinationPort,
+            String ruleName,
+            String srcPort,
+            String dstPort,
             String sfpName,
             Matches matches) {
 
-        if (sourcePort == null && destinationPort == null) {
-            LOG.warn("Ace has no interfaces to match against");
+        if (srcPort == null && dstPort == null) {
+            LOG.warn("Ace {} ignored: no source or destination port to match against", ruleName);
             return Collections.emptySet();
         }
 
-        if (Objects.equals(sourcePort, destinationPort)) {
-            LOG.error("Specifying the same source and destination port is not valid configuration");
+        if (Objects.equals(srcPort, dstPort)) {
+            LOG.warn("Ace {} ignored: equal source and destination port not supported", ruleName);
             return Collections.emptySet();
         }
 
-        List<String> rspNames = sfcProvider.readServicePathState(sfpName).orElse(Collections.emptyList());
-        if (rspNames.isEmpty()) {
-            LOG.warn("There is currently no RSPs for SFP {}", sfpName);
+        List<RenderedServicePath> rsps = sfcProvider.readServicePathState(sfpName)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(sfcProvider::getRenderedServicePath)
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .collect(Collectors.toList());
+
+        // The classifier might be configured at the same time as the SFP.
+        // The RSPs that are automatically added from that SFP might still
+        // be missing. It will be handled on a later event.
+        if (rsps.isEmpty()) {
+            LOG.debug("Ace {} ignored: no RSPs for SFP {} yet available", ruleName, sfpName);
+            return Collections.emptySet();
+        }
+
+        // An SFP will have two RSPs associated if symmetric, one otherwise.
+        if (rsps.size() > 2) {
+            LOG.warn("Ace {} ignored: more than two RSPs associated to SFP {} not supported", ruleName, sfpName);
+            return Collections.emptySet();
+        }
+
+        RenderedServicePath forwardRsp = rsps.stream()
+                .filter(rsp -> !rsp.isReversePath())
+                .findAny()
+                .orElse(null);
+        RenderedServicePath reverseRsp = rsps.stream()
+                .filter(RenderedServicePath::isReversePath)
+                .filter(rsp -> forwardRsp != null && rsp.getSymmetricPathId().equals(forwardRsp.getPathId()))
+                .findAny()
+                .orElse(null);
+
+        if (srcPort != null && forwardRsp == null) {
+            LOG.debug("Ace {} ignored: no forward RSP yet available for SFP {} and source port {}",
+                    ruleName, sfpName, srcPort);
+            return Collections.emptySet();
+        }
+
+        if (dstPort != null && reverseRsp == null) {
+            LOG.debug("Ace {} ignored: no reverse RSP yet available for SFP {} and destination port {}",
+                    ruleName, sfpName, dstPort);
             return Collections.emptySet();
         }
 
         Set<ClassifierRenderableEntry> entries = new HashSet<>();
-        boolean haveAllRsps = false;
-        RenderedServicePath forwardRsp = null;
-        RenderedServicePath reverseRsp = null;
-        for (String anRspName : rspNames) {
-            RenderedServicePath rsp = sfcProvider.getRenderedServicePath(anRspName).orElse(null);
-            if (rsp.isReversePath() && destinationPort != null) {
-                reverseRsp = rsp;
-                haveAllRsps = forwardRsp != null || sourcePort == null;
-            }
-            if (!rsp.isReversePath() && sourcePort != null) {
-                forwardRsp = rsp;
-                haveAllRsps = reverseRsp != null || destinationPort == null;
-            }
-            if (haveAllRsps) {
-                break;
-            }
+        if (srcPort != null) {
+            entries.addAll(this.buildEntries(ruleName, Collections.singletonList(srcPort), matches, forwardRsp));
         }
-
-        if (reverseRsp != null) {
-            entries.addAll(this.buildEntries(Collections.singletonList(destinationPort), matches, reverseRsp));
-        } else if (destinationPort != null) {
-            LOG.warn("No reverse RSP found for SFP {} and destination port {}", sfpName, destinationPort);
-        }
-
-        if (forwardRsp != null) {
-            entries.addAll(this.buildEntries(Collections.singletonList(sourcePort), matches, forwardRsp));
-        } else if (sourcePort != null) {
-            LOG.warn("No forward RSP found for SFP {} and source port {}", sfpName, sourcePort);
+        if (dstPort != null) {
+            entries.addAll(this.buildEntries(ruleName, Collections.singletonList(dstPort), matches, reverseRsp));
         }
 
         return entries;
     }
 
     private Set<ClassifierRenderableEntry> buildEntries(
+            String ruleName,
             @NonNull List<String> interfaces,
             @NonNull Matches matches,
             @NonNull RenderedServicePath rsp) {
 
+        String rspName = rsp.getName().getValue();
         Long nsp = rsp.getPathId();
         Short nsi = rsp.getStartingIndex();
         Short nsl = rsp.getRenderedServicePathHop() == null ? null : (short) rsp.getRenderedServicePathHop().size();
 
         if (nsp == null || nsi == null || nsl == null) {
-            LOG.error("RSP has no valid NSI or NSP or length");
+            LOG.warn("Ace {} RSP {} ignored: no valid NSI or NSP or length", ruleName, rspName);
             return Collections.emptySet();
         }
 
@@ -247,19 +267,19 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                 .orElse(null);
 
         if (firstHopDpn == null) {
-            LOG.error("RSP has no valid first hop DPN");
+            LOG.warn("Ace {} RSP {} ignored: no valid first hop DPN", ruleName, rspName);
             return Collections.emptySet();
         }
 
         String lastHopInterface = sfcProvider.getLastHopSfInterfaceFromRsp(rsp).orElse(null);
         if (lastHopInterface == null) {
-            LOG.error("RSP has no valid last hop interface");
+            LOG.warn("Ace {} RSP {} ignored: has no valid last hop interface", ruleName, rspName);
             return Collections.emptySet();
         }
 
         DpnIdType lastHopDpn = geniusProvider.getDpnIdFromInterfaceName(lastHopInterface).orElse(null);
         if (lastHopDpn == null) {
-            LOG.error("RSP has no valid last hop DPN");
+            LOG.warn("Ace {} RSP {} ignored: has no valid last hop DPN", ruleName, rspName);
             return Collections.emptySet();
         }
 
@@ -269,7 +289,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
                     nodeToInterfaces.computeIfAbsent(nodeId, key -> new ArrayList<>()).add(new InterfaceKey(iface)));
         }
 
-        LOG.trace("Got classifier nodes and interfaces: {}", nodeToInterfaces);
+        LOG.trace("Ace {} RSP {}: got classifier nodes and interfaces: {}", ruleName, rspName, nodeToInterfaces);
 
         String firstHopIp = geniusProvider.getIpFromDpnId(firstHopDpn).orElse(null);
         Set<ClassifierRenderableEntry> entries = new HashSet<>();
@@ -279,7 +299,8 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             String nodeIp = geniusProvider.getIpFromDpnId(nodeDpn).orElse(LOCAL_HOST_IP);
 
             if (firstHopIp == null && !nodeDpn.equals(firstHopDpn)) {
-                LOG.warn("Classifier on node {} has no IP to reach first hop on node {}", nodeDpn, firstHopDpn);
+                LOG.warn("Ace {} RSP {} classifier {} ignored: no IP to reach first hop DPN {}",
+                        ruleName, rspName, nodeId, firstHopDpn);
                 return;
             }
 
