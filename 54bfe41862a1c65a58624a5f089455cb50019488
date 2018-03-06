@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "043ea844_6b68ea6e",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 4540
+      },
+      "writtenOn": "2018-03-06T14:05:10Z",
+      "side": 1,
+      "message": "No, it’s not. Please stop pushing agendas in commit messages, it’s really not the place for this.",
+      "revId": "54bfe41862a1c65a58624a5f089455cb50019488",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
