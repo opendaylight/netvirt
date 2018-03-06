@@ -27,6 +27,7 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.netvirt.fibmanager.api.IFibManager;
 import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEvent;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddDpnEventBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AddInterfaceToDpnOnVpnEvent;
@@ -52,6 +53,9 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfaces;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.VpnInterfacesKey;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ExternalSubnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.SubnetsKey;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -293,8 +297,7 @@ public class VpnFootprintService implements IVpnFootprintService {
                 + " on dpn {}", vpnName, vpnName, intfName, dpnId);
 
         if (lastDpnOnVpn) {
-            fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
-                    new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
+            cleanUpDpnForVpn(vpnId, rd, dpnId, vpnName);
             LOG.info("removeOrUpdateVpnToDpnList: Sent cleanup event for dpn {} in VPN {} vpnId {} interface {}", dpnId,
                     vpnName, vpnId, intfName);
         }
@@ -351,9 +354,37 @@ public class VpnFootprintService implements IVpnFootprintService {
 
         if (lastDpnOnVpn) {
             LOG.debug("Sending cleanup event for dpn {} in VPN {}", dpnId, vpnName);
+            cleanUpDpnForVpn(vpnId, rd, dpnId, vpnName);
+        }
+    }
+
+    private void cleanUpDpnForVpn(long vpnId, String rd, BigInteger dpnId, String vpnName) {
+        // - method FibManager.cleanUpDpnForVpn cleans up flow entries associating with the a VPN such as
+        //   SubnetRoute, BroadCast,etc. For internal VPN, these flow entries are created when at least one VPN
+        //   interface exists on the VPN and should be removed when the last VPN interface are removed.
+        // - For external subnet VPN, the flow entries mentioned above are created when the subnet is created.
+        // - Therefore, when deleting last VPN interface on external subnet VPN, simply remove VpnToDpnList
+        //   associated with the VPN. The cleanup DPN for external subnet VPN will be done when the external
+        //   subnet is deleted.
+        if (isExternalVpn(vpnName)) {
+            publishRemoveNotification(dpnId, vpnName, rd);
+        } else {
             fibManager.cleanUpDpnForVpn(dpnId, vpnId, rd,
                     new DpnEnterExitVpnWorker(dpnId, vpnName, rd, false /* exited */));
         }
+    }
+
+    private boolean isExternalVpn(String vpnInstanceName) {
+        Uuid possibleExtSubnetUuid = new Uuid(vpnInstanceName);
+        InstanceIdentifier<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+                .rev160111.external.subnets.Subnets> subnetsIdentifier =
+                InstanceIdentifier.builder(ExternalSubnets.class)
+                        .child(org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice
+                                .rev160111 .external.subnets.Subnets.class, new SubnetsKey(possibleExtSubnetUuid))
+                        .build();
+        Optional<Subnets> optionalSubnets = VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
+                subnetsIdentifier);
+        return (optionalSubnets.isPresent());
     }
 
     private void publishAddNotification(final BigInteger dpnId, final String vpnName, final String rd) {
