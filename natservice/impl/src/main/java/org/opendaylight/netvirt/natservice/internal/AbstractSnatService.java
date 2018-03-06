@@ -36,6 +36,7 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.netvirt.natservice.api.SnatServiceListener;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.AllocateIdInputBuilder;
@@ -69,11 +70,13 @@ public abstract class AbstractSnatService implements SnatServiceListener {
     protected final ItmRpcService itmManager;
     protected final OdlInterfaceRpcService odlInterfaceRpcService;
     protected final IInterfaceManager interfaceManager;
+    protected final IVpnFootprintService vpnFootprintService;
 
     protected AbstractSnatService(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
                                   final ItmRpcService itmManager, final OdlInterfaceRpcService odlInterfaceRpcService,
                                   final IdManagerService idManager, final NAPTSwitchSelector naptSwitchSelector,
-                                  final IInterfaceManager interfaceManager) {
+                                  final IInterfaceManager interfaceManager,
+                                  final IVpnFootprintService vpnFootprintService) {
         this.dataBroker = dataBroker;
         this.mdsalManager = mdsalManager;
         this.itmManager = itmManager;
@@ -81,6 +84,7 @@ public abstract class AbstractSnatService implements SnatServiceListener {
         this.idManager = idManager;
         this.naptSwitchSelector = naptSwitchSelector;
         this.odlInterfaceRpcService = odlInterfaceRpcService;
+        this.vpnFootprintService = vpnFootprintService;
     }
 
     protected DataBroker getDataBroker() {
