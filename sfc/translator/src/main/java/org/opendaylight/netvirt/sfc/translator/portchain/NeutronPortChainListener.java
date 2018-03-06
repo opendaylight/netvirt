@@ -12,8 +12,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.DataTreeIdentifier;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -22,8 +20,6 @@ import org.opendaylight.netvirt.sfc.translator.DelegatingDataTreeListener;
 import org.opendaylight.netvirt.sfc.translator.NeutronMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.SfcMdsalHelper;
 import org.opendaylight.netvirt.sfc.translator.flowclassifier.FlowClassifierTranslator;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathInput;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.CreateRenderedPathOutput;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.DeleteRenderedPathInput;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePathService;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
@@ -39,7 +35,6 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.a
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pair.groups.PortPairGroup;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.sfc.rev160511.sfc.attributes.port.pairs.PortPair;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -171,36 +166,11 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
         // Build Service Function Path Builder
         ServiceFunctionPath sfp = PortChainTranslator.buildServiceFunctionPath(sfc);
 
-        //Write SFP to data store
+        // Write SFP to data store
         LOG.info("Add service function path {}", sfp);
         sfcMdsalHelper.addServiceFunctionPath(sfp);
 
-        // TODO This can be removed after oxygen
-        // In Oxygen, RSP will be automatically created from the SFP without
-        // the need to call the rpc, which will be deprecated
-        if (this.rspService != null) {
-            // Build Create Rendered Service Path input
-            CreateRenderedPathInput rpInput = PortChainTranslator.buildCreateRenderedServicePathInput(sfp);
-
-            //Call Create Rendered Service Path RPC call
-            if (rpInput != null) {
-                LOG.info("Call RPC for creating RSP :{}", rpInput);
-                Future<RpcResult<CreateRenderedPathOutput>> result =  this.rspService.createRenderedPath(rpInput);
-                try {
-                    if (result.get() != null) {
-                        CreateRenderedPathOutput output = result.get().getResult();
-                        LOG.debug("RSP created on SFC : {}", output.getName());
-                    } else {
-                        LOG.error("RSP creation failed : {}", rpInput);
-                    }
-                } catch (InterruptedException | ExecutionException e) {
-                    LOG.error("Error occurred during creating Rendered Service Path using RPC call", e);
-                }
-            }
-        } else {
-            LOG.error("Rendered Path Service is not available, can't create Rendered Path for Port Chain",
-                    newPortChain);
-        }
+        // The RSP will automatically be created from the SFP added above.
 
         // Add ACLs from flow classifiers
         processFlowClassifiers(newPortChain, newPortChain.getFlowClassifiers(), sfp.getName().getValue());
