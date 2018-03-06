@@ -135,11 +135,11 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                     SingleTransactionDataBroker.syncReadOptional(dataBroker, LogicalDatastoreType.CONFIGURATION,
                             routerPortsIdentifier);
             if (optionalRouterPorts.isPresent()) {
-                LOG.debug("Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
+                LOG.debug("Updating routerPorts node {} in floatingIpInfo DS for floating IP {} on fixed "
                     + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
                 routerPortsBuilder = new RouterPortsBuilder(optionalRouterPorts.get());
             } else {
-                LOG.debug("Creating new routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
+                LOG.debug("Creating new routerPorts node {} in floatingIpInfo DS for floating IP {} on fixed "
                     + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
                 routerPortsBuilder =
                     new RouterPortsBuilder().setKey(new RouterPortsKey(routerName)).setRouterId(routerName);
@@ -179,7 +179,7 @@ public class NeutronFloatingToFixedIpMappingChangeListener extends AsyncDataTree
                 routerPortsBuilder.setPorts(portsList);
             }
             isLockAcquired = routerLock.tryLock(routerName, LOCK_WAIT_TIME, TimeUnit.SECONDS);
-            LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP () on fixed "
+            LOG.debug("Creating/Updating routerPorts node {} in floatingIpInfo DS for floating IP {} on fixed "
                 + "neutron port {} : ", routerName, floatingIpAddress, fixedNeutronPortName);
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, routerPortsIdentifier,
                 routerPortsBuilder.build());

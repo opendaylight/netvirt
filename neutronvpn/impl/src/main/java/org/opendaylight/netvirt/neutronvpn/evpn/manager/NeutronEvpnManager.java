@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -43,6 +44,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
 
 
 public class NeutronEvpnManager {
@@ -70,31 +73,26 @@ public class NeutronEvpnManager {
         List<Evpn> vpns = input.getEvpn();
         for (Evpn vpn : vpns) {
             if (vpn.getRouteDistinguisher() == null || vpn.getImportRT() == null || vpn.getExportRT() == null) {
-                String msg = String.format("Creation of EVPN failed for VPN %s due to absence of RD/iRT/eRT input",
-                        vpn.getId().getValue());
-                LOG.warn(msg);
-                RpcError error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
-                errorList.add(error);
+                errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input",
+                        formatAndLog(LOG::warn, "Creation of EVPN failed for VPN {} due to absence of RD/iRT/eRT input",
+                                vpn.getId().getValue())));
                 warningcount++;
                 continue;
             }
             VpnInstance.Type vpnInstanceType = VpnInstance.Type.L2;
             if (vpn.getRouteDistinguisher().size() > 1) {
-                String msg = String.format("Creation of EVPN failed for VPN %s due to multiple RD input %s",
-                        vpn.getId().getValue(), vpn.getRouteDistinguisher());
-                LOG.warn(msg);
-                RpcError error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
-                errorList.add(error);
+                errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input",
+                        formatAndLog(LOG::warn, "Creation of EVPN failed for VPN {} due to multiple RD input {}",
+                                vpn.getId().getValue(), vpn.getRouteDistinguisher())));
                 warningcount++;
                 continue;
             }
             if (existingRDs.contains(vpn.getRouteDistinguisher().get(0))) {
-                String msg = String.format("Creation of EVPN failed for VPN %s as another VPN with "
-                        + "the same RD %s is already configured",
-                        vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0));
-                LOG.warn(msg);
-                RpcError error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input", msg);
-                errorList.add(error);
+                errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-input",
+                        formatAndLog(LOG::warn,
+                                "Creation of EVPN failed for VPN {} as another VPN with the same RD {} is already "
+                                        + "configured",
+                                vpn.getId().getValue(), vpn.getRouteDistinguisher().get(0))));
                 warningcount++;
                 continue;
             }
@@ -103,10 +101,9 @@ public class NeutronEvpnManager {
                         vpn.getImportRT(), vpn.getExportRT(), null /*router-id*/, null /*network-id*/,
                         vpnInstanceType, 0 /*l2vni*/);
             } catch (Exception ex) {
-                String msg = String.format("Creation of EVPN failed for VPN %s", vpn.getId().getValue());
-                LOG.error(msg, ex);
-                RpcError error = RpcResultBuilder.newError(RpcError.ErrorType.APPLICATION, msg, ex.getMessage());
-                errorList.add(error);
+                errorList.add(RpcResultBuilder.newError(RpcError.ErrorType.APPLICATION,
+                        formatAndLog(LOG::error, "Creation of EVPN failed for VPN {}", vpn.getId().getValue(), ex),
+                        ex.getMessage()));
                 failurecount++;
             }
         }
@@ -116,9 +113,8 @@ public class NeutronEvpnManager {
             List<String> errorResponseList = new ArrayList<>();
             if (!errorList.isEmpty()) {
                 for (RpcError rpcError : errorList) {
-                    String errorResponse = String.format("ErrorType: %s, ErrorTag: %s, ErrorMessage: %s", rpcError
-                            .getErrorType(), rpcError.getTag(), rpcError.getMessage());
-                    errorResponseList.add(errorResponse);
+                    errorResponseList.add("ErrorType: " + rpcError.getErrorType() + ", ErrorTag: " + rpcError.getTag()
+                            + ", ErrorMessage: " + rpcError.getMessage());
                 }
             } else {
                 errorResponseList.add("EVPN creation successful with no errors");
@@ -155,10 +151,9 @@ public class NeutronEvpnManager {
                     && vpnInstance.getType() == VpnInstance.Type.L2) {
                 vpns.add(vpnInstance);
             } else {
-                String message = String.format("GetEVPN failed because VPN %s is not present", name);
-                LOG.error(message);
                 result.set(RpcResultBuilder.<GetEVPNOutput>failed().withWarning(RpcError.ErrorType.PROTOCOL,
-                        "invalid-value", message).build());
+                        "invalid-value",
+                        formatAndLog(LOG::error, "GetEVPN failed because VPN {} is not present", name)).build());
             }
         }
         List<EvpnInstances> evpnList = new ArrayList<>();
@@ -221,10 +216,8 @@ public class NeutronEvpnManager {
             if (vpnInstance != null) {
                 neutronvpnManager.removeVpn(vpn);
             } else {
-                msg = String.format("EVPN with vpnid: %s does not exist", vpn.getValue());
-                LOG.warn(msg);
-                error = RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-value", msg);
-                errorList.add(error);
+                errorList.add(RpcResultBuilder.newWarning(RpcError.ErrorType.PROTOCOL, "invalid-value",
+                        formatAndLog(LOG::warn, "EVPN with vpnid: {} does not exist", vpn.getValue())));
                 warningcount++;
             }
         }
@@ -234,9 +227,8 @@ public class NeutronEvpnManager {
             List<String> errorResponseList = new ArrayList<>();
             if (!errorList.isEmpty()) {
                 for (RpcError rpcError : errorList) {
-                    String errorResponse = String.format("ErrorType: %s, ErrorTag: %s, ErrorMessage: %s", rpcError
-                            .getErrorType(), rpcError.getTag(), rpcError.getMessage());
-                    errorResponseList.add(errorResponse);
+                    errorResponseList.add("ErrorType: " + rpcError.getErrorType() + ", ErrorTag: " + rpcError.getTag()
+                            + ", ErrorMessage: " + rpcError.getMessage());
                 }
             } else {
                 errorResponseList.add("Deletion of EVPN operation successful");
@@ -245,5 +237,19 @@ public class NeutronEvpnManager {
             result.set(RpcResultBuilder.<DeleteEVPNOutput>success().withResult(opBuilder.build()).build());
         }
         return result;
+    }
+
+    private String formatAndLog(Consumer<String> logger, String template, Object arg) {
+        return logAndReturnMessage(logger, MessageFormatter.format(template, arg));
+    }
+
+    private String formatAndLog(Consumer<String> logger, String template, Object arg1, Object arg2) {
+        return logAndReturnMessage(logger, MessageFormatter.format(template, arg1, arg2));
+    }
+
+    private String logAndReturnMessage(Consumer<String> logger, FormattingTuple tuple) {
+        String message = tuple.getMessage();
+        logger.accept(message);
+        return message;
     }
 }

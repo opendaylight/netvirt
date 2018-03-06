@@ -149,7 +149,7 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
                                 importRouteTargets, exportRouteTargets, router, input.getNetworks(),
                                 vpnInstanceType, 0 /*l3vni*/);
                     } catch (Exception e) {
-                        LOG.error("Creation of BGPVPN {} failed with error {} ", vpnName, e);
+                        LOG.error("Creation of BGPVPN {} failed", vpnName, e);
                     }
                 } else {
                     LOG.error("Create BgpVPN with id {} failed due to missing RD value", vpnName);

@@ -89,7 +89,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
         if (extNetChanged != EXTERNAL_NO_CHANGE) {
             if (extNetChanged == EXTERNAL_ADDED) {
                 updExtNetId = update.getExternalGatewayInfo().getExternalNetworkId();
-                LOG.trace("External Network {} addition detected for router", updExtNetId.getValue(),
+                LOG.trace("External Network {} addition detected for router {}", updExtNetId.getValue(),
                         routerId.getValue());
                 addExternalNetworkToRouter(update);
                 return;
@@ -678,8 +678,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
 
             if (subnets.getExternalNetworkId() != null
                     && subnets.getExternalNetworkId().equals(networkId) && !routerIds.contains(routerId)) {
-                LOG.debug("Will add routerID {} for external subnet.",
-                        routerId, subnetId);
+                LOG.debug("Will add routerID {} for external subnet {}.", routerId, subnetId);
                 routerIds.add(routerId);
                 updateExternalSubnet(networkId, subnetId, routerIds);
             }
@@ -724,7 +723,7 @@ public class NeutronvpnNatManager implements AutoCloseable {
                         && routerIds.contains(routerId)) {
                     routerIds.remove(routerId);
                     LOG.debug("Will remove routerIDs {} from external subnet {} router ID {}",
-                        subnetId, routerId);
+                        routerIds, subnetId, routerId);
                     addExternalSubnet(externalNetworkId, subnetId, routerIds);
                 }
             }

@@ -83,7 +83,7 @@ public final class NeutronUtils {
                 tx.syncUpdate(LogicalDatastoreType.OPERATIONAL, iid, portBuilder.build());
             }
         } catch (TransactionCommitFailedException e) {
-            LOG.error("writePortStatus: failed neutron port status write. isCreate ? " + create, e);
+            LOG.error("writePortStatus: failed neutron port status write. isCreate: {}", create, e);
             return false;
         }
 

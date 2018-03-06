@@ -150,7 +150,7 @@ public class NeutronHostConfigChangeListener
                 LOG.trace("Delete Node: result: {}", result);
                 break;
             default:
-                LOG.warn("Invalid action: %s", action);
+                LOG.warn("Invalid action: {}", action);
                 break;
         }
     }

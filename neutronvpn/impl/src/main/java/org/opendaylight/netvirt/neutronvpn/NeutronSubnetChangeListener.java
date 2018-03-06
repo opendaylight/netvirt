@@ -175,8 +175,8 @@ public class NeutronSubnetChangeListener extends AsyncDataTreeChangeListenerBase
                 if (subnetIdList.remove(subnetId)) {
                     if (subnetIdList.isEmpty()) {
                         MDSALUtil.syncDelete(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier);
-                        LOG.debug("Deleted network node in NetworkMaps DS for network {}", subnetId.getValue(),
-                                networkId.getValue());
+                        LOG.debug("Deleted network node in NetworkMaps DS for subnet {} network {}",
+                                subnetId.getValue(), networkId.getValue());
                     } else {
                         nwMapBuilder.setSubnetIdList(subnetIdList);
                         MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION, networkMapIdentifier,

@@ -51,7 +51,7 @@ public final class L2GatewayUtils {
             if (rpcResult.isSuccessful()) {
                 LOG.info("Created ITM tunnels for {}", hwvtepId);
             } else {
-                LOG.error("Failed to create ITM Tunnels: ", rpcResult.getErrors());
+                LOG.error("Failed to create ITM Tunnels: {}", rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("RPC to create ITM tunnels failed", e);
@@ -70,7 +70,7 @@ public final class L2GatewayUtils {
             if (rpcResult.isSuccessful()) {
                 LOG.info("Deleted ITM tunnels for {}", hwvtepId);
             } else {
-                LOG.error("Failed to delete ITM Tunnels: ", rpcResult.getErrors());
+                LOG.error("Failed to delete ITM Tunnels: {}", rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("RPC to delete ITM tunnels failed", e);
