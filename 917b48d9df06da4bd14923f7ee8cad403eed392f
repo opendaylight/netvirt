@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "446775a0_d30cdedd",
+        "filename": "vpnservice/aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/AbstractAclServiceImpl.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 469,
+      "author": {
+        "id": 5433
+      },
+      "writtenOn": "2018-03-06T22:55:44Z",
+      "side": 1,
+      "message": "Is this line still needed?",
+      "revId": "917b48d9df06da4bd14923f7ee8cad403eed392f",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
