@@ -102,7 +102,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                     dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
                                 } catch (Exception e) {
                                     LOG.error("{} add: Unable to obtain dpnId for interface {} in subnet {},"
-                                            + " subnetroute inclusion for this interface failed with exception {}",
+                                            + " subnetroute inclusion for this interface failed",
                                             LOGGING_PREFIX, interfaceName, subnetId, e);
                                 }
                                 InstanceIdentifier<VpnInterface> id = VpnUtil
@@ -150,8 +150,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 dpnId = InterfaceUtils.getDpIdFromInterface(intrf);
                             } catch (Exception e) {
                                 LOG.error("{} remove: Unable to retrieve dpnId for interface {} in subnet {}. "
-                                                + "Fetching from vpn interface itself due to exception {}",
-                                        LOGGING_PREFIX, intrf.getName(), subnetId, e);
+                                                + "Fetching from vpn interface itself",
+                                        LOGGING_PREFIX, intrf.getName(), subnetId);
                             }
                             InstanceIdentifier<VpnInterface> id = VpnUtil
                                     .getVpnInterfaceIdentifier(interfaceName);
@@ -219,8 +219,8 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                                 dpnId = InterfaceUtils.getDpIdFromInterface(update);
                             } catch (Exception e) {
                                 LOG.error("{} remove: Unable to retrieve dpnId for interface {} in subnet  {}. "
-                                                + "Fetching from vpn interface itself due to exception {}",
-                                        LOGGING_PREFIX, update.getName(), subnetId, e);
+                                                + "Fetching from vpn interface itself",
+                                        LOGGING_PREFIX, update.getName(), subnetId);
                             }
                             InstanceIdentifier<VpnInterface> id = VpnUtil
                                     .getVpnInterfaceIdentifier(interfaceName);

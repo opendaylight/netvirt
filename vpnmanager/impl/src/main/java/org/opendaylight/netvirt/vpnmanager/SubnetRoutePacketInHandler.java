@@ -143,7 +143,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                     if (elanTag == 0L) {
                         VpnManagerCounters.subnet_route_packet_failed.inc();
                         LOG.error("{} onPacketReceived: elanTag value from metadata found to be 0, for IPv4 "
-                                + " Packet received with Target IP {} src Ip vpnId", LOGGING_PREFIX, dstIpStr, srcIp,
+                                + " Packet received with Target IP {} src Ip {} vpnId", LOGGING_PREFIX, dstIpStr, srcIp,
                                 vpnId);
                         return;
                     }
@@ -277,7 +277,7 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
                                 throws UnknownHostException {
         String routerId = VpnUtil.getAssociatedExternalRouter(dataBroker, srcIpStr);
         if (null == routerId) {
-            LOG.debug("The ip is not associated with any external router", srcIpStr);
+            LOG.debug("This ip is not associated with any external router: {}", srcIpStr);
         }
         handlePacketToExternalNetwork(new Uuid(vpnIdVpnInstanceName), routerId, dstIp, elanTag);
     }
@@ -333,7 +333,8 @@ public class SubnetRoutePacketInHandler implements PacketProcessingListener {
         Optional<NetworkMap> optionalNetworkMap = VpnUtil.read(broker, LogicalDatastoreType.CONFIGURATION,
                 VpnUtil.buildNetworkMapIdentifier(new Uuid(elanInfo.getName())));
         if (!optionalNetworkMap.isPresent()) {
-            LOG.debug("{} getTargetDpnForPacketOut: No network map found for elan info {}", elanInfo.getName());
+            LOG.debug("{} getTargetDpnForPacketOut: No network map found for elan info {}", LOGGING_PREFIX,
+                    elanInfo.getName());
             return null;
         }
 

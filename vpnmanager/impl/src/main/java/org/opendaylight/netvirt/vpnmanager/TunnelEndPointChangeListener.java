@@ -84,8 +84,7 @@ public class TunnelEndPointChangeListener
 
         List<VpnInstance> vpnInstances = VpnHelper.getAllVpnInstances(broker);
         if (vpnInstances == null || vpnInstances.isEmpty()) {
-            LOG.warn("add: dpnId: {}: tep: tep.getInterfaceName(): No VPN instances defined",
-                dpnId, tep.getInterfaceName());
+            LOG.warn("add: dpnId: {}: tep: {}: No VPN instances defined", dpnId, tep.getInterfaceName());
             return;
         }
 
@@ -125,7 +124,7 @@ public class TunnelEndPointChangeListener
                     }
                 }
             } else {
-                LOG.error("add: Ignoring addition of tunnel interface{} dpn {} for vpnInstance {} with primaryRd {},"
+                LOG.error("add: Ignoring addition of tunnel interface {} dpn ??? for vpnInstance {} with primaryRd {},"
                         + " as the VPN is already marked for deletion", tep.getInterfaceName(),
                         vpnName, primaryRd);
             }
