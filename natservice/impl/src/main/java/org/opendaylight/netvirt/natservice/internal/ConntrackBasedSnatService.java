@@ -7,9 +7,12 @@
  */
 package org.opendaylight.netvirt.natservice.internal;
 
+import com.google.common.base.Optional;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
@@ -30,13 +33,16 @@ import org.opendaylight.genius.mdsalutil.matches.MatchIpv4Destination;
 import org.opendaylight.genius.mdsalutil.matches.MatchMetadata;
 import org.opendaylight.genius.mdsalutil.matches.MatchTunnelId;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtState;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnFootprintService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.rpcs.rev160406.OdlInterfaceRpcService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.op.data.vpn.instance.op.data.entry.vpn.to.dpn.list.IpAddresses;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.Routers;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.ext.routers.routers.ExternalIps;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.natservice.rev160111.external.subnets.Subnets;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.types.rev160517.IpPrefixOrAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatFlags;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.openflowjava.nx.action.rev140421.NxActionNatRangePresent;
@@ -55,8 +61,9 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
 
     public ConntrackBasedSnatService(DataBroker dataBroker, IMdsalApiManager mdsalManager, ItmRpcService itmManager,
             OdlInterfaceRpcService interfaceManager, IdManagerService idManager,
-            NAPTSwitchSelector naptSwitchSelector) {
-        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector);
+            NAPTSwitchSelector naptSwitchSelector, IVpnFootprintService vpnFootprintService) {
+        super(dataBroker, mdsalManager, itmManager, interfaceManager, idManager, naptSwitchSelector,
+            vpnFootprintService);
     }
 
     @Override
@@ -95,6 +102,15 @@ public abstract class ConntrackBasedSnatService extends AbstractSnatService {
         installInboundEntry(dpnId, routerId, externalIp, elanId, extSubnetId, addOrRemove);
         installNaptPfibEntry(dpnId, routerId, addOrRemove);
 
+        String fibExternalIp = NatUtil.validateAndAddNetworkMask(externalIp);
+        Optional<Subnets> externalSubnet = NatUtil.getOptionalExternalSubnets(dataBroker, externalSubnetId);
+        if (externalSubnet.isPresent()) {
+            String externalVpn =  externalSubnetId.getValue();
+            String vpnRd = NatUtil.getVpnRd(dataBroker, externalVpn);
+            vpnFootprintService.updateVpnToDpnMapping(dpnId, externalVpn, vpnRd, null /* interfaceName*/,
+                new ImmutablePair<>(IpAddresses.IpAddressSource.ExternalFixedIP, fibExternalIp),
+                addOrRemove == NwConstants.ADD_FLOW);
+        }
     }
 
     @Override
