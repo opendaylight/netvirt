@@ -59,6 +59,30 @@
     },
     {
       "key": {
+        "uuid": "8428b25e_76d30f64",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-03-06T15:07:21Z",
+      "side": 1,
+      "message": "If you do that then only the ex message is printed. Logger has specific behavior such that if the last param is a Throwable and there\u0027s no match format {}, then it logs the  exception with stack trace.",
+      "parentUuid": "972f5d71_84c01f53",
+      "range": {
+        "startLine": 298,
+        "startChar": 28,
+        "endLine": 298,
+        "endChar": 52
+      },
+      "revId": "54bfe41862a1c65a58624a5f089455cb50019488",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e83b1531_cbe403a3",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 1
