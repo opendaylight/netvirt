@@ -1159,7 +1159,7 @@ public class NeutronvpnUtils {
             Future<RpcResult<Void>> result = idManager.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.error("RPC Call to Get Unique Id returned with errors for poolname {} and ID Key {}",
+                LOG.error("RPC Call to Get Unique Id returned with errors for poolname {} and ID Key {}: {}",
                         poolName, idKey, rpcResult.getErrors());
             } else {
                 LOG.info("ID {} for RD released successfully", idKey);
@@ -1408,21 +1408,21 @@ public class NeutronvpnUtils {
             return false;
         }
         if (vpnInstanceOpDataEntry.getType() == VpnInstanceOpDataEntry.Type.L2) {
-            LOG.error("shouldVpnHandleIpVersionChangeToAdd: "
+            LOG.error("shouldVpnHandleIpVersionChangeToAdd: {} "
                     + "VpnInstanceOpDataEntry is L2 instance. Do nothing.", vpnId.getValue());
             return false;
         }
         boolean isIpv4Configured = vpnInstanceOpDataEntry.isIpv4Configured();
         boolean isVpnInstanceIpv4Changed = false;
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && isIpv4Configured == false) {
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV4) && !isIpv4Configured) {
             isVpnInstanceIpv4Changed = true;
         }
         boolean isIpv6Configured = vpnInstanceOpDataEntry.isIpv6Configured();
         boolean isVpnInstanceIpv6Changed = false;
-        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && isIpv6Configured == false) {
+        if (ipVersion.isIpVersionChosen(IpVersionChoice.IPV6) && !isIpv6Configured) {
             isVpnInstanceIpv6Changed = true;
         }
-        if (isVpnInstanceIpv4Changed == false && isVpnInstanceIpv6Changed == false) {
+        if (!isVpnInstanceIpv4Changed && !isVpnInstanceIpv6Changed) {
             LOG.debug("shouldVpnHandleIpVersionChangeToAdd: VPN {} did not change with IpFamily {}",
                   vpnId.getValue(), ipVersion.toString());
             return false;
@@ -1487,7 +1487,7 @@ public class NeutronvpnUtils {
                             new VpnInstanceOpDataEntryKey(vpnInstanceOpDataEntry.getVrfId())).build();
             writeTxn.merge(LogicalDatastoreType.OPERATIONAL, id, builder.build(), false);
             LOG.info("updateVpnInstanceWithIpFamily: Successfully {} {} to Vpn {}",
-                    add == true ? "added" : "removed",
+                    add ? "added" : "removed",
                     ipVersion.toString(), vpnName);
             return Collections.singletonList(writeTxn.submit());
         });
