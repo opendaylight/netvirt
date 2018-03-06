@@ -83,6 +83,30 @@
     },
     {
       "key": {
+        "uuid": "496a3e95_c5e69667",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 298,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-03-06T15:13:46Z",
+      "side": 1,
+      "message": "Tom,\nThanks for the explanation, clearly didn\u0027t know that, appreciate your input!",
+      "parentUuid": "8428b25e_76d30f64",
+      "range": {
+        "startLine": 298,
+        "startChar": 28,
+        "endLine": 298,
+        "endChar": 52
+      },
+      "revId": "54bfe41862a1c65a58624a5f089455cb50019488",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e83b1531_cbe403a3",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 1
@@ -94,6 +118,30 @@
       "writtenOn": "2018-03-06T14:45:26Z",
       "side": 1,
       "message": "Missing {} for exception. Should be:\n\" for remoteDpnid {} srcTepIp {} destTepIp {} exception {}\":",
+      "range": {
+        "startLine": 316,
+        "startChar": 38,
+        "endLine": 316,
+        "endChar": 84
+      },
+      "revId": "54bfe41862a1c65a58624a5f089455cb50019488",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2cdc708d_cd1b81b9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 316,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-03-06T15:13:46Z",
+      "side": 1,
+      "message": "Tom cleared this up for me, please disregard comment. Thanks.",
+      "parentUuid": "e83b1531_cbe403a3",
       "range": {
         "startLine": 316,
         "startChar": 38,
