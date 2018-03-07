@@ -331,6 +331,8 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
 
             while (interfacelistIter.hasNext()) {
                 interfaces = interfacelistIter.next();
+                LOG.info("handleTunnelEventForDPN: Processing Interface name {}, Interface {}",
+                        interfaces.getInterfaceName(), interfaces);
                 if (!L2vlan.class.equals(interfaces.getInterfaceType())) {
                     LOG.info("handleTunnelEventForDPN: Interface {} not of type L2Vlan", interfaces.getInterfaceName());
                     return;
