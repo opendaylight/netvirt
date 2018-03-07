@@ -337,7 +337,7 @@ public class TunnelInterfaceStateListener extends AsyncDataTreeChangeListenerBas
                 intfName = interfaces.getInterfaceName();
                 VpnInterface vpnInterface =
                      VpnUtil.getConfiguredVpnInterface(dataBroker, intfName);
-                if (vpnInterface != null && !vpnInterface.isScheduledForRemove()) {
+                if (vpnInterface != null) {
                     listVpnName.addAll(VpnHelper
                         .getVpnInterfaceVpnInstanceNamesString(vpnInterface.getVpnInstanceNames()));
                     handleTunnelEventForDPNVpn(stateTunnelList, vpnIdRdMap,
