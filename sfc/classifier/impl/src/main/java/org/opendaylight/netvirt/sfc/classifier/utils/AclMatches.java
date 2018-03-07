@@ -11,12 +11,23 @@ package org.opendaylight.netvirt.sfc.classifier.utils;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.packet.IPProtocols;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.Matches;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.MatchesBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEth;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceEthBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.AceIpBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv4Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.access.lists.acl.access.list.entries.ace.matches.ace.type.ace.ip.ace.ip.version.AceIpv6Builder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Dscp;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv4Prefix;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.Ipv6Prefix;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.inet.types.rev130715.PortNumber;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRange;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.DestinationPortRangeBuilder;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRange;
+import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.packet.fields.rev160218.acl.transport.header.fields.SourcePortRangeBuilder;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.types.rev131026.flow.MatchBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.l2.types.rev130827.EtherType;
@@ -315,6 +326,75 @@ public class AclMatches {
         }
 
         return ethMatchBuilder.build();
+    }
+
+    public static Matches invertMatches(Matches matches) {
+        LOG.trace("Invert matches: {}", matches);
+        MatchesBuilder matchesBuilder = new MatchesBuilder(matches);
+
+        if (matches.getAceType() instanceof AceIp) {
+            AceIp aceIp = (AceIp) matches.getAceType();
+            AceIpBuilder aceIpBuilder = new AceIpBuilder(aceIp);
+            aceIpBuilder.setDestinationPortRange(null);
+            aceIpBuilder.setSourcePortRange(null);
+            SourcePortRange sourcePortRange = aceIp.getSourcePortRange();
+            DestinationPortRange destinationPortRange = aceIp.getDestinationPortRange();
+
+            if (sourcePortRange != null) {
+                DestinationPortRangeBuilder destinationPortRangeBuilder = new DestinationPortRangeBuilder();
+                destinationPortRangeBuilder.setLowerPort(sourcePortRange.getLowerPort());
+                destinationPortRangeBuilder.setUpperPort(sourcePortRange.getUpperPort());
+                aceIpBuilder.setDestinationPortRange(destinationPortRangeBuilder.build());
+            }
+
+            if (destinationPortRange != null) {
+                SourcePortRangeBuilder sourcePortRangeBuilder = new SourcePortRangeBuilder();
+                sourcePortRangeBuilder.setLowerPort(destinationPortRange.getLowerPort());
+                sourcePortRangeBuilder.setUpperPort(destinationPortRange.getUpperPort());
+                aceIpBuilder.setSourcePortRange(sourcePortRangeBuilder.build());
+            }
+
+            if (aceIp.getAceIpVersion() instanceof AceIpv4) {
+                AceIpv4 aceIpv4 = (AceIpv4) aceIp.getAceIpVersion();
+                Ipv4Prefix destinationIpv4Network = aceIpv4.getDestinationIpv4Network();
+                Ipv4Prefix sourceIpv4Network = aceIpv4.getSourceIpv4Network();
+
+                AceIpv4Builder aceIpv4Builder = new AceIpv4Builder(aceIpv4);
+                aceIpv4Builder.setDestinationIpv4Network(sourceIpv4Network);
+                aceIpv4Builder.setSourceIpv4Network(destinationIpv4Network);
+                aceIpBuilder.setAceIpVersion(aceIpv4Builder.build());
+
+            } else if (aceIp.getAceIpVersion() instanceof AceIpv6) {
+                AceIpv6 aceIpv6 = (AceIpv6) aceIp.getAceIpVersion();
+                Ipv6Prefix destinationIpv6Network = aceIpv6.getDestinationIpv6Network();
+                Ipv6Prefix sourceIpv6Network = aceIpv6.getSourceIpv6Network();
+
+                AceIpv6Builder aceIpv6Builder = new AceIpv6Builder(aceIpv6);
+                aceIpv6Builder.setDestinationIpv6Network(sourceIpv6Network);
+                aceIpv6Builder.setSourceIpv6Network(destinationIpv6Network);
+                aceIpBuilder.setAceIpVersion(aceIpv6Builder.build());
+            }
+
+            matchesBuilder.setAceType(aceIpBuilder.build());
+
+        } else if (matches.getAceType() instanceof AceEth) {
+            AceEth aceEth = (AceEth) matches.getAceType();
+            MacAddress destinationMacAddress = aceEth.getDestinationMacAddress();
+            MacAddress destinationMacAddressMask = aceEth.getDestinationMacAddressMask();
+            MacAddress sourceMacAddress = aceEth.getSourceMacAddress();
+            MacAddress sourceMacAddressMask = aceEth.getSourceMacAddressMask();
+
+            AceEthBuilder aceEthBuilder = new AceEthBuilder(aceEth);
+            aceEthBuilder.setDestinationMacAddress(sourceMacAddress);
+            aceEthBuilder.setDestinationMacAddressMask(sourceMacAddressMask);
+            aceEthBuilder.setSourceMacAddress(destinationMacAddress);
+            aceEthBuilder.setSourceMacAddressMask(destinationMacAddressMask);
+            matchesBuilder.setAceType(aceEthBuilder.build());
+        }
+
+        Matches invertedMatches = matchesBuilder.build();
+        LOG.trace("Inverted matches: {}", invertedMatches);
+        return invertedMatches;
     }
 
 }

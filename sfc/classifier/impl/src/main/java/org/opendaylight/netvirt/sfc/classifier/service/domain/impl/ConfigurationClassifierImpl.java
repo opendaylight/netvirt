@@ -30,6 +30,7 @@ import org.opendaylight.netvirt.sfc.classifier.providers.SfcProvider;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.ClassifierEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierRenderableEntry;
 import org.opendaylight.netvirt.sfc.classifier.service.domain.api.ClassifierState;
+import org.opendaylight.netvirt.sfc.classifier.utils.AclMatches;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.DpnIdType;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.access.control.list.rev160218.AccessLists;
@@ -143,26 +144,21 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             String rspName,
             Matches matches) {
 
-        List<String> interfaces = new ArrayList<>();
-        if (neutronNetwork != null) {
-            interfaces.addAll(netvirtProvider.getLogicalInterfacesFromNeutronNetwork(neutronNetwork));
-        }
-
         RenderedServicePath rsp = sfcProvider.getRenderedServicePath(rspName).orElse(null);
         if (rsp == null) {
             LOG.debug("Ace {} ignored: RSP {} not yet available", ruleName, rspName);
             return Collections.emptySet();
         }
 
-        if (rsp.isReversePath()) {
-            interfaces.add(destinationPort);
-            if (sourcePort != null) {
-                LOG.warn("Ace {}: source port {} ignored, RSP is a reverse path", sourcePort, ruleName);
-            }
-        } else {
-            if (destinationPort != null) {
-                LOG.warn("Ace {}: destination port {} ignored, RSP is a forward path", destinationPort, ruleName);
-            }
+        if (destinationPort != null) {
+            LOG.warn("Ace {}: destination port is ignored combined with RSP redirect");
+        }
+
+        List<String> interfaces = new ArrayList<>();
+        if (neutronNetwork != null) {
+            interfaces.addAll(netvirtProvider.getLogicalInterfacesFromNeutronNetwork(neutronNetwork));
+        }
+        if (sourcePort != null) {
             interfaces.add(sourcePort);
         }
 
@@ -201,7 +197,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
 
         // The classifier might be configured at the same time as the SFP.
         // The RSPs that are automatically added from that SFP might still
-        // be missing. It will be handled on a later event.
+        // be missing. It will be handled on a later listener event.
         if (rsps.isEmpty()) {
             LOG.debug("Ace {} ignored: no RSPs for SFP {} yet available", ruleName, sfpName);
             return Collections.emptySet();
@@ -240,7 +236,9 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             entries.addAll(this.buildEntries(ruleName, Collections.singletonList(srcPort), matches, forwardRsp));
         }
         if (dstPort != null) {
-            entries.addAll(this.buildEntries(ruleName, Collections.singletonList(dstPort), matches, reverseRsp));
+            Matches invertedMatches = AclMatches.invertMatches(matches);
+            entries.addAll(
+                    this.buildEntries(ruleName, Collections.singletonList(dstPort), invertedMatches, reverseRsp));
         }
 
         return entries;
