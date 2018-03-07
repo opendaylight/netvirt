@@ -577,8 +577,7 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 for (FixedIps ip: portIpAddrsList) {
                     nvpnManager.updateSubnetmapNodeWithPorts(ip.getSubnetId(), null, portId);
                 }
-                LOG.info("Port {} is not a normal and not a direct with switchdev VNIC type ;"
-                         + "OF Port interfaces are not created", portName);
+                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
                 return Collections.emptyList();
             }
             return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
@@ -630,13 +629,12 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
         jobCoordinator.enqueueJob("PORT- " + portName, () -> {
             WriteTransaction wrtConfigTxn = dataBroker.newWriteOnlyTransaction();
             List<ListenableFuture<Void>> futures = new ArrayList<>();
-            if (!(NeutronUtils.isPortVnicTypeNormal(port) || isPortTypeSwitchdev(port))) {
+            if (!NeutronUtils.isPortVnicTypeNormal(port)) {
                 for (FixedIps ip: portIpsList) {
                     // remove direct port from subnetMaps config DS
                     nvpnManager.removePortsFromSubnetmapNode(ip.getSubnetId(), null, portId);
                 }
-                LOG.info("Port {} is not a normal and not a direct with switchdev VNIC type ;"
-                         + "Skipping OF Port interfaces removal", portName);
+                LOG.info("Port {} is not a NORMAL VNIC Type port; OF Port interfaces are not created", portName);
                 return futures;
             }
             Uuid vpnId = null;
