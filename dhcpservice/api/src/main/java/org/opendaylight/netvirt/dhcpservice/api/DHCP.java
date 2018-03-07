@@ -37,8 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DHCP extends Packet {
-    protected static final Logger LOG = LoggerFactory
-            .getLogger(DHCP.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DHCP.class);
+
     private static final String OP      = "Op";
     private static final String HTYPE   = "Htype";
     private static final String HLEN    = "Hlen";

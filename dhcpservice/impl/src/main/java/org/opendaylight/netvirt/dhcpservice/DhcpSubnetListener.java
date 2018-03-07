@@ -180,7 +180,7 @@ public class DhcpSubnetListener extends AsyncClusteredDataTreeChangeListenerBase
             BigInteger designatedDpnId =
                     dhcpExternalTunnelManager.readDesignatedSwitchesForExternalTunnel(tunnelIp, networkId.getValue());
             LOG.trace("CR-DHCP DhcpSubnetListener update Install DIRECT vmMacAddress: {} tunnelIp: {} "
-                    + "designatedDpnId : {} ListOf Dpn:",
+                    + "designatedDpnId : {} ListOf Dpn: {}",
                     vmMacAddress, tunnelIp, designatedDpnId, listOfDpns);
             dhcpExternalTunnelManager.installDhcpFlowsForVms(tunnelIp, networkId.getValue(), listOfDpns,
                     designatedDpnId, vmMacAddress);
