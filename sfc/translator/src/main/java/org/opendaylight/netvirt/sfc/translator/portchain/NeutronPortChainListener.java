@@ -198,7 +198,7 @@ public class NeutronPortChainListener extends DelegatingDataTreeListener<PortCha
                 }
             }
         } else {
-            LOG.error("Rendered Path Service is not available, can't create Rendered Path for Port Chain",
+            LOG.error("Rendered Path Service is not available, can't create Rendered Path for Port Chain {}",
                     newPortChain);
         }
 

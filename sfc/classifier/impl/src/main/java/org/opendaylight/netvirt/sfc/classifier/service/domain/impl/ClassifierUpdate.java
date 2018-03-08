@@ -18,11 +18,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class ClassifierUpdate implements Runnable {
+    private static final Logger LOG = LoggerFactory.getLogger(ClassifierUpdate.class);
 
     private final ClassifierState configurationClassifier;
     private final ClassifierState operationalClassifier;
     private final List<ClassifierEntryRenderer> classifierRenderers;
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationClassifierImpl.class);
 
     public ClassifierUpdate(ClassifierState configurationClassifier, ClassifierState operationalClassifier,
                             List<ClassifierEntryRenderer> classifierRenderers) {
