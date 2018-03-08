@@ -37,7 +37,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DHCP extends Packet {
-    protected static final Logger LOG = LoggerFactory
+
+    private static final Logger LOG = LoggerFactory
             .getLogger(DHCP.class);
     private static final String OP      = "Op";
     private static final String HTYPE   = "Htype";
@@ -55,9 +56,7 @@ public class DHCP extends Packet {
     private static final String FILE    = "File";
     private static final String MCOOKIE = "Mcookie";
     private static final String OPTIONS = "Options";
-    private DHCPOptions dhcpOptions = null;
-
-    private static Map<String, Pair<Integer, Integer>> fieldCoordinates =
+    private static final Map<String, Pair<Integer, Integer>> FIELD_COORDINATES =
             new LinkedHashMap<String, Pair<Integer, Integer>>() {
         private static final long serialVersionUID = 1L;
         {
@@ -81,6 +80,7 @@ public class DHCP extends Packet {
     };
 
     private final Map<String, byte[]> fieldValues;
+    private DHCPOptions dhcpOptions = null;
 
     public DHCP() {
         this(false);
@@ -89,7 +89,7 @@ public class DHCP extends Packet {
     public DHCP(boolean writeAccess) {
         super(writeAccess);
         fieldValues = new HashMap<>();
-        hdrFieldCoordMap = fieldCoordinates;
+        hdrFieldCoordMap = FIELD_COORDINATES;
         hdrFieldsMap = fieldValues;
         corrupted = false;
 

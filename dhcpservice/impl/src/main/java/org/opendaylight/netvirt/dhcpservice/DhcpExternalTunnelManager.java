@@ -108,7 +108,7 @@ public class DhcpExternalTunnelManager {
     private final IInterfaceManager interfaceManager;
     private final JobCoordinator jobCoordinator;
     private final L2GatewayCache l2GatewayCache;
-    private IElanService elanService;
+    private final IElanService elanService;
 
     private final ConcurrentMap<BigInteger, Set<Pair<IpAddress, String>>> designatedDpnsToTunnelIpElanNameCache =
             new ConcurrentHashMap<>();
@@ -764,7 +764,7 @@ public class DhcpExternalTunnelManager {
                 LOG.warn("RPC call to ITM.GetExternalTunnelInterfaceName failed with error: {}", rpcResult.getErrors());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Failed to get external tunnel interface name for sourceNode: {} and dstNode: {}: {} ",
+            LOG.error("Failed to get external tunnel interface name for sourceNode: {} and dstNode: {}",
                     sourceNode, dstNode, e);
         }
         return tunnelInterfaceName;
