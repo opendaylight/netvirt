@@ -82,19 +82,19 @@ public final class PortPairTranslator {
 
         //Build forward DPL
         SfDataPlaneLocatorBuilder sfForwardDplBuilder = new SfDataPlaneLocatorBuilder();
-        sfForwardDplBuilder.setName(new SfDataPlaneLocatorName(portPair.getName() + DPL_EGRESS_SUFFIX));
+        sfForwardDplBuilder.setName(new SfDataPlaneLocatorName(portPair.getName() + DPL_INGRESS_SUFFIX));
         sfForwardDplBuilder.setTransport(transportTypeClass == null ? Mac.class : transportTypeClass);
         sfForwardDplBuilder.setServiceFunctionForwarder(new SffName(SfcMdsalHelper.NETVIRT_LOGICAL_SFF_NAME));
-        String forwardPort = portPair.getEgress().getValue();
+        String forwardPort = portPair.getIngress().getValue();
         LogicalInterface forwardInterface = new LogicalInterfaceBuilder().setInterfaceName(forwardPort).build();
         sfForwardDplBuilder.setLocatorType(forwardInterface);
 
         //Build reverse DPL
         SfDataPlaneLocatorBuilder sfReverseDplBuilder = new SfDataPlaneLocatorBuilder();
-        sfReverseDplBuilder.setName(new SfDataPlaneLocatorName(portPair.getName() + DPL_INGRESS_SUFFIX));
+        sfReverseDplBuilder.setName(new SfDataPlaneLocatorName(portPair.getName() + DPL_EGRESS_SUFFIX));
         sfReverseDplBuilder.setTransport(transportTypeClass == null ? Mac.class : transportTypeClass);
         sfReverseDplBuilder.setServiceFunctionForwarder(new SffName(SfcMdsalHelper.NETVIRT_LOGICAL_SFF_NAME));
-        String reversePort = portPair.getIngress().getValue();
+        String reversePort = portPair.getEgress().getValue();
         LogicalInterface reverseInterface = new LogicalInterfaceBuilder().setInterfaceName(reversePort).build();
         sfReverseDplBuilder.setLocatorType(reverseInterface);
 
