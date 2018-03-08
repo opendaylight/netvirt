@@ -9,21 +9,27 @@
 package org.opendaylight.netvirt.natservice.internal;
 
 import com.google.common.base.Strings;
+import com.google.common.util.concurrent.ListenableFuture;
+
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.BucketInfo;
+import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionDrop;
 import org.opendaylight.genius.mdsalutil.actions.ActionSetFieldEthernetDestination;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.elanmanager.api.IElanService;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.MacAddress;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.yang.types.rev130715.Uuid;
@@ -42,16 +48,19 @@ public class ExternalNetworkGroupInstaller {
     private final IElanService elanService;
     private final IdManagerService idManager;
     private final OdlInterfaceRpcService interfaceManager;
+    private final JobCoordinator coordinator;
 
     @Inject
     public ExternalNetworkGroupInstaller(final DataBroker broker, final IMdsalApiManager mdsalManager,
                                      final IElanService elanService, final IdManagerService idManager,
-                                     final OdlInterfaceRpcService interfaceManager) {
+                                     final OdlInterfaceRpcService interfaceManager,
+                                     final JobCoordinator coordinator) {
         this.broker = broker;
         this.mdsalManager = mdsalManager;
         this.elanService = elanService;
         this.idManager = idManager;
         this.interfaceManager = interfaceManager;
+        this.coordinator = coordinator;
     }
 
     public void installExtNetGroupEntries(Subnetmap subnetMap) {
@@ -157,10 +166,14 @@ public class ExternalNetworkGroupInstaller {
 
     private void installExtNetGroupEntry(long groupId, String subnetName, String extInterface,
             String macAddress, BigInteger dpnId) {
-        GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface, dpnId);
-        if (groupEntity != null) {
-            mdsalManager.syncInstallGroup(groupEntity);
-        }
+
+        coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + subnetName + extInterface, () -> {
+            GroupEntity groupEntity = buildExtNetGroupEntity(macAddress, subnetName, groupId, extInterface, dpnId);
+            if (groupEntity != null) {
+                mdsalManager.syncInstallGroup(groupEntity);
+            }
+            return Collections.emptyList();
+        });
     }
 
     public void removeExtNetGroupEntries(Subnetmap subnetMap) {
