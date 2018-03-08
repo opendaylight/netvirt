@@ -78,7 +78,7 @@ public class ElanInterfaceStateClusteredListener extends
                     try {
                         handleExternalTunnelUpdate(interfaceName, intrf);
                     } catch (ElanException e) {
-                        LOG.error("Failed to add Interface: " + identifier.toString());
+                        LOG.error("Failed to add Interface {}", identifier.toString());
                     }
                 });
             }

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class MergeCommandsAggregator<BuilderTypeT extends Builder, AugTypeT extends DataObject> {
 
-    public static final Logger LOG = LoggerFactory.getLogger(MergeCommandsAggregator.class);
+    private static final Logger LOG = LoggerFactory.getLogger(MergeCommandsAggregator.class);
 
     protected Map<Class<?>, MergeCommand> commands = new HashMap<>();
 

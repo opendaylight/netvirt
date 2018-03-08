@@ -77,7 +77,7 @@ public class ElanDpnInterfaceClusteredListener
     void handleUpdate(InstanceIdentifier<DpnInterfaces> id, DpnInterfaces dpnInterfaces) {
         final String elanName = getElanName(id);
         if (ElanL2GwCacheUtils.getInvolvedL2GwDevices(elanName).isEmpty()) {
-            LOG.debug("dpnInterface updation, no external l2 devices to update for elan {} with Dp Id:", elanName,
+            LOG.debug("dpnInterface updation, no external l2 devices to update for elan {} with Dp Id {}", elanName,
                     dpnInterfaces.getDpId());
             return;
         }

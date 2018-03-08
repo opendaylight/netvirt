@@ -151,7 +151,7 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
                     try {
                         return elanInterfaceManager.handleunprocessedElanInterfaces(update);
                     } catch (ElanException e) {
-                        LOG.error("update() failed for ElanInstance: " + identifier.toString(), e);
+                        LOG.error("update() failed for ElanInstance: {}", identifier.toString(), e);
                         return emptyList();
                     }
                 }, ElanConstants.JOB_MAX_RETRIES);

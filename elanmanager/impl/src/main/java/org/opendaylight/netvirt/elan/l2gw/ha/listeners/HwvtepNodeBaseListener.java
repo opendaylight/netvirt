@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<Node>, AutoCloseable {
 
-    public static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeBaseListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HwvtepNodeBaseListener.class);
     private static final int STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 
@@ -66,11 +66,11 @@ public abstract class HwvtepNodeBaseListener implements DataTreeChangeListener<N
                 processDisconnectedNodes(changes, tx);
                 tx.submit().get();
             } catch (InterruptedException e1) {
-                LOG.error("InterruptedException " + e1.getMessage());
+                LOG.error("InterruptedException {}", e1.getMessage());
             } catch (ExecutionException e2) {
-                LOG.error("ExecutionException" + e2.getMessage());
+                LOG.error("ExecutionException {}", e2.getMessage());
             } catch (ReadFailedException e3) {
-                LOG.error("ReadFailedException" + e3.getMessage());
+                LOG.error("ReadFailedException {}", e3.getMessage());
             }
         });
     }

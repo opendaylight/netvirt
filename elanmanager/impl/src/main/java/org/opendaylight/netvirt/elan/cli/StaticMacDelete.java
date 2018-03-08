@@ -33,8 +33,8 @@ public class StaticMacDelete  extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() {
-        LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
-                + staticMacAddress + "\t");
+        LOG.debug("Executing static mac delete command for elanName:{}, interfaceName:{}, staticMacAddress:{}",
+                elanName, interfaceName, staticMacAddress);
         elanProvider.deleteStaticMacAddress(interfaceName, staticMacAddress);
         return null;
     }

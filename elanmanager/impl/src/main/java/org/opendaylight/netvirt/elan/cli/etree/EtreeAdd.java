@@ -37,8 +37,8 @@ public class EtreeAdd extends OsgiCommandSupport {
             macTimeOut = 30;
         }
 
-        LOG.debug("Executing create EtreeInstance command" + "\t" + etreeName + "\t" + macTimeOut + "\t"
-                + etreeDescr + "\t");
+        LOG.debug("Executing create EtreeInstance command etreeName:{}, macTimeOut:{}, etreeDescr:{}",
+                etreeName, macTimeOut, etreeDescr);
         if (etreeName.length() <= MAX_LENGTH) {
             boolean isSuccess = elanProvider.createEtreeInstance(etreeName, macTimeOut, etreeDescr);
             if (isSuccess) {

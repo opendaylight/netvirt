@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
 
 public final class HwvtepHAUtil {
 
-    static Logger LOG = LoggerFactory.getLogger(HwvtepHAUtil.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HwvtepHAUtil.class);
 
     //TODO reuse HWvtepSouthboundConstants
     public static final String HA_ENABLED = "ha_enabled";

@@ -39,7 +39,7 @@ import org.slf4j.LoggerFactory;
 public abstract class ChildListener<P extends DataObject, C extends DataObject, G>
         implements DataTreeChangeListener<P>, AutoCloseable {
 
-    public static final Logger LOG = LoggerFactory.getLogger(ChildListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ChildListener.class);
     private static final long STARTUP_LOOP_TICK = 500;
     private static final int STARTUP_LOOP_MAX_RETRIES = 8;
 

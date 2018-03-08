@@ -293,7 +293,7 @@ public class HwvtepPhysicalSwitchListener
             LOG.trace("Updating cache for node {}", globalNodeIid);
             L2GatewayDevice l2GwDevice = l2GatewayCache.get(psName);
             if (childConnectedAfterParent.test(l2GwDevice, globalNodeIid)) {
-                LOG.trace("Device {} {} is already Connected by ",
+                LOG.trace("Device {} {} is already Connected by {}",
                         psName, globalNodeId, l2GwDevice.getHwvtepNodeId());
                 return;
             }
@@ -358,7 +358,7 @@ public class HwvtepPhysicalSwitchListener
                         l2GwDevice.getL2GatewayIds(), psName, tunnelIpAddr);
                 l2gwServiceProvider.provisionItmAndL2gwConnection(l2GwDevice, psName, hwvtepNodeId, tunnelIpAddr);
             } else {
-                LOG.info("l2gw.provision.skip {}", hwvtepNodeId, psName);
+                LOG.info("l2gw.provision.skip {}:{}", hwvtepNodeId, psName);
             }
         }
         elanClusterUtils.runOnlyInOwnerNode("Stale entry cleanup", () -> {
