@@ -98,7 +98,7 @@ public class ElanSmacFlowEventListener implements SalFlowListener {
             String interfaceName = existingInterfaceInfo.get().getInterfaceName();
             PhysAddress physAddress = new PhysAddress(srcMacAddress);
             if (interfaceName == null) {
-                LOG.error(String.format("LPort record not found for tag %d", portTag));
+                LOG.error("LPort record not found for tag {}", portTag);
                 return;
             }
             jobCoordinator.enqueueJob(ElanUtils.getElanInterfaceJobKey(interfaceName), () -> {

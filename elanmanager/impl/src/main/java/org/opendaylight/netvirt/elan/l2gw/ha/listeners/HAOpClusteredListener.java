@@ -112,9 +112,9 @@ public class HAOpClusteredListener extends HwvtepNodeBaseListener implements Clu
 
 
         if (!wasHAChild && isHAChild) {
-            LOG.debug(getNodeId(childPath) + " " + "became ha_child");
+            LOG.debug("{} became ha_child", getNodeId(childPath));
         } else if (wasHAChild && !isHAChild) {
-            LOG.debug(getNodeId(childPath) + " " + "unbecome ha_child");
+            LOG.debug("{} unbecome ha_child", getNodeId(childPath));
         }
     }
 

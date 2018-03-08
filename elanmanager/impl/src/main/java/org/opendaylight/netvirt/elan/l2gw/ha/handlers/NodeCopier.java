@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class NodeCopier implements INodeCopier {
 
-    static Logger LOG = LoggerFactory.getLogger(NodeCopier.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NodeCopier.class);
 
     GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
     PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();
@@ -57,11 +57,12 @@ public class NodeCopier implements INodeCopier {
         this.db = db;
     }
 
+    @Override
     public void copyGlobalNode(Optional<Node> srcGlobalNodeOptional,
-                        InstanceIdentifier<Node> srcPath,
-                        InstanceIdentifier<Node> dstPath,
-                        LogicalDatastoreType logicalDatastoreType,
-                        ReadWriteTransaction tx) throws ReadFailedException {
+                               InstanceIdentifier<Node> srcPath,
+                               InstanceIdentifier<Node> dstPath,
+                               LogicalDatastoreType logicalDatastoreType,
+                               ReadWriteTransaction tx) throws ReadFailedException {
         if (!srcGlobalNodeOptional.isPresent() && logicalDatastoreType == CONFIGURATION) {
             Futures.addCallback(tx.read(logicalDatastoreType, srcPath), new FutureCallback<Optional<Node>>() {
                 @Override
@@ -139,6 +140,7 @@ public class NodeCopier implements INodeCopier {
         }
     }
 
+    @Override
     public void copyPSNode(Optional<Node> srcPsNodeOptional,
                            InstanceIdentifier<Node> srcPsPath,
                            InstanceIdentifier<Node> dstPsPath,
