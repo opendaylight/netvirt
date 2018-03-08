@@ -37,8 +37,8 @@ public class ElanInterfaceAdd extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() {
-        LOG.debug("Executing create ElanInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
-                + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
+        LOG.debug("Executing create ElanInterface command for elanName:{}, interfaceName:{}, staticMacAddresses:{},"
+                + "elanInterfaceDescr:{}",elanName, interfaceName, staticMacAddresses, elanInterfaceDescr);
         elanProvider.addElanInterface(elanName, interfaceName, staticMacAddresses, elanInterfaceDescr);
         return null;
     }

@@ -36,7 +36,8 @@ import org.slf4j.LoggerFactory;
  */
 @Singleton
 public class ElanInterfaceCache extends DataObjectCache<ElanInterface> {
-    private static final Logger LOG = LoggerFactory.getLogger(ElanInterface.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceCache.class);
 
     private final Map<String, Set<String>> elanInstanceToInterfacesCache = new ConcurrentHashMap<>();
 

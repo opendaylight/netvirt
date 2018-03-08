@@ -546,7 +546,7 @@ public class ElanL2GatewayUtils {
 
                     @Override
                     public void onFailure(Throwable throwable) {
-                        LOG.error("Failed to read config topology node ", nodeIid);
+                        LOG.error("Failed to read config topology node {}", nodeIid);
                     }
                 }, MoreExecutors.directExecutor());
     }
@@ -584,8 +584,8 @@ public class ElanL2GatewayUtils {
 
             @Override
             public void onFailure(Throwable error) {
-                LOG.warn(String.format("Failed during batch delete of elan [%s] macs from l2gw device [%s]. "
-                        + "Retrying with sequential deletes.", elanName, hwvtepNodeId), error);
+                LOG.warn("Failed during batch delete of elan {} macs from l2gw device {}. "
+                        + "Retrying with sequential deletes.", elanName, hwvtepNodeId, error);
                 if (lstElanMacs != null && !lstElanMacs.isEmpty()) {
                     for (MacAddress mac : lstElanMacs) {
                         HwvtepUtils.deleteRemoteUcastMac(broker, new NodeId(hwvtepNodeId), logicalSwitch, mac);
@@ -783,7 +783,7 @@ public class ElanL2GatewayUtils {
                 dpId = rpcResult.getResult().getDpid();
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Failed to get the DPN ID for interface {}: {} ", interfaceName, e);
+            LOG.error("Failed to get the DPN ID for interface {}", interfaceName, e);
         }
         return dpId;
     }
@@ -989,7 +989,7 @@ public class ElanL2GatewayUtils {
             if (rpcResult.isSuccessful()) {
                 LOG.info("Created ITM tunnels for {}", hwvtepId);
             } else {
-                LOG.error("Failed to create ITM Tunnels: ", rpcResult.getErrors());
+                LOG.error("Failed to create ITM Tunnels: {}", rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("RPC to create ITM tunnels failed", e);

@@ -1045,8 +1045,7 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                 LOG.info("Installing remote dmac for mac address {} and interface {}", macAddress, interfaceName);
                 synchronized (ElanUtils.getElanMacDPNKey(elanInfo.getElanTag(), macAddress,
                         interfaceInfo.getDpId())) {
-                    LOG.info("Acquired lock for mac : " + macAddress + ". Proceeding with remote dmac"
-                            + " install operation.");
+                    LOG.info("Acquired lock for mac : {}, proceeding with remote dmac install operation", macAddress);
                     elanUtils.setupDMacFlowOnRemoteDpn(elanInfo, interfaceInfo, dstDpId, macAddress,
                             writeFlowTx);
                 }
@@ -1381,8 +1380,8 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
         } else {
             EtreeInstance etreeInstance = elanInfo.getAugmentation(EtreeInstance.class);
             if (etreeInstance == null) {
-                LOG.error("EtreeInterface " + elanInterface.getName() + " is associated with a non EtreeInstance: "
-                        + elanInfo.getElanInstanceName());
+                LOG.error("EtreeInterface {} is associated with a non EtreeInstance: {}",
+                        elanInterface.getName(), elanInfo.getElanInstanceName());
             } else {
                 bindElanService(etreeInstance.getEtreeLeafTagVal().getValue(), elanInfo.getElanInstanceName(),
                         elanInterface.getName(), lportTag, tx);

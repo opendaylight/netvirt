@@ -960,8 +960,8 @@ public class ElanUtils {
         if (etreeInterface != null && etreeInterface.getEtreeInterfaceType() == EtreeInterfaceType.Root) {
             EtreeLeafTagName etreeTagName = elanEtreeUtils.getEtreeLeafTagByElanTag(elanTag);
             if (etreeTagName == null) {
-                LOG.warn("Interface " + interfaceName
-                        + " seems like it belongs to Etree but etreeTagName from elanTag " + elanTag + " is null.");
+                LOG.warn("Interface {} seems like it belongs to Etree but etreeTagName from elanTag {} is null.",
+                        interfaceName, elanTag);
             } else {
                 flowEntity = buildRemoteDmacFlowEntry(srcDpId, destDpId, lportTagOrVni,
                         etreeTagName.getEtreeLeafTag().getValue(), macAddress, displayName, elanInstance);
@@ -1016,8 +1016,8 @@ public class ElanUtils {
             }
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
-            LOG.error("Could not get egress actions to add to flow for srcDpId=" + srcDpId + ", destDpId=" + destDpId
-                    + ", lportTag/VNI=" + lportTagOrVni, e);
+            LOG.error("Could not get egress actions to add to flow for srcDpId {}, destDpId {}, lportTag/VNI {}",
+                    srcDpId,  destDpId, lportTagOrVni, e);
         }
 
         Flow flow = MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,
@@ -1250,7 +1250,7 @@ public class ElanUtils {
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("Error in RPC call removeTerminatingServiceActions for ELAN with serviceId {} on "
-                    + "dpn {}: {}", serviceId, destDpId, e);
+                    + "dpn {}", serviceId, destDpId, e);
         }
     }
 

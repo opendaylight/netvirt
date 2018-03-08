@@ -33,7 +33,7 @@ public class EtreeGet extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() {
-        LOG.debug("Executing Get EtreeInstance command" + "\t" + etreeName + "\t");
+        LOG.debug("Executing Get EtreeInstance command for {}", etreeName);
         if (etreeName != null) {
             ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
             if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {

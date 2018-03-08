@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 public final class HAJobScheduler implements Thread.UncaughtExceptionHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HAJobScheduler.class);
     ExecutorService executorService;
 
     static HAJobScheduler instance = new HAJobScheduler();

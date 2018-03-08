@@ -112,7 +112,7 @@ public class TransportZoneNotificationUtil {
                     elanInstanceCache.get(elanInt.getElanInstanceName()).orNull())) {
                 return true;
             } else {
-                LOG.debug("Non-VXLAN elanInstance: " + elanInt.getElanInstanceName());
+                LOG.debug("Non-VXLAN elanInstance: {}", elanInt.getElanInstanceName());
             }
         }
 
@@ -439,7 +439,7 @@ public class TransportZoneNotificationUtil {
             String localIp = southBoundUtils.getOpenvswitchOtherConfig(node.get(), LOCAL_IP);
             if (localIp == null) {
                 LOG.error("missing local_ip key in ovsdb:openvswitch-other-configs in operational"
-                        + " network-topology for node: " + node.get().getNodeId().getValue());
+                        + " network-topology for node: {}", node.get().getNodeId().getValue());
             } else {
                 return localIp;
             }
@@ -465,7 +465,7 @@ public class TransportZoneNotificationUtil {
         Optional<BridgeRefEntry> optionalBridgeRefEntry =
                 tx.read(LogicalDatastoreType.OPERATIONAL, bridgeRefInfoPath).checkedGet();
         if (!optionalBridgeRefEntry.isPresent()) {
-            LOG.error("no bridge ref entry found for dpnId: " + dpnId);
+            LOG.error("no bridge ref entry found for dpnId {}", dpnId);
             return Optional.absent();
         }
 
@@ -475,7 +475,7 @@ public class TransportZoneNotificationUtil {
         // FIXME: Read this through a cache
         Optional<Node> optionalNode = tx.read(LogicalDatastoreType.OPERATIONAL, nodeId).checkedGet();
         if (!optionalNode.isPresent()) {
-            LOG.error("missing node for dpnId: " + dpnId);
+            LOG.error("missing node for dpnId {}", dpnId);
         }
         return optionalNode;
     }

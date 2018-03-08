@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 
 public class NodeConnectedHandler {
 
-    static Logger LOG = LoggerFactory.getLogger(NodeConnectedHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(NodeConnectedHandler.class);
 
     GlobalAugmentationMerger globalAugmentationMerger = GlobalAugmentationMerger.getInstance();
     PSAugmentationMerger psAugmentationMerger = PSAugmentationMerger.getInstance();

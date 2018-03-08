@@ -151,10 +151,10 @@ public class EvpnUtils {
         try {
             rpcResult = result.get();
         } catch (InterruptedException e) {
-            LOG.error("getnextHopIpFromRpcOutput : InterruptedException for dpnid {}", e, dpnId);
+            LOG.error("getnextHopIpFromRpcOutput : InterruptedException for dpnid {}", dpnId, e);
             return null;
         } catch (ExecutionException e) {
-            LOG.error("getnextHopIpFromRpcOutput : ExecutionException for dpnid {}", e, dpnId);
+            LOG.error("getnextHopIpFromRpcOutput : ExecutionException for dpnid {}", dpnId, e);
             return null;
         }
         if (!rpcResult.isSuccessful()) {
@@ -268,7 +268,7 @@ public class EvpnUtils {
         String evpnName = evpnAugmentation.getEvpnName();
         String rd = vpnManager.getVpnRd(broker, evpnName);
         if (rd == null) {
-            LOG.debug("withdrawEvpnRT2Routes : rd is null ", elanName);
+            LOG.debug("withdrawEvpnRT2Routes : rd is null for {}", elanName);
             return;
         }
         List<MacEntry> macEntries = elanUtils.getElanMacEntries(elanName);

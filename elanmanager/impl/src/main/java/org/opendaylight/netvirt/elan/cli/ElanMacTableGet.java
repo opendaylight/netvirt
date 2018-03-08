@@ -34,7 +34,7 @@ public class ElanMacTableGet extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() {
-        LOG.debug("Executing updating ElanInterface command" + "\t");
+        LOG.debug("Executing elan mac table get command for {}", elanName);
         Collection<MacEntry> macTables = elanProvider.getElanMacTable(elanName);
         if (!macTables.isEmpty()) {
             SimpleDateFormat formatter = new SimpleDateFormat("dd-MM-yy:HH:mm:ss");

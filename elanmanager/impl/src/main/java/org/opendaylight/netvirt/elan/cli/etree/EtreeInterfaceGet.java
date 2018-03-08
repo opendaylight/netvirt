@@ -41,8 +41,7 @@ public class EtreeInterfaceGet extends OsgiCommandSupport {
 
     @Override
     protected Object doExecute() {
-        LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance" + "\t" + etreeName
-                + "\t");
+        LOG.debug("Executing Get EtreeInterface command for the corresponding Etree Instance {}", etreeName);
         if (etreeName != null) {
             ElanInstance elanInstance = elanProvider.getElanInstance(etreeName);
             if (elanInstance == null || elanInstance.getAugmentation(EtreeInstance.class) == null) {
