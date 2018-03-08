@@ -479,7 +479,7 @@ public class QosNeutronUtils {
                         .child(TerminationPoint.class, new TerminationPointKey(tp.getKey())), tpBuilder.build());
             }
         } catch (Exception e) {
-            LOG.error("Failure while setting BwLimitRule{} to port{} exception {}", bwLimit, port, e);
+            LOG.error("Failure while setting BwLimitRule {} to port {}", bwLimit, port, e);
         }
 
     }
@@ -566,7 +566,7 @@ public class QosNeutronUtils {
                 LOG.error("Could not retrieve DPN Id for interface {}", ifName);
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Exception when getting dpn for interface {} exception {}", ifName,  e);
+            LOG.error("Exception when getting dpn for interface {}", ifName,  e);
         }
         return nodeId;
     }
