@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b2df0d64_53b0d38e",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-03-08T15:25:03Z",
+      "side": 1,
+      "message": "I am not sure about this use case.\nbecause it seems in previous code ( even the one from master), we leave the function only if both subnetmaps have network set to null.\nwhat I mean is that if previous networkid from old subnetmap is not null and update subnetmap has network id set to null, then action is needed.\nhere the brought code prevents this",
+      "range": {
+        "startLine": 124,
+        "startChar": 8,
+        "endLine": 124,
+        "endChar": 30
+      },
+      "revId": "09715f643e9a074ebcf5bc6b4a838081edc9e9b1",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
