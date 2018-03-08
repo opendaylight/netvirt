@@ -478,7 +478,7 @@ public class PolicyServiceUtil {
                 return Optional.of(tunnelInterfaceOutput.get().getResult().getInterfaceName());
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error("Error in RPC call getTunnelInterfaceName {} for source DPN {} dst DPN {}", srcDpId, dstDpId);
+            LOG.error("Error in RPC call getTunnelInterfaceName for source DPN {} dst DPN {}", srcDpId, dstDpId, e);
         }
 
         return Optional.absent();
