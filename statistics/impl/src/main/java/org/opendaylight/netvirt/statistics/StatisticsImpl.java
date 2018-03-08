@@ -13,6 +13,7 @@ import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.Futures;
 import com.google.common.util.concurrent.JdkFutureAdapters;
 import com.google.common.util.concurrent.MoreExecutors;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import javax.annotation.Nonnull;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
@@ -134,7 +136,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                         .buildFuture();
             }
         } catch (RuntimeException e) {
-            LOG.warn("failed to get counter result for node " + dpId, e);
+            LOG.warn("failed to get counter result for node {}", dpId, e);
             return RpcResultBuilder.<GetNodeCountersOutput>failed()
                     .withError(ErrorType.APPLICATION, "failed to get node counters for node: " + dpId).buildFuture();
         }
@@ -160,7 +162,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                         .buildFuture();
             }
         } catch (Exception e) {
-            LOG.warn("failed to get counter result for node " + dpId, e);
+            LOG.warn("failed to get counter result for node {}", dpId, e);
             return RpcResultBuilder.<GetNodeAggregatedCountersOutput>failed()
                     .withError(ErrorType.APPLICATION, "failed to get node aggregated counters for node " + dpId)
                     .buildFuture();
@@ -200,7 +202,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
                         .withError(ErrorType.APPLICATION, "failed to get port counters").buildFuture();
             }
         } catch (RuntimeException e) {
-            LOG.warn("failed to get counter result for port " + portId, e);
+            LOG.warn("failed to get counter result for port {}", portId, e);
         }
 
         GetNodeConnectorCountersOutputBuilder gpcob = new GetNodeConnectorCountersOutputBuilder();
@@ -785,6 +787,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         }
     }
 
+    @SuppressFBWarnings("SLF4J_FORMAT_SHOULD_BE_CONST")
     private void logElementCounterRequests(List<ElementCountersRequest> ecrList) {
         for (ElementCountersRequest counterRequest : ecrList) {
             LOG.debug(counterRequest.toString());
@@ -972,7 +975,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
             Future<RpcResult<Void>> result = idManagerService.releaseId(idInput);
             RpcResult<Void> rpcResult = result.get();
             if (!rpcResult.isSuccessful()) {
-                LOG.warn("RPC Call to release Id {} with Key {} returned with Errors {}", idKey, rpcResult.getErrors());
+                LOG.warn("RPC Call to release Id with Key {} returned with Errors {}", idKey, rpcResult.getErrors());
             }
         } catch (InterruptedException | ExecutionException e) {
             LOG.warn("Exception when releasing Id for key {}", idKey, e);
@@ -1065,7 +1068,7 @@ public class StatisticsImpl implements StatisticsService, ICountersInterfaceChan
         ingress_counters_service_unbind, //
         egress_counters_service_unbind, //
         ;
-        private OccurenceCounter counter;
+        private final OccurenceCounter counter;
 
         StatisticsPluginImplCounters() {
             counter = new OccurenceCounter(getClass().getEnclosingClass().getSimpleName(), name(), "");
