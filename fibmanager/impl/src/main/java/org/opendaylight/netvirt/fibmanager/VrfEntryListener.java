@@ -319,8 +319,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
             try {
                 operFuture.get();
             } catch (InterruptedException | ExecutionException e) {
-                LOG.error("Exception encountered while submitting operational future for update vrfentry {}: "
-                        + "{}", update, e);
+                LOG.error("Exception encountered while submitting operational future for update vrfentry {}",
+                        update, e);
             }
 
             createFibEntries(identifier, update);
