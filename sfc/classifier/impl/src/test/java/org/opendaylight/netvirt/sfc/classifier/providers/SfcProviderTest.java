@@ -13,6 +13,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
@@ -21,24 +22,27 @@ import org.opendaylight.controller.md.sal.binding.test.ConstantSchemaAbstractDat
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.RspName;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfDataPlaneLocatorName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfcName;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SftTypeName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffDataPlaneLocatorName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePaths;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePathBuilder;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePathKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.rendered.service.path.RenderedServicePathHop;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.rendered.service.path.RenderedServicePathHopBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.ServiceFunctions;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocator;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocatorBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocatorKey;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionBuilder;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionKey;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.service.functions.service.function.sf.data.plane.locator.locator.type.LogicalInterfaceBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.ServiceFunctionForwarders;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.SffDataPlaneLocator;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.SffDataPlaneLocatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.SffDataPlaneLocatorKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.sff.data.plane.locator.DataPlaneLocatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.service.function.forwarder.ServiceFunctionDictionaryBuilder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.service.function.forwarder.service.function.dictionary.SffSfDataPlaneLocatorBuilder;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.service.function.forwarders.service.function.forwarder.sff.data.plane.locator.data.plane.locator.locator.type.LogicalInterfaceBuilder;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
@@ -46,7 +50,8 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     private static final String RSP_NAME_NOEXIST = "RSP_NOEXIST";
     private static final String SFC_NAME = "SFC1";
     private static final String SF_NAME = "SF1";
-    private static final String SF_DPL_NAME = "SF_DPL";
+    private static final String SFF_NAME = "SFF1";
+    private static final String SFF_DPL_NAME = "SFF_DPL";
     private static final String LOGICAL_IF_NAME = "eccb57ae-5a2e-467f-823e-45d7bb2a6a9a";
     private static final Long PATH_ID = Long.valueOf(1);
 
@@ -86,32 +91,47 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
 
         // Check RSP with no hops
         RenderedServicePathBuilder rspBuilder = createRsp(rspName);
-        Optional<String> ifName = this.sfcProvider.getFirstHopSfInterfaceFromRsp(rspBuilder.build());
+        Optional<String> ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
         assertFalse(ifName.isPresent());
 
         // Check RSP with no SF name
-        rspBuilder = createRsp(rspName, true, false, false, false, false);
-        ifName = this.sfcProvider.getFirstHopSfInterfaceFromRsp(rspBuilder.build());
+        rspBuilder = createRsp(rspName, true, false, false, false, false, false, false, false);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
         assertFalse(ifName.isPresent());
 
-        // Check RSP with SF name, but SF doesnt exist
-        rspBuilder = createRsp(rspName, true, true, false, false, false);
-        ifName = this.sfcProvider.getFirstHopSfInterfaceFromRsp(rspBuilder.build());
+        // Check RSP with SF name, but no SFF name
+        rspBuilder = createRsp(rspName, true, true, false, false, false, false,false, false);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
         assertFalse(ifName.isPresent());
 
-        // Check RSP with SF name, SF exists, but has no DPL
-        rspBuilder = createRsp(rspName, true, true, true, false, false);
-        ifName = this.sfcProvider.getFirstHopSfInterfaceFromRsp(rspBuilder.build());
+        // Check RSP with SF name, but SFF doesnt exist
+        rspBuilder = createRsp(rspName, true, true, true, false, false, false,false, false);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
         assertFalse(ifName.isPresent());
 
-        // Check RSP with SF name, SF exists, has DPL, but not of type LogicalInterfaceLocator
-        rspBuilder = createRsp(rspName, true, true, true, true, false);
-        ifName = this.sfcProvider.getFirstHopSfInterfaceFromRsp(rspBuilder.build());
+        // Check RSP with SF and SFF, but SFF has no dictionary
+        rspBuilder = createRsp(rspName, true, true, true, false, false, true, false, false);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
+        assertFalse(ifName.isPresent());
+
+        // Check RSP with SF and SFF, but SFF has no dictionary entry for SF
+        rspBuilder = createRsp(rspName, true, true, true, true, false, true, false, false);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
+        assertFalse(ifName.isPresent());
+
+        // Check RSP with SF, SFF name, SFF exists, but has no DPL
+        rspBuilder = createRsp(rspName, true, true, true, true, true, true, false, false);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
+        assertFalse(ifName.isPresent());
+
+        // Check RSP with Sfm SFF name, SFF exists, has DPL, but not of type LogicalInterfaceLocator
+        rspBuilder = createRsp(rspName, true, true, true, true, true, true, true, false);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
         assertFalse(ifName.isPresent());
 
         // Check RSP when its all created correctly
-        rspBuilder = createRsp(rspName, true, true, true, true, true);
-        ifName = this.sfcProvider.getFirstHopSfInterfaceFromRsp(rspBuilder.build());
+        rspBuilder = createRsp(rspName, true, true, true, true, true, true, true, true);
+        ifName = this.sfcProvider.getFirstHopIngressInterfaceFromRsp(rspBuilder.build());
         assertTrue(ifName.isPresent());
         assertEquals(ifName.get(), LOGICAL_IF_NAME);
     }
@@ -125,13 +145,20 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     }
 
     private RenderedServicePathBuilder createRsp(RspName rspName, boolean hasHops, boolean hasSfName,
-            boolean createSf, boolean createSfDpl, boolean createLogicalSfDpl) {
+                                                 boolean hasSffName, boolean hasDict, boolean hasSfDict,
+                                                 boolean createSff, boolean createSffDpl,
+                                                 boolean createLogicalSfDpl) {
         RenderedServicePathBuilder rspBuilder = createRsp(rspName);
+        SffName sffName = new SffName(SFF_NAME);
         SfName sfName = new SfName(SF_NAME);
 
         RenderedServicePathHopBuilder rspHopBuilder = new RenderedServicePathHopBuilder();
         if (hasSfName) {
             rspHopBuilder.setServiceFunctionName(sfName);
+        }
+
+        if (hasSffName) {
+            rspHopBuilder.setServiceFunctionForwarder(sffName);
         }
 
         if (hasHops) {
@@ -140,25 +167,41 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
             rspBuilder.setRenderedServicePathHop(hops);
         }
 
-        ServiceFunctionBuilder sfBuilder = new ServiceFunctionBuilder().setType(SftTypeName.getDefaultInstance("NAT"));
-        SfDataPlaneLocatorBuilder sfDplBuilder = new SfDataPlaneLocatorBuilder();
+        ServiceFunctionForwarderBuilder sffBuilder = new ServiceFunctionForwarderBuilder();
+        ServiceFunctionDictionaryBuilder serviceFunctionDictionaryBuilder = new ServiceFunctionDictionaryBuilder();
+        serviceFunctionDictionaryBuilder.setName(sfName);
+
+        if (hasSfDict) {
+            SffSfDataPlaneLocatorBuilder sffSfDataPlaneLocatorBuilder = new SffSfDataPlaneLocatorBuilder();
+            sffSfDataPlaneLocatorBuilder.setSffDplName(new SffDataPlaneLocatorName(SFF_DPL_NAME));
+            serviceFunctionDictionaryBuilder.setSffSfDataPlaneLocator(sffSfDataPlaneLocatorBuilder.build());
+        }
+
+        if (hasDict) {
+            sffBuilder.setServiceFunctionDictionary(
+                    Collections.singletonList(serviceFunctionDictionaryBuilder.build()));
+        }
+
+        SffDataPlaneLocatorBuilder sffDplBuilder = new SffDataPlaneLocatorBuilder();
+        DataPlaneLocatorBuilder dataPlaneLocatorBuilder = new DataPlaneLocatorBuilder();
         if (createLogicalSfDpl) {
             LogicalInterfaceBuilder liBuilder = new LogicalInterfaceBuilder();
             liBuilder.setInterfaceName(LOGICAL_IF_NAME);
-            sfDplBuilder.setLocatorType(liBuilder.build());
+            dataPlaneLocatorBuilder.setLocatorType(liBuilder.build());
+            sffDplBuilder.setDataPlaneLocator(dataPlaneLocatorBuilder.build());
         }
 
-        if (createSfDpl) {
-            List<SfDataPlaneLocator> sfDpls = new ArrayList<>();
-            sfDplBuilder.setKey(new SfDataPlaneLocatorKey(new SfDataPlaneLocatorName(SF_DPL_NAME)));
-            sfDplBuilder.setName(new SfDataPlaneLocatorName(SF_DPL_NAME));
-            sfDpls.add(sfDplBuilder.build());
-            sfBuilder.setSfDataPlaneLocator(sfDpls);
+        if (createSffDpl) {
+            List<SffDataPlaneLocator> sffDpls = new ArrayList<>();
+            sffDplBuilder.setKey(new SffDataPlaneLocatorKey(new SffDataPlaneLocatorName(SFF_DPL_NAME)));
+            sffDplBuilder.setName(new SffDataPlaneLocatorName(SFF_DPL_NAME));
+            sffDpls.add(sffDplBuilder.build());
+            sffBuilder.setSffDataPlaneLocator(sffDpls);
         }
 
-        if (createSf) {
-            sfBuilder.setName(sfName);
-            storeSf(sfName, sfBuilder.build());
+        if (createSff) {
+            sffBuilder.setName(sffName);
+            storeSff(sffName, sffBuilder.build());
         }
 
         return rspBuilder;
@@ -173,10 +216,12 @@ public class SfcProviderTest extends ConstantSchemaAbstractDataBrokerTest {
     }
 
     @SuppressWarnings("deprecation")
-    private void storeSf(SfName sfName, ServiceFunction sf) {
-        InstanceIdentifier<ServiceFunction> sfIid = InstanceIdentifier.builder(ServiceFunctions.class)
-                .child(ServiceFunction.class, new ServiceFunctionKey(sfName)).build();
+    private void storeSff(SffName sffName, ServiceFunctionForwarder sff) {
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid;
+        sffIid = InstanceIdentifier.builder(ServiceFunctionForwarders.class)
+                .child(ServiceFunctionForwarder.class, new ServiceFunctionForwarderKey(sffName))
+                .build();
 
-        MDSALUtil.syncWrite(getDataBroker(), LogicalDatastoreType.CONFIGURATION, sfIid, sf);
+        MDSALUtil.syncWrite(getDataBroker(), LogicalDatastoreType.CONFIGURATION, sffIid, sff);
     }
 }

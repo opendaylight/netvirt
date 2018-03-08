@@ -260,7 +260,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        DpnIdType firstHopDpn = sfcProvider.getFirstHopSfInterfaceFromRsp(rsp)
+        DpnIdType firstHopDpn = sfcProvider.getFirstHopIngressInterfaceFromRsp(rsp)
                 .flatMap(geniusProvider::getDpnIdFromInterfaceName)
                 .orElse(null);
 
@@ -269,7 +269,7 @@ public class ConfigurationClassifierImpl implements ClassifierState {
             return Collections.emptySet();
         }
 
-        String lastHopInterface = sfcProvider.getLastHopSfInterfaceFromRsp(rsp).orElse(null);
+        String lastHopInterface = sfcProvider.getLastHopEgressInterfaceFromRsp(rsp).orElse(null);
         if (lastHopInterface == null) {
             LOG.warn("Ace {} RSP {} ignored: has no valid last hop interface", ruleName, rspName);
             return Collections.emptySet();
