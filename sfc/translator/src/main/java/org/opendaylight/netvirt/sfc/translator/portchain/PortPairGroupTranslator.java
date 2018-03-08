@@ -61,22 +61,22 @@ public final class PortPairGroupTranslator {
 
         DataPlaneLocatorBuilder forwardDplBuilder = new DataPlaneLocatorBuilder();
         forwardDplBuilder.setTransport(Mac.class);
-        String forwardPort = portPair.getEgress().getValue();
+        String forwardPort = portPair.getIngress().getValue();
         LogicalInterface forwardInterface = new LogicalInterfaceBuilder().setInterfaceName(forwardPort).build();
         forwardDplBuilder.setLocatorType(forwardInterface);
         SffDataPlaneLocatorBuilder sffForwardDplBuilder = new SffDataPlaneLocatorBuilder();
         sffForwardDplBuilder.setDataPlaneLocator(forwardDplBuilder.build());
-        String forwardDplName = portPair.getName() + DPL_EGRESS_SUFFIX;
+        String forwardDplName = portPair.getName() + DPL_INGRESS_SUFFIX;
         sffForwardDplBuilder.setName(new SffDataPlaneLocatorName(forwardDplName));
 
         DataPlaneLocatorBuilder reverseDplBuilder = new DataPlaneLocatorBuilder();
         reverseDplBuilder.setTransport(Mac.class);
-        String reversePort = portPair.getIngress().getValue();
+        String reversePort = portPair.getEgress().getValue();
         LogicalInterface reverseInterface = new LogicalInterfaceBuilder().setInterfaceName(reversePort).build();
         reverseDplBuilder.setLocatorType(reverseInterface);
         SffDataPlaneLocatorBuilder sffReverseDplBuilder = new SffDataPlaneLocatorBuilder();
         sffReverseDplBuilder.setDataPlaneLocator(reverseDplBuilder.build());
-        String reverseDplName = portPair.getName() + DPL_INGRESS_SUFFIX;
+        String reverseDplName = portPair.getName() + DPL_EGRESS_SUFFIX;
         sffReverseDplBuilder.setName(new SffDataPlaneLocatorName(reverseDplName));
 
         List<SffDataPlaneLocator> sffDataPlaneLocator = new ArrayList<>();
