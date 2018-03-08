@@ -15,7 +15,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.mdsalutil.cache.DataObjectCache;
+import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.Hostconfigs;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.hostconfig.rev150712.hostconfig.attributes.hostconfigs.Hostconfig;
@@ -24,7 +24,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.rev150712.Neutron;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 
 @Singleton
-public class HostConfigCache extends DataObjectCache<Hostconfig> {
+public class HostConfigCache extends InstanceIdDataObjectCache<Hostconfig> {
     @Inject
     public HostConfigCache(DataBroker dataBroker, CacheProvider cacheProvider) {
         super(Hostconfig.class, dataBroker, LogicalDatastoreType.OPERATIONAL,

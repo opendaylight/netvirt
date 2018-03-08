@@ -36,7 +36,6 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
@@ -48,7 +47,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.NWUtil;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.cache.DataObjectCache;
+import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
@@ -147,7 +146,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
     private final Map<String, ConcurrentLinkedQueue<UnprocessedVpnInterfaceData>> unprocessedVpnInterfaces =
             new ConcurrentHashMap<>();
 
-    private final DataObjectCache<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryCache;
+    private final InstanceIdDataObjectCache<VpnInstanceOpDataEntry> vpnInstanceOpDataEntryCache;
 
     @Inject
     public VpnInterfaceManager(final DataBroker dataBroker,
@@ -179,7 +178,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         vpnInfUpdateTaskExecutor.scheduleWithFixedDelay(new VpnInterfaceUpdateTimerTask(),
             0, VPN_INF_UPDATE_TIMER_TASK_DELAY, TIME_UNIT);
 
-        vpnInstanceOpDataEntryCache = new DataObjectCache<>(VpnInstanceOpDataEntry.class, dataBroker,
+        vpnInstanceOpDataEntryCache = new InstanceIdDataObjectCache<>(VpnInstanceOpDataEntry.class, dataBroker,
                 LogicalDatastoreType.OPERATIONAL, InstanceIdentifier.builder(
                         VpnInstanceOpData.class).child(VpnInstanceOpDataEntry.class).build(), cacheProvider);
     }
