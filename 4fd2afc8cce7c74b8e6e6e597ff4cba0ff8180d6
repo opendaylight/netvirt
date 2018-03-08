@@ -16,6 +16,24 @@
       "revId": "4fd2afc8cce7c74b8e6e6e597ff4cba0ff8180d6",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d78d1e5_856ba2a4",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/listeners/HwvtepNodeBaseListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 69,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-03-08T13:40:11Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3b1cee1e_d27f67ff",
+      "revId": "4fd2afc8cce7c74b8e6e6e597ff4cba0ff8180d6",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
