@@ -8,6 +8,7 @@
 
 package org.opendaylight.netvirt.sfc.classifier.providers;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -18,20 +19,25 @@ import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.RspName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffDataPlaneLocatorName;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SffName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.common.rev151017.SfpName;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.RenderedServicePaths;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePath;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.RenderedServicePathKey;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.rsp.rev140701.rendered.service.paths.rendered.service.path.RenderedServicePathHop;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.ServiceFunctions;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.function.base.SfDataPlaneLocator;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunction;
-import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sf.rev140701.service.functions.ServiceFunctionKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.ServiceFunctionForwarderBase;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.ServiceFunctionForwarders;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarder.base.SffDataPlaneLocator;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarder;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.ServiceFunctionForwarderKey;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.service.function.forwarder.ServiceFunctionDictionary;
+import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sff.rev140701.service.function.forwarders.service.function.forwarder.service.function.dictionary.SffSfDataPlaneLocator;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.ServiceFunctionPathsState;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.state.ServiceFunctionPathState;
 import org.opendaylight.yang.gen.v1.urn.cisco.params.xml.ns.yang.sfc.sfp.rev140701.service.function.paths.state.ServiceFunctionPathStateKey;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.LogicalInterfaceLocator;
-import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.service.functions.service.function.sf.data.plane.locator.locator.type.LogicalInterface;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.sfc.sff.logical.rev160620.service.function.forwarders.service.function.forwarder.sff.data.plane.locator.data.plane.locator.locator.type.LogicalInterface;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -78,15 +84,21 @@ public class SfcProvider {
                         .collect(Collectors.toList()));
     }
 
-    public Optional<String> getFirstHopSfInterfaceFromRsp(RenderedServicePath rsp) {
-        return getRspFirstHop(rsp).flatMap(this::getHopSfInterface);
+    public Optional<String> getFirstHopIngressInterfaceFromRsp(RenderedServicePath rsp) {
+        // The ingres interface on the first hop is specified in the forward DPL
+        // in a forward path or the reverse DPL otherwise
+        boolean useForwardDpl = !rsp.isReversePath();
+        return getRspFirstHop(rsp).flatMap(rspHop -> getHopSfInterface(rspHop, useForwardDpl));
     }
 
-    public Optional<String> getLastHopSfInterfaceFromRsp(RenderedServicePath rsp) {
-        return getRspLastHop(rsp).flatMap(this::getHopSfInterface);
+    public Optional<String> getLastHopEgressInterfaceFromRsp(RenderedServicePath rsp) {
+        // The egress interface on the first hop is specified in the forward DPL
+        // in a forward path or the reverse DPL otherwise
+        boolean useForwardDpl = rsp.isReversePath();
+        return getRspLastHop(rsp).flatMap(rspHop -> getHopSfInterface(rspHop, useForwardDpl));
     }
 
-    public Optional<String> getHopSfInterface(RenderedServicePathHop hop) {
+    private Optional<String> getHopSfInterface(RenderedServicePathHop hop, boolean useForwardDpl) {
 
         LOG.trace("getHopSfInterface of hop {}", hop);
 
@@ -96,37 +108,69 @@ public class SfcProvider {
             return Optional.empty();
         }
 
-        Optional<ServiceFunction> sf = getServiceFunction(sfName);
-        if (!sf.isPresent()) {
-            LOG.warn("getHopSfInterface SF [{}] does not exist", sfName.getValue());
+        SffName sffName = hop.getServiceFunctionForwarder();
+        if (sffName == null) {
+            LOG.warn("getHopSfInterface hop has no SFF");
             return Optional.empty();
         }
 
-        List<SfDataPlaneLocator> sfDplList = sf.get().getSfDataPlaneLocator();
-        if (sfDplList == null || sfDplList.isEmpty()) {
-            LOG.warn("getHopSfInterface SF [{}] has no SfDpl", sfName.getValue());
+        Optional<ServiceFunctionForwarder> sff = getServiceFunctionForwarder(sffName);
+        if (!sff.isPresent()) {
+            LOG.warn("getHopSfInterface SFF [{}] does not exist", sffName.getValue());
             return Optional.empty();
         }
 
-        // Get the first LogicalInterface locator, if there is one
-        for (SfDataPlaneLocator sfDpl : sfDplList) {
-            if (sfDpl.getLocatorType() instanceof LogicalInterface) {
-                LogicalInterfaceLocator locator = (LogicalInterfaceLocator) sfDpl.getLocatorType();
-                if (locator != null) {
-                    return Optional.ofNullable(locator.getInterfaceName());
-                }
-            }
+        // Find the SFF-SF data plane locator for the SF pair
+        SffSfDataPlaneLocator sffSfDataPlaneLocator = sff.map(ServiceFunctionForwarder::getServiceFunctionDictionary)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(serviceFunctionDictionary -> serviceFunctionDictionary.getName().equals(sfName))
+                .findAny()
+                .map(ServiceFunctionDictionary::getSffSfDataPlaneLocator)
+                .orElse(null);
+
+        if (sffSfDataPlaneLocator == null) {
+            LOG.warn("getHopSfInterface SFF [{}] has not dictionary for SF [{}]",
+                    sffName.getValue(),
+                    sffName.getValue());
+            return Optional.empty();
         }
 
-        return Optional.empty();
+        // Get the forward or reverse locator name as appropriate if any,
+        // otherwise default to non directional locator
+        SffDataPlaneLocatorName sffDataPlaneLocatorName = null;
+        if (useForwardDpl) {
+            sffDataPlaneLocatorName = sffSfDataPlaneLocator.getSffForwardDplName();
+        } else {
+            sffDataPlaneLocatorName = sffSfDataPlaneLocator.getSffReverseDplName();
+        }
+        if (sffDataPlaneLocatorName == null) {
+            sffDataPlaneLocatorName = sffSfDataPlaneLocator.getSffDplName();
+        }
+
+        // Get the interface name value of the locator with such name
+        SffDataPlaneLocatorName locatorName = sffDataPlaneLocatorName;
+        Optional<String> interfaceName = sff.map(ServiceFunctionForwarderBase::getSffDataPlaneLocator)
+                .orElse(Collections.emptyList())
+                .stream()
+                .filter(sffDataPlaneLocator -> sffDataPlaneLocator.getName().equals(locatorName))
+                .findAny()
+                .map(SffDataPlaneLocator::getDataPlaneLocator)
+                .filter(dataPlaneLocator -> dataPlaneLocator.getLocatorType() instanceof LogicalInterface)
+                .map(dataPlaneLocator -> (LogicalInterfaceLocator) dataPlaneLocator.getLocatorType())
+                .map(LogicalInterfaceLocator::getInterfaceName);
+
+        return interfaceName;
     }
 
-    private Optional<ServiceFunction> getServiceFunction(SfName name) {
-        ServiceFunctionKey serviceFunctionKey = new ServiceFunctionKey(new SfName(name));
-        InstanceIdentifier<ServiceFunction> sfIid = InstanceIdentifier.builder(ServiceFunctions.class)
-                .child(ServiceFunction.class, serviceFunctionKey).build();
+    private Optional<ServiceFunctionForwarder> getServiceFunctionForwarder(SffName name) {
+        ServiceFunctionForwarderKey serviceFunctionForwarderKey = new ServiceFunctionForwarderKey(name);
+        InstanceIdentifier<ServiceFunctionForwarder> sffIid;
+        sffIid = InstanceIdentifier.builder(ServiceFunctionForwarders.class)
+                .child(ServiceFunctionForwarder.class, serviceFunctionForwarderKey)
+                .build();
 
-        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, sfIid).toJavaUtil();
+        return MDSALUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION, sffIid).toJavaUtil();
     }
 
     private Optional<RenderedServicePathHop> getRspFirstHop(RenderedServicePath rsp) {
