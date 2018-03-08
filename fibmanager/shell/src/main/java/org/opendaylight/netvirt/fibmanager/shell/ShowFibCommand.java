@@ -200,16 +200,16 @@ public class ShowFibCommand extends OsgiCommandSupport {
                 showIt = true;
             }
             if (!showIt && isIpv4) {
-                LOG.debug("is ipv4 address family=> vrfEntry.getDestPrefix() = " + vrfEntry.getDestPrefix());
+                LOG.debug("is ipv4 address family=> vrfEntry.getDestPrefix() = {}", vrfEntry.getDestPrefix());
                 showIt = FibHelper.isIpv4Prefix(vrfEntry.getDestPrefix());
             }
             if (!showIt && isIpv6) {
-                LOG.debug("is ipv6 address family=> vrfEntry.getDestPrefix() = " + vrfEntry.getDestPrefix());
+                LOG.debug("is ipv6 address family=> vrfEntry.getDestPrefix() = {}", vrfEntry.getDestPrefix());
                 showIt = FibHelper.isIpv6Prefix(vrfEntry.getDestPrefix());
             }
             if (!showIt && isL2vpn) {
                 if (vrfEntry.getEncapType() != null && !EncapType.Mplsgre.equals(vrfEntry.getEncapType())) {
-                    LOG.debug("is l2vpn address family=> vrfEntry.getEncapType() = " + vrfEntry.getEncapType());
+                    LOG.debug("is l2vpn address family=> vrfEntry.getEncapType() = {}", vrfEntry.getEncapType());
                     showIt = true;
                 }
             }
