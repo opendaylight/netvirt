@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public final class ManagerListener extends AsyncClusteredDataTreeChangeListenerBase<Managers, ManagerListener> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HAOpClusteredListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ManagerListener.class);
 
     private final DataBroker dataBroker;
 

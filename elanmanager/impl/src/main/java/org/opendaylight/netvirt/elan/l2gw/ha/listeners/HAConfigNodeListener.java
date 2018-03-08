@@ -25,9 +25,14 @@ import org.opendaylight.netvirt.elan.l2gw.ha.handlers.IHAEventHandler;
 import org.opendaylight.netvirt.elan.l2gw.ha.handlers.NodeCopier;
 import org.opendaylight.yang.gen.v1.urn.tbd.params.xml.ns.yang.network.topology.rev131021.network.topology.topology.Node;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Singleton
 public class HAConfigNodeListener extends HwvtepNodeBaseListener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HAConfigNodeListener.class);
+
     private final IHAEventHandler haEventHandler;
     private final NodeCopier nodeCopier;
 

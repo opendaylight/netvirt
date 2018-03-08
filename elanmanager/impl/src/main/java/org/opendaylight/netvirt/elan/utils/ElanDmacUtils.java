@@ -88,7 +88,7 @@ public class ElanDmacUtils {
                     elanItmUtils.getExternalTunnelItmEgressAction(dpId, new NodeId(extDeviceNodeId), vni);
             mkInstructions.add(MDSALUtil.buildApplyActionsInstruction(actions));
         } catch (Exception e) {
-            LOG.error("Could not get Egress Actions for DpId=" + dpId + ", externalNode=" + extDeviceNodeId, e);
+            LOG.error("Could not get Egress Actions for DpId {} externalNode {}", dpId, extDeviceNodeId, e);
         }
 
         return MDSALUtil.buildFlowNew(NwConstants.ELAN_DMAC_TABLE,

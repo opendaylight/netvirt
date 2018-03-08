@@ -275,7 +275,7 @@ public class ElanItmUtils {
                 LOG.warn("RPC call to ITM.GetExternalTunnelInterfaceName failed with error: {}", rpcResult.getErrors());
             }
         } catch (NullPointerException | InterruptedException | ExecutionException e) {
-            LOG.error("Failed to get external tunnel interface name for sourceNode: {} and dstNode: {}: {} ",
+            LOG.error("Failed to get external tunnel interface name for sourceNode: {} and dstNode: {}",
                     sourceNode, dstNode, e);
         }
         return tunnelInterfaceName;

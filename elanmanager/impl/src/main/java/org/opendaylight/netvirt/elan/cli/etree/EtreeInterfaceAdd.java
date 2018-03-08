@@ -65,8 +65,9 @@ public class EtreeInterfaceAdd extends OsgiCommandSupport {
             }
         }
 
-        LOG.debug("Executing create EtreeInterface command" + "\t" + elanName + "\t" + interfaceName + "\t"
-                + interfaceType + "\t" + staticMacAddresses + "\t" + elanInterfaceDescr + "\t");
+        LOG.debug("Executing create EtreeInterface command elanName:{}, interfaceName:{}, interfaceType:{},"
+                        + "staticMacAddresses:{}, elanInterfaceDescr:{}", elanName, interfaceName, interfaceType,
+                staticMacAddresses, elanInterfaceDescr);
         elanProvider.addEtreeInterface(elanName, interfaceName, inputType, staticMacAddresses, elanInterfaceDescr);
         session.getConsole().println("Created etree interface successfully");
 

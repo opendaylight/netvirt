@@ -37,8 +37,8 @@ public class ElanAdd extends OsgiCommandSupport {
             macTimeOut = 30;
         }
 
-        LOG.debug("Executing create ElanInstance command" + "\t" + elanName + "\t" + macTimeOut + "\t" + elanDescr
-                + "\t");
+        LOG.debug("Executing create ElanInstance command for elanName : {}, macTimeOut : {}, elanDescr : {}",
+                elanName, macTimeOut, elanDescr);
         if (elanName.length() <= MAX_LENGTH) {
             boolean isSuccess = elanProvider.createElanInstance(elanName, macTimeOut, elanDescr);
             if (isSuccess) {

@@ -49,18 +49,16 @@ public class ElanForwardingEntriesHandler {
     public void updateElanInterfaceForwardingTablesList(String elanInstanceName, String interfaceName,
             String existingInterfaceName, MacEntry mac, WriteTransaction tx) {
         if (existingInterfaceName.equals(interfaceName)) {
-            LOG.error(String.format(
-                    "Static MAC address %s has already been added for the same ElanInstance "
-                            + "%s on the same Logical Interface Port %s."
+            LOG.error("Static MAC address {} has already been added for the same ElanInstance "
+                            + "{} on the same Logical Interface Port {}."
                             + " No operation will be done.",
-                    mac.getMacAddress().toString(), elanInstanceName, interfaceName));
+                    mac.getMacAddress().toString(), elanInstanceName, interfaceName);
         } else {
-            LOG.warn(String.format(
-                    "Static MAC address %s had already been added for ElanInstance %s on Logical Interface Port %s. "
+            LOG.warn("Static MAC address {} had already been added for ElanInstance {} on Logical Interface Port {}. "
                             + "This would be considered as MAC movement scenario and old static mac will be removed "
                             + "and new static MAC will be added"
-                            + "for ElanInstance %s on Logical Interface Port %s",
-                    mac.getMacAddress().toString(), elanInstanceName, interfaceName, elanInstanceName, interfaceName));
+                            + "for ElanInstance {} on Logical Interface Port {}",
+                    mac.getMacAddress().toString(), elanInstanceName, interfaceName, elanInstanceName, interfaceName);
             //Update the  ElanInterface Forwarding Container & ElanForwarding Container
             deleteElanInterfaceForwardingTablesList(existingInterfaceName, mac, tx);
             createElanInterfaceForwardingTablesList(interfaceName, mac, tx);

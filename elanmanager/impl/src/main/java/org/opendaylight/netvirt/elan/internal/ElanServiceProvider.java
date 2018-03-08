@@ -180,7 +180,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                         .setKey(new ElanInstanceKey(elanInstanceName)).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
-                LOG.debug("Updating the Elan Instance {} with MAC TIME-OUT %l and Description %s ",
+                LOG.debug("Updating the Elan Instance {} with MAC TIME-OUT {} and Description {}",
                         updateElanInstance, macTimeout, description);
             }
         } else {
@@ -210,7 +210,7 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
                         .addAugmentation(EtreeInstance.class, etreeInstance).build();
                 MDSALUtil.syncWrite(broker, LogicalDatastoreType.CONFIGURATION,
                         ElanHelper.getElanInstanceConfigurationDataPath(elanInstanceName), updateElanInstance);
-                LOG.debug("Updating the Etree Instance {} with MAC TIME-OUT %l and Description %s ",
+                LOG.debug("Updating the Etree Instance {} with MAC TIME-OUT {} and Description {} ",
                         updateElanInstance, macTimeout, description);
             }
         } else {
@@ -860,9 +860,8 @@ public class ElanServiceProvider extends AbstractLifecycle implements IElanServi
         ElanInstance elanInstance = elanIface.isPresent()
                 ? elanInstanceCache.get(elanIface.get().getElanInstanceName()).orNull() : null;
         if (elanInstance == null) {
-            LOG.debug("addArpResponderFlow: elanInstance is null, Failed to install arp responder flow for Interface {}"
-                      + " with MAC {} & IP {}", dpnId,
-                ingressInterfaceName, macAddress, ipAddress);
+            LOG.debug("addArpResponderFlow: elanInstance is null, Failed to install arp responder flow for dpnId {}"
+                    + "for Interface {} with MAC {} & IP {}", dpnId, ingressInterfaceName, macAddress, ipAddress);
             return;
         }
         String flowId = ArpResponderUtil.getFlowId(lportTag, ipAddress);

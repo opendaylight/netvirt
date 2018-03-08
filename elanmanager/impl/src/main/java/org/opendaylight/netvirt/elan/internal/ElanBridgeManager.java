@@ -160,7 +160,7 @@ public class ElanBridgeManager implements IElanBridgeManager {
                 try {
                     createIntegrationBridgeConfig(node, generateIntBridgeMac);
                 } catch (RuntimeException e) {
-                    LOG.error("Error creating bridge on " + node, e);
+                    LOG.error("Error creating bridge on {}", node, e);
                 }
             }
             return;
