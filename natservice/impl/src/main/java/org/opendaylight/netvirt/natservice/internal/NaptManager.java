@@ -400,7 +400,7 @@ public class NaptManager {
             try {
                 removeFromIpMapDS(segmentId, address.getIpAddress());
             } catch (Exception e) {
-                LOG.error("releaseAddressMapping : Removal of  ipmap {} for router {} failed {}",
+                LOG.error("releaseAddressMapping : Removal of  ipmap {} for router {} failed",
                     address.getIpAddress(), segmentId, e);
                 return false;
             }
@@ -599,9 +599,9 @@ public class NaptManager {
                 NatUtil.buildSnatIntIpPortIdentifier(segmentId, address.getIpAddress(), protocolType),
                 intIpProtocolType);
         } catch (Exception ex) {
-            LOG.error("removeSnatIntIpPortDS : Failed to write into snat-internal-ip-port-info with exception",ex);
+            LOG.error("removeSnatIntIpPortDS : Failed to write into snat-internal-ip-port-info with exception", ex);
         }
-        LOG.debug("removeSnatIntIpPortDS : Removing SnatIp {} Port {} of router {} from SNATIntIpport datastore : {}",
+        LOG.debug("removeSnatIntIpPortDS : Removing SnatIp {} Port {} of router {} from SNATIntIpport datastore",
             address.getIpAddress(), address.getPortNumber(), segmentId);
     }
 

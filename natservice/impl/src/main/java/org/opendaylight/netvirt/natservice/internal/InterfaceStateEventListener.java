@@ -187,7 +187,7 @@ public class InterfaceStateEventListener
                         removeNatFlow(naptSwitch, NwConstants.OUTBOUND_NAPT_TABLE, routerId, internalIp, portnum);
                     } catch (Exception ex) {
                         LOG.error("removeSnatEntriesForPort : Failed to remove snat flow for internalIP {} with "
-                                + "Port {} protocol {} for routerId {} in OUTBOUNDTABLE of NaptSwitch {}: {}",
+                                + "Port {} protocol {} for routerId {} in OUTBOUNDTABLE of NaptSwitch {}",
                             internalIp, portnum, protocol, routerId, naptSwitch, ex);
                     }
                     //Get the external IP address and the port from the model
@@ -220,7 +220,7 @@ public class InterfaceStateEventListener
                         naptManager.removePortFromPool(internalIpPort, externalIpAddress);
                     } catch (Exception ex) {
                         LOG.error("removeSnatEntriesForPort : releaseIpExtPortMapping failed, Removal of "
-                            + "ipportmap {} for router {} failed {}", internalIpPort, routerId, ex);
+                            + "ipportmap {} for router {} failed", internalIpPort, routerId, ex);
                     }
                 }
             }

@@ -1211,7 +1211,7 @@ public final class NatUtil {
             BigInteger vmDpnId = getDpnForInterface(ifaceMgrRpcService, vmInterfaceName);
             if (vmDpnId.equals(BigInteger.ZERO) || !vmDpnId.equals(curDpnId)) {
                 LOG.debug("removeFromDpnRoutersMap : DPN ID {} for the removed interface {} is not the same as that of "
-                        + "the DPN ID for the checked interface {} ",
+                        + "the DPN ID {} for the checked interface {}",
                     curDpnId, vpnInterfaceName, vmDpnId, vmInterfaceName);
                 continue;
             }

@@ -198,7 +198,7 @@ public class EvpnDnatFlowProgrammer {
                     NatUtil.waitForTransactionToComplete(writeFlowInvTx);
                 } else {
                     LOG.error("onAddFloatingIp : Error {} in rpc call to create custom Fib entries for Floating "
-                            + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
+                            + "IP Prefix {} on DPN {}", result.getErrors(), externalIp, dpnId);
                 }
             }
         }, MoreExecutors.directExecutor());
@@ -320,7 +320,7 @@ public class EvpnDnatFlowProgrammer {
                     NatUtil.waitForTransactionToComplete(removeFlowInvTx);
                 } else {
                     LOG.error("onRemoveFloatingIp : Error {} in rpc call to remove custom Fib entries for Floating "
-                            + "IP Prefix {} on DPN {}, {}", result.getErrors(), externalIp, dpnId);
+                            + "IP Prefix {} on DPN {}", result.getErrors(), externalIp, dpnId);
                 }
             }
         }, MoreExecutors.directExecutor());

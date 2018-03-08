@@ -230,7 +230,7 @@ public class NaptSwitchHA {
                         natPfibSubnetFlowRef);
                 mdsalManager.removeFlowToTx(natPfibFlowEntity, removeFlowInvTx);
                 LOG.debug("removeSnatFlowsInOldNaptSwitch : Removed the flow in table {} with external subnet "
-                                + "Vpn Id {} as metadata on Napt Switch {} and vpnId {}", NwConstants.NAPT_PFIB_TABLE,
+                                + "Vpn Id {} as metadata on Napt Switch {}", NwConstants.NAPT_PFIB_TABLE,
                         subnetVpnId, naptSwitch);
             }
         }
@@ -256,7 +256,7 @@ public class NaptSwitchHA {
                     BigInteger naptDpn = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerNameAssociated);
                     if (naptDpn != null && naptDpn.equals(naptSwitch)) {
                         LOG.debug("removeSnatFlowsInOldNaptSwitch : Napt switch {} is also acting as primary "
-                                + "for router {}", routerIdAssociated);
+                                + "for router {}", naptSwitch, routerIdAssociated);
                         switchSharedByRouters = true;
                         break;
                     }
@@ -348,7 +348,7 @@ public class NaptSwitchHA {
                 IpPortExternal ipPortExternal = ipPortMap.getIpPortExternal();
                 if (ipPortExternal == null) {
                     LOG.debug("removeSnatFlowsInOldNaptSwitch : External Ipport mapping not found for internalIp {} "
-                            + "with port {} for router", internalIp, internalPort, routerId);
+                            + "with port {} for router {}", internalIp, internalPort, routerId);
                     continue;
                 }
                 String externalIp = ipPortExternal.getIpAddress();
@@ -422,7 +422,7 @@ public class NaptSwitchHA {
         } else {
             if (naptSwitch.equals(BigInteger.ZERO)) {
                 LOG.warn("isNaptSwitchDown : No napt switch is elected since all the switches for router {}"
-                        + " are down. SNAT IS NOT SUPPORTED FOR ROUTER {}", routerName);
+                        + " are down. SNAT IS NOT SUPPORTED FOR ROUTER {}", routerName, routerName);
                 boolean naptUpdatedStatus = updateNaptSwitch(routerName, naptSwitch);
                 if (!naptUpdatedStatus) {
                     LOG.debug("isNaptSwitchDown : Failed to update naptSwitch {} for router {} in ds",
@@ -638,7 +638,7 @@ public class NaptSwitchHA {
                             vpnId, routerId, bgpVpnId, sourceAddress, externalAddress, proto, extGwMacAddress);
                     } catch (RuntimeException ex) {
                         LOG.error("handleNatFlowsInNewNaptSwitch : Failed to add flow in OUTBOUND_NAPT_TABLE for "
-                                + "routerid {} dpnId {} ipport {}:{} proto {} extIpport {}:{} BgpVpnId {} - {}",
+                                + "routerid {} dpnId {} ipport {}:{} proto {} extIpport {}:{} BgpVpnId {}",
                             routerId, newNaptSwitch, internalIpAddress,
                             intportnum, proto, externalAddress, extportNumber, bgpVpnId, ex);
                         return false;

@@ -1890,7 +1890,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                         natPfibSubnetFlowRef);
                 mdsalManager.removeFlowToTx(natPfibFlowEntity, removeFlowInvTx);
                 LOG.debug("removeNaptFlowsFromActiveSwitch : Removed the flow in table {} with external subnet "
-                        + "Vpn Id {} as metadata on Napt Switch {} and vpnId {}", NwConstants.NAPT_PFIB_TABLE,
+                        + "Vpn Id {} as metadata on Napt Switch {}", NwConstants.NAPT_PFIB_TABLE,
                         subnetVpnId, dpnId);
             }
         }
@@ -2005,7 +2005,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         for (String ip : externalIps) {
             String extIp = removeMaskFromIp(ip);
             String naptFlowRef = getFlowRefNaptPreFib(dpnId, NwConstants.NAPT_PFIB_TABLE, extVpnId);
-            LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in the for the active switch"
+            LOG.info("removeNaptFlowsFromActiveSwitch : Remove the flow in table {} for the active switch"
                 + " with the DPN ID {} and router ID {} and IP {} flowRef {}",
                 NwConstants.NAPT_PFIB_TABLE, dpnId, routerId, extIp, naptFlowRef);
             FlowEntity natPfibVpnFlowEntity = NatUtil.buildFlowEntity(dpnId, NwConstants.NAPT_PFIB_TABLE, naptFlowRef);
@@ -2538,10 +2538,10 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                                              long routerId, boolean isSnatCfgd, WriteTransaction writeFlowInvTx,
                                              ProviderTypes extNwProvType) {
         long changedVpnId = bgpVpnId;
-        String logMsg = "installFlowsWithUpdatedVpnId : Update the BGP VPN ID {}";
+        String idType = "BGP VPN";
         if (bgpVpnId == NatConstants.INVALID_ID) {
             changedVpnId = routerId;
-            logMsg = "installFlowsWithUpdatedVpnId : Update the router ID {}";
+            idType = "router";
         }
 
         List<BigInteger> switches = NatUtil.getDpnsForRouter(dataBroker, routerName);
@@ -2560,33 +2560,42 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                     groupId = installGroup(dpnId, routerName, bucketInfoForNonNaptSwitches);
                 }
 
-                LOG.debug("{} in the SNAT miss entry pointing to group {} in the non NAPT switch {}",
-                        logMsg, changedVpnId, groupId, dpnId);
+                LOG.debug(
+                        "installFlowsWithUpdatedVpnId : Update the {} ID {} in the SNAT miss entry pointing to group "
+                                + "{} in the non NAPT switch {}", idType, changedVpnId, groupId, dpnId);
                 FlowEntity flowEntity = buildSnatFlowEntityWithUpdatedVpnId(dpnId, routerName, groupId, changedVpnId);
                 mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
             } else {
-                LOG.debug("{} in the SNAT miss entry pointing to group in the primary switch {}",
-                        logMsg, changedVpnId, primarySwitchId);
+                LOG.debug(
+                        "installFlowsWithUpdatedVpnId : Update the {} ID {} in the SNAT miss entry pointing to group "
+                                + "in the primary switch {}", idType, changedVpnId, primarySwitchId);
                 FlowEntity flowEntity =
                     buildSnatFlowEntityWithUpdatedVpnIdForPrimrySwtch(primarySwitchId, routerName, changedVpnId);
                 mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
 
-                LOG.debug("{} in the Terminating Service table (table ID 36) which forwards the packet"
-                    + " to the table 46 in the Primary switch {}", logMsg, changedVpnId, primarySwitchId);
+                LOG.debug(
+                        "installFlowsWithUpdatedVpnId : Update the {} ID {} in the Terminating Service table (table "
+                                + "ID 36) which forwards the packet to the table 46 in the Primary switch {}",
+                        idType, changedVpnId, primarySwitchId);
                 installTerminatingServiceTblEntryWithUpdatedVpnId(primarySwitchId, routerName, routerId,
                         changedVpnId, writeFlowInvTx, extNwProvType);
 
-                LOG.debug("{} in the Outbound NAPT table (table ID 46) which punts the packet to the"
-                    + " controller in the Primary switch {}", logMsg, changedVpnId, primarySwitchId);
+                LOG.debug(
+                        "installFlowsWithUpdatedVpnId : Update the {} ID {} in the Outbound NAPT table (table ID 46) "
+                                + "which punts the packet to the controller in the Primary switch {}",
+                        idType, changedVpnId, primarySwitchId);
                 createOutboundTblEntryWithBgpVpn(primarySwitchId, routerId, changedVpnId, writeFlowInvTx);
 
-                LOG.debug("{} in the NAPT PFIB TABLE which forwards the outgoing packet to FIB Table in the"
-                        + "Primary switch {}", logMsg, changedVpnId, primarySwitchId);
+                LOG.debug(
+                        "installFlowsWithUpdatedVpnId : Update the {} ID {} in the NAPT PFIB TABLE which forwards the"
+                                + " outgoing packet to FIB Table in the Primary switch {}",
+                        idType, changedVpnId, primarySwitchId);
                 installNaptPfibEntryWithBgpVpn(primarySwitchId, routerId, changedVpnId, writeFlowInvTx);
 
-                LOG.debug("{} in the NAPT flows for the Outbound NAPT table (table ID 46) and the "
-                        + "INBOUND NAPT table (table ID 44) in the Primary switch {}",
-                        logMsg, changedVpnId, primarySwitchId);
+                LOG.debug(
+                        "installFlowsWithUpdatedVpnId : Update the {} ID {} in the NAPT flows for the Outbound NAPT "
+                                + "table (table ID 46) and the INBOUND NAPT table (table ID 44) in the Primary switch"
+                                + " {}", idType, changedVpnId, primarySwitchId);
                 updateNaptFlowsWithVpnId(primarySwitchId, routerName, routerId, bgpVpnId);
 
                 LOG.debug("installFlowsWithUpdatedVpnId : Installing SNAT PFIB flow in the primary switch {}",

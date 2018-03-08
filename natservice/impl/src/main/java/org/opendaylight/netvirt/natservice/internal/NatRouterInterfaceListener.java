@@ -72,7 +72,7 @@ public class NatRouterInterfaceListener
             MDSALUtil.syncWrite(dataBroker, LogicalDatastoreType.CONFIGURATION,
                 NatUtil.getRouterInterfaceId(interfaceName), getRouterInterface(interfaceName, routerId));
         } catch (Exception e) {
-            LOG.error("add: Unable to write data in RouterInterface model", e.getMessage());
+            LOG.error("add: Unable to write data in RouterInterface model", e);
         }
 
         org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces
