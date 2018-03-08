@@ -19,7 +19,7 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
-import org.opendaylight.genius.mdsalutil.cache.DataObjectCache;
+import org.opendaylight.genius.mdsalutil.cache.InstanceIdDataObjectCache;
 import org.opendaylight.infrautils.caches.CacheProvider;
 import org.opendaylight.netvirt.elan.utils.ElanUtils;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.etree.rev160614.EtreeInterface;
@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * @author Thomas Pantelis
  */
 @Singleton
-public class ElanInterfaceCache extends DataObjectCache<ElanInterface> {
+public class ElanInterfaceCache extends InstanceIdDataObjectCache<ElanInterface> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ElanInterfaceCache.class);
 
