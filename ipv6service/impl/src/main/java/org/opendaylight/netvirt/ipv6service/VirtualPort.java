@@ -31,7 +31,8 @@ import org.slf4j.LoggerFactory;
 // This class needs to be overridden by Mockito
 @SuppressWarnings("checkstyle:FinalClass")
 public class VirtualPort implements IVirtualPort  {
-    static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(VirtualPort.class);
 
     private final Uuid intfUUID;
     private final Uuid networkID;

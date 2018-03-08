@@ -36,7 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class Ipv6NeighborSolicitation {
-    private static final Logger LOG = LoggerFactory.getLogger(Ipv6RouterAdvt.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(Ipv6NeighborSolicitation.class);
+
     private final PacketProcessingService packetService;
 
     public Ipv6NeighborSolicitation(PacketProcessingService packetService) {

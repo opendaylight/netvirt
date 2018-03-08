@@ -23,7 +23,9 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class NeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Network,
         NeutronNetworkChangeListener> {
-    private static final Logger LOG = LoggerFactory.getLogger(NeutronRouterChangeListener.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(NeutronNetworkChangeListener.class);
+
     private final DataBroker dataBroker;
     private final IfMgr ifMgr;
 

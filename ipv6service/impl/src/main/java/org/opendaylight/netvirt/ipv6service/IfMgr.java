@@ -66,7 +66,8 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class IfMgr implements ElementCache, AutoCloseable {
-    static final Logger LOG = LoggerFactory.getLogger(IfMgr.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(IfMgr.class);
 
     private final ConcurrentMap<Uuid, VirtualRouter> vrouters = new ConcurrentHashMap<>();
     private final ConcurrentMap<Uuid, VirtualNetwork> vnetworks = new ConcurrentHashMap<>();
@@ -708,7 +709,7 @@ public class IfMgr implements ElementCache, AutoCloseable {
 
     public void transmitUnsolicitedRA(Uuid portId) {
         VirtualPort port = getPort(portId);
-        LOG.debug("in transmitUnsolicitedRA for {}, port", portId, port);
+        LOG.debug("in transmitUnsolicitedRA for {}, port {}", portId, port);
         if (port != null) {
             transmitUnsolicitedRA(port);
         }
