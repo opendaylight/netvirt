@@ -24,8 +24,9 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class Ipv6ServiceEosHandler implements EntityOwnershipListener, AutoCloseable {
+
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceEosHandler.class);
-    private static String EOS_ENTITY_OWNER = "netvirt-ipv6service-owner-entity";
+    private static final String EOS_ENTITY_OWNER = "netvirt-ipv6service-owner-entity";
 
     private volatile boolean isEosOwner;
 
@@ -64,7 +65,7 @@ public class Ipv6ServiceEosHandler implements EntityOwnershipListener, AutoClose
         try {
             candidateRegistration = entityOwnershipService.registerCandidate(instanceEntity);
         } catch (CandidateAlreadyRegisteredException e) {
-            LOG.warn("Instance entity was already registered", instanceEntity);
+            LOG.warn("Instance entity {} was already registered", instanceEntity);
         }
         LOG.trace("Entity ownership registration successful");
     }
