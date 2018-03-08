@@ -45,7 +45,9 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class CounterRetriever {
-    protected static final Logger LOG = LoggerFactory.getLogger(CounterRetriever.class);
+
+    private static final Logger LOG = LoggerFactory.getLogger(CounterRetriever.class);
+
     private final OpendaylightDirectStatisticsService odlDirectStatsService;
     private final long nodeResultTimeout;
     private final Counters counters = new Counters();
