@@ -411,7 +411,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
             5, String.format("%s:%d", "TST Flow Entry ", serviceId), 0, 0,
             COOKIE_TUNNEL.add(BigInteger.valueOf(serviceId)), mkMatches, null);
         mdsalManager.removeFlowToTx(dpnId, flowEntity, removeFlowInvTx);
-        LOG.debug("removeTunnelTableEntry : Terminating service Entry for dpID {} : label : {} removed successfully {}",
+        LOG.debug("removeTunnelTableEntry : Terminating service Entry for dpID {} : label : {} removed successfully",
                 dpnId, serviceId);
     }
 
@@ -462,7 +462,7 @@ public class VpnFloatingIpHandler implements FloatingIPHandler {
 
         mdsalManager.addFlowToTx(dpId, flowEntity, writeFlowInvTx);
 
-        LOG.debug("makeLFibTableEntry : LFIB Entry for dpID {} : label : {} modified successfully {}", dpId, serviceId);
+        LOG.debug("makeLFibTableEntry : LFIB Entry for dpID {} : label : {} modified successfully", dpId, serviceId);
     }
 
     private void removeLFibTableEntry(BigInteger dpnId, long serviceId, WriteTransaction removeFlowInvTx) {

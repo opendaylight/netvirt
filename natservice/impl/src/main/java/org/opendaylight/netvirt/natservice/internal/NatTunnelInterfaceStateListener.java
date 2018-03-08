@@ -265,7 +265,7 @@ public class NatTunnelInterfaceStateListener
                     mdsalManager.removeFlowToTx(flowEntity, writeFlowInvTx);
 
                 } catch (Exception ex) {
-                    LOG.error("removeSNATFromDPN : SNAT->Failed to remove default SNAT miss entry flow entity {} : {}",
+                    LOG.error("removeSNATFromDPN : SNAT->Failed to remove default SNAT miss entry flow entity {}",
                         flowEntity, ex);
                     return;
                 }
@@ -604,7 +604,7 @@ public class NatTunnelInterfaceStateListener
             long groupId = externalRouterListner.installGroup(srcDpnId, routerName, bucketInfoForNonNaptSwitches);
 
             LOG.debug("hndlTepAddOnNonNaptSwitch : SNAT -> in the SNAT miss entry pointing to group {} "
-                    + "in the non NAPT switch {}", vpnId, groupId, srcDpnId);
+                    + "in the non NAPT switch {}", groupId, srcDpnId);
             FlowEntity flowEntity =
                 externalRouterListner.buildSnatFlowEntityWithUpdatedVpnId(srcDpnId, routerName, groupId, vpnId);
             mdsalManager.addFlowToTx(flowEntity, writeFlowInvTx);
@@ -961,8 +961,9 @@ public class NatTunnelInterfaceStateListener
             Uuid networkId = routerData.get().getNetworkId();
             if (networkId == null) {
                 LOG.error("hndlTepDelForSnatInEachRtr : SNAT->Ignoring TEP delete for the DPN {} having the router {} "
-                        + "since the Router instance {} not found in ExtRouters model b/w SRC IP {} and DST IP {} "
-                        + "and TUNNEL NAME {} ", dpnId, tunnelType, srcTepIp, destTepIp, tunnelName);
+                                + "since the Router instance {} not found in ExtRouters model b/w SRC IP {} and DST "
+                                + "IP {} and TUNNEL NAME {} ", dpnId, routerData.get().getRouterName(), tunnelType,
+                        srcTepIp, destTepIp, tunnelName);
                 return;
             }
 

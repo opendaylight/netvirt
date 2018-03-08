@@ -78,7 +78,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
                     extNwProvType);
         } else {
             LOG.debug("onRouterAssociatedToVpn : Ignoring the Router {} association with VPN {} "
-                    + "since it is not external router", routerName);
+                    + "since it is not external router", routerName, vpnName);
         }
 
         NatUtil.waitForTransactionToComplete(writeFlowInvTx);
@@ -114,7 +114,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
                     extNwProvType);
         } else {
             LOG.debug("onRouterDisassociatedFromVpn : Ignoring the Router {} association with VPN {} "
-                    + "since it is not external router", routerName);
+                    + "since it is not external router", routerName, vpnName);
         }
 
         NatUtil.waitForTransactionToComplete(writeFlowInvTx);
@@ -137,7 +137,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if (dpnId.equals(BigInteger.ZERO)) {
                 LOG.warn("handleDNATConfigurationForRouterAssociation : DPN not found for {}, "
-                        + "skip handling of router {} association with vpn", portName, routerName, vpnName);
+                        + "skip handling of router {} association with vpn {}", portName, routerName, vpnName);
                 continue;
             }
 
@@ -171,7 +171,7 @@ public class RouterToVpnListener implements NeutronvpnListener {
             BigInteger dpnId = NatUtil.getDpnForInterface(interfaceManager, portName);
             if (dpnId.equals(BigInteger.ZERO)) {
                 LOG.debug("handleDNATConfigurationForRouterDisassociation : DPN not found for {}, "
-                        + "skip handling of router {} association with vpn", portName, routerName, vpnName);
+                        + "skip handling of router {} association with vpn {}", portName, routerName, vpnName);
                 continue;
             }
             List<InternalToExternalPortMap> intExtPortMapList = port.getInternalToExternalPortMap();
