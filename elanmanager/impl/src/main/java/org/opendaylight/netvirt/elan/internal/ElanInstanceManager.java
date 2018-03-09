@@ -17,6 +17,7 @@ import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
@@ -89,14 +90,16 @@ public class ElanInstanceManager extends AsyncDataTreeChangeListenerBase<ElanIns
         if (existingElan != null) {
             List<String> elanInterfaces = existingElan.getElanInterfaces();
             if (elanInterfaces != null && !elanInterfaces.isEmpty()) {
-                for (String elanInterfaceName : elanInterfaces) {
-                    InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
-                            .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
-                    InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
-                    elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName, interfaceInfo);
-                    ElanUtils.delete(broker, LogicalDatastoreType.CONFIGURATION,
-                            elanInterfaceId);
-                }
+                elanInterfaces.forEach(elanInterfaceName -> {
+                    txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> {
+                        InstanceIdentifier<ElanInterface> elanInterfaceId = ElanUtils
+                                .getElanInterfaceConfigurationDataPathId(elanInterfaceName);
+                        InterfaceInfo interfaceInfo = interfaceManager.getInterfaceInfo(elanInterfaceName);
+                        elanInterfaceManager.removeElanInterface(deletedElan, elanInterfaceName,
+                                interfaceInfo);
+                        tx.delete(LogicalDatastoreType.CONFIGURATION, elanInterfaceId);
+                    });
+                });
             }
             ElanUtils.delete(broker, LogicalDatastoreType.OPERATIONAL,
                     ElanUtils.getElanInstanceOperationalDataPath(elanName));
