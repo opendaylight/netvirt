@@ -36,6 +36,8 @@ public class StateManager implements IStateManager {
     private static final Logger LOG = LoggerFactory.getLogger(StateManager.class);
     private final ManagedNewTransactionRunner txRunner;
 
+    // This class relies on its arguments being ready, even though it doesn't use them
+    @SuppressWarnings("unused")
     @Inject
     public StateManager(final DataBroker dataBroker, final IBgpManager bgpManager, final IElanService elanService,
                         final IFibManager fibManager, final INeutronVpnManager neutronVpnManager,
