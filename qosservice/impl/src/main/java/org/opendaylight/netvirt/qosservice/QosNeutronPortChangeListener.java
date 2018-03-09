@@ -13,6 +13,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
+import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.Ports;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.ports.rev150712.ports.attributes.ports.Port;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosPortExtension;
@@ -23,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Port,
-                                             QosNeutronPortChangeListener> {
+                                             QosNeutronPortChangeListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronPortChangeListener.class);
     private final DataBroker dataBroker;
     private final QosAlertManager qosAlertManager;
@@ -31,23 +34,31 @@ public class QosNeutronPortChangeListener extends AsyncClusteredDataTreeChangeLi
 
     @Inject
     public QosNeutronPortChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
-            final QosNeutronUtils qosNeutronUtils) {
+            final QosNeutronUtils qosNeutronUtils, final QosServiceRecoveryHandler qosServiceRecoveryHandler,
+                                        final ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(Port.class, QosNeutronPortChangeListener.class);
         this.dataBroker = dataBroker;
         this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
+        serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
+                this);
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        registerListener();
         LOG.debug("{} init and registerListener done", getClass().getSimpleName());
     }
 
     @Override
     protected InstanceIdentifier<Port> getWildCardPath() {
         return InstanceIdentifier.create(Neutron.class).child(Ports.class).child(Port.class);
+    }
+
+    @Override
+    public void registerListener() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override
