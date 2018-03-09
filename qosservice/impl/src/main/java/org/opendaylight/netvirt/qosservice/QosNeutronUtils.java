@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArraySet;
@@ -136,6 +137,10 @@ public class QosNeutronUtils {
 
     public void removeFromQosPolicyCache(QosPolicy qosPolicy) {
         qosPolicyMap.remove(qosPolicy.getUuid());
+    }
+
+    public Map<Uuid, QosPolicy> getQosPolicyMap() {
+        return qosPolicyMap;
     }
 
     public Collection<Port> getQosPorts(Uuid qosUuid) {
@@ -754,6 +759,8 @@ public class QosNeutronUtils {
         LOG.trace("portHasQosPolicy for  port: {} return value {}", port.getUuid(), isQosPolicy);
         return isQosPolicy;
     }
+
+
 
     public boolean hasBandwidthLimitRule(Port port) {
         Uuid qosUuid = null;

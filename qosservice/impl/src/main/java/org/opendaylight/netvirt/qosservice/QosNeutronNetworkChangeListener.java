@@ -13,6 +13,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
+import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.Networks;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.networks.rev150712.networks.attributes.networks.Network;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.qos.ext.rev160613.QosNetworkExtension;
@@ -23,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Network,
-        QosNeutronNetworkChangeListener> {
+        QosNeutronNetworkChangeListener> implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNeutronNetworkChangeListener.class);
     private final DataBroker dataBroker;
     private final QosAlertManager qosAlertManager;
@@ -31,18 +34,27 @@ public class QosNeutronNetworkChangeListener extends AsyncClusteredDataTreeChang
 
     @Inject
     public QosNeutronNetworkChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
-            final QosNeutronUtils qosNeutronUtils) {
+                                           final QosNeutronUtils qosNeutronUtils,
+                                           final ServiceRecoveryRegistry serviceRecoveryRegistry,
+                                           final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
         super(Network.class, QosNeutronNetworkChangeListener.class);
         this.dataBroker = dataBroker;
         this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
+        serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
+                this);
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        registerListener();
         LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+    }
+
+    @Override
+    public void registerListener() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override

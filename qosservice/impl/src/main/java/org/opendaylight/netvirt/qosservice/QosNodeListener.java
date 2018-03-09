@@ -25,6 +25,9 @@ import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
+import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.flow.inventory.rev130819.FlowCapableNode;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
@@ -34,25 +37,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, QosNodeListener> {
+public class QosNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, QosNodeListener>
+        implements RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(QosNodeListener.class);
 
     private final DataBroker dataBroker;
     private final IMdsalApiManager mdsalUtils;
 
     @Inject
-    public QosNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtils) {
+    public QosNodeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalUtils,
+                           final ServiceRecoveryRegistry serviceRecoveryRegistry,
+                           final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
         super(FlowCapableNode.class, QosNodeListener.class);
         this.dataBroker = dataBroker;
         this.mdsalUtils = mdsalUtils;
+        serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
+                this);
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @Override
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
+        registerListener();
         LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+    }
+
+    @Override
+    public void registerListener() {
+        registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
     @Override

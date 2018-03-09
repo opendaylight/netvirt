@@ -15,7 +15,10 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.neutronvpn.interfaces.INeutronVpnManager;
+import org.opendaylight.netvirt.qosservice.recovery.QosServiceRecoveryHandler;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.iana._if.type.rev140508.L2vlan;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.InterfacesState;
 import org.opendaylight.yang.gen.v1.urn.ietf.params.xml.ns.yang.ietf.interfaces.rev140508.interfaces.state.Interface;
@@ -31,7 +34,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChangeListenerBase<Interface,
-        QosInterfaceStateChangeListener> {
+        QosInterfaceStateChangeListener> implements RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(QosInterfaceStateChangeListener.class);
 
@@ -43,20 +46,30 @@ public class QosInterfaceStateChangeListener extends AsyncClusteredDataTreeChang
 
     @Inject
     public QosInterfaceStateChangeListener(final DataBroker dataBroker, final QosAlertManager qosAlertManager,
-            final QosNeutronUtils qosNeutronUtils, final INeutronVpnManager neutronVpnManager) {
+                                           final QosNeutronUtils qosNeutronUtils,
+                                           final INeutronVpnManager neutronVpnManager,
+                                           final ServiceRecoveryRegistry serviceRecoveryRegistry,
+                                           final QosServiceRecoveryHandler qosServiceRecoveryHandler) {
         super(Interface.class, QosInterfaceStateChangeListener.class);
         this.dataBroker = dataBroker;
         this.uuidUtil = new UuidUtil();
         this.qosAlertManager = qosAlertManager;
         this.qosNeutronUtils = qosNeutronUtils;
         this.neutronVpnManager = neutronVpnManager;
+        serviceRecoveryRegistry.addRecoverableListener(qosServiceRecoveryHandler.buildServiceRegistryKey(),
+                this);
         LOG.debug("{} created",  getClass().getSimpleName());
     }
 
     @PostConstruct
     public void init() {
-        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
+        registerListener();
         LOG.debug("{} init and registerListener done", getClass().getSimpleName());
+    }
+
+    @Override
+    public void registerListener() {
+        registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
     @Override
