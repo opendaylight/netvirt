@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "d15e44d4_93d3eef1",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 92,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-09T07:38:37Z",
+      "side": 1,
+      "message": "Is dereigisterListener method already implemeted?",
+      "revId": "63b6805792fb55bba6b91fb942c339f8296d73f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "abd33e96_00b94076",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/recovery/impl/ElanInstanceRecoveryHandler.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 7892
+      },
+      "writtenOn": "2018-03-09T07:38:37Z",
+      "side": 1,
+      "message": "Transaction has to be submitted",
+      "revId": "63b6805792fb55bba6b91fb942c339f8296d73f7",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
