@@ -303,7 +303,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             operFuture.get();
                         } catch (ExecutionException e) {
                             LOG.error("addVpnInterface: Exception encountered while submitting operational future for"
-                                    + " addVpnInterface {} on vpn {}: {}", vpnInterface.getName(), vpnName, e);
+                                    + " addVpnInterface {} on vpn {}", vpnInterface.getName(), vpnName, e);
                             return null;
                         }
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -779,7 +779,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             arpResponderHandler.addArpResponderFlow(dpnId, lportTag, interfaceName,
                                     gatewayIp, gwMac.get());
                         } else {
-                            LOG.error("processVpnInterfaceAdjacencies: Gateway MAC for subnet ID {} could not be "
+                            LOG.error("processVpnInterfaceAdjacencies: Gateway MAC for subnet could not be "
                                 + "obtained, cannot create ARP responder flow for interface name {}, vpnName {}, "
                                 + "gwIp {}",
                                 interfaceName, vpnName, gatewayIp);
@@ -962,9 +962,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             srcDpnId, vpnName);
                 } catch (Exception ex) {
                     LOG.error("updateVpnInterfaceOnTepAdd: Exception when advertising prefix {} nh {} label {}"
-                            + " on rd {} for interface {} on dpn {} vpn {} as {}", prefix, nhList, label, rd,
-                            vpnInterface.getName(), srcDpnId,
-                            vpnName, ex);
+                            + " on rd {} for interface {} on dpn {} vpn {}", prefix, nhList, label, rd,
+                            vpnInterface.getName(), srcDpnId, vpnName, ex);
                 }
             }
         }
@@ -1068,9 +1067,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 vpnName);
                     } catch (Exception ex) {
                         LOG.error("updateVpnInterfaceOnTepDelete: Exception when withdrawing prefix {} nh {} label {}"
-                                + " on rd {} for interface {} on dpn {} vpn {} as {}", prefix, nhList, label, rd,
-                                vpnInterface.getName(), srcDpnId,
-                                vpnName, ex);
+                                + " on rd {} for interface {} on dpn {} vpn {}", prefix, nhList, label, rd,
+                                vpnInterface.getName(), srcDpnId, vpnName, ex);
                     }
                 }
             }
@@ -1532,7 +1530,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         operFuture.get();
                     } catch (ExecutionException e) {
                         LOG.error("Exception encountered while submitting operational future for update"
-                                + " VpnInterface {} on vpn {}: {}", vpnInterfaceName, newVpnName, e);
+                                + " VpnInterface {} on vpn {}", vpnInterfaceName, newVpnName, e);
                         return null;
                     }
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -1782,7 +1780,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         currVpnIntf.getName(), writeConfigTxn);
                                 }
                             } else if (adj.isPhysNetworkFunc()) {
-                                LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet [}",
+                                LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet {}",
                                         adj.getIpAddress(), adj.getSubnetId());
                                 fibManager.removeFibEntry(adj.getSubnetId().getValue(), adj.getIpAddress(),
                                         writeConfigTxn);

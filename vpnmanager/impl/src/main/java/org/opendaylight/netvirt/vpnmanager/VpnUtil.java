@@ -1108,16 +1108,14 @@ public final class VpnUtil {
                             .setCreationTime(new SimpleDateFormat("MM/dd/yyyy h:mm:ss a").format(new Date()));
             MDSALUtil.syncWrite(broker, LogicalDatastoreType.OPERATIONAL, id, builder.build());
             LOG.debug("createLearntVpnVipToPort: ARP learned for fixedIp: {}, vpn {}, interface {}, mac {},"
-                    + " isSubnetIp {} added to VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
+                    + " added to VpnPortipToPort DS", fixedIp, vpnName, portName, macAddress);
         }
     }
 
     private static InstanceIdentifier<LearntVpnVipToPort> buildLearntVpnVipToPortIdentifier(String vpnName,
             String fixedIp) {
-        InstanceIdentifier<LearntVpnVipToPort> id =
-                InstanceIdentifier.builder(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class,
-                        new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
-        return id;
+        return InstanceIdentifier.builder(LearntVpnVipToPortData.class).child(LearntVpnVipToPort.class,
+                new LearntVpnVipToPortKey(fixedIp, vpnName)).build();
     }
 
     protected static void removeLearntVpnVipToPort(DataBroker broker, String vpnName, String fixedIp) {
@@ -1297,16 +1295,16 @@ public final class VpnUtil {
         TryLockInput input =
             new TryLockInputBuilder().setLockName(subnetId).setTime(3000L).setTimeUnit(TimeUnits.Milliseconds).build();
         Future<RpcResult<Void>> result = lockManager.tryLock(input);
-        String errMsg = "Unable to getLock for subnet " + subnetId;
         try {
             if (result != null && result.get().isSuccessful()) {
                 LOG.debug("lockSubnet: Acquired lock for {}", subnetId);
             } else {
-                throw new RuntimeException(errMsg);
+                LOG.error("Unable to get lock for subnet {}", subnetId);
+                throw new RuntimeException("Unable to get lock for subnet " + subnetId);
             }
         } catch (InterruptedException | ExecutionException e) {
-            LOG.error(errMsg);
-            throw new RuntimeException(e.getMessage(), e);
+            LOG.error("Unable to get lock for subnet {}", subnetId, e);
+            throw new RuntimeException("Unable to get lock for subnet " + subnetId, e);
         }
     }
 
@@ -1537,9 +1535,8 @@ public final class VpnUtil {
             rd = dpnId.toString();
             LOG.debug("Internal vpn {} Returning DpnId {} as rd", vpnName, rd);
         } else {
-            LOG.trace(
-                    "Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {},"
-                    + " adj - {}", usedRds, availableRds, vpnId, prefix, vpnName, dpnId);
+            LOG.trace("Removing used rds {} from available rds {} vpnid {} . prefix is {} , vpname- {}, dpnId- {}",
+                    usedRds, availableRds, vpnId, prefix, vpnName, dpnId);
             availableRds.removeAll(usedRds);
             if (availableRds.isEmpty()) {
                 LOG.error("No rd available from VpnInstance to allocate for prefix {}", prefix);

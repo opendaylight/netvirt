@@ -12,6 +12,7 @@ import com.google.common.util.concurrent.SettableFuture;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Future;
+import java.util.function.Consumer;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
@@ -40,6 +41,8 @@ import org.opendaylight.yangtools.yang.common.RpcResult;
 import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.helpers.FormattingTuple;
+import org.slf4j.helpers.MessageFormatter;
 
 @Singleton
 public class VpnRpcServiceImpl implements VpnRpcService {
@@ -75,10 +78,9 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         long label = VpnUtil.getUniqueId(idManager, VpnConstants.VPN_IDPOOL_NAME,
             VpnUtil.getNextHopLabelKey(rd != null ? rd : vpnName, ipPrefix));
         if (label == 0) {
-            String msg = "Could not retrieve the label for prefix " + ipPrefix + " in VPN " + vpnName;
-            LOG.error(msg);
-            futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION, msg)
-                .build());
+            futureResult.set(RpcResultBuilder.<GenerateVpnLabelOutput>failed().withError(ErrorType.APPLICATION,
+                    formatAndLog(LOG::error, "Could not retrieve the label for prefix {} in VPN {}", ipPrefix,
+                            vpnName)).build());
         } else {
             GenerateVpnLabelOutput output = new GenerateVpnLabelOutputBuilder().setLabel(label).build();
             futureResult.set(RpcResultBuilder.success(output).build());
@@ -169,11 +171,10 @@ public class VpnRpcServiceImpl implements VpnRpcService {
                                                    label.intValue(),
                                                    dataBroker, fibManager, bgpManager);
             } catch (Exception e) {
-                String errMsg = "Could not advertise route [vpn=" + vpnRd + ", prefix=" + destination + ", label="
-                        + label + ", nexthop=" + nexthop + ", ] to BGP. Reason: " + e.getMessage();
-                LOG.warn(errMsg, e);
-                result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION, errMsg)
-                      .build());
+                result.set(RpcResultBuilder.<AddStaticRouteOutput>failed().withError(ErrorType.APPLICATION,
+                        formatAndLog(LOG::warn,
+                                "Could not advertise route [vpn={}, prefix={}, label={}, nexthop={}] to BGP: {}", vpnRd,
+                                destination, label, nexthop, e.getMessage(), e)).build());
                 return result;
             }
         } else {
@@ -241,5 +242,19 @@ public class VpnRpcServiceImpl implements VpnRpcService {
         result.set(RpcResultBuilder.<Void>success().build());
 
         return result;
+    }
+
+    private String formatAndLog(Consumer<String> logger, String template, Object arg1, Object arg2) {
+        return logAndReturnMessage(logger, MessageFormatter.format(template, arg1, arg2));
+    }
+
+    private String formatAndLog(Consumer<String> logger, String template, Object... args) {
+        return logAndReturnMessage(logger, MessageFormatter.arrayFormat(template, args));
+    }
+
+    private String logAndReturnMessage(Consumer<String> logger, FormattingTuple tuple) {
+        String message = tuple.getMessage();
+        logger.accept(message);
+        return message;
     }
 }

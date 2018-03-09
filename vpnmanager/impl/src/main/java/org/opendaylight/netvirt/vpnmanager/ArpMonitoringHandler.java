@@ -77,7 +77,7 @@ public class ArpMonitoringHandler
         if (profileIdOptional.isPresent()) {
             arpMonitorProfileId = profileIdOptional.get();
         } else {
-            LOG.error("Error while allocating Profile Id", profileIdOptional);
+            LOG.error("Error while allocating Profile Id {}", profileIdOptional);
         }
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
 

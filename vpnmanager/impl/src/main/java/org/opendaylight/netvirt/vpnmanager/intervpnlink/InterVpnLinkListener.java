@@ -465,8 +465,8 @@ public class InterVpnLinkListener extends AsyncDataTreeChangeListenerBase<InterV
         Futures.addCallback(eventFuture, new FutureCallback<Object>() {
             @Override
             public void onFailure(Throwable error) {
-                LOG.warn("Error when sending notification about InterVpnLink creation issue. InterVpnLink name={}.",
-                    vpnLinkState.getInterVpnLinkName(), vpnLinkState, error);
+                LOG.warn("Error when sending notification about InterVpnLink creation issue. InterVpnLink name={} "
+                                + "state={}.", vpnLinkState.getInterVpnLinkName(), vpnLinkState, error);
             }
 
             @Override

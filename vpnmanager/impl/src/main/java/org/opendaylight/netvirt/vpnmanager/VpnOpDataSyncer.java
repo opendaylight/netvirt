@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class VpnOpDataSyncer {
 
-    static final Logger LOG = LoggerFactory.getLogger(VpnOpDataSyncer.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VpnOpDataSyncer.class);
 
     public enum VpnOpDataType {
         vpnInstanceToId,
