@@ -22,7 +22,7 @@ public class ClassifierUpdate implements Runnable {
     private final ClassifierState configurationClassifier;
     private final ClassifierState operationalClassifier;
     private final List<ClassifierEntryRenderer> classifierRenderers;
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigurationClassifierImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ClassifierUpdate.class);
 
     public ClassifierUpdate(ClassifierState configurationClassifier, ClassifierState operationalClassifier,
                             List<ClassifierEntryRenderer> classifierRenderers) {
