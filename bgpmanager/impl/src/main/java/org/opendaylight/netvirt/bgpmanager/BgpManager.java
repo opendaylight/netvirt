@@ -7,6 +7,9 @@
  */
 package org.opendaylight.netvirt.bgpmanager;
 
+import com.google.common.base.Optional;
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +20,9 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
+import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.netvirt.bgpmanager.api.IBgpManager;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpAlarmErrorCodes;
 import org.opendaylight.netvirt.bgpmanager.oam.BgpConstants;
@@ -27,7 +33,10 @@ import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev1509
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.Bgp;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.TcpMd5SignaturePasswordType;
 import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Neighbors;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.Networks;
+import org.opendaylight.yang.gen.v1.urn.ericsson.params.xml.ns.yang.ebgp.rev150901.bgp.NetworksKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.fibmanager.rev150330.vrfentries.VrfEntry;
+import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,12 +46,14 @@ public class BgpManager implements AutoCloseable, IBgpManager {
     private final BgpConfigurationManager bcm;
 
     private final FibDSWriter fibDSWriter;
+    private final DataBroker dataBroker;
     private volatile long qbgprestartTS = 0;
 
     @Inject
-    public BgpManager(final BgpConfigurationManager bcm, final FibDSWriter fibDSWriter) {
+    public BgpManager(final BgpConfigurationManager bcm, final FibDSWriter fibDSWriter, final DataBroker dataBroker) {
         this.bcm = bcm;
         this.fibDSWriter = fibDSWriter;
+        this.dataBroker = dataBroker;
     }
 
     @PostConstruct
@@ -160,6 +171,34 @@ public class BgpManager implements AutoCloseable, IBgpManager {
         LOG.info("WITHDRAW: Removing Prefix rd {} prefix {}", rd, prefix);
         bcm.delPrefix(rd, prefix);
         LOG.info("WITHDRAW: Removed Prefix rd {} prefix {}", rd, prefix);
+    }
+
+    @Override
+    public void withdrawPrefixIfPresent(String rd, String prefix) {
+        InstanceIdentifier<Networks> networksId = InstanceIdentifier.builder(Bgp.class).child(Networks.class,
+                new NetworksKey(rd, prefix)).build();
+        try (ReadOnlyTransaction tx = dataBroker.newReadOnlyTransaction()) {
+            Futures.addCallback(tx.read(LogicalDatastoreType.CONFIGURATION, networksId),
+                new FutureCallback<Optional<Networks>>() {
+                    @Override
+                    public void onSuccess(@Nullable Optional<Networks> networks) {
+                        if (networks != null && networks.isPresent()) {
+                            LOG.info("withdrawPrefixIfPresent: ebgp networks present for rd {} prefix {}"
+                                    + ". Withdrawing..", networks.get().getRd(), networks.get().getPrefixLen());
+                            withdrawPrefix(rd, prefix);
+                        } else {
+                            LOG.error("withdrawPrefixIfPresent: ebgp networks not found for rd {} prefix {}",
+                                    rd, prefix);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Throwable throwable) {
+                        LOG.error("withdrwaPrefixIfPresent: Failed to retrieve ebgp networks for rd {} prefix {}",
+                                rd, prefix, throwable);
+                    }
+                });
+        }
     }
 
     @Override
