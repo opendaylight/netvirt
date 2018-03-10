@@ -74,6 +74,8 @@ public interface IBgpManager {
 
     void withdrawPrefix(String rd, String prefix);
 
+    void withdrwaPrefixIfPresent(String rd, String prefix);
+
     String getDCGwIP();
 
     void sendNotificationEvent(int code, int subcode);

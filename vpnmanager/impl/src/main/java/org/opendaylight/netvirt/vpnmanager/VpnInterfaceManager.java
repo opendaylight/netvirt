@@ -1359,7 +1359,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.error("removeAdjacenciesFromVpn: nextHop empty for ip {} rd {} adjacencyType {}"
                                         + " interface {}", nextHop.getIpAddress(), rd,
                                 nextHop.getAdjacencyType().toString(), interfaceName);
-                        bgpManager.withdrawPrefix(rd, nextHop.getIpAddress());
+                        bgpManager.withdrwaPrefixIfPresent(rd, nextHop.getIpAddress());
                         fibManager.removeFibEntry(primaryRd, nextHop.getIpAddress(), writeConfigTxn);
                     }
                 }
