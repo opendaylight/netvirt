@@ -781,7 +781,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             LOG.error("processVpnInterfaceAdjacencies: Gateway MAC for subnet could not be "
                                 + "obtained, cannot create ARP responder flow for interface name {}, vpnName {}, "
                                 + "gwIp {}",
-                                interfaceName, vpnName, gatewayIp);
+                                subnetId, interfaceName, vpnName, gatewayIp);
                         }
                     }
                 } else {
@@ -1346,7 +1346,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         if (rd.equals(vpnName)) {
                             //this is an internal vpn - the rd is assigned to the vpn instance name;
                             //remove from FIB directly
-                            nhList.forEach((nh) -> removeAdjacencyFromInternalVpn(nextHop, vpnName,
+                            nhList.forEach(removeAdjacencyFromInternalVpn(nextHop, vpnName,
                                     interfaceName, dpnId, writeConfigTxn));
                         } else {
                             removeAdjacencyFromBgpvpn(nextHop, nhList, vpnName, primaryRd, dpnId, rd, interfaceName,
@@ -1356,7 +1356,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.error("removeAdjacenciesFromVpn: nextHop empty for ip {} rd {} adjacencyType {}"
                                         + " interface {}", nextHop.getIpAddress(), rd,
                                 nextHop.getAdjacencyType().toString(), interfaceName);
-                        bgpManager.withdrawPrefix(rd, nextHop.getIpAddress());
+                        bgpManager.withdrawPrefixIfPresent(rd, nextHop.getIpAddress());
                         fibManager.removeFibEntry(primaryRd, nextHop.getIpAddress(), writeConfigTxn);
                     }
                 }
