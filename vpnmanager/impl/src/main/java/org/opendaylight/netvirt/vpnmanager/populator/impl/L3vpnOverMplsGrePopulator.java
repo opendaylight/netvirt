@@ -77,7 +77,7 @@ public class L3vpnOverMplsGrePopulator extends L3vpnPopulator {
         // Not advertising the prefix to BGP for InternalVpn (where rd is vpnName),
         // transparentInternetVpn (where rd is Network name)
         // and internalVpnForExtraRoute (where rd is DpnId)
-        if (VpnUtil.isEligibleForBgp(rd, input.getVpnName(), input.getDpnId(), input.getNetworkName())) {
+        if (VpnUtil.isEligibleForBgp(primaryRd, input.getVpnName(), input.getDpnId(), input.getNetworkName())) {
             // the DpnId is set as rd in case of extra routes present in router based VPN
             addToLabelMapper(label, input.getDpnId(), nextHopIpAddress,
                     Arrays.asList(nextHopIp), vpnId, input.getInterfaceName(), null,false,
