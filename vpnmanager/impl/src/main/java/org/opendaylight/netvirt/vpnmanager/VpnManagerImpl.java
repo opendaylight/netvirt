@@ -336,7 +336,7 @@ public class VpnManagerImpl implements IVpnManager {
                     }
                 }
                 fibManager.removeOrUpdateFibEntry(primaryRd, prefix, tunnelIp, writeConfigTxn);
-                if (VpnUtil.isEligibleForBgp(rd, vpnName, dpnId, null /*networkName*/)) {
+                if (VpnUtil.isEligibleForBgp(primaryRd, vpnName, dpnId, null /*networkName*/)) {
                     // TODO: Might be needed to include nextHop here
                     bgpManager.withdrawPrefix(rd, prefix);
                 }

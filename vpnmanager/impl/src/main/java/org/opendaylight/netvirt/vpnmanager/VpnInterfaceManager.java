@@ -303,7 +303,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             operFuture.get();
                         } catch (ExecutionException e) {
                             LOG.error("addVpnInterface: Exception encountered while submitting operational future for"
-                                    + " addVpnInterface {} on vpn {}: {}", vpnInterface.getName(), vpnName, e);
+                                    + " addVpnInterface {} on vpn {}", vpnInterface.getName(), vpnName, e);
                             return null;
                         }
                         List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -782,7 +782,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             LOG.error("processVpnInterfaceAdjacencies: Gateway MAC for subnet ID {} could not be "
                                 + "obtained, cannot create ARP responder flow for interface name {}, vpnName {}, "
                                 + "gwIp {}",
-                                interfaceName, vpnName, gatewayIp);
+                                subnetId, interfaceName, vpnName, gatewayIp);
                         }
                     }
                 } else {
@@ -962,9 +962,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                             srcDpnId, vpnName);
                 } catch (Exception ex) {
                     LOG.error("updateVpnInterfaceOnTepAdd: Exception when advertising prefix {} nh {} label {}"
-                            + " on rd {} for interface {} on dpn {} vpn {} as {}", prefix, nhList, label, rd,
-                            vpnInterface.getName(), srcDpnId,
-                            vpnName, ex);
+                            + " on rd {} for interface {} on dpn {} vpn {}", prefix, nhList, label, rd,
+                            vpnInterface.getName(), srcDpnId, vpnName, ex);
                 }
             }
         }
@@ -1068,9 +1067,8 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                 vpnName);
                     } catch (Exception ex) {
                         LOG.error("updateVpnInterfaceOnTepDelete: Exception when withdrawing prefix {} nh {} label {}"
-                                + " on rd {} for interface {} on dpn {} vpn {} as {}", prefix, nhList, label, rd,
-                                vpnInterface.getName(), srcDpnId,
-                                vpnName, ex);
+                                + " on rd {} for interface {} on dpn {} vpn {}", prefix, nhList, label, rd,
+                                vpnInterface.getName(), srcDpnId, vpnName, ex);
                     }
                 }
             }
@@ -1349,7 +1347,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         if (rd.equals(vpnName)) {
                             //this is an internal vpn - the rd is assigned to the vpn instance name;
                             //remove from FIB directly
-                            nhList.forEach((nh) -> removeAdjacencyFromInternalVpn(nextHop, vpnName,
+                            nhList.forEach(removeAdjacencyFromInternalVpn(nextHop, vpnName,
                                     interfaceName, dpnId, writeConfigTxn));
                         } else {
                             removeAdjacencyFromBgpvpn(nextHop, nhList, vpnName, primaryRd, dpnId, rd, interfaceName,
@@ -1359,7 +1357,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         LOG.error("removeAdjacenciesFromVpn: nextHop empty for ip {} rd {} adjacencyType {}"
                                         + " interface {}", nextHop.getIpAddress(), rd,
                                 nextHop.getAdjacencyType().toString(), interfaceName);
-                        bgpManager.withdrawPrefix(rd, nextHop.getIpAddress());
+                        bgpManager.withdrawPrefixIfPresent(rd, nextHop.getIpAddress());
                         fibManager.removeFibEntry(primaryRd, nextHop.getIpAddress(), writeConfigTxn);
                     }
                 }
@@ -1532,7 +1530,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         operFuture.get();
                     } catch (ExecutionException e) {
                         LOG.error("Exception encountered while submitting operational future for update"
-                                + " VpnInterface {} on vpn {}: {}", vpnInterfaceName, newVpnName, e);
+                                + " VpnInterface {} on vpn {}", vpnInterfaceName, newVpnName, e);
                         return null;
                     }
                     List<ListenableFuture<Void>> futures = new ArrayList<>();
@@ -1762,7 +1760,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 List<Adjacency> adjacencies = optAdjacencies.get().getAdjacency();
 
                 if (!adjacencies.isEmpty()) {
-                    LOG.trace("delAdjFromVpnInterface: Adjacencies are " + adjacencies);
+                    LOG.trace("delAdjFromVpnInterface: Adjacencies are {}", adjacencies);
                     Iterator<Adjacency> adjIt = adjacencies.iterator();
                     while (adjIt.hasNext()) {
                         Adjacency adjElem = adjIt.next();
@@ -1784,7 +1782,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                                         currVpnIntf.getName(), writeConfigTxn);
                                 }
                             } else if (adj.isPhysNetworkFunc()) {
-                                LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet [}",
+                                LOG.info("delAdjFromVpnInterface: deleting PNF adjacency prefix {} subnet {}",
                                         adj.getIpAddress(), adj.getSubnetId());
                                 fibManager.removeFibEntry(adj.getSubnetId().getValue(), adj.getIpAddress(),
                                         writeConfigTxn);
@@ -2204,11 +2202,10 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
         @Override
         public void onFailure(Throwable throwable) {
             if (add) {
-                LOG.error("VpnInterfaceManager: VrfEntries for {} failed to store into destination {}"
-                        + " with exception: {}", interfaceName, txnDestination, throwable);
+                LOG.error("VpnInterfaceManager: VrfEntries for {} failed to store into destination {}",
+                        interfaceName, txnDestination, throwable);
             } else {
-                LOG.error("VpnInterfaceManager: VrfEntries for {} removal failed with exception: {}", interfaceName,
-                        throwable);
+                LOG.error("VpnInterfaceManager: VrfEntries for {} removal failed", interfaceName, throwable);
                 VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
             }
         }
