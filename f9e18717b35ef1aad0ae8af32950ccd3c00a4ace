@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b3b35d8_2763dac3",
+        "filename": "bgpmanager/impl/src/main/java/org/opendaylight/netvirt/bgpmanager/BgpManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 171,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-11T17:35:01Z",
+      "side": 1,
+      "message": "there isn\u0027t a third parameter in the list",
+      "revId": "f9e18717b35ef1aad0ae8af32950ccd3c00a4ace",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "62cd582a_417099d4",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 306,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-11T17:35:01Z",
+      "side": 1,
+      "message": "what should this be? The LOG will append e so no need to add {} to capture the exception.",
+      "range": {
+        "startLine": 306,
+        "startChar": 70,
+        "endLine": 306,
+        "endChar": 74
+      },
+      "revId": "f9e18717b35ef1aad0ae8af32950ccd3c00a4ace",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
