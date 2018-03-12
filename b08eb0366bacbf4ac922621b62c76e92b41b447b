@@ -22,6 +22,30 @@
       "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82b74773_a4a22293",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T18:40:11Z",
+      "side": 1,
+      "message": "Oh, this is a findbug. The problem here is ex does not need a {}. The logger will automatically append the ex. So I guess findbugs was complaining that there were not fix values to stuff into the log. So just remove the last {}.",
+      "parentUuid": "2957f9bc_cd6598d2",
+      "range": {
+        "startLine": 260,
+        "startChar": 101,
+        "endLine": 260,
+        "endChar": 111
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
