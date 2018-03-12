@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "997d1485_9dbae5d7",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/HwvtepHAUtil.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 594,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T19:38:35Z",
+      "side": 1,
+      "message": "is this not needed",
+      "range": {
+        "startLine": 594,
+        "startChar": 12,
+        "endLine": 594,
+        "endChar": 14
+      },
+      "revId": "80df2aee08a75b9a2c5c87b24de5137f0975748a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a8b25d0a_513384ae",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeConnectedHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T19:38:35Z",
+      "side": 1,
+      "message": "add final?",
+      "revId": "80df2aee08a75b9a2c5c87b24de5137f0975748a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
