@@ -380,7 +380,8 @@ public final class CoeUtils {
         VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
                 .setName(interfaceName)
                 .setVpnInstanceNames(listVpn)
-                .setRouterInterface(isRouterInterface);
+                .setRouterInterface(isRouterInterface)
+                .setScheduledForRemove(Boolean.FALSE);
         Adjacencies adjs = createPortIpAdjacencies(pod, interfaceName, macAddress, isRouterInterface);
         if (adjs != null) {
             vpnb.addAugmentation(Adjacencies.class, adjs);

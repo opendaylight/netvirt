@@ -2128,6 +2128,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                         Adjacencies erAdjs =
                                 new AdjacenciesBuilder().setAdjacency(Collections.singletonList(newAdj)).build();
                         VpnInterface vpnIf = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
+                                .setScheduledForRemove(Boolean.FALSE)
                                 .addAugmentation(Adjacencies.class, erAdjs).build();
                         SingleTransactionDataBroker.syncUpdate(dataBroker, LogicalDatastoreType.CONFIGURATION,
                                 vpnIfIdentifier, vpnIf);
@@ -2938,7 +2939,8 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         VpnInterfaceBuilder vpnb = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(infName))
                 .setName(infName)
                 .setVpnInstanceNames(vpnIdListStruct)
-                .setRouterInterface(isRouterInterface);
+                .setRouterInterface(isRouterInterface)
+                .setScheduledForRemove(Boolean.FALSE);
         if (adjacencies != null) {
             vpnb.addAugmentation(Adjacencies.class, adjacencies);
         }
