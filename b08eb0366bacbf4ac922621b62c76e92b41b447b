@@ -46,6 +46,30 @@
       "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "08356ce9_7d989ca9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-03-12T20:01:02Z",
+      "side": 1,
+      "message": "and the getMessage(), of course.  As well as everywhere else you\u0027ve done this wrong in this change.",
+      "parentUuid": "82b74773_a4a22293",
+      "range": {
+        "startLine": 260,
+        "startChar": 101,
+        "endLine": 260,
+        "endChar": 111
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
