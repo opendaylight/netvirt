@@ -16,6 +16,24 @@
       "revId": "81683386c27ac005ecb2e2e16f1776050a1726da",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aee2d7f9_c119f6e3",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/utils/ElanL2GatewayMulticastUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 369,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T22:11:28Z",
+      "side": 1,
+      "message": "would the syncReadOptional return the emptyList or null and then do a check for null and return emptyList?",
+      "parentUuid": "f13cfd09_c57d41f5",
+      "revId": "81683386c27ac005ecb2e2e16f1776050a1726da",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
