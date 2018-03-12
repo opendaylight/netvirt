@@ -2,6 +2,103 @@
   "comments": [
     {
       "key": {
+        "uuid": "3a376630_ba697639",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T20:51:22Z",
+      "side": 1,
+      "message": "does toString get called automatically?",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "22c28321_a4c23883",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T20:51:22Z",
+      "side": 1,
+      "message": "how often does this happen? Is it really an error - meaning it should never happen, or could this be just a warning?",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bfc3719_b96a0785",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T20:51:22Z",
+      "side": 1,
+      "message": "handled",
+      "range": {
+        "startLine": 78,
+        "startChar": 72,
+        "endLine": 78,
+        "endChar": 80
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9c09603a_7364640a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T20:51:22Z",
+      "side": 1,
+      "message": "handled",
+      "range": {
+        "startLine": 131,
+        "startChar": 81,
+        "endLine": 131,
+        "endChar": 89
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6ac5ee82_11c2276a",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-12T20:51:22Z",
+      "side": 1,
+      "message": "how often are these info logs?",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2957f9bc_cd6598d2",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 6
