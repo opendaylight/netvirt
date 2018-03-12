@@ -70,6 +70,24 @@
       "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b330db1c_65216db6",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 6574
+      },
+      "writtenOn": "2018-03-12T20:22:30Z",
+      "side": 1,
+      "message": "I think object VpnInterfaceOpDataEntry has also the weakness.\n\nyou can see the usage of isScheduled.. in vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java.\n\nI think a patch is needed too.",
+      "parentUuid": "de09a2a9_c6e6a0a0",
+      "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
