@@ -425,9 +425,9 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
                 try {
                     InetAddress address = InetAddress.getByName(subnetIp);
                     if (address instanceof Inet6Address) {
-                        // TODO: Revisit when IPv6 external connectivity support is added.
-                        LOG.error("subnetRegisterMapping : Skipping ipv6 address {}.", address);
-                        return;
+                        LOG.debug("subnetRegisterMapping : Skipping ipv6 subnet {} for the router {} with ipv6 address "
+                                + "{} ", subnet, routerEntry.getRouterName(), address);
+                        continue;
                     }
                 } catch (UnknownHostException e) {
                     LOG.error("subnetRegisterMapping : Invalid ip address {}", subnetIp, e);
@@ -1558,8 +1558,7 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         try {
             InetAddress address = InetAddress.getByName(subnetIpParts[0]);
             if (address instanceof Inet6Address) {
-                // TODO: Revisit when IPv6 external connectivity support is added.
-                LOG.warn("allocateExternalIp : Currently skipping ipv6 address {}.", address);
+                LOG.debug("allocateExternalIp : Skipping ipv6 address {} for the router {}.", address, routerName);
                 return;
             }
         } catch (UnknownHostException e) {
