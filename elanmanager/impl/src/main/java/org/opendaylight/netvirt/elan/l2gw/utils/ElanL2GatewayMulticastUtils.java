@@ -9,6 +9,7 @@ package org.opendaylight.netvirt.elan.l2gw.utils;
 
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
@@ -358,9 +359,14 @@ public class ElanL2GatewayMulticastUtils {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanInstance operElanInstance = null;
         try {
-            operElanInstance = new SingleTransactionDataBroker(broker).syncRead(LogicalDatastoreType.OPERATIONAL,
+            Optional<ElanInstance> elanInstanceOptional = new SingleTransactionDataBroker(broker).syncReadOptional(
+                    LogicalDatastoreType.OPERATIONAL,
                     InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.getKey())
                             .build());
+            if (!elanInstanceOptional.isPresent()) {
+                return Collections.emptyList();
+            }
+            operElanInstance = elanInstanceOptional.get();
         } catch (ReadFailedException e) {
             LOG.error("Failed to read elan instance operational path {}", elanInfo);
             return Collections.emptyList();
