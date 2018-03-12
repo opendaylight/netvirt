@@ -217,6 +217,7 @@ module odl-l3vpn {
             }
             leaf scheduled-for-remove {
               type boolean;
+              default "false";
             }
             leaf router-interface {
                 type boolean;
