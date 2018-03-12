@@ -1,0 +1,211 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "8182d1c9_79d74c9d",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "policy uuid can be created directly. Do not search inside the map",
+      "range": {
+        "startLine": 256,
+        "startChar": 13,
+        "endLine": 256,
+        "endChar": 17
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "45f746d0_eb1d9dd2",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "Do not use static for singleton class",
+      "range": {
+        "startLine": 23,
+        "startChar": 12,
+        "endLine": 23,
+        "endChar": 18
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dd4b2311_a4ddb762",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "change to debug/trace.",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "463cef0b_09b474b7",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "change to debug or trace",
+      "range": {
+        "startLine": 38,
+        "startChar": 12,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f399b446_4fbfd867",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "do not use static for singleton",
+      "range": {
+        "startLine": 24,
+        "startChar": 12,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6fdc8cb3_58ce59fd",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "change to debug/trace",
+      "range": {
+        "startLine": 29,
+        "startChar": 12,
+        "endLine": 29,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f5d2916_053c1b7b",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "change to debug/trace",
+      "range": {
+        "startLine": 36,
+        "startChar": 12,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "94fe7607_ed59c15d",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "change to debug/trace",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a622a16f_89b23b80",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-12T07:21:50Z",
+      "side": 1,
+      "message": "change to debug/trace",
+      "range": {
+        "startLine": 49,
+        "startChar": 12,
+        "endLine": 49,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
