@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "153057d3_afb1916d",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 5197
+      },
+      "writtenOn": "2018-03-12T14:36:57Z",
+      "side": 1,
+      "message": "I see that this is the main change in the patch. \n\nThe existing code which was using \"return\" was present since a long time [*]. Any idea why we are seeing this issue (i.e., IPv4 SNAT) now and we did not spot this issue earlier? Are we sure that this change alone would fix the issue?\n\n[*] https://github.com/opendaylight/netvirt/commit/d2d874a79f1b8893f607fc143fe9ee47b41fba7b",
+      "range": {
+        "startLine": 430,
+        "startChar": 24,
+        "endLine": 430,
+        "endChar": 32
+      },
+      "revId": "deed632a2d3a9d9e9b97f80f4c591688f427b1f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
