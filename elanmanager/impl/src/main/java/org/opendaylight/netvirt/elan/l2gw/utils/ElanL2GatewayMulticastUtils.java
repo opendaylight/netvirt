@@ -7,8 +7,10 @@
  */
 package org.opendaylight.netvirt.elan.l2gw.utils;
 
+import static java.util.Collections.emptyList;
 import static org.opendaylight.netvirt.elan.utils.ElanUtils.isVxlanNetworkOrVxlanSegment;
 
+import com.google.common.base.Optional;
 import com.google.common.util.concurrent.ListenableFuture;
 import com.google.common.util.concurrent.SettableFuture;
 import java.math.BigInteger;
@@ -299,7 +301,7 @@ public class ElanL2GatewayMulticastUtils {
         DpnInterfaces currDpnInterfaces = dpnInterfaces != null ? dpnInterfaces : getDpnInterfaces(elanDpns, dpnId);
         if (currDpnInterfaces == null || !elanUtils.isDpnPresent(currDpnInterfaces.getDpId())
                 || currDpnInterfaces.getInterfaces() == null || currDpnInterfaces.getInterfaces().isEmpty()) {
-            return Collections.emptyList();
+            return emptyList();
         }
         List<Bucket> listBucketInfo = new ArrayList<>();
         for (String interfaceName : currDpnInterfaces.getInterfaces()) {
@@ -358,12 +360,16 @@ public class ElanL2GatewayMulticastUtils {
         List<Bucket> listBucketInfo = new ArrayList<>();
         ElanInstance operElanInstance = null;
         try {
-            operElanInstance = new SingleTransactionDataBroker(broker).syncRead(LogicalDatastoreType.OPERATIONAL,
-                    InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.getKey())
-                            .build());
+            operElanInstance = new SingleTransactionDataBroker(broker).syncReadOptional(
+                LogicalDatastoreType.OPERATIONAL,
+                InstanceIdentifier.builder(ElanInstances.class).child(ElanInstance.class, elanInfo.getKey())
+                    .build()).orNull();
         } catch (ReadFailedException e) {
-            LOG.error("Failed to read elan instance operational path {}", elanInfo);
-            return Collections.emptyList();
+            LOG.error("Failed to read elan instance operational path {}", elanInfo, e);
+            return emptyList();
+        }
+        if (operElanInstance == null) {
+            return emptyList();
         }
         List<ExternalTeps> teps = operElanInstance.getExternalTeps();
         if (teps == null || teps.isEmpty()) {
