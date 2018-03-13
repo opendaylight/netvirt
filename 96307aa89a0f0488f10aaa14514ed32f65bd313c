@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df1941e7_8550baf7",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 257,
+      "author": {
+        "id": 7969
+      },
+      "writtenOn": "2018-03-13T09:18:23Z",
+      "side": 1,
+      "message": "Remove extra spaces",
+      "range": {
+        "startLine": 257,
+        "startChar": 0,
+        "endLine": 257,
+        "endChar": 8
+      },
+      "revId": "96307aa89a0f0488f10aaa14514ed32f65bd313c",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
