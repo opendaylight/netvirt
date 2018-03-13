@@ -22,6 +22,30 @@
       "revId": "deed632a2d3a9d9e9b97f80f4c591688f427b1f3",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3c4476e8_b6217753",
+        "filename": "natservice/impl/src/main/java/org/opendaylight/netvirt/natservice/internal/ExternalRoutersListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 430,
+      "author": {
+        "id": 7781
+      },
+      "writtenOn": "2018-03-13T04:17:19Z",
+      "side": 1,
+      "message": "We never tested before SNAT/DNAT traffic with Dual Stack router configuration (One IPv4 Subnet and One IPv6 Subnet). So as we started to validating the existing IPv4 functionality with dual stack VMs/Routers scenario we observed that existing controller based SNAT traffic is not working due to absence of IPv4 Subnet register mapping.\n\nCode changes:\n-------------\nEariler code was handling only IPv4 Subnet for SNAT. If any IPv6 Subnet comes simply we are ignoring that. For Dual Stack External Router Scenario while iterating the the list of external router subnets if IPv4 Subnet comes first then with existing code will work properly as expected. In case of IPv6 subnet comes first we will not be doing subnet register mapping logic properly due to \u0027return\u0027 statement.\n\nWith this code changes have validated the all Intra DC SNAT/DNAT traffic and it was working properly.\n\nPlease let me know if you have any other concerns further.\n\nThanks,\nKarthikeyan.",
+      "parentUuid": "153057d3_afb1916d",
+      "range": {
+        "startLine": 430,
+        "startChar": 24,
+        "endLine": 430,
+        "endChar": 32
+      },
+      "revId": "deed632a2d3a9d9e9b97f80f4c591688f427b1f3",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
