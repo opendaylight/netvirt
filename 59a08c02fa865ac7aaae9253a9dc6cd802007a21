@@ -213,6 +213,24 @@
     },
     {
       "key": {
+        "uuid": "aa4f540c_f26a905d",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-03-13T13:11:24Z",
+      "side": 1,
+      "message": "I have no idea - I don\u0027t know this code. I was just wondering 7 sec was chosen.",
+      "parentUuid": "2677b3b9_6d9362d1",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fec81f9_bc7b2537",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 15
@@ -336,6 +354,24 @@
       "side": 1,
       "message": "Yes its a hack. The reason being :\n\nAfter initial extra-route configuration using command - \"neutron router-update RouterA destination\u003dIP-A,nexthop\u003dprefix-A\" , if another update is done using command - \"neutron router-update RouterA destination\u003dIP-A,nexthop\u003dprefix-B\" , neutron router listener calls update on prefix-A as well as prefix-B. On prefix-A , secondary adj (IP-A) is removed , where as its added on prefix-B. This back-to-back update creates race-condition in Vrf Engine , leading inconsistencies in l3nexthop, VpnExtraRoute, VpnInterfaceOp DS.\n\nHence a temporary fix of 2sec delay is introduced in neutron. A better fix/design need to be thought to avoid race condition",
       "parentUuid": "88812a45_8caf8ae0",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9adaa393_7b286566",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronRouterChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-03-13T13:11:24Z",
+      "side": 1,
+      "message": "Please add a code comment explaining this.",
+      "parentUuid": "83a583d5_acf9c4cd",
       "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
