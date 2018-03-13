@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7e678c65_e7c1fb42",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-13T12:24:17Z",
+      "side": 1,
+      "message": "What would be a case where the 2s delay would be expected? If a gw somehow moves? The current failure test is because the ping only tries 3 times which means the ip has to be learned within 2s since each ping is 1s apart. We should update the test or add tests as needed.",
+      "revId": "d52adf4d31910750798ee389fa3833d10193a7f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
