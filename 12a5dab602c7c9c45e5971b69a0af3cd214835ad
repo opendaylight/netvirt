@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dab4931b_a0113a34",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 833,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-03-13T13:22:07Z",
+      "side": 1,
+      "message": "What\u0027a the impact on the callers if the lock fails? Shouldn\u0027t they be notified if the lock couldn\u0027t be obtained and react accordingly?",
+      "revId": "12a5dab602c7c9c45e5971b69a0af3cd214835ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3f7cff0b_012b365e",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-03-13T13:22:07Z",
+      "side": 1,
+      "message": "Avoid catching Exception - catch the specific exceptions that can be thrown from the block. checkstyle should\u0027ve flagged this.",
+      "revId": "12a5dab602c7c9c45e5971b69a0af3cd214835ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3a839dae_b13fbd09",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 17
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 1842
+      },
+      "writtenOn": "2018-03-13T13:22:07Z",
+      "side": 1,
+      "message": "same here",
+      "revId": "12a5dab602c7c9c45e5971b69a0af3cd214835ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
