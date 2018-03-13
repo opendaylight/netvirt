@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "a2546c57_8fa138f9",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosPolicyChangeListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 256,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "8182d1c9_79d74c9d",
+      "range": {
+        "startLine": 256,
+        "startChar": 13,
+        "endLine": 256,
+        "endChar": 17
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "45f746d0_eb1d9dd2",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-12T07:21:50Z",
       "side": 1,
       "message": "Do not use static for singleton class",
+      "range": {
+        "startLine": 23,
+        "startChar": 12,
+        "endLine": 23,
+        "endChar": 18
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "527913f8_6f880452",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "Looks like logger needs to be static. To access with the name of class.",
+      "parentUuid": "45f746d0_eb1d9dd2",
       "range": {
         "startLine": 23,
         "startChar": 12,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "2eed8553_7ebd41cd",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "This will only comes once when we are coming up. Info should be fine I guess.",
+      "parentUuid": "dd4b2311_a4ddb762",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "463cef0b_09b474b7",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
         "patchSetId": 2
@@ -82,6 +154,30 @@
       "writtenOn": "2018-03-12T07:21:50Z",
       "side": 1,
       "message": "change to debug or trace",
+      "range": {
+        "startLine": 38,
+        "startChar": 12,
+        "endLine": 38,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "bae03aea_6a10f4f9",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosPolicyInstanceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "If we get an error in recovering policy instance. This log msg can tell us what we were trying to recover.",
+      "parentUuid": "463cef0b_09b474b7",
       "range": {
         "startLine": 38,
         "startChar": 12,
@@ -117,6 +213,30 @@
     },
     {
       "key": {
+        "uuid": "80b2ee42_996833e6",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "Logger should be singleton.",
+      "parentUuid": "f399b446_4fbfd867",
+      "range": {
+        "startLine": 24,
+        "startChar": 12,
+        "endLine": 24,
+        "endChar": 18
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6fdc8cb3_58ce59fd",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
         "patchSetId": 2
@@ -128,6 +248,30 @@
       "writtenOn": "2018-03-12T07:21:50Z",
       "side": 1,
       "message": "change to debug/trace",
+      "range": {
+        "startLine": 29,
+        "startChar": 12,
+        "endLine": 29,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8d22eab7_87d12036",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "This will once comes once when are coming up.",
+      "parentUuid": "6fdc8cb3_58ce59fd",
       "range": {
         "startLine": 29,
         "startChar": 12,
@@ -163,6 +307,30 @@
     },
     {
       "key": {
+        "uuid": "d9463d5e_da65f163",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "This log will come only once when we are getting a call to recover the servcie.",
+      "parentUuid": "3f5d2916_053c1b7b",
+      "range": {
+        "startLine": 36,
+        "startChar": 12,
+        "endLine": 36,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "94fe7607_ed59c15d",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
         "patchSetId": 2
@@ -186,6 +354,30 @@
     },
     {
       "key": {
+        "uuid": "90c26297_6189bf54",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "94fe7607_ed59c15d",
+      "range": {
+        "startLine": 42,
+        "startChar": 12,
+        "endLine": 42,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a622a16f_89b23b80",
         "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
         "patchSetId": 2
@@ -197,6 +389,30 @@
       "writtenOn": "2018-03-12T07:21:50Z",
       "side": 1,
       "message": "change to debug/trace",
+      "range": {
+        "startLine": 49,
+        "startChar": 12,
+        "endLine": 49,
+        "endChar": 16
+      },
+      "revId": "c97533c106a863acace53b398b954c722784682d",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f12c205_2a9e5d73",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/recovery/QosServiceRecoveryHandler.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-13T09:04:58Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a622a16f_89b23b80",
       "range": {
         "startLine": 49,
         "startChar": 12,
