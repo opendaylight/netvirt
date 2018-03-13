@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "50396b54_18e324bf",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 96,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "78290b0a_6f55f5e8",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c34c8fd4_5f3bbcd5",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 7
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove both toString() here",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "38e161b5_313d7fa9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c34c8fd4_5f3bbcd5",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -53,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "13604dd6_0c0145f0",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "21c21258_f7e948a2",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "58a30934_f2133dac",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -64,6 +118,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" due to exception: \" here",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "cdbbed87_5299c52f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 350,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "58a30934_f2133dac",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -87,6 +159,24 @@
     },
     {
       "key": {
+        "uuid": "fabf9534_d519ab61",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 425,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f0560b38_a19adee6",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "779d42d6_32b6e3d4",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -98,6 +188,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \"with exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "276df6e4_732d8470",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 475,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "779d42d6_32b6e3d4",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -121,6 +229,24 @@
     },
     {
       "key": {
+        "uuid": "3e69e801_3fe85452",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 480,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5dd65bab_bc5c9318",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "2cd1a11d_309bca1a",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -132,6 +258,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" with exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "15e4848a_9289b9bf",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 543,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2cd1a11d_309bca1a",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -161,6 +305,30 @@
     },
     {
       "key": {
+        "uuid": "a971f36d_53ca1756",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 549,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e30370d9_a5ebf3a5",
+      "range": {
+        "startLine": 549,
+        "startChar": 99,
+        "endLine": 549,
+        "endChar": 100
+      },
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6753b50a_ced6cb67",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -172,6 +340,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" due to exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4238fc3c_b7515d08",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 611,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6753b50a_ced6cb67",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -195,6 +381,24 @@
     },
     {
       "key": {
+        "uuid": "1a8fd253_754eb530",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 617,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "32d22af4_81e61c85",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "e98a8c84_496c0d9e",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -206,6 +410,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" due to exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7bb4d559_39b551b9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 671,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "e98a8c84_496c0d9e",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -229,6 +451,24 @@
     },
     {
       "key": {
+        "uuid": "10f470c7_fe73835b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 677,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "56de5310_8c9e2f46",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "0e7c0b8b_fa035abc",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -240,6 +480,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" due to exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0d4f3a4a_6ef25202",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 727,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "0e7c0b8b_fa035abc",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -263,6 +521,24 @@
     },
     {
       "key": {
+        "uuid": "b04e791b_44810578",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 733,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2f46c1f0_5fbd797c",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9e5b6f7b_f87c9c76",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -274,6 +550,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" with exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c599e941_d79aa961",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 776,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9e5b6f7b_f87c9c76",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -297,6 +591,24 @@
     },
     {
       "key": {
+        "uuid": "35615b6f_6027f5a8",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 782,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "660ce3f7_b1ffdf50",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "74c99450_2a2a2eb9",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -308,6 +620,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" due to exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "846470fa_13901dc3",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 806,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "74c99450_2a2a2eb9",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -331,6 +661,24 @@
     },
     {
       "key": {
+        "uuid": "18e881ff_89fd6dea",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 861,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "51a12618_2a0f4940",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c059f532_029c9ea5",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -342,6 +690,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "remove \" due to exception: \"",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "515093dc_c36d653d",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 889,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "c059f532_029c9ea5",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -365,6 +731,24 @@
     },
     {
       "key": {
+        "uuid": "28cd1ddb_42ffa7d0",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 972,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "255e891e_95c0f253",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9ee0bf75_0c97fb5e",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 7
@@ -376,6 +760,24 @@
       "writtenOn": "2018-03-13T15:38:43Z",
       "side": 1,
       "message": "two separate LOG.warn for the same thing are unusual - why not fold this 2nd one into the message of the one above?",
+      "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e8be126d_9c389bd9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 7
+      },
+      "lineNbr": 973,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T16:32:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9ee0bf75_0c97fb5e",
       "revId": "ff9625290c7fefb9dbfb78f931198ecf2264934e",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
