@@ -195,6 +195,24 @@
     },
     {
       "key": {
+        "uuid": "2677b3b9_6d9362d1",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 136,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:59:49Z",
+      "side": 1,
+      "message": "Hi Tom,\n\nEarlier in boron code , there was a sleep of 4sec in createLocalNextHop(). That sleep was between writing groups to switch directly and writing the same group into the datastore.\n\nIts now removed in oxygen. Hence (4sec + 3sec additional sleep) \u003d 7sec was put.\n\nRight now i have modified it to 3sec. What is the appropriate max wait time for the cluster lock?",
+      "parentUuid": "01731a40_e2afb292",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9fec81f9_bc7b2537",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 15
