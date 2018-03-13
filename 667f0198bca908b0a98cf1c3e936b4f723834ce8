@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "75348c19_a3a00b33",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/stats/AclLiveStatisticsHelper.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 5346
+      },
+      "writtenOn": "2018-03-13T09:53:38Z",
+      "side": 1,
+      "message": "portEgress*Builder.setDropCount() has been called from many places. I suggest to use variables to store the dropCounts here and finally set it once after switch statement. This would improve readability.\n\nSame comment is applicable for ingress side as well.",
+      "range": {
+        "startLine": 183,
+        "startChar": 27,
+        "endLine": 186,
+        "endChar": 81
+      },
+      "revId": "667f0198bca908b0a98cf1c3e936b4f723834ce8",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
