@@ -88,6 +88,24 @@
       "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ecab1558_1e3a5d66",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-13T03:28:01Z",
+      "side": 1,
+      "message": "isScheduledForRemove() is used in TunnelInterfaceStateListener and in VpnInterfaceManager in multiple methods with the same unguarded check. Shouldn\u0027t we add the protections is all usages unless we know the default is set in all code paths. I can\u0027t tell if those other code paths are covered. Or just set the default in the model which I think should be OK since it is just setting a default so it won\u0027t break a build. Only other usage outside NetVirt that I see is in unimgr and it suffers from the same issue that it is not protected, so this would help there also.",
+      "parentUuid": "a23375e6_f44e8ca6",
+      "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
