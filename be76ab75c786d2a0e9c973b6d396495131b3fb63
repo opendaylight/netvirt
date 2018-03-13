@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "42787842_e56357ac",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-03-13T12:42:59Z",
+      "side": 1,
+      "message": "Yes, initially I didn\u0027t think that was an option, because of model change. But, that seems to be the best option, so that we don\u0027t have to chase down all references and put in safeguards for all those places.\n\nUpdating patch now to set default to false.",
+      "parentUuid": "664901b7_a01eb8da",
+      "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "afef4bb0_ee072420",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 1
@@ -120,6 +138,42 @@
       "side": 1,
       "message": "isScheduledForRemove() is used in TunnelInterfaceStateListener and in VpnInterfaceManager in multiple methods with the same unguarded check. Shouldn\u0027t we add the protections is all usages unless we know the default is set in all code paths. I can\u0027t tell if those other code paths are covered. Or just set the default in the model which I think should be OK since it is just setting a default so it won\u0027t break a build. Only other usage outside NetVirt that I see is in unimgr and it suffers from the same issue that it is not protected, so this would help there also.",
       "parentUuid": "a23375e6_f44e8ca6",
+      "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c31e7033_dbee37e3",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-03-13T12:42:59Z",
+      "side": 1,
+      "message": "I\u0027m working on an updated patch that will set schedule-for-remove to false as the default. So, this should take care of that class also.",
+      "parentUuid": "b330db1c_65216db6",
+      "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ca7aa6a8_0d173195",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-03-13T12:42:59Z",
+      "side": 1,
+      "message": "Sam,\nThanks, I am updating the patch to set the default to false in the yang model.",
+      "parentUuid": "ecab1558_1e3a5d66",
       "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
