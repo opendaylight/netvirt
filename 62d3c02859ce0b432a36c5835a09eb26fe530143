@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0b1a943f_a261ae38",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-13T22:29:22Z",
+      "side": 1,
+      "message": "let\u0027s keep these as single versions - so carbon-ocata, nitrogen-pike, oxygen-queens, fluorine-rocky",
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d869e8cf_9c2fce66",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-13T22:29:22Z",
+      "side": 1,
+      "message": "then we reword this part to say carbon aligns with ocata and mention how a current release that isn\u0027t stable yet, will go from the current to the stable when the stable is ready. So fluorine goes with queens, but will transition to rocky when rocky comes out.",
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
