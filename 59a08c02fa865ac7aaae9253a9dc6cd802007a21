@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "36fa4bc3_7d2258b9",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 825,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "37899490_38f0ee41",
+      "range": {
+        "startLine": 825,
+        "startChar": 15,
+        "endLine": 825,
+        "endChar": 21
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ae860072_fd5d6312",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 15
@@ -36,6 +60,30 @@
       "writtenOn": "2018-02-22T18:41:41Z",
       "side": 1,
       "message": "Should log the RpcResult error(s).",
+      "range": {
+        "startLine": 830,
+        "startChar": 20,
+        "endLine": 830,
+        "endChar": 25
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f00eea47_936b8de9",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 830,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "ae860072_fd5d6312",
       "range": {
         "startLine": 830,
         "startChar": 20,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "e649930b_c7d60818",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 835,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9dbdf8cb_0326e605",
+      "range": {
+        "startLine": 835,
+        "startChar": 22,
+        "endLine": 835,
+        "endChar": 38
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "559e596d_875dc923",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
         "patchSetId": 15
@@ -82,6 +154,24 @@
       "writtenOn": "2018-02-22T18:41:41Z",
       "side": 1,
       "message": "Again propagate checked exceptions or return a boolean.",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fdaf8f33_3e70e906",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/FibUtil.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 850,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "559e596d_875dc923",
       "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -128,6 +218,30 @@
     },
     {
       "key": {
+        "uuid": "15b8d836_d555981c",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 415,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9fec81f9_bc7b2537",
+      "range": {
+        "startLine": 415,
+        "startChar": 21,
+        "endLine": 415,
+        "endChar": 41
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "b27b4a1a_a85d8cec",
         "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
         "patchSetId": 15
@@ -139,6 +253,30 @@
       "writtenOn": "2018-02-22T18:41:41Z",
       "side": 1,
       "message": "again shouldn\u0027t catch NullPointerException",
+      "range": {
+        "startLine": 581,
+        "startChar": 17,
+        "endLine": 581,
+        "endChar": 37
+      },
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6f02e306_2a86773a",
+        "filename": "fibmanager/impl/src/main/java/org/opendaylight/netvirt/fibmanager/NexthopManager.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 581,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "b27b4a1a_a85d8cec",
       "range": {
         "startLine": 581,
         "startChar": 17,
@@ -168,6 +306,24 @@
     },
     {
       "key": {
+        "uuid": "83a583d5_acf9c4cd",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronRouterChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Yes its a hack. The reason being :\n\nAfter initial extra-route configuration using command - \"neutron router-update RouterA destination\u003dIP-A,nexthop\u003dprefix-A\" , if another update is done using command - \"neutron router-update RouterA destination\u003dIP-A,nexthop\u003dprefix-B\" , neutron router listener calls update on prefix-A as well as prefix-B. On prefix-A , secondary adj (IP-A) is removed , where as its added on prefix-B. This back-to-back update creates race-condition in Vrf Engine , leading inconsistencies in l3nexthop, VpnExtraRoute, VpnInterfaceOp DS.\n\nHence a temporary fix of 2sec delay is introduced in neutron. A better fix/design need to be thought to avoid race condition",
+      "parentUuid": "88812a45_8caf8ae0",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ed75207_9110a35f",
         "filename": "vpnservice/fibmanager/fibmanager-impl/pom.xml",
         "patchSetId": 15
@@ -179,6 +335,24 @@
       "writtenOn": "2018-02-22T18:41:41Z",
       "side": 1,
       "message": "This file shouldn\u0027t be checked in - it was already deleted.",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aeed04d1_f97eeb46",
+        "filename": "vpnservice/fibmanager/fibmanager-impl/pom.xml",
+        "patchSetId": 15
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-13T12:44:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "6ed75207_9110a35f",
       "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
