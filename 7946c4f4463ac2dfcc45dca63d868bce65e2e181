@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "33b1a1f1_55356020",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 68,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-03-13T13:43:55Z",
+      "side": 1,
+      "message": "NB this is *NOT* using the RetryingManagedNewTransactionRunner but the ManagedNewTransactionRunnerImpl, which does not retry.",
+      "revId": "7946c4f4463ac2dfcc45dca63d868bce65e2e181",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1d45a2cd_cf8e5df4",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/internal/ElanInstanceManager.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-03-13T13:43:55Z",
+      "side": 1,
+      "message": "if there is no particular reason for submitting the transaction for each interface separately, I would swap this around and callWithNewWriteOnlyTransactionAndSubmit and then forEach inside, to have 1 single Tx, no?",
+      "revId": "7946c4f4463ac2dfcc45dca63d868bce65e2e181",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
