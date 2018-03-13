@@ -31,6 +31,7 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.idmanager.rev160406.IdManagerService;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.neutronvpn.rev150602.vpnmaps.VpnMap;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeBase;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeL2;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.BgpvpnTypeL3;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.Bgpvpns;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.neutron.bgpvpns.rev150903.bgpvpns.attributes.bgpvpns.Bgpvpn;
@@ -85,7 +86,14 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
         if (BgpvpnTypeL3.class.equals(bgpvpnType)) {
             return true;
         } else {
-            LOG.warn("CRUD operations supported only for L3 type Bgpvpn");
+            return false;
+        }
+    }
+
+    private boolean isBgpvpnTypeL2(Class<? extends BgpvpnTypeBase> bgpvpnType) {
+        if (BgpvpnTypeL2.class.equals(bgpvpnType)) {
+            return true;
+        } else {
             return false;
         }
     }
@@ -96,70 +104,75 @@ public class NeutronBgpvpnChangeListener extends AsyncDataTreeChangeListenerBase
     protected void add(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
         LOG.trace("Adding Bgpvpn : key: {}, value={}", identifier, input);
         String vpnName = input.getUuid().getValue();
+        VpnInstance.Type vpnInstanceType = VpnInstance.Type.L3;
+        long l3vni = 0;
         if (isBgpvpnTypeL3(input.getType())) {
-            VpnInstance.Type vpnInstanceType = VpnInstance.Type.L3;
-            // handle route-target(s)
-            List<String> inputRouteList = input.getRouteTargets();
-            List<String> inputImportRouteList = input.getImportTargets();
-            List<String> inputExportRouteList = input.getExportTargets();
-            Set<String> inputImportRouteSet = new HashSet<>();
-            Set<String> inputExportRouteSet = new HashSet<>();
+            l3vni = input.getVni();
+            LOG.trace("Adding bgpvpn of L3 type with l3vni {}", l3vni);
+        } else if (isBgpvpnTypeL2(input.getType())) {
+            vpnInstanceType = VpnInstance.Type.L2;
+            LOG.trace("Adding bgpvpn of L2 type");
+            l3vni = 0;
+        }
+        // handle route-target(s)
+        List<String> inputRouteList = input.getRouteTargets();
+        List<String> inputImportRouteList = input.getImportTargets();
+        List<String> inputExportRouteList = input.getExportTargets();
+        Set<String> inputImportRouteSet = new HashSet<>();
+        Set<String> inputExportRouteSet = new HashSet<>();
 
-            if (inputRouteList != null && !inputRouteList.isEmpty()) {
-                inputImportRouteSet.addAll(inputRouteList);
-                inputExportRouteSet.addAll(inputRouteList);
-            }
-            if (inputImportRouteList != null && !inputImportRouteList.isEmpty()) {
-                inputImportRouteSet.addAll(inputImportRouteList);
-            }
-            if (inputExportRouteList != null && !inputExportRouteList.isEmpty()) {
-                inputExportRouteSet.addAll(inputExportRouteList);
-            }
-            List<String> importRouteTargets = new ArrayList<>();
-            List<String> exportRouteTargets = new ArrayList<>();
-            importRouteTargets.addAll(inputImportRouteSet);
-            exportRouteTargets.addAll(inputExportRouteSet);
+        if (inputRouteList != null && !inputRouteList.isEmpty()) {
+            inputImportRouteSet.addAll(inputRouteList);
+            inputExportRouteSet.addAll(inputRouteList);
+        }
+        if (inputImportRouteList != null && !inputImportRouteList.isEmpty()) {
+            inputImportRouteSet.addAll(inputImportRouteList);
+        }
+        if (inputExportRouteList != null && !inputExportRouteList.isEmpty()) {
+            inputExportRouteSet.addAll(inputExportRouteList);
+        }
+        List<String> importRouteTargets = new ArrayList<>();
+        List<String> exportRouteTargets = new ArrayList<>();
+        importRouteTargets.addAll(inputImportRouteSet);
+        exportRouteTargets.addAll(inputExportRouteSet);
 
-            List<String> rd = input.getRouteDistinguishers();
-
-            if (rd == null || rd.isEmpty()) {
-                // generate new RD
-                // TODO - commented out for now to avoid "Dead store to rd" violation.
-                //rd = generateNewRD(input.getUuid());
-            } else {
-                String[] rdParams = rd.get(0).split(":");
-                if (rdParams[0].trim().equals(adminRDValue)) {
-                    LOG.error("AS specific part of RD should not be same as that defined by DC Admin. Error "
-                            + "encountered for BGPVPN {} with RD {}", vpnName, rd.get(0));
-                    return;
-                }
-                List<String> existingRDs = neutronvpnUtils.getExistingRDs();
-                if (!Collections.disjoint(existingRDs, rd)) {
-                    LOG.error("Failed to create VPN {} as another VPN with the same RD {} already exists.", vpnName,
-                            rd);
-                    return;
-                }
-                Uuid router = null;
-                if (input.getRouters() != null && !input.getRouters().isEmpty()) {
-                    // currently only one router
-                    router = input.getRouters().get(0);
-                }
-                if (!rd.isEmpty()) {
-                    try {
-                        nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
-                                importRouteTargets, exportRouteTargets, router, input.getNetworks(),
-                                vpnInstanceType, 0 /*l3vni*/);
-                    } catch (Exception e) {
-                        LOG.error("Creation of BGPVPN {} failed", vpnName, e);
-                    }
-                } else {
-                    LOG.error("Create BgpVPN with id {} failed due to missing RD value", vpnName);
-                }
-            }
+        List<String> rd = input.getRouteDistinguishers();
+        if (rd == null || rd.isEmpty()) {
+            // generate new RD
+            // TODO - commented out for now to avoid "Dead store to rd" violation.
+            //rd = generateNewRD(input.getUuid());
         } else {
-            LOG.warn("BGPVPN type for VPN {} is not L3", vpnName);
+            String[] rdParams = rd.get(0).split(":");
+            if (rdParams[0].trim().equals(adminRDValue)) {
+                LOG.error("AS specific part of RD should not be same as that defined by DC Admin. Error "
+                        + "encountered for BGPVPN {} with RD {}", vpnName, rd.get(0));
+                return;
+            }
+            List<String> existingRDs = neutronvpnUtils.getExistingRDs();
+            if (!Collections.disjoint(existingRDs, rd)) {
+                LOG.error("Failed to create VPN {} as another VPN with the same RD {} already exists.",
+                        vpnName, rd);
+                return;
+            }
+            Uuid router = null;
+            if (input.getRouters() != null && !input.getRouters().isEmpty()) {
+                // currently only one router
+                router = input.getRouters().get(0);
+            }
+            if (!rd.isEmpty()) {
+                try {
+                    nvpnManager.createVpn(input.getUuid(), input.getName(), input.getTenantId(), rd,
+                            importRouteTargets, exportRouteTargets, router, input.getNetworks(),
+                            vpnInstanceType, l3vni);
+                } catch (Exception e) {
+                    LOG.error("Creation of BGPVPN {} failed", vpnName, e);
+                }
+            } else {
+                LOG.error("Create BgpVPN with id {} failed due to missing RD value", vpnName);
+            }
         }
     }
+
 
     @Override
     protected void remove(InstanceIdentifier<Bgpvpn> identifier, Bgpvpn input) {
