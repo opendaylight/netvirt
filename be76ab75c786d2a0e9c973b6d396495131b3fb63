@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "664901b7_a01eb8da",
+        "filename": "coe/impl/src/main/java/org/opendaylight/netvirt/coe/utils/CoeUtils.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 384,
+      "author": {
+        "id": 817
+      },
+      "writtenOn": "2018-03-13T05:43:11Z",
+      "side": 1,
+      "message": "Can\u0027t we change the default in yang model, than making everyone set this explicitly?",
+      "revId": "be76ab75c786d2a0e9c973b6d396495131b3fb63",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "afef4bb0_ee072420",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
         "patchSetId": 1
