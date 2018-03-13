@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "57538e34_b6fa57ec",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3a376630_ba697639",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22c28321_a4c23883",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 6
@@ -54,6 +72,24 @@
     },
     {
       "key": {
+        "uuid": "3c71c475_fc29bfce",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "This is an error, because it has not sense to execute other instructions from add method and we will return immediately.  \n\nWhen network \u003d\u003d null it has no sense to continue, because normally SubnetMap object should always keep NetworkID. OpenStack doesn\u0027t allow to create subnet, which is not attached to a network, I mean there is always a networkID in Subnet object in OpenStack as well.\n\nThere is only one case, when NetworkId can equals null in SubnetMap, when we delete this SubnetMap in ODL (because we set all its attributes to null). So if in add method we are operating with subnetMap prepared for deletion, this is really a problem. \n\nTo sum up, maybe in add method this check of networkId seems redundant and unnecessary, but it mostly performed for code safety, I think.",
+      "parentUuid": "22c28321_a4c23883",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7bfc3719_b96a0785",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 6
@@ -65,6 +101,30 @@
       "writtenOn": "2018-03-12T20:51:22Z",
       "side": 1,
       "message": "handled",
+      "range": {
+        "startLine": 78,
+        "startChar": 72,
+        "endLine": 78,
+        "endChar": 80
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "fab53e75_b88e9fcf",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "7bfc3719_b96a0785",
       "range": {
         "startLine": 78,
         "startChar": 72,
@@ -100,6 +160,30 @@
     },
     {
       "key": {
+        "uuid": "74ce1935_f4e2bc4b",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9c09603a_7364640a",
+      "range": {
+        "startLine": 131,
+        "startChar": 81,
+        "endLine": 131,
+        "endChar": 89
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ac5ee82_11c2276a",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 6
@@ -111,6 +195,24 @@
       "writtenOn": "2018-03-12T20:51:22Z",
       "side": 1,
       "message": "how often are these info logs?",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92fe6117_413bd6c8",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 165,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "I\u0027ve changed to debug. \nActually slightly for each subnet update, if we deattach or reattach it from/to router, create a new port or set the port up/down",
+      "parentUuid": "6ac5ee82_11c2276a",
       "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
@@ -175,6 +277,78 @@
       "writtenOn": "2018-03-12T20:01:02Z",
       "side": 1,
       "message": "and the getMessage(), of course.  As well as everywhere else you\u0027ve done this wrong in this change.",
+      "parentUuid": "82b74773_a4a22293",
+      "range": {
+        "startLine": 260,
+        "startChar": 101,
+        "endLine": 260,
+        "endChar": 111
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9772e17_78896c01",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "2957f9bc_cd6598d2",
+      "range": {
+        "startLine": 260,
+        "startChar": 101,
+        "endLine": 260,
+        "endChar": 111
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4dc46bdb_9ebf97c0",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "08356ce9_7d989ca9",
+      "range": {
+        "startLine": 260,
+        "startChar": 101,
+        "endLine": 260,
+        "endChar": 111
+      },
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85ba5473_5dbb66f7",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 260,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-13T11:20:12Z",
+      "side": 1,
+      "message": "Done",
       "parentUuid": "82b74773_a4a22293",
       "range": {
         "startLine": 260,
