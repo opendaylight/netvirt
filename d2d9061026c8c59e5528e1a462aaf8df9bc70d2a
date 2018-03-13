@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "b5d62153_28f37df7",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/TunnelInterfaceStateListener.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 343,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-03-13T12:49:27Z",
+      "side": 1,
+      "message": "I decided to leave this here, even though technically it should not be required, since the yang model is now defaulting to set this to false.",
+      "revId": "d2d9061026c8c59e5528e1a462aaf8df9bc70d2a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
