@@ -16,6 +16,24 @@
       "revId": "d52adf4d31910750798ee389fa3833d10193a7f0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "14173def_e65a5462",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-03-13T13:07:27Z",
+      "side": 1,
+      "message": "The case where a 2s would be expected, is when a router is associated or disassociated from a bgpvpn. If we take the association case, all the bindings that were part of the router should be \"removed\" and then \"added\" to the bgpvpn. The 2s is required after the remove and before the add. These assoc/disassoc cases are identified based on elements within the vpn-instances-list for a vpn-interface. \nLine 1563 and 1564 gets the vpn-names from which the interface bindings need to be removed, and added respectively.\nIf both of them are empty, the code from lines 1566-1597 need not be executed, since its not a router assoc/disassoc to bgpvpn, and hence the 2s delay wont be required.\n\nThe PNF case (extra-route and all the IP learning cases like ARP, subnet-route, in general), adds a new adjacency to the vpn-interface that takes the same code path in the parent method, as the above mentioned router\u003c-\u003ebgpvpn case. But here, the interface binding need not be touched. Only a new FIB and the corresponding flows needs to be added to the PNF route. Hence the entire block from 1563 to 1597 need not be executed.\nSo, a normal route leaning (and gw movement) does not excite the 2s sleep.\n\nThe only case I see where the route-learning and route\u003c-\u003ebgpvpn swap can conflict with eack other is if a PNF ping is initiated at the same time as a router to bgpvpn association. Even in this case, the PNF learning might not fail due to a 2s delay, but might fail due to other reasons as the interface is in transition between moving from router to bgpvpn.\n\nAlso, my observation is that the PNF use-cases were tried only with router and not along with a bgpvpn. And the interfaces involved are the br-physnet interface that are created per dpn on the external subnet, and not the interfaces of the nova VMs themselves. If so, will router to bgpvpn associations be valid for PNF cases? If not, then the swap case will never conflict with PNF learning.",
+      "parentUuid": "7e678c65_e7c1fb42",
+      "revId": "d52adf4d31910750798ee389fa3833d10193a7f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
