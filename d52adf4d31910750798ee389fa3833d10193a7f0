@@ -34,6 +34,24 @@
       "revId": "d52adf4d31910750798ee389fa3833d10193a7f0",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e9b51f4b_28fb24b1",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceManager.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 1576,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-03-14T03:46:36Z",
+      "side": 1,
+      "message": "We need not wait for 2 sec if only newVpnList is non-empty.\n\nMay be you can address this comment in a different review as I noticed that this got merged.",
+      "parentUuid": "14173def_e65a5462",
+      "revId": "d52adf4d31910750798ee389fa3833d10193a7f0",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
