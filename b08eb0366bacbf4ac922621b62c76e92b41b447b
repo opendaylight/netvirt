@@ -73,6 +73,42 @@
     },
     {
       "key": {
+        "uuid": "7fa8b650_809a0465",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-14T12:36:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "57538e34_b6fa57ec",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "82a0c1a7_aead1131",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronSubnetChangeListener.java",
+        "patchSetId": 6
+      },
+      "lineNbr": 74,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-14T12:36:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "3339e906_4f3b4340",
+      "revId": "b08eb0366bacbf4ac922621b62c76e92b41b447b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22c28321_a4c23883",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
         "patchSetId": 6
