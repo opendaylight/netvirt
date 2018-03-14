@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "05f0bdad_b23e4911",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-03-14T16:15:42Z",
+      "side": 1,
+      "message": "Valentina,\nFor external subnets, the code in this file is executed only for PNF use-cases.\nFor PNF, An internalVpn is created with vpnId\u003dexternal-subnet-id, and the ExternalSubnetVpnIntstanceListener() handles adding PUNT TO CONTROLLER flows.\nAs far as I know, the subnetMap.internetVpnId() is never set for the external subnet VPN.\nSo, I think this check here will fail the PNF test case in CSIT.. \nIf you have already handled this use-case, then thats great:) can you please point me to the code where the interetVpnId is being set for external-subnets.\nYou can either:\n1) Not do this check here and get subnetMap.vpnId for all cases, or\n2) set the subnetId as internetVpnId in NeutronExternalSubnetHandler.handleExternalSubnetAdded() where the  subnetMap is updated.",
+      "range": {
+        "startLine": 108,
+        "startChar": 12,
+        "endLine": 108,
+        "endChar": 47
+      },
+      "revId": "ebce3070d6de8c16e9252bcbea8c7faba0c0bbf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "09e0c15f_ec5a01c9",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-03-14T16:15:42Z",
+      "side": 1,
+      "message": "Same comment as in line 108",
+      "range": {
+        "startLine": 273,
+        "startChar": 8,
+        "endLine": 278,
+        "endChar": 9
+      },
+      "revId": "ebce3070d6de8c16e9252bcbea8c7faba0c0bbf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a5147507_947c497f",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-03-14T16:15:42Z",
+      "side": 1,
+      "message": "Same comment as in line 108",
+      "range": {
+        "startLine": 356,
+        "startChar": 8,
+        "endLine": 362,
+        "endChar": 42
+      },
+      "revId": "ebce3070d6de8c16e9252bcbea8c7faba0c0bbf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
