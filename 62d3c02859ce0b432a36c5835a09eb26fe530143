@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "5e37dc8d_45b4e9d4",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-03-14T00:38:14Z",
+      "side": 1,
+      "message": "yeah, I think Carbon was our last release that didn\u0027t *try* to be in sync with OpenStack. So we can say Ocata to Pike if we want,\nor just Ocata is fine with me. Then from there onward, I think/hope we are now in sync. Nitro/Pike, Oxygen/Queens, Fluorine/(R release)\n\nfeels like we are on track at the moment right? Oxygen is releasing with Queens. Nitro should be fine with Pike, etc.",
+      "parentUuid": "0b1a943f_a261ae38",
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d869e8cf_9c2fce66",
         "filename": "docs/user-guide/FAQ.rst",
         "patchSetId": 1
@@ -33,6 +51,47 @@
       "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a42fb1e3_f89d8889",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-03-14T00:38:14Z",
+      "side": 1,
+      "message": "I would maybe just mention what I noted above, that Carbon was on an older, unsynced release schedule. But, after Carbon we made the\ndecision to try and line up with OpenStack. We can probably try to find some TSC notes to give credence to that if we wanted to give it\nmore weight.",
+      "parentUuid": "d869e8cf_9c2fce66",
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5f1453c2_bc23693b",
+        "filename": "docs/user-guide/FAQ.rst",
+        "patchSetId": 1
+      },
+      "lineNbr": 35,
+      "author": {
+        "id": 2264
+      },
+      "writtenOn": "2018-03-14T00:38:14Z",
+      "side": 1,
+      "message": "but we are running with less than 2.9 now? what is the intention of this table? so we can say you\u0027ve voided your warranty if you use anything less than the given value?",
+      "range": {
+        "startLine": 34,
+        "startChar": 4,
+        "endLine": 35,
+        "endChar": 20
+      },
+      "revId": "62d3c02859ce0b432a36c5835a09eb26fe530143",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
     }
   ]
 }
