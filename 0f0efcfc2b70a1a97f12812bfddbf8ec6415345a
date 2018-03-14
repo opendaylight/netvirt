@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "29919ad7_432a0589",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/SubnetmapChangeListener.java",
+        "patchSetId": 10
+      },
+      "lineNbr": 104,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-14T12:36:26Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "179c6819_213e4b54",
+      "revId": "0f0efcfc2b70a1a97f12812bfddbf8ec6415345a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "82d4207f_58764ab1",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 10
