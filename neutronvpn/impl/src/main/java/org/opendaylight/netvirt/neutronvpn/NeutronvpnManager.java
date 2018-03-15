@@ -1635,13 +1635,19 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
     }
 
     protected void updateVpnInternetForSubnet(Subnetmap sm, Uuid vpn, boolean isBeingAssociated) {
-        LOG.debug("updateVpnInternetForSubnet : {} subnet {} with BGPVPN Internet {} ",
+        LOG.debug("updateVpnInternetForSubnet: {} subnet {} with BGPVPN Internet {} ",
              isBeingAssociated ? "associating" : "dissociating", sm.getSubnetIp(),
              vpn.getValue());
+        Uuid internalVpnId = sm.getVpnId();
+        if (internalVpnId == null) {
+            LOG.error("updateVpnInternetForSubnet: can not find Internal or BGPVPN Id for subnet {}, bailing out",
+                      sm.getId().getValue());
+            return;
+        }
         if (isBeingAssociated) {
-            updateSubnetNode(sm.getId(), null, null, vpn);
+            updateSubnetNode(sm.getId(), null, sm.getVpnId(), vpn);
         } else {
-            updateSubnetNode(sm.getId(), null, null, null);
+            updateSubnetNode(sm.getId(), null, sm.getVpnId(), null);
         }
 
         jobCoordinator.enqueueJob("VPN-" + vpn.getValue(), () -> singletonList(
@@ -2346,6 +2352,10 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         if (!addExternalNetworkToVpn(extNet, vpnId)) {
             return false;
         }
+        if (!vpnOpDataEntry.getBgpvpnType().equals(BgpvpnType.BGPVPNInternet)) {
+            LOG.info("associateExtNetworkToVpn: set type {} for VPN {}", BgpvpnType.BGPVPNInternet, vpnId.getValue());
+            neutronvpnUtils.updateVpnInstanceOpWithType(BgpvpnType.BGPVPNInternet, vpnId);
+        }
         for (Uuid snId: neutronvpnUtils.getPrivateSubnetsToExport(extNet)) {
             Subnetmap sm = neutronvpnUtils.getSubnetmap(snId);
             if (sm == null) {
@@ -2358,10 +2368,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 LOG.info("associateExtNetworkToVpn: add IPv6 Internet default route in VPN {}", vpnId.getValue());
                 neutronvpnUtils.updateVpnInstanceWithFallback(vpnId.getValue(), true);
             }
-        }
-        if (!vpnOpDataEntry.getBgpvpnType().getName().equals(BgpvpnType.BGPVPNInternet.toString())) {
-            LOG.info("associateExtNetworkToVpn: set type {} for VPN {}", BgpvpnType.BGPVPNInternet, vpnId.getValue());
-            neutronvpnUtils.updateVpnInstanceOpWithType(BgpvpnType.BGPVPNInternet, vpnId);
         }
         return true;
     }
@@ -2458,6 +2464,9 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
                 }
             }
         }
+        LOG.info("disassociateExtNetworkFromVpn: set type {} for VPN {}",
+                VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal, vpnId.getValue());
+        neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal, vpnId);
         for (Uuid snId : neutronvpnUtils.getPrivateSubnetsToExport(extNet)) {
             Subnetmap sm = neutronvpnUtils.getSubnetmap(snId);
             if (sm == null) {
@@ -2469,9 +2478,6 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), IpVersionChoice.IPV6, false);
         LOG.info("disassociateExtNetworkFromVpn: withdraw IPv6 Internet default route from VPN {}", vpnId.getValue());
         neutronvpnUtils.updateVpnInstanceWithFallback(vpnId.getValue(), false);
-        LOG.info("disassociateExtNetworkFromVpn: set type {} for VPN {}",
-                 VpnInstanceOpDataEntry.BgpvpnType.BGPVPNExternal.toString(), vpnId.getValue());
-        neutronvpnUtils.updateVpnInstanceOpWithType(VpnInstanceOpDataEntry.BgpvpnType.VPN, vpnId);
         return true;
     }
 
