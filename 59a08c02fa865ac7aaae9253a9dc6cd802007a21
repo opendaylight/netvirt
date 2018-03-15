@@ -378,6 +378,24 @@
     },
     {
       "key": {
+        "uuid": "865441bb_636c0dcb",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronRouterChangeListener.java",
+        "patchSetId": 15
+      },
+      "lineNbr": 124,
+      "author": {
+        "id": 6154
+      },
+      "writtenOn": "2018-03-15T04:45:14Z",
+      "side": 1,
+      "message": "Added comment to explain the reason behind this hack.",
+      "parentUuid": "9adaa393_7b286566",
+      "revId": "59a08c02fa865ac7aaae9253a9dc6cd802007a21",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "6ed75207_9110a35f",
         "filename": "vpnservice/fibmanager/fibmanager-impl/pom.xml",
         "patchSetId": 15
