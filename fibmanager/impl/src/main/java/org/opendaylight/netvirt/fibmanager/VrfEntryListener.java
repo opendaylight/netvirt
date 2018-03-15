@@ -828,7 +828,8 @@ public class VrfEntryListener extends AsyncDataTreeChangeListenerBase<VrfEntry, 
                             vpnExtraRoutes);
                     localGroupId = groupId;
                 } else {
-                    groupId = nextHopManager.getLocalNextHopGroup(parentVpnId, localNextHopIP);
+                    groupId = nextHopManager.createLocalNextHop(parentVpnId, dpnId, interfaceName, localNextHopIP,
+                            prefix, gwMacAddress, jobKey);
                     localGroupId = groupId;
                 }
             } else {
