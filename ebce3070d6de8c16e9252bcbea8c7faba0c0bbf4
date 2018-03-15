@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e8366a97_e7b45c76",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 108,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-15T16:00:25Z",
+      "side": 1,
+      "message": "\u003e\u003e can you please point me to the code where the interetVpnId is being set for external-subnets:\n\nWhen user/plugin calls associateNetworks \u003cvpnId\u003e \u003cnetworkId\u003e: \n\nNeutronvpnManager.associateNetworksToVpn is called \u003d\u003e if given network is Provider network \u003d\u003e NeutronvpnManager.associateExtNetworkToVpn() and in this method we call updateVpnInternetForSubnet(sm, vpnId, true), where vpnId \u003d provided by user Internet \u003cvpnId\u003e\n\nsame sequence for disassociateNetworks RPC call\n\nsee this code in https://git.opendaylight.org/gerrit/#/c/68203/ change\n\nI do not check now BgpVpnType of VPN, to/from subnet will be added/removed, because VpnSubnetRouterHandler operates with SubnetOpDataEntry. It reconstructs SubnetOpDataEntry from a given Subnetmap (holds VpnId and InternetVpnId). But SubnetOpDataEntry object keeps only vpnName ! \n\nSo, logically when we work with Provider subnet vpnName should be obtained from InternetVpnId. Current Internet VPN design doesn\u0027t take care about vpnName in created/updated SubnetOpDataEntry, and this seems to me as a potential issue to discuss. \n\nRight now, I left VpnSubnetRouteHandler.java unmodified, hence withdraw it from the change.",
+      "parentUuid": "05f0bdad_b23e4911",
+      "range": {
+        "startLine": 108,
+        "startChar": 12,
+        "endLine": 108,
+        "endChar": 47
+      },
+      "revId": "ebce3070d6de8c16e9252bcbea8c7faba0c0bbf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "09e0c15f_ec5a01c9",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 12
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "07c422e5_0030bb09",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-15T16:00:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "09e0c15f_ec5a01c9",
+      "range": {
+        "startLine": 273,
+        "startChar": 8,
+        "endLine": 278,
+        "endChar": 9
+      },
+      "revId": "ebce3070d6de8c16e9252bcbea8c7faba0c0bbf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a5147507_947c497f",
         "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
         "patchSetId": 12
@@ -59,6 +107,30 @@
       "writtenOn": "2018-03-14T16:15:42Z",
       "side": 1,
       "message": "Same comment as in line 108",
+      "range": {
+        "startLine": 356,
+        "startChar": 8,
+        "endLine": 362,
+        "endChar": 42
+      },
+      "revId": "ebce3070d6de8c16e9252bcbea8c7faba0c0bbf4",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9b07a911_ce648ca0",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnSubnetRouteHandler.java",
+        "patchSetId": 12
+      },
+      "lineNbr": 362,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-15T16:00:25Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a5147507_947c497f",
       "range": {
         "startLine": 356,
         "startChar": 8,
