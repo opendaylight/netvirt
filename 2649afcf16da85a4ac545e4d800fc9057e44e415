@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "badee66f_9dcad55f",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronRouterChangeListener.java",
+        "patchSetId": 19
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 773
+      },
+      "writtenOn": "2018-03-16T10:55:36Z",
+      "side": 1,
+      "message": "These sleeps are very worrisome. When will the better design be ready?",
+      "revId": "2649afcf16da85a4ac545e4d800fc9057e44e415",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
