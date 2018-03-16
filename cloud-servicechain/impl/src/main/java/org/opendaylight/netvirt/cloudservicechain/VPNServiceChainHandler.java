@@ -340,7 +340,7 @@ public class VPNServiceChainHandler implements AutoCloseable {
         interfaceManager.unbindService(ifName, ServiceModeIngress.class, boundService);
     }
 
-    public Optional<VpnToPseudoPortData> getScfInfoForVpn(String vpnName) {
+    public Optional<VpnToPseudoPortData> getScfInfoForVpn(String vpnName) throws ReadFailedException {
         String vpnRd = VpnServiceChainUtils.getVpnRd(dataBroker, vpnName);
         if (vpnRd == null) {
             LOG.trace("Checking if Vpn {} participates in SC. Could not find its RD", vpnName);

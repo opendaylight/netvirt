@@ -25,6 +25,7 @@ import javax.inject.Singleton;
 import org.apache.commons.net.util.SubnetUtils;
 import org.apache.commons.net.util.SubnetUtils.SubnetInfo;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.interfacemanager.globals.InterfaceInfo;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
@@ -216,23 +217,27 @@ public class DhcpPktHandler implements PacketProcessingListener {
 
 
     private DhcpInfo handleDhcpAllocationPoolPacket(byte msgType, String interfaceName, String macAddress) {
-        String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
-        AllocationPool pool = networkId != null ? dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId)
-                : null;
-        if (networkId == null || pool == null) {
-            LOG.warn("No Dhcp Allocation Pool was found for interface: {}", interfaceName);
-            return null;
-        }
-        switch (msgType) {
-            case DHCPConstants.MSG_DISCOVER:
-            case DHCPConstants.MSG_REQUEST:
-                // FIXME: requested ip is currently ignored in moment of allocation
-                return getDhcpInfoFromAllocationPool(networkId, pool, macAddress);
-            case DHCPConstants.MSG_RELEASE:
-                dhcpAllocationPoolMgr.releaseIpAllocation(networkId, pool, macAddress);
-                break;
-            default:
-                break;
+        try {
+            String networkId = dhcpAllocationPoolMgr.getNetworkByPort(interfaceName);
+            AllocationPool pool = networkId != null ? dhcpAllocationPoolMgr.getAllocationPoolByNetwork(networkId)
+                    : null;
+            if (networkId == null || pool == null) {
+                LOG.warn("No Dhcp Allocation Pool was found for interface: {}", interfaceName);
+                return null;
+            }
+            switch (msgType) {
+                case DHCPConstants.MSG_DISCOVER:
+                case DHCPConstants.MSG_REQUEST:
+                    // FIXME: requested ip is currently ignored in moment of allocation
+                    return getDhcpInfoFromAllocationPool(networkId, pool, macAddress);
+                case DHCPConstants.MSG_RELEASE:
+                    dhcpAllocationPoolMgr.releaseIpAllocation(networkId, pool, macAddress);
+                    break;
+                default:
+                    break;
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("Error reading from MD-SAL", e);
         }
         return null;
     }

@@ -111,8 +111,8 @@ public class DhcpInterfaceAddJob implements Callable<List<ListenableFuture<Void>
     }
 
     private List<ListenableFuture<Void>> installDhcpEntries(String interfaceName, BigInteger dpId) {
-        String vmMacAddress = DhcpServiceUtils.getAndUpdateVmMacAddress(dataBroker, interfaceName, dhcpManager);
-        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-            tx -> dhcpManager.installDhcpEntries(dpId, vmMacAddress, tx)));
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
+            tx -> dhcpManager.installDhcpEntries(dpId,
+                    DhcpServiceUtils.getAndUpdateVmMacAddress(tx, interfaceName, dhcpManager), tx)));
     }
 }

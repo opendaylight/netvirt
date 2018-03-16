@@ -10,6 +10,7 @@ package org.opendaylight.netvirt.dhcpservice;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.inject.Inject;
@@ -156,12 +157,12 @@ public class DhcpManager {
         }
     }
 
-    public void installDhcpEntries(BigInteger dpnId, String vmMacAddress, WriteTransaction tx) {
+    public void installDhcpEntries(@Nullable BigInteger dpnId, @Nullable String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpnId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.ADD_FLOW,
                 mdsalUtil, tx);
     }
 
-    public void unInstallDhcpEntries(BigInteger dpId, String vmMacAddress, WriteTransaction tx) {
+    public void unInstallDhcpEntries(@Nullable BigInteger dpId, @Nullable String vmMacAddress, WriteTransaction tx) {
         DhcpServiceUtils.setupDhcpFlowEntry(dpId, NwConstants.DHCP_TABLE, vmMacAddress, NwConstants.DEL_FLOW,
                 mdsalUtil, tx);
     }

@@ -148,9 +148,9 @@ public class DhcpNeutronPortListener
                     LOG.trace("Unable to install the DHCP flow since dpn is not available");
                     return Collections.emptyList();
                 }
-                String vmMacAddress = DhcpServiceUtils.getAndUpdateVmMacAddress(broker, interfaceName, dhcpManager);
-                return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-                    tx -> dhcpManager.installDhcpEntries(dpnId, vmMacAddress, tx)));
+                return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
+                    tx -> dhcpManager.installDhcpEntries(dpnId,
+                            DhcpServiceUtils.getAndUpdateVmMacAddress(tx, interfaceName, dhcpManager), tx)));
             }, DhcpMConstants.RETRY_COUNT);
         }
         if (!isVnicTypeDirectOrMacVtap(update)) {
