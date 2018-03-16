@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "4d802075_05338269",
+        "filename": "dhcpservice/shell/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-03-16T07:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "5fdc9626_e35a2708",
+      "range": {
+        "startLine": 31,
+        "startChar": 12,
+        "endLine": 31,
+        "endChar": 55
+      },
+      "revId": "f94f41353cea1aee8a922a08a8afc381b7e6ad90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "1c5cd5cc_de9253e8",
         "filename": "dhcpservice/shell/pom.xml",
         "patchSetId": 4
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "d24e7549_a03f3689",
+        "filename": "dhcpservice/shell/pom.xml",
+        "patchSetId": 4
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-03-16T07:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "1c5cd5cc_de9253e8",
+      "range": {
+        "startLine": 33,
+        "startChar": 21,
+        "endLine": 33,
+        "endChar": 35
+      },
+      "revId": "f94f41353cea1aee8a922a08a8afc381b7e6ad90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "9f27b752_fe1344ed",
         "filename": "dhcpservice/shell/src/main/java/org/opendaylight/netvirt/dhcpservice/shell/DhcpCacheCli.java",
         "patchSetId": 4
@@ -59,6 +107,30 @@
       "writtenOn": "2018-02-28T21:47:00Z",
       "side": 1,
       "message": "can you rework this to expose the cache via the dhcpservice-api so that the impl does not need to be used?",
+      "range": {
+        "startLine": 20,
+        "startChar": 11,
+        "endLine": 20,
+        "endChar": 64
+      },
+      "revId": "f94f41353cea1aee8a922a08a8afc381b7e6ad90",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a9af2d17_3772fa66",
+        "filename": "dhcpservice/shell/src/main/java/org/opendaylight/netvirt/dhcpservice/shell/DhcpCacheCli.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 6393
+      },
+      "writtenOn": "2018-03-16T07:00:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "9f27b752_fe1344ed",
       "range": {
         "startLine": 20,
         "startChar": 11,
