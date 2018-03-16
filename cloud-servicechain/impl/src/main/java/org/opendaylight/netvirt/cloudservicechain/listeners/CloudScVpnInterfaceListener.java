@@ -13,6 +13,7 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.netvirt.cloudservicechain.VPNServiceChainHandler;
 import org.opendaylight.yang.gen.v1.urn.huawei.params.xml.ns.yang.l3vpn.rev140815.VpnInterfaces;
@@ -59,17 +60,20 @@ public class CloudScVpnInterfaceListener
 
     @Override
     protected void remove(InstanceIdentifier<VpnInterface> key, VpnInterface vpnIfaceRemoved) {
-        Optional<VpnToPseudoPortData> optScfInfoForVpn = null;
         for (VpnInstanceNames vpnInstance : vpnIfaceRemoved.getVpnInstanceNames()) {
             String vpnName = vpnInstance.getVpnName();
             if (!vpnInstance.getAssociatedSubnetType().equals(AssociatedSubnetType.V4AndV6Subnets)
                 && !vpnInstance.getAssociatedSubnetType().equals(AssociatedSubnetType.V4Subnet)) {
                 continue;
             }
-            optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
-            if (!optScfInfoForVpn.isPresent()) {
-                LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
-                return;
+            try {
+                Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
+                if (!optScfInfoForVpn.isPresent()) {
+                    LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
+                    return;
+                }
+            } catch (ReadFailedException e) {
+                LOG.error("Error reading the SFC information for VPN {}", vpnName, e);
             }
             break;
         }
@@ -89,12 +93,17 @@ public class CloudScVpnInterfaceListener
                 && !vpnInstance.getAssociatedSubnetType().equals(AssociatedSubnetType.V4Subnet)) {
                 continue;
             }
-            Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
-            if (!optScfInfoForVpn.isPresent()) {
-                LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
-                return;
+            try {
+                Optional<VpnToPseudoPortData> optScfInfoForVpn = vpnScHandler.getScfInfoForVpn(vpnName);
+                if (!optScfInfoForVpn.isPresent()) {
+                    LOG.trace("Vpn {} is not related to ServiceChaining. No further action", vpnName);
+                    return;
+                }
+                vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.getKey().getName(),
+                        optScfInfoForVpn.get().getScfTag());
+            } catch (ReadFailedException e) {
+                LOG.error("Error reading the SFC information for VPN {}", vpnName, e);
             }
-            vpnScHandler.bindScfOnVpnInterface(vpnIfaceAdded.getKey().getName(), optScfInfoForVpn.get().getScfTag());
         }
     }
 

@@ -16,6 +16,7 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.cloud.servicechain.state.rev160711.vpn.to.pseudo.port.list.VpnToPseudoPortData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,9 +39,13 @@ public class VpnPseudoPortCache {
     @PostConstruct
     public void init() {
         LOG.info("Initial read of Vpn to VpnPseudoPort map from Datastore");
-        List<VpnToPseudoPortData> allVpnToPseudoPortData = VpnServiceChainUtils.getAllVpnToPseudoPortData(broker);
-        for (VpnToPseudoPortData vpnToPseudoPort : allVpnToPseudoPortData) {
-            add(vpnToPseudoPort.getVrfId(), vpnToPseudoPort.getVpnLportTag());
+        try {
+            List<VpnToPseudoPortData> allVpnToPseudoPortData = VpnServiceChainUtils.getAllVpnToPseudoPortData(broker);
+            for (VpnToPseudoPortData vpnToPseudoPort : allVpnToPseudoPortData) {
+                add(vpnToPseudoPort.getVrfId(), vpnToPseudoPort.getVpnLportTag());
+            }
+        } catch (ReadFailedException e) {
+            LOG.error("Error reading VPN to pseudo-port map", e);
         }
     }
 

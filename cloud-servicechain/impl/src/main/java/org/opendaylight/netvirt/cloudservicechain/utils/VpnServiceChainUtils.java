@@ -20,7 +20,6 @@ import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -130,16 +129,16 @@ public final class VpnServiceChainUtils {
         return InstanceIdentifier.builder(VpnToPseudoPortList.class).child(VpnToPseudoPortData.class, key).build();
     }
 
-    public static Optional<VpnToPseudoPortData> getVpnPseudoPortData(DataBroker broker, String rd) {
+    public static Optional<VpnToPseudoPortData> getVpnPseudoPortData(DataBroker broker, String rd)
+            throws ReadFailedException {
         InstanceIdentifier<VpnToPseudoPortData> id = getVpnToPseudoPortTagIid(rd);
-        return MDSALDataStoreUtils.read(broker, LogicalDatastoreType.CONFIGURATION, id);
+        return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, id);
     }
 
-    public static List<VpnToPseudoPortData> getAllVpnToPseudoPortData(DataBroker broker) {
+    public static List<VpnToPseudoPortData> getAllVpnToPseudoPortData(DataBroker broker) throws ReadFailedException {
         InstanceIdentifier<VpnToPseudoPortList> path = InstanceIdentifier.builder(VpnToPseudoPortList.class).build();
-        Optional<VpnToPseudoPortList> all = MDSALDataStoreUtils.read(broker, LogicalDatastoreType.CONFIGURATION, path);
-
-        return all.isPresent() ? all.get().getVpnToPseudoPortData() : new ArrayList<>();
+        return SingleTransactionDataBroker.syncReadOptional(broker, LogicalDatastoreType.CONFIGURATION, path)
+                .toJavaUtil().map(VpnToPseudoPortList::getVpnToPseudoPortData).orElse(new ArrayList<>());
     }
 
     /**

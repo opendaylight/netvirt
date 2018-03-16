@@ -458,7 +458,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.warn("processVpnInterfaceUp: VPN Interface {} removal on dpn {} for vpn {}"
                         + " by FIB did not complete on time," + " bailing addition ...", interfaceName,
                         dpId, vpnName);
-                VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
+                VpnUtil.unsetScheduledToRemoveForVpnInterface(txRunner, interfaceName);
                 return;
             }
             // VPNInterface got removed, proceed with Add
@@ -2205,7 +2205,7 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                         interfaceName, txnDestination, throwable);
             } else {
                 LOG.error("VpnInterfaceManager: VrfEntries for {} removal failed", interfaceName, throwable);
-                VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
+                VpnUtil.unsetScheduledToRemoveForVpnInterface(txRunner, interfaceName);
             }
         }
     }

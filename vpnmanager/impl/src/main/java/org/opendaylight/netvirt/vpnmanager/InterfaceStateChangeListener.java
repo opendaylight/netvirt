@@ -330,7 +330,7 @@ public class InterfaceStateChangeListener
                         interfaceName, txnDestination, throwable);
             } else {
                 LOG.error("InterfaceStateChangeListener: VrfEntries for {} removal failed", interfaceName, throwable);
-                VpnUtil.unsetScheduledToRemoveForVpnInterface(dataBroker, interfaceName);
+                VpnUtil.unsetScheduledToRemoveForVpnInterface(txRunner, interfaceName);
             }
         }
     }

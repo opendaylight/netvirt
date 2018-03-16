@@ -7,7 +7,6 @@
  */
 package org.opendaylight.netvirt.dhcpservice.jobs;
 
-import com.google.common.base.Optional;
 import com.google.common.util.concurrent.FutureCallback;
 import com.google.common.util.concurrent.ListenableFuture;
 import java.math.BigInteger;
@@ -15,13 +14,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Callable;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
-import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.netvirt.dhcpservice.DhcpExternalTunnelManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpManager;
 import org.opendaylight.netvirt.dhcpservice.DhcpServiceUtils;
@@ -117,25 +117,25 @@ public class DhcpInterfaceRemoveJob implements Callable<List<ListenableFuture<Vo
     }
 
     private List<ListenableFuture<Void>> unInstallDhcpEntries(String interfaceName, BigInteger dpId) {
-        String vmMacAddress = getAndRemoveVmMacAddress(interfaceName);
-        return Collections.singletonList(txRunner.callWithNewWriteOnlyTransactionAndSubmit(
-            tx -> dhcpManager.unInstallDhcpEntries(dpId, vmMacAddress, tx)));
+        return Collections.singletonList(txRunner.callWithNewReadWriteTransactionAndSubmit(
+            tx -> dhcpManager.unInstallDhcpEntries(dpId, getAndRemoveVmMacAddress(tx, interfaceName), tx)));
     }
 
-    private String getAndRemoveVmMacAddress(String interfaceName) {
+    @Nullable
+    private String getAndRemoveVmMacAddress(ReadWriteTransaction tx, String interfaceName) throws ReadFailedException {
         InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
                 InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
                         .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
-        Optional<InterfaceNameMacAddress> existingEntry =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
-        if (existingEntry.isPresent()) {
-            String vmMacAddress = existingEntry.get().getMacAddress();
-            LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName, vmMacAddress);
-            MDSALDataStoreUtils.asyncRemove(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                    instanceIdentifier, DEFAULT_CALLBACK);
-            return vmMacAddress;
-        }
-        LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
-        return null;
+        return tx.read(LogicalDatastoreType.OPERATIONAL, instanceIdentifier).checkedGet().toJavaUtil().map(
+            interfaceNameMacAddress -> {
+                String vmMacAddress = interfaceNameMacAddress.getMacAddress();
+                LOG.trace("Entry for interface found in InterfaceNameVmMacAddress map {}, {}", interfaceName,
+                        vmMacAddress);
+                tx.delete(LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+                return vmMacAddress;
+            }).orElseGet(() -> {
+                LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
+                return null;
+            });
     }
 }
