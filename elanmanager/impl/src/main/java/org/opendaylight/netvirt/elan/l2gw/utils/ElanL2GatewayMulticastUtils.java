@@ -385,6 +385,7 @@ public class ElanL2GatewayMulticastUtils {
                     elanUtils.getVxlanSegmentationId(elanInfo));
             listBucketInfo.add(MDSALUtil.buildBucket(listActionInfo, MDSALUtil.GROUP_WEIGHT, bucketId,
                     MDSALUtil.WATCH_PORT, MDSALUtil.WATCH_GROUP));
+            LOG.info("Adding bucket in DPN {} to external tep {}", dpnId, tep.getTepIp());
             bucketId++;
         }
         return listBucketInfo;
