@@ -41,11 +41,11 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadOnlyTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
+import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MetaDataUtil;
@@ -1944,11 +1944,13 @@ public final class VpnUtil {
         return ipchoice;
     }
 
-    public static void unsetScheduledToRemoveForVpnInterface(DataBroker dataBroker, String interfaceName) {
+    public static ListenableFuture<Void> unsetScheduledToRemoveForVpnInterface(ManagedNewTransactionRunner txRunner,
+            String interfaceName) {
         VpnInterfaceBuilder builder = new VpnInterfaceBuilder().setKey(new VpnInterfaceKey(interfaceName))
                 .setScheduledForRemove(false);
-        MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(), DEFAULT_CALLBACK);
+        return txRunner.callWithNewWriteOnlyTransactionAndSubmit(tx -> tx.merge(LogicalDatastoreType.OPERATIONAL,
+                VpnUtil.getVpnInterfaceIdentifier(interfaceName), builder.build(),
+                WriteTransaction.CREATE_MISSING_PARENTS));
     }
 
     /**

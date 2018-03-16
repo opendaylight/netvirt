@@ -21,7 +21,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
+import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.JdkFutures;
@@ -105,10 +106,10 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
         releaseIdAllocation(poolIdKey, macAddress);
     }
 
-    public AllocationPool getAllocationPoolByNetwork(String networkId) {
+    public AllocationPool getAllocationPoolByNetwork(String networkId) throws ReadFailedException {
         InstanceIdentifier<Network> network = InstanceIdentifier.builder(DhcpAllocationPool.class)
                 .child(Network.class, new NetworkKey(networkId)).build();
-        Optional<Network> optionalNetworkConfData = MDSALDataStoreUtils.read(dataBroker,
+        Optional<Network> optionalNetworkConfData = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, network);
         if (!optionalNetworkConfData.isPresent()) {
             LOG.info("No network configuration data for network {}", networkId);
@@ -140,16 +141,10 @@ public class DhcpAllocationPoolManager implements AutoCloseable, EventListener {
                 .collect(Collectors.toMap(DpnInterfaces::getDpId, DpnInterfaces::getInterfaces));
     }
 
-    public AllocationPool getAllocationPoolByPort(String portUuid) {
-        String elanInstanceName = getNetworkByPort(portUuid);
-        AllocationPool allocPool = elanInstanceName != null ? getAllocationPoolByNetwork(elanInstanceName) : null;
-        return allocPool;
-    }
-
-    public String getNetworkByPort(String portUuid) {
+    public String getNetworkByPort(String portUuid) throws ReadFailedException {
         InstanceIdentifier<ElanInterface> elanInterfaceName = InstanceIdentifier.builder(ElanInterfaces.class)
                 .child(ElanInterface.class, new ElanInterfaceKey(portUuid)).build();
-        Optional<ElanInterface> optionalElanInterface = MDSALDataStoreUtils.read(dataBroker,
+        Optional<ElanInterface> optionalElanInterface = SingleTransactionDataBroker.syncReadOptional(dataBroker,
                 LogicalDatastoreType.CONFIGURATION, elanInterfaceName);
         if (!optionalElanInterface.isPresent()) {
             LOG.info("No elan interface data for port {}", portUuid);

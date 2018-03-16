@@ -25,8 +25,10 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.ReadTransaction;
+import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
@@ -36,7 +38,6 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
-import org.opendaylight.genius.mdsalutil.MDSALDataStoreUtils;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.NWUtil;
@@ -124,7 +125,8 @@ public final class DhcpServiceUtils {
 
     private DhcpServiceUtils() { }
 
-    public static void setupDhcpFlowEntry(BigInteger dpId, short tableId, String vmMacAddress, int addOrRemove,
+    public static void setupDhcpFlowEntry(@Nullable BigInteger dpId, short tableId, @Nullable String vmMacAddress,
+                                          int addOrRemove,
                                           IMdsalApiManager mdsalUtil, WriteTransaction tx) {
         if (dpId == null || dpId.equals(DhcpMConstants.INVALID_DPID) || vmMacAddress == null) {
             return;
@@ -491,13 +493,14 @@ public final class DhcpServiceUtils {
         return fixedIp != null && fixedIp.getIpAddress() != null && fixedIp.getIpAddress().getIpv4Address() != null;
     }
 
-    public static String getAndUpdateVmMacAddress(DataBroker dataBroker, String interfaceName,
-            DhcpManager dhcpManager) {
+    @Nullable
+    public static String getAndUpdateVmMacAddress(ReadWriteTransaction tx, String interfaceName,
+            DhcpManager dhcpManager) throws ReadFailedException {
         InstanceIdentifier<InterfaceNameMacAddress> instanceIdentifier =
                 InstanceIdentifier.builder(InterfaceNameMacAddresses.class)
                         .child(InterfaceNameMacAddress.class, new InterfaceNameMacAddressKey(interfaceName)).build();
         Optional<InterfaceNameMacAddress> existingEntry =
-                MDSALUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier);
+                tx.read(LogicalDatastoreType.OPERATIONAL, instanceIdentifier).checkedGet();
         if (!existingEntry.isPresent()) {
             LOG.trace("Entry for interface {} missing in InterfaceNameVmMacAddress map", interfaceName);
             String vmMacAddress = getNeutronMacAddress(interfaceName, dhcpManager);
@@ -509,8 +512,8 @@ public final class DhcpServiceUtils {
                     new InterfaceNameMacAddressBuilder()
                             .setKey(new InterfaceNameMacAddressKey(interfaceName))
                             .setInterfaceName(interfaceName).setMacAddress(vmMacAddress).build();
-            MDSALDataStoreUtils.asyncUpdate(dataBroker, LogicalDatastoreType.OPERATIONAL, instanceIdentifier,
-                    interfaceNameMacAddress, DEFAULT_CALLBACK);
+            tx.merge(LogicalDatastoreType.OPERATIONAL, instanceIdentifier, interfaceNameMacAddress,
+                    WriteTransaction.CREATE_MISSING_PARENTS);
             return vmMacAddress;
         }
         return existingEntry.get().getMacAddress();

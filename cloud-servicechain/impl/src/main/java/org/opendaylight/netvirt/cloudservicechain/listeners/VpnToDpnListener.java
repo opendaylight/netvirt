@@ -14,6 +14,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
+import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.netvirt.cloudservicechain.CloudServiceChainConstants;
@@ -80,31 +81,36 @@ public class VpnToDpnListener implements OdlL3vpnListener {
             return;
         }
 
-        Optional<VpnToPseudoPortData> optVpnToPseudoPortInfo = VpnServiceChainUtils.getVpnPseudoPortData(broker, rd);
+        try {
+            Optional<VpnToPseudoPortData> optVpnToPseudoPortInfo =
+                    VpnServiceChainUtils.getVpnPseudoPortData(broker, rd);
 
-        if (!optVpnToPseudoPortInfo.isPresent()) {
-            LOG.debug("Dpn to Vpn {} event received: Could not find VpnPseudoLportTag for VPN name={}  rd={}",
-                      addedOrRemovedTxt, vpnName, rd);
-            return;
+            if (!optVpnToPseudoPortInfo.isPresent()) {
+                LOG.debug("Dpn to Vpn {} event received: Could not find VpnPseudoLportTag for VPN name={}  rd={}",
+                          addedOrRemovedTxt, vpnName, rd);
+                return;
+            }
+
+            VpnToPseudoPortData vpnToPseudoPortInfo = optVpnToPseudoPortInfo.get();
+
+            // Vpn2Scf flows (LFIB + LportDispatcher)
+            // TODO: Should we filter out by bgp origin
+            List<VrfEntry> allVpnVrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, rd);
+            vpnScHandler.programVpnToScfPipelineOnDpn(dpnId, allVpnVrfEntries,
+                                                      vpnToPseudoPortInfo.getScfTableId(),
+                                                      vpnToPseudoPortInfo.getScfTag(),
+                                                      vpnToPseudoPortInfo.getVpnLportTag().intValue(),
+                                                      addOrRemove);
+
+            // Scf2Vpn flow (LportDispatcher)
+            long vpnId = addOrRemove == NwConstants.ADD_FLOW ? VpnServiceChainUtils.getVpnId(broker, vpnName)
+                    : CloudServiceChainConstants.INVALID_VPN_TAG;
+            VpnServiceChainUtils.programLPortDispatcherFlowForScfToVpn(mdsalMgr, vpnId, dpnId,
+                                                                       vpnToPseudoPortInfo.getVpnLportTag().intValue(),
+                                                                       addOrRemove);
+        } catch (ReadFailedException e) {
+            LOG.error("Error retrieving the VPN to pseudo-port data for {}", rd, e);
         }
-
-        VpnToPseudoPortData vpnToPseudoPortInfo = optVpnToPseudoPortInfo.get();
-
-        // Vpn2Scf flows (LFIB + LportDispatcher)
-        // TODO: Should we filter out by bgp origin
-        List<VrfEntry> allVpnVrfEntries = VpnServiceChainUtils.getAllVrfEntries(broker, rd);
-        vpnScHandler.programVpnToScfPipelineOnDpn(dpnId, allVpnVrfEntries,
-                                                  vpnToPseudoPortInfo.getScfTableId(),
-                                                  vpnToPseudoPortInfo.getScfTag(),
-                                                  vpnToPseudoPortInfo.getVpnLportTag().intValue(),
-                                                  addOrRemove);
-
-        // Scf2Vpn flow (LportDispatcher)
-        long vpnId = addOrRemove == NwConstants.ADD_FLOW ? VpnServiceChainUtils.getVpnId(broker, vpnName)
-                : CloudServiceChainConstants.INVALID_VPN_TAG;
-        VpnServiceChainUtils.programLPortDispatcherFlowForScfToVpn(mdsalMgr, vpnId, dpnId,
-                                                                   vpnToPseudoPortInfo.getVpnLportTag().intValue(),
-                                                                   addOrRemove);
     }
 
     @Override
