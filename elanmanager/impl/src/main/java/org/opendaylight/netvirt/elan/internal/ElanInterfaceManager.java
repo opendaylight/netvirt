@@ -965,6 +965,10 @@ public class ElanInterfaceManager extends AsyncDataTreeChangeListenerBase<ElanIn
                     List<Bucket> elanL2GwDevicesBuckets = elanL2GatewayMulticastUtils
                             .getRemoteBCGroupBucketsOfElanL2GwDevices(elanInfo, dpnInterface.getDpId(), bucketId);
                     remoteListBucketInfo.addAll(elanL2GwDevicesBuckets);
+                    bucketId += elanL2GwDevicesBuckets.size();
+                    remoteListBucketInfo.addAll(elanL2GatewayMulticastUtils
+                            .getRemoteBCGroupBucketsOfElanExternalTeps(elanInfo,
+                                    dpnInterface.getDpId(), bucketId));
 
                     if (remoteListBucketInfo.isEmpty()) {
                         LOG.debug("No ITM is present on Dpn - {} ", dpnInterface.getDpId());
