@@ -1,0 +1,3 @@
+<igmpsnooping-config xmlns="urn:opendaylight:params:xml:ns:yang:igmpsnooping:config">
+  <controller-igmpsnooping-enabled>false</controller-igmpsnooping-enabled>
+</igmpsnooping-config>
