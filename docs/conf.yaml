@@ -1,0 +1,6 @@
+---
+project_cfg: opendaylight
+project: ODL NetVirt
+version: master
+copyright: 2016, Vishal Thapar, Andre Fredette, Sam Hague
+author: Vishal Thapar, Andre Fredette, Sam Hague
