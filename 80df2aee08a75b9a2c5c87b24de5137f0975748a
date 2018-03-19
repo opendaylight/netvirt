@@ -81,6 +81,24 @@
       "revId": "80df2aee08a75b9a2c5c87b24de5137f0975748a",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d0afe71a_61bb05fd",
+        "filename": "elanmanager/impl/src/main/java/org/opendaylight/netvirt/elan/l2gw/ha/handlers/NodeConnectedHandler.java",
+        "patchSetId": 4
+      },
+      "lineNbr": 50,
+      "author": {
+        "id": 5867
+      },
+      "writtenOn": "2018-03-19T13:56:12Z",
+      "side": 1,
+      "message": "+1 I agree with this style",
+      "parentUuid": "f43cc925_c22782b7",
+      "revId": "80df2aee08a75b9a2c5c87b24de5137f0975748a",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
