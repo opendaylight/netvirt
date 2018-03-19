@@ -1,0 +1,21 @@
+module igmpsnooping-config {
+    yang-version 1;
+    namespace "urn:opendaylight:params:xml:ns:yang:igmpsnooping:config";
+    prefix "igmpsnooping-config";
+
+    description
+        "Service definition for igmp snooping project";
+
+    revision "2018-03-15" {
+        description
+                "Initial revision";
+    }
+
+    container igmpsnooping-config {
+        leaf controller-igmpsnooping-enabled {
+            description "Enable igmp snooping on the controller";
+            type boolean;
+            default false;
+        }
+    }
+}

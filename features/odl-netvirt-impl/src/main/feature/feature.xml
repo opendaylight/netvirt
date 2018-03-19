@@ -15,6 +15,9 @@
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-dhcpservice-config.xml">
             mvn:org.opendaylight.netvirt/dhcpservice-impl/${project.version}/xml/config
         </configfile>
+        <!--<configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-igmpsnooping-config.xml">
+            mvn:org.opendaylight.netvirt/igmpsnooping-impl/${project.version}/xml/config
+        </configfile>-->
         <configfile finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml">
             mvn:org.opendaylight.netvirt/elanmanager-impl/${project.version}/xml/config
         </configfile>

@@ -143,6 +143,11 @@
             <artifactId>dhcpservice-impl</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--<dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>igmpsnooping-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>fibmanager-impl</artifactId>
@@ -224,6 +229,14 @@
             <type>xml</type>
             <classifier>config</classifier>
         </dependency>
+        <!--<dependency>
+            finalname="etc/opendaylight/datastore/initial/config/netvirt-igmpsnooping-config.xml"
+            <groupId>${project.groupId}</groupId>
+            <artifactId>igmpsnooping-impl</artifactId>
+            <version>${project.version}</version>
+            <type>xml</type>
+            <classifier>config</classifier>
+        </dependency>-->
         <dependency>
             <!-- finalname="etc/opendaylight/datastore/initial/config/netvirt-elanmanager-config.xml" -->
             <groupId>${project.groupId}</groupId>

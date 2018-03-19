@@ -121,6 +121,11 @@
             <artifactId>dhcpservice-api</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!--<dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>igmpsnooping-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>elanmanager-api</artifactId>
