@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "3e82d39f_0720148d",
+        "filename": "qosservice/impl/src/main/java/org/opendaylight/netvirt/qosservice/QosInterfaceStateChangeListener.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 71,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-19T19:00:34Z",
+      "side": 1,
+      "message": "We are now implementing RecoverableListener interface here. registerListner is one of the function we need to implement here. This function will be called from QosInterfaceStateChangeListener class when we are doing service recover of Qos Service as a whole.",
+      "parentUuid": "eff0a4fe_2c76bf96",
+      "revId": "1d253096eaee35674ab579cd3b5a3fda55a641ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "22a7a798_78e07b77",
         "filename": "qosservice/impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
         "patchSetId": 8
@@ -30,6 +48,24 @@
       "writtenOn": "2018-03-19T18:48:46Z",
       "side": 1,
       "message": "nitpick, leave a space since this is different than the next fields",
+      "revId": "1d253096eaee35674ab579cd3b5a3fda55a641ad",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f427eeb3_d7388d84",
+        "filename": "qosservice/impl/src/main/resources/org/opendaylight/blueprint/qosservice.xml",
+        "patchSetId": 8
+      },
+      "lineNbr": 29,
+      "author": {
+        "id": 7970
+      },
+      "writtenOn": "2018-03-19T19:00:34Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "22a7a798_78e07b77",
       "revId": "1d253096eaee35674ab579cd3b5a3fda55a641ad",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
