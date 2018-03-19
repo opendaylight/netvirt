@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "9345cc9e_4217bcff",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronExternalSubnetHandler.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-19T13:32:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "a418c93a_e2b1dc4c",
+      "range": {
+        "startLine": 46,
+        "startChar": 12,
+        "endLine": 48,
+        "endChar": 9
+      },
+      "revId": "94a20c816b4b58536e7b8013229dda3f46c72eeb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "daa6decb_76bb1b37",
         "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
         "patchSetId": 8
@@ -36,6 +60,30 @@
       "writtenOn": "2018-03-19T12:21:56Z",
       "side": 1,
       "message": "you can directly use:\nvpnOpDataEntry.getBgpvpType() !\u003d BgpvpnType.BGPVPNInternet",
+      "range": {
+        "startLine": 2368,
+        "startChar": 13,
+        "endLine": 2368,
+        "endChar": 98
+      },
+      "revId": "94a20c816b4b58536e7b8013229dda3f46c72eeb",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d5793508_7dad557f",
+        "filename": "neutronvpn/impl/src/main/java/org/opendaylight/netvirt/neutronvpn/NeutronvpnManager.java",
+        "patchSetId": 8
+      },
+      "lineNbr": 2368,
+      "author": {
+        "id": 7194
+      },
+      "writtenOn": "2018-03-19T13:32:20Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "daa6decb_76bb1b37",
       "range": {
         "startLine": 2368,
         "startChar": 13,
