@@ -1614,12 +1614,6 @@ public class VpnInterfaceManager extends AsyncDataTreeChangeListenerBase<VpnInte
                 LOG.info("handleVpnSwapForVpnInterface: Processed Remove for update on VPNInterface {} upon VPN swap"
                         + "from old vpn {} to newVpn(s) {}", interfaceName, oldVpnName, newVpnList);
             }
-            //Wait for previous interface bindings to be removed
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                //Ignore
-            }
             for (String newVpnName: newVpnList) {
                 String primaryRd = VpnUtil.getPrimaryRd(dataBroker, newVpnName);
                 isSwap = Boolean.TRUE;
