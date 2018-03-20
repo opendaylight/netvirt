@@ -22,6 +22,7 @@ import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
 import org.opendaylight.genius.mdsalutil.actions.ActionNxCtClear;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxResubmit;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
@@ -289,8 +290,11 @@ public class AclNodeDefaultFlowsTxBuilder {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(new NxMatchCtState(conntrackState, conntrackMask));
         matches.add(new NxMatchCtMark(AclConstants.CT_MARK_EST_STATE, AclConstants.CT_MARK_EST_STATE_MASK));
-        List<InstructionInfo> instructions = AclServiceOFFlowBuilder.getResubmitInstructionInfo(dispatcherTableId);
-
+        List<ActionInfo> actionsInfos = new ArrayList<>();
+        actionsInfos.add(new ActionNxCtClear());
+        actionsInfos.add(new ActionNxResubmit(dispatcherTableId));
+        List<InstructionInfo> instructions = new ArrayList<>();
+        instructions.add(new InstructionApplyActions(actionsInfos));
         flowId = "Fixed_Conntrk_Trk_" + dpId + "_" + flowId + dispatcherTableId;
         addFlowToTx(tableId, flowId, priority, matches, instructions);
     }
