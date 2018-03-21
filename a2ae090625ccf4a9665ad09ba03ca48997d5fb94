@@ -16,6 +16,24 @@
       "revId": "a2ae090625ccf4a9665ad09ba03ca48997d5fb94",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e1e80723_436cf0bd",
+        "filename": "aclservice/impl/src/main/java/org/opendaylight/netvirt/aclservice/utils/AclNodeDefaultFlowsTxBuilder.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 294,
+      "author": {
+        "id": 2029
+      },
+      "writtenOn": "2018-03-21T16:16:06Z",
+      "side": 1,
+      "message": "Michael,\nThis fix is need for an urgent bug d/s.\n\nYour review comment (a good one, btw) is more about possible optimization. Would you be ok if that is addressed when Aswin can take a look later? I don\u0027t know the answer either, Aswin can let us know when he has a chance. Thanks.",
+      "parentUuid": "8684b47e_d4940225",
+      "revId": "a2ae090625ccf4a9665ad09ba03ca48997d5fb94",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
