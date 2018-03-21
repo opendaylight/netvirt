@@ -1,0 +1,303 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "df988138_447aa1b3",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "Should the title be L3VPN or Netvirt? Also, the title is vague. Is there a longer, but better descriptive title?",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 2
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "da95f563_7139b858",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "The sentence sounds dramatic. It needs to be data driven.",
+      "range": {
+        "startLine": 17,
+        "startChar": 1,
+        "endLine": 21,
+        "endChar": 1
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d973805a_16714d2f",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 36,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "This needs to be better described.",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 36,
+        "endChar": 3
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14b9140e_ff23ba4a",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 43,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "we need more description as to why this is slow.",
+      "range": {
+        "startLine": 38,
+        "startChar": 1,
+        "endLine": 43,
+        "endChar": 6
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "39d5d296_450868fe",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "It is unclear as to why IP address serialization helps the 5 use cases.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 114
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "e658a92d_1037e70d",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "ipv4 or ipv6",
+      "range": {
+        "startLine": 93,
+        "startChar": 15,
+        "endLine": 93,
+        "endChar": 20
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "305354f4_845d9f22",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 95,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "ipv4 and ipv6",
+      "range": {
+        "startLine": 95,
+        "startChar": 42,
+        "endLine": 95,
+        "endChar": 47
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f425dfac_313e4d46",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "what are peering VPNs",
+      "range": {
+        "startLine": 113,
+        "startChar": 9,
+        "endLine": 113,
+        "endChar": 21
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0963edcc_ed19ad48",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 140,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "too informal. Also was this done in the community?",
+      "range": {
+        "startLine": 140,
+        "startChar": 0,
+        "endLine": 140,
+        "endChar": 30
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "998b2fa7_0f15afe1",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 179,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "I am not sure I understand this correctly. If IP serialization is ensured at the VPN engine level, why should this call be synchronous?\n\nAlso, if I understand it correctly, the PoJo will contain all the info necessary for FIB to process the event. Consequently I do not understand why there would be backpulls. Are there some values that cannot be included in the PoJo?",
+      "range": {
+        "startLine": 179,
+        "startChar": 3,
+        "endLine": 179,
+        "endChar": 132
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "4e645238_60113009",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 202,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "What happens if the leader changes during the middle of processing?",
+      "range": {
+        "startLine": 199,
+        "startChar": 3,
+        "endLine": 202,
+        "endChar": 1
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "355edf26_96943191",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 225,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "will this section be expanded?",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 225,
+        "endChar": 1
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "8a4133d0_e9cf5e12",
+        "filename": "docs/specs/l3vpn-robustness.rst",
+        "patchSetId": 8
+      },
+      "lineNbr": 299,
+      "author": {
+        "id": 706
+      },
+      "writtenOn": "2018-03-21T06:26:41Z",
+      "side": 1,
+      "message": "the trello card is talking about evpn. Is this correct link?",
+      "range": {
+        "startLine": 299,
+        "startChar": 0,
+        "endLine": 299,
+        "endChar": 1
+      },
+      "revId": "43f8786479d1a9f82a9d75afbf91d6f68b39f599",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": true
+    }
+  ]
+}
