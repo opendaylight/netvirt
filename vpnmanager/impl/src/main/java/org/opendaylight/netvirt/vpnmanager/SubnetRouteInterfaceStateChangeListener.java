@@ -87,7 +87,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                 if (intrf.getOperStatus().equals(Interface.OperStatus.Up)) {
                     List<Uuid> subnetIdList = getSubnetId(intrf);
                     if (subnetIdList.isEmpty()) {
-                        LOG.trace("SubnetRouteInterfaceListener add: Port {} doesnt exist in configDS",
+                        LOG.trace("SubnetRouteInterfaceListener add: Port {} doesn't exist in configDS",
                                 intrf.getName());
                         return;
                     }
@@ -135,7 +135,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                 LOG.trace("SubnetRouteInterfaceListener remove: Received interface {} down event", intrf);
                 List<Uuid> subnetIdList = getSubnetId(intrf);
                 if (subnetIdList.isEmpty()) {
-                    LOG.trace("SubnetRouteInterfaceListener remove: Port {} doesnt exist in configDS",
+                    LOG.trace("SubnetRouteInterfaceListener remove: Port {} doesn't exist in configDS",
                             intrf.getName());
                     return;
                 }
@@ -206,7 +206,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
                     original, update);
                 List<Uuid> subnetIdList = getSubnetId(update);
                 if (subnetIdList.isEmpty()) {
-                    LOG.error("SubnetRouteInterfaceListener update: Port {} doesnt exist in configDS",
+                    LOG.error("SubnetRouteInterfaceListener update: Port {} doesn't exist in configDS",
                             update.getName());
                     return;
                 }
@@ -281,7 +281,7 @@ public class SubnetRouteInterfaceStateChangeListener extends AsyncDataTreeChange
     protected List<Uuid> getSubnetId(Interface intrf) {
         List<Uuid> listSubnetIds = new ArrayList<>();
         if (!NeutronUtils.isUuid(intrf.getName())) {
-            LOG.debug("SubnetRouteInterfaceListener: Interface {} doesnt have valid uuid pattern", intrf.getName());
+            LOG.debug("SubnetRouteInterfaceListener: Interface {} doesn't have valid uuid pattern", intrf.getName());
             return listSubnetIds;
         }
 
