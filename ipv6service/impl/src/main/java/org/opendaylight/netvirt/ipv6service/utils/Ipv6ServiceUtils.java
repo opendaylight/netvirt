@@ -67,8 +67,8 @@ import org.slf4j.LoggerFactory;
 @Singleton
 public class Ipv6ServiceUtils {
     private static final Logger LOG = LoggerFactory.getLogger(Ipv6ServiceUtils.class);
-    public static final Ipv6Address ALL_NODES_MCAST_ADDR = newIpv6Address("0:0:0:0:0:0:0:0");
-    public static final Ipv6Address UNSPECIFIED_ADDR = newIpv6Address("FF02::1");
+    public static final Ipv6Address ALL_NODES_MCAST_ADDR = newIpv6Address("FF02::1");
+    public static final Ipv6Address UNSPECIFIED_ADDR = newIpv6Address("0:0:0:0:0:0:0:0");
 
     private static Ipv6Address newIpv6Address(String ip) {
         try {
