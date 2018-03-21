@@ -21,9 +21,8 @@ import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
 import org.opendaylight.genius.mdsalutil.MatchInfoBase;
 import org.opendaylight.genius.mdsalutil.NwConstants;
-import org.opendaylight.genius.mdsalutil.actions.ActionNxCtClear;
+import org.opendaylight.genius.mdsalutil.actions.ActionNxConntrack;
 import org.opendaylight.genius.mdsalutil.instructions.InstructionApplyActions;
-import org.opendaylight.genius.mdsalutil.instructions.InstructionGotoTable;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.genius.mdsalutil.matches.MatchEthernetType;
 import org.opendaylight.genius.mdsalutil.nxmatches.NxMatchCtMark;
@@ -47,6 +46,8 @@ public class AclNodeDefaultFlowsTxBuilder {
     private final IMdsalApiManager mdsalManager;
     private final AclserviceConfig config;
     private final WriteTransaction tx;
+
+    private final int dummyTag = 0;
 
     public AclNodeDefaultFlowsTxBuilder(BigInteger dpId, IMdsalApiManager mdsalManager, AclserviceConfig config,
             WriteTransaction tx) {
@@ -81,7 +82,7 @@ public class AclNodeDefaultFlowsTxBuilder {
         addEgressConntrackClassifierFlows();
         addEgressConntrackStateRules();
         addEgressAllowBroadcastFlow();
-        addEgressCtClearRule();
+        addEgressConntrackDummyLookup();
     }
 
     /**
@@ -295,22 +296,22 @@ public class AclNodeDefaultFlowsTxBuilder {
         addFlowToTx(tableId, flowId, priority, matches, instructions);
     }
 
-    private void addEgressCtClearRule() {
+    private void addEgressConntrackDummyLookup() {
         List<MatchInfoBase> matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV4);
         matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
+        int elanTag = dummyTag;
         List<InstructionInfo> instructions = new ArrayList<>();
         List<ActionInfo> actionsInfos = new ArrayList<>();
-        actionsInfos.add(new ActionNxCtClear());
+        actionsInfos.add(new ActionNxConntrack(2, 0, 0, elanTag, NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE));
         instructions.add(new InstructionApplyActions(actionsInfos));
-        instructions.add(new InstructionGotoTable(NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE));
-        String flowName = "Egress_Fixed_Ct_Clear_Table_Ipv4_" + this.dpId;
+        String flowName = "Egress_Fixed_Dummy_Table_Ipv4_" + this.dpId;
         addFlowToTx(NwConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.ACL_DEFAULT_PRIORITY, matches,
                 instructions);
         matches = new ArrayList<>();
         matches.add(MatchEthernetType.IPV6);
         matches.add(new NxMatchCtState(AclConstants.TRACKED_CT_STATE, AclConstants.TRACKED_CT_STATE_MASK));
-        flowName = "Egress_Fixed_Ct_Clear_Table_Ipv6_" + this.dpId;
+        flowName = "Egress_Fixed_Dummy_Table_Ipv6_" + this.dpId;
         addFlowToTx(NwConstants.EGRESS_ACL_DUMMY_TABLE, flowName, AclConstants.ACL_DEFAULT_PRIORITY, matches,
                 instructions);
     }
