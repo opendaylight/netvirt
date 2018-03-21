@@ -81,6 +81,9 @@
   <service ref="centralizedSwitchProvider"
            interface="org.opendaylight.netvirt.vpnmanager.api.ICentralizedSwitchProvider" />
 
-   <service ref="interVpnLinkCacheImpl"
+  <service ref="interVpnLinkCacheImpl"
            interface="org.opendaylight.netvirt.vpnmanager.api.intervpnlink.InterVpnLinkCache" />
+
+  <service ref="vpnClusterEosBasedOwnershipDriver"
+           interface="org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver" />
 </blueprint>
