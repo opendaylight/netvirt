@@ -10,17 +10,13 @@ package org.opendaylight.netvirt.elan.l2gw.ha;
 import com.google.common.base.Optional;
 import com.google.common.util.concurrent.CheckedFuture;
 import com.google.common.util.concurrent.Futures;
-import com.google.common.util.concurrent.ListenableFuture;
 import org.opendaylight.controller.md.sal.binding.api.ReadWriteTransaction;
-import org.opendaylight.controller.md.sal.common.api.TransactionStatus;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.controller.md.sal.common.api.data.ReadFailedException;
 import org.opendaylight.controller.md.sal.common.api.data.TransactionCommitFailedException;
 import org.opendaylight.genius.utils.batching.ResourceBatchingManager;
 import org.opendaylight.yangtools.yang.binding.DataObject;
 import org.opendaylight.yangtools.yang.binding.InstanceIdentifier;
-import org.opendaylight.yangtools.yang.common.RpcResult;
-import org.opendaylight.yangtools.yang.common.RpcResultBuilder;
 
 public class BatchedTransaction implements ReadWriteTransaction {
 
@@ -74,11 +70,6 @@ public class BatchedTransaction implements ReadWriteTransaction {
     @Override
     public CheckedFuture<Void, TransactionCommitFailedException> submit() {
         return Futures.immediateCheckedFuture(null);
-    }
-
-    @Override
-    public ListenableFuture<RpcResult<TransactionStatus>> commit() {
-        return Futures.immediateCheckedFuture(RpcResultBuilder.success(TransactionStatus.COMMITED).build());
     }
 
     @Override
