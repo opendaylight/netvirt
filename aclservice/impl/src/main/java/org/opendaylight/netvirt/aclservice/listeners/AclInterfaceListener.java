@@ -19,8 +19,6 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
-import org.opendaylight.genius.srm.RecoverableListener;
-import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -41,7 +39,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interface, AclInterfaceListener>
-        implements ClusteredDataTreeChangeListener<Interface>, RecoverableListener {
+        implements ClusteredDataTreeChangeListener<Interface> {
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceListener.class);
 
     private final AclServiceManager aclServiceManager;
@@ -54,7 +52,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     @Inject
     public AclInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
             DataBroker dataBroker, AclDataUtil aclDataUtil, AclInterfaceCache aclInterfaceCache,
-            AclServiceUtils aclServicUtils, ServiceRecoveryRegistry serviceRecoveryRegistry) {
+            AclServiceUtils aclServicUtils) {
         super(Interface.class, AclInterfaceListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
@@ -62,18 +60,12 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
         this.aclDataUtil = aclDataUtil;
         this.aclInterfaceCache = aclInterfaceCache;
         this.aclServiceUtils = aclServicUtils;
-        serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
     @Override
     @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
-        registerListener();
-    }
-
-    @Override
-    public void registerListener() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
@@ -83,7 +75,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     @Override
-    public void remove(InstanceIdentifier<Interface> key, Interface port) {
+    protected void remove(InstanceIdentifier<Interface> key, Interface port) {
         LOG.trace("Received AclInterface remove event, port={}", port);
         String interfaceId = port.getName();
         AclInterface aclInterface = aclInterfaceCache.remove(interfaceId);
@@ -100,7 +92,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     @Override
-    public void update(InstanceIdentifier<Interface> key, Interface portBefore, Interface portAfter) {
+    protected void update(InstanceIdentifier<Interface> key, Interface portBefore, Interface portAfter) {
         if (portBefore.getAugmentation(ParentRefs.class) == null
                 && portAfter.getAugmentation(ParentRefs.class) != null) {
             LOG.trace("Ignoring event for update in ParentRefs for {} ", portAfter.getName());
@@ -237,7 +229,7 @@ public class AclInterfaceListener extends AsyncDataTreeChangeListenerBase<Interf
     }
 
     @Override
-    public void add(InstanceIdentifier<Interface> key, Interface port) {
+    protected void add(InstanceIdentifier<Interface> key, Interface port) {
         LOG.trace("Received AclInterface add event, port={}", port);
         InterfaceAcl aclInPort = port.getAugmentation(InterfaceAcl.class);
         if (aclInPort != null && aclInPort.isPortSecurityEnabled()) {
