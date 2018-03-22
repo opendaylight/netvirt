@@ -17,6 +17,8 @@ import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
 import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -38,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<Interface,
-        AclInterfaceStateListener> implements ClusteredDataTreeChangeListener<Interface> {
+        AclInterfaceStateListener> implements ClusteredDataTreeChangeListener<Interface>, RecoverableListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclInterfaceStateListener.class);
 
@@ -54,7 +56,8 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
     @Inject
     public AclInterfaceStateListener(AclServiceManager aclServiceManger, AclClusterUtil aclClusterUtil,
             DataBroker dataBroker, AclDataUtil aclDataUtil, IInterfaceManager interfaceManager,
-            AclInterfaceCache aclInterfaceCache, AclServiceUtils aclServicUtils) {
+            AclInterfaceCache aclInterfaceCache, AclServiceUtils aclServicUtils,
+            ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(Interface.class, AclInterfaceStateListener.class);
         this.aclServiceManger = aclServiceManger;
         this.aclClusterUtil = aclClusterUtil;
@@ -63,12 +66,18 @@ public class AclInterfaceStateListener extends AsyncDataTreeChangeListenerBase<I
         this.interfaceManager = interfaceManager;
         this.aclInterfaceCache = aclInterfaceCache;
         this.aclServiceUtils = aclServicUtils;
+        serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
     @Override
     @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
     }
 
