@@ -17,6 +17,7 @@ import org.apache.karaf.shell.console.OsgiCommandSupport;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.SingleTransactionDataBroker;
+import org.opendaylight.netvirt.natservice.internal.NatUtil;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.BridgeRefInfo;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.interfacemanager.meta.rev160406.bridge.ref.info.BridgeRefEntryKey;
@@ -41,8 +42,7 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
     @Override
     protected Object doExecute() throws Exception {
         PrintStream ps = session.getConsole();
-        Optional<NaptSwitches> npatSwitches = SingleTransactionDataBroker.syncReadOptional(dataBroker,
-                LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
+        Optional<NaptSwitches> npatSwitches = NatUtil.getAllPrimaryNaptSwitches(dataBroker);
         ps.printf(String.format(" %-36s  %-20s  %-20s %n", "Router Id ", "Datapath Node Id", "Managment Ip Address"));
         ps.printf("-------------------------------------------------------------------------------------------%n");
         if (npatSwitches.isPresent()) {
@@ -52,10 +52,6 @@ public class DisplayNaptSwithcesCli extends OsgiCommandSupport {
             }
         }
         return null;
-    }
-
-    private InstanceIdentifier<NaptSwitches> getNaptSwitchesIdentifier() {
-        return InstanceIdentifier.builder(NaptSwitches.class).build();
     }
 
     @SuppressWarnings("unchecked")
