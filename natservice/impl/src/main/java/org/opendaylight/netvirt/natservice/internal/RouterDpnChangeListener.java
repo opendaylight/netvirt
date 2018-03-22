@@ -30,6 +30,7 @@ import org.opendaylight.genius.mdsalutil.BucketInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
+import org.opendaylight.genius.mdsalutil.UpgradeState;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.infrautils.utils.concurrent.ListenableFutures;
@@ -67,6 +68,7 @@ public class RouterDpnChangeListener
     private final JobCoordinator coordinator;
     private final SnatServiceManager natServiceManager;
     private final NatMode natMode;
+    private final UpgradeState upgradeState;
 
     @Inject
     public RouterDpnChangeListener(final DataBroker dataBroker, final IMdsalApiManager mdsalManager,
@@ -78,7 +80,8 @@ public class RouterDpnChangeListener
                                    final SnatServiceManager natServiceManager,
                                    final NatserviceConfig config,
                                    final IElanService elanManager,
-                                   final JobCoordinator coordinator) {
+                                   final JobCoordinator coordinator,
+                                   final UpgradeState upgradeState) {
         super(DpnVpninterfacesList.class, RouterDpnChangeListener.class);
         this.dataBroker = dataBroker;
         this.txRunner = new ManagedNewTransactionRunnerImpl(dataBroker);
@@ -92,6 +95,7 @@ public class RouterDpnChangeListener
         this.natServiceManager = natServiceManager;
         this.coordinator = coordinator;
         this.natMode = config != null ? config.getNatMode() : NatMode.Controller;
+        this.upgradeState = upgradeState;
     }
 
     @Override
@@ -304,8 +308,10 @@ public class RouterDpnChangeListener
         BigInteger naptSwitch;
         try {
             BigInteger naptId = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
-            if (naptId == null || naptId.equals(BigInteger.ZERO) || !naptSwitchHA.getSwitchStatus(naptId)) {
-                LOG.debug("handleSNATForDPN : No NaptSwitch is selected for router {}", routerName);
+            if (naptId == null || naptId.equals(BigInteger.ZERO)
+                    || (!NatUtil.getSwitchStatus(dataBroker, naptId) && !upgradeState.isUpgradeInProgress())) {
+                LOG.debug("handleSNATForDPN : NaptSwitch is down or not selected for router {},naptId {}",
+                        routerName, naptId);
                 naptSwitch = dpnId;
                 boolean naptstatus = naptSwitchHA.updateNaptSwitch(routerName, naptSwitch);
                 if (!naptstatus) {
