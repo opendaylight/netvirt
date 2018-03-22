@@ -329,7 +329,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                             routerPort.getUuid().getValue(), vpnId.getValue());
                 }
                 nvpnManager.addToNeutronRouterInterfacesMap(routerId, routerPort.getUuid().getValue());
-                nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                jobCoordinator.enqueueJob(routerId.toString(), () -> {
+                    nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                    return Collections.emptyList();
+                });
                 ListenableFutures.addErrorLogging(txRunner.callWithNewWriteOnlyTransactionAndSubmit(confTx -> {
                     String portInterfaceName = createOfPortInterface(routerPort, confTx);
                     createElanInterface(routerPort, portInterfaceName, confTx);
@@ -394,7 +397,10 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                 nvpnManager.removeFromNeutronRouterInterfacesMap(routerId, routerPort.getUuid().getValue());
                 deleteElanInterface(routerPort.getUuid().getValue(), confTx);
                 deleteOfPortInterface(routerPort, confTx);
-                nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                jobCoordinator.enqueueJob(routerId.toString(), () -> {
+                    nvpnNatManager.handleSubnetsForExternalRouter(routerId);
+                    return Collections.emptyList();
+                });
                 if (vpnInstanceIpVersionRemoved) {
                     neutronvpnUtils.updateVpnInstanceWithIpFamily(vpnId.getValue(), vpnInstanceIpVersionToRemove,
                             false);
@@ -439,6 +445,15 @@ public class NeutronPortChangeListener extends AsyncDataTreeChangeListenerBase<P
                     routerId.getValue());
             return;
         }
+        if (routerGwPort.getMacAddress() != null) {
+            jobCoordinator.enqueueJob(routerId.toString(), () -> {
+                nvpnNatManager.setExtMacForExternalRouter(routerId, routerGwPort.getMacAddress());
+                return Collections.emptyList();
+            });
+        } else {
+            LOG.warn("External Mac Address is null fo Gw Port {}", routerGwPort);
+        }
+
         gwMacResolver.sendArpRequestsToExtGateways(router);
 
         setExternalGwMac(routerGwPort, routerId);

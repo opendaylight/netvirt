@@ -460,7 +460,7 @@ public class NaptSwitchHA {
                 return true;
             }
             //checking elected switch health status
-            if (!getSwitchStatus(naptSwitch)) {
+            if (!NatUtil.getSwitchStatus(dataBroker, naptSwitch)) {
                 LOG.error("isNaptSwitchDown : Newly elected Napt switch {} for router {} is down",
                         naptSwitch, routerName);
                 return true;
@@ -620,7 +620,7 @@ public class NaptSwitchHA {
                 SessionAddress externalAddress = new SessionAddress(externalIpAddress, extportNumber);
 
                 //checking naptSwitch status before installing flows
-                if (getSwitchStatus(newNaptSwitch)) {
+                if (NatUtil.getSwitchStatus(dataBroker, newNaptSwitch)) {
                     //Install the flow in newNaptSwitch Inbound NAPT table.
                     try {
                         naptEventHandler.buildAndInstallNatFlows(newNaptSwitch, NwConstants.INBOUND_NAPT_TABLE,
@@ -687,22 +687,6 @@ public class NaptSwitchHA {
             LOG.error("getVpnIdForRouter : Exception while retrieving vpnId for router {}", routerId, ex);
         }
         return NatConstants.INVALID_ID;
-    }
-
-    public boolean getSwitchStatus(BigInteger switchId) {
-        NodeId nodeId = new NodeId("openflow:" + switchId);
-        LOG.debug("getSwitchStatus : Querying switch with dpnId {} is up/down", nodeId);
-        InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.builder(Nodes.class)
-            .child(Node.class, new NodeKey(nodeId)).build();
-        Optional<Node> nodeOptional =
-                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(dataBroker,
-                        LogicalDatastoreType.OPERATIONAL, nodeInstanceId);
-        if (nodeOptional.isPresent()) {
-            LOG.debug("getSwitchStatus : Switch {} is up", nodeId);
-            return true;
-        }
-        LOG.debug("getSwitchStatus : Switch {} is down", nodeId);
-        return false;
     }
 
     public List<BucketInfo> handleGroupInPrimarySwitch() {
