@@ -24,7 +24,6 @@ import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
-import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency.AdjacencyType;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.prefix.to._interface.vpn.ids.Prefixes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntry;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn._interface.op.data.VpnInterfaceOpDataEntryKey;
@@ -131,14 +130,9 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                  * vpnInterface.   More importantly, we also update the vpnInstanceOpData by removing this
                  * vpnInterface from it.
                  */
-                // TODO(vivek) # It is not yet clear, where we are cleaning up the prefix-to-interface
-                // TODO(vivek) # for primary adjacencies and that has to be fixed.
                 List<Prefixes> prefixToInterface = new ArrayList<>();
                 for (Adjacency adjacency : adjs.getAdjacency()) {
                     List<Prefixes> prefixToInterfaceLocal = new ArrayList<>();
-                    if (adjacency.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
-                        continue;
-                    }
                     Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
                             VpnUtil.getIpPrefix(adjacency.getIpAddress())));
@@ -223,86 +217,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     @Override
     protected void update(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry original, final VpnInterfaceOpDataEntry update) {
-        final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class,
-                        VpnInterfaceOpDataEntryKey.class);
-        final String interfaceName = key.getName();
-
-        LOG.trace("VpnInterfaceOpListener updated: original {} updated {}", original, update);
-        if (original.getVpnInstanceName().equals(update.getVpnInstanceName())) {
-            return;
-        }
-
-        jobCoordinator.enqueueJob("VPNINTERFACE-" + interfaceName,
-            () -> {
-                postProcessVpnInterfaceUpdate(identifier, original, update);
-                LOG.info("update: vpn interface {} on dpn {} vpn {} processed successfully", update.getName(),
-                          update.getDpnId(), update.getVpnInstanceName());
-                return null;
-            });
-    }
-
-    private void postProcessVpnInterfaceUpdate(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
-            VpnInterfaceOpDataEntry original, VpnInterfaceOpDataEntry update) {
-        final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class,
-                VpnInterfaceOpDataEntryKey.class);
-        String interfaceName = key.getName();
-
-        LOG.info("postProcessVpnInterfaceUpdate: interface name {} vpnName {} dpn {}", interfaceName,
-                update.getVpnInstanceName(), update.getDpnId());
-        //increment the vpn interface count in Vpn Instance Op Data
-        VpnInstanceOpDataEntry vpnInstOp = null;
-        Optional<org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.vpn.instance.to.vpn.id
-                .VpnInstance> origVpnInstance =
-            VpnUtil.read(dataBroker, LogicalDatastoreType.CONFIGURATION,
-                         VpnOperDsUtils.getVpnInstanceToVpnIdIdentifier(original.getVpnInstanceName()));
-
-        if (origVpnInstance.isPresent()) {
-            String rd = origVpnInstance.get().getVrfId();
-            vpnInstOp = VpnUtil.getVpnInstanceOpData(dataBroker, rd);
-
-            AdjacenciesOp adjs = update.getAugmentation(AdjacenciesOp.class);
-            List<Adjacency> adjList = adjs != null ? adjs.getAdjacency() : null;
-
-            if (vpnInstOp != null && adjList != null && adjList.size() > 0) {
-                for (Adjacency adjacency : adjs.getAdjacency()) {
-                    List<Prefixes> prefixToInterfaceListLocal = new ArrayList<>();
-                    if (adjacency.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
-                        continue;
-                    }
-                    Optional<Prefixes> prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                        VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                        VpnUtil.getIpPrefix(adjacency.getIpAddress())));
-                    if (prefixToInterface.isPresent()) {
-                        prefixToInterfaceListLocal.add(prefixToInterface.get());
-                    } else {
-                        for (String adj : adjacency.getNextHopIpList()) {
-                            prefixToInterface = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
-                                VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
-                                    VpnUtil.getIpPrefix(adj)));
-                            if (prefixToInterface.isPresent()) {
-                                prefixToInterfaceListLocal.add(prefixToInterface.get());
-                            }
-                        }
-                    }
-                    for (Prefixes prefix : prefixToInterfaceListLocal) {
-                        vpnFootprintService.updateVpnToDpnMapping(prefix.getDpnId(),
-                            original.getVpnInstanceName(), rd,
-                            interfaceName, null /*ipAddressSourceValuePair*/, false /* delete */);
-                    }
-                }
-            }
-            LOG.info("postProcessVpnInterfaceUpdate: Updated vpn operational data and vpn footprint"
-                    + " for interface {} on dpn {} vpn {}", interfaceName, update.getDpnId(),
-                    update.getVpnInstanceName());
-        } else {
-            LOG.error("postProcessVpnInterfaceUpdate: rd not retrievable as vpninstancetovpnid for vpn {} is absent,"
-                    + " trying rd as {}. interface {} dpn {}", update.getVpnInstanceName(), update.getVpnInstanceName(),
-                    interfaceName, update.getDpnId());
-        }
-        notifyTaskIfRequired(interfaceName);
+        LOG.info("update: interface {} vpn {}. Ignoring", original.getName(), original.getVpnInstanceName());
     }
 
     @Override
     protected void add(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier, VpnInterfaceOpDataEntry add) {
+        LOG.info("add: interface {} vpn {}. Ignoring", add.getName(), add.getVpnInstanceName());
     }
 }
