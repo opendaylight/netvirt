@@ -9,6 +9,7 @@
 package org.opendaylight.netvirt.bgpmanager.thrift.server;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
+import java.net.InetSocketAddress;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -35,7 +36,7 @@ import org.slf4j.LoggerFactory;
 public class BgpThriftService {
     private static final Logger LOG = LoggerFactory.getLogger(BgpThriftService.class);
 
-    private final int ourPort;
+    private final InetSocketAddress inetSocketAddress;
     private final IBgpManager bgpManager;
     private final BgpConfigurationManager bgpConfigManager;
     private volatile TServer server;
@@ -44,8 +45,9 @@ public class BgpThriftService {
     private static ExecutorService threadPool = Executors.newFixedThreadPool(1, thriftServerThreadFactory);
     private volatile Future ft;
 
-    public BgpThriftService(int ourPort, IBgpManager bm, BgpConfigurationManager bgpConfigManager) {
-        this.ourPort = ourPort;
+    public BgpThriftService(InetSocketAddress inetSocketAddress, IBgpManager bm,
+                            BgpConfigurationManager bgpConfigManager) {
+        this.inetSocketAddress = inetSocketAddress;
         bgpManager = bm;
         this.bgpConfigManager = bgpConfigManager;
     }
@@ -74,7 +76,7 @@ public class BgpThriftService {
             try {
                 BgpUpdater.Processor processor = new BgpUpdater.Processor(this);
 
-                TNonblockingServerTransport trans = new TNonblockingServerSocket(ourPort);
+                TNonblockingServerTransport trans = new TNonblockingServerSocket(inetSocketAddress);
                 TThreadedSelectorServer.Args args = new TThreadedSelectorServer.Args(trans);
                 args.transportFactory(new TFramedTransport.Factory());
                 args.protocolFactory(new TBinaryProtocol.Factory());
@@ -196,6 +198,10 @@ public class BgpThriftService {
         ft = threadPool.submit(new BgpUpdateServer());
     }
 
+    public boolean isUpdateServerStarted() {
+        return ((ft == null) ? false : true);
+    }
+
     public synchronized void stop() {
         if (server != null) {
             server.stop();
@@ -204,5 +210,6 @@ public class BgpThriftService {
         if (ft != null && !ft.isDone()) {
             ft.cancel(true);
         }
+        ft = null;
     }
 }
