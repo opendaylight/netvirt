@@ -20,8 +20,6 @@ import org.opendaylight.genius.infra.ManagedNewTransactionRunner;
 import org.opendaylight.genius.infra.ManagedNewTransactionRunnerImpl;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.interfaces.IMdsalApiManager;
-import org.opendaylight.genius.srm.RecoverableListener;
-import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
 import org.opendaylight.netvirt.aclservice.utils.AclConstants;
 import org.opendaylight.netvirt.aclservice.utils.AclNodeDefaultFlowsTxBuilder;
@@ -41,8 +39,7 @@ import org.slf4j.LoggerFactory;
  * during when node is discovered.
  */
 @Singleton
-public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, AclNodeListener>
-        implements RecoverableListener {
+public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapableNode, AclNodeListener> {
 
     private static final Logger LOG = LoggerFactory.getLogger(AclNodeListener.class);
 
@@ -57,8 +54,7 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
 
     @Inject
     public AclNodeListener(final IMdsalApiManager mdsalManager, DataBroker dataBroker, AclserviceConfig config,
-            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator,
-            ServiceRecoveryRegistry serviceRecoveryRegistry) {
+            AclServiceUtils aclServiceUtils, JobCoordinator jobCoordinator) {
         super(FlowCapableNode.class, AclNodeListener.class);
 
         this.mdsalManager = mdsalManager;
@@ -67,7 +63,6 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         this.config = config;
         this.aclServiceUtils = aclServiceUtils;
         this.jobCoordinator = jobCoordinator;
-        serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
     @Override
@@ -77,20 +72,9 @@ public class AclNodeListener extends AsyncDataTreeChangeListenerBase<FlowCapable
         if (config != null) {
             this.securityGroupMode = config.getSecurityGroupMode();
         }
-        registerListener();
-        LOG.info("AclserviceConfig: {}", this.config);
-    }
-
-    @Override
-    public void registerListener() {
         this.aclServiceUtils.createRemoteAclIdPool();
         registerListener(LogicalDatastoreType.OPERATIONAL, dataBroker);
-    }
-
-    @Override
-    public  void deregisterListener() {
-        super.deregisterListener();
-        this.aclServiceUtils.deleteRemoteAclIdPool();
+        LOG.info("AclserviceConfig: {}", this.config);
     }
 
     @Override
