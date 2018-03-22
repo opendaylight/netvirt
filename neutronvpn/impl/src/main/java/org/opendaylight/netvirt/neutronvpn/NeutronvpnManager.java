@@ -2334,17 +2334,17 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         LOG.info("associateNetworksToVpn: update VPN {} with networks list: {}", vpnId.getValue(),
                  passedNwList.toString());
-        updateVpnMaps(vpnId, null, null, null, new ArrayList<Uuid>(passedNwList));
+        updateVpnMaps(vpnId, null, null, null, new ArrayList<>(passedNwList));
         return failedNwList;
     }
 
     private boolean associateExtNetworkToVpn(@Nonnull Uuid vpnId, @Nonnull Network extNet) {
+        if (!addExternalNetworkToVpn(extNet, vpnId)) {
+            return false;
+        }
         VpnInstanceOpDataEntry vpnOpDataEntry = neutronvpnUtils.getVpnInstanceOpDataEntryFromVpnId(vpnId.getValue());
         if (vpnOpDataEntry == null) {
             LOG.error("associateExtNetworkToVpn: can not find VpnOpDataEntry for VPN {}", vpnId.getValue());
-            return false;
-        }
-        if (!addExternalNetworkToVpn(extNet, vpnId)) {
             return false;
         }
         if (!vpnOpDataEntry.getBgpvpnType().equals(BgpvpnType.BGPVPNInternet)) {
@@ -2440,7 +2440,7 @@ public class NeutronvpnManager implements NeutronvpnService, AutoCloseable, Even
         }
         LOG.info("dissociateNetworksFromVpn: Withdraw networks list {} from VPN {}", networks.toString(),
                  vpnId.getValue());
-        clearFromVpnMaps(vpnId, null, new ArrayList<Uuid>(passedNwList));
+        clearFromVpnMaps(vpnId, null, new ArrayList<>(passedNwList));
         return failedNwList;
     }
 
