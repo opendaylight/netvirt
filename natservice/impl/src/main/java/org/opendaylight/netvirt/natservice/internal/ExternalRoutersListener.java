@@ -271,28 +271,26 @@ public class ExternalRoutersListener extends AsyncDataTreeChangeListenerBase<Rou
         NatUtil.createRouterIdsConfigDS(dataBroker, routerId, routerName);
         Uuid bgpVpnUuid = NatUtil.getVpnForRouter(dataBroker, routerName);
         try {
-            coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.key(),
-                () -> Collections.singletonList(
-                    txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
-                        LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
-                        long bgpVpnId = NatConstants.INVALID_ID;
-                        if (bgpVpnUuid != null) {
-                            bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
-                        }
-                        addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, true, confTx);
-                        // Allocate Primary Napt Switch for this router
-                        BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName);
-                        if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
-                            if (!routers.isEnableSnat()) {
-                                LOG.info("add : SNAT is disabled for external router {} ", routerName);
-                                /* If SNAT is disabled on ext-router though L3_FIB_TABLE(21) -> PSNAT_TABLE(26) flow
-                                 * is required for DNAT. Hence writeFlowInvTx object submit is required.
-                                 */
-                                return;
+            if (routers.isEnableSnat()) {
+                coordinator.enqueueJob(NatConstants.NAT_DJC_PREFIX + routers.key(),
+                    () -> Collections.singletonList(
+                        txRunner.callWithNewReadWriteTransactionAndSubmit(CONFIGURATION, confTx -> {
+                            LOG.info("add : Installing NAT default route on all dpns part of router {}", routerName);
+                            long bgpVpnId = NatConstants.INVALID_ID;
+                            if (bgpVpnUuid != null) {
+                                bgpVpnId = NatUtil.getVpnId(dataBroker, bgpVpnUuid.getValue());
                             }
-                            handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, confTx);
+                            addOrDelDefFibRouteToSNAT(routerName, routerId, bgpVpnId, bgpVpnUuid, true, confTx);
+                            // Allocate Primary Napt Switch for this router
+                            BigInteger primarySwitchId = getPrimaryNaptSwitch(routerName);
+                            if (primarySwitchId != null && !primarySwitchId.equals(BigInteger.ZERO)) {
+                                handleEnableSnat(routers, routerId, primarySwitchId, bgpVpnId, confTx);
+                            }
                         }
-                    })), NatConstants.NAT_DJC_MAX_RETRIES);
+                    )), NatConstants.NAT_DJC_MAX_RETRIES);
+            } else {
+                LOG.info("add : SNAT is disabled for external router {} ", routerName);
+            }
         } catch (Exception ex) {
             LOG.error("add : Exception while Installing NAT flows on all dpns as part of router {}",
                     routerName, ex);
