@@ -103,13 +103,6 @@ and is available at http://www.eclipse.org/legal/epl-v10.html
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
         <artifactId>findbugs-maven-plugin</artifactId>
-        <dependencies>
-          <dependency>
-            <groupId>org.opendaylight.odlparent</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>3.0.3-SNAPSHOT</version>
-          </dependency>
-        </dependencies>
         <configuration>
           <plugins>
             <plugin>
