@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "63de3704_5286d7aa",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-03-22T13:52:38Z",
+      "side": 0,
+      "message": "was this added by IPv6 folks for certain reason?",
+      "revId": "47b2ebcde576ea366577b0480b316a6473b32870",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
