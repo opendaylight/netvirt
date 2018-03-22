@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a244ff26_a2601e05",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnFootprintService.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 355,
+      "author": {
+        "id": 6545
+      },
+      "writtenOn": "2018-03-22T15:38:45Z",
+      "side": 1,
+      "message": "Topology\n\nTwo compute nodes, dpnid: 8796751999625, 8796748560798\nPorts on 8796751999625:\n+ 192.168.56.18: router external GW interface \n+ 192.168.56.13: FIP for VM1\nPorts on 8796748560798:\n+ 192.168.56.17: FIP for VM2\n\nAs per explanation given in NETVIRT-1080, VM1(Compute1-8796751999625 elected as NAPT-Switch for SNAT translation), VM2(compute2-8796748560798) and has FIP association. When this VM initiates ping to PNF, the it undergoes DNAT tranlation(in compute2) and hit table\u003d21-\u003egoto_table:22(in compute2) for PNF discovery. \n\nNow, when FIP is detached and ping is initiated, this packet will be forwarded to Compute-1(for SNAT translation as VM2 is part of same Router). If Controller-Based SNAT used, then this ICMP packet will be dropped by CSC as it only support TCP/UDP.\n\nBut, from logs, I see conntrack-based SNAT used and ICMP is supported. So, Packet will under-go SNAT translation and and re-submitted to table\u003d21 where we have Subnet-route flow(on compute1 - 8796751999625) for PNF discovery.\n\nPlease verify packet from Compute2 to Compute1 reached and has Conntrack SNAT translation happened and submitted to table\u003d21 for external-subnet route handling.",
+      "revId": "9f6f325dce0858c0917613f8b3ea95c687ea3c12",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
