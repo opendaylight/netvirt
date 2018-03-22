@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "00a2f795_697eb1dc",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 7921
+      },
+      "writtenOn": "2018-03-22T16:57:44Z",
+      "side": 1,
+      "message": "also please remove these TODOs, as from the code below it looks we do earnest attempt to always cleanup prefix-to-interface",
+      "revId": "0127904f8ba1a9acf0325a3155bb63a5be5a289b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
+    }
+  ]
+}
