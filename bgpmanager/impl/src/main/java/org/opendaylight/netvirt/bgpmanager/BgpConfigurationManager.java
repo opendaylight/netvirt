@@ -8,12 +8,14 @@
 package org.opendaylight.netvirt.bgpmanager;
 
 import com.google.common.base.Optional;
+import com.google.common.net.InetAddresses;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import io.netty.util.concurrent.GlobalEventExecutor;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -178,7 +180,7 @@ public class BgpConfigurationManager {
     private volatile Bgp config;
     private final BgpRouter bgpRouter;
     private final BgpSyncHandle bgpSyncHandle = new BgpSyncHandle();
-    private BgpThriftService updateServer;
+    private volatile BgpThriftService bgpThriftService = null;
 
     private final CountDownLatch initer = new CountDownLatch(1);
 
@@ -243,7 +245,7 @@ public class BgpConfigurationManager {
         String updatePort = getProperty(UPDATE_PORT, DEF_UPORT);
         hostStartup = getProperty(CONFIG_HOST, DEF_CHOST);
         portStartup = getProperty(CONFIG_PORT, DEF_CPORT);
-        LOG.info("UpdateServer at localhost:{}, ConfigServer at {}:{}", updatePort, hostStartup, portStartup);
+        LOG.info("ConfigServer at {}:{}", hostStartup, portStartup);
         VtyshCli.setHostAddr(hostStartup);
         ClearBgpCli.setHostAddr(hostStartup);
         bgpRouter = BgpRouter.newInstance(this::getConfig, this::isBGPEntityOwner);
@@ -261,8 +263,19 @@ public class BgpConfigurationManager {
             final WaitingServiceTracker<IBgpManager> tracker = WaitingServiceTracker.create(
                     IBgpManager.class, bundleContext);
             bgpManager = tracker.waitForService(WaitingServiceTracker.FIVE_MINUTES);
-            updateServer = new BgpThriftService(Integer.parseInt(updatePort), bgpManager, this);
-            updateServer.start();
+            if (InetAddresses.isInetAddress(getBgpSdncMipIp())) {
+                InetSocketAddress bgpThriftServerSocketAddr = new InetSocketAddress(getBgpSdncMipIp(),
+                        Integer.parseInt(updatePort));
+                bgpThriftService = new BgpThriftService(bgpThriftServerSocketAddr, bgpManager, this);
+                if (isBGPEntityOwner()) {
+                    //I am EoS owner of BGP, opening bgp thrift UPDATE-SERVER port.
+                    LOG.info("BGP Configuration manager initialized: UPDATE-SERVER started");
+                    bgpThriftService.start();
+                }
+                LOG.info("UPDATE server started :ip:port={}:{}", getBgpSdncMipIp(), updatePort);
+            } else {
+                LOG.error("Failed to init UPDATE server invalid ip:port={}:{}", getBgpSdncMipIp(), updatePort);
+            }
             LOG.info("BgpConfigurationManager initialized. IBgpManager={}", bgpManager);
         });
     }
@@ -338,8 +351,14 @@ public class BgpConfigurationManager {
     public void close() {
         executor.shutdown();
 
-        if (updateServer != null) {
-            updateServer.stop();
+        if (bgpThriftService != null) {
+            bgpThriftService.stop();
+            bgpThriftService = null;
+        }
+
+        if (isBgpConnected()) {
+            //disconnect the CONFIG SERVER port (which was )opened during I was Owner
+            bgpRouter.disconnect();
         }
 
         if (candidateRegistration != null) {
@@ -382,11 +401,25 @@ public class BgpConfigurationManager {
 
             if (ownershipChange.getState() == EntityOwnershipChangeState.LOCAL_OWNERSHIP_GRANTED) {
                 LOG.trace("This PL is the Owner");
-                activateMIP();
+                if (bgpThriftService != null) {
+                    //opening UPDATE-SERVER port.
+                    bgpThriftService.start();
+                } else {
+                    LOG.error("I am the owner of BGP entity, but bgpThriftService is not initialized yet");
+                }
                 bgpRestarted();
             } else {
                 LOG.debug("Not owner: hasOwner: {}, isOwner: {}", ownershipChange.getState().hasOwner(),
                         ownershipChange.getState().isOwner());
+                if ((bgpThriftService != null) && (bgpThriftService.isBgpThriftServiceStarted())) {
+                    //close the bgp Thrift Update-SERVER port opened on non-Entity Owner
+                    bgpThriftService.stop();
+                    bgpThriftService = null;
+                }
+                if (isBgpConnected()) {
+                    //disconnect the CONFIG SERVER port (which was )opened during I was Owner
+                    bgpRouter.disconnect();
+                }
             }
         });
     }
