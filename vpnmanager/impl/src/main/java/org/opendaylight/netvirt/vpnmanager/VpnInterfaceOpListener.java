@@ -136,9 +136,6 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
                 List<Prefixes> prefixToInterface = new ArrayList<>();
                 for (Adjacency adjacency : adjs.getAdjacency()) {
                     List<Prefixes> prefixToInterfaceLocal = new ArrayList<>();
-                    if (adjacency.getAdjacencyType() != AdjacencyType.PrimaryAdjacency) {
-                        continue;
-                    }
                     Optional<Prefixes> prefix = VpnUtil.read(dataBroker, LogicalDatastoreType.OPERATIONAL,
                         VpnUtil.getPrefixToInterfaceIdentifier(vpnInstOp.getVpnId(),
                             VpnUtil.getIpPrefix(adjacency.getIpAddress())));
