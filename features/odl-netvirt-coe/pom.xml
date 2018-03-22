@@ -45,5 +45,10 @@
             <type>xml</type>
             <classifier>features</classifier>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>coe-impl</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 </project>
