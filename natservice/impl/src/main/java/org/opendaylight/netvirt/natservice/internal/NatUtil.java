@@ -42,6 +42,7 @@ import org.opendaylight.genius.interfacemanager.interfaces.IInterfaceManager;
 import org.opendaylight.genius.mdsalutil.ActionInfo;
 import org.opendaylight.genius.mdsalutil.FlowEntity;
 import org.opendaylight.genius.mdsalutil.FlowEntityBuilder;
+import org.opendaylight.genius.mdsalutil.GroupEntity;
 import org.opendaylight.genius.mdsalutil.InstructionInfo;
 import org.opendaylight.genius.mdsalutil.MDSALUtil;
 import org.opendaylight.genius.mdsalutil.MatchInfo;
@@ -104,8 +105,13 @@ import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.op.rev160406.dpn
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelInputBuilder;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.GetEgressActionsForTunnelOutput;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.genius.itm.rpcs.rev160406.ItmRpcService;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.group.types.rev131018.GroupTypes;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeConnectorId;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanDpnInterfaces;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.NodeId;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.Nodes;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.Node;
+import org.opendaylight.yang.gen.v1.urn.opendaylight.inventory.rev130819.nodes.NodeKey;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.ElanInstances;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesList;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.elan.rev150602.elan.dpn.interfaces.ElanDpnInterfacesListKey;
@@ -471,10 +477,21 @@ public final class NatUtil {
         return rtrNaptSw;
     }
 
+    public static Optional<NaptSwitches> getAllPrimaryNaptSwitches(DataBroker broker) {
+        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                LogicalDatastoreType.CONFIGURATION, getNaptSwitchesIdentifier());
+    }
+
     public static String getRouterName(DataBroker broker, Long routerId) {
         InstanceIdentifier<RouterIds> id = buildRouterIdentifier(routerId);
-        return SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
-                LogicalDatastoreType.CONFIGURATION, id).toJavaUtil().map(RouterIds::getRouterName).orElse(null);
+        String routerName = SingleTransactionDataBroker
+                .syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker, LogicalDatastoreType.CONFIGURATION,
+                        id)
+                .toJavaUtil().map(RouterIds::getRouterName).orElse(null);
+        if (routerName == null) {
+            routerName = getVpnInstanceFromVpnIdentifier(broker, routerId);
+        }
+        return routerName;
     }
 
     static InstanceIdentifier<VpnInstanceOpDataEntry> getVpnInstanceOpDataIdentifier(String vrfId) {
@@ -2017,6 +2034,105 @@ public final class NatUtil {
         }), LOG, "Error installing router gateway flows");
     }
 
+    @SuppressWarnings("checkstyle:IllegalCatch")
+    public static void removeSNATFromDPN(DataBroker dataBroker, IMdsalApiManager mdsalManager,
+            IdManagerService idManager, NaptSwitchHA naptSwitchHA, BigInteger dpnId,
+            String routerName, long routerId, long routerVpnId,
+            ProviderTypes extNwProvType, WriteTransaction removeFlowInvTx) {
+        //irrespective of naptswitch or non-naptswitch, SNAT default miss entry need to be removed
+        //remove miss entry to NAPT switch
+        //if naptswitch elect new switch and install Snat flows and remove those flows in oldnaptswitch
+
+        Collection<String> externalIpCache = NatUtil.getExternalIpsForRouter(dataBroker, routerId);
+        if (extNwProvType == null) {
+            return;
+        }
+        //Get the external IP labels other than VXLAN provider type. Since label is not applicable for VXLAN
+        Map<String, Long> externalIpLabel;
+        if (extNwProvType == ProviderTypes.VXLAN) {
+            externalIpLabel = null;
+        } else {
+            externalIpLabel = NatUtil.getExternalIpsLabelForRouter(dataBroker, routerId);
+        }
+        BigInteger naptSwitch = NatUtil.getPrimaryNaptfromRouterName(dataBroker, routerName);
+        if (naptSwitch == null || naptSwitch.equals(BigInteger.ZERO)) {
+            LOG.error("removeSNATFromDPN : No naptSwitch is selected for router {}", routerName);
+            return;
+        }
+        try {
+            boolean naptStatus =
+                naptSwitchHA.isNaptSwitchDown(routerName, routerId, dpnId, naptSwitch, routerVpnId,
+                        externalIpCache, removeFlowInvTx);
+            if (!naptStatus) {
+                LOG.debug("removeSNATFromDPN: Switch with DpnId {} is not naptSwitch for router {}",
+                    dpnId, routerName);
+                long groupId = NatUtil.createGroupId(NatUtil.getGroupIdKey(routerName), idManager);
+                FlowEntity flowEntity = null;
+                try {
+                    flowEntity = naptSwitchHA.buildSnatFlowEntity(dpnId, routerName, groupId, routerVpnId,
+                        NatConstants.DEL_FLOW);
+                    if (flowEntity == null) {
+                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router:{} "
+                                + "with dpnId:{} groupId:{}", routerName, dpnId, groupId);
+                        return;
+                    }
+                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity {}", flowEntity);
+                    mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+
+                } catch (Exception ex) {
+                    LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
+                        flowEntity, ex);
+                    return;
+                }
+                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
+                    dpnId, routerName);
+
+                //remove group
+                GroupEntity groupEntity = null;
+                try {
+                    groupEntity = MDSALUtil.buildGroupEntity(dpnId, groupId, routerName,
+                        GroupTypes.GroupAll, Collections.emptyList() /*listBucketInfo*/);
+                    LOG.info("removeSNATFromDPN : Removing NAPT GroupEntity:{}", groupEntity);
+                    mdsalManager.removeGroup(groupEntity);
+                } catch (Exception ex) {
+                    LOG.error("removeSNATFromDPN : Failed to remove group entity {}", groupEntity, ex);
+                    return;
+                }
+                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routerName {}",
+                    dpnId, routerName);
+            } else {
+                naptSwitchHA.removeSnatFlowsInOldNaptSwitch(routerName, routerId, naptSwitch,
+                        externalIpLabel, removeFlowInvTx);
+                //remove table 26 flow ppointing to table46
+                FlowEntity flowEntity = null;
+                try {
+                    flowEntity = naptSwitchHA.buildSnatFlowEntityForNaptSwitch(dpnId, routerName, routerVpnId,
+                        NatConstants.DEL_FLOW);
+                    if (flowEntity == null) {
+                        LOG.error("removeSNATFromDPN : Failed to populate flowentity for router {} with dpnId {}",
+                                routerName, dpnId);
+                        return;
+                    }
+                    LOG.debug("removeSNATFromDPN : Removing default SNAT miss entry flow entity for router {} with "
+                        + "dpnId {} in napt switch {}", routerName, dpnId, naptSwitch);
+                    mdsalManager.removeFlowToTx(flowEntity, removeFlowInvTx);
+
+                } catch (Exception ex) {
+                    LOG.error("removeSNATFromDPN : Failed to remove default SNAT miss entry flow entity {}",
+                        flowEntity, ex);
+                    return;
+                }
+                LOG.debug("removeSNATFromDPN : Removed default SNAT miss entry flow for dpnID {} with routername {}",
+                    dpnId, routerName);
+
+                //best effort to check IntExt model
+                naptSwitchHA.bestEffortDeletion(routerId, routerName, externalIpLabel, removeFlowInvTx);
+            }
+        } catch (Exception ex) {
+            LOG.error("removeSNATFromDPN : Exception while handling naptSwitch down for router {}", routerName, ex);
+        }
+    }
+
     public static CheckedFuture<Void, TransactionCommitFailedException> waitForTransactionToComplete(
             WriteTransaction tx) {
         CheckedFuture<Void, TransactionCommitFailedException> futures = tx.submit();
@@ -2186,5 +2302,21 @@ public final class NatUtil {
         } catch (InterruptedException | ExecutionException e) {
             LOG.error("createGroupIdPool : Failed to create PortPool for NAPT Service", e);
         }
+    }
+
+    public static boolean getSwitchStatus(DataBroker broker, BigInteger switchId) {
+        NodeId nodeId = new NodeId("openflow:" + switchId);
+        LOG.debug("getSwitchStatus : Querying switch with dpnId {} is up/down", nodeId);
+        InstanceIdentifier<Node> nodeInstanceId = InstanceIdentifier.builder(Nodes.class)
+            .child(Node.class, new NodeKey(nodeId)).build();
+        Optional<Node> nodeOptional =
+                SingleTransactionDataBroker.syncReadOptionalAndTreatReadFailedExceptionAsAbsentOptional(broker,
+                        LogicalDatastoreType.OPERATIONAL, nodeInstanceId);
+        if (nodeOptional.isPresent()) {
+            LOG.debug("getSwitchStatus : Switch {} is up", nodeId);
+            return true;
+        }
+        LOG.debug("getSwitchStatus : Switch {} is down", nodeId);
+        return false;
     }
 }
