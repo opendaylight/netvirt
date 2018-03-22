@@ -14,6 +14,8 @@ import org.opendaylight.controller.md.sal.binding.api.ClusteredDataTreeChangeLis
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
 import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.srm.RecoverableListener;
+import org.opendaylight.genius.srm.ServiceRecoveryRegistry;
 import org.opendaylight.netvirt.aclservice.api.AclInterfaceCache;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager;
 import org.opendaylight.netvirt.aclservice.api.AclServiceManager.Action;
@@ -29,7 +31,7 @@ import org.slf4j.LoggerFactory;
 
 @Singleton
 public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<ElanInterface, AclElanInterfaceListener>
-        implements ClusteredDataTreeChangeListener<ElanInterface> {
+        implements ClusteredDataTreeChangeListener<ElanInterface>, RecoverableListener {
     private static final Logger LOG = LoggerFactory.getLogger(AclElanInterfaceListener.class);
 
     private final AclServiceManager aclServiceManager;
@@ -39,18 +41,25 @@ public class AclElanInterfaceListener extends AsyncDataTreeChangeListenerBase<El
 
     @Inject
     public AclElanInterfaceListener(AclServiceManager aclServiceManager, AclClusterUtil aclClusterUtil,
-            DataBroker dataBroker, AclInterfaceCache aclInterfaceCache) {
+            DataBroker dataBroker, AclInterfaceCache aclInterfaceCache,
+            ServiceRecoveryRegistry serviceRecoveryRegistry) {
         super(ElanInterface.class, AclElanInterfaceListener.class);
         this.aclServiceManager = aclServiceManager;
         this.aclClusterUtil = aclClusterUtil;
         this.dataBroker = dataBroker;
         this.aclInterfaceCache = aclInterfaceCache;
+        serviceRecoveryRegistry.addRecoverableListener(AclServiceUtils.getRecoverServiceRegistryKey(), this);
     }
 
     @Override
     @PostConstruct
     public void init() {
         LOG.info("{} start", getClass().getSimpleName());
+        registerListener();
+    }
+
+    @Override
+    public void registerListener() {
         registerListener(LogicalDatastoreType.CONFIGURATION, dataBroker);
     }
 
