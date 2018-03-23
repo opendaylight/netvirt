@@ -74,7 +74,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv4Destination("10.0.0.1", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.EGRESS_ACL_TABLE
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -153,7 +153,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv4Source("10.0.0.1", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -210,7 +210,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv4Destination("10.0.0.2", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.EGRESS_ACL_TABLE
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
              ],
              new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -227,7 +227,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                      new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                  ]
                  priority = 100
-                 tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
+                 tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
              ],
              new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -267,7 +267,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv4Source("10.0.0.2", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -323,7 +323,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv4Destination("10.0.0.3", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.EGRESS_ACL_TABLE
+                tableId = NwConstants.EGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -340,7 +340,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = 100
-                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
+                tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -379,7 +379,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchIpv4Source("10.0.0.3", "32")
                 ]
                 priority = 61010
-                tableId = NwConstants.INGRESS_ACL_TABLE
+                tableId = NwConstants.INGRESS_ACL_ANTI_SPOOFING_TABLE
             ],
             new FlowEntityBuilder >> [
                 dpnId = 123bi
@@ -947,7 +947,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new NxMatchRegister(NxmNxReg6, 252672L, 268435200L)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = NwConstants.EGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
+                tableId = NwConstants.EGRESS_ACL_CONNTRACK_SENDER_TABLE
             ]
         ]
     }
@@ -1033,7 +1033,7 @@ class FlowEntryObjectsStatefulIPv6 extends FlowEntryObjectsStateful {
                     new MatchMetadata(1085217976614912bi, MetaDataUtil.METADATA_MASK_LPORT_TAG)
                 ]
                 priority = IdHelper.getId(flowId2)
-                tableId = NwConstants.INGRESS_ACL_STATEFUL_APPLY_CHANGE_EXIST_TRAFFIC_TABLE
+                tableId = NwConstants.INGRESS_ACL_CONNTRACK_SENDER_TABLE
             ]
         ]
     }
