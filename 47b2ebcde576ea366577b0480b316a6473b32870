@@ -16,6 +16,24 @@
       "revId": "47b2ebcde576ea366577b0480b316a6473b32870",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ad1e005_31d3119c",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-03-23T10:47:21Z",
+      "side": 0,
+      "message": "The for loop alongwith this if condition, was added to handle multiple primary adjacencies for dual-stack cases when both belong to the same vpn.\nHowever, this if condition will result to failure in cleaning up of the data-stores, if a non-primary adjacency is the last to be removed from the interface. So, this condition is not correct.",
+      "parentUuid": "63de3704_5286d7aa",
+      "revId": "47b2ebcde576ea366577b0480b316a6473b32870",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }

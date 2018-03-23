@@ -16,6 +16,24 @@
       "revId": "0127904f8ba1a9acf0325a3155bb63a5be5a289b",
       "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "aeae05a7_a37d1705",
+        "filename": "vpnmanager/impl/src/main/java/org/opendaylight/netvirt/vpnmanager/VpnInterfaceOpListener.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 5871
+      },
+      "writtenOn": "2018-03-23T10:47:21Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "00a2f795_697eb1dc",
+      "revId": "0127904f8ba1a9acf0325a3155bb63a5be5a289b",
+      "serverId": "7fc14799-209e-464c-9743-7a06c2c21a81",
+      "unresolved": false
     }
   ]
 }
