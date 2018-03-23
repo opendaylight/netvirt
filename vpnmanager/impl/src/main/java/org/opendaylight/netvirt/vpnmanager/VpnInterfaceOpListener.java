@@ -19,8 +19,9 @@ import javax.inject.Singleton;
 import org.opendaylight.controller.md.sal.binding.api.DataBroker;
 import org.opendaylight.controller.md.sal.binding.api.WriteTransaction;
 import org.opendaylight.controller.md.sal.common.api.data.LogicalDatastoreType;
-import org.opendaylight.genius.datastoreutils.AsyncDataTreeChangeListenerBase;
+import org.opendaylight.genius.datastoreutils.AsyncClusteredDataTreeChangeListenerBase;
 import org.opendaylight.infrautils.jobcoordinator.JobCoordinator;
+import org.opendaylight.netvirt.vpnmanager.api.IVpnClusterOwnershipDriver;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.AdjacenciesOp;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.VpnInterfaceOpData;
 import org.opendaylight.yang.gen.v1.urn.opendaylight.netvirt.l3vpn.rev130911.adjacency.list.Adjacency;
@@ -35,12 +36,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Singleton
-public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnInterfaceOpDataEntry,
+public class VpnInterfaceOpListener extends AsyncClusteredDataTreeChangeListenerBase<VpnInterfaceOpDataEntry,
                                                                      VpnInterfaceOpListener> {
     private static final Logger LOG = LoggerFactory.getLogger(VpnInterfaceOpListener.class);
     private final DataBroker dataBroker;
     private final VpnInterfaceManager vpnInterfaceManager;
     private final VpnFootprintService vpnFootprintService;
+    private final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver;
     private final JobCoordinator jobCoordinator;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -51,11 +53,13 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
 
     @Inject
     public VpnInterfaceOpListener(final DataBroker dataBroker, final VpnInterfaceManager vpnInterfaceManager,
-        final VpnFootprintService vpnFootprintService, final JobCoordinator jobCoordinator) {
+        final VpnFootprintService vpnFootprintService, final IVpnClusterOwnershipDriver vpnClusterOwnershipDriver,
+                                  final JobCoordinator jobCoordinator) {
         super(VpnInterfaceOpDataEntry.class, VpnInterfaceOpListener.class);
         this.dataBroker = dataBroker;
         this.vpnInterfaceManager = vpnInterfaceManager;
         this.vpnFootprintService = vpnFootprintService;
+        this.vpnClusterOwnershipDriver = vpnClusterOwnershipDriver;
         this.jobCoordinator = jobCoordinator;
     }
 
@@ -81,6 +85,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     @Override
     protected void remove(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry del) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class,
                 VpnInterfaceOpDataEntryKey.class);
         final String interfaceName = key.getName();
@@ -223,6 +232,11 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
     @Override
     protected void update(final InstanceIdentifier<VpnInterfaceOpDataEntry> identifier,
             final VpnInterfaceOpDataEntry original, final VpnInterfaceOpDataEntry update) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
         final VpnInterfaceOpDataEntryKey key = identifier.firstKeyOf(VpnInterfaceOpDataEntry.class,
                         VpnInterfaceOpDataEntryKey.class);
         final String interfaceName = key.getName();
@@ -304,5 +318,10 @@ public class VpnInterfaceOpListener extends AsyncDataTreeChangeListenerBase<VpnI
 
     @Override
     protected void add(InstanceIdentifier<VpnInterfaceOpDataEntry> identifier, VpnInterfaceOpDataEntry add) {
+        if (!vpnClusterOwnershipDriver.amIOwner()) {
+            // Am not the current owner for L3VPN service, don't bother
+            LOG.trace("I am not the owner");
+            return;
+        }
     }
 }
